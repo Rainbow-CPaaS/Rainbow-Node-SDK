@@ -4930,7 +4930,7 @@ Request Method: PUT
     /**
      * @method renameDevicesTags
      * @param {string} tag 	tag to rename.
-     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. <br>
      * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
      * @param {string} newTagName New tag name. (Body Parameters) 
      * @description
@@ -4972,7 +4972,7 @@ Request Method: PUT
     /**
      * @method deleteDevicesTags
      * @param {string} tag 	tag to rename.
-     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. <br>
      * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
      * @description
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
@@ -5010,7 +5010,7 @@ Request Method: PUT
 
     /**
      * @method getstatsTags
-     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  <br>
      * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
      * @description
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
@@ -6852,7 +6852,7 @@ Request Method: PUT
     //region Rainbow Voice
     
     //region Rainbow Voice CLI Options
-    
+
     retrieveAllAvailableCallLineIdentifications () {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options 
         let that = this;

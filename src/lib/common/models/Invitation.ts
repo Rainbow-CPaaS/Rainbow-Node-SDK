@@ -12,7 +12,7 @@ import {publicDecrypt} from "crypto";
  * @name Invitation
  * @public
  * @description
- *      This class is used to represent an invitation received or sent by/to user <br/>
+ *      This class is used to represent an invitation received or sent by/to user <br>
  */
 class Invitation {
     public id: any;

@@ -68,7 +68,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
  * @property {number} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
  * @property {number} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
- * @property {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
+ * @property {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
  *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
@@ -340,7 +340,7 @@ class NodeSDK {
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
      * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
-     * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
+     * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
      *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
      *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
@@ -382,12 +382,12 @@ class NodeSDK {
     constructor(options : Object) {
         /*
              *       @ deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
-     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.</br>
-     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.</br>
-     *       "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")</br>
-     *                          DataStoreType.NoStore Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
-     *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.</br>
-     *                          DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
+     *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
+     *       "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")<br>
+     *                          DataStoreType.NoStore Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.<br>
+     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
 
          */
         /* process.on("uncaughtException", (err) => {
@@ -426,18 +426,18 @@ class NodeSDK {
      * @public
      * @method start
      * @instance
-     * @param {String} token a valid token to login without login/password. </br>
-     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br>
-     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br>
-     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. </br>
-     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. </br>
-     *      It is recommended to renew the token upon the arrival of this event. </br>
+     * @param {String} token a valid token to login without login/password. <br>
+     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : <br>
+     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. <br>
+     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. <br>
+     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. <br>
+     *      It is recommended to renew the token upon the arrival of this event. <br>
      * @description
-     *    Start the SDK </br>
-     *    Note :</br>
-     *    The token must be empty to signin with credentials.</br>
-     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)</br>
-     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example </br>
+     *    Start the SDK <br>
+     *    Note :<br>
+     *    The token must be empty to signin with credentials.<br>
+     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)<br>
+     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
      * @memberof NodeSDK
      */
     start(token) {
@@ -908,19 +908,19 @@ class NodeSDK {
      * @method getConnectionStatus
      * @instance
      * @description
-     *    Get connections status of each low layer services, and also the full SDK state. </br>
-     * </br>
-     * { </br>
-     * restStatus: boolean, The status of the REST connection authentication to rainbow server. </br>
-     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server. </br>
-     * s2sStatus: boolean, The status of the S2S Connection to rainbow server. </br>
-     * state: SDKSTATUSENUM The state of the SDK. </br>
-     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value. </br>
-     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue. </br>
-     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it. </br>
-     * maxSimultaneousRequests : number, the number of request which can be launch at a same time. </br>
-     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  </br>
-     * } </br>
+     *    Get connections status of each low layer services, and also the full SDK state. <br>
+     * <br>
+     * { <br>
+     * restStatus: boolean, The status of the REST connection authentication to rainbow server. <br>
+     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server. <br>
+     * s2sStatus: boolean, The status of the S2S Connection to rainbow server. <br>
+     * state: SDKSTATUSENUM The state of the SDK. <br>
+     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value. <br>
+     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue. <br>
+     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it. <br>
+     * maxSimultaneousRequests : number, the number of request which can be launch at a same time. <br>
+     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  <br>
+     * } <br>
      * @return {Promise<{ restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number }>}
      * @category async
      */
@@ -934,7 +934,7 @@ class NodeSDK {
      * @method Appreciation
      * @static
      * @description
-     *    Get connections Appreciation type. </br>
+     *    Get connections Appreciation type. <br>
      * @return {Appreciation}
      */
     static get Appreciation() {

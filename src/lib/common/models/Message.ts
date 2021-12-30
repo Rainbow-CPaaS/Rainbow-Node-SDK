@@ -12,7 +12,7 @@ export {};
  * @name Message
  * @public
  * @description
- *      This class is used to represent a message in a conversation <br/>
+ *      This class is used to represent a message in a conversation <br>
  *      A message is exchanged when discussing in One-to-One or in a Bubble.
  */
 class Message {

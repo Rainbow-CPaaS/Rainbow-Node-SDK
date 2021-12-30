@@ -55,9 +55,9 @@ function CallLogsBean() : ICallLogsBean {
 * @description
 *      This service allow to get the call log and manage it. <br><br>
 *      The main methods and events proposed in that service allow to: <br>
-*      - Get all calls log <br/>
-*      - Delete one or all calls log <br/>
-*      - Mark calls as read / unread <br/>
+*      - Get all calls log <br>
+*      - Delete one or all calls log <br>
+*      - Mark calls as read / unread <br>
 */
  class CallLogService extends GenericService{
     private calllogs: ICallLogsBean;
@@ -266,7 +266,7 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Get all calls log history for the connected user <br/>
+     *    Get all calls log history for the connected user <br>
      * @return {CallLog[]} An array of call log entry
      */
     getAll() {
@@ -300,7 +300,7 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Get the number of call missed (state === "missed" && direction === "incoming") <br/>
+     *    Get the number of call missed (state === "missed" && direction === "incoming") <br>
      * @return {Number} The number of call missed
      */
     getMissedCallLogCounter() {
@@ -324,8 +324,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Delete a call log from it's id<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+     *    Delete a call log from it's id<br>
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
      * @param {string} id The call log id to remove
      * @return Nothing
      */
@@ -342,8 +342,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Delete all calls log items associated to a contact's given jid<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+     *    Delete all calls log items associated to a contact's given jid<br>
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
      * @param {string} jid The call log id to remove
      * @return Nothing
      */
@@ -360,8 +360,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Delete all call logs history<br/>
-     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+     *    Delete all call logs history<br>
+     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
      * @return Nothing
      */
     deleteAllCallLogs() {
@@ -377,8 +377,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Mark a call log item as read<br/>
-     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
+     *    Mark a call log item as read<br>
+     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br>
      * @param {string} id The call log id
      * @return Nothing
      */
@@ -395,8 +395,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog MANAGEMENT
      * @description
-     *    Mark all call log items as read<br/>
-     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
+     *    Mark all call log items as read<br>
+     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br>
      * @return Nothing
      */
     async markAllCallsLogsAsRead() {
@@ -416,8 +416,8 @@ function CallLogsBean() : ICallLogsBean {
      * @instance
      * @category CallLog INITIALISATION
      * @description
-     *    Check if the call log history has been received from Rainbow <br/>
-     *    A false answer means that the call logs have not yet been retrieved from the server. <br/>
+     *    Check if the call log history has been received from Rainbow <br>
+     *    A false answer means that the call logs have not yet been retrieved from the server. <br>
      * @return {Boolean} True if the call logs have been retrieved. False elsewhere.
      */
     isInitialized() {

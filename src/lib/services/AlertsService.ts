@@ -30,9 +30,9 @@ const LOG_ID = "ALERTS/SVCE - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module is the basic module for handling Alerts in Rainbow.   <br/>
-     *   <br/>
-     *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system. <br/>  
+     *      This module is the basic module for handling Alerts in Rainbow.   <br>
+     *   <br>
+     *      Note: the Rainbow subscriptions "Alerts" is need to use the Alert notification system. <br>  
      */
 class AlertsService extends GenericService{
     private _alertEventHandler: AlertEventHandler;
@@ -159,7 +159,7 @@ class AlertsService extends GenericService{
      * @param {string} jid The Jid of the sender</param>
      * @param {string} messageXmppId the Xmpp Id of the alert message</param>
      * @description
-     *    Mark as Received the specified alert message   <br/>
+     *    Mark as Received the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -193,7 +193,7 @@ class AlertsService extends GenericService{
      * @param {string} jid The Jid of the sender
      * @param {string} messageXmppId the Xmpp Id of the alert message
      * @description
-     *    Mark as Read the specified alert message   <br/>
+     *    Mark as Read the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -224,10 +224,10 @@ class AlertsService extends GenericService{
      * @category DEVICE
      * @param {AlertDevice} device Device to create.
      * @description
-     *    Create a device which can receive Alerts(notifications) from the server   <br/>
-     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br/>
-     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
-     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
+     *    Create a device which can receive Alerts(notifications) from the server   <br>
+     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br>
+     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br>
+     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br>
      * @return {Promise<AlertDevice>} the result of the operation.
      
      */
@@ -243,12 +243,12 @@ class AlertsService extends GenericService{
      * @category DEVICE
      * @param {AlertDevice} device Device to Update.
      * @description
-     *    Update a device which can receive Alerts(notifications) from the server <br/>    
-     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user <br/>    
-     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br/>    
-     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>    
-     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
-     * @return {Promise<AlertDevice>} the result of the operation.   <br/>
+     *    Update a device which can receive Alerts(notifications) from the server <br>    
+     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user <br>    
+     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br>    
+     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br>    
+     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br>
+     * @return {Promise<AlertDevice>} the result of the operation.   <br>
      
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice> {
@@ -384,7 +384,7 @@ class AlertsService extends GenericService{
      * @category DEVICE
      * @param {AlertDevice} device Device to delete.
      * @description
-     *    Delete a device (using its id) <br/>
+     *    Delete a device (using its id) <br>
      * @return {Promise<AlertDevice>} the result of the operation.
      
      */
@@ -455,7 +455,7 @@ class AlertsService extends GenericService{
      * @category DEVICE
      * @param {string} deviceId Id of the device.
      * @description
-     *    Get a device using its Id <br/>
+     *    Get a device using its Id <br>
      * @return {Promise<AlertDevice>} the result of the operation.
      
      */
@@ -531,7 +531,7 @@ class AlertsService extends GenericService{
      * @param {number} offset Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
      * @param {number} limit Allow to specify the number of devices to retrieve.
      * @description
-     *    Get list of devices   <br/>
+     *    Get list of devices   <br>
      * @return {Promise<AlertDevicesData>} the result of the operation.
      
      */
@@ -590,7 +590,7 @@ class AlertsService extends GenericService{
      * @category DEVICE
      * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
      * @description
-     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br/>
+     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -617,7 +617,7 @@ class AlertsService extends GenericService{
      * @async
      * @category DEVICE
      * @param {string} tag 	tag to rename.
-     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. <br>
      * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
      * @param {string} newTagName New tag name. (Body Parameters)
      * @description
@@ -662,7 +662,7 @@ class AlertsService extends GenericService{
      * @async
      * @category DEVICE
      * @param {string} tag 	tag to rename.
-     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. <br>
      * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
      * @description
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
@@ -698,7 +698,7 @@ class AlertsService extends GenericService{
      * @instance
      * @async
      * @category DEVICE
-     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  <br>
      * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
      * @description
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
@@ -734,7 +734,7 @@ class AlertsService extends GenericService{
      * @category TEMPLATE
      * @param {AlertTemplate} template Template to create.
      * @description
-     *    Create a template <br/>
+     *    Create a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
      
      */
@@ -750,7 +750,7 @@ class AlertsService extends GenericService{
      * @category TEMPLATE
      * @param {AlertTemplate} template Template to Update.
      * @description
-     *    Update a template  <br/>
+     *    Update a template  <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
      
      */
@@ -870,7 +870,7 @@ class AlertsService extends GenericService{
      * @category TEMPLATE
      * @param {AlertTemplate} template Template to Delete.
      * @description
-     *    Delete a template <br/>
+     *    Delete a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
      
      */
@@ -936,7 +936,7 @@ class AlertsService extends GenericService{
      * @category TEMPLATE
      * @param {string} templateId Id of the template.
      * @description
-     *    Get an template by id <br/>
+     *    Get an template by id <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
      
      */
@@ -1005,7 +1005,7 @@ class AlertsService extends GenericService{
      * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
      * @param {number} limit Limit of templates to retrieve (100 by default).
      * @description
-     *    Get templates <br/>
+     *    Get templates <br>
      * @return {Promise<AlertTemplatesData>} the result of the operation.
      
      */
@@ -1066,7 +1066,7 @@ class AlertsService extends GenericService{
      * @category FILTERS
      * @param {AlertFilter} filter Filter to create.
      * @description
-     *    Create a filter <br/>
+     *    Create a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
      
      */
@@ -1082,7 +1082,7 @@ class AlertsService extends GenericService{
      * @category FILTERS
      * @param {AlertFilter} filter Filter to Update.
      * @description
-     *    Update a filter <br/>
+     *    Update a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
      
      */
@@ -1158,7 +1158,7 @@ class AlertsService extends GenericService{
      * @category FILTERS
      * @param {AlertFilter} filter Filter to Delete.
      * @description
-     *    Delete a filter <br/>
+     *    Delete a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
      
      */
@@ -1209,7 +1209,7 @@ class AlertsService extends GenericService{
      * @category FILTERS
      * @param {string} filterId Id of the Filter.
      * @description
-     *    Get an filter by id <br/>
+     *    Get an filter by id <br>
      * @return {Promise<AlertFilter>} the result of the operation.
      
      */
@@ -1262,7 +1262,7 @@ class AlertsService extends GenericService{
      * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
      * @param {number} limit Limit of filters to retrieve (100 by default).
      * @description
-     *    Get filters : have required role(s) superadmin, admin <br/>
+     *    Get filters : have required role(s) superadmin, admin <br>
      * @return {Promise<AlertFiltersData>} the result of the operation.
      
      */
@@ -1315,9 +1315,9 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to send.
      * @description
-     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
-     *    The alert will be received by devices according the filter id and the company id used.   <br/>
-     *    The content of the alert is based on the template id.   <br/>
+     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br>  
+     *    The alert will be received by devices according the filter id and the company id used.   <br>
+     *    The content of the alert is based on the template id.   <br>
      * @return {Promise<Alert>} the result of the operation.  
      */
     createAlert(alert: Alert): Promise<Alert> {
@@ -1332,10 +1332,10 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to update.
      * @description
-     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>  
-     *    The alert will be received by devices according the filter id and the company id used.   <br/>
-     *    The content of the alert is based on the template id.   <br/>
-     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>  
+     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br>  
+     *    The alert will be received by devices according the filter id and the company id used.   <br>
+     *    The content of the alert is based on the template id.   <br>
+     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br>  
      * @return {Promise<Alert>} the result of the operation.
      
      */
@@ -1452,8 +1452,8 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {Alert} alert Alert to Delete.
      * @description
-     *    Delete an alert   <br/>
-     *    All the data related to this notification are deleted, including the reports <br/>  
+     *    Delete an alert   <br>
+     *    All the data related to this notification are deleted, including the reports <br>  
      * @return {Promise<Alert>} the result of the operation.
      
      */
@@ -1508,7 +1508,7 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} alertId Id of the alert.
      * @description
-     *    Get an alert by id <br/>
+     *    Get an alert by id <br>
      * @return {Promise<Alert>} the result of the operation.
      
      */
@@ -1563,7 +1563,7 @@ class AlertsService extends GenericService{
      * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
      * @param {number} limit Limit of Alerts to retrieve (100 by default).
      * @description
-     *    Get alerts : required role(s) superadmin,support,admin <br/>
+     *    Get alerts : required role(s) superadmin,support,admin <br>
      * @return {Promise<AlertsData>} the result of the operation.
      
      */
@@ -1623,8 +1623,8 @@ class AlertsService extends GenericService{
      * @param {string} alertId Id of the alert.
      * @param {string} answerId Id of the answer.
      * @description
-     *    To send a feedback from an alert.   <br/>
-     *    To be used by end-user who has received the alert   <br/>
+     *    To send a feedback from an alert.   <br>
+     *    To be used by end-user who has received the alert   <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -1678,19 +1678,19 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification..
      * @description
-     *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br/>
+     *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br>
      * @return {Promise<any>} the result of the operation.
      * {
-     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
-     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
-     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
-     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
-     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
-     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
-     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
-     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
-     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
-     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br>
+     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br>
+     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br>
+     * - small: id notificationId notificationHistoryId device.id creationDate <br>
+     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br>
+     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br>
+     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br>
+     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br>
+     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
+     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
      
      */
@@ -1723,19 +1723,19 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} alertId Id of the alert.
      * @description
-     *    This API allows to list the feedback sent by the devices for a given notification. <br/>
+     *    This API allows to list the feedback sent by the devices for a given notification. <br>
      * @return {Promise<any>} the result of the operation.
      * {
-     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
-     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
-     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
-     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
-     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
-     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
-     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
-     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
-     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
-     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br>
+     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br>
+     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br>
+     * - small: id notificationId notificationHistoryId device.id creationDate <br>
+     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br>
+     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br>
+     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br>
+     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br>
+     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
+     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
      
      */
@@ -1768,12 +1768,12 @@ class AlertsService extends GenericService{
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
      * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification.
      * @description
-     *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br/>
+     *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br>
      * @return {Promise<any>} the result of the operation.
      * {
-     *   stats 	Object[] List of feedback data submitted by the devices for this given notification message <br/>
-     *      data 	String data submitted by the devices <br/>
-     *      count 	String Number of devices having submitted this given data <br/>
+     *   stats 	Object[] List of feedback data submitted by the devices for this given notification message <br>
+     *      data 	String data submitted by the devices <br>
+     *      count 	String Number of devices having submitted this given data <br>
      * }
      
      */
@@ -1810,7 +1810,7 @@ class AlertsService extends GenericService{
      * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
-     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br/>
+     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -1844,7 +1844,7 @@ class AlertsService extends GenericService{
      * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
-     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br/>
+     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
      
      */
@@ -1878,17 +1878,17 @@ class AlertsService extends GenericService{
      * @category REPORTS
      * @param {string} alertId Id of the alert.
      * @description
-     *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br/>
-     * <br/>
-     *  The detailed CSV report is generated when one of the APIs getReportSummary or GET getReportDetails is called while the state of the notification message process has reached a final state: <br/>
-     * <br/>
-     *  completed: all the devices targeted by the notification have been notified and have acknowledged the reception of the message, <br/>
-     *  expired: some devices targeted by the notification haven't acknowledged the reception of the message but the notification expiration date has been reached, <br/>
-     *  cancelled: some devices targeted by the notification haven't acknowledged the reception of the message but the notification status has been set to terminated.<br/>
-     * <br/>
-     *  The generated detailed CSV report is stored in Rainbow filestorage backend. The fileDescriptor identifier returned by this API can then be used to download it using the Rainbow filestorage API GET /api/rainbow/fileserver/v1.0/files/:fileId <br/>
-     *  The detailed CSV report contains the following columns: <br/>
-     *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br/>
+     *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br>
+     * <br>
+     *  The detailed CSV report is generated when one of the APIs getReportSummary or GET getReportDetails is called while the state of the notification message process has reached a final state: <br>
+     * <br>
+     *  completed: all the devices targeted by the notification have been notified and have acknowledged the reception of the message, <br>
+     *  expired: some devices targeted by the notification haven't acknowledged the reception of the message but the notification expiration date has been reached, <br>
+     *  cancelled: some devices targeted by the notification haven't acknowledged the reception of the message but the notification status has been set to terminated.<br>
+     * <br>
+     *  The generated detailed CSV report is stored in Rainbow filestorage backend. The fileDescriptor identifier returned by this API can then be used to download it using the Rainbow filestorage API GET /api/rainbow/fileserver/v1.0/files/:fileId <br>
+     *  The detailed CSV report contains the following columns: <br>
+     *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br>
      * @return {Promise<any>} the result of the operation.
      
      */

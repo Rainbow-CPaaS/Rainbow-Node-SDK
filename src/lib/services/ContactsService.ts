@@ -31,7 +31,7 @@ const LOG_ID = "CONTACTS/SVCE - ";
  * @public
  * @description
  *       This module manages _contacts. A contact is defined by a set of public information (name, firstname, avatar...) and a set of private information.<br>
- *       Using this module, you can get access to your network _contacts or search for Rainbow _contacts. <br/>
+ *       Using this module, you can get access to your network _contacts or search for Rainbow _contacts. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Get the network _contacts (roster) <br>
@@ -330,7 +330,7 @@ class ContactsService extends GenericService {
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
+     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br>
      */
     getAll() : Array<Contact>{
         return this._contacts;
@@ -344,7 +344,7 @@ class ContactsService extends GenericService {
      * @param {string} jid The contact jid
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
-     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br/>
+     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -419,7 +419,7 @@ class ContactsService extends GenericService {
      * @param {string} id The contact id
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
-     *  Get a contact by his id <br/>
+     *  Get a contact by his id <br>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -446,9 +446,9 @@ class ContactsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
 
                     if (contactFound.id===connectedUser.id) {
-                        resolve(connectedUser);
+                        return resolve(connectedUser);
                     } else {
-                        resolve(contactFound);
+                        return resolve(contactFound);
                     }
                 } else {
                     that._logger.log("debug", LOG_ID + "(getContactById) contact not found locally. Ask the server...");
@@ -480,7 +480,7 @@ class ContactsService extends GenericService {
                         } else {
                             that._logger.log("info", LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
-                        resolve(contact);
+                        return resolve(contact);
                     }).catch((err) => {
                         return reject(err);
                     });
@@ -497,7 +497,7 @@ class ContactsService extends GenericService {
      * @param {string} loginEmail The contact loginEmail
      * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
      * @description
-     *  Get a contact by his loginEmail <br/>
+     *  Get a contact by his loginEmail <br>
      * @async
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Found contact or null or an error object depending on the result
@@ -587,7 +587,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATIONS
      * @description
-     *  Get informations about the connected user <br/>
+     *  Get informations about the connected user <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Found informations or null or an error object depending on the result
@@ -615,7 +615,7 @@ class ContactsService extends GenericService {
      * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
      * @description
-     *  Get a contact avatar by his contact id <br/>
+     *  Get a contact avatar by his contact id <br>
      * @return {string} Contact avatar URL or file
      */
     getAvatarByContactId(id : string, lastAvatarUpdateDate : string) : string {
@@ -631,7 +631,7 @@ class ContactsService extends GenericService {
      * @category Contacts INFORMATIONS
      * @instance
      * @description
-     *    Get the connected user information <br/>
+     *    Get the connected user information <br>
      * @return {Contact} Return a Contact object representing the connected user information or null if not connected
      */
     getConnectedUser(): Contact {
@@ -666,7 +666,7 @@ class ContactsService extends GenericService {
      * @param {Contact} contact  The contact to get display name
      * @return {string} The contact first name and last name
      * @description
-     *      Get the display name of a contact <br/>
+     *      Get the display name of a contact <br>
      */
     getDisplayName(contact : Contact) : string {
         return contact.firstName + " " + contact.lastName;
@@ -725,7 +725,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts NETWORK
      * @description
-     *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
+     *      Get the list of _contacts that are in the user's network (aka rosters) <br>
      * @async
      * @return {Promise<Array<Contact>,ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
@@ -824,7 +824,7 @@ class ContactsService extends GenericService {
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
      *    In return, when accepted, he will be part of your network <br>
-     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br>
      * @param {Contact} contact The contact object to subscribe
      * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
      */
@@ -842,7 +842,7 @@ class ContactsService extends GenericService {
      *    Send an invitation to a Rainbow user for joining his network. <br>
      *    The user will receive an invitation that can be accepted or declined <br>
      *    In return, when accepted, he will be part of your network <br>
-     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
+     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br>
      * @param {Contact} contact The contact object to subscribe
      * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
 
@@ -885,7 +885,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts NETWORK
      * @description
-     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br/>
+     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br>
      * @param {Contact} contact The contact object to unsubscribe
      * @returns {Promise} A promise that contains success code if removed or an object describing an error
      */
@@ -921,7 +921,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts NETWORK
      * @description
-     *    Get an invite by its id <br/>
+     *    Get an invite by its id <br>
      * @param {string} strInvitationId the id of the invite to retrieve
      * @return {Invitation} The invite if found
      */
@@ -946,7 +946,7 @@ class ContactsService extends GenericService {
      * @description
      *    Accept an invitation from an other Rainbow user to mutually join the network <br>
      *    Once accepted, the user will be part of your network. <br>
-     *    Return a promise <br/>
+     *    Return a promise <br>
      * @param {Invitation} invitation The invitation to accept
      * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
      */
@@ -972,7 +972,7 @@ class ContactsService extends GenericService {
      * @description
      *    Decline an invitation from an other Rainbow user to mutually join the network <br>
      *    Once declined, the user will not be part of your network. <br>
-     *    Return a promise <br/>
+     *    Return a promise <br>
      * @param {Invitation} invitation The invitation to decline
      * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
      */
@@ -999,7 +999,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts NETWORK
      * @description
-     *    As admin, add _contacts to a user roster <br/>
+     *    As admin, add _contacts to a user roster <br>
      * @param {Contact} contact The contact object to subscribe
      * @param {Array<string>} contactIds List of contactId to add to the user roster
      * @async
@@ -1053,7 +1053,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} presence contains informations about contact changes
      * @description
-     *      Method called when the presence of a contact changed <br/>
+     *      Method called when the presence of a contact changed <br>
      */
     _onPresenceChanged(presence : any) {
         let that = this;
@@ -1318,7 +1318,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} presence contains informations about contact changes
      * @description
-     *      Method called when the presence of a contact changed <br/>
+     *      Method called when the presence of a contact changed <br>
      */
     _onRosterPresenceChanged(presence : any) {
         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
@@ -1524,7 +1524,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {string} jid modified roster contact Jid
      * @description
-     *     Method called when an roster user information are updated <br/>
+     *     Method called when an roster user information are updated <br>
      */
     _onContactInfoChanged(jid : string) {
         let that = this;
@@ -1552,7 +1552,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {string} jid modified roster contact Jid
      * @description
-     *     Method called when an roster user information are updated <br/>
+     *     Method called when an roster user information are updated <br>
      */
     _onRosterContactInfoChanged(jid : string) {
         let that = this;
@@ -1598,7 +1598,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is received <br/>
+     *      Method called when an user invite is received <br>
      */
     /* _onUserInviteReceived(data) {
         let that = this;
@@ -1621,7 +1621,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is accepted <br/>
+     *      Method called when an user invite is accepted <br>
      */
     /* _onUserInviteAccepted(data) {
         let that = this;
@@ -1643,7 +1643,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} data contains the invitationId
      * @description
-     *      Method called when an user invite is canceled <br/>
+     *      Method called when an user invite is canceled <br>
      */
 
     /* _onUserInviteCanceled(data) {
@@ -1665,7 +1665,7 @@ class ContactsService extends GenericService {
      * @instance
      * @param {Object} contacts contains a contact list with updated elements
      * @description
-     *      Method called when the roster _contacts is updated <br/>
+     *      Method called when the roster _contacts is updated <br>
      */
     _onRostersUpdate(contacts) {
         let that = this;

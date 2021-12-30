@@ -29,7 +29,7 @@ const LOG_ID = "INVITATION/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This services manages the invitations received/ sent from/to server. <br/>
+ *      This services manages the invitations received/ sent from/to server. <br>
  *
  */
 @logEntryExit(LOG_ID)
@@ -451,7 +451,7 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations RECEIVED
 	 * @description
-	 *    Get the invite received coming from Rainbow users <br/>
+	 *    Get the invite received coming from Rainbow users <br>
 	 * @return {Invitation[]} The list of invitations received
 	 */
 	getReceivedInvitations() {
@@ -466,7 +466,7 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations RECEIVED
 	 * @description
-	 *    Get the invites you accepted received from others Rainbow users <br/>
+	 *    Get the invites you accepted received from others Rainbow users <br>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAcceptedInvitations() {
@@ -481,7 +481,7 @@ class InvitationsService extends GenericService {
 	 * @category Invitations RECEIVED
 	 * @instance
 	 * @description
-	 *    Get the number of invitations received from others Rainbow users <br/>
+	 *    Get the number of invitations received from others Rainbow users <br>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getInvitationsNumberForCounter() {
@@ -515,7 +515,7 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations RECEIVED
 	 * @description
-	 *    Get an invite by its id <br/>
+	 *    Get an invite by its id <br>
 	 * @param {String} invitationId the id of the invite to retrieve
 	 * @return {Invitation} The invite if found
 	 */
@@ -557,7 +557,7 @@ class InvitationsService extends GenericService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise <br/>
+	 *    Return a promise <br>
 	 * @param {Contact} contact The invitation to accept
 	 * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -592,7 +592,7 @@ class InvitationsService extends GenericService {
 	 * @description
 	 *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once accepted, the user will be part of your network. <br>
-	 *    Return a promise <br/>
+	 *    Return a promise <br>
 	 * @param {Invitation} invitation The invitation to accept
 	 * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
 	 */
@@ -637,7 +637,7 @@ class InvitationsService extends GenericService {
 	 * @description
 	 *    Decline an invitation from an other Rainbow user to mutually join the network <br>
 	 *    Once declined, the user will not be part of your network. <br>
-	 *    Return a promise <br/>
+	 *    Return a promise <br>
 	 * @param {Invitation} invitation The invitation to decline
 	 * @return {Promise<Object>} A promise that contains SDK.OK in case of success or an object that describes the error
 	 */
@@ -705,7 +705,7 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations SENT
 	 * @description
-	 *    Get the invites sent to others Rainbow users <br/>
+	 *    Get the invites sent to others Rainbow users <br>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getSentInvitations() {
@@ -721,7 +721,7 @@ class InvitationsService extends GenericService {
 	 * @category Invitations SENT
 	 * @async
 	 * @description
-	 *    Send an invitation email as UCaaS <br/>
+	 *    Send an invitation email as UCaaS <br>
 	 * @param {string} email The email
 	 * @param {string} [customMessage] The email text (optional)
 	 * @return {Object} A promise that contains the contact added or an object describing an error
@@ -752,7 +752,7 @@ class InvitationsService extends GenericService {
 	 * @async
 	 * @param {Invitation} invitation The invitation to cancel
 	 * @description
-	 *    Cancel an invitation sent <br/>
+	 *    Cancel an invitation sent <br>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	async cancelOneSendInvitation(invitation) {
@@ -781,7 +781,7 @@ class InvitationsService extends GenericService {
 	 * @async
 	 * @param {Number} invitationId The invitation to re send
 	 * @description
-	 *    Re send an invitation sent <br/>
+	 *    Re send an invitation sent <br>
 	 * @return {Object} The SDK Ok object or an error
 	 */
 	async reSendInvitation(invitationId) {
@@ -808,8 +808,8 @@ class InvitationsService extends GenericService {
 	 * @category Invitations SENT
 	 * @async
 	 * @description
-	 *    Send invitations for a list of emails as UCaaS <br/>
-	 *    LIMITED TO 100 invitations <br/>
+	 *    Send invitations for a list of emails as UCaaS <br>
+	 *    LIMITED TO 100 invitations <br>
 	 * @param {Array} listOfMails The list of emails
 	 * @return {Object} A promise that the invite result or an object describing an error
 	 */
@@ -846,7 +846,7 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations RECEIVED/SENT
 	 * @description
-	 *    Get the number of invitations sent/received to/from others Rainbow users <br/>
+	 *    Get the number of invitations sent/received to/from others Rainbow users <br>
 	 * @return {Invitation[]} The list of invite sent
 	 */
 	getAllInvitationsNumber = function () {

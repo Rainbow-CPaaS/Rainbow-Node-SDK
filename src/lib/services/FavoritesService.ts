@@ -26,9 +26,9 @@ const LOG_ID = "FAVTE/SVCE - ";
  * @version SDKVERSION
  * @public
 * @description
-*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots. <br/>
+*      This module is the basic module for handling Favorites in Rainbow. In Rainbow, Favorites are the way to list a most frequent, most used or the most important conversations, bubbles and bots. <br>
 *      The main methods and events proposed in that service allow to: <br>
-*      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br/>
+*      - Create or delete a Rainbow Favorite (one-to-one, bubble or bot), <br>
 *      - Retrieve all information linked to that Favorite, <br>
 */
 class FavoritesService extends GenericService{
@@ -311,7 +311,7 @@ class FavoritesService extends GenericService{
      * @category Favorites MANAGEMENT
      * @instance
      * @description
-     *   Add conversation/bubble/bot to Favorites Array <br/>
+     *   Add conversation/bubble/bot to Favorites Array <br>
      * @param {string} id of the conversation/bubble
      * @param {string} type of Favorite (can be 'user' or 'bubble')
      * @return {Promise<Favorite>} A Favorite object
@@ -359,7 +359,7 @@ class FavoritesService extends GenericService{
      * @category Favorites MANAGEMENT
      * @instance
      * @description
-     *   Delete conversation/bubble/bot from Favorites Array <br/>
+     *   Delete conversation/bubble/bot from Favorites Array <br>
      * @param {string} id of the Favorite item
      * @return {Favorite[]} A Favorite object
      */
@@ -411,7 +411,7 @@ class FavoritesService extends GenericService{
      * @category Favorites GET
      * @instance
      * @description
-     *   Fetch all the Favorites from the server in a form of an Array <br/>
+     *   Fetch all the Favorites from the server in a form of an Array <br>
      * @return {Array<Favorite>} An array of Favorite objects
      */
     public async fetchAllFavorites() : Promise<Array<Favorite>> {

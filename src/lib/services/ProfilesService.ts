@@ -97,7 +97,7 @@ const FeaturesEnum = {
  * @version SDKVERSION
  * @public
  * @description
- *  This module is the service used to retrieve profiles from server. <br/>
+ *  This module is the service used to retrieve profiles from server. <br>
 */
 class ProfilesService extends GenericService {
     private stats: any;
@@ -232,7 +232,7 @@ class ProfilesService extends GenericService {
      * @async
      * @category Profiles PROFILES
      * @description
-     * This API can be used to get user profiles and features.</br>
+     * This API can be used to get user profiles and features.<br>
      * @return {Promise<any>}
      */
     async getServerProfile () {
@@ -246,7 +246,7 @@ class ProfilesService extends GenericService {
      * @async
      * @category Profiles PROFILES
      * @description
-     * This API can be used to get user profiles.</br>
+     * This API can be used to get user profiles.<br>
      * This API can only be used by user himself
      * @return {Promise<any>}
      */
@@ -291,7 +291,7 @@ class ProfilesService extends GenericService {
      * @method getMyProfileOffer
      * @category Profiles PROFILES
      * @description
-     * This API can be used to get user profile offer.</br>
+     * This API can be used to get user profile offer.<br>
      * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
      * @return {any}
      */
@@ -308,7 +308,7 @@ class ProfilesService extends GenericService {
      * @method getMyProfileName
      * @category Profiles PROFILES
      * @description
-     * This API can be used to get user profile offer name.</br>
+     * This API can be used to get user profile offer name.<br>
      * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
      * @return {any}
      */
@@ -326,7 +326,7 @@ class ProfilesService extends GenericService {
      * @method getMyProfiles
      * @category Profiles PROFILES
      * @description
-     * This API can be used to get user profiles.</br>
+     * This API can be used to get user profiles.<br>
      * @return {any}
      */
     getMyProfiles () {
@@ -423,7 +423,7 @@ class ProfilesService extends GenericService {
      * @async
      * @category Profiles FEATURES
      * @description
-     * This API can be used to get user profile features.</br>
+     * This API can be used to get user profile features.<br>
      * @return {Promise<any>}
      */
     async getServerProfilesFeatures () {
@@ -491,7 +491,7 @@ class ProfilesService extends GenericService {
      * @method isFeatureEnabled
      * @category Profiles FEATURES
      * @description
-     * This API can be used to know if a feature is enabled.</br>
+     * This API can be used to know if a feature is enabled.<br>
      * @return {any}
      */
     isFeatureEnabled (featureUniqueRef) {
@@ -510,7 +510,7 @@ class ProfilesService extends GenericService {
      * @method getFeatureLimitMax
      * @category Profiles FEATURES
      * @description
-     * This API can be used to get Max limit of feature.</br>
+     * This API can be used to get Max limit of feature.<br>
      * @return {any}
      */
     getFeatureLimitMax (featureUniqueRef) {
@@ -529,7 +529,7 @@ class ProfilesService extends GenericService {
      * @method getFeatureLimitMin
      * @category Profiles FEATURES
      * @description
-     * This API can be used to get Min limit of feature.</br>
+     * This API can be used to get Min limit of feature.<br>
      * @return {any}
      */
     getFeatureLimitMin (featureUniqueRef) {
@@ -548,7 +548,7 @@ class ProfilesService extends GenericService {
      * @method getMyProfileFeatures
      * @category Profiles FEATURES
      * @description
-     * This API can be used to get features of the profile of connected user.</br>
+     * This API can be used to get features of the profile of connected user.<br>
      * @return {any}
      */
     getMyProfileFeatures () {

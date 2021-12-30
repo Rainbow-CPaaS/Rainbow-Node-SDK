@@ -28,7 +28,7 @@ const LOG_ID = "CHANNELS/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This service manages ChannelsService. This service is in Beta. <br/>
+ *      This service manages ChannelsService. This service is in Beta. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Create a new channel <br>
@@ -182,7 +182,7 @@ class ChannelsService extends GenericService {
      * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new public channel with a visibility limited to my company <br/>
+     *  Create a new public channel with a visibility limited to my company <br>
      */
     createChannel(name: string, channelTopic: string) {
         let that = this;
@@ -201,7 +201,7 @@ class ChannelsService extends GenericService {
      * @param {string} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new public channel with a visibility limited to my company <br/>
+     *  Create a new public channel with a visibility limited to my company <br>
      */
     createPublicChannel(name: string, channelTopic: string, category : string) : Promise<Channel>{
         let that = this;
@@ -240,7 +240,7 @@ class ChannelsService extends GenericService {
      * @param {string} [description]  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new private channel <br/>
+     *  Create a new private channel <br>
      */
     createPrivateChannel(name : string, description : string) {
         let that = this;
@@ -259,7 +259,7 @@ class ChannelsService extends GenericService {
      * @param {string} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
-     *  Create a new closed channel <br/>
+     *  Create a new closed channel <br>
      */
     createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
         let that = this;
@@ -294,7 +294,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel  The channel to delete
      * @return {Promise<Channel>} Promise object represents The channel deleted
      * @description
-     *  Delete a owned channel <br/>
+     *  Delete a owned channel <br>
      */
     deleteChannel(channel: Channel) : Promise<Channel> {
         let that = this;
@@ -339,7 +339,7 @@ class ChannelsService extends GenericService {
      * @param {string} name Search this provided substring in the channel name (case insensitive).
      * @return {Promise<Array<Channel>>} ChannelsService found
      * @description
-     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
+     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br>
      */
     findChannelsByName(name : string) : Promise<[Channel]> {
         let that = this;
@@ -362,7 +362,7 @@ class ChannelsService extends GenericService {
      * @param {string} topic Search this provided substring in the channel topic (case insensitive).
      * @return {Promise<Array<Channel>>} ChannelsService found
      * @description
-     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
+     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br>
      */
     findChannelsByTopic(topic : string) : Promise<[Channel]> {
         let that = this;
@@ -433,7 +433,7 @@ class ChannelsService extends GenericService {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
-     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
+     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
      */
     getChannelById(id : string, force? : boolean) : Promise <Channel> {
         let that = this;
@@ -451,7 +451,7 @@ class ChannelsService extends GenericService {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
-     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
+     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
      */
     async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
         let that = this;
@@ -487,18 +487,18 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels MANAGEMENT
      * @description
-     *    Find channels using a filter (on name, topic)<br/>
-     *    Result may be filtered with result limit, offet and sortField or SortOrder <br/>
-     *    Return a promise. <br/>
-     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br/>
-     *      {string} [filter.name] search by channel names (case insensitive substring). <br/>
-     *      {string} [filter.topic] search by channel topics (case insensitive substring). <br/>
-     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br/>
-     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br/>
-     *      {string} [filter.sortField="name"] sort channel list based on the given field. <br/>
-     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br/>
-     * @return {Promise<Channel[]>} Result of the find with <br/>
-     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br/>
+     *    Find channels using a filter (on name, topic)<br>
+     *    Result may be filtered with result limit, offet and sortField or SortOrder <br>
+     *    Return a promise. <br>
+     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br>
+     *      {string} [filter.name] search by channel names (case insensitive substring). <br>
+     *      {string} [filter.topic] search by channel topics (case insensitive substring). <br>
+     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br>
+     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br>
+     *      {string} [filter.sortField="name"] sort channel list based on the given field. <br>
+     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br>
+     * @return {Promise<Channel[]>} Result of the find with <br>
+     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br>
      */
     fetchChannelsByFilter (filter:any) : Promise<[Channel]> {
         let that = this;
@@ -555,8 +555,8 @@ class ChannelsService extends GenericService {
      * [#3] Will be deleted in future version
      * [#4] In case you need similar behavior use the fetchMyChannels method instead,
      * @description
-     *    Get the channels you own, are subscribed to, are publisher<br/>
-     *    Return a promise. <br/>
+     *    Get the channels you own, are subscribed to, are publisher<br>
+     *    Return a promise. <br>
      * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
      */
     getChannels() {
@@ -573,8 +573,8 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @param {boolean} force Boolean to force the get of channels's informations from server. 
      * @description
-     *    Get the channels you own, are subscribed to, are publisher<br/>
-     *    Return a promise. <br/>
+     *    Get the channels you own, are subscribed to, are publisher<br>
+     *    Return a promise. <br>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
      */
     fetchMyChannels(force? : boolean) : Promise<[Channel]>{
@@ -649,7 +649,7 @@ class ChannelsService extends GenericService {
      * @instance
      * @return {Channel[]} An array of channels (owned, invited, subscribed)
      * @description
-     *  Return the list of channels (owned, invited, subscribed) <br/>
+     *  Return the list of channels (owned, invited, subscribed) <br>
      */
     getAllChannels() : [Channel] {
         let that = this;
@@ -666,7 +666,7 @@ class ChannelsService extends GenericService {
      * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
      * @return {Channel[]} An array of channels (owned only)
      * @description
-     *  Return the list of owned channels only <br/>
+     *  Return the list of owned channels only <br>
      */
     getAllOwnedChannel(){
         let that = this;
@@ -680,7 +680,7 @@ class ChannelsService extends GenericService {
      * @instance
      * @return {Channel[]} An array of channels (owned only)
      * @description
-     *  Return the list of owned channels only <br/>
+     *  Return the list of owned channels only <br>
      */
     getAllOwnedChannels() : [Channel] {
         let that = this;
@@ -696,7 +696,7 @@ class ChannelsService extends GenericService {
      * @instance
      * @return {Channel[]} An array of channels (invited only)
      * @description
-     *  Return the list of invited channels only <br/>
+     *  Return the list of invited channels only <br>
      */
     getAllPendingChannels() : [Channel] {
         let that = this;
@@ -780,8 +780,8 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels MANAGEMENT
      * @description
-     *    Update a channel name<br/>
-     *    Return a promise. <br/>
+     *    Update a channel name<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The channel to update
      * @param {string} channelName The name of the channel
      * @return {Channel} Return the channel updated or an error
@@ -834,10 +834,10 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @instance
      * @description
-     *    Update a channel<br/>
-     *      May be updated: name, topic, visibility, max_items and max_payload<br/>
-     *      Please put null to not update a property.<br/>
-     *    Return a promise. <br/>
+     *    Update a channel<br>
+     *      May be updated: name, topic, visibility, max_items and max_payload<br>
+     *      Please put null to not update a property.<br>
+     *    Return a promise. <br>
      * @param {string} id The id of the channel
      * @param {string} [channelTopic=""] The topic of the channel
      * @param {string} [visibility=public] public/company/closed group visibility for search
@@ -900,8 +900,8 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @instance
      * @description
-     *    Update a channel visibility<br/>
-     *    Return a promise. <br/>
+     *    Update a channel visibility<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The channel to update
      * @param {string} visibility  The new channel visibility (closed or company)
      * @return {Promise<Channel>} Return the channel updated or an error
@@ -958,8 +958,8 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @instance
      * @description
-     *    Set the channel visibility to company (visible for users in that company)<br/>
-     *    Return a promise. <br/>
+     *    Set the channel visibility to company (visible for users in that company)<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -975,8 +975,8 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels MANAGEMENT
      * @description
-     *    Set the channel visibility to closed (not visible by users)<br/>
-     *    Return a promise. <br/>
+     *    Set the channel visibility to closed (not visible by users)<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -993,8 +993,8 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels MANAGEMENT
      * @description
-     *    Update a channel avatar<br/>
-     *    Return a promise. <br/>
+     *    Update a channel avatar<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The Channel to update
      * @param {string} urlAvatar  The avatar Url.  It must be resized to 512 pixels before calling this API.
      * @return {Channel} Return the channel updated or an error
@@ -1047,8 +1047,8 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels MANAGEMENT
      * @description
-     *    Delete a channel avatar<br/>
-     *    Return a promise. <br/>
+     *    Delete a channel avatar<br>
+     *    Return a promise. <br>
      * @param {Channel} channel The channel to update
      * @return {Channel} Return the channel updated or an error
      */
@@ -1081,7 +1081,7 @@ class ChannelsService extends GenericService {
      * @param channelId
      * @category Channels MANAGEMENT
      * @description
-     *      GET A CHANNEL <br/>
+     *      GET A CHANNEL <br>
      */
     public getChannel(channelId: string): Promise<Channel> {
         let that = this;
@@ -1104,7 +1104,7 @@ class ChannelsService extends GenericService {
      * @param channelId
      * @category Channels MANAGEMENT
      * @description
-     *      GET A CHANNEL FROM CACHE <br/>
+     *      GET A CHANNEL FROM CACHE <br>
      */
     private getChannelFromCache(channelId: string): Channel {
         let channelFound = null;
@@ -1207,7 +1207,7 @@ class ChannelsService extends GenericService {
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
-     *  Publish to a channel <br/>
+     *  Publish to a channel <br>
      */
     publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise<{}> {
         let that = this;
@@ -1228,7 +1228,7 @@ class ChannelsService extends GenericService {
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
-     *  Publish to a channel <br/>
+     *  Publish to a channel <br>
      */
     createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise <{}> {
         let that = this;
@@ -1282,7 +1282,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel
      * @return {Promise<Object[]>} The list of messages received
      * @description
-     *  Retrieve the last messages from a channel <br/>
+     *  Retrieve the last messages from a channel <br>
      */
     getMessagesFromChannel (channel : Channel) {
         let that = this;
@@ -1301,7 +1301,7 @@ class ChannelsService extends GenericService {
      * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
      * @return {Promise<Object[]>} The list of messages received
      * @description
-     *  Retrieve the last maxMessages messages from a channel <br/>
+     *  Retrieve the last maxMessages messages from a channel <br>
      */
     public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
         let that = this;
@@ -1358,14 +1358,14 @@ class ChannelsService extends GenericService {
      * @instance
      * @async
      * @category Channels MESSAGES/ITEMS
-     * @deprecated [#1] since version 1.55 [#2]. <br/>
-     * [#3] Will be deleted in future version <br/>
-     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br/>
+     * @deprecated [#1] since version 1.55 [#2]. <br>
+     * [#3] Will be deleted in future version <br>
+     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br>
      * @param  {string} channelId The Id of the channel
      * @param  {string} messageId The Id of the message
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Delete a message from a channel <br/>
+     *  Delete a message from a channel <br>
      */
     deleteMessageFromChannel(channelId : string, messageId : string) {
         let that = this;
@@ -1382,7 +1382,7 @@ class ChannelsService extends GenericService {
      * @param  {string} itemId The Id of the item
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Delete a message from a channel <br/>
+     *  Delete a message from a channel <br>
      */
     public deleteItemFromChannel (channelId : string, itemId : string) : Promise<Channel> {
         let that = this;
@@ -1437,7 +1437,7 @@ class ChannelsService extends GenericService {
      * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
      * @return {Promise<any>}
      * @description
-     *  To like an Channel Item with the specified appreciation <br/>
+     *  To like an Channel Item with the specified appreciation <br>
      */
     public likeItem( channel : Channel, itemId : string, appreciation : Appreciation): Promise<any> {
         let that = this;
@@ -1484,7 +1484,7 @@ class ChannelsService extends GenericService {
      * @param  {string} itemId The Id of the item
      * @return {Promise<any>}
      * @description
-     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br/>
+     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br>
      */
     public getDetailedAppreciations( channel : Channel, itemId : string): Promise<any> {
         let that = this;
@@ -1537,7 +1537,7 @@ class ChannelsService extends GenericService {
      * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
-     *  Return the list of subscribed channels only <br/>
+     *  Return the list of subscribed channels only <br>
      */
     getAllSubscribedChannel() {
         let that = this;
@@ -1551,7 +1551,7 @@ class ChannelsService extends GenericService {
      * @category Channels SUBSCRIPTION
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
-     *  Return the list of subscribed channels only <br/>
+     *  Return the list of subscribed channels only <br>
      */
     getAllSubscribedChannels() : [Channel] {
         let that = this;
@@ -1569,7 +1569,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel to subscribe
      * @return {Promise<Channel>} The channel updated with the new subscription
      * @description
-     *  Subscribe to a public channel <br/>
+     *  Subscribe to a public channel <br>
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
         let that = this;
@@ -1602,8 +1602,8 @@ class ChannelsService extends GenericService {
      * @instance
      * @category Channels SUBSCRIPTION
      * @description
-     *    Subscribe to a channel using its id<br/>
-     *    Return a promise. <br/>
+     *    Subscribe to a channel using its id<br>
+     *    Return a promise. <br>
      * @param {string} id The id of the channel
      * @return {Object} Nothing or an error object depending on the result
      */
@@ -1664,7 +1664,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel to unsubscribe
      * @return {Promise<string>} The status of the unsubscribe.
      * @description
-     *  Unsubscribe from a public channel <br/>
+     *  Unsubscribe from a public channel <br>
      */
     unsubscribeFromChannel(channel : Channel) : Promise<string> {
         let that = this;
@@ -1697,9 +1697,9 @@ class ChannelsService extends GenericService {
      * @instance
      * @async
      * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br/>
-     * [#3] Will be deleted in future version <br/>
-     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br/>
+     * @deprecated [#1] since version 1.55 [#2]. <br>
+     * [#3] Will be deleted in future version <br>
+     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br>
      * @param {Channel} channel The channel
      * @param {Object} [options] A filter parameter
      * @param {Number} [options.page = 0] Display a specific page of results
@@ -1708,7 +1708,7 @@ class ChannelsService extends GenericService {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
-     *  Get a pagined list of users who belongs to a channel <br/>
+     *  Get a pagined list of users who belongs to a channel <br>
      */
     getUsersFromChannel(channel: Channel, options: any) {
         let that = this;
@@ -1729,7 +1729,7 @@ class ChannelsService extends GenericService {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
-     *  Get a pagined list of users who belongs to a channel <br/>
+     *  Get a pagined list of users who belongs to a channel <br>
      */
     public fetchChannelUsers(channel : Channel, options : any) : Promise<Array<{}>> {
         let that = this;
@@ -1783,13 +1783,13 @@ class ChannelsService extends GenericService {
      * @instance
      * @async
      * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br/>
-     * [#3] Will be deleted in future version <br/>
-     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br/>
+     * @deprecated [#1] since version 1.55 [#2]. <br>
+     * [#3] Will be deleted in future version <br>
+     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br>
      * @param {Channel} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Remove all users from a channel <br/>
+     *  Remove all users from a channel <br>
      */
     removeAllUsersFromChannel(channel : Channel) {
         let that = this;
@@ -1804,7 +1804,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
-     *  Remove all users from a channel <br/>
+     *  Remove all users from a channel <br>
      */
     public deleteAllUsersFromChannel(channel : Channel) : Promise<Channel> {
         let that = this;
@@ -1894,7 +1894,7 @@ class ChannelsService extends GenericService {
      * @param {Array<any>}owners
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of owners to the channel <br/>
+     *  Add a list of owners to the channel <br>
      */
     public addOwnersToChannel(channel : Channel, owners: any[]) : Promise<Channel>  {
         let that = this;
@@ -1929,7 +1929,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} publishers The list of Contacts to add as publisher to channel.
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of publishers to the channel <br/>
+     *  Add a list of publishers to the channel <br>
      */
     public addPublishersToChannel(channel : Channel, publishers : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -1964,7 +1964,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} members array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of members to the channel <br/>
+     *  Add a list of members to the channel <br>
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -2004,14 +2004,14 @@ class ChannelsService extends GenericService {
      * @instance
      * @async
      * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br/>
-     * [#3] Will be deleted in future version <br/>
-     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br/>
+     * @deprecated [#1] since version 1.55 [#2]. <br>
+     * [#3] Will be deleted in future version <br>
+     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br>
      * @param {Channel} channel The channel
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel <br/>
+     *  Remove a list of users from a channel <br>
      */
     removeUsersFromChannel1(channel : Channel, users: Array<Contact>) {
         let that = this;
@@ -2027,7 +2027,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel <br/>
+     *  Remove a list of users from a channel <br>
      */
     public deleteUsersFromChannel(channel : Channel, users : Array<Contact>) : Promise<Channel> {
         let that = this;

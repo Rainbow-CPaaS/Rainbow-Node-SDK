@@ -30,7 +30,7 @@ const LOG_ID = "IM/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages Instant Messages. It allows to send messages to a user or a bubble. <br/>
+ *      This module manages Instant Messages. It allows to send messages to a user or a bubble. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Send a message to a user <br>
@@ -128,7 +128,7 @@ class ImsService extends GenericService{
      * @method enableCarbon
      * @instance
      * @description
-     *      Enable message carbon XEP-0280 <br/>
+     *      Enable message carbon XEP-0280 <br>
      * @async
      * @category Ims MANAGEMENT
      * @return {Promise}
@@ -159,7 +159,7 @@ class ImsService extends GenericService{
      * @method disableCarbon
      * @instance
      * @description
-     *      Disable message carbon XEP-0280 <br/>
+     *      Disable message carbon XEP-0280 <br>
      * @async
      * @category Ims MANAGEMENT
      * @return {Promise}
@@ -195,8 +195,8 @@ class ImsService extends GenericService{
      * @method getMessagesFromConversation
      * @instance
      * @description
-     *    <b>(beta)</b> Retrieve the list of messages from a conversation <br/>
-     *    Calling several times this method will load older message from the history (pagination) <br/>
+     *    <b>(beta)</b> Retrieve the list of messages from a conversation <br>
+     *    Calling several times this method will load older message from the history (pagination) <br>
      * @param {Conversation} conversation The conversation
      * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
      * @async
@@ -227,7 +227,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
+     *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br>
      * @param {Conversation} conversation The conversation where to search for the message
      * @param {String} strMessageId The message id
      * @return {Message} The message if found or null
@@ -262,7 +262,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *    Retrieve a specific message in a bubble using its id <br/>
+     *    Retrieve a specific message in a bubble using its id <br>
      * @param {Bubble} bubble The bubble where to search for the message
      * @param {String} strMessageId The message id
      * @return {Message} The message if found or null
@@ -306,7 +306,7 @@ class ImsService extends GenericService{
      * @method markMessageAsRead
      * @instance
      * @description
-     *  Send a 'read' receipt to the recipient <br/>
+     *  Send a 'read' receipt to the recipient <br>
      * @param {Message} messageReceived The message received to mark as read
      * @async
      * @category Ims MESSAGES
@@ -350,7 +350,7 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *    <b>(beta)</b> Send a instant message to a conversation<br>
-     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br/>
+     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br>
      * @param {Conversation} conversation The conversation recipient
      * @param {String} message The message to send
      * @param {String} [lang=en] The content language used
@@ -441,7 +441,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *  Send a one-2-one message to a contact <br/>
+     *  Send a one-2-one message to a contact <br>
      * @param {String} message The message to send
      * @param {Contact} contact The contact (should have at least a jid_im property)
      * @param {String} [lang=en] The content language used
@@ -467,8 +467,8 @@ class ImsService extends GenericService{
     /**
      * @private
      * @description
-     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-     *      It allow to give back the status of the sending process. <br/>
+     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+     *      It allow to give back the status of the sending process. <br>
      * @param conversation
      * @param message
      */
@@ -482,8 +482,8 @@ class ImsService extends GenericService{
     /**
      * @private
      * @description
-     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-     *      It allow to give back the status of the sending process. <br/>
+     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+     *      It allow to give back the status of the sending process. <br>
      * @param message
      */
     /* removePendingMessage(message) {
@@ -497,7 +497,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *  Send a one-2-one message to a contact identified by his Jid <br/>
+     *  Send a one-2-one message to a contact identified by his Jid <br>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -567,7 +567,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *  Send a reply to a one-2-one message to a contact identified by his Jid <br/>
+     *  Send a reply to a one-2-one message to a contact identified by his Jid <br>
      * @param {String} message The message to send
      * @param {String} jid The contact Jid
      * @param {String} [lang=en] The content language used
@@ -641,7 +641,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *  Send a message to a bubble <br/>
+     *  Send a message to a bubble <br>
      * @param {String} message The message to send
      * @param {Bubble} bubble The bubble (should at least have a jid property)
      * @param {String} [lang=en] The content language used
@@ -672,7 +672,7 @@ class ImsService extends GenericService{
      * @async
      * @category Ims MESSAGES
      * @description
-     *  Send a message to a bubble identified by its JID <br/>
+     *  Send a message to a bubble identified by its JID <br>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -725,7 +725,7 @@ class ImsService extends GenericService{
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresence(bubble);
+                await that._presence.sendInitialBubblePresenceSync(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {
@@ -748,7 +748,7 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @instance
      * @description
-     *  Send a message to a bubble identified by its JID <br/>
+     *  Send a message to a bubble identified by its JID <br>
      * @param {String} message The message to send
      * @param {String} jid The bubble JID
      * @param {String} [lang=en] The content language used
@@ -808,7 +808,7 @@ class ImsService extends GenericService{
             try {
                 that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
                 that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresence(bubble);
+                await that._presence.sendInitialBubblePresenceSync(bubble);
                 //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {
@@ -851,7 +851,7 @@ class ImsService extends GenericService{
      * @category Ims TYPING
      * @instance 
      * @description
-     *    Switch the "is typing" state in a bubble/room<br> <br/>
+     *    Switch the "is typing" state in a bubble/room<br> <br>
      * @param {Bubble} bubble The destination bubble
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return {Object} Return a promise with no parameter when succeed.

@@ -54,7 +54,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  * @public
  * @description
  *      This module handles the management of users. Using it, You will be able to create new users, to modify information of users and to delete them.<br>
- *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow. <br/>
+ *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
  *      - Create a new user in a specified company <br>
@@ -62,7 +62,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  *      - Delete an existing user <br>
  *      - Invite a user in Rainbow <br>
  *      - Change the password of a user <br>
- *      - Create a guest user <br/>
+ *      - Create a guest user <br>
  */
 class AdminService extends GenericService {
     private _contacts: ContactsService;
@@ -139,7 +139,7 @@ class AdminService extends GenericService {
      * @method createCompany
      * @instance
      * @description
-     *      Create a company <br/>
+     *      Create a company <br>
      * @param {string} strName The name of the new company
      * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
      * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
@@ -236,7 +236,7 @@ class AdminService extends GenericService {
      * @method createUserInCompany
      * @instance
      * @description
-     *      Create a new user in a given company <br/>
+     *      Create a new user in a given company <br>
      * @param {string} email The email of the user to create
      * @param {string} password The associated password
      * @param {string} firstname The user firstname
@@ -310,7 +310,7 @@ class AdminService extends GenericService {
      * @method createGuestUser
      * @instance
      * @description
-     *      Create a new guest user in the same company as the requester admin <br/>
+     *      Create a new guest user in the same company as the requester admin <br>
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
@@ -369,8 +369,8 @@ class AdminService extends GenericService {
      * @since 1.31
      * @instance
      * @description
-     *      Create a new anonymous guest user in the same company as the requester admin   <br/>
-     *      Anonymous guest user is user without name and firstname   <br/>
+     *      Create a new anonymous guest user in the same company as the requester admin   <br>
+     *      Anonymous guest user is user without name and firstname   <br>
      * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
      * @category Companies and users management
@@ -410,7 +410,7 @@ class AdminService extends GenericService {
      * @method inviteUserInCompany
      * @instance
      * @description
-     *      Invite a new user to join a company in Rainbow <br/>
+     *      Invite a new user to join a company in Rainbow <br>
      * @param {string} email The email address of the contact to invite
      * @param {string} companyId     The id of the company where the user will be invited in
      * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
@@ -464,7 +464,7 @@ class AdminService extends GenericService {
      * @method changePasswordForUser
      * @instance
      * @description
-     *      Change a password for a user <br/>
+     *      Change a password for a user <br>
      * @param {string} password The new password
      * @param {string} userId The id of the user
      * @async
@@ -513,7 +513,7 @@ class AdminService extends GenericService {
      * @method updateInformationForUser
      * @instance
      * @description
-     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` <br/>
+     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` <br>
      * @param {Object} objData An object (key: value) containing the data to change with their new value
      * @param {string} userId The id of the user
      * @async
@@ -568,7 +568,7 @@ class AdminService extends GenericService {
      * @method deleteUser
      * @instance
      * @description
-     *      Delete an existing user <br/>
+     *      Delete an existing user <br>
      * @param {string} userId The id of the user
      * @async
      * @category Companies and users management
@@ -609,7 +609,7 @@ class AdminService extends GenericService {
      * @method getAllCompanies
      * @instance
      * @description
-     *      Get all companies for a given admin <br/>
+     *      Get all companies for a given admin <br>
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
@@ -700,7 +700,7 @@ class AdminService extends GenericService {
      * @method getAllUsers
      * @instance
      * @description
-     *      Get all users for a given admin <br/>
+     *      Get all users for a given admin <br>
      * @async
      * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
@@ -743,7 +743,7 @@ class AdminService extends GenericService {
      * @method getAllUsersByCompanyId
      * @instance
      * @description
-     *      Get all users for a given admin in a company <br/>
+     *      Get all users for a given admin in a company <br>
      * @async
      * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
@@ -788,7 +788,7 @@ class AdminService extends GenericService {
      * @method getAllUsersBySearchEmailByCompanyId
      * @instance
      * @description
-     *      Get all users for a given admin in a company by a search of string in email<br/>
+     *      Get all users for a given admin in a company by a search of string in email<br>
      * @async
      * @category Companies and users management
      * @param {string} format Allows to retrieve more or less user details in response.
@@ -833,7 +833,7 @@ class AdminService extends GenericService {
      * @method getContactInfos
      * @instance
      * @description
-     *      Get informations about a user <br/>
+     *      Get informations about a user <br>
      * @param {string} userId The id of the user
      * @async
      * @category Companies and users management
@@ -870,129 +870,129 @@ class AdminService extends GenericService {
      * @method updateContactInfos
      * @instance
      * @description
-     *      Set informations about a user <br/>
+     *      Set informations about a user <br>
      * @param {string} userId The id of the user
-     * @param {Object} infos The infos of the user : <br/>
-     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
-     * <br/> Must be unique (409 error is returned if a user already exists with the same email address). <br/>
-     *  {string{8..64}}   [infos.password]        User password. <br/>
-     * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br/>
-     * {string{1..255}}  [infos.firstName]     User first name <br/>
-     * {string{1..255}}  [infos.lastName]      User last name <br/>
-     * {string{1..255}}  [infos.nickName]      User nickName <br/>
-     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-     * {string{1..255}}  [infos.jobTitle]      User job title <br/>
-     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
-     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br/>
-     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br/>
-     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br/>
-     * the search API to search the user based on his tags. <br/>
-     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br/>
-     * {string{3..255}}          [infos.emails.email]    User email address <br/>
-     * {string=home,work,other}  [infos.emails.type]     User email type <br/>
-     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br/>
-     * <br/>
-     * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br/>
-     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br/>
-     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
-     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
-     * <br/>
-     * <br/>If not provided, user country is used by default. <br/>
-     * {string=home,work,other}              phoneNumbers.type           Phone number type <br/>
-     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
-     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
-     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
-     * <br/> USA states code list: <br/>
-     * <li> <code>AA</code>:"Armed Forces America", <br/>
-     * <li> <code>AE</code>:"Armed Forces", <br/>
-     * <li> <code>AP</code>:"Armed Forces Pacific", <br/>
-     * <li> <code>AK</code>:"Alaska", <br/>
-     * <li> <code>AL</code>:"Alabama", <br/>
-     * <li> <code>AR</code>:"Arkansas", <br/>
-     * <li> <code>AZ</code>:"Arizona", <br/>
-     * <li> <code>CA</code>:"California", <br/>
-     * <li> <code>CO</code>:"Colorado", <br/>
-     * <li> <code>CT</code>:"Connecticut", <br/>
-     * <li> <code>DC</code>:"Washington DC", <br/>
-     * <li> <code>DE</code>:"Delaware", <br/>
-     * <li> <code>FL</code>:"Florida", <br/>
-     * <li> <code>GA</code>:"Georgia", <br/>
-     * <li> <code>GU</code>:"Guam", <br/>
-     * <li> <code>HI</code>:"Hawaii", <br/>
-     * <li> <code>IA</code>:"Iowa", <br/>
-     * <li> <code>ID</code>:"Idaho", <br/>
-     * <li> <code>IL</code>:"Illinois", <br/>
-     * <li> <code>IN</code>:"Indiana", <br/>
-     * <li> <code>KS</code>:"Kansas", <br/>
-     * <li> <code>KY</code>:"Kentucky", <br/>
-     * <li> <code>LA</code>:"Louisiana", <br/>
-     * <li> <code>MA</code>:"Massachusetts", <br/>
-     * <li> <code>MD</code>:"Maryland", <br/>
-     * <li> <code>ME</code>:"Maine", <br/>
-     * <li> <code>MI</code>:"Michigan", <br/>
-     * <li> <code>MN</code>:"Minnesota", <br/>
-     * <li> <code>MO</code>:"Missouri", <br/>
-     * <li> <code>MS</code>:"Mississippi", <br/>
-     * <li> <code>MT</code>:"Montana", <br/>
-     * <li> <code>NC</code>:"North Carolina", <br/>
-     * <li> <code>ND</code>:"Northmo Dakota", <br/>
-     * <li> <code>NE</code>:"Nebraska", <br/>
-     * <li> <code>NH</code>:"New Hampshire", <br/>
-     * <li> <code>NJ</code>:"New Jersey", <br/>
-     * <li> <code>NM</code>:"New Mexico", <br/>
-     * <li> <code>NV</code>:"Nevada", <br/>
-     * <li> <code>NY</code>:"New York", <br/>
-     * <li> <code>OH</code>:"Ohio", <br/>
-     * <li> <code>OK</code>:"Oklahoma", <br/>
-     * <li> <code>OR</code>:"Oregon", <br/>
-     * <li> <code>PA</code>:"Pennsylvania", <br/>
-     * <li> <code>PR</code>:"Puerto Rico", <br/>
-     * <li> <code>RI</code>:"Rhode Island", <br/>
-     * <li> <code>SC</code>:"South Carolina", <br/>
-     * <li> <code>SD</code>:"South Dakota", <br/>
-     * <li> <code>TN</code>:"Tennessee", <br/>
-     * <li> <code>TX</code>:"Texas", <br/>
-     * <li> <code>UT</code>:"Utah", <br/>
-     * <li> <code>VA</code>:"Virginia", <br/>
-     * <li> <code>VI</code>:"Virgin Islands", <br/>
-     * <li> <code>VT</code>:"Vermont", <br/>
-     * <li> <code>WA</code>:"Washington", <br/>
-     * <li> <code>WI</code>:"Wisconsin", <br/>
-     * <li> <code>WV</code>:"West Virginia", <br/>
-     * <li> <code>WY</code>:"Wyoming" <br/>
-     * <br/> Canada states code list: <br/>
-     * <li> <code>AB</code>: "Alberta", <br/>
-     * <li> <code>BC</code>: "British Columbia", <br/>
-     * <li> <code>MB</code>: "Manitoba", <br/>
-     * <li> <code>NB</code>:	"New Brunswick", <br/>
-     * <li> <code>NL</code>: "Newfoundland and Labrador", <br/>
-     * <li> <code>NS</code>: "Nova Scotia", <br/>
-     * <li> <code>NT</code>: "Northwest Territories", <br/>
-     * <li> <code>NU</code>: "Nunavut", <br/>
-     * <li> <code>ON</code>: "Ontario", <br/>
-     * <li> <code>PE</code>: "Prince Edward Island", <br/>
-     * <li> <code>QC</code>: "Quebec", <br/>
-     * <li> <code>SK</code>: "Saskatchewan", <br/>
-     * <li> <code>YT</code>: "Yukon" <br/>
-     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
-     * <br/> 
-     * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br/>
-     * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br/>
-     * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br/>
-     * {string}          [infos.timezone]      User timezone name <br/>
-     * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br/>
-     * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br/>
-     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
-     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
-     * <br/>
-     * <br/>The general rule is that a user must have the roles that the wants to assign to someone else. <br/>
-     * <br/>Examples: <br/>
+     * @param {Object} infos The infos of the user : <br>
+     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br>
+     * <br> Must be unique (409 error is returned if a user already exists with the same email address). <br>
+     *  {string{8..64}}   [infos.password]        User password. <br>
+     * <br> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br>
+     * {string{1..255}}  [infos.firstName]     User first name <br>
+     * {string{1..255}}  [infos.lastName]      User last name <br>
+     * {string{1..255}}  [infos.nickName]      User nickName <br>
+     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br>
+     * {string{1..255}}  [infos.jobTitle]      User job title <br>
+     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br>
+     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br>
+     * the search API to search the user based on his tags. <br>
+     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br>
+     * {string{3..255}}          [infos.emails.email]    User email address <br>
+     * {string=home,work,other}  [infos.emails.type]     User email type <br>
+     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br>
+     * <br>
+     * <br><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br>
+     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br>
+     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br>
+     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br>
+     * <br>
+     * <br>If not provided, user country is used by default. <br>
+     * {string=home,work,other}              phoneNumbers.type           Phone number type <br>
+     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br>
+     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br>
+     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br>
+     * <br> USA states code list: <br>
+     * <li> <code>AA</code>:"Armed Forces America", <br>
+     * <li> <code>AE</code>:"Armed Forces", <br>
+     * <li> <code>AP</code>:"Armed Forces Pacific", <br>
+     * <li> <code>AK</code>:"Alaska", <br>
+     * <li> <code>AL</code>:"Alabama", <br>
+     * <li> <code>AR</code>:"Arkansas", <br>
+     * <li> <code>AZ</code>:"Arizona", <br>
+     * <li> <code>CA</code>:"California", <br>
+     * <li> <code>CO</code>:"Colorado", <br>
+     * <li> <code>CT</code>:"Connecticut", <br>
+     * <li> <code>DC</code>:"Washington DC", <br>
+     * <li> <code>DE</code>:"Delaware", <br>
+     * <li> <code>FL</code>:"Florida", <br>
+     * <li> <code>GA</code>:"Georgia", <br>
+     * <li> <code>GU</code>:"Guam", <br>
+     * <li> <code>HI</code>:"Hawaii", <br>
+     * <li> <code>IA</code>:"Iowa", <br>
+     * <li> <code>ID</code>:"Idaho", <br>
+     * <li> <code>IL</code>:"Illinois", <br>
+     * <li> <code>IN</code>:"Indiana", <br>
+     * <li> <code>KS</code>:"Kansas", <br>
+     * <li> <code>KY</code>:"Kentucky", <br>
+     * <li> <code>LA</code>:"Louisiana", <br>
+     * <li> <code>MA</code>:"Massachusetts", <br>
+     * <li> <code>MD</code>:"Maryland", <br>
+     * <li> <code>ME</code>:"Maine", <br>
+     * <li> <code>MI</code>:"Michigan", <br>
+     * <li> <code>MN</code>:"Minnesota", <br>
+     * <li> <code>MO</code>:"Missouri", <br>
+     * <li> <code>MS</code>:"Mississippi", <br>
+     * <li> <code>MT</code>:"Montana", <br>
+     * <li> <code>NC</code>:"North Carolina", <br>
+     * <li> <code>ND</code>:"Northmo Dakota", <br>
+     * <li> <code>NE</code>:"Nebraska", <br>
+     * <li> <code>NH</code>:"New Hampshire", <br>
+     * <li> <code>NJ</code>:"New Jersey", <br>
+     * <li> <code>NM</code>:"New Mexico", <br>
+     * <li> <code>NV</code>:"Nevada", <br>
+     * <li> <code>NY</code>:"New York", <br>
+     * <li> <code>OH</code>:"Ohio", <br>
+     * <li> <code>OK</code>:"Oklahoma", <br>
+     * <li> <code>OR</code>:"Oregon", <br>
+     * <li> <code>PA</code>:"Pennsylvania", <br>
+     * <li> <code>PR</code>:"Puerto Rico", <br>
+     * <li> <code>RI</code>:"Rhode Island", <br>
+     * <li> <code>SC</code>:"South Carolina", <br>
+     * <li> <code>SD</code>:"South Dakota", <br>
+     * <li> <code>TN</code>:"Tennessee", <br>
+     * <li> <code>TX</code>:"Texas", <br>
+     * <li> <code>UT</code>:"Utah", <br>
+     * <li> <code>VA</code>:"Virginia", <br>
+     * <li> <code>VI</code>:"Virgin Islands", <br>
+     * <li> <code>VT</code>:"Vermont", <br>
+     * <li> <code>WA</code>:"Washington", <br>
+     * <li> <code>WI</code>:"Wisconsin", <br>
+     * <li> <code>WV</code>:"West Virginia", <br>
+     * <li> <code>WY</code>:"Wyoming" <br>
+     * <br> Canada states code list: <br>
+     * <li> <code>AB</code>: "Alberta", <br>
+     * <li> <code>BC</code>: "British Columbia", <br>
+     * <li> <code>MB</code>: "Manitoba", <br>
+     * <li> <code>NB</code>:	"New Brunswick", <br>
+     * <li> <code>NL</code>: "Newfoundland and Labrador", <br>
+     * <li> <code>NS</code>: "Nova Scotia", <br>
+     * <li> <code>NT</code>: "Northwest Territories", <br>
+     * <li> <code>NU</code>: "Nunavut", <br>
+     * <li> <code>ON</code>: "Ontario", <br>
+     * <li> <code>PE</code>: "Prince Edward Island", <br>
+     * <li> <code>QC</code>: "Quebec", <br>
+     * <li> <code>SK</code>: "Saskatchewan", <br>
+     * <li> <code>YT</code>: "Yukon" <br>
+     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br>
+     * <br> 
+     * <br> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br>
+     * <br> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br>
+     * <br> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br>
+     * {string}          [infos.timezone]      User timezone name <br>
+     * <br> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br>
+     * <br> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br>
+     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br>
+     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br>
+     * <br>
+     * <br>The general rule is that a user must have the roles that the wants to assign to someone else. <br>
+     * <br>Examples: <br>
      * <ul>
      *     <li>an <code>admin</code> can add or remove the role <code>admin</code> to another user of the company(ies) he manages,</li>
      *     <li>an <code>bp_admin</code> can add or remove the role <code>bp_admin</code> to another user of the company(ies) he manages,</li>
      *     <li>an <code>app_superadmin</code> can add or remove the role <code>app_superadmin</code> to another user...</li>
      * </ul>
-     * Here are some explanations regarding the roles available in Rainbow: <br/>
+     * Here are some explanations regarding the roles available in Rainbow: <br>
      * <ul>
      * <li><code>admin</code>, <code>bp_admin</code> and <code>bp_finance</code> roles are related to company management (and resources linked to companies, such as users, systems, subscriptions, ...).</li>
      * <li><code>bp_admin</code> and <code>bp_finance</code> roles can only be set to users of a BP company (company with isBP=true).</li>
@@ -1001,36 +1001,36 @@ class AdminService extends GenericService {
      * <li>Only <code>superadmin</code> can set <code>superadmin</code> and <code>support</code> roles to a user.</li>
      * <li>A user with admin rights (admin, bp_admin, superadmin) can't change his own roles, except for roles related to channels (<code>all_company_channels_admin</code>, <code>public_channels_admin</code> and <code>closed_channels_admin</code>).</li>
      * </ul>
-     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
-     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
-     * <br/> companyName field is automatically filled on server side based on companyId. <br/>
-     * {Boolean} [infos.isActive=true]         Is user active <br/>
-     * {Boolean} [infos.isInitialized=false]   Is user initialized <br/>
-     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
-     * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br/>
-     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users <br/>
-     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users <br/>
-     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
-     * <br/>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. <br/>
-     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. <br/>
-     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. <br/>
-     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
-     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br/>
-     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br/>
-     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
-     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     * {string} selectedTheme Set the selected theme for the user. <br/>
-     * {Object} customData  User's custom data. <br/>
-     *    key1 	string User's custom data key1. <br/>
-     *    key2 	string Company's custom data key2. <br/>
-     *  customData can only be created/updated by: <br/>
-     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/> 
-     *   Restrictions on customData Object: <br/>
-     *   max 20 keys, <br/>
-     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br/>   
+     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br>
+     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br>
+     * <br> companyName field is automatically filled on server side based on companyId. <br>
+     * {Boolean} [infos.isActive=true]         Is user active <br>
+     * {Boolean} [infos.isInitialized=false]   Is user initialized <br>
+     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br>
+     * <br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br>
+     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users <br>
+     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users <br>
+     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
+     * <br>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. <br>
+     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. <br>
+     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. <br>
+     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
+     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br>
+     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br>
+     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br>
+     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     * {string} selectedTheme Set the selected theme for the user. <br>
+     * {Object} customData  User's custom data. <br>
+     *    key1 	string User's custom data key1. <br>
+     *    key2 	string Company's custom data key2. <br>
+     *  customData can only be created/updated by: <br>
+     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br> 
+     *   Restrictions on customData Object: <br>
+     *   max 20 keys, <br>
+     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br>   
      *
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -1122,8 +1122,8 @@ class AdminService extends GenericService {
      * @method askTokenOnBehalf
      * @instance
      * @description
-     *      Ask Rainbow for a token on behalf a user <br/>
-     *      This allow to not use the secret key on client side <br/>
+     *      Ask Rainbow for a token on behalf a user <br>
+     *      This allow to not use the secret key on client side <br>
      * @param {string} loginEmail The user login email
      * @param {string} password The user password
      * @async
@@ -1161,11 +1161,11 @@ class AdminService extends GenericService {
      * @method getUserPresenceInformation
      * @instance
      * @description
-     *      Get presence informations about a user <br/>
-     * <br/>
-     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br/>
-     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br/>
-     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br/>
+     *      Get presence informations about a user <br>
+     * <br>
+     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br>
+     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br>
+     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br>
      * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id.
      * @async
      * @category Users at running
@@ -1205,7 +1205,7 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the offers.
      * @description
-     *      Method to retrieve all the offers of one company on server. <br/>
+     *      Method to retrieve all the offers of one company on server. <br>
      * @return {Promise<Array<any>>}
      */
     retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
@@ -1237,12 +1237,12 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the subscriptions.
-     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </br>
-     * - small: id offerId profileId isDefault</br>
-     * - medium: id offerId profileId isDefault maxNumberUsers status</br>
-     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)</br>
+     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") <br>
+     * - small: id offerId profileId isDefault<br>
+     * - medium: id offerId profileId isDefault maxNumberUsers status<br>
+     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)<br>
      * @description
-     *      Method to retrieve all the subscriptions of one company on server. <br/>
+     *      Method to retrieve all the subscriptions of one company on server. <br>
      * @return {Promise<Array<any>>}
      */
     retrieveAllSubscriptionsOfCompanyById(companyId?: string, format : string = "small") : Promise<Array<any>> {
@@ -1276,7 +1276,7 @@ class AdminService extends GenericService {
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to get the subscription of one company for one offer. <br/>
+     *      Method to get the subscription of one company for one offer. <br>
      * @return {Promise<any>}
      */
     async getSubscriptionsOfCompanyByOfferId(offerId, companyId) : Promise<any>{
@@ -1310,7 +1310,7 @@ class AdminService extends GenericService {
      * @param {number} maxNumberUsers
      * @param {boolean} autoRenew
      * @description
-     *      Method to subscribe one company to one offer. <br/>
+     *      Method to subscribe one company to one offer. <br>
      * @return {Promise<any>}
      */
     subscribeCompanyToOfferById(offerId: string, companyId? : string, maxNumberUsers? : number, autoRenew? : boolean ) {
@@ -1350,8 +1350,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer demo. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to subscribe one company to offer demo. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     subscribeCompanyToDemoOffer(companyId? : string) {
@@ -1384,8 +1384,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer demo. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to unsubscribe one company to offer demo. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToDemoOffer(companyId? : string) {
@@ -1418,8 +1418,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer Alert. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to subscribe one company to offer Alert. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     subscribeCompanyToAlertOffer(companyId? : string) {
@@ -1453,8 +1453,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the unsubscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer Alert. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to unsubscribe one company to offer Alert. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToAlertOffer(companyId? : string) {
@@ -1487,8 +1487,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company the subscription of the offer.
      * @description
-     *      Method to subscribe one company to offer Voice Enterprise. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to subscribe one company to offer Voice Enterprise. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     subscribeCompanyToVoiceEnterpriseOffer(companyId? : string) {
@@ -1522,8 +1522,8 @@ class AdminService extends GenericService {
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to the unsubscription of the offer.
      * @description
-     *      Method to unsubscribe one company to offer Voice Enterprise. <br/>
-     *      Private offer on .Net platform. <br/>
+     *      Method to unsubscribe one company to offer Voice Enterprise. <br>
+     *      Private offer on .Net platform. <br>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToVoiceEnterpriseOffer(companyId? : string) {
@@ -1557,7 +1557,7 @@ class AdminService extends GenericService {
      * @param {string} offerId Id of the offer to filter subscriptions.
      * @param {string} companyId Id of the company to get the subscription of the offer.
      * @description
-     *      Method to unsubscribe one company to one offer . <br/>
+     *      Method to unsubscribe one company to one offer . <br>
      * @return {Promise<any>}
      */
     unSubscribeCompanyToOfferById(offerId: string, companyId? : string ) {
@@ -1603,7 +1603,7 @@ class AdminService extends GenericService {
      * @param {string} userId the id of the user which will subscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to attach to user.
      * @description
-     *      Method to subscribe one user to a subscription of the company. <br/>
+     *      Method to subscribe one user to a subscription of the company. <br>
      * @return {Promise<any>}
      */
     subscribeUserToSubscription(userId? : string, subscriptionId? : string) {
@@ -1633,7 +1633,7 @@ class AdminService extends GenericService {
      * @param {string} userId the id of the user which will unsubscribe. If not provided, the connected user is used.
      * @param {string} subscriptionId the id of the subscription to unsubscribe the user.
      * @description
-     *      Method to unsubscribe one user to a subscription. <br/>
+     *      Method to unsubscribe one user to a subscription. <br>
      * @return {Promise<any>}
      */
     unSubscribeUserToSubscription(userId? : string, subscriptionId? : string) {
@@ -1672,49 +1672,49 @@ class AdminService extends GenericService {
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
      * @description
-     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br/>
-     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br/>
-     * <br/>
-     * Supported fields for "user" management are: <br/>
-     * __action__  delete, upsert, sync or detach <br/>
-     * loginEmail  (mandatory) <br/>
-     * password  (mandatory) <br/>
-     * title <br/>
-     * firstName <br/>
-     * lastName <br/>
-     * nickName <br/>
-     * businessPhone{n}  (n is a number starting from 0 or 1) <br/>
-     * mobilePhone{n}  (n is a number starting from 0 or 1) <br/>
-     * email{n}  (n is a number starting from 0 or 1) <br/>
-     * tags{n}  (n is a number starting from 0 to 4) <br/>
-     * jobTitle <br/>
-     * department <br/>
-     * userInfo1 <br/>
-     * userInfo2 <br/>
-     * country <br/>
-     * language <br/>
-     * timezone <br/>
-     * visibility <br/>
-     * isInitialized <br/>
-     * authenticationType <br/>
-     * service{n} <br/>
-     * accountType <br/>
-     * photoUrl <br/>
-     * <br/>
-     * Supported fields for "device" management are: <br/>
-     * loginEmail (mandatory) <br/>
-     * pbxId <br/>
-     * pbxShortNumber <br/>
-     * pbxInternalNumber <br/>
-     * number <br/>
-     * <br/>
-     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br/>
-     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br/>
-     * <br/>
-     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br/>
-     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br/>
-     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br/>
-     * <br/>
+     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br>
+     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br>
+     * <br>
+     * Supported fields for "user" management are: <br>
+     * __action__  delete, upsert, sync or detach <br>
+     * loginEmail  (mandatory) <br>
+     * password  (mandatory) <br>
+     * title <br>
+     * firstName <br>
+     * lastName <br>
+     * nickName <br>
+     * businessPhone{n}  (n is a number starting from 0 or 1) <br>
+     * mobilePhone{n}  (n is a number starting from 0 or 1) <br>
+     * email{n}  (n is a number starting from 0 or 1) <br>
+     * tags{n}  (n is a number starting from 0 to 4) <br>
+     * jobTitle <br>
+     * department <br>
+     * userInfo1 <br>
+     * userInfo2 <br>
+     * country <br>
+     * language <br>
+     * timezone <br>
+     * visibility <br>
+     * isInitialized <br>
+     * authenticationType <br>
+     * service{n} <br>
+     * accountType <br>
+     * photoUrl <br>
+     * <br>
+     * Supported fields for "device" management are: <br>
+     * loginEmail (mandatory) <br>
+     * pbxId <br>
+     * pbxShortNumber <br>
+     * pbxInternalNumber <br>
+     * number <br>
+     * <br>
+     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br>
+     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br>
+     * <br>
+     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br>
+     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br>
+     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br>
+     * <br>
      * @return {Promise<any>} import summary result.
      */
     synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") : Promise<{
@@ -1767,30 +1767,30 @@ class AdminService extends GenericService {
      * - rainbowvoice : provider the user and subscriber/DDI/device association management template.
      * @param {string} comment Only the template comment..
      * @description
-     *      This API provides a CSV template. <br/>
-     *      result : <br/>
-     *      CSV {Object[]} lines with all supported headers and some samples : <br/> 
-     *      __action__ {string} Action to perform values : create, update, delete, upsert, detach <br/>
-     *      loginEmail {string} email address - Main or professional email used as login <br/>
-     *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) <br/>
-     *      title optionnel {string} (e.g. Mr, Mrs, Dr, ...) <br/>
-     *      firstName optionnel {string} <br/>
-     *      lastName optionnel {string} <br/>
-     *      nickName optionnel {string} <br/>
-     *      businessPhone0 optionnel {string} E.164 number - DDI phone number (e.g. +33123456789) <br/>
-     *      mobilePhone0 optionnel {string} E.164 number - Mobile phone number (e.g. +33601234567) <br/>
-     *      email0 optionnel {string} email address - Personal email <br/>
-     *      jobTitle optionnel {string} <br/>
-     *      department optionnel {string} <br/>
-     *      country optionnel {string} ISO 3166-1 alpha-3 - (e.g. FRA) <br/>
-     *      language optionnel {string} ISO 639-1 (en) / with ISO 31661 alpha-2 (en-US) <br/>
-     *      timezone optionnel {string} IANA tz database (Europe/Paris) <br/>
-     *      pbxShortNumber optionnel {number} PBX extension number <br/>
-     *      pbxInternalNumber optionnel {string} E.164 number - Private number when different from extension number <br/>
-     *      selectedAppCustomisationTemplateName optionnel {string} Allow to specify an application customisation template for this user. The application customisation template has to be specified using its name (ex: "Chat and Audio", "Custom profile")     Values( Full, Phone, calls, only, Audio, only, Chat, and, Audio, Same, as, company, , profile) <br/>
-     *      shortNumber optionnel string subscriber {number} (only for rainbowvoice mode) <br/>
-     *      macAddress optionnel {string} macAddress of the associated SIP device of the subscriber (only for rainbowvoice mode) <br/>
-     *      ddiE164Number optionnel string E.164 {number} - E164 number of the associted DDI of the subscriber (only for rainbowvoice mode) <br/>
+     *      This API provides a CSV template. <br>
+     *      result : <br>
+     *      CSV {Object[]} lines with all supported headers and some samples : <br> 
+     *      __action__ {string} Action to perform values : create, update, delete, upsert, detach <br>
+     *      loginEmail {string} email address - Main or professional email used as login <br>
+     *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) <br>
+     *      title optionnel {string} (e.g. Mr, Mrs, Dr, ...) <br>
+     *      firstName optionnel {string} <br>
+     *      lastName optionnel {string} <br>
+     *      nickName optionnel {string} <br>
+     *      businessPhone0 optionnel {string} E.164 number - DDI phone number (e.g. +33123456789) <br>
+     *      mobilePhone0 optionnel {string} E.164 number - Mobile phone number (e.g. +33601234567) <br>
+     *      email0 optionnel {string} email address - Personal email <br>
+     *      jobTitle optionnel {string} <br>
+     *      department optionnel {string} <br>
+     *      country optionnel {string} ISO 3166-1 alpha-3 - (e.g. FRA) <br>
+     *      language optionnel {string} ISO 639-1 (en) / with ISO 31661 alpha-2 (en-US) <br>
+     *      timezone optionnel {string} IANA tz database (Europe/Paris) <br>
+     *      pbxShortNumber optionnel {number} PBX extension number <br>
+     *      pbxInternalNumber optionnel {string} E.164 number - Private number when different from extension number <br>
+     *      selectedAppCustomisationTemplateName optionnel {string} Allow to specify an application customisation template for this user. The application customisation template has to be specified using its name (ex: "Chat and Audio", "Custom profile")     Values( Full, Phone, calls, only, Audio, only, Chat, and, Audio, Same, as, company, , profile) <br>
+     *      shortNumber optionnel string subscriber {number} (only for rainbowvoice mode) <br>
+     *      macAddress optionnel {string} macAddress of the associated SIP device of the subscriber (only for rainbowvoice mode) <br>
+     *      ddiE164Number optionnel string E.164 {number} - E164 number of the associted DDI of the subscriber (only for rainbowvoice mode) <br>
      * @return {Promise<any>}
      */
     getCSVTemplate(companyId? : string, mode : string = "useranddevice", comment? : string ) {
@@ -1823,25 +1823,25 @@ class AdminService extends GenericService {
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
      * @description
-     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br/>
-     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
-     *      { <br/>
-     *           actions {Object} actions information <br/>
-     *               sync optionnel {number} number of user synchronization actions <br/>
-     *               upsert optionnel {number} number of user create/update actions <br/>
-     *               delete optionnel {number} number of user remove actions <br/>
-     *               detach optionnel {number} number of device unpairing actions <br/>
-     *           reqId {string} check request identifier <br/>
-     *           mode {string} request csv mode Valeurs autorisées : user, device <br/>
-     *           columns {number} number of columns in the CSV <br/>
-     *           delimiter {string} the CSV delimiter <br/>
-     *           profiles {Object} the managed profiles <br/>
-     *              name {string} the managed profiles name <br/>
-     *              valid {boolean} the managed profiles validity <br/>
-     *              assignedBefore {number} the assigned number of managed profiles before this import <br/>
-     *              assignedAfter {number} the assigned number of managed profiles after this import has been fulfilled <br/>
-     *              max number the {maximum} number of managed profiles available <br/>
-     *      } <br/>
+     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br>
+     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
+     *      { <br>
+     *           actions {Object} actions information <br>
+     *               sync optionnel {number} number of user synchronization actions <br>
+     *               upsert optionnel {number} number of user create/update actions <br>
+     *               delete optionnel {number} number of user remove actions <br>
+     *               detach optionnel {number} number of device unpairing actions <br>
+     *           reqId {string} check request identifier <br>
+     *           mode {string} request csv mode Valeurs autorisées : user, device <br>
+     *           columns {number} number of columns in the CSV <br>
+     *           delimiter {string} the CSV delimiter <br>
+     *           profiles {Object} the managed profiles <br>
+     *              name {string} the managed profiles name <br>
+     *              valid {boolean} the managed profiles validity <br>
+     *              assignedBefore {number} the assigned number of managed profiles before this import <br>
+     *              assignedAfter {number} the assigned number of managed profiles after this import has been fulfilled <br>
+     *              max number the {maximum} number of managed profiles available <br>
+     *      } <br>
      * @return {Promise<any>}
      */
     checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string  = "%") : any {
@@ -1877,91 +1877,91 @@ class AdminService extends GenericService {
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. default "%"
      * @param {string} csvData the csv of the user and device to synchronize.
      * @description
-     *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. <br/>
-     *      The first line of the CSV data describes the content format. <br/>
-     *      Most of the field names are the field names of the admin createUser API. <br/>
-     *      Additional field used for Subscriber management is: shortNumber <br/>
-     *      Additional field used for DDI attachment is: ddiE164Number  <br/>
-     *      Additional field used for Sip device attachment is: macAddress <br/>
-     *  <br/>
-     *      Supported fields for "user" management are: <br/>
-     *      __action__    upsert, delete or detach <br/>
-     *      loginEmail    (mandatory) <br/>
-     *      password    (mandatory) <br/> 
-     *      title <br/>
-     *      firstName <br/>
-     *      lastName <br/>
-     *      nickName <br/>
-     *      businessPhone{n}    (n is a number starting from 0 or 1) <br/>
-     *      mobilePhone{n}    (n is a number starting from 0 or 1) <br/>
-     *      email{n}    (n is a number starting from 0 or 1) <br/>
-     *      tags{n}    (n is a number starting from 0 to 4) <br/>
-     *      jobTitle <br/>
-     *      department <br/>
-     *      userInfo1 <br/>
-     *      userInfo2 <br/>
-     *      country <br/>
-     *      language <br/>
-     *      timezone <br/>
-     *      visibility <br/>
-     *      isInitialized <br/>
-     *      authenticationType <br/>
-     *      service{n} <br/>
-     *      accountType <br/>
-     *      photoUrl <br/>
-     *       <br/>
-     *      Supported fields for "subscriber" management are: <br/>
-     * <br/>
-     *      loginEmail    (mandatory) <br/>
-     *      shortNumber <br/>
-     * <br/>
-     *      Supported fields for "SIP Device" management are: <br/>
-     * <br/>
-     *      loginEmail    (mandatory) <br/>
-     *      macAddress <br/>
-     * <br/>
-     *      Supported fields for "DDI" management are: <br/>
-     * <br/>
-     *      loginEmail    (mandatory) <br/>
-     *      ddiE164Number <br/>
-     * <br/>
-     *      __action__ description : <br/>
-     *      upsert: allows to modify user (update or create if doesn't exist). It attaches also a subscriber (if field shortNumber is filled) , attaches a Sip Device (if field macAddress is filled) and attaches a DDI (if field ddiE164Number is filled) <br/>
-     *      Remark: empty fields are not taken into account. <br/>
-     * <br/>
-     *      detach: allows to detach subscriber (if field shortNumber is filled) ; to detach Sip Device (if field macAddress is filled) and to detach DDI (if field ddiE164Number is filled) <br/>
-     *      If field shortNumber is filled; detach action is done not only on subscriber but also on Sip Device and DDI automatically (even if fields macAddress and ddiE164Number are not filled) <br/>
-     *    <br/>
-     *      delete: allows to delete a user (if user is attached to a subscriber ; this subscriber + DDI + Sip device are automatically detached) <br/>
-     *       <br/>
-     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
-     *   <br/>
-     *      Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. If you really need to apply same CSV data again, you will have to delete its associated import report first. <br/>
-     * <br/>
-     *      Error codes: <br/>
-     *      2001 'company {companyId} has no Cloud Pbx' <br/>
-     *      2002 'ShortNumber {shortNumber} not in line with Cloud PBX Numbering Plan for company {companyId}' <br/>
-     *      2003 'ShortNumber {shortNumber} is already assigned to someone else inside this company {companyId}' <br/>
-     *      2004 'user {userId} is already assigned into another PBX of the company {companyId}' <br/>
-     *      2005 'failed to create subscriber for user {userId} with shortNumber {shortNumber} into system {systemId}' <br/>
-     *      2006 'failed to update subscriber number for user {userId} with this new shortNumber {shortNumber} into system {systemId}' <br/>
-     *      2007 'there is no existing Sip Device with this macAddress {macAddress}' <br/>
-     *      2008 'the existing Sip Device with this macAddress {macAddress} is not belonging to the requested company {companyId}' <br/>
-     *      2009 'the existing Sip Device with this macAddress {macAddress} is attached to someone else: userId={userId}' <br/>
-     *      2010 'another Sip Device with macAddress {macAddress} is attached to user={userId}' <br/>
-     *      2011 'cannot assign/unassign a Sip device to this user {userId} ; he is not yet a subscriber' <br/>
-     *      2012 'failed to attach this Sip Device {macAddress} with this user {userId} %s' <br/>
-     *      2013 'cannot assign a DDI to this user {userId} ; he is not yet a subscriber' <br/>
-     *      2014 'there is no existing DDI with this number {ddiE164Number}' <br/>
-     *      2015 'the existing DDI with this number {ddiE164Number} is attached to someone else: userId={userId}' <br/>
-     *      2016 'another DDI with number {ddiE164Number} is attached to user={userId}' <br/>
-     *      2017 'failed to attach this DDI {ddiE164Number} with this user {userId}' <br/>
-     *      2018 'failed to detach subscriber for user {userId}, no shortNumber is provided' <br/>
-     *      2019 'failed to detach this subscriber {shortNumber into the request} from this user {userId}, user is attached to another subscriber {real subscriber shortNumber}' <br/>
-     *      2020 'cannot detach a DDI to this user {userId} ; he is no more a subscriber' <br/>
-     *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' <br/>
-     *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' <br/>
-     *      <br/>
+     *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. <br>
+     *      The first line of the CSV data describes the content format. <br>
+     *      Most of the field names are the field names of the admin createUser API. <br>
+     *      Additional field used for Subscriber management is: shortNumber <br>
+     *      Additional field used for DDI attachment is: ddiE164Number  <br>
+     *      Additional field used for Sip device attachment is: macAddress <br>
+     *  <br>
+     *      Supported fields for "user" management are: <br>
+     *      __action__    upsert, delete or detach <br>
+     *      loginEmail    (mandatory) <br>
+     *      password    (mandatory) <br> 
+     *      title <br>
+     *      firstName <br>
+     *      lastName <br>
+     *      nickName <br>
+     *      businessPhone{n}    (n is a number starting from 0 or 1) <br>
+     *      mobilePhone{n}    (n is a number starting from 0 or 1) <br>
+     *      email{n}    (n is a number starting from 0 or 1) <br>
+     *      tags{n}    (n is a number starting from 0 to 4) <br>
+     *      jobTitle <br>
+     *      department <br>
+     *      userInfo1 <br>
+     *      userInfo2 <br>
+     *      country <br>
+     *      language <br>
+     *      timezone <br>
+     *      visibility <br>
+     *      isInitialized <br>
+     *      authenticationType <br>
+     *      service{n} <br>
+     *      accountType <br>
+     *      photoUrl <br>
+     *       <br>
+     *      Supported fields for "subscriber" management are: <br>
+     * <br>
+     *      loginEmail    (mandatory) <br>
+     *      shortNumber <br>
+     * <br>
+     *      Supported fields for "SIP Device" management are: <br>
+     * <br>
+     *      loginEmail    (mandatory) <br>
+     *      macAddress <br>
+     * <br>
+     *      Supported fields for "DDI" management are: <br>
+     * <br>
+     *      loginEmail    (mandatory) <br>
+     *      ddiE164Number <br>
+     * <br>
+     *      __action__ description : <br>
+     *      upsert: allows to modify user (update or create if doesn't exist). It attaches also a subscriber (if field shortNumber is filled) , attaches a Sip Device (if field macAddress is filled) and attaches a DDI (if field ddiE164Number is filled) <br>
+     *      Remark: empty fields are not taken into account. <br>
+     * <br>
+     *      detach: allows to detach subscriber (if field shortNumber is filled) ; to detach Sip Device (if field macAddress is filled) and to detach DDI (if field ddiE164Number is filled) <br>
+     *      If field shortNumber is filled; detach action is done not only on subscriber but also on Sip Device and DDI automatically (even if fields macAddress and ddiE164Number are not filled) <br>
+     *    <br>
+     *      delete: allows to delete a user (if user is attached to a subscriber ; this subscriber + DDI + Sip device are automatically detached) <br>
+     *       <br>
+     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
+     *   <br>
+     *      Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. If you really need to apply same CSV data again, you will have to delete its associated import report first. <br>
+     * <br>
+     *      Error codes: <br>
+     *      2001 'company {companyId} has no Cloud Pbx' <br>
+     *      2002 'ShortNumber {shortNumber} not in line with Cloud PBX Numbering Plan for company {companyId}' <br>
+     *      2003 'ShortNumber {shortNumber} is already assigned to someone else inside this company {companyId}' <br>
+     *      2004 'user {userId} is already assigned into another PBX of the company {companyId}' <br>
+     *      2005 'failed to create subscriber for user {userId} with shortNumber {shortNumber} into system {systemId}' <br>
+     *      2006 'failed to update subscriber number for user {userId} with this new shortNumber {shortNumber} into system {systemId}' <br>
+     *      2007 'there is no existing Sip Device with this macAddress {macAddress}' <br>
+     *      2008 'the existing Sip Device with this macAddress {macAddress} is not belonging to the requested company {companyId}' <br>
+     *      2009 'the existing Sip Device with this macAddress {macAddress} is attached to someone else: userId={userId}' <br>
+     *      2010 'another Sip Device with macAddress {macAddress} is attached to user={userId}' <br>
+     *      2011 'cannot assign/unassign a Sip device to this user {userId} ; he is not yet a subscriber' <br>
+     *      2012 'failed to attach this Sip Device {macAddress} with this user {userId} %s' <br>
+     *      2013 'cannot assign a DDI to this user {userId} ; he is not yet a subscriber' <br>
+     *      2014 'there is no existing DDI with this number {ddiE164Number}' <br>
+     *      2015 'the existing DDI with this number {ddiE164Number} is attached to someone else: userId={userId}' <br>
+     *      2016 'another DDI with number {ddiE164Number} is attached to user={userId}' <br>
+     *      2017 'failed to attach this DDI {ddiE164Number} with this user {userId}' <br>
+     *      2018 'failed to detach subscriber for user {userId}, no shortNumber is provided' <br>
+     *      2019 'failed to detach this subscriber {shortNumber into the request} from this user {userId}, user is attached to another subscriber {real subscriber shortNumber}' <br>
+     *      2020 'cannot detach a DDI to this user {userId} ; he is no more a subscriber' <br>
+     *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' <br>
+     *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' <br>
+     *      <br>
      *      
      *      Sample :
      *      <code class="  language-csv">
@@ -1972,7 +1972,7 @@ class AdminService extends GenericService {
      *          delete    ;lupin13@ejo.company.com      ; 81023     ;   aa:bb:cc:dd:ee:13 ; 33298300513      ;Password_123 ;Mr   ;Arsene13   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
      *          delete    ;lupin14@ejo.company.com      ;           ;                     ;                  ;             ;     ;           ;        ;        ;                 ;</code>
      *          
-     *      return an {Object}  . <br/>
+     *      return an {Object}  . <br>
      * @return {Promise<any>}
      */
     importRainbowVoiceUsersWithCSVdata(companyId : string, label : string = null, noemails: boolean = true, nostrict : boolean = false, delimiter : string = null, comment : string = "%", csvData : string) {
@@ -2004,8 +2004,8 @@ class AdminService extends GenericService {
      * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
      * @description
-     *      This API generates a file describing all users (csv or json format). <br/>
-     *      return an {Object}  of synchronization data. <br/>
+     *      This API generates a file describing all users (csv or json format). <br>
+     *      return an {Object}  of synchronization data. <br>
      * @return {Promise<any>}
      */
     retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true) {
@@ -2038,19 +2038,19 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @description
-     *      This API allows to activate a Ldap connector. <br/>
-     *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br/>
-     * <br/>
-     *      Note 1 A brute force defense is activated when too much activation have been requested. As a result, an error 429 "Too Many Requests" will be returned during an increasing period to dissuade a slow brute force attack. <br/>
-     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br/>
-     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br/>
-     *       <br/>
-     *      return { <br/>
-     *          id {string} ldap connector unique identifier. <br/>
-     *          companyId {string} Company linked to the Ldap connector. <br/>
-     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br/>
-     *          password {string} Generated Ldap connector user password. <br/>
-     *          } <br/>
+     *      This API allows to activate a Ldap connector. <br>
+     *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br>
+     * <br>
+     *      Note 1 A brute force defense is activated when too much activation have been requested. As a result, an error 429 "Too Many Requests" will be returned during an increasing period to dissuade a slow brute force attack. <br>
+     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br>
+     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br>
+     *       <br>
+     *      return { <br>
+     *          id {string} ldap connector unique identifier. <br>
+     *          companyId {string} Company linked to the Ldap connector. <br>
+     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br>
+     *          password {string} Generated Ldap connector user password. <br>
+     *          } <br>
      * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>}
      */
     ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
@@ -2090,204 +2090,204 @@ class AdminService extends GenericService {
      * @param {string} sortField Sort user list based on the given field. Default : displayName
      * @param {number} sortOrder Specify order when sorting user list. Default : 1. Values : -1, 1
      * @description
-     *     This API allows administrators to retrieve all the ldap connectors. <br/>
-     *     Users with superadmin, support role can retrieve the connectors from any company. <br/>
-     *     Users with bp_admin or bp_finance role can only retrieve the connectors in companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-     *     Users with admin role can only retrieve the connectors in companies they can manage. That is to say: <br/>
-     *     an organization_admin can retrieve the connectors only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-     *     a company_admin can only retrieve the connectors in his company. <br/>
-     *     This API can return more or less connector information using format option in query string arguments (default is small). <br/>
-     * <br/>
-     *      return { // List of connector Objects. <br/>
-     *          id string TV unique identifier. <br/>
-     *          name string TV name. <br/>
-     *          location optionnel string Location of the TV. <br/>
-     *          locationDetail optionnel string More detail on the location of the TV. <br/>
-     *          room optionnel string Name of the room where the TV is located. <br/>
-     *          companyId string company linked to the TV. <br/>
-     *          activationCode string Activation code (6 digits). The activationCode may be null in the case its generation in multi-environment database failed. In that case, a security mechanism takes place to generate this activation code asynchronously (try every minutes until the code creation is successful). As soon as the activation code is successfully generated in multi-environment database, the TV is updated accordingly (activationCode set to the generated code value) and with activationCodeGenerationStatus updated to done. <br/>
-     *          codeUpdateDate date Date of last activation code update. <br/>
-     *          status string TV status:    unassociated (no TV user).    associated with a TV user (the TV has been activated). <br/>
-     *          statusUpdatedDate Date-Time Date of last tv status update. <br/>
-     *          subscriptionId string Subscription to use when activating TV. <br/>
-     *          loginEmail string User email address (used for login) <br/>
-     *          firstName string User first name <br/>
-     *          lastName string User last name <br/>
-     *          displayName string User display name (firstName + lastName concatenated on server side) <br/>
-     *          nickName optionnel string User nickName <br/>
-     *          title optionnel string User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-     *          jobTitle optionnel string User job title <br/>
-     *          department optionnel string User department <br/>
-     *          tags optionnel string[] An Array of free tags associated to the user. A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. tags can only be set by users who have administrator rights on the user. The user can't modify the tags. The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. <br/>
-     *          emails Object[] Array of user emails addresses objects <br/>
-     *             email string User email address <br/>
-     *             type string Email type, one of home, work, other <br/>
-     *          phoneNumbers Object[] Array of user phone numbers objects. Phone number objects can:   be created by user (information filled by user), come from association with a system (pbx) device (association is done by admin). <br/>
-     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br/>
-     *              number optionnel string User phone number (as entered by user) <br/>
-     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br/>
-     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br/>
-     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br/>
-     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br/>
-     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br/>
-     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br/>
-     *              type 	String Phone number type, one of home, work, other. <br/>
-     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br/>
-     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br/>
-     *         country 	String User country (ISO 3166-1 alpha3 format) <br/>
-     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br/>
-     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br/>
-     *         timezone optionnel 	String User timezone name <br/>
-     *         jid_im 	String User Jabber IM identifier <br/>
-     *         jid_tel 	String User Jabber TEL identifier <br/>
-     *         jid_password 	String User Jabber IM and TEL password <br/>
-     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br/>
-     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br/>
-     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br/>
-     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br/>
-     *         companyName 	String User company name <br/>
-     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br/>
-     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br/>
-     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-     *         closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users <br/>
-     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br/>
-     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
-     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br/>
-     *         isActive 	Boolean Is user active  <br/>
-     *         isInitialized 	Boolean Is user initialized <br/>
-     *         initializationDate 	Date-Time User initialization date <br/>
-     *         activationDate 	Date-Time User activation date <br/>
-     *         creationDate 	Date-Time User creation date <br/>
-     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br/>
-     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br/>
-     *         createdBySelfRegister 	Boolean true if user has been created using self register <br/>
-     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br/>
-     *         userId 	String userId of the admin who created this user <br/>
-     *         loginEmail 	String loginEmail of the admin who created this user <br/>
-     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br/>
-     *         userId 	String userId of the user who invited this user <br/>
-     *         loginEmail 	String loginEmail of the user who invited this user <br/>
-     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br/>
-     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br/>
-     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br/>
-     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br/>
-     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br/>
-     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br/>
-     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br/>
-     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
-     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br/>
-     *         useScreenSharingCustomisation can be: <br/>
-     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br/>
-     *            enabled: Each user of the company can share his screen. <br/>
-     *            disabled: No user of the company can share his screen. <br/>
-     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br/>
-     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br/>
-     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br/>
-     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br/>
-     *         FileSharingCustomisation can be: <br/>
-     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br/>
-     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br/>
-     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br/>
-     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br/>
-     *         userTitleNameCustomisation can be: <br/>
-     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br/>
-     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br/>
-     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br/>
-     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br/>
-     *         softphoneOnlyCustomisation can be: <br/>
-     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br/>
-     *            enabled: The user switch to a softphone mode only. <br/>
-     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br/>
-     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br/>
-     *         useRoomCustomisation can be: <br/>
-     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br/>
-     *            enabled: The user can use bubbles. <br/>
-     *            disabled: The user can't use bubbles. <br/>
-     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br/>
-     *         phoneMeetingCustomisation can be: <br/>
-     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br/>
-     *            enabled: The user can join phone meetings. <br/>
-     *            disabled: The user can't join phone meetings. <br/>
-     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br/>
-     *         useChannelCustomisation can be: <br/>
-     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br/>
-     *            enabled: The user can use some channels. <br/>
-     *            disabled: The user can't use some channel. <br/>
-     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br/>
-     *         useWebRTCVideoCustomisation can be: <br/>
-     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br/>
-     *            enabled: The user can switch to a Web RTC video conversation. <br/>
-     *            disabled: The user can't switch to a Web RTC video conversation. <br/>
-     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br/>
-     *         useWebRTCAudioCustomisation can be: <br/>
-     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br/>
-     *            enabled: The user can switch to a Web RTC audio conversation. <br/>
-     *            disabled: The user can't switch to a Web RTC audio conversation. <br/>
-     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br/>
-     *         instantMessagesCustomisation can be: <br/>
-     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br/>
-     *            enabled: The user can use instant messages. <br/>
-     *            disabled: The user can't use instant messages. <br/>
-     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br/>
-     *         userProfileCustomisation can be: <br/>
-     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br/>
-     *            enabled: The user can modify his profile. <br/>
-     *            disabled: The user can't modify his profile. <br/>
-     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br/>
-     *         fileStorageCustomisation can be: <br/>
-     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br/>
-     *            enabled: The user can manage and share files. <br/>
-     *            disabled: The user can't manage and share files. <br/>
-     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br/>
-     *         overridePresenceCustomisation can be: <br/>
-     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br/>
-     *            enabled: The user can change his presence. <br/>
-     *            disabled: The user can't change his presence. <br/>
-     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br/>
-     *         changeTelephonyCustomisation can be: <br/>
-     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br/>
-     *            enabled: The user can modify telephony settings. <br/>
-     *            disabled: The user can't modify telephony settings. <br/>
-     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br/>
-     *         changeSettingsCustomisation can be: <br/>
-     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br/>
-     *            enabled: The user can change all client general settings. <br/>
-     *            disabled: The user can't change any client general setting. <br/>
-     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br/>
-     *         recordingConversationCustomisation can be: <br/>
-     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br/>
-     *            enabled: The user can record a peer to peer or a multi-party call. <br/>
-     *            disabled: The user can't record a peer to peer or a multi-party call. <br/>
-     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br/>
-     *         useGifCustomisation can be: <br/>
-     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br/>
-     *            enabled: The user can send animated GIFs in conversations. <br/>
-     *            disabled: The user can't send animated GIFs in conversations. <br/>
-     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br/>
-     *         fileCopyCustomisation can be: <br/>
-     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br/>
-     *            enabled: The user can make a copy of a file to his personal cloud space. <br/>
-     *            disabled: The user can't make a copy of a file to his personal cloud space. <br/>
-     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br/>
-     *         fileTransferCustomisation can be: <br/>
-     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br/>
-     *            enabled: The user can transfer a file doesn't belong to him. <br/>
-     *            disabled: The user can't transfer a file doesn't belong to him. <br/>
-     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br/>
-     *         forbidFileOwnerChangeCustomisation can be: <br/>
-     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br/>
-     *            enabled: The user can't give the ownership of his file. <br/>
-     *            disabled: The user can give the ownership of his file. <br/>
-     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br/>
-     *         useDialOutCustomisation can be: <br/>
-     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br/>
-     *            enabled: The user can be called by the Rainbow conference bridge. <br/>
-     *            disabled: The user can't be called by the Rainbow conference bridge. <br/>
-     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br/>
-     *      } <br/>
+     *     This API allows administrators to retrieve all the ldap connectors. <br>
+     *     Users with superadmin, support role can retrieve the connectors from any company. <br>
+     *     Users with bp_admin or bp_finance role can only retrieve the connectors in companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *     Users with admin role can only retrieve the connectors in companies they can manage. That is to say: <br>
+     *     an organization_admin can retrieve the connectors only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *     a company_admin can only retrieve the connectors in his company. <br>
+     *     This API can return more or less connector information using format option in query string arguments (default is small). <br>
+     * <br>
+     *      return { // List of connector Objects. <br>
+     *          id string TV unique identifier. <br>
+     *          name string TV name. <br>
+     *          location optionnel string Location of the TV. <br>
+     *          locationDetail optionnel string More detail on the location of the TV. <br>
+     *          room optionnel string Name of the room where the TV is located. <br>
+     *          companyId string company linked to the TV. <br>
+     *          activationCode string Activation code (6 digits). The activationCode may be null in the case its generation in multi-environment database failed. In that case, a security mechanism takes place to generate this activation code asynchronously (try every minutes until the code creation is successful). As soon as the activation code is successfully generated in multi-environment database, the TV is updated accordingly (activationCode set to the generated code value) and with activationCodeGenerationStatus updated to done. <br>
+     *          codeUpdateDate date Date of last activation code update. <br>
+     *          status string TV status:    unassociated (no TV user).    associated with a TV user (the TV has been activated). <br>
+     *          statusUpdatedDate Date-Time Date of last tv status update. <br>
+     *          subscriptionId string Subscription to use when activating TV. <br>
+     *          loginEmail string User email address (used for login) <br>
+     *          firstName string User first name <br>
+     *          lastName string User last name <br>
+     *          displayName string User display name (firstName + lastName concatenated on server side) <br>
+     *          nickName optionnel string User nickName <br>
+     *          title optionnel string User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br>
+     *          jobTitle optionnel string User job title <br>
+     *          department optionnel string User department <br>
+     *          tags optionnel string[] An Array of free tags associated to the user. A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. tags can only be set by users who have administrator rights on the user. The user can't modify the tags. The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. <br>
+     *          emails Object[] Array of user emails addresses objects <br>
+     *             email string User email address <br>
+     *             type string Email type, one of home, work, other <br>
+     *          phoneNumbers Object[] Array of user phone numbers objects. Phone number objects can:   be created by user (information filled by user), come from association with a system (pbx) device (association is done by admin). <br>
+     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br>
+     *              number optionnel string User phone number (as entered by user) <br>
+     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br>
+     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br>
+     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
+     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
+     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
+     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
+     *              type 	String Phone number type, one of home, work, other. <br>
+     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br>
+     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
+     *         country 	String User country (ISO 3166-1 alpha3 format) <br>
+     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
+     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
+     *         timezone optionnel 	String User timezone name <br>
+     *         jid_im 	String User Jabber IM identifier <br>
+     *         jid_tel 	String User Jabber TEL identifier <br>
+     *         jid_password 	String User Jabber IM and TEL password <br>
+     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
+     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
+     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
+     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
+     *         companyName 	String User company name <br>
+     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
+     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br>
+     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+     *         closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users <br>
+     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br>
+     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
+     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br>
+     *         isActive 	Boolean Is user active  <br>
+     *         isInitialized 	Boolean Is user initialized <br>
+     *         initializationDate 	Date-Time User initialization date <br>
+     *         activationDate 	Date-Time User activation date <br>
+     *         creationDate 	Date-Time User creation date <br>
+     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br>
+     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br>
+     *         createdBySelfRegister 	Boolean true if user has been created using self register <br>
+     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br>
+     *         userId 	String userId of the admin who created this user <br>
+     *         loginEmail 	String loginEmail of the admin who created this user <br>
+     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br>
+     *         userId 	String userId of the user who invited this user <br>
+     *         loginEmail 	String loginEmail of the user who invited this user <br>
+     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
+     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
+     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br>
+     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br>
+     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br>
+     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br>
+     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
+     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
+     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
+     *         useScreenSharingCustomisation can be: <br>
+     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br>
+     *            enabled: Each user of the company can share his screen. <br>
+     *            disabled: No user of the company can share his screen. <br>
+     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
+     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
+     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br>
+     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
+     *         FileSharingCustomisation can be: <br>
+     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
+     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br>
+     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br>
+     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
+     *         userTitleNameCustomisation can be: <br>
+     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br>
+     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br>
+     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br>
+     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
+     *         softphoneOnlyCustomisation can be: <br>
+     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br>
+     *            enabled: The user switch to a softphone mode only. <br>
+     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br>
+     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
+     *         useRoomCustomisation can be: <br>
+     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br>
+     *            enabled: The user can use bubbles. <br>
+     *            disabled: The user can't use bubbles. <br>
+     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
+     *         phoneMeetingCustomisation can be: <br>
+     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br>
+     *            enabled: The user can join phone meetings. <br>
+     *            disabled: The user can't join phone meetings. <br>
+     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
+     *         useChannelCustomisation can be: <br>
+     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br>
+     *            enabled: The user can use some channels. <br>
+     *            disabled: The user can't use some channel. <br>
+     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
+     *         useWebRTCVideoCustomisation can be: <br>
+     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br>
+     *            enabled: The user can switch to a Web RTC video conversation. <br>
+     *            disabled: The user can't switch to a Web RTC video conversation. <br>
+     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
+     *         useWebRTCAudioCustomisation can be: <br>
+     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br>
+     *            enabled: The user can switch to a Web RTC audio conversation. <br>
+     *            disabled: The user can't switch to a Web RTC audio conversation. <br>
+     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
+     *         instantMessagesCustomisation can be: <br>
+     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br>
+     *            enabled: The user can use instant messages. <br>
+     *            disabled: The user can't use instant messages. <br>
+     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
+     *         userProfileCustomisation can be: <br>
+     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br>
+     *            enabled: The user can modify his profile. <br>
+     *            disabled: The user can't modify his profile. <br>
+     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
+     *         fileStorageCustomisation can be: <br>
+     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br>
+     *            enabled: The user can manage and share files. <br>
+     *            disabled: The user can't manage and share files. <br>
+     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
+     *         overridePresenceCustomisation can be: <br>
+     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br>
+     *            enabled: The user can change his presence. <br>
+     *            disabled: The user can't change his presence. <br>
+     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
+     *         changeTelephonyCustomisation can be: <br>
+     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br>
+     *            enabled: The user can modify telephony settings. <br>
+     *            disabled: The user can't modify telephony settings. <br>
+     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br>
+     *         changeSettingsCustomisation can be: <br>
+     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br>
+     *            enabled: The user can change all client general settings. <br>
+     *            disabled: The user can't change any client general setting. <br>
+     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
+     *         recordingConversationCustomisation can be: <br>
+     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br>
+     *            enabled: The user can record a peer to peer or a multi-party call. <br>
+     *            disabled: The user can't record a peer to peer or a multi-party call. <br>
+     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
+     *         useGifCustomisation can be: <br>
+     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br>
+     *            enabled: The user can send animated GIFs in conversations. <br>
+     *            disabled: The user can't send animated GIFs in conversations. <br>
+     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
+     *         fileCopyCustomisation can be: <br>
+     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br>
+     *            enabled: The user can make a copy of a file to his personal cloud space. <br>
+     *            disabled: The user can't make a copy of a file to his personal cloud space. <br>
+     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
+     *         fileTransferCustomisation can be: <br>
+     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br>
+     *            enabled: The user can transfer a file doesn't belong to him. <br>
+     *            disabled: The user can't transfer a file doesn't belong to him. <br>
+     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
+     *         forbidFileOwnerChangeCustomisation can be: <br>
+     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br>
+     *            enabled: The user can't give the ownership of his file. <br>
+     *            disabled: The user can give the ownership of his file. <br>
+     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
+     *         useDialOutCustomisation can be: <br>
+     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br>
+     *            enabled: The user can be called by the Rainbow conference bridge. <br>
+     *            disabled: The user can't be called by the Rainbow conference bridge. <br>
+     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br>
+     *      } <br>
      * @return {Promise<any>}
      */
     retrieveAllLdapConnectorUsersData (companyId? : string, format : string = "small", limit : number = 100, offset : number = undefined, sortField : string = "displayName", sortOrder : number = 1) : Promise<any> {
@@ -2317,10 +2317,10 @@ class AdminService extends GenericService {
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapId the Id of the ldap connector to delete.
      * @description
-     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br/>
-     *      return { <br/>
-     *          status {string} Delete operation status message. <br/>
-     *          } <br/>
+     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br>
+     *      return { <br>
+     *          status {string} Delete operation status message. <br>
+     *          } <br>
      * @return {Promise<{ status : string}>}
      */
     deleteLdapConnector(ldapId : string) : Promise<{ status : string }> {
@@ -2349,20 +2349,20 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @description
-     *      This API allows to retrieve the configuration template for the connector. <br/>
-     *      return { <br/>
-     *         id 	String Config unique identifier. <br/>
-     *         type 	String Config type  <br/>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-     *         settings 	Object config settings <br/>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-     *                 login 	String login for the ldap server. <br/>
-     *                 password 	String password for the ldap server. <br/>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-     *                 url 	String url of the ldap server. <br/>
-     *          } <br/>
+     *      This API allows to retrieve the configuration template for the connector. <br>
+     *      return { <br>
+     *         id 	String Config unique identifier. <br>
+     *         type 	String Config type  <br>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	String login for the ldap server. <br>
+     *                 password 	String password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+     *                 url 	String url of the ldap server. <br>
+     *          } <br>
      * @return {Promise<{Object}>}
      */
     retrieveLdapConnectorConfigTemplate() {
@@ -2400,26 +2400,26 @@ class AdminService extends GenericService {
      * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours. 
      * @param {string} settings.company.url url of the ldap server. 
      * @description
-     *      This API allows create configuration for the connector. <br/>
-     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-     *      Users with superadmin, support role can create the connectors configuration from any company. <br/>
-     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br/>
-     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-     *      a company_admin can only create the connectors configuration in his company. <br/>
-     *      return { <br/>
-     *         id 	String Config unique identifier. <br/>
-     *         type 	String Config type  <br/>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-     *         settings 	Object config settings <br/>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-     *                 login 	String login for the ldap server. <br/>
-     *                 password 	String password for the ldap server. <br/>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-     *                 url 	String url of the ldap server. <br/>
-     *          } <br/>
+     *      This API allows create configuration for the connector. <br>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+     *      Users with superadmin, support role can create the connectors configuration from any company. <br>
+     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
+     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *      a company_admin can only create the connectors configuration in his company. <br>
+     *      return { <br>
+     *         id 	String Config unique identifier. <br>
+     *         type 	String Config type  <br>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	String login for the ldap server. <br>
+     *                 password 	String password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+     *                 url 	String url of the ldap server. <br>
+     *          } <br>
      * @return {Promise<{Object}>}
      */
     createConfigurationForLdapConnector (companyId, settings) {
@@ -2466,26 +2466,26 @@ class AdminService extends GenericService {
      * @param {string} settings.company.url url of the ldap server.
      * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
      * @description
-     *      This API allows update configuration for the connector. <br/>
-     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-     *      Users with superadmin, support role can update the connectors configuration from any company. <br/>
-     *      Users with bp_admin or bp_finance role can only update the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br/>
-     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-     *      a company_admin can only update the connectors configuration in his company. <br/>
-     *      return { <br/>
-     *         id 	String Config unique identifier. <br/>
-     *         type 	String Config type  <br/>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-     *         settings 	Object config settings <br/>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-     *                 login 	String login for the ldap server. <br/>
-     *                 password 	String password for the ldap server. <br/>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-     *                 url 	String url of the ldap server. <br/>
-     *          } <br/>
+     *      This API allows update configuration for the connector. <br>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+     *      Users with superadmin, support role can update the connectors configuration from any company. <br>
+     *      Users with bp_admin or bp_finance role can only update the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br>
+     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *      a company_admin can only update the connectors configuration in his company. <br>
+     *      return { <br>
+     *         id 	String Config unique identifier. <br>
+     *         type 	String Config type  <br>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	String login for the ldap server. <br>
+     *                 password 	String password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+     *                 url 	String url of the ldap server. <br>
+     *          } <br>
      * @return {Promise<{Object}>}
      */
     updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false) {
@@ -2527,26 +2527,26 @@ class AdminService extends GenericService {
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
      * @description
-     *      This API allows to retrieve the configuration for the connector. <br/>
-     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br/>
-     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br/>
-     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-     *      a company_admin can only retrieve the connectors configuration in his company. <br/>
-     *      return { <br/>
-     *         id 	String Config unique identifier. <br/>
-     *         type 	String Config type  <br/>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-     *         settings 	Object config settings <br/>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-     *                 login 	String login for the ldap server. <br/>
-     *                 password 	String password for the ldap server. <br/>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-     *                 url 	String url of the ldap server. <br/>
-     *          } <br/>
+     *      This API allows to retrieve the configuration for the connector. <br>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+     *      return { <br>
+     *         id 	String Config unique identifier. <br>
+     *         type 	String Config type  <br>
+     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	String login for the ldap server. <br>
+     *                 password 	String password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+     *                 url 	String url of the ldap server. <br>
+     *          } <br>
      * @return {Promise<{Object}>}
      */
     retrieveLdapConnectorConfig (companyId : string) {
@@ -2594,7 +2594,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
+     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPbxById (systemId : string) {
@@ -2647,7 +2647,7 @@ class AdminService extends GenericService {
      * @param {number} outgoingPrefix Company outgoing prefix
      * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk)
      * @description
-     *      This API allows to update a CloudPBX using its identifier. <br/>
+     *      This API allows to update a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     updateCloudPBX (systemId, barringOptions_permissions : string, barringOptions_restrictions : string, callForwardOptions_externalCallForward : string, customSipHeader_1 : string, customSipHeader_2 : string, emergencyOptions_callAuthorizationWithSoftPhone : boolean, emergencyOptions_emergencyGroupActivated : boolean, externalTrunkId : string, language : string, name : string, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number,routeInternalCallsToPeer  : boolean) {
@@ -2685,7 +2685,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to delete a CloudPBX using its identifier. <br/>
+     *      This API allows to delete a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     deleteCloudPBX (systemId : string) {
@@ -2720,7 +2720,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @description
-     *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
+     *      This API allows administrator to retrieve a list of CloudPBXs. <br>
      * @return {Promise<any>}
      * @param {number} limit Allow to specify the number of CloudPBXs to retrieve. Default value : 100
      * @param {number} offset llow to specify the position of first cloudPBX to retrieve (first site if not specified) Warning: if offset > total, no results are returned
@@ -2769,10 +2769,10 @@ class AdminService extends GenericService {
      * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk).
      * @param {string} siteId Identifier of the site on which CloudPBX should be created.
      * @description
-     *      This API allows to creates a CloudPBX for a given company. <br/>
+     *      This API allows to creates a CloudPBX for a given company. <br>
      * @return {Promise<any>}
      */
-    createACloudPBX (bpId : string, companyId : string, customSipHeader_1 : string, customSipHeader_2 : string, externalTrunkId : string, language : string, name : string, noReplyDelay : number, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number, routeInternalCallsToPeer : boolean, siteId : string) {
+    async createACloudPBX (bpId : string, companyId : string, customSipHeader_1 : string, customSipHeader_2 : string, externalTrunkId : string, language : string, name : string, noReplyDelay : number, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number, routeInternalCallsToPeer : boolean, siteId : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -2801,7 +2801,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br/>
+     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPBXCLIPolicyForOutboundCalls (systemId : string) {
@@ -2839,7 +2839,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number". 
      * @description
-     *      This API allows to update a CloudPBX using its identifier. <br/>
+     *      This API allows to update a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     updateCloudPBXCLIOptionsConfiguration (systemId : string, policy: CLOUDPBXCLIOPTIONPOLICY) {
@@ -2882,7 +2882,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br/>
+     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPBXlanguages(systemId : string) {
@@ -2918,7 +2918,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br/>
+     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPBXDeviceModels(systemId : string) {
@@ -2954,7 +2954,7 @@ class AdminService extends GenericService {
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br/>
+     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPBXTrafficBarringOptions(systemId : string) {
@@ -2990,7 +2990,7 @@ class AdminService extends GenericService {
      * @async
      * @param {string} systemId CloudPBX unique identifier.
      * @description
-     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br/>
+     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br>
      * @return {Promise<any>}
      */
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId : string) {
@@ -3032,7 +3032,7 @@ class AdminService extends GenericService {
      * @param {number} deviceTypeId Device type Identifier - see API GET /cloudpbxs/:id/devicemodels to get the list of supported models for the CloudPBX.
      * @param {string} macAddress Device mac address - mandatory for SIP deskphone device
      * @description
-     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br/>
+     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br>
      * @return {Promise<any>}
      */
     CreateCloudPBXSIPDevice (systemId : string,   description : string,  deviceTypeId  : string,  macAddress  : string) {
@@ -3082,8 +3082,8 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to be reset
      * @description
-     *      This API allows to reset a SIP deskphone device to its factory settings.<br/>
-     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br/>
+     *      This API allows to reset a SIP deskphone device to its factory settings.<br>
+     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br>
      * @return {Promise<any>}
      */
     factoryResetCloudPBXSIPDevice (systemId : string, deviceId : string) {
@@ -3127,7 +3127,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to get
      * @description
-     *      This API allows to retrieve a SIP device using the given deviceId.<br/>
+     *      This API allows to retrieve a SIP device using the given deviceId.<br>
      * @return {Promise<any>}
      */
     getCloudPBXSIPDeviceById (systemId : string, deviceId : string) {
@@ -3171,7 +3171,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device to delete
      * @description
-     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br/>
+     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br>
      * @return {Promise<any>}
      */
     deleteCloudPBXSIPDevice (systemId : string, deviceId : string) {
@@ -3221,7 +3221,7 @@ class AdminService extends GenericService {
      * @param {string} deviceId Unique identifier of the SIP device to delete
      * @param {string} macAddress new device mac address
      * @description
-     *      This API allows to update a SIP device.<br/>
+     *      This API allows to update a SIP device.<br>
      * @return {Promise<any>}
      */
     updateCloudPBXSIPDevice (systemId : string,   description : string,  deviceId  : string,  macAddress  : string) {
@@ -3274,7 +3274,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
      * @description
-     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br/>
+     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br>
      * @return {Promise<any>}
      */
     getAllCloudPBXSIPDevice (systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, assigned : boolean, phoneNumberId : string) {
@@ -3311,7 +3311,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device for which SIP registrations information should be retrieved.
      * @description
-     *      This API allows to retrieve SIP registrations information relative to a device.<br/>
+     *      This API allows to retrieve SIP registrations information relative to a device.<br>
      * @return {Promise<any>}
      */
     getCloudPBXSIPRegistrationsInformationDevice (systemId : string, deviceId : string) {
@@ -3359,15 +3359,15 @@ class AdminService extends GenericService {
      * @param {string} deviceId Unique identifier of the SIP device for which the debug session access will be granted.
      * @param {string} duration Duration, in seconds, of the debug session - Only superadmin can set a debug duration different from the default one (configuration parameter: e.g. 30 minutes)
      * @description
-     *      This API allows  to grant access to debug session on the given device.<br/>
-     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br/>
-     *      A debug session can be terminated by: <br/>
-     *      Calling the device revoke API <br/>
-     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br/>
+     *      This API allows  to grant access to debug session on the given device.<br>
+     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br>
+     *      A debug session can be terminated by: <br>
+     *      Calling the device revoke API <br>
+     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br>
      *
-     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br/>
-     *      Please note that adminUrl could be unreachable depending on network configuration. <br/>
-     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br/>
+     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br>
+     *      Please note that adminUrl could be unreachable depending on network configuration. <br>
+     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br>
      * @return {Promise<any>}
      */
     grantCloudPBXAccessToDebugSession (systemId : string, deviceId : string,  duration : string) {
@@ -3414,9 +3414,9 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device access will be revoked
      * @description
-     *      This API allows  to revoke access to debug session on the given device. <br/>
-     *      When revoked, the debug session can no longer be used. <br/>
-     *      The admin password is no longer visible (changed). <br/>
+     *      This API allows  to revoke access to debug session on the given device. <br>
+     *      When revoked, the debug session can no longer be used. <br>
+     *      The admin password is no longer visible (changed). <br>
      * @return {Promise<any>}
      */
     revokeCloudPBXAccessFromDebugSession (systemId : string, deviceId : string) {
@@ -3463,7 +3463,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} deviceId Unique identifier of the SIP device access will be revoked
      * @description
-     *      This API allows  to reboot a SIP deskphone device. <br/>
+     *      This API allows  to reboot a SIP deskphone device. <br>
      * @return {Promise<any>}
      */
     rebootCloudPBXSIPDevice  (systemId : string, deviceId : string) {
@@ -3516,7 +3516,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
      * @description
-     *      This API allows to get data of a CloudPBX Subscriber.<br/>
+     *      This API allows to get data of a CloudPBX Subscriber.<br>
      * @return {Promise<any>}
      */
     getCloudPBXSubscriber (systemId : string, phoneNumberId : string) {
@@ -3563,7 +3563,7 @@ class AdminService extends GenericService {
      * @param {string} systemId CloudPBX unique identifier.
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
      * @description
-     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br/>
+     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br>
      * @return {Promise<any>}
      */
     deleteCloudPBXSubscriber (systemId : string, phoneNumberId : string) {
@@ -3614,8 +3614,8 @@ class AdminService extends GenericService {
      * @param {string} shortNumber Internal Number of the new CloudPBX Subscriber
      * @param {string} userId Unique identifier of the associated Rainbow User
      * @description
-     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br/>
-     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br/>
+     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br>
+     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br>
      * @return {Promise<any>}
      */
     createCloudPBXSubscriberRainbowUser (systemId : string, login : string, password : string, shortNumber : string, userId : string) {
@@ -3669,7 +3669,7 @@ class AdminService extends GenericService {
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber associated to the SIP device to retrieve.
      * @param {string} deviceId Unique identifier of the SIP device to retrieve
      * @description
-     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br/>
+     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br>
      * @return {Promise<any>}
      */
     getCloudPBXSIPdeviceAssignedSubscriber (systemId : string, phoneNumberId : string, deviceId : string) {
@@ -3724,7 +3724,7 @@ class AdminService extends GenericService {
      * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the Sip device association must be deleted.
      * @param {string} deviceId Unique identifier of the SIP device to free
      * @description
-     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br/>
+     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br>
      * @return {Promise<any>}
      */
     removeCloudPBXAssociationSubscriberAndSIPdevice (systemId : string, phoneNumberId : string, deviceId : string) {
@@ -3781,7 +3781,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
-     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br/>
+     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br>
      * @return {Promise<any>}
      */
     getCloudPBXAllSIPdevicesAssignedSubscriber ( systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, phoneNumberId : string) {
@@ -3818,7 +3818,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
-     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br/>
+     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br>
      * @return {Promise<any>}
      */
     getCloudPBXInfoAllRegisteredSIPdevicesSubscriber (systemId : string, phoneNumberId : string) {
@@ -3867,10 +3867,10 @@ class AdminService extends GenericService {
      * @param {string} macAddress device mac address
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
-     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br/>
-     *      The device must have been previously created.<br/>
-     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br/>
-     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br/>
+     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br>
+     *      The device must have been previously created.<br>
+     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br>
+     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br>
      * @return {Promise<any>}
      */
     assignCloudPBXSIPDeviceToSubscriber (systemId : string,   phoneNumberId : string,  deviceId  : string,  macAddress  : string) {
@@ -3914,7 +3914,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
-     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br/>
+     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br>
      * @return {Promise<any>}
      */
     getCloudPBXSubscriberCLIOptions (systemId : string, phoneNumberId : string) {
@@ -3964,7 +3964,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br/>
+     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br>
      * @return {Promise<any>}
      */
     getCloudPBXUnassignedInternalPhonenumbers(systemId : string) {
@@ -4014,7 +4014,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br/>
+     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br>
      * @return {Promise<any>}
      */
     listCloudPBXDDINumbersAssociated (systemId : string, limit : number = 100, offset : number, sortField : string = "number", sortOrder : number = 1, isAssignedToUser : boolean, isAssignedToGroup : boolean, isAssignedToIVR : boolean, isAssignedToAutoAttendant : boolean, isAssigned : boolean ) {
@@ -4055,7 +4055,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to create a DDI number for a CloudPBX.<br/>
+     *      This API allows to create a DDI number for a CloudPBX.<br>
      * @return {Promise<any>}
      */
     createCloudPBXDDINumber (systemId : string, number : string) {
@@ -4102,8 +4102,8 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to delete a DDI number for a CloudPBX. <br/>
-     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br/>
+     *      This API allows to delete a DDI number for a CloudPBX. <br>
+     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br>
      * @return {Promise<any>}
      */
     deleteCloudPBXDDINumber (systemId : string, phoneNumberId : string) {
@@ -4151,7 +4151,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to associate a DDI number to a Rainbow user. <br/>
+     *      This API allows to associate a DDI number to a Rainbow user. <br>
      * @return {Promise<any>}
      */
     associateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string) {
@@ -4206,7 +4206,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to disassociate a DDI number from a Rainbow user. <br/>
+     *      This API allows to disassociate a DDI number from a Rainbow user. <br>
      * @return {Promise<any>}
      */
     disassociateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string) {
@@ -4259,7 +4259,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
-     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br/>
+     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br>
      * @return {Promise<any>}
      */
     setCloudPBXDDIAsdefault (systemId : string, phoneNumberId : string) {
@@ -4309,7 +4309,7 @@ class AdminService extends GenericService {
      * @param {string} externalTrunkId External trunk unique identifier
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
      * @description
-     *      This API allows to retrieve an external SIP trunk using its identifier. <br/>
+     *      This API allows to retrieve an external SIP trunk using its identifier. <br>
      * @return {Promise<any>}
      */
     retrieveExternalSIPTrunkById (externalTrunkId : string) {
@@ -4347,15 +4347,15 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
-     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
-     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br/>
-     * @param {string} status Allows to filter external SIP trunks by status. <br/>
-     *          This filter allows to load all external SIP trunks according to their status. <br/>
-     *          Valid values : "new" "active". <br/>
-     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br/>
+     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br>
+     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br>
+     * @param {string} status Allows to filter external SIP trunks by status. <br>
+     *          This filter allows to load all external SIP trunks according to their status. <br>
+     *          Valid values : "new" "active". <br>
+     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br>
      * @description
-     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br/>
-     *      bp_admin can list only external SIP trunks he is allowed to use. <br/>
+     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br>
+     *      bp_admin can list only external SIP trunks he is allowed to use. <br>
      * @return {Promise<any>}
      */
     retrievelistExternalSIPTrunks (rvcpInstanceId : string, status : string, trunkType : string) {
@@ -4393,13 +4393,13 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category sites
-     * @param {string} name Site name. <br/>
+     * @param {string} name Site name. <br>
      *              Valid values : 1..255
-     * @param {string} status Site status. <br/>
-     *          Valid values : "active", "alerting", "hold", "terminated". <br/>
+     * @param {string} status Site status. <br>
+     *          Valid values : "active", "alerting", "hold", "terminated". <br>
      * @param {string} companyId Id of the company from which the site is linked.
      * @description
-     *      This API allows administrators to create a site for a company they administrate.  <br/>
+     *      This API allows administrators to create a site for a company they administrate.  <br>
      * @return {Promise<any>}
      */
     createASite(name : string, status : string, companyId : string) {
@@ -4443,9 +4443,9 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category sites
-     * @param {string} siteId Site id. <br/>
+     * @param {string} siteId Site id. <br>
      * @description
-     *      This API allows administrators to delete a site by id they administrate.  <br/>
+     *      This API allows administrators to delete a site by id they administrate.  <br>
      * @return {Promise<any>}
      */
     deleteSite (siteId : string) {
@@ -4482,9 +4482,9 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category sites
-     * @param {string} siteId Site id. <br/>
+     * @param {string} siteId Site id. <br>
      * @description
-     *      This API allows administrators to get a site data by id they administrate.  <br/>
+     *      This API allows administrators to get a site data by id they administrate.  <br>
      * @return {Promise<any>}
      */
     getSiteData (siteId : string) {
@@ -4521,22 +4521,22 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category sites
-     * @param {string} format Allows to retrieve more or less site details in response. <br/>
-     * - small: _id, name <br/>
-     * - medium: _id, name, status, companyId <br/>
-     * - full: all site fields <br/>
-     * default : small <br/>
-     * Valid values : small, medium, full <br/>
+     * @param {string} format Allows to retrieve more or less site details in response. <br>
+     * - small: _id, name <br>
+     * - medium: _id, name, status, companyId <br>
+     * - full: all site fields <br>
+     * default : small <br>
+     * Valid values : small, medium, full <br>
      * @param {number} limit Allow to specify the number of companies to retrieve. (default=100).
      * @param {number} offset Allow to specify the position of first site to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort site list based on the given field. (default="name").
      * @param {number} sortOrder Specify order when sorting site list. Default values : 1. Valid values : -1, 1.
-     * @param {string} name Allows to filter sites list on field name. <br/>
-     * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). <br/>
-     * Ex: if filtering is done on sit, sites with the following names are match the filter 'My site', 'Site', 'A site 1', 'Site of company', 'Sit1', 'Sit2', ... <br/>
+     * @param {string} name Allows to filter sites list on field name. <br>
+     * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). <br>
+     * Ex: if filtering is done on sit, sites with the following names are match the filter 'My site', 'Site', 'A site 1', 'Site of company', 'Sit1', 'Sit2', ... <br>
      * @param {string} companyId
      * @description
-     *      This API allows administrators to get all sites they administrate.  <br/>
+     *      This API allows administrators to get all sites they administrate.  <br>
      * @return {Promise<any>}
      */
     getAllSites (format = "small", limit = 100, offset = 0, sortField="name", sortOrder : number, name : string, companyId : string) {
@@ -4568,12 +4568,12 @@ class AdminService extends GenericService {
      * @instance
      * @category sites
      * @async
-     * @param {string} siteId Site id. <br/>
+     * @param {string} siteId Site id. <br>
      * @param {string} name Site name
      * @param {string} status Site status. Valid values : "active", "alerting", "hold", "terminated"
      * @param {string} companyId Id of the company from which the site is linked.
      * @description
-     *      This API allows administrators to update a given site by id they administrate.  <br/>
+     *      This API allows administrators to update a given site by id they administrate.  <br>
      * @return {Promise<any>}
      */
     updateSite (siteId : string, name : string, status : string, companyId : string) {
@@ -4605,7 +4605,7 @@ class AdminService extends GenericService {
 
     //endregion sites
 
-    //region Rainbow Company Directory portal 
+    //region Rainbow Company Directory Portal 
     // https://api.openrainbow.org/directory/
     //region directory
     /**
@@ -4630,13 +4630,13 @@ class AdminService extends GenericService {
      * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
      * @param {string} jobTitle Contact Job title
      * @param {string} eMail Contact Email address
-     * @param {Array<string>} tags An Array of free tags </br>
-     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
-     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). </br>
+     * @param {Array<string>} tags An Array of free tags <br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). <br>
      * @param {string} custom1 Custom field 1
      * @param {string} custom2 Custom field 2
      * @description
-     *      This API allows administrators to Create a directory entry.  <br/>
+     *      This API allows administrators to Create a directory entry.  <br>
      */
     createDirectoryEntry ( companyId : string,
                            firstName : string,
@@ -4709,7 +4709,7 @@ class AdminService extends GenericService {
      * @category Rainbow Company Directory portal - directory
      * @param {string} companyId Id of the company.
      * @description
-     *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br/>
+     *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br>
      * @return {Promise<any>}
      */
     deleteCompanyDirectoryAllEntry (companyId : string) {
@@ -4748,7 +4748,7 @@ class AdminService extends GenericService {
      * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
      * @description
-     *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br/>
+     *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br>
      * @return {Promise<any>}
      */
     deleteDirectoryEntry (entryId : string) {
@@ -4786,14 +4786,14 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
-     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
-     * - small: id, firstName, lastName  <br/>
-     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
-     * - full: all fields. <br/>
-     * default : small <br/>
-     * Valid values : small, medium, full <br/>
+     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+     * - small: id, firstName, lastName  <br>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+     * - full: all fields. <br>
+     * default : small <br>
+     * Valid values : small, medium, full <br>
      * @description
-     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
      * @return {Promise<any>}
      */
     getDirectoryEntryData (entryId : string, format : string = "small") {
@@ -4840,18 +4840,18 @@ class AdminService extends GenericService {
      * @param fromUpdateDate
      * @param toUpdateDate
      * @param tags
-     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
-     * - small: id, firstName, lastName  <br/>
-     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
-     * - full: all fields. <br/>
-     * default : small <br/>
-     * Valid values : small, medium, full <br/>
+     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+     * - small: id, firstName, lastName  <br>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+     * - full: all fields. <br>
+     * default : small <br>
+     * Valid values : small, medium, full <br>
      * @param limit
      * @param offset
      * @param sortField
      * @param sortOrder
      * @description
-     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br/>
+     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br>
      * @return {Promise<any>}
      */
     getListDirectoryEntriesData (companyId : string,
@@ -4912,13 +4912,13 @@ class AdminService extends GenericService {
      * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
      * @param {string} jobTitle Contact Job title
      * @param {string} eMail Contact Email address
-     * @param {Array<string>} tags An Array of free tags </br>
-     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
+     * @param {Array<string>} tags An Array of free tags <br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
      * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
      * @param {string} custom1 Custom field 1
      * @param {string} custom2 Custom field 2
      * @description
-     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
      * @return {Promise<any>}
      */
     updateDirectoryEntry  (entryId : string, 
@@ -5164,10 +5164,10 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory
-     * @param {string} companyId The company id of the directory to export.<br/>
+     * @param {string} companyId The company id of the directory to export.<br>
      * @param {string} filePath The folder where the directory will be exported.
      * @description
-     *      This API allows administrators to export the directory in a CSV file.<br/>
+     *      This API allows administrators to export the directory in a CSV file.<br>
      * @return {Promise<any>} If it succeed then it returns the file full path of the exported data. If it failed then it return the error.
      */
     exportDirectoryCsvFile(companyId : string, filePath : string) {
@@ -5201,11 +5201,11 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory
-     * @param {string} companyId The company id of the directory to export.<br/>
+     * @param {string} companyId The company id of the directory to export.<br>
      * @param {string} fileFullPath The full file path to import.
      * @param {string} label The label used for the import.
      * @description
-     *      This API allows administrators to import the directory from a CSV file.<br/>
+     *      This API allows administrators to import the directory from a CSV file.<br>
      * @return {Promise<any>} .
      */
     ImportDirectoryCsvFile(companyId : string, fileFullPath : string, label : string) {
@@ -5254,10 +5254,10 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory tags
-     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
+     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. <br>
      * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.
      * @description
-     *      This API allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.<br/>
+     *      This API allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.<br>
      * @return {Promise<any>}
      */
     getAllTagsAssignedToDirectoryEntries (companyId : string) {
@@ -5288,12 +5288,12 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory tags
-     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
-     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br/>
+     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. <br>
+     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br>
      * @param {string} tag tag to remove. 
      * @description
-     *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
-     *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).<br/>
+     *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.<br>
+     *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).<br>
      * @return {Promise<any>}
      */
     removeTagFromAllDirectoryEntries (companyId : string, tag  : string) {
@@ -5325,13 +5325,13 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory tags
-     * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br/>
-     * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br/>
+     * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br>
+     * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br>
      * @param {string} tag tag to rename.
      * @param {string} newTagName New tag name.
      * @description
-     *      This API allows administrators to rename a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
-     *      The parameter companyId can be used to limit the renaming of the tag on the directory entries of the specified company(ies).<br/>
+     *      This API allows administrators to rename a tag being assigned to some directory entries of the companies managed by the administrator.<br>
+     *      The parameter companyId can be used to limit the renaming of the tag on the directory entries of the specified company(ies).<br>
      * @return {Promise<any>}
      */
     renameTagForAllAssignedDirectoryEntries ( tag  : string, companyId : string, newTagName : string) {
@@ -5368,9 +5368,9 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory tags
-     * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br/>
+     * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br>
      * @description
-     *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br/>
+     *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br>
      * @return {Promise<any>}
      */
     getStatsRegardingTagsOfDirectoryEntries ( companyId : string) {
@@ -5396,7 +5396,8 @@ class AdminService extends GenericService {
     }
     
     //endregion directory tags
-    //endregion Rainbow Company Directory portal
+    
+    //endregion Rainbow Company Directory Portal
 
     //region Clients Versions
 
@@ -5410,11 +5411,11 @@ class AdminService extends GenericService {
      * @async
      * @category Clients Versions
      * @description
-     *      This API can be used to define the minimal required version for a given client application.<br/>
-     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br/>
-     *      In that case, the client application can show an error message to the user requesting him to update his application.<br/>
-     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br/>
-     *      Users with superadmin role can define the minimal required version for any client applications.<br/>
+     *      This API can be used to define the minimal required version for a given client application.<br>
+     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br>
+     *      In that case, the client application can show an error message to the user requesting him to update his application.<br>
+     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br>
+     *      Users with superadmin role can define the minimal required version for any client applications.<br>
      * @return {Promise<any>}
      */
     createAClientVersion (id : string, version: string) {
@@ -5460,9 +5461,9 @@ class AdminService extends GenericService {
      * @async
      * @category Clients Versions
      * @description
-     *      This API can be used to delete the minimal required version defined for a given client application.<br/>
-     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br/>
-     *      Users with superadmin role can delete the minimal required version for any client applications.<br/>
+     *      This API can be used to delete the minimal required version defined for a given client application.<br>
+     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br>
+     *      Users with superadmin role can delete the minimal required version for any client applications.<br>
      * @return {Promise<any>}
      */
     deleteAClientVersion (clientId : string) {
@@ -5496,8 +5497,8 @@ class AdminService extends GenericService {
      * @async
      * @category Clients Versions
      * @description
-     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
-     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br>
+     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br>
      * @return {Promise<any>}
      */
     getAClientVersionData (clientId : string) {
@@ -5536,8 +5537,8 @@ class AdminService extends GenericService {
      * @param {string} sortField Sort clients versions list based on the given field. Default value : "name"
      * @param {number} sortOrder Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
      * @description
-     *      This API can be used to get the minimal required versions defined for the client applications.<br/>
-     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     *      This API can be used to get the minimal required versions defined for the client applications.<br>
+     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br>
      * @return {Promise<any>}
      */
     getAllClientsVersions (name? : string, typeClient? : string, limit :number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) {
@@ -5572,8 +5573,8 @@ class AdminService extends GenericService {
      * @async
      * @category Clients Versions
      * @description
-     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
-     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br>
+     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br>
      * @return {Promise<any>}
      */
     updateAClientVersion (clientId : string, version   : string) {

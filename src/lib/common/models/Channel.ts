@@ -147,15 +147,15 @@ class Channel {
         this.id = _id;
         /**
          * @public
-         * @property {string} visibility channel type/visibility<br/>
-         * 		"private" : a « Pub » channel, only the owner may publish messages.<br/>
-         * 					Managed by owner, the only one who can add or remove users in a private channels.<br/>
-         * 					Can't be found by search.<br/>
+         * @property {string} visibility channel type/visibility<br>
+         * 		"private" : a « Pub » channel, only the owner may publish messages.<br>
+         * 					Managed by owner, the only one who can add or remove users in a private channels.<br>
+         * 					Can't be found by search.<br>
          * 		"company" : « PubSub » channel (company users may join/leave)
-         * 					May be found by search for users in the same company.<br/>
+         * 					May be found by search for users in the same company.<br>
          * 		"public"  : « PubSub » public channel.
          * 					Only allowed users may create a "public" channel.
-         * 					May be found by search for all users.<br/>
+         * 					May be found by search for all users.<br>
          *
          */
         this.visibility = _visibility;

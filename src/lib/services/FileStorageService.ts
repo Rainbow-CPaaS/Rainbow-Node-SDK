@@ -37,12 +37,12 @@ const LOG_ID = "FileStorage/SVCE - ";
  * @description
  *      This service shares files with a single user (one-to-one conversation) or with several persons (bubble conversation). <br><br>
  *      The main methods and events proposed in that service allow to: <br>
- *      - Upload a file in a one-to-one conversation or bubble conversation, <br/>
- *      - Download a file from a conversation or bubble, <br/>
- *      - To be notified when a file has been successfully uploaded when there is an error when uploading or downloading a file in a conversation or a bubble<br/>
- *      - Get the list of files send or received in a one-to-one conversation <br/>
- *      - Get the list of files send or received in a bubble conversation <br/>
- *      - Get the connected user quota and consumption <br/>
+ *      - Upload a file in a one-to-one conversation or bubble conversation, <br>
+ *      - Download a file from a conversation or bubble, <br>
+ *      - To be notified when a file has been successfully uploaded when there is an error when uploading or downloading a file in a conversation or a bubble<br>
+ *      - Get the list of files send or received in a one-to-one conversation <br>
+ *      - Get the list of files send or received in a bubble conversation <br>
+ *      - Get the connected user quota and consumption <br>
  */
 class FileStorage extends GenericService{
     private _fileServerService: FileServerService;
@@ -172,9 +172,9 @@ class FileStorage extends GenericService{
      * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @param {String} strMessage   An optional message to add with the file
      * @description
-     *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br/>
-     *    Return the promise <br/>
-     * @return {Message} Return the message sent <br/>
+     *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br>
+     *    Return the promise <br>
+     * @return {Message} Return the message sent <br>
      */
     async uploadFileToConversation(conversation, file, strMessage) {
         let that = this;
@@ -229,9 +229,9 @@ class FileStorage extends GenericService{
      * @param {File} file The file to add
      * @param {String} strMessage   An optional message to add with the file
      * @description
-     *    Allow to add a file to an existing Bubble conversation <br/>
-     *    Return a promise <br/>
-     * @return {Message} Return the message sent <br/>
+     *    Allow to add a file to an existing Bubble conversation <br>
+     *    Return a promise <br>
+     * @return {Message} Return the message sent <br>
      */
     async uploadFileToBubble(bubble, file, strMessage) {
         let that = this;
@@ -297,7 +297,7 @@ class FileStorage extends GenericService{
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @instance
      * @description
-     *   Send a file in user storage <br/>
+     *   Send a file in user storage <br>
      */
     async uploadFileToStorage( file) {
         let that = this;
@@ -423,8 +423,8 @@ class FileStorage extends GenericService{
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
      * @param {string} path If provided then the retrieved file is stored in it. If not provided then
      * @description
-     *    Allow to download a file from the server) <br/>
-     *    Return a promise <br/>
+     *    Allow to download a file from the server) <br>
+     *    Return a promise <br>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
     async downloadFile(fileDescriptor, path: string = null) {
@@ -477,19 +477,19 @@ class FileStorage extends GenericService{
      * @param {string} path If provided then the retrieved file is stored in it. If not provided then
      * @async
      * @description
-     *    Allow to download a file from the server and store it in provided path. <br/>
-     *    Return a promise <br/>
-     * @return {Observable<any>} Return an Observable object to see the completion of the download/save. <br/>
-     * It returns a percentage of downloaded data Values are between 0 and 100 (include). <br/>
-     * The last one value is the description and content of the file : <br/>
-     *  { <br/>
-     *      buffer : blobArray, // the buffer with the content of the file. <br/>
-     *      type: mime, // The mime type of the encoded file <br/>
-     *      fileSize: fileSize, // The size in octects of the file <br/>
-     *      fileName: fileName // The file saved. <br/>
-     *  } <br/>
-     *  Warning !!! : <br/>
-     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br/>
+     *    Allow to download a file from the server and store it in provided path. <br>
+     *    Return a promise <br>
+     * @return {Observable<any>} Return an Observable object to see the completion of the download/save. <br>
+     * It returns a percentage of downloaded data Values are between 0 and 100 (include). <br>
+     * The last one value is the description and content of the file : <br>
+     *  { <br>
+     *      buffer : blobArray, // the buffer with the content of the file. <br>
+     *      type: mime, // The mime type of the encoded file <br>
+     *      fileSize: fileSize, // The size in octects of the file <br>
+     *      fileName: fileName // The file saved. <br>
+     *  } <br>
+     *  Warning !!! : <br>
+     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br>
      */
     async downloadFileInPath(fileDescriptor, path: string): Promise<Observable<any>> {
         let that = this;
@@ -599,8 +599,8 @@ class FileStorage extends GenericService{
      * @category Files TRANSFER
      * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
      * @description
-     *    Remove an uploaded file <br/>
-     *    Return a promise <br/>
+     *    Remove an uploaded file <br>
+     *    Return a promise <br>
      * @return {Object} Return a SDK OK Object or a SDK error object depending the result
      */
     async removeFile(fileDescriptor) {
@@ -659,8 +659,8 @@ class FileStorage extends GenericService{
      * @async
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br/>
-     *    Return a promise <br/>
+     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br>
+     *    Return a promise <br>
      * @return {Message} Return the message sent
      */
     _addFileToConversation(conversation, file, data) {
@@ -761,7 +761,7 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {String} id   The file id
      * @description
-     *    Get the file descriptor the user own by it's id <br/>
+     *    Get the file descriptor the user own by it's id <br>
      * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
      */
     getFileDescriptorFromId(id) {
@@ -777,8 +777,8 @@ class FileStorage extends GenericService{
      * @param {Conversation} conversation   The conversation where to get the files
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     *    Get the list of all files received in a conversation with a contact <br/>
-     *    Return a promise <br/>
+     *    Get the list of all files received in a conversation with a contact <br>
+     *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     async getFilesReceivedInConversation(conversation) {
@@ -822,8 +822,8 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Bubble} bubble   The bubble where to get the files
      * @description
-     *    Get the list of all files received in a bubble <br/>
-     *    Return a promise <br/>
+     *    Get the list of all files received in a bubble <br>
+     *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesReceivedInBubble(bubble) {
@@ -860,7 +860,7 @@ class FileStorage extends GenericService{
     /**
      * @private
      * @description
-     * Method returns a file descriptor with full contact object in viewers'list by requesting server <br/>
+     * Method returns a file descriptor with full contact object in viewers'list by requesting server <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
@@ -1053,7 +1053,7 @@ class FileStorage extends GenericService{
     /**
      * @private
      * @description
-     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br/>
+     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} name [required] name of file for which file descriptor has to be created
@@ -1130,7 +1130,7 @@ class FileStorage extends GenericService{
      * @private
      * @description
      *
-     * Method request deletion of a file descriptor on the server and removes it from local storage <br/>
+     * Method request deletion of a file descriptor on the server and removes it from local storage <br>
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} id [required] file descriptor id to be destroyed
      * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
@@ -1157,7 +1157,7 @@ class FileStorage extends GenericService{
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     * Method request deletion of all files on the server and removes them from local storage <br/>
+     * Method request deletion of all files on the server and removes them from local storage <br>
      * @return {Promise<{}>} ???
      */
     deleteAllFileDescriptor() {
@@ -1193,7 +1193,7 @@ class FileStorage extends GenericService{
      * @async
      * @instance
      * @description
-     * Method retrieve full list of files belonging to user making the request <br/>
+     * Method retrieve full list of files belonging to user making the request <br>
      *
      * @return {Promise<FileDescriptor[]>}
      *
@@ -1264,7 +1264,7 @@ class FileStorage extends GenericService{
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br/>
+     * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br>
      *
      * @return {Promise<FileDescriptor[]>}
      *
@@ -1278,7 +1278,7 @@ class FileStorage extends GenericService{
      * @private
      *
      * @description
-     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br/>
+     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
@@ -1318,7 +1318,7 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
      * @description
-     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br/>
+     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br>
      *
      * @param {string} peerId [required] id of peer user in the conversation
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
@@ -1355,7 +1355,7 @@ class FileStorage extends GenericService{
      * @method retrieveReceivedFilesForRoom
      * @instance
      * @description
-     * Method request for the list of files received in a room <br/>
+     * Method request for the list of files received in a room <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} bubbleId [required] Id of the room
@@ -1401,7 +1401,7 @@ class FileStorage extends GenericService{
      * @instance
      * @async
      * @description
-     * Method request for the list of files received by a user <br/>
+     * Method request for the list of files received by a user <br>
      *
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -1452,8 +1452,8 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Conversation} conversation   The conversation where to get the files
      * @description
-     *    Get the list of all files sent in a conversation with a contact <br/>
-     *    Return a promise <br/>
+     *    Get the list of all files sent in a conversation with a contact <br>
+     *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesSentInConversation(conversation) {
@@ -1498,8 +1498,8 @@ class FileStorage extends GenericService{
      * @param {Bubble} bubble   The bubble where to get the files
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     *    Get the list of all files sent in a bubble <br/>
-     *    Return a promise <br/>
+     *    Get the list of all files sent in a bubble <br>
+     *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
     getFilesSentInBubble(bubble) {
@@ -1536,8 +1536,8 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
      * @description
-     *    Get the current file storage quota and consumption for the connected user <br/>
-     *    Return a promise <br/>
+     *    Get the current file storage quota and consumption for the connected user <br>
+     *    Return a promise <br>
      * @return {Object} Return an object containing the user quota and consumption
      */
     getUserQuotaConsumption() {
@@ -1557,7 +1557,7 @@ class FileStorage extends GenericService{
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br/>
+     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br>
      * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
      */
     getAllFilesSent() {
@@ -1572,7 +1572,7 @@ class FileStorage extends GenericService{
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br/>
+     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br>
      * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
      */
      getAllFilesReceived() {
@@ -1586,7 +1586,7 @@ class FileStorage extends GenericService{
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     * Method retrieve the data usage of a given user <br/>
+     * Method retrieve the data usage of a given user <br>
      *
      * @return {Promise<{}>} : object data with the following properties:
      *                  - feature {string} : The feature key belonging to the user's profile
@@ -1616,7 +1616,7 @@ class FileStorage extends GenericService{
      * @private
      *
      * @description
-     * Method deletes a viewer from the list of viewer of a given file <br/>
+     * Method deletes a viewer from the list of viewer of a given file <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
@@ -1721,7 +1721,7 @@ class FileStorage extends GenericService{
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
-     * Method retrieve a specific file descriptor from server <br/>
+     * Method retrieve a specific file descriptor from server <br>
      *
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
      * @return {Promise<FileDescriptor>} file descriptor retrieved
@@ -1749,7 +1749,7 @@ class FileStorage extends GenericService{
      * @private
      *
      * @description
-     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br/>
+     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br>
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} fileId [required] Identifier of file descriptor to retrieve
@@ -1952,7 +1952,7 @@ class FileStorage extends GenericService{
      * @private
      *
      * @description
-     * Method extract fileId part of URL <br/>
+     * Method extract fileId part of URL <br>
      *
      * @param {string} url
      * @return {string}

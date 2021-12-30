@@ -1272,32 +1272,15 @@ declare module 'lib/services/FavoritesService' {
 	    private removeServerFavorite;
 	    private toggleFavorite;
 	    private updateFavorites;
-	    /**
-	     * @description
-	     * get favorite from cach by Id.
-	     * @param {string} peerId The id of the favorite.
-	     * @return {Promise<Favorite>} The favorite corresponding to the peerId
-	     */
-	    getFavorite(peerId: string): Promise<Favorite>;
 	    private createFavoriteObj;
-	    private onXmppEvent;
-	    /**
-	     * @public
-	     * @since 1.56
-	     * @method fetchAllFavorites()
-	     * @instance
-	     * @description
-	     *   Fetch all the Favorites from the server in a form of an Array <br/>
-	     * @return {Array<Favorite>} An array of Favorite objects
-	     */
-	    fetchAllFavorites(): Promise<Array<Favorite>>;
 	    /**
 	     * @public
 	     * @since 1.56
 	     * @method createFavorite()
+	     * @category Favorites MANAGEMENT
 	     * @instance
 	     * @description
-	     *   Add conversation/bubble/bot to Favorites Array <br/>
+	     *   Add conversation/bubble/bot to Favorites Array <br>
 	     * @param {string} id of the conversation/bubble
 	     * @param {string} type of Favorite (can be 'user' or 'bubble')
 	     * @return {Promise<Favorite>} A Favorite object
@@ -1307,13 +1290,37 @@ declare module 'lib/services/FavoritesService' {
 	     * @public
 	     * @since 1.56
 	     * @method deleteFavorite()
+	     * @category Favorites MANAGEMENT
 	     * @instance
 	     * @description
-	     *   Delete conversation/bubble/bot from Favorites Array <br/>
+	     *   Delete conversation/bubble/bot from Favorites Array <br>
 	     * @param {string} id of the Favorite item
 	     * @return {Favorite[]} A Favorite object
 	     */
 	    deleteFavorite(id: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method getFavorite
+	     * @category Favorites GET
+	     * @instance
+	     * @description
+	     * get favorite from cache by Id.
+	     * @param {string} peerId The id of the favorite.
+	     * @return {Promise<Favorite>} The favorite corresponding to the peerId
+	     */
+	    getFavorite(peerId: string): Promise<Favorite>;
+	    /**
+	     * @public
+	     * @since 1.56
+	     * @method fetchAllFavorites()
+	     * @category Favorites GET
+	     * @instance
+	     * @description
+	     *   Fetch all the Favorites from the server in a form of an Array <br>
+	     * @return {Array<Favorite>} An array of Favorite objects
+	     */
+	    fetchAllFavorites(): Promise<Array<Favorite>>;
+	    private onXmppEvent;
 	    onFavoriteCreated(fav: {
 	        id: string;
 	        peerId: string;
@@ -1402,6 +1409,7 @@ declare module 'lib/common/models/Bubble' {
 	    members: Array<any>;
 	    containerId: string;
 	    containerName: string;
+	    status: string;
 	    static RoomUserStatus: {
 	        INVITED: string;
 	        ACCEPTED: string;
@@ -1538,11 +1546,11 @@ declare module 'lib/services/ProfilesService' {
 	    PERSONAL_CONFERENCE_ALLOWED: string;
 	    ALERT_NOTIFICATIONS_ALLOWED: string;
 	}; class ProfilesService extends GenericService {
-	    private onUserUpdateNeeded;
 	    private stats;
 	    features: any;
 	    profiles: any;
 	    mainOffers: any;
+	    private thirdPartyApps;
 	    private startDate;
 	    private timer;
 	    static getClassName(): string;
@@ -1558,36 +1566,129 @@ declare module 'lib/services/ProfilesService' {
 	    stop(): Promise<any>;
 	    restart(): void;
 	    init(): Promise<unknown>;
+	    onUserUpdateNeeded(): void;
 	    /*********************************************************************/
 	    /** PROFILE API STUFF                                          **/
 	    /*********************************************************************/
+	    /**
+	     * @public
+	     * @method getServerProfile
+	     * @async
+	     * @category Profiles PROFILES
+	     * @description
+	     * This API can be used to get user profiles and features.<br>
+	     * @return {Promise<any>}
+	     */
 	    getServerProfile(): Promise<[unknown, unknown]>;
+	    /**
+	     * @public
+	     * @method getServerProfiles
+	     * @async
+	     * @category Profiles PROFILES
+	     * @description
+	     * This API can be used to get user profiles.<br>
+	     * This API can only be used by user himself
+	     * @return {Promise<any>}
+	     */
 	    getServerProfiles(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getMyProfileOffer
+	     * @category Profiles PROFILES
+	     * @description
+	     * This API can be used to get user profile offer.<br>
+	     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
+	     * @return {any}
+	     */
+	    getMyProfileOffer(): any;
+	    /**
+	     * @public
+	     * @method getMyProfileName
+	     * @category Profiles PROFILES
+	     * @description
+	     * This API can be used to get user profile offer name.<br>
+	     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
+	     * @return {any}
+	     */
+	    getMyProfileName(): any;
+	    /**
+	     * @public
+	     * @method getMyProfiles
+	     * @category Profiles PROFILES
+	     * @description
+	     * This API can be used to get user profiles.<br>
+	     * @return {any}
+	     */
+	    getMyProfiles(): any[];
+	    /**
+	     * @public
+	     * @method getThirdPartyApps
+	     * @async
+	     * @category Profiles PROFILES
+	     * @param {boolean} force Parameter force in order to refresh the list
+	     * @description
+	     *  Get The list of the Third Party Application that have access to this Rainbow Account.
+	     * @return {Promise<any>}
+	     */
+	    getThirdPartyApps(force?: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method revokeThirdPartyAccess
+	     * @async
+	     * @category Profiles PROFILES
+	     * @param {string} tokenId The tokenId should be sent as a parameter
+	     * @description
+	     * Revoke the access of a third-party application from Rainbow
+	     * @return {Promise<any>}
+	     */
+	    revokeThirdPartyAccess(tokenId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getServerProfilesFeatures
+	     * @async
+	     * @category Profiles FEATURES
+	     * @description
+	     * This API can be used to get user profile features.<br>
+	     * @return {Promise<any>}
+	     */
 	    getServerProfilesFeatures(): Promise<unknown>;
 	    /*********************************************************************/
 	    /** USER DATA API STUFF                                             **/
 	    /*********************************************************************/
 	    /**
-	     * APIs for GUI components
-	     * Used by SDK (public)
-	     * Warning when modifying this method
+	     * @public
+	     * @method isFeatureEnabled
+	     * @category Profiles FEATURES
+	     * @description
+	     * This API can be used to know if a feature is enabled.<br>
+	     * @return {any}
 	     */
 	    isFeatureEnabled(featureUniqueRef: any): any;
+	    /**
+	     * @public
+	     * @method getFeatureLimitMax
+	     * @category Profiles FEATURES
+	     * @description
+	     * This API can be used to get Max limit of feature.<br>
+	     * @return {any}
+	     */
 	    getFeatureLimitMax(featureUniqueRef: any): any;
+	    /**
+	     * @public
+	     * @method getFeatureLimitMin
+	     * @category Profiles FEATURES
+	     * @description
+	     * This API can be used to get Min limit of feature.<br>
+	     * @return {any}
+	     */
 	    getFeatureLimitMin(featureUniqueRef: any): any;
 	    /**
-	     * Returns the profile "Enterprise", "Business", "Essential" or null (if none of them)
-	     */
-	    getMyProfileOffer(): any;
-	    getMyProfileName(): any;
-	    /**
-	     * APIs for GUI components
-	     * Used by SDK (public)
-	     */
-	    getMyProfiles(): any[];
-	    /**
-	     * Used by SDK (public)
-	     * Warning when modifying this method
+	     * @public
+	     * @method getMyProfileFeatures
+	     * @category Profiles FEATURES
+	     * @description
+	     * This API can be used to get features of the profile of connected user.<br>
+	     * @return {any}
 	     */
 	    getMyProfileFeatures(): {};
 	    getFeaturesEnum(): {
@@ -1961,65 +2062,746 @@ declare module 'lib/services/BubblesService' {
 	        optional: boolean;
 	    });
 	    /**
-	     * @name start
+	     * @method start
 	     * @private
 	     * @return {Promise<void>}
 	     */
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    /**
-	     * @name stop
+	     * @method stop
 	     * @private
 	     * @return {Promise<void>}
 	     */
 	    stop(): Promise<unknown>;
 	    /**
-	     * @name init
+	     * @method init
 	     * @private
 	     * @return {Promise<void>}
 	     */
 	    init(): Promise<void>;
 	    /**
+	     * @private
+	     * @method _onInvitationReceived
+	     * @instance
+	     * @param {Object} invitation contains informations about bubble and user's jid
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble <br>
+	     */
+	    _onInvitationReceived(invitation: any): void;
+	    /**
+	     * @private
+	     * @method _onAffiliationChanged
+	     * @instance
+	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @description
+	     *      Method called when affilitation to a bubble changed <br>
+	     */
+	    _onAffiliationChanged(affiliation: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onOwnAffiliationChanged
+	     * @instance
+	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @description
+	     *      Method called when the user affilitation to a bubble changed <br>
+	     */
+	    _onOwnAffiliationChanged(affiliation: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onCustomDataChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble and new custom data received
+	     * @description
+	     *      Method called when custom data have changed for a bubble <br>
+	     */
+	    _onCustomDataChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onTopicChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble new topic received
+	     * @description
+	     *      Method called when the topic has changed for a bubble <br>
+	     */
+	    _onTopicChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onPrivilegeBubbleChanged
+	     * @instance
+	     * @param {Object} bubbleInfo modified bubble info
+	     * @description
+	     *     Method called when the owner of a bubble changed. <br>
+	     */
+	    _onPrivilegeBubbleChanged(bubbleInfo: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onNameChanged
+	     * @instance
+	     * @param {Object} data contains information about bubble new name received
+	     * @description
+	     *      Method called when the name has changed for a bubble <br>
+	     */
+	    _onNameChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onbubblepresencechanged
+	     * @instance
+	     * @param {Object} bubbleInfo contains information about bubble
+	     * @description
+	     *      Method called when the name has changed for a bubble <br>
+	     */
+	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
+	    /**
+	     * @private
+	     * @method _onBubblesContainerReceived
+	     * @instance
+	     * @param {Object} infos contains informations about a bubbles container
+	     * @description
+	     *      Method called when receiving an create/update/delete event of the bubbles container <br>
+	     */
+	    _onBubblesContainerReceived(infos: any): Promise<void>;
+	    /**
+	     * @method _onBubbleConferenceStoppedReceived
+	     * @private
+	     * @param bubble
+	     * @return {Promise<void>}
+	     */
+	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
+	    /**
+	     * @method joinConference
+	     * @private
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param bubble
+	     * @return {Promise<unknown>}
+	     * @description
+	     *  private for ale rainbow team's tests only
+	     */
+	    joinConference(bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubbleByConferenceIdFromCache
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @description
+	     * To get a bubble from the cache using a conference Id
+	     * @return {Bubble} A bubble object or NULL if not found
+	     */
+	    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble;
+	    /**
+	     * @public
+	     * @method getBubbleIdByConferenceIdFromCache
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @return {string}
+	     * @description
+	     * To get ID of the bubble from the cache using a conference Id
+	     */
+	    getBubbleIdByConferenceIdFromCache(conferenceId: string): string;
+	    /**
+	     * @public
+	     * @method getConferencesIdByBubbleIdFromCache
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} bubbleId
+	     * @return {Array<string>}
+	     * @description
+	     *      to get the list of conferences id linked to a specified bubble.
+	     */
+	    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string>;
+	    /**
+	     * @public
+	     * @method conferenceAllowed
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @return {boolean}
+	     * @description
+	     *      To know if the current user has the permission to start its own WebRTC Conference.
+	     *      return True if it's allowed, false if it's not the case
+	     */
+	    conferenceAllowed(): boolean;
+	    /**
+	     * @public
+	     * @method getConferenceByIdFromCache
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference to get
+	     * @return {ConferenceSession}
+	     * @description
+	     *      To get a conference from the cache using a conference Id.
+	     *      RETURN A conference object or NULL if not found
+	     */
+	    getConferenceByIdFromCache(conferenceId: string): ConferenceSession;
+	    /**
+	     * @public
+	     * @method conferenceGetListFromCache
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @return {boolean}
+	     * @description
+	     *      To get conferences list in progress from the cache.
+	     *      return The list of Conference in progress.
+	     */
+	    conferenceGetListFromCache(): List<ConferenceSession>;
+	    /**
+	     * @public
+	     * @Method retrieveConferences
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
+	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
+	     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
+	     * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
+	     * @memberof ConferenceService
+	     */
+	    retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any>;
+	    /**
+	     * @Method updateOrCreateWebConferenceEndpoint
+	     * @public
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @param {any} conferenceData [required] conference data for the update / creation
+	     * @returns {any} the updated conferenceEndpoint or null on error
+	     * @memberof BubblesService
+	     */
+	    updateOrCreateWebConferenceEndpoint(conferenceData: any): any;
+	    /**
+	     * @method updateWebConferenceInfos
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @private
+	     * @param {any[]} endpoints
+	     */
+	    updateWebConferenceInfos(endpoints: any[]): void;
+	    /**
+	     * @Method getWebRtcConfEndpointId
+	     * @public
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @returns {string} the user unique webrtc conference enpoint id
+	     * @memberof BubblesService
+	     */
+	    getWebRtcConfEndpointId(): string;
+	    /**
+	     * @Method getWebRtcSharingOnlyConfEndpointId
+	     * @public
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
+	     * @memberof BubblesService
+	     */
+	    getWebRtcSharingOnlyConfEndpointId(): string;
+	    /**
+	     * @public
+	     * @method conferenceStart
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @description
+	     *     To start a conference. <br>
+	     *     Only a moderator can start a conference. It also need to be a premium account. <br>
+	     * @param {Bubble} bubble   The bubble where the conference should start
+	     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
+	     * @return {Promise<any>} The result of the starting.
+	     */
+	    conferenceStart(bubble: any, conferenceId?: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method conferenceStop
+	     * @since 2.6.0
+	     * @instance
+	     * @category CONFERENCE SPECIFIC
+	     * @description
+	     *     To stop a conference. <br>
+	     *     Only a moderator can stop a conference. It also need to be a premium account. <br>
+	     * @param {string} conferenceId The id of the conference that should stop
+	     * @return {Promise<any>} return undefined.
+	     */
+	    conferenceStop(conferenceId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method conferenceJoin
+	     * @since 2.6.0
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @param {boolean} asModerator To join conference as operator or not
+	     * @param {boolean} muted To join conference as muted or not
+	     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
+	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+	     * @category CONFERENCE SPECIFIC
+	     * @description
+	     * To join a conference.  <br>
+	     * NOTE: The conference must be first started before to join it.
+	     * @return {Promise<any>}
+	     */
+	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method conferenceMuteOrUnmute
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
+	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method conferenceMuteOrUnmutParticipant
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @param {string} participantId ID of the participant to mute/unmute
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the specified participant in the conference.<br>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
+	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method conferenceDropParticipant
+	     * @since 2.6.0
+	     * @category CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} conferenceId ID of the conference
+	     * @param {string} participantId ID of the participant to drop
+	     * @description
+	     * Drop the specified participant in the conference. <br>
+	     * Only the moderator of the conference can use this method
+	     * @return {Promise<any>}
+	     */
+	    conferenceDropParticipant(conferenceId: string, participantId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method personalConferenceAllowed
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @return {boolean}
+	     * @description
+	     * To know if the current user has the permission to start its own Personal Conference
+	     */
+	    personalConferenceAllowed(): boolean;
+	    /**
+	     * @public
+	     * @method personalConferenceGetId
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To get teh Id of the Personal Conference
+	     * @return {string} Id of the Personal Conference or NULL
+	     */
+	    personalConferenceGetId(): string;
+	    /**
+	     * @public
+	     * @method personalConferenceGetBubbleFromCache
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
+	     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
+	     */
+	    personalConferenceGetBubbleFromCache(): Promise<Bubble>;
+	    /**
+	     * @public
+	     * @method personalConferenceGetBubbleIdFromCache
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
+	     * @return {string} The Bubble which contains the Personal Meeting or null
+	     */
+	    personalConferenceGetBubbleIdFromCache(): string;
+	    /**
+	     * @public
+	     * @method personalConferenceGetPhoneNumbers
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To get the list of phone numbers used to reach the Personal Meeting
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceGetPhoneNumbers(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceGetPassCodes
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To retrieve the pass codes of the Personal Meeting of the current user
+	     * @return {Promise<ConferencePassCodes>}
+	     */
+	    personalConferenceGetPassCodes(): Promise<ConferencePassCodes>;
+	    /**
+	     * @public
+	     * @method personalConferenceResetPassCodes
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To reset and get new pass codes of the Personal Meeting of the current user
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceResetPassCodes(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceGetPublicUrl
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceGetPublicUrl(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceGenerateNewPublicUrl
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). <br>
+	     * The previous URL is no more functional !
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceGenerateNewPublicUrl(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceStart
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To start a Personal Conference. <br>
+	     * Only a moderator can start a Personal Conference.
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceStart(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceStop
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @description
+	     * To stop the Personal Conference.<br>
+	     * Only a moderator can stop a Personal Conference
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceStop(): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceJoin
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {boolean} asModerator To join Personal Conference as operator or not
+	     * @param {boolean} muted To join Personal Conference as muted or not
+	     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
+	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+	     * @description
+	     * To join the Personal Conference.
+	     * NOTE: The Personal Conference must be first started before to join it.
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceMuteOrUnmute
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {boolean} mute
+	     * @description
+	     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
+	     * Only the moderator of the Personal Conference can use this method
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceMuteOrUnmute(mute: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method personalConferenceLockOrUnlock
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {boolean} toLock  True to lock, False to unlock
+	     * @description
+	     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
+	     * Lock / Unlock is only possible for PSTN Conference. <br>
+	     * Only a moderator can use this method
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method personalConferenceMuteOrUnmuteParticipant
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} participantId ID of the participant to mute/unmute
+	     * @param {boolean} mute True to mute, False to unmute
+	     * @description
+	     * Mute or Unmute the specified participant in the Personal Conference.<br>
+	     * Only the moderator of the Personal Conference can use this method.
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any>;
+	    /**
+	     * @public
+	     * @method personalConferenceDropParticipant
+	     * @since 2.6.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @instance
+	     * @param {string} participantId ID of the participant to drop
+	     * @description
+	     * Drop the specified participant in the Personal Conference. <br>
+	     * Only the moderator of the Personal Conference can use this method.
+	     * @return {Promise<any>}
+	     */
+	    personalConferenceDropParticipant(participantId: string): Promise<any>;
+	    /**
+	     * @method conferenceEndedForBubble
+	     * @private
+	     * @instance
+	     * @param {string} bubbleJid
+	     * @return {Promise<void>}
+	     */
+	    conferenceEndedForBubble(bubbleJid: string): Promise<void>;
+	    /**
+	     * @method askBubbleForConferenceDetails
+	     * @private
+	     * @instance
+	     * @param {string} bubbleJid
+	     */
+	    askBubbleForConferenceDetails(bubbleJid: string): void;
+	    /**
+	     * @method personalConferenceRename
+	     * @private
+	     * @instance
+	     * @param {string} name
+	     * @return {Promise<unknown>}
+	     */
+	    personalConferenceRename(name: string): Promise<unknown>;
+	    /**
+	     * @method askConferenceSnapshot
+	     * @private
+	     * @instance
+	     * @param {string} conferenceId
+	     * @param {MEDIATYPE} type
+	     * @return {Promise<void>}
+	     */
+	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<void>;
+	    /**
+	     * @method conferenceModeratorAction
+	     * @private
+	     * @instance
+	     * @param {string} conferenceId
+	     * @param {string} action
+	     * @return {Promise<unknown>}
+	     */
+	    conferenceModeratorAction(conferenceId: string, action: string): Promise<unknown>;
+	    /**
+	     * @method conferenceMuteOrUnmutParticipant
+	     * @private
+	     * @instance
+	     * @param {string} conferenceId
+	     * @param {string} participantId
+	     * @param {string} action
+	     * @return {Promise<unknown>}
+	     */
+	    conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string): Promise<unknown>;
+	    /**
+	     * @method removeBubbleFromCache
+	     * @private
+	     * @instance
+	     * @param {string} conferenceId
+	     * @param {boolean} deleteLinkWithBubble
+	     */
+	    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean): void;
+	    /**
+	     * @method addConferenceToCache
+	     * @private
+	     * @instance
+	     * @param {ConferenceSession} conference
+	     */
+	    addConferenceToCache(conference: ConferenceSession): void;
+	    /**
+	     * @public
+	     * @method getBubblesConsumption
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @return {Promise<Object>} return an object describing the consumption of bubbles : {
+	        maxValue : number // The quota associated to this offer [room]
+	        currentValue : number // The user's current consumption [room].
+	     }
+	     * @description
+	     *      return an object describing the consumption of bubbles. <br>
+	     */
+	    getBubblesConsumption(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubbleById
+	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @param {string} id the id of the bubble
+	     * @param {boolean} [force=false] True to force a request to the server
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+	     * @description
+	     *  Get a bubble by its ID in memory and if it is not found in server. <br>
+	     */
+	    getBubbleById(id: any, force?: boolean): Promise<Bubble>;
+	    /**
+	     * @public
+	     * @method getBubbleByJid
+	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @param {string} jid the JID of the bubble
+	     * @param {boolean} [force=false] True to force a request to the server
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
+	     * @description
+	     *  Get a bubble by its JID in memory and if it is not found in server. <br>
+	     */
+	    getBubbleByJid(jid: any, force?: boolean): Promise<Bubble>;
+	    /**
+	     * @public
+	     * @method getAllPendingBubbles
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @instance
+	     * @return {Bubble[]} An array of Bubbles not accepted or declined
+	     * @description
+	     *  Get the list of Bubbles that have a pending invitation not yet accepted of declined <br>
+	     */
+	    getAllPendingBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllActiveBubbles
+	     * @since 1.30
+	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
+	     * @description
+	     *  Get the list of Bubbles where the connected user can chat <br>
+	     */
+	    getAllActiveBubbles(): Bubble[];
+	    /**
+	     * @public
+	     * @method getAllClosedBubbles
+	     * @since 1.30
+	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @return {Bubble[]} An array of Bubbles that are closed for the connected user
+	     * @description
+	     *  Get the list of Bubbles where the connected user can only read messages <br>
+	     */
+	    getAllClosedBubbles(): Bubble[];
+	    /**
 	     * @public
 	     * @method createBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *  Create a new bubble <br/>
+	     *  Create a new bubble <br>
 	     * @param {string} name  The name of the bubble to create
 	     * @param {string} description  The description of the bubble to create
 	     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - Bubble object, else an ErrorManager object
-	     * @category async
+
 	     */
 	    createBubble(name: any, description: any, withHistory?: boolean): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method isBubbleClosed
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble  The bubble to check
 	     * @return {boolean} True if the bubble is closed
 	     * @description
-	     *  Check if the bubble is closed or not. <br/>
+	     *  Check if the bubble is closed or not. <br>
 	     */
 	    isBubbleClosed(bubble: any): boolean;
 	    /**
 	     * @public
-	     * @method
+	     * @method isBubbleArchived
 	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *    Delete all existing owned bubbles <br/>
-	     *    Return a promise <br/>
+	     *     Check if the Bubble is un Archive state (everybody unsubscribed)
+	     * @param {object} bubble Bubble to be archived
+	     * @returns {Promise<boolean>} True if the Bubble is in archive state
+	     */
+	    isBubbleArchived(bubble: Bubble): Promise<boolean>;
+	    /**
+	     * @public
+	     * @method getAllOwnedNotArchivedBubbles
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @description
+	     *     Get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed)
+	     * @returns {Promise<Bubble>} return a promise with an array of the owned bubbles which are NOT in an archive state
+	     */
+	    getAllOwnedNotArchivedBubbles(): Promise<[Bubble]>;
+	    /**
+	     * @public
+	     * @method getAllOwnedArchivedBubbles
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @description
+	     *     Get all the owned Bubbles in an Archive state (everybody unsubscribed)
+	     * @returns {Promise<Bubble>} return a promise with an array of the owned bubbles with an archive state
+	     */
+	    getAllOwnedArchivedBubbles(): Promise<[Bubble]>;
+	    /**
+	     * @public
+	     * @method deleteAllBubbles
+	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @description
+	     *    Delete all existing owned bubbles <br>
+	     *    Return a promise <br>
 	     * @return {Object} Nothing or an error object depending on the result
 	     */
 	    deleteAllBubbles(): void;
 	    /**
 	     * @public
-	     * @method
+	     * @method closeAnddeleteAllBubbles
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *    Delete all existing owned bubbles <br/>
-	     *    Return a promise <br/>
+	     *    Delete all existing owned bubbles <br>
+	     *    Return a promise <br>
 	     * @return {Object} Nothing or an error object depending on the result
 	     */
 	    closeAnddeleteAllBubbles(): void;
@@ -2027,146 +2809,155 @@ declare module 'lib/services/BubblesService' {
 	     * @public
 	     * @method deleteBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble  The bubble to delete
 	     * @description
-	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br/>
+	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
-	     * @category async
+
 	     */
 	    deleteBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method closeAndDeleteBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble  The bubble to close + delete
 	     * @description
-	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br/>
+	     *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
-	     * @category async
+
 	     */
 	    closeAndDeleteBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method closeBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble The Bubble to close
 	     * @description
-	     *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br/>
+	     *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble closed, else an ErrorManager object
-	     * @category async
+
 	     */
 	    closeBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method archiveBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble  The bubble to archive
 	     * @description
-	     *  Archive  a bubble. <br/>
-	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet. <br/>
-	     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza . <br/>
+	     *  Archive  a bubble. <br>
+	     *  This API allows to close the room in one step. The other alternative is to change the status for each room users not deactivated yet. <br>
+	     *  All users currently having the status 'invited' or 'accepted' will receive a message/stanza . <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The operation result
-	     * @category async
+
 	     */
 	    archiveBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method leaveBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Bubble} bubble  The bubble to leave
 	     * @description
-	     *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble. <br/>
+	     *  Leave a bubble. If the connected user is a moderator, an other moderator should be still present in order to leave this bubble. <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The operation result
-	     * @category async
+
 	     */
 	    leaveBubble(bubble: any): Promise<unknown>;
 	    /**
-	     * @public
-	     * @method getUsersFromBubble
+	     * @private
 	     * @instance
-	     * @param {Bubble} bubble           The bubble
-	     * @param {Object} options          The criterias to select the users to retrieve <br/>
-	     * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate) <br/>
-	     * - small: userId loginEmail displayName jid_im <br/>
-	     * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName <br/>
-	     * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType <br/>
-	     * sortField : Sort items list based on the given field <br/>
-	     * privilege : Allows to filter users list on the privilege type provided in this option. <br/>
-	     * limit : Allow to specify the number of items to retrieve. <br/>
-	     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. <br/>
-	     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default) <br/>
 	     * @description
-	     *  Get a list of users in a bubble filtered by criterias. <br/>
-	     * @async
-	     * @return {Promise<Array, ErrorManager>}
+	     *      Internal method
 	     */
-	    getUsersFromBubble(bubble: any, options?: Object): Promise<unknown>;
+	    getBubbles(): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method getStatusForConnectedUserInBubble
+	     * @method getAll
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @instance
-	     * @param {Bubble} bubble           The bubble
+	     * @return {Bubble[]} The list of existing bubbles
 	     * @description
-	     *  Get the status of the connected user in a bubble <br/>
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
+	     *  Return the list of existing bubbles <br>
 	     */
-	    getStatusForConnectedUserInBubble(bubble: any): any;
+	    getAll(): Bubble[];
 	    /**
 	     * @public
-	     * @method inviteContactToBubble
+	     * @method getAllBubbles
 	     * @instance
-	     * @param {Contact} contact         The contact to invite
-	     * @param {Bubble} bubble           The bubble
-	     * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
-	     * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
-	     * @param {string} reason        The reason of the invitation (optional)
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @return {Bubble[]} The list of existing bubbles
 	     * @description
-	     *  Invite a contact in a bubble <br/>
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the new invitation
-	     * @category async
+	     *  Return the list of existing bubbles <br>
 	     */
-	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason?: any): Promise<unknown>;
+	    getAllBubbles(): Bubble[];
 	    /**
 	     * @public
-	     * @method inviteContactsByEmailsToBubble
+	     * @method getAllOwnedBubbles
 	     * @instance
-	     * @param {Contact} contactsEmails         The contacts email tab to invite
-	     * @param {Bubble} bubble           The bubble
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *  Invite a list of contacts by emails in a bubble <br/>
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the new invitation
-	     * @category async
+	     *    Get the list of bubbles created by the user <br>
+	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
 	     */
-	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
+	    getAllOwnedBubbles(): Bubble[];
+	    /**
+	     * @method getBubbleFromCache
+	     * @private
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @instance
+	     * @param {string} bubbleId
+	     * @return {Bubble}
+	     * @private
+	     */
+	    private getBubbleFromCache;
+	    /**
+	     * @method addOrUpdateBubbleToCache
+	     * @private
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @param bubble
+	     * @return {Promise<Bubble>}
+	     * @private
+	     */
+	    private addOrUpdateBubbleToCache;
+	    /**
+	     * @method removeBubbleFromCache
+	     * @private
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
+	     * @instance
+	     * @param {string} bubbleId
+	     * @return {Promise<Bubble>}
+	     * @private
+	     */
+	    private removeBubbleFromCache;
 	    /**
 	     * @public
 	     * @method promoteContactInBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {Contact} contact         The contact to promote or downgraded
 	     * @param {Bubble} bubble           The bubble
 	     * @param {boolean} isModerator     True to promote a contact as a moderator of the bubble, and false to downgrade
 	     * @description
-	     *  Promote or not a contact in a bubble <br/>
-	     *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'. <br/>
+	     *  Promote or not a contact in a bubble <br>
+	     *  The logged in user can't update himself. As a result, a 'moderator' can't be downgraded to 'user'. <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated with the modifications
-	     * @category async
+
 	     */
 	    promoteContactInBubble(contact: any, bubble: any, isModerator: any): Promise<unknown>;
 	    /**
@@ -2174,9 +2965,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method promoteContactToModerator
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *    Promote a contact to moderator in a bubble <br/>
-	     *    Return a promise. <br/>
+	     *    Promote a contact to moderator in a bubble <br>
+	     *    Return a promise. <br>
 	     * @param {Contact} contact The contact to promote
 	     * @param {Bubble} bubble   The destination bubble
 	     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
@@ -2187,9 +2979,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method demoteContactFromModerator
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @description
-	     *    Demote a contact to user in a bubble <br/>
-	     *    Return a promise. <br/>
+	     *    Demote a contact to user in a bubble <br>
+	     *    Return a promise. <br>
 	     * @param {Contact} contact The contact to promote
 	     * @param {Bubble} bubble   The destination bubble
 	     * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
@@ -2197,264 +2990,132 @@ declare module 'lib/services/BubblesService' {
 	    demoteContactFromModerator(contact: any, bubble: any): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method changeBubbleOwner
-	     * @instance
-	     * @param {Bubble} bubble           The bubble
-	     * @param {Contact} contact         The contact to set a new bubble owner
-	     * @description
-	     *  Set a moderator contact as owner of a bubble <br/>
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble updated with the modifications
-	     * @category async
-	     */
-	    changeBubbleOwner(bubble: any, contact: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method removeContactFromBubble
-	     * @instance
-	     * @param {Contact} contact The contact to remove
-	     * @param {Bubble} bubble   The destination bubble
-	     * @description
-	     *    Remove a contact from a bubble <br/>
-	     * @async
-	     * @return {Promise<Bubble, ErrorManager>}
-	     * @fulfil {Bubble} - The bubble object or an error object depending on the result
-	     * @category async
-	     */
-	    removeContactFromBubble(contact: any, bubble: any): Promise<unknown>;
-	    /**
-	     * @private
-	     * @description
-	     *      Internal method
-	     */
-	    getBubbles(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Bubble[]} The list of existing bubbles
-	     * @description
-	     *  Return the list of existing bubbles <br/>
-	     */
-	    getAll(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllBubbles
-	     * @instance
-	     * @return {Bubble[]} The list of existing bubbles
-	     * @description
-	     *  Return the list of existing bubbles <br/>
-	     */
-	    getAllBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllOwnedBubbles
-	     * @instance
-	     * @description
-	     *    Get the list of bubbles created by the user <br/>
-	     * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
-	     */
-	    getAllOwnedBubbles(): Bubble[];
-	    /**
-	     * @name getBubbleFromCache
-	     * @private
-	     * @param {string} bubbleId
-	     * @return {Bubble}
-	     * @private
-	     */
-	    private getBubbleFromCache;
-	    /**
-	     * @name addOrUpdateBubbleToCache
-	     * @private
-	     * @param bubble
-	     * @return {Promise<Bubble>}
-	     * @private
-	     */
-	    private addOrUpdateBubbleToCache;
-	    /**
-	     * @name removeBubbleFromCache
-	     * @private
-	     * @param {string} bubbleId
-	     * @return {Promise<Bubble>}
-	     * @private
-	     */
-	    private removeBubbleFromCache;
-	    /**
-	     * @method getAvatarFromBubble
-	     * @public
-	     * @instance
-	     * @param {Bubble} bubble   The destination bubble
-	     * @async
-	     * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
-	     * @description
-	     *  Get A Blob object with data about the avatar picture of the bubble. <br/>
-	     */
-	    getAvatarFromBubble(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getBubblesConsumption
-	     * @instance
-	     * @async
-	     * @return {Promise<Object>} return an object describing the consumption of bubbles : {
-	        maxValue : number // The quota associated to this offer [room]
-	        currentValue : number // The user's current consumption [room].
-	     }
-	     * @description
-	     *      return an object describing the consumption of bubbles. <br/>
-	     */
-	    getBubblesConsumption(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method refreshMemberAndOrganizerLists
-	     * @instance
-	     * @param {Bubble} bubble the bubble to refresh
-	     * @async
-	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @description
-	     *  Refresh members and organizers of the bubble. <br/>
-	     */
-	    refreshMemberAndOrganizerLists(bubble: any): any;
-	    /**
-	     * @public
-	     * @method getBubbleById
-	     * @instance
-	     * @param {string} id the id of the bubble
-	     * @param {boolean} [force=false] True to force a request to the server
-	     * @async
-	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @description
-	     *  Get a bubble by its ID in memory and if it is not found in server. <br/>
-	     */
-	    getBubbleById(id: any, force?: boolean): Promise<Bubble>;
-	    /**
-	     * @public
-	     * @method getBubbleByJid
-	     * @instance
-	     * @param {string} jid the JID of the bubble
-	     * @param {boolean} [force=false] True to force a request to the server
-	     * @async
-	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
-	     * @description
-	     *  Get a bubble by its JID in memory and if it is not found in server. <br/>
-	     */
-	    getBubbleByJid(jid: any, force?: boolean): Promise<Bubble>;
-	    /**
-	     * @public
-	     * @method getAllPendingBubbles
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles not accepted or declined
-	     * @description
-	     *  Get the list of Bubbles that have a pending invitation not yet accepted of declined <br/>
-	     */
-	    getAllPendingBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllActiveBubbles
-	     * @since 1.30
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles that are "active" for the connected user
-	     * @description
-	     *  Get the list of Bubbles where the connected user can chat <br/>
-	     */
-	    getAllActiveBubbles(): Bubble[];
-	    /**
-	     * @public
-	     * @method getAllClosedBubbles
-	     * @since 1.30
-	     * @instance
-	     * @return {Bubble[]} An array of Bubbles that are closed for the connected user
-	     * @description
-	     *  Get the list of Bubbles where the connected user can only read messages <br/>
-	     */
-	    getAllClosedBubbles(): Bubble[];
-	    /**
-	     * @public
 	     * @method acceptInvitationToJoinBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles INVITATIONS
 	     * @param {Bubble} bubble The Bubble to join
 	     * @description
-	     *  Accept an invitation to join a bubble <br/>
+	     *  Accept an invitation to join a bubble <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
-	     * @category async
+
 	     */
 	    acceptInvitationToJoinBubble(bubble: Bubble): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method declineInvitationToJoinBubble
 	     * @instance
+	     * @category Manage Bubbles - Bubbles INVITATIONS
 	     * @param {Bubble} bubble The Bubble to decline
 	     * @description
-	     *  Decline an invitation to join a bubble <br/>
+	     *  Decline an invitation to join a bubble <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated or an error object depending on the result
-	     * @category async
+
 	     */
 	    declineInvitationToJoinBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method inviteContactToBubble
+	     * @instance
+	     * @category Manage Bubbles - Bubbles INVITATIONS
+	     * @param {Contact} contact         The contact to invite
+	     * @param {Bubble} bubble           The bubble
+	     * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
+	     * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
+	     * @param {string} reason        The reason of the invitation (optional)
+	     * @description
+	     *  Invite a contact in a bubble <br>
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the new invitation
+
+	     */
+	    inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason?: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method inviteContactsByEmailsToBubble
+	     * @instance
+	     * @category Manage Bubbles - Bubbles INVITATIONS
+	     * @param {Contact} contactsEmails         The contacts email tab to invite
+	     * @param {Bubble} bubble           The bubble
+	     * @description
+	     *  Invite a list of contacts by emails in a bubble <br>
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the new invitation
+
+	     */
+	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @public
 	     * @method setBubbleCustomData
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @param {Bubble} bubble The Bubble
 	     * @param {Object} customData Bubble's custom data area. key/value format. Maximum and size are server dependent
 	     * @description
-	     *  Modify all custom data at once in a bubble <br/>
-	     *  To erase all custom data, put {} in customData <br/>
+	     *  Modify all custom data at once in a bubble <br>
+	     *  To erase all custom data, put {} in customData <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
-	     * @category async
+
 	     */
 	    setBubbleCustomData(bubble: any, customData: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method setBubbleVisibilityStatus
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @param {Bubble} bubble The Bubble
 	     * @param {string} status Bubble's public/private group visibility for search.  Either "private" (default) or "public"
 	     * @description
-	     *  Set the Bubble's visibility status <br/>
+	     *  Set the Bubble's visibility status <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
+
 	     */
 	    setBubbleVisibilityStatus(bubble: any, status: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method setBubbleTopic
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @param {Bubble} bubble The Bubble
 	     * @param {string} topic Bubble's topic
 	     * @description
-	     *  Set the Bubble's topic <br/>
+	     *  Set the Bubble's topic <br>
 	     * @memberof Bubbles
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
+
 	     */
 	    setBubbleTopic(bubble: any, topic: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method setBubbleName
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @param {Bubble} bubble The Bubble
 	     * @param {string} name Bubble's name
 	     * @description
-	     *  Set the Bubble's name <br/>
+	     *  Set the Bubble's name <br>
 	     * @async
 	     * @return {Promise<Bubble, ErrorManager>}
 	     * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
-	     * @category async
+
 	     */
 	    setBubbleName(bubble: any, name: any): Promise<unknown>;
 	    /**
-	     * @name randomString
+	     * @method randomString
 	     * @private
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @instance
 	     * @param {number} length
 	     * @return {string}
 	     */
@@ -2464,11 +3125,12 @@ declare module 'lib/services/BubblesService' {
 	     * @method updateAvatarForBubble
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @description
-	     *    Update the bubble avatar (from given URL) <br/>
-	     *    The image will be automaticalle resized <br/>
-	     *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br/>
-	     *    Return a promise. <br/>
+	     *    Update the bubble avatar (from given URL) <br>
+	     *    The image will be automaticalle resized <br>
+	     *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br>
+	     *    Return a promise. <br>
 	     * @param {string} urlAvatar  The avatarUrl
 	     * @param {Bubble} bubble  The bubble to update
 	     * @return {Bubble} A bubble object of null if not found
@@ -2477,6 +3139,8 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @private
 	     * @method setAvatarBubble
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @instance
 	     * @param bubble
 	     * @param roomAvatarPath
 	     */
@@ -2486,10 +3150,11 @@ declare module 'lib/services/BubblesService' {
 	     * @method deleteAvatarFromBubble
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @description
-	     *    Delete the bubble avatar <br/>
-	     *     <br/>
-	     *    Return a promise. <br/>
+	     *    Delete the bubble avatar <br>
+	     *     <br>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble  The bubble to update
 	     * @return {Bubble} A bubble object of null if not found
 	     */
@@ -2497,6 +3162,8 @@ declare module 'lib/services/BubblesService' {
 	    /**
 	     * @private
 	     * @method deleteAvatarBubble
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @instance
 	     * @param bubbleId
 	     */
 	    deleteAvatarBubble(bubbleId: any): Promise<unknown>;
@@ -2505,9 +3172,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method updateCustomDataForBubble
 	     * @since 1.64
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @description
-	     *    Update the customData of the bubble  <br/>
-	     *    Return a promise. <br/>
+	     *    Update the customData of the bubble  <br>
+	     *    Return a promise. <br>
 	     * @param {Object} customData
 	     *    The customData to put to the bubble <br />
 	     *    Example: { "key1" : 123, "key2" : "a string" }
@@ -2520,9 +3188,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method deleteCustomDataForBubble
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @description
-	     *    Delete the customData of the bubble  <br/>
-	     *    Return a promise. <br/>
+	     *    Delete the customData of the bubble  <br>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble   The bubble to update
 	     * @return {Promise<Bubble>} The updated Bubble
 	     */
@@ -2532,110 +3201,267 @@ declare module 'lib/services/BubblesService' {
 	     * @method updateDescriptionForBubble
 	     * @since 1.65
 	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
 	     * @description
-	     *    Update the description of the bubble  <br/>
-	     *    Return a promise. <br/>
+	     *    Update the description of the bubble  <br>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble   The bubble to update
 	     * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
 	     * @return {Bubble} A bubble object of null if not found
 	     */
 	    updateDescriptionForBubble(bubble: any, strDescription: any): Promise<unknown>;
 	    /**
-	     * @private
-	     * @method _onInvitationReceived
+	     * @public
+	     * @method changeBubbleOwner
 	     * @instance
-	     * @param {Object} invitation contains informations about bubble and user's jid
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Bubble} bubble           The bubble
+	     * @param {Contact} contact         The contact to set a new bubble owner
 	     * @description
-	     *      Method called when receiving an invitation to join a bubble <br/>
+	     *  Set a moderator contact as owner of a bubble <br>
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the modifications
+
 	     */
-	    _onInvitationReceived(invitation: any): void;
+	    changeBubbleOwner(bubble: any, contact: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method removeContactFromBubble
+	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Contact} contact The contact to remove
+	     * @param {Bubble} bubble   The destination bubble
+	     * @description
+	     *    Remove a contact from a bubble <br>
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble object or an error object depending on the result
+
+	     */
+	    removeContactFromBubble(contact: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @method getAvatarFromBubble
+	     * @public
+	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Bubble} bubble   The destination bubble
+	     * @async
+	     * @return {Promise<{}>}  return a promise with {Object} A Blob object with data about the avatar picture.
+	     * @description
+	     *  Get A Blob object with data about the avatar picture of the bubble. <br>
+	     */
+	    getAvatarFromBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @private
-	     * @method _onAffiliationChanged
+	     * @method refreshMemberAndOrganizerLists
 	     * @instance
-	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Bubble} bubble the bubble to refresh
+	     * @async
+	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
 	     * @description
-	     *      Method called when affilitation to a bubble changed <br/>
+	     *  Refresh members and organizers of the bubble. <br>
 	     */
-	    _onAffiliationChanged(affiliation: any): Promise<void>;
+	    refreshMemberAndOrganizerLists(bubble: any): any;
 	    /**
-	     * @private
-	     * @method _onOwnAffiliationChanged
+	     * @public
+	     * @method getUsersFromBubble
 	     * @instance
-	     * @param {Object} affiliation contains information about bubble and user's jid
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Bubble} bubble           The bubble
+	     * @param {Object} options          The criterias to select the users to retrieve <br>
+	     * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate) <br>
+	     * - small: userId loginEmail displayName jid_im <br>
+	     * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName <br>
+	     * - full: userId loginEmail displayName jid_im status additionDate privilege firstName lastName nickName title jobTitle emails country language timezone companyId companyName roles adminType <br>
+	     * sortField : Sort items list based on the given field <br>
+	     * privilege : Allows to filter users list on the privilege type provided in this option. <br>
+	     * limit : Allow to specify the number of items to retrieve. <br>
+	     * offset : Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. <br>
+	     * sortOrder : Specify order when sorting items list. Available values -1, 1 (default) <br>
 	     * @description
-	     *      Method called when the user affilitation to a bubble changed <br/>
+	     *  Get a list of users in a bubble filtered by criterias. <br>
+	     * @async
+	     * @return {Promise<Array, ErrorManager>}
 	     */
-	    _onOwnAffiliationChanged(affiliation: any): Promise<void>;
+	    getUsersFromBubble(bubble: any, options?: Object): Promise<unknown>;
 	    /**
-	     * @private
-	     * @method _onCustomDataChanged
+	     * @public
+	     * @method getStatusForConnectedUserInBubble
 	     * @instance
-	     * @param {Object} data contains information about bubble and new custom data received
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {Bubble} bubble           The bubble
 	     * @description
-	     *      Method called when custom data have changed for a bubble <br/>
+	     *  Get the status of the connected user in a bubble <br>
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
 	     */
-	    _onCustomDataChanged(data: any): void;
+	    getStatusForConnectedUserInBubble(bubble: any): any;
 	    /**
-	     * @private
-	     * @method _onTopicChanged
+	     * @public
+	     * @method retrieveAllBubblesByTags
 	     * @instance
-	     * @param {Object} data contains information about bubble new topic received
+	     * @async
+	     * @category Manage Bubbles - Bubbles TAGS
+	     * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
+	     * @param {string} format Allows to retrieve more or less room details in response. <br>
+	     * small: id, name, jid, isActive <br>
+	     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation <br>
+	     * full: all room fields <br>
+	     * If full format is used, the list of users returned is truncated to 100 active users by default. <br>
+	     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). <br>
+	     * The total number of users being member of the room is returned in the field activeUsersCounter. <br>
+	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. <br>
+	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. <br>
+	     * Default value : small <br>
+	     * Authorized value : small, medium, full <br>
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). <br>
+	     * If value is set to -1, all active bubble members are returned. <br>
+	     * Only usable if requested format is full (otherwise users field is not returned) <br>
+	     * Default value : 100 <br>
+	     * @return {Promise<{rooms, roomDetails}>}  return a promise with a list of  {rooms : List of rooms having the searched tag, roomDetails : List of rooms detail data according with format and nbUsersToKeep choices} filtered by tags or null
 	     * @description
-	     *      Method called when the topic has changed for a bubble <br/>
+	     *  Get a list of {Bubble} filtered by tags. <br>
 	     */
-	    _onTopicChanged(data: any): void;
+	    retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<any>;
 	    /**
-	     * @private
-	     * @method _onPrivilegeBubbleChanged
+	     * @public
+	     * @method setTagsOnABubble
 	     * @instance
-	     * @param {Object} bubbleInfo modified bubble info
+	     * @async
+	     * @category Manage Bubbles - Bubbles TAGS
 	     * @description
-	     *     Method called when the owner of a bubble changed. <br/>
+	     *      Set a list of tags on a {Bubble}. <br>
+	     * @param {Bubble} bubble The on which the tags must be setted.
+	     * @param {Array<Object>} tags The tags to be setted on the selected bubble. Ex :  [{ "tag" : "Test1Tag" }, { "tag" : "Test2Tag" }]
+	     * @return {Promise<any>} return a promise with a Bubble's tags infos.
 	     */
-	    _onPrivilegeBubbleChanged(bubbleInfo: any): Promise<void>;
+	    setTagsOnABubble(bubble: Bubble, tags: Array<string>): Promise<any>;
 	    /**
-	     * @private
-	     * @method _onNameChanged
+	     *
+	     * @public
+	     * @method deleteTagOnABubble
 	     * @instance
-	     * @param {Object} data contains information about bubble new name received
+	     * @async
+	     * @category Manage Bubbles - Bubbles TAGS
 	     * @description
-	     *      Method called when the name has changed for a bubble <br/>
+	     *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br>
+	     * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
+	     * @param {string} tag The tag to be removed on the selected bubbles.
+	     * @return {Promise<any>} return a promise with a Bubble's tags infos.
 	     */
-	    _onNameChanged(data: any): void;
+	    deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any>;
 	    /**
-	     * @private
-	     * @method _onbubblepresencechanged
+	     * @public
+	     * @method getAllBubblesContainers
 	     * @instance
-	     * @param {Object} bubbleInfo contains information about bubble
+	     * @async
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} name name The name of a rooms container created by the logged in user. <br>
+	     * Two way to search containers are available:<br>
+	     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..<br>
+	     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)<br>
 	     * @description
-	     *      Method called when the name has changed for a bubble <br/>
+	     *      retrieve the containers of bubbles from server. <br>
+	     *      A filter can be provided for the search by a name. <br>
+	     * @return {Promise<any>} the result of the operation.
+
 	     */
-	    _onbubblepresencechanged(bubbleInfo: any): Promise<void>;
+	    getAllBubblesContainers(name?: string): Promise<unknown>;
 	    /**
-	     * @private
-	     * @method _onBubblesContainerReceived
+	     * @public
+	     * @method getABubblesContainersById
 	     * @instance
-	     * @param {Object} infos contains informations about a bubbles container
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} id The id of the container of bubbles to retreive from server.
+	     * @async
 	     * @description
-	     *      Method called when receiving an create/update/delete event of the bubbles container <br/>
+	     *       retrieve a containers of bubbles from server by it's id. <br>
+	     * @return {Promise<any>} the result of the operation.
+
 	     */
-	    _onBubblesContainerReceived(infos: any): Promise<void>;
+	    getABubblesContainersById(id?: string): Promise<unknown>;
 	    /**
-	     * @name _onBubbleConferenceStoppedReceived
-	     * @private
-	     * @param bubble
-	     * @return {Promise<void>}
+	     * @public
+	     * @method addBubblesToContainerById
+	     * @instance
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} containerId The id of the container of bubbles to retreive from server.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
+	     * @async
+	     * @description
+	     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br>
+	     * @return {Promise<any>} the result of the operation.
+
 	     */
-	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
+	    addBubblesToContainerById(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateBubbleContainerNameAndDescriptionById
+	     * @instance
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} containerId The id of the container of bubbles to retreive from server.
+	     * @param {string} name The name of the container.
+	     * @param {string} description The description of the container.
+	     * @async
+	     * @description
+	     *       Change one rooms container name or description from server by it's id. <br>
+	     * @return {Promise<any>} the result of the operation.
+
+	     */
+	    updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createBubbleContainer
+	     * @instance
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} name The name of the container.
+	     * @param {string} description The description of the container.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
+	     * @async
+	     * @description
+	     *       Create one rooms container with name or description. <br>
+	     * @return {Promise<any>} the result of the operation.
+
+	     */
+	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteBubbleContainer
+	     * @instance
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} containerId The id of the container of bubbles to delete from server.
+	     * @async
+	     * @description
+	     *       delete one container by id. <br>
+	     * @return {Promise<any>} the result of the operation.
+
+	     */
+	    deleteBubbleContainer(containerId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method removeBubblesFromContainer
+	     * @instance
+	     * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
+	     * @param {string} containerId The id of the container.
+	     * @param {Array<string>} bubbleIds List of the bubbles Id to remove from the container.
+	     * @async
+	     * @description
+	     *       remove rooms from a container by id. <br>
+	     * @return {Promise<any>} the result of the operation.
+
+	     */
+	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method getInfoForPublicUrlFromOpenInvite
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @param {Object} openInvite contains informations about a bubbles invitation
 	     * @description
-	     *     get infos for the PublicUrl <br/>
+	     *     get infos for the PublicUrl <br>
 	     * @return {Promise<any>}
 	     */
 	    getInfoForPublicUrlFromOpenInvite(openInvite: any): Promise<any>;
@@ -2644,9 +3470,10 @@ declare module 'lib/services/BubblesService' {
 	     * @public
 	     * @method getAllPublicUrlOfBubbles
 	     * @since 1.72
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @instance
 	     * @description
-	     *     get all the PublicUrl belongs to the connected user <br/>
+	     *     get all the PublicUrl belongs to the connected user <br>
 	     * @return {Promise<any>}
 	     */
 	    getAllPublicUrlOfBubbles(): Promise<any>;
@@ -2656,9 +3483,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method getAllPublicUrlOfBubblesOfAUser
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @param  {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
 	     * @description
-	     *     get all the PublicUrl belongs to a user <br/>
+	     *     get all the PublicUrl belongs to a user <br>
 	     * @return {Promise<any>}
 	     */
 	    getAllPublicUrlOfBubblesOfAUser(contact?: Contact): Promise<any>;
@@ -2668,9 +3496,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method getAllPublicUrlOfABubble
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @param {Bubble} bubble bubble from where get the public link.
 	     * @description
-	     *     get all the PublicUrl of a bubble belongs to the connected user <br/>
+	     *     get all the PublicUrl of a bubble belongs to the connected user <br>
 	     * @return {Promise<any>}
 	     */
 	    getAllPublicUrlOfABubble(bubble: any): Promise<any>;
@@ -2680,10 +3509,11 @@ declare module 'lib/services/BubblesService' {
 	     * @method getAllPublicUrlOfABubbleOfAUser
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @param {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
 	     * @param {Bubble} bubble bubble from where get the public link.
 	     * @description
-	     *     get all the PublicUrl of a bubble belong's to a user <br/>
+	     *     get all the PublicUrl of a bubble belong's to a user <br>
 	     * @return {Promise<any>}
 	     */
 	    getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any>;
@@ -2692,9 +3522,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method createPublicUrl
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @description
-	     *    Create / Get the public URL used to access the specified bubble. So a Guest or a Rainbow user can access to it just using a URL <br/>
-	     *    Return a promise. <br/>
+	     *    Create / Get the public URL used to access the specified bubble. So a Guest or a Rainbow user can access to it just using a URL <br>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble The bubble on which the public url is requested.
 	     * @return {Promise<string>} The public url
 	     */
@@ -2704,11 +3535,12 @@ declare module 'lib/services/BubblesService' {
 	     * @method generateNewPublicUrl
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @description
-	     *    Generate a new public URL to access the specified bubble (So a Guest or a Rainbow user can access to it just using a URL) <br/>
-	     *    Return a promise. <br/>
-	     * <br/>
-	     *    !!! The previous URL is no more functional !!! <br/>
+	     *    Generate a new public URL to access the specified bubble (So a Guest or a Rainbow user can access to it just using a URL) <br>
+	     *    Return a promise. <br>
+	     * <br>
+	     *    !!! The previous URL is no more functional !!! <br>
 	     * @param {Bubble} bubble The bubble on which the public url is requested.
 	     * @return {Promise<string>} The public url
 	     */
@@ -2718,9 +3550,10 @@ declare module 'lib/services/BubblesService' {
 	     * @method removePublicUrl
 	     * @since 1.72
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @description
-	     *    'Remove' the public URL used to access the specified bubble. So it's no more possible to access to this buble using this URL <br/>
-	     *    Return a promise. <br/>
+	     *    'Remove' the public URL used to access the specified bubble. So it's no more possible to access to this buble using this URL <br>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble The bubble on which the public url must be deleted.
 	     * @return {Promise<any>} An object of the result
 	     */
@@ -2730,41 +3563,44 @@ declare module 'lib/services/BubblesService' {
 	     * @method setBubbleAutoRegister
 	     * @since 1.86
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @description
 	     *    A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link).
 	     *    According with autoRegister value, if another person uses the link to join the room:
 	     *    autoRegister = 'unlock': If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. (default value).
 	     *    autoRegister = 'lock': If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.
 	     *    autoRegister = 'unlock_ack' (value not authorized yet): If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.
-	     *    Return a promise. <br/>
+	     *    Return a promise. <br>
 	     * @param {Bubble} bubble The bubble on which the public url must be deleted.
 	     * @param {string} autoRegister value of the share of public URL to set.
 	     * @return {Promise<Bubble>} An object of the result
 	     */
 	    setBubbleAutoRegister(bubble: Bubble, autoRegister?: string): Promise<Bubble>;
 	    /**
-	 * @private
-	 * @method GetPublicURLFromResponseContent
-	 * @since 1.72
-	 * @instance
-	 * @description
-	 *    retrieve the public url from public url object. <br/>
-	 * @param {Object} content   Id of the bubble
-	 * @return {string} An url
-	 */
+	     * @private
+	     * @method GetPublicURLFromResponseContent
+	     * @since 1.72
+	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
+	     * @description
+	     *    retrieve the public url from public url object. <br>
+	     * @param {Object} content   Id of the bubble
+	     * @return {string} An url
+	     */
 	    getPublicURLFromResponseContent(content: any): string;
 	    /**
 	     * @public
 	     * @method registerGuestForAPublicURL
 	     * @since 1.75
 	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
 	     * @description
-	     *    register a guest user with a mail and a password and join a bubble with a public url. <br/>
-	     *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br/>
-	     *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br/>
-	     *    and automatically joins the room to which the public link is bound. <br/>
-	     * <br/>
-	     *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br/>
+	     *    register a guest user with a mail and a password and join a bubble with a public url. <br>
+	     *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br>
+	     *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br>
+	     *    and automatically joins the room to which the public link is bound. <br>
+	     * <br>
+	     *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br>
 	     * @param {string} publicUrl
 	     * @param {string} loginEmail
 	     * @param {string} password
@@ -2778,551 +3614,19 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string): Promise<unknown>;
 	    /**
-	     * @name joinConference
-	     * @private
-	     * @param bubble
-	     * @return {Promise<unknown>}
-	     * @description
-	     *  private for ale rainbow team's tests only
-	     */
-	    joinConference(bubble: any): Promise<unknown>;
-	    /**
-	     * @name getBubbleByConferenceIdFromCache
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @description
-	     * To get a bubble from the cache using a conference Id
-	     * @return {Bubble} A bubble object or NULL if not found
-	     */
-	    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble;
-	    /**
-	     * @name getBubbleIdByConferenceIdFromCache
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @return {string}
-	     * @description
-	     * To get ID of the bubble from the cache using a conference Id
-	     */
-	    getBubbleIdByConferenceIdFromCache(conferenceId: string): string;
-	    /**
-	     * @name getConferencesIdByBubbleIdFromCache
-	     * @since 2.6.0
-	     * @param {string} bubbleId
-	     * @return {Array<string>}
-	     * @description
-	     *      to get the list of conferences id linked to a specified bubble.
-	     */
-	    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string>;
-	    /**
-	     * @name conferenceAllowed
-	     * @since 2.6.0
-	     * @return {boolean}
-	     * @description
-	     *      To know if the current user has the permission to start its own WebRTC Conference.
-	     *      return True if it's allowed, false if it's not the case
-	     */
-	    conferenceAllowed(): boolean;
-	    /**
-	     * @name getConferenceByIdFromCache
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference to get
-	     * @return {ConferenceSession}
-	     * @description
-	     *      To get a conference from the cache using a conference Id.
-	     *      RETURN A conference object or NULL if not found
-	     */
-	    getConferenceByIdFromCache(conferenceId: string): ConferenceSession;
-	    /**
-	     * @name conferenceGetListFromCache
-	     * @since 2.6.0
-	     * @return {boolean}
-	     * @description
-	     *      To get conferences list in progress from the cache.
-	     *      return The list of Conference in progress.
-	     */
-	    conferenceGetListFromCache(): List<ConferenceSession>;
-	    /**
-	     * @Method retrieveConferences
-	     * @public
-	     * @since 2.6.0
-	     * @instance
-	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
-	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
-	     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
-	     * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
-	     * @memberof ConferenceService
-	     */
-	    retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any>;
-	    /**
-	     * @Method updateOrCreateWebConferenceEndpoint
-	     * @public
-	     * @since 2.6.0
-	     * @instance
-	     * @param {any} conferenceData [required] conference data for the update / creation
-	     * @returns {any} the updated conferenceEndpoint or null on error
-	     * @memberof BubblesService
-	     */
-	    updateOrCreateWebConferenceEndpoint(conferenceData: any): any;
-	    /**
-	     * @name updateWebConferenceInfos
-	     * @since 2.6.0
-	     * @private
-	     * @param {any[]} endpoints
-	     */
-	    updateWebConferenceInfos(endpoints: any[]): void;
-	    /**
-	     * @Method getWebRtcConfEndpointId
-	     * @public
-	     * @since 2.6.0
-	     * @instance
-	     * @returns {string} the user unique webrtc conference enpoint id
-	     * @memberof BubblesService
-	     */
-	    getWebRtcConfEndpointId(): string;
-	    /**
-	     * @Method getWebRtcSharingOnlyConfEndpointId
-	     * @public
-	     * @since 2.6.0
-	     * @instance
-	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
-	     * @memberof BubblesService
-	     */
-	    getWebRtcSharingOnlyConfEndpointId(): string;
-	    /**
-	     * @public
-	     * @method conferenceStart
-	     * @since 2.6.0
-	     * @instance
-	     * @description
-	     *     To start a conference. <br/>
-	     *     Only a moderator can start a conference. It also need to be a premium account. <br/>
-	     * @param {Bubble} bubble   The bubble where the conference should start
-	     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
-	     * @return {Promise<any>} The result of the starting.
-	     */
-	    conferenceStart(bubble: any, conferenceId?: string): Promise<any>;
-	    /**
-	     * @public
-	     * @method conferenceStop
-	     * @since 2.6.0
-	     * @instance
-	     * @description
-	     *     To stop a conference. <br/>
-	     *     Only a moderator can stop a conference. It also need to be a premium account. <br/>
-	     * @param {string} conferenceId The id of the conference that should stop
-	     * @return {Promise<any>} return undefined.
-	     */
-	    conferenceStop(conferenceId?: string): Promise<unknown>;
-	    /**
-	     * @name conferenceJoin
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @param {boolean} asModerator To join conference as operator or not
-	     * @param {boolean} muted To join conference as muted or not
-	     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
-	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-	     * @description
-	     * To join a conference.  </br>
-	     * NOTE: The conference must be first started before to join it.
-	     * @return {Promise<any>}
-	     */
-	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
-	    /**
-	     * @name conferenceMuteOrUnmute
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @description
-	     * Mute or Unmute the conference - If muted only the moderator can speak.  </BR>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
-	    /**
-	     * @name conferenceMuteOrUnmutParticipant
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @param {string} participantId ID of the participant to mute/unmute
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @description
-	     * Mute or Unmute the specified participant in the conference.</br>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
-	    /**
-	     * @name conferenceDropParticipant
-	     * @since 2.6.0
-	     * @param {string} conferenceId ID of the conference
-	     * @param {string} participantId ID of the participant to drop
-	     * @description
-	     * Drop the specified participant in the conference. </br>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceDropParticipant(conferenceId: string, participantId: string): Promise<unknown>;
-	    /**
-	     * @name personalConferenceAllowed
-	     * @since 2.6.0
-	     * @return {boolean}
-	     * @description
-	     * To know if the current user has the permission to start its own Personal Conference
-	     */
-	    personalConferenceAllowed(): boolean;
-	    /**
-	     * @name personalConferenceGetId
-	     * @since 2.6.0
-	     * @description
-	     * To get teh Id of the Personal Conference
-	     * @return {string} Id of the Personal Conference or NULL
-	     */
-	    personalConferenceGetId(): string;
-	    /**
-	     * @name personalConferenceGetBubbleFromCache
-	     * @since 2.6.0
-	     * @description
-	     * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-	     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
-	     */
-	    personalConferenceGetBubbleFromCache(): Promise<Bubble>;
-	    /**
-	     * @name personalConferenceGetBubbleIdFromCache
-	     * @since 2.6.0
-	     * @description
-	     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-	     * @return {string} The Bubble which contains the Personal Meeting or null
-	     */
-	    personalConferenceGetBubbleIdFromCache(): string;
-	    /**
-	     * @name personalConferenceGetPhoneNumbers
-	     * @since 2.6.0
-	     * @description
-	     * To get the list of phone numbers used to reach the Personal Meeting
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceGetPhoneNumbers(): Promise<any>;
-	    /**
-	     * @name personalConferenceGetPassCodes
-	     * @since 2.6.0
-	     * @description
-	     * To retrieve the pass codes of the Personal Meeting of the current user
-	     * @return {Promise<ConferencePassCodes>}
-	     */
-	    personalConferenceGetPassCodes(): Promise<ConferencePassCodes>;
-	    /**
-	     * @name personalConferenceResetPassCodes
-	     * @since 2.6.0
-	     * @description
-	     * To reset and get new pass codes of the Personal Meeting of the current user
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceResetPassCodes(): Promise<any>;
-	    /**
-	     * @name personalConferenceGetPublicUrl
-	     * @since 2.6.0
-	     * @description
-	     * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceGetPublicUrl(): Promise<any>;
-	    /**
-	     * @name personalConferenceGenerateNewPublicUrl
-	     * @since 2.6.0
-	     * @description
-	     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). </br>
-	     * The previous URL is no more functional !
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceGenerateNewPublicUrl(): Promise<any>;
-	    /**
-	     * @name personalConferenceStart
-	     * @since 2.6.0
-	     * @description
-	     * To start a Personal Conference. </br>
-	     * Only a moderator can start a Personal Conference.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceStart(): Promise<any>;
-	    /**
-	     * @name personalConferenceStop
-	     * @since 2.6.0
-	     * @description
-	     * To stop the Personal Conference.</br>
-	     * Only a moderator can stop a Personal Conference
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceStop(): Promise<any>;
-	    /**
-	     * @name personalConferenceJoin
-	     * @since 2.6.0
-	     * @param {boolean} asModerator To join Personal Conference as operator or not
-	     * @param {boolean} muted To join Personal Conference as muted or not
-	     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
-	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-	     * @description
-	     * To join the Personal Conference.
-	     * NOTE: The Personal Conference must be first started before to join it.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any>;
-	    /**
-	     * @name personalConferenceMuteOrUnmute
-	     * @since 2.6.0
-	     * @param {boolean} mute
-	     * @description
-	     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.</br>
-	     * Only the moderator of the Personal Conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceMuteOrUnmute(mute: boolean): Promise<unknown>;
-	    /**
-	     * @name personalConferenceLockOrUnlock
-	     * @since 2.6.0
-	     * @param {boolean} toLock  True to lock, False to unlock
-	     * @description
-	     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. </br>
-	     * Lock / Unlock is only possible for PSTN Conference. </br>
-	     * Only a moderator can use this method
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
-	    /**
-	     * @name personalConferenceMuteOrUnmuteParticipant
-	     * @since 2.6.0
-	     * @param {string} participantId ID of the participant to mute/unmute
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @description
-	     * Mute or Unmute the specified participant in the Personal Conference.</br>
-	     * Only the moderator of the Personal Conference can use this method.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any>;
-	    /**
-	     * @name personalConferenceDropParticipant
-	     * @since 2.6.0
-	     * @param {string} participantId ID of the participant to drop
-	     * @description
-	     * Drop the specified participant in the Personal Conference. </br>
-	     * Only the moderator of the Personal Conference can use this method.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceDropParticipant(participantId: string): Promise<any>;
-	    /**
-	     * @name conferenceEndedForBubble
-	     * @private
-	     * @param {string} bubbleJid
-	     * @return {Promise<void>}
-	     */
-	    conferenceEndedForBubble(bubbleJid: string): Promise<void>;
-	    /**
-	     * @name askBubbleForConferenceDetails
-	     * @private
-	     * @param {string} bubbleJid
-	     */
-	    askBubbleForConferenceDetails(bubbleJid: string): void;
-	    /**
-	     * @name personalConferenceRename
-	     * @private
-	     * @param {string} name
-	     * @return {Promise<unknown>}
-	     */
-	    personalConferenceRename(name: string): Promise<unknown>;
-	    /**
-	     * @name askConferenceSnapshot
-	     * @private
-	     * @param {string} conferenceId
-	     * @param {MEDIATYPE} type
-	     * @return {Promise<void>}
-	     */
-	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<void>;
-	    /**
-	     * @name conferenceModeratorAction
-	     * @private
-	     * @param {string} conferenceId
-	     * @param {string} action
-	     * @return {Promise<unknown>}
-	     */
-	    conferenceModeratorAction(conferenceId: string, action: string): Promise<unknown>;
-	    /**
-	     * @name conferenceMuteOrUnmutParticipant
-	     * @private
-	     * @param {string} conferenceId
-	     * @param {string} participantId
-	     * @param {string} action
-	     * @return {Promise<unknown>}
-	     */
-	    conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string): Promise<unknown>;
-	    /**
-	     * @name removeBubbleFromCache
-	     * @private
-	     * @param {string} conferenceId
-	     * @param {boolean} deleteLinkWithBubble
-	     */
-	    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean): void;
-	    /**
-	     * @name addConferenceToCache
-	     * @private
-	     * @param {ConferenceSession} conference
-	     */
-	    addConferenceToCache(conference: ConferenceSession): void;
-	    /**
-	     * @public
-	     * @method retrieveAllBubblesByTags
-	     * @instance
-	     * @async
-	     * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
-	     * @param {string} format Allows to retrieve more or less room details in response. </br>
-	     * small: id, name, jid, isActive </br>
-	     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation </br>
-	     * full: all room fields </br>
-	     * If full format is used, the list of users returned is truncated to 100 active users by default. </br>
-	     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
-	     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
-	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
-	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. </br>
-	     * Default value : small </br>
-	     * Authorized value : small, medium, full </br>
-	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). </br>
-	     * If value is set to -1, all active bubble members are returned. </br>
-	     * Only usable if requested format is full (otherwise users field is not returned) </br>
-	     * Default value : 100 </br>
-	     * @return {Promise<{rooms, roomDetails}>}  return a promise with a list of  {rooms : List of rooms having the searched tag, roomDetails : List of rooms detail data according with format and nbUsersToKeep choices} filtered by tags or null
-	     * @description
-	     *  Get a list of {Bubble} filtered by tags. <br/>
-	     */
-	    retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<any>;
-	    /**
-	     * @public
-	     * @method setTagsOnABubble
-	     * @instance
-	     * @async
-	     * @description
-	     *      Set a list of tags on a {Bubble}. <br/>
-	     * @param {Bubble} bubble The on which the tags must be setted.
-	     * @param {Array<Object>} tags The tags to be setted on the selected bubble. Ex :  [{ "tag" : "Test1Tag" }, { "tag" : "Test2Tag" }]
-	     * @return {Promise<any>} return a promise with a Bubble's tags infos.
-	     */
-	    setTagsOnABubble(bubble: Bubble, tags: Array<string>): Promise<any>;
-	    /**
-	     *
-	     * @public
-	     * @method deleteTagOnABubble
-	     * @instance
-	     * @async
-	     * @description
-	     *  Delete a single tag on a list of {Bubble}. If the list of bubble is empty then every bubbles are concerned. <br/>
-	     * @param {Array<Bubble>} bubbles The bubbles on which the tags must be deleted.
-	     * @param {string} tag The tag to be removed on the selected bubbles.
-	     * @return {Promise<any>} return a promise with a Bubble's tags infos.
-	     */
-	    deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any>;
-	    /**
-	     * @public
-	     * @method getAllBubblesContainers
-	     * @instance
-	     * @async
-	     * @param {string} name name The name of a rooms container created by the logged in user. </BR>
-	     * Two way to search containers are available:</BR>
-	     * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..</BR>
-	     * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)</BR>
-	     * @description
-	     *      retrieve the containers of bubbles from server. <br/>
-	     *      A filter can be provided for the search by a name. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    getAllBubblesContainers(name?: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getABubblesContainersById
-	     * @instance
-	     * @param {string} id The id of the container of bubbles to retreive from server.
-	     * @async
-	     * @description
-	     *       retrieve a containers of bubbles from server by it's id. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    getABubblesContainersById(id?: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method addBubblesToContainerById
-	     * @instance
-	     * @param {string} containerId The id of the container of bubbles to retreive from server.
-	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
-	     * @async
-	     * @description
-	     *       Add a list of bubbles to a containers of bubbles on server by it's id. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    addBubblesToContainerById(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method updateBubbleContainerNameAndDescriptionById
-	     * @instance
-	     * @param {string} containerId The id of the container of bubbles to retreive from server.
-	     * @param {string} name The name of the container.
-	     * @param {string} description The description of the container.
-	     * @async
-	     * @description
-	     *       Change one rooms container name or description from server by it's id. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method createBubbleContainer
-	     * @instance
-	     * @param {string} name The name of the container.
-	     * @param {string} description The description of the container.
-	     * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
-	     * @async
-	     * @description
-	     *       Create one rooms container with name or description. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method deleteBubbleContainer
-	     * @instance
-	     * @param {string} containerId The id of the container of bubbles to delete from server.
-	     * @async
-	     * @description
-	     *       delete one container by id. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    deleteBubbleContainer(containerId: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method removeBubblesFromContainer
-	     * @instance
-	     * @param {string} containerId The id of the container.
-	     * @param {Array<string>} bubbleIds List of the bubbles Id to remove from the container.
-	     * @async
-	     * @description
-	     *       remove rooms from a container by id. <br/>
-	     * @return {Promise<any>} the result of the operation.
-	     * @category async
-	     */
-	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
-	    /**
 	     * @public
 	     * @method addPSTNParticipantToConference
 	     * @instance
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} participantPhoneNumber Phone number to call.
 	     * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
 	     * @since 2.2.0
 	     * @async
 	     * @description
-	     *       Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number. <br/>
+	     *       Adds a PSTN participant to WebRTC conference. A SIP call is launched towards the requested phone number. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    addPSTNParticipantToConference(roomId: string, participantPhoneNumber: string, country: string): Promise<unknown>;
 	    /**
@@ -3330,18 +3634,19 @@ declare module 'lib/services/BubblesService' {
 	     * @method snapshotConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} limit Allows to specify the number of participants to retrieve.
 	     * @param {string} offset Allows to specify the position of first participant to retrieve.
 	     * @async
 	     * @description
-	     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
-	     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
-	     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
-	     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
-	     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+	     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
+	     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br>
+	     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+	     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br>
+	     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    snapshotConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
 	    /**
@@ -3349,13 +3654,14 @@ declare module 'lib/services/BubblesService' {
 	     * @method delegateConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} userId User identifier.
 	     * @async
 	     * @description
-	     *       Current owner of the conference delegates its control to another user (this user must support conference delegation, i.e. "delegateCapability" was set to true when joining). <br/>
+	     *       Current owner of the conference delegates its control to another user (this user must support conference delegation, i.e. "delegateCapability" was set to true when joining). <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    delegateConference(roomId: string, userId: string): Promise<unknown>;
 	    /**
@@ -3363,16 +3669,17 @@ declare module 'lib/services/BubblesService' {
 	     * @method disconnectPSTNParticipantFromConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
-	     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br/>
-	     *       Conference: Moderator can drop any PSTN participant. <br/>
-	     *       Webinar: Organizer or speaker can drop any PSTN participant. <br/>
-	     *       Practice room: Not applicable <br/>
-	     *       Waiting room: Not applicable. <br/>
+	     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br>
+	     *       Conference: Moderator can drop any PSTN participant. <br>
+	     *       Webinar: Organizer or speaker can drop any PSTN participant. <br>
+	     *       Practice room: Not applicable <br>
+	     *       Waiting room: Not applicable. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    disconnectPSTNParticipantFromConference(roomId: string): Promise<unknown>;
 	    /**
@@ -3380,17 +3687,18 @@ declare module 'lib/services/BubblesService' {
 	     * @method disconnectParticipantFromConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} userId User identifier.
 	     * @async
 	     * @description
-	     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br/>
-	     *       Conference: Moderator can drop any participant except conference owner. <br/>
-	     *       Webinar: Organizer or speaker can drop any participant. <br/>
-	     *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br/>
-	     *       Waiting room: Not applicable. <br/>
+	     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br>
+	     *       Conference: Moderator can drop any participant except conference owner. <br>
+	     *       Webinar: Organizer or speaker can drop any participant. <br>
+	     *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br>
+	     *       Waiting room: Not applicable. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    disconnectParticipantFromConference(roomId: string, userId: string): Promise<unknown>;
 	    /**
@@ -3398,18 +3706,19 @@ declare module 'lib/services/BubblesService' {
 	     * @method getTalkingTimeForAllPparticipantsInConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} limit Allows to specify the number of participants to retrieve.
 	     * @param {string} offset Allows to specify the position of first participant to retrieve.
 	     * @async
 	     * @description
-	     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br/>
-	     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br/>
-	     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br/>
-	     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br/>
-	     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br/>
+	     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
+	     *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br>
+	     *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+	     *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br>
+	     *       If the conference is started and the requester, conference owner, isn't in the conference, the response will contain global information about conference and the requested set of participants. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    getTalkingTimeForAllPparticipantsInConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
 	    /**
@@ -3417,6 +3726,7 @@ declare module 'lib/services/BubblesService' {
 	     * @method joinConferenceV2
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
 	     * @param {string} participantPhoneNumber Join through dial.
@@ -3426,9 +3736,9 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} microphone Has client a microphone?
 	     * @async
 	     * @description
-	     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br/>
+	     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    joinConferenceV2(roomId: string, mediaType: string, participantPhoneNumber: string, country: string, dc: Array<string>, mute?: boolean, microphone?: boolean): Promise<unknown>;
 	    /**
@@ -3436,12 +3746,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method pauseRecording
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
-	     *       Pauses the recording of a conference. <br/>
+	     *       Pauses the recording of a conference. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    pauseRecording(roomId: string): Promise<unknown>;
 	    /**
@@ -3449,12 +3760,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method resumeRecording
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
-	     *       Resume the recording of a conference. <br/>
+	     *       Resume the recording of a conference. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    resumeRecording(roomId: string): Promise<unknown>;
 	    /**
@@ -3462,12 +3774,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method startRecording
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
-	     *       Start the recording of a conference. <br/>
+	     *       Start the recording of a conference. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    startRecording(roomId: string): Promise<unknown>;
 	    /**
@@ -3475,12 +3788,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method stopRecording
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
-	     *       Stop the recording of a conference. <br/>
+	     *       Stop the recording of a conference. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    stopRecording(roomId: string): Promise<unknown>;
 	    /**
@@ -3488,13 +3802,14 @@ declare module 'lib/services/BubblesService' {
 	     * @method rejectAVideoConference
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
 	     *       User indicates that he rejects the conference (only available for WebRTC conferences). <br>
-	     *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br/>
+	     *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    rejectAVideoConference(roomId: string): Promise<unknown>;
 	    /**
@@ -3502,12 +3817,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method startConferenceOrWebinarInARoom
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
 	     *       The start command initiates a conference in a room. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    startConferenceOrWebinarInARoom(roomId: string): Promise<unknown>;
 	    /**
@@ -3515,6 +3831,7 @@ declare module 'lib/services/BubblesService' {
 	     * @method stopConferenceOrWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
@@ -3524,7 +3841,7 @@ declare module 'lib/services/BubblesService' {
 	     *       Practice room: Any organizer or speaker can stop it. <br>
 	     *       Waiting room: Can't be stopped through API. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    stopConferenceOrWebinar(roomId: string): Promise<unknown>;
 	    /**
@@ -3532,6 +3849,7 @@ declare module 'lib/services/BubblesService' {
 	     * @method subscribeForParticipantVideoStream
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} userId User identifier.
 	     * @param {string} media [or audioVideo] Concerned media. Default value in case of webinar is audio+video, else video. <br>
@@ -3545,7 +3863,7 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    subscribeForParticipantVideoStream(roomId: string, userId: string, media?: string, subStreamLevel?: number, dynamicFeed?: boolean): Promise<unknown>;
 	    /**
@@ -3553,6 +3871,7 @@ declare module 'lib/services/BubblesService' {
 	     * @method updatePSTNParticipantParameters
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} phoneNumber Participant phone number.
 	     * @param {string} option Mute/unmute the participant. <br>
@@ -3561,7 +3880,7 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *       The update PSTN participant command can update different options of a participant. Only one option can be updated at a time. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    updatePSTNParticipantParameters(roomId: string, phoneNumber: string, option?: string): Promise<unknown>;
 	    /**
@@ -3569,19 +3888,20 @@ declare module 'lib/services/BubblesService' {
 	     * @method updateConferenceParameters
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
-	     * @param {string} option Following options are available: </br>
-	     * Mute Mutes all participants, except requester. </br>
-	     * Unmute Unmutes all participants. </br>
-	     * Lock Disables any future participant from joining conference. </br>
-	     * Unlock Unlocks the conference. </br>
+	     * @param {string} option Following options are available: <br>
+	     * Mute Mutes all participants, except requester. <br>
+	     * Unmute Unmutes all participants. <br>
+	     * Lock Disables any future participant from joining conference. <br>
+	     * Unlock Unlocks the conference. <br>
 	     * Webinar Changes practice room into webinar. <br>
-	     *     Authorized values :  mute, unmute, lock, unlock, webinar </br>
+	     *     Authorized values :  mute, unmute, lock, unlock, webinar <br>
 	     * @async
 	     * @description
 	     *       The update conference command can update different options of a conference. Only one option can be updated at a time. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    updateConferenceParameters(roomId: string, option?: string): Promise<unknown>;
 	    /**
@@ -3589,14 +3909,15 @@ declare module 'lib/services/BubblesService' {
 	     * @method updateParticipantParameters
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} userId Conference session participant identifier.
-	     * @param {string} option Mute/unmute the participant. </br>
-	     * Plug/unplug the microphone.</br>
-	     * Update some media parameters:</br>
-	     *     Update media bandwidth as publisher. Two parameters must be present: media and bitRate.</br>
-	     *     Update substream level as subscriber. One parameter must be present: subStreamLevel. Parameter publisherId is optional.</br>
-	     * Authorized values : mute, unmute, update, plug, unplug</br>
+	     * @param {string} option Mute/unmute the participant. <br>
+	     * Plug/unplug the microphone.<br>
+	     * Update some media parameters:<br>
+	     *     Update media bandwidth as publisher. Two parameters must be present: media and bitRate.<br>
+	     *     Update substream level as subscriber. One parameter must be present: subStreamLevel. Parameter publisherId is optional.<br>
+	     * Authorized values : mute, unmute, update, plug, unplug<br>
 	     * @param {string} media Media for which the bitrate will be updated.
 	     * Authorized values : video, sharing
 	     * @param {number} bitRate Maximum bitrate value in kbps. If 0, no limit of bandwidth usage.
@@ -3608,7 +3929,7 @@ declare module 'lib/services/BubblesService' {
 	     * @description
 	     *       The update participant command can update different options of a participant. Only one option can be updated at a time. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    updateParticipantParameters(roomId: string, userId: string, option: string, media: string, bitRate: number, subStreamLevel: number, publisherId: string): Promise<unknown>;
 	    /**
@@ -3616,13 +3937,14 @@ declare module 'lib/services/BubblesService' {
 	     * @method allowTalkWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
-	     * @param {string} userId User identifier. </br>
+	     * @param {string} userId User identifier. <br>
 	     * @async
 	     * @description
 	     *       Webinar: allow a participant who raised his hand to talk. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    allowTalkWebinar(roomId: string, userId: string): Promise<unknown>;
 	    /**
@@ -3630,13 +3952,14 @@ declare module 'lib/services/BubblesService' {
 	     * @method disableTalkWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
-	     * @param {string} userId User identifier. </br>
+	     * @param {string} userId User identifier. <br>
 	     * @async
 	     * @description
 	     *       Webinar: disable a participant who raised his hand to talk. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    disableTalkWebinar(roomId: string, userId: string): Promise<unknown>;
 	    /**
@@ -3644,12 +3967,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method lowerHandWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
 	     *       Webinar: participant lowers hand. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    lowerHandWebinar(roomId: string): Promise<unknown>;
 	    /**
@@ -3657,12 +3981,13 @@ declare module 'lib/services/BubblesService' {
 	     * @method raiseHandWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @async
 	     * @description
 	     *       Webinar: participant raises hand. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    raiseHandWebinar(roomId: string): Promise<unknown>;
 	    /**
@@ -3670,16 +3995,17 @@ declare module 'lib/services/BubblesService' {
 	     * @method stageDescriptionWebinar
 	     * @instance
 	     * @since 2.2.0
+	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
 	     * @param {string} userId For each actor, his user identifier.
-	     * @param {string} type For each actor, how is he on scene: as a participant (avatar or video) or as a screen sharing. </br>
+	     * @param {string} type For each actor, how is he on scene: as a participant (avatar or video) or as a screen sharing. <br>
 	     * Authorized values : participant, sharing
 	     * @param {Array<string>} properties For each actor, up to 10 properties.
 	     * @async
 	     * @description
 	     *       Webinar: stage description (up to 10 actors). <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+
 	     */
 	    stageDescriptionWebinar(roomId: string, userId: string, type: string, properties: Array<string>): Promise<unknown>;
 	}
@@ -3711,8 +4037,9 @@ declare module 'lib/services/GroupsService' {
 	     * @param {string} comment The comment of the group to create
 	     * @param {boolean} isFavorite If true, the group is flagged as favorite
 	     * @description
-	     *      Create a new group <br/>
+	     *      Create a new group <br>
 	     * @async
+	     * @category Groups MANAGEMENT
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Created group object or an error object depending on the result
 	     * @category async
@@ -3724,9 +4051,10 @@ declare module 'lib/services/GroupsService' {
 	    * @instance
 	    * @param {Object} group The group to delete
 	    * @description
-	    * 		Delete an owned group <br/>
+	    *    Delete an owned group <br>
 	    * @async
-	    * @return {Promise<Object, ErrorManager>}
+	     * @category Groups MANAGEMENT
+	     * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Deleted group object or an error object depending on the result
 	    * @category async
 	    */
@@ -3735,9 +4063,11 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method deleteAllGroups
 	     * @instance
+	     * @async
+	     * @category Groups MANAGEMENT
 	     * @description
-	     *    Delete all existing owned groups <br/>
-	     *    Return a promise <br/>
+	     *    Delete all existing owned groups <br>
+	     *    Return a promise <br>
 	     * @return {Object} Nothing or an error object depending on the result
 	     */
 	    deleteAllGroups(): Promise<unknown>;
@@ -3745,11 +4075,12 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method updateGroupName
 	     * @instance
+	     * @async
+	     * @category Groups MANAGEMENT
 	     * @param {Object} group The group to update
 	     * @param {string} name The new name of the group
 	     * @description
-	     * 		Update the name of a group <br/>
-	     * @async
+	     * 		Update the name of a group <br>
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group object or an error object depending on the result
 	     * @category async
@@ -3757,19 +4088,21 @@ declare module 'lib/services/GroupsService' {
 	    updateGroupName(group: any, name: any): Promise<unknown>;
 	    /**
 	     * @private
+	     * @category Groups MANAGEMENT
 	     * @description
-	     *      Internal method <br/>
+	     *      Internal method <br>
 	     */
 	    getGroups(): Promise<unknown>;
 	    /**
 	    * @public
 	    * @method setGroupAsFavorite
 	    * @since 1.67.0
+	    * @async
+	    * @category Groups MANAGEMENT
 	    * @instance
 	    * @param {Object} group The group
 	    * @description
-	    * 		Set a group as a favorite one of the curent loggued in user. <br/>
-	    * @async
+	    * 		Set a group as a favorite one of the curent loggued in user. <br>
 	    * @return {Promise<Object, ErrorManager>}
 	    * @fulfil {Group} - Updated group or an error object depending on the result
 	    * @category async
@@ -3779,90 +4112,100 @@ declare module 'lib/services/GroupsService' {
 	     * @public
 	     * @method unsetGroupAsFavorite
 	     * @since 1.67.0
+	     * @category Groups MANAGEMENT
+	     * @async
 	     * @instance
 	     * @param {Object} group The group
 	     * @description
-	     * 		Remove the favorite state of a group of the curent loggued in user. <br/>
-	     * @async
+	     * 		Remove the favorite state of a group of the curent loggued in user. <br>
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group or an error object depending on the result
 	     * @category async
 	     */
+	    async: any;
 	    unsetGroupAsFavorite(group: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAll
+	     * @category Groups MANAGEMENT
+	     * @instance
+	     * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
+	     * @description
+	     *  Return the list of existing groups <br>
+	     */
+	    getAll(): any;
+	    /**
+	     * @public
+	     * @method getFavoriteGroups
+	     * @category Groups MANAGEMENT
+	     * @instance
+	     * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
+	     * @description
+	     *  Return the list of favorite groups <br>
+	     */
+	    getFavoriteGroups(): any;
+	    /**
+	     * @public
+	     * @method getGroupById
+	     * @category Groups MANAGEMENT
+	     * @instance
+	     * @async
+	     * @param {String} id group Id of the group to found
+	     * @return {Promise<any>} The group found if exist or undefined
+	     * @description
+	     *  Return a group by its id <br>
+	     */
+	    getGroupById(id: string, forceServerSearch?: boolean): Promise<any>;
+	    /**
+	     * @public
+	     * @method getGroupByName
+	     * @category Groups MANAGEMENT
+	     * @instance
+	     * @async
+	     * @param {String} name Name of the group to found
+	     * @param {boolean} forceServerSearch force the update from server.
+	     * @return {Promise<any>} The group found if exist or undefined
+	     * @description
+	     *  Return a group by its id <br>
+	     */
+	    getGroupByName(name: string, forceServerSearch?: boolean): Promise<any>;
 	    /**
 	     * @public
 	     * @method addUserInGroup
 	     * @instance
+	     * @async
+	     * @category Groups USERS
 	     * @param {Contact} contact The user to add in group
 	     * @param {Object} group The group
 	     * @description
-	     * 		Add a contact in a group <br/>
-	     * @async
+	     * 		Add a contact in a group <br>
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
 	     * @category async
 	     */
 	    addUserInGroup(contact: any, group: any): Promise<unknown>;
 	    /**
-	    * @public
-	    * @method removeUserFromGroup
-	    * @instance
-	    * @param {Contact} contact The user to remove from the group
-	    * @param {Object} group The destination group
-	    * @description
-	    *		Remove a contact from a group <br/>
-	    * @async
-	    * @return {Promise<Object, ErrorManager>}
-	    * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
-	    * @category async
-	    */
+	     * @public
+	     * @method removeUserFromGroup
+	     * @instance
+	     * @async
+	     * @category Groups USERS
+	     * @param {Contact} contact The user to remove from the group
+	     * @param {Object} group The destination group
+	     * @description
+	     *		Remove a contact from a group <br>
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
+	     * @category async
+	     */
 	    removeUserFromGroup(contact: any, group: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @description
-	     *  Return the list of existing groups <br/>
-	     */
-	    getAll(): any;
-	    /**
-	     * @public
-	     * @method getFavoriteGroups
-	     * @instance
-	     * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
-	     * @description
-	     *  Return the list of favorite groups <br/>
-	     */
-	    getFavoriteGroups(): any;
-	    /**
-	     * @public
-	     * @method getGroupById
-	     * @instance
-	     * @param {String} id group Id of the group to found
-	     * @return {Promise<any>} The group found if exist or undefined
-	     * @description
-	     *  Return a group by its id <br/>
-	     */
-	    getGroupById(id: string, forceServerSearch?: boolean): Promise<any>;
-	    /**
-	     * @public
-	     * @method getGroupByName
-	     * @instance
-	     * @param {String} name Name of the group to found
-	     * @param {boolean} forceServerSearch force the update from server.
-	     * @return {Promise<any>} The group found if exist or undefined
-	     * @description
-	     *  Return a group by its id <br/>
-	     */
-	    getGroupByName(name: string, forceServerSearch?: boolean): Promise<any>;
 	    /**
 	     * @private
 	     * @method _onGroupCreated
 	     * @instance
 	     * @param {Object} data Contains the groupId of the created group
 	     * @description
-	     *		Method called when a group is created <br/>
+	     *		Method called when a group is created <br>
 	     */
 	    _onGroupCreated(data: any): Promise<void>;
 	    /**
@@ -3871,7 +4214,7 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Object} data Contains the groupId of the deleted group
 	     * @description
-	     *		Method called when a group is deleted <br/>
+	     *		Method called when a group is deleted <br>
 	     */
 	    _onGroupDeleted(data: any): Promise<void>;
 	    /**
@@ -3880,7 +4223,7 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Object} data Contains the groupId of the updated group
 	     * @description
-	     *		Method called when a group is updated (name, comment, isFavorite) <br/>
+	     *		Method called when a group is updated (name, comment, isFavorite) <br>
 	     */
 	    _onGroupUpdated(data: any): Promise<void>;
 	    /**
@@ -3889,7 +4232,7 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
 	     * @description
-	     *		Method called when a user is added to a group <br/>
+	     *		Method called when a user is added to a group <br>
 	     */
 	    _onUserAddedInGroup(data: any): Promise<void>;
 	    /**
@@ -3898,7 +4241,7 @@ declare module 'lib/services/GroupsService' {
 	     * @instance
 	     * @param {Object} data Contains the groupId and the userId
 	     * @description
-	     *		Method called when a user is removed from a group <br/>
+	     *		Method called when a user is removed from a group <br>
 	     */
 	    _onUserRemovedFromGroup(data: any): Promise<void>;
 	}
@@ -3949,17 +4292,18 @@ declare module 'lib/services/InvitationsService' {
 	    handleSentInvitation(id: any, action: any): Promise<unknown>;
 	    updateReceivedInvitationsArray(): void;
 	    updateSentInvitationsArray(): void;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PUBLIC METHODS                                         **/
-	    /************************************************************/
+	    /**
+	     * @private
+	     */
+	    getAllReceivedInvitations(): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.65
 	     * @method getReceivedInvitations
 	     * @instance
+	     * @category Invitations RECEIVED
 	     * @description
-	     *    Get the invite received coming from Rainbow users <br/>
+	     *    Get the invite received coming from Rainbow users <br>
 	     * @return {Invitation[]} The list of invitations received
 	     */
 	    getReceivedInvitations(): any[];
@@ -3968,48 +4312,32 @@ declare module 'lib/services/InvitationsService' {
 	     * @since 1.65
 	     * @method 	getAcceptedInvitations
 	     * @instance
+	     * @category Invitations RECEIVED
 	     * @description
-	     *    Get the invites you accepted received from others Rainbow users <br/>
+	     *    Get the invites you accepted received from others Rainbow users <br>
 	     * @return {Invitation[]} The list of invite sent
 	     */
 	    getAcceptedInvitations(): any[];
 	    /**
 	     * @public
 	     * @since 1.65
-	     * @method getSentInvitations
-	     * @instance
-	     * @description
-	     *    Get the invites sent to others Rainbow users <br/>
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getSentInvitations(): any[];
-	    /**
-	     * @public
-	     * @since 1.65
 	     * @method getInvitationsNumberForCounter
+	     * @category Invitations RECEIVED
 	     * @instance
 	     * @description
-	     *    Get the number of invitations received from others Rainbow users <br/>
+	     *    Get the number of invitations received from others Rainbow users <br>
 	     * @return {Invitation[]} The list of invite sent
 	     */
 	    getInvitationsNumberForCounter(): number;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method getAllInvitationsNumber
-	     * @instance
-	     * @description
-	     *    Get the number of invitations sent/received to/from others Rainbow users <br/>
-	     * @return {Invitation[]} The list of invite sent
-	     */
-	    getAllInvitationsNumber: () => any;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.65
 	     * @method getInvitation
 	     * @instance
+	     * @category Invitations RECEIVED
 	     * @description
-	     *    Get an invite by its id <br/>
+	     *    Get an invite by its id <br>
 	     * @param {String} invitationId the id of the invite to retrieve
 	     * @return {Invitation} The invite if found
 	     */
@@ -4019,21 +4347,70 @@ declare module 'lib/services/InvitationsService' {
 	     * @since 1.65
 	     * @method joinContactInvitation
 	     * @instance
+	     * @category Invitations RECEIVED
+	     * @async
 	     * @description
 	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
 	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise <br/>
+	     *    Return a promise <br>
 	     * @param {Contact} contact The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
 	     */
 	    joinContactInvitation(contact: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.65
+	     * @method acceptInvitation
+	     * @instance
+	     * @category Invitations RECEIVED
+	     * @async
+	     * @description
+	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once accepted, the user will be part of your network. <br>
+	     *    Return a promise <br>
+	     * @param {Invitation} invitation The invitation to accept
+	     * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
+	     */
+	    acceptInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method declineInvitation
+	     * @instance
+	     * @category Invitations RECEIVED
+	     * @async
+	     * @description
+	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
+	     *    Once declined, the user will not be part of your network. <br>
+	     *    Return a promise <br>
+	     * @param {Invitation} invitation The invitation to decline
+	     * @return {Promise<Object>} A promise that contains SDK.OK in case of success or an object that describes the error
+	     */
+	    declineInvitation(invitation: any): Promise<unknown>;
+	    /**
+	     * @private
+	     */
+	    getAllSentInvitations(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 1.65
+	     * @method getSentInvitations
+	     * @instance
+	     * @category Invitations SENT
+	     * @description
+	     *    Get the invites sent to others Rainbow users <br>
+	     * @return {Invitation[]} The list of invite sent
+	     */
+	    getSentInvitations(): any[];
+	    /**
+	     * @public
+	     * @since 1.65
 	     * @method sendInvitationByEmail
 	     * @instance
+	     * @category Invitations SENT
+	     * @async
 	     * @description
-	     *    Send an invitation email as UCaaS <br/>
+	     *    Send an invitation email as UCaaS <br>
 	     * @param {string} email The email
 	     * @param {string} [customMessage] The email text (optional)
 	     * @return {Object} A promise that contains the contact added or an object describing an error
@@ -4044,9 +4421,11 @@ declare module 'lib/services/InvitationsService' {
 	     * @since 1.65
 	     * @method cancelOneSendInvitation
 	     * @instance
+	     * @category Invitations SENT
+	     * @async
 	     * @param {Invitation} invitation The invitation to cancel
 	     * @description
-	     *    Cancel an invitation sent <br/>
+	     *    Cancel an invitation sent <br>
 	     * @return {Object} The SDK Ok object or an error
 	     */
 	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
@@ -4055,9 +4434,11 @@ declare module 'lib/services/InvitationsService' {
 	     * @since 1.65
 	     * @method reSendInvitation
 	     * @instance
+	     * @category Invitations SENT
+	     * @async
 	     * @param {Number} invitationId The invitation to re send
 	     * @description
-	     *    Re send an invitation sent <br/>
+	     *    Re send an invitation sent <br>
 	     * @return {Object} The SDK Ok object or an error
 	     */
 	    reSendInvitation(invitationId: any): Promise<unknown>;
@@ -4066,9 +4447,11 @@ declare module 'lib/services/InvitationsService' {
 	     * @since 1.65
 	     * @method sendInvitationByEmail
 	     * @instance
+	     * @category Invitations SENT
+	     * @async
 	     * @description
-	     *    Send invitations for a list of emails as UCaaS <br/>
-	     *    LIMITED TO 100 invitations <br/>
+	     *    Send invitations for a list of emails as UCaaS <br>
+	     *    LIMITED TO 100 invitations <br>
 	     * @param {Array} listOfMails The list of emails
 	     * @return {Object} A promise that the invite result or an object describing an error
 	     */
@@ -4076,32 +4459,14 @@ declare module 'lib/services/InvitationsService' {
 	    /**
 	     * @public
 	     * @since 1.65
-	     * @method acceptInvitation
+	     * @method getAllInvitationsNumber
 	     * @instance
+	     * @category Invitations RECEIVED/SENT
 	     * @description
-	     *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise <br/>
-	     * @param {Invitation} invitation The invitation to accept
-	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
+	     *    Get the number of invitations sent/received to/from others Rainbow users <br>
+	     * @return {Invitation[]} The list of invite sent
 	     */
-	    acceptInvitation(invitation: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @since 1.65
-	     * @method declineInvitation
-	     * @instance
-	     * @description
-	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
-	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise <br/>
-	     * @param {Invitation} invitation The invitation to decline
-	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
-	     */
-	    declineInvitation(invitation: any): Promise<unknown>;
-	    /************************************************************/
-	    /** PRIVATE METHODS                                        **/
-	    /************************************************************/
+	    getAllInvitationsNumber: () => any;
 	    /**
 	     * @private
 	     */
@@ -4110,14 +4475,6 @@ declare module 'lib/services/InvitationsService' {
 	     * @private
 	     */
 	    sortInvitationArray(invitA: any, invitB: any): number;
-	    /**
-	     * @private
-	     */
-	    getAllReceivedInvitations(): Promise<unknown>;
-	    /**
-	     * @private
-	     */
-	    getAllSentInvitations(): Promise<unknown>;
 	}
 	export { InvitationsService };
 
@@ -4147,107 +4504,112 @@ declare module 'lib/services/ContactsService' {
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    cleanMemoryCache(): void;
-	    /**
-	     * @public
-	     * @method getDisplayName
-	     * @instance
-	     * @param {Contact} contact  The contact to get display name
-	     * @return {string} The contact first name and last name
-	     * @description
-	     *      Get the display name of a contact <br/>
-	     */
-	    getDisplayName(contact: Contact): string;
-	    /**
-	     * @public
-	     * @method getRosters
-	     * @instance
-	     * @description
-	     *      Get the list of _contacts that are in the user's network (aka rosters) <br/>
-	     * @async
-	     * @return {Promise<Array<Contact>,ErrorManager>}
-	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
-	     */
-	    getRosters(): Promise<Array<Contact>>;
-	    /**
-	     * @public
-	     * @method getAll
-	     * @instance
-	     * @return {Contact[]} the list of _contacts
-	     * @description
-	     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br/>
-	     */
-	    getAll(): Array<Contact>;
 	    createEmptyContactContact(jid: any): Contact;
 	    getContact(jid: any, phoneNumber: any): any;
 	    getOrCreateContact(jid: any, phoneNumber: any): Promise<any>;
 	    createBasicContact(jid: any, phoneNumber?: any): Contact;
 	    /**
 	     * @public
+	     * @method getAll
+	     * @category Contacts INFORMATIONS
+	     * @instance
+	     * @return {Contact[]} the list of _contacts
+	     * @description
+	     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br>
+	     */
+	    getAll(): Array<Contact>;
+	    /**
+	     * @public
 	     * @method getContactByJid
 	     * @instance
+	     * @category Contacts INFORMATIONS
 	     * @param {string} jid The contact jid
 	     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
 	     * @description
-	     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br/>
+	     *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br>
 	     * @async
 	     * @return {Promise<Contact, ErrorManager>}
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
+
 	     */
 	    getContactByJid(jid: string, forceServerSearch?: boolean): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getContactById
 	     * @instance
+	     * @category Contacts INFORMATIONS
 	     * @param {string} id The contact id
 	     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
 	     * @description
-	     *  Get a contact by his id <br/>
+	     *  Get a contact by his id <br>
 	     * @async
 	     * @return {Promise<Contact, ErrorManager>}
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
+
 	     */
 	    getContactById(id: string, forceServerSearch?: boolean): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getContactByLoginEmail
 	     * @instance
+	     * @category Contacts INFORMATIONS
 	     * @param {string} loginEmail The contact loginEmail
 	     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
 	     * @description
-	     *  Get a contact by his loginEmail <br/>
+	     *  Get a contact by his loginEmail <br>
 	     * @async
 	     * @return {Promise<Contact, ErrorManager>}
 	     * @fulfil {Contact} - Found contact or null or an error object depending on the result
-	     * @category async
+
 	     */
 	    getContactByLoginEmail(loginEmail: string, forceServerSearch?: boolean): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getMyInformations
 	     * @instance
+	     * @category Contacts INFORMATIONS
 	     * @description
-	     *  Get informations about the connected user <br/>
+	     *  Get informations about the connected user <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Found informations or null or an error object depending on the result
-	     * @category async
+
 	     */
 	    getMyInformations(): Promise<Contact>;
 	    /**
 	     * @public
 	     * @method getAvatarByContactId
 	     * @instance
+	     * @category Contacts INFORMATIONS
 	     * @param {string} id The contact id
 	     * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
 	     *      if missing or null in case where no avatar available a local module file is provided instead of URL
 	     * @description
-	     *  Get a contact avatar by his contact id <br/>
+	     *  Get a contact avatar by his contact id <br>
 	     * @return {string} Contact avatar URL or file
 	     */
 	    getAvatarByContactId(id: string, lastAvatarUpdateDate: string): string;
+	    /**
+	     * @public
+	     * @method getConnectedUser
+	     * @category Contacts INFORMATIONS
+	     * @instance
+	     * @description
+	     *    Get the connected user information <br>
+	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+	     */
+	    getConnectedUser(): Contact;
+	    /**
+	     * @public
+	     * @method getDisplayName
+	     * @instance
+	     * @category Contacts INFORMATIONS
+	     * @param {Contact} contact  The contact to get display name
+	     * @return {string} The contact first name and last name
+	     * @description
+	     *      Get the display name of a contact <br>
+	     */
+	    getDisplayName(contact: Contact): string;
 	    isTelJid(jid: any): boolean;
 	    getImJid(jid: any): any;
 	    getRessourceFromJid(jid: any): string;
@@ -4255,23 +4617,28 @@ declare module 'lib/services/ContactsService' {
 	    isUserContact(contact: Contact): boolean;
 	    /**
 	     * @public
-	     * @method getConnectedUser
+	     * @method getRosters
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
-	     *    Get the connected user information <br/>
-	     * @return {Contact} Return a Contact object representing the connected user information or null if not connected
+	     *      Get the list of _contacts that are in the user's network (aka rosters) <br>
+	     * @async
+	     * @return {Promise<Array<Contact>,ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+
 	     */
-	    getConnectedUser(): Contact;
+	    getRosters(): Promise<Array<Contact>>;
 	    /**
 	     * @public
 	     * @since 1.17
 	     * @method addToNetwork
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
 	     *    Send an invitation to a Rainbow user for joining his network. <br>
 	     *    The user will receive an invitation that can be accepted or declined <br>
 	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br>
 	     * @param {Contact} contact The contact object to subscribe
 	     * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
 	     */
@@ -4281,14 +4648,15 @@ declare module 'lib/services/ContactsService' {
 	     * @since 1.17
 	     * @method addToContactsList
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
 	     *    Send an invitation to a Rainbow user for joining his network. <br>
 	     *    The user will receive an invitation that can be accepted or declined <br>
 	     *    In return, when accepted, he will be part of your network <br>
-	     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br/>
+	     *    When in the same company, invitation is automatically accepted (ie: can't be declined) <br>
 	     * @param {Contact} contact The contact object to subscribe
 	     * @return {Promise<Contact>} A promise that contains the contact added or an object describing an error
-	     * @category async
+
 	     */
 	    addToContactsList(contact: Contact): Promise<Contact>;
 	    /**
@@ -4296,8 +4664,9 @@ declare module 'lib/services/ContactsService' {
 	     * @method removeFromNetwork
 	     * @since 1.69
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
-	     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br/>
+	     *    Remove a contact from the list of contacts and unsubscribe to the contact's presence <br>
 	     * @param {Contact} contact The contact object to unsubscribe
 	     * @returns {Promise} A promise that contains success code if removed or an object describing an error
 	     */
@@ -4307,8 +4676,9 @@ declare module 'lib/services/ContactsService' {
 	     * @since 1.64.0
 	     * @method getInvitationById
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
-	     *    Get an invite by its id <br/>
+	     *    Get an invite by its id <br>
 	     * @param {string} strInvitationId the id of the invite to retrieve
 	     * @return {Invitation} The invite if found
 	     */
@@ -4316,12 +4686,13 @@ declare module 'lib/services/ContactsService' {
 	    /**
 	     * @public
 	     * @since 1.17
-	     * @method
+	     * @method acceptInvitation
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
 	     *    Accept an invitation from an other Rainbow user to mutually join the network <br>
 	     *    Once accepted, the user will be part of your network. <br>
-	     *    Return a promise <br/>
+	     *    Return a promise <br>
 	     * @param {Invitation} invitation The invitation to accept
 	     * @return {Object} A promise that contains SDK.OK if success or an object that describes the error
 	     */
@@ -4329,35 +4700,31 @@ declare module 'lib/services/ContactsService' {
 	    /**
 	     * @public
 	     * @since 1.17
-	     * @method
+	     * @method declineInvitation
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
 	     *    Decline an invitation from an other Rainbow user to mutually join the network <br>
 	     *    Once declined, the user will not be part of your network. <br>
-	     *    Return a promise <br/>
+	     *    Return a promise <br>
 	     * @param {Invitation} invitation The invitation to decline
 	     * @return {Object} A promise that contains SDK.OK in case of success or an object that describes the error
 	     */
 	    declineInvitation(invitation: Invitation): Promise<unknown>;
-	    /**
-	     * @typedef {Object} joinContactsResult
-	     * @property {string[]} success List of succeed joined users
-	     * @property {string[]} failed List of failed to joined users
-	     */
 	    /**
 	     * @public
 	     * @since 1.41
 	     * @beta
 	     * @method joinContacts
 	     * @instance
+	     * @category Contacts NETWORK
 	     * @description
-	     *    As admin, add _contacts to a user roster <br/>
+	     *    As admin, add _contacts to a user roster <br>
 	     * @param {Contact} contact The contact object to subscribe
 	     * @param {Array<string>} contactIds List of contactId to add to the user roster
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {joinContactsResult} - Join result or an error object depending on the result
-	     * @category async
+	     * @fulfil {any} - Join result or an error object depending on the result
 	     */
 	    joinContacts(contact: Contact, contactIds: Array<string>): Promise<unknown>;
 	    /**
@@ -4366,7 +4733,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} presence contains informations about contact changes
 	     * @description
-	     *      Method called when the presence of a contact changed <br/>
+	     *      Method called when the presence of a contact changed <br>
 	     */
 	    _onPresenceChanged(presence: any): void;
 	    /**
@@ -4375,7 +4742,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} presence contains informations about contact changes
 	     * @description
-	     *      Method called when the presence of a contact changed <br/>
+	     *      Method called when the presence of a contact changed <br>
 	     */
 	    _onRosterPresenceChanged(presence: any): void;
 	    /**
@@ -4384,7 +4751,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {string} jid modified roster contact Jid
 	     * @description
-	     *     Method called when an roster user information are updated <br/>
+	     *     Method called when an roster user information are updated <br>
 	     */
 	    _onContactInfoChanged(jid: string): void;
 	    /**
@@ -4393,7 +4760,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {string} jid modified roster contact Jid
 	     * @description
-	     *     Method called when an roster user information are updated <br/>
+	     *     Method called when an roster user information are updated <br>
 	     */
 	    _onRosterContactInfoChanged(jid: string): void;
 	    /**
@@ -4402,7 +4769,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} data contains the invitationId
 	     * @description
-	     *      Method called when an user invite is received <br/>
+	     *      Method called when an user invite is received <br>
 	     */
 	    /**
 	     * @private
@@ -4410,7 +4777,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} data contains the invitationId
 	     * @description
-	     *      Method called when an user invite is accepted <br/>
+	     *      Method called when an user invite is accepted <br>
 	     */
 	    /**
 	     * @private
@@ -4418,7 +4785,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} data contains the invitationId
 	     * @description
-	     *      Method called when an user invite is canceled <br/>
+	     *      Method called when an user invite is canceled <br>
 	     */
 	    /**
 	     * @private
@@ -4426,7 +4793,7 @@ declare module 'lib/services/ContactsService' {
 	     * @instance
 	     * @param {Object} contacts contains a contact list with updated elements
 	     * @description
-	     *      Method called when the roster _contacts is updated <br/>
+	     *      Method called when the roster _contacts is updated <br>
 	     */
 	    _onRostersUpdate(contacts: any): void;
 	}
@@ -4470,7 +4837,7 @@ declare module 'lib/services/SettingsService' {
 	     * @method getUserSettings
 	     * @instance
 	     * @description
-	     *  Get current User Settings <br/>
+	     *  Get current User Settings <br>
 	     * @return {Promise<UserSettings>} A promise containing the result
 	     */
 	    getUserSettings(): Promise<unknown>;
@@ -4479,7 +4846,7 @@ declare module 'lib/services/SettingsService' {
 	     * @method updateUserSettings
 	     * @instance
 	     * @description
-	     *  Update current User Settings <br/>
+	     *  Update current User Settings <br>
 	     * @return {Promise<Settings, ErrorManager>} A promise containing the result
 	     */
 	    updateUserSettings(settings: any): Promise<unknown>;
@@ -4518,56 +4885,66 @@ declare module 'lib/services/PresenceService' {
 	     * @private
 	     * @method sendInitialPresence
 	     * @instance
+	     * @async
+	     * @category Presence CONNECTED USER
 	     * @description
-	     *  Send the initial presence (online) <br/>
-	     * @return {ErrorManager.Ok} A promise containing the result
+	     *  Send the initial presence (online) <br>
+	     * @return {Promise<ErrorManager.Ok>} A promise containing the result
 	     */
 	    sendInitialPresence(): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method setPresenceTo
 	     * @instance
-	     * @description
-	     *    Allow to change the presence of the connected user <br/>
-	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br/>
-	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
 	     * @async
-	     * @return {Promise<ErrorManager>}
+	     * @category Presence CONNECTED USER
+	     * @description
+	     *    Allow to change the presence of the connected user <br>
+	     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br>
+	     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+	     * @return {Promise<any, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-	     * @category async
+	     
 	     */
 	    setPresenceTo(presence: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getUserConnectedPresence
 	     * @instance
+	     * @category Presence CONNECTED USER
 	     * @description
-	     *      Get user presence status calculated from events. <br/>
+	     *      Get user presence status calculated from events. <br>
 	     */
 	    getUserConnectedPresence(): PresenceRainbow;
 	    /**
 	    * @private
 	    * @method _setUserPresenceStatus
 	    * @instance
+	    * @async
+	    * @category Presence CONNECTED USER
 	    * @description
-	    *      Send user presence status and message to xmpp. <br/>
+	    *      Send user presence status and message to xmpp. <br>
 	    */
 	    _setUserPresenceStatus(presenceRainbow: PresenceRainbow): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method _sendPresenceFromConfiguration
 	     * @instance
+	     * @async
+	     * @category Presence CONNECTED USER
 	     * @description
-	     *      Send user presence according to user settings presence. <br/>
+	     *      Send user presence according to user settings presence. <br>
 	     */
 	    _sendPresenceFromConfiguration(): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method sendInitialBubblePresence
 	     * @instance
+	     * @async
+	     * @category Presence Bubbles
 	     * @param {Bubble} bubble The Bubble
 	     * @description
-	     *      Method called when receiving an invitation to join a bubble <br/>
+	     *      Method called when receiving an invitation to join a bubble <br>
 	     */
 	    sendInitialBubblePresence(bubble: any): Promise<unknown>;
 	    /**
@@ -4575,7 +4952,7 @@ declare module 'lib/services/PresenceService' {
 	     * @method _onUserSettingsChanged
 	     * @instance
 	     * @description
-	     *      Method called when receiving an update on user settings <br/>
+	     *      Method called when receiving an update on user settings <br>
 	     */
 	    _onUserSettingsChanged(): void;
 	    /**
@@ -4583,23 +4960,24 @@ declare module 'lib/services/PresenceService' {
 	     * @method _onPresenceChanged
 	     * @instance
 	     * @description
-	     *      Method called when receiving an update on user presence <br/>
+	     *      Method called when receiving an update on user presence <br>
 	     */
 	    _onMyPresenceChanged(user: any): void;
 	    /**
 	     * @public
 	     * @method getCalendarState
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @description
-	     *    Allow to get the calendar presence of the connected user <br/>
-	     *    return promise with {  <br/>
-	     *    busy: boolean, // Does the connected user is busy ? <br/>
-	     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/>
-	     *    subject: string, // The meeting subject. <br/>
-	     *    since: string, // The meeting since date. <br/>
-	     *    until: string // Date until the current presence is valid <br/>
-	     *    }  <br/>
-	     *    <br/>
+	     *    Allow to get the calendar presence of the connected user <br>
+	     *    return promise with {  <br>
+	     *    busy: boolean, // Does the connected user is busy ? <br>
+	     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br>
+	     *    subject: string, // The meeting subject. <br>
+	     *    since: string, // The meeting since date. <br>
+	     *    until: string // Date until the current presence is valid <br>
+	     *    }  <br>
+	     *    <br>
 	     * @async
 	     * @return {Promise<{
 	     *    busy: boolean,
@@ -4609,25 +4987,26 @@ declare module 'lib/services/PresenceService' {
 	     *    until: string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    getCalendarState(): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getCalendarStates
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
 	     * @description
-	     *    Allow to get the calendar presence of severals users <br/>
+	     *    Allow to get the calendar presence of severals users <br>
 	     *    return promise with {
-	     *    usersIdentifier : { // List of calendar user states. <br/>
-	     *    busy: boolean, // Does the connected user is busy ? <br/>
-	     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/>
-	     *    subject: string, // The meeting subject. <br/>
-	     *    since: string, // The meeting since date. <br/>
-	     *    until: string // Date until the current presence is valid <br/>
-	     *    }  <br/>
-	     *    <br/>
+	     *    usersIdentifier : { // List of calendar user states. <br>
+	     *    busy: boolean, // Does the connected user is busy ? <br>
+	     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br>
+	     *    subject: string, // The meeting subject. <br>
+	     *    since: string, // The meeting since date. <br>
+	     *    until: string // Date until the current presence is valid <br>
+	     *    }  <br>
+	     *    <br>
 	     * @async
 	     * @return {Promise< {
 	     *    busy: boolean,
@@ -4637,44 +5016,46 @@ declare module 'lib/services/PresenceService' {
 	     *    until: string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    getCalendarStates(users?: Array<string>): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method setCalendarRegister
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @param {string} type Calendar type. Default : office365, Authorized values : office365, google
 	     * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page. Default : false.
 	     * @param {string} callback Redirect URL to the requesting client.
 	     * @description
-	     *    Register a new calendar.<br/>
+	     *    Register a new calendar.<br>
 	     *    return promise with {
-	     *    "url" : string // Calendar provider's OAuth URL <br/>
-	     *    } <br/>
+	     *    "url" : string // Calendar provider's OAuth URL <br>
+	     *    } <br>
 	     * @async
 	     * @return {Promise<{
 	     *    "url" : string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getCalendarAutomaticReplyStatus
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @param {string} userId The id of user to retrieve the calendar automatic reply status.
 	     * @description
-	     *    Allow to retrieve the calendar automatic reply status <br/>
-	     *    return promise with { <br/>
-	     *    enabled : string, // 	its status <br/>
-	     *    start : string, // its start date <br/>
-	     *    end : string, // its end date <br/>
-	     *    message_text : string, // its message as plain text <br/>
-	     *    message_thtml : string // its message as html <br/>
-	     *    }  <br/>
-	     *    <br/>
+	     *    Allow to retrieve the calendar automatic reply status <br>
+	     *    return promise with { <br>
+	     *    enabled : string, // 	its status <br>
+	     *    start : string, // its start date <br>
+	     *    end : string, // its end date <br>
+	     *    message_text : string, // its message as plain text <br>
+	     *    message_thtml : string // its message as html <br>
+	     *    }  <br>
+	     *    <br>
 	     * @async
 	     * @return {Promise<{
 	     *    enabled : string,
@@ -4684,43 +5065,45 @@ declare module 'lib/services/PresenceService' {
 	     *    message_thtml : string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    getCalendarAutomaticReplyStatus(userId?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method enableCalendar
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @description
-	     *    Allow to enable the calendar. <br/>
-	     *    return promise with { <br/>
-	     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-	     *    }  <br/>
-	     *    <br/>
+	     *    Allow to enable the calendar. <br>
+	     *    return promise with { <br>
+	     *       Status : string // Operation status ("enabled" or "disabled") <br>
+	     *    }  <br>
+	     *    <br>
 	     * @async
 	     * @return {Promise< {
 	     *       Status : string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    enableCalendar(): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method disableCalendar
 	     * @instance
+	     * @category Presence CALENDAR
 	     * @description
-	     *    Allow to disable the calendar. <br/>
-	     *    return promise with { <br/>
-	     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-	     *    }  <br/>
-	     *    <br/>
+	     *    Allow to disable the calendar. <br>
+	     *    return promise with { <br>
+	     *       Status : string // Operation status ("enabled" or "disabled") <br>
+	     *    }  <br>
+	     *    <br>
 	     * @async
 	     * @return {Promise< {
 	     *       Status : string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     * @category async
+	     
 	     */
 	    disableCalendar(): Promise<unknown>;
 	}
@@ -5294,11 +5677,6 @@ declare module 'lib/connection/RESTService' {
 	    get loggedInUser(): any;
 	    start(http: any): Promise<any[]>;
 	    stop(): Promise<unknown>;
-	    getContactByToken(token: string): Promise<{
-	        loggedInUser: any;
-	        loggedInApplication: any;
-	        token: string;
-	    }>;
 	    signin(token?: string): Promise<unknown>;
 	    set tokenRest(value: any);
 	    set decodedtokenRest(value: any);
@@ -5310,31 +5688,45 @@ declare module 'lib/connection/RESTService' {
 	    signout(): Promise<unknown>;
 	    startTokenSurvey(): Promise<void>;
 	    _renewAuthToken(): void;
+	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string, companyId?: string, searchEmail?: string): Promise<unknown>;
+	    getContactInfos(userId: any): Promise<unknown>;
+	    putContactInfos(userId: any, infos: any): Promise<unknown>;
 	    getContacts(): Promise<unknown>;
 	    removeContactFromRoster(dbId: any): Promise<unknown>;
 	    getContactInformationByJID(jid: any): Promise<unknown>;
 	    getContactInformationByID(id: any): Promise<unknown>;
 	    getMyInformations(): Promise<unknown>;
 	    getContactInformationByLoginEmail(email: any): Promise<[any]>;
+	    getContactByToken(token: string): Promise<{
+	        loggedInUser: any;
+	        loggedInApplication: any;
+	        token: string;
+	    }>;
+	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
+	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
+	    changePassword(password: any, userId: any): Promise<unknown>;
+	    updateInformation(objData: any, userId: any): Promise<unknown>;
+	    deleteUser(userId: any): Promise<unknown>;
 	    getServerFavorites(): Promise<unknown>;
 	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
 	    removeServerFavorite(favoriteId: string): Promise<unknown>;
+	    getAllSentInvitations(): Promise<unknown>;
+	    getServerInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
+	    reSendInvitation(invitationId: any): Promise<unknown>;
+	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
+	    getAllReceivedInvitations(): Promise<unknown>;
 	    /**
 	     * ACCEPT INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
 	     */
 	    acceptInvitation(invitation: any): Promise<unknown>;
 	    /**
 	     * DECLINE INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
 	     */
 	    declineInvitation(invitation: any): Promise<unknown>;
 	    /**
 	     * SEND INVITATION
-	     * Used by SDK (public)
-	     * Warning when modifying this method
 	     */
 	    joinContactInvitation(contact: any): Promise<unknown>;
 	    joinContacts(contact: any, contactIds: any, presence: any): Promise<unknown>;
@@ -5394,19 +5786,6 @@ declare module 'lib/connection/RESTService' {
 	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
 	    deleteBubbleContainer(containerId: any): Promise<unknown>;
 	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
-	    /**
-	     * Method retrieveWebConferences
-	     * @public
-	     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
-	     * @returns {ng.IPromise<any>} a promise that resolves when conference are reterived
-	     * @memberof WebConferenceService
-	     */
-	    retrieveWebConferences(mediaType?: string): Promise<any>;
-	    createUser(email: any, password: any, firstname: any, lastname: any, companyId: any, language: any, isAdmin: any, roles: any): Promise<unknown>;
-	    createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<unknown>;
-	    changePassword(password: any, userId: any): Promise<unknown>;
-	    updateInformation(objData: any, userId: any): Promise<unknown>;
-	    deleteUser(userId: any): Promise<unknown>;
 	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
 	    deleteFileDescriptor(fileId: any): Promise<unknown>;
 	    retrieveFileDescriptors(format: any, limit: any, offset: any, viewerId: any): Promise<unknown>;
@@ -5424,13 +5803,10 @@ declare module 'lib/connection/RESTService' {
 	    uploadAStream(fileId: any, stream: any): Promise<unknown>;
 	    sendPartialDataToServer(fileId: any, file: any, index: any): Promise<unknown>;
 	    sendPartialFileCompletion(fileId: any): Promise<unknown>;
-	    getServerCapabilities(): Promise<unknown>;
 	    getUserSettings(): Promise<unknown>;
 	    updateUserSettings(settings: any): Promise<unknown>;
+	    getServerCapabilities(): Promise<unknown>;
 	    getAllCompanies(): Promise<unknown>;
-	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string, companyId?: string, searchEmail?: string): Promise<unknown>;
-	    getContactInfos(userId: any): Promise<unknown>;
-	    putContactInfos(userId: any, infos: any): Promise<unknown>;
 	    createCompany(name: any, country: any, state: any, offerType: any): Promise<unknown>;
 	    getCompany(companyId: any): Promise<unknown>;
 	    deleteCompany(companyId: any): Promise<unknown>;
@@ -5463,6 +5839,8 @@ declare module 'lib/connection/RESTService' {
 	    deleteChannelMessage(channelId: any, itemId: any): Promise<unknown>;
 	    getServerProfiles(): Promise<unknown>;
 	    getServerProfilesFeatures(): Promise<unknown>;
+	    getThirdPartyApps(): Promise<unknown>;
+	    revokeThirdPartyAccess(tokenId: any): Promise<unknown>;
 	    makeCall(contact: any, phoneInfo: any): Promise<unknown>;
 	    releaseCall(call: any): Promise<unknown>;
 	    makeConsultationCall(callId: any, contact: any, phoneInfo: any): Promise<unknown>;
@@ -5490,13 +5868,6 @@ declare module 'lib/connection/RESTService' {
 	    updateServerConversation(conversationId: any, mute: any): Promise<unknown>;
 	    sendConversationByEmail(conversationId: any): Promise<unknown>;
 	    ackAllMessages(conversationId: any): Promise<unknown>;
-	    getAllSentInvitations(): Promise<unknown>;
-	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
-	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
-	    reSendInvitation(invitationId: any): Promise<unknown>;
-	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    getAllReceivedInvitations(): Promise<unknown>;
 	    get(url: any, token: any): Promise<unknown>;
 	    post(url: any, token: any, data: any, contentType: any): Promise<unknown>;
 	    put(url: any, token: any, data: any): Promise<unknown>;
@@ -5554,6 +5925,14 @@ declare module 'lib/connection/RESTService' {
 	    conferenceModeratorAction(conferenceId: string, mediaType: MEDIATYPE, action: string): Promise<unknown>;
 	    conferenceModeratorActionOnParticipant(conferenceId: string, mediaType: MEDIATYPE, participantId: string, action: string): Promise<unknown>;
 	    retrieveAllConferences(scheduled: any): Promise<unknown>;
+	    /**
+	     * Method retrieveWebConferences
+	     * @public
+	     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+	     * @returns {Promise<any>} a promise that resolves when conference are reterived
+	     * @memberof WebConferenceService
+	     */
+	    retrieveWebConferences(mediaType?: string): Promise<any>;
 	    retrieveAllCompanyOffers(companyId: string): Promise<unknown>;
 	    retrieveAllCompanySubscriptions(companyId: string, format?: string): Promise<unknown>;
 	    subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean): Promise<unknown>;
@@ -5582,7 +5961,7 @@ declare module 'lib/connection/RESTService' {
 	    /**
 	     * @method renameDevicesTags
 	     * @param {string} tag 	tag to rename.
-	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. <br>
 	     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
 	     * @param {string} newTagName New tag name. (Body Parameters)
 	     * @description
@@ -5592,7 +5971,7 @@ declare module 'lib/connection/RESTService' {
 	    /**
 	     * @method deleteDevicesTags
 	     * @param {string} tag 	tag to rename.
-	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. <br>
 	     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
 	     * @description
 	     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
@@ -5600,7 +5979,7 @@ declare module 'lib/connection/RESTService' {
 	    deleteDevicesTags(tag: string, companyId: string): Promise<unknown>;
 	    /**
 	     * @method getstatsTags
-	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  <br>
 	     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
 	     * @description
 	     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
@@ -5740,6 +6119,70 @@ declare module 'lib/connection/RESTService' {
 	    manageUserRoutingData(destinations: Array<string>, currentDeviceId: string): Promise<unknown>;
 	    retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string): Promise<unknown>;
 	    retrieveUserRoutingData(): Promise<unknown>;
+	    addParticipant3PCC(callId: string, callData: {
+	        callee: string;
+	    }): Promise<unknown>;
+	    answerCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    blindTransferCall3PCC(callId: string, callData: {
+	        destination: {
+	            userId: string;
+	            resource: string;
+	        };
+	    }): Promise<unknown>;
+	    deflectCall3PCC(callId: string, callData: {
+	        destination: string;
+	    }): Promise<unknown>;
+	    holdCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    makeCall3PCC(callData: {
+	        deviceId: string;
+	        callerAutoAnswer: boolean;
+	        anonymous: boolean;
+	        calleeExtNumber: string;
+	        calleePbxId: string;
+	        calleeShortNumber: string;
+	        calleeCountry: string;
+	        dialPadCalleeNumber: string;
+	    }): Promise<unknown>;
+	    mergeCall3PCC(activeCallId: string, callData: {
+	        heldCallId: string;
+	    }): Promise<unknown>;
+	    pickupCall3PCC(callData: {
+	        deviceId: string;
+	        callerAutoAnswer: boolean;
+	        calleeShortNumber: string;
+	    }): Promise<unknown>;
+	    releaseCall3PCC(callId: string, legId: string): Promise<unknown>;
+	    retrieveCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    sendDTMF3PCC(callId: string, callData: {
+	        legId: string;
+	        digits: string;
+	    }): Promise<unknown>;
+	    snapshot3PCC(callId: string, deviceId: string, seqNum: number): Promise<unknown>;
+	    transferCall3PCC(activeCallId: string, callData: {
+	        heldCallId: string;
+	    }): Promise<unknown>;
+	    deleteAVoiceMessage(messageId: string): Promise<unknown>;
+	    deleteAllVoiceMessages(messageId: string): Promise<unknown>;
+	    getEmergencyNumbersAndEmergencyOptions(): Promise<unknown>;
+	    getVoiceMessages(limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
+	    getUserDevices(): Promise<unknown>;
+	    updateVoiceMessage(messageId: string, urlData: {
+	        read: boolean;
+	    }): Promise<unknown>;
+	    forwardCall(callForwardType: string, userId: string, urlData: {
+	        destinationType: string;
+	        number: string;
+	        activate: boolean;
+	        noReplyDelay: number;
+	    }): Promise<unknown>;
+	    getASubscriberForwards(userId: string): Promise<unknown>;
+	    searchCloudPBXhuntingGroups(name: string): Promise<unknown>;
 	    createAClientVersion(id: string, version: string): Promise<unknown>;
 	    deleteAClientVersion(clientId: string): Promise<unknown>;
 	    getAClientVersionData(clientId: string): Promise<unknown>;
@@ -5924,19 +6367,21 @@ declare module 'lib/services/FileServerService' {
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
 	    /**
-	     * Method retrieve data from server using range request mecanism (RFC7233)
 	     *
 	     * @private
 	     * @param {string} url [required] server url for request
 	     * @param {number} minRange [requied] minimum value of range
 	     * @param {number} maxRange [required] maximum value of range
 	     * @param {number} index [required] index of the part. Used to re-assemble the data
+	     * @description
+	     *    Method retrieve data from server using range request mecanism (RFC7233)
 	     * @returns {Object} structure containing the response data from server and the index
 	     *
 	     */
 	    getPartialDataFromServer(url: string, minRange: number, maxRange: number, index: number): Promise<unknown>;
 	    getPartialBufferFromServer(url: string, minRange: number, maxRange: number, index: number): Promise<unknown>;
 	    /**
+	     * @description
 	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
 	     *
 	     * @param {string} url [required] server url for request
@@ -5949,6 +6394,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<unknown>;
 	    /**
+	     * @description
 	     * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
 	     *
 	     * @param destFile
@@ -5968,6 +6414,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    getBlobThumbnailFromFileDescriptor(fileDescriptor: any, large?: boolean): Promise<void>;
 	    /**
+	     * @description
 	     * Method sends data file to server
 	     *
 	     * @private
@@ -5980,6 +6427,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    _uploadAFile(fileId: string, filePath: string, mime: string): Promise<unknown>;
 	    /**
+	     * @description
 	     * Method sends data to server using range request mecanism (RFC7233)
 	     *
 	     * @private
@@ -5991,6 +6439,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    _sendPartialDataToServer(fileId: string, file: Buffer, index: number): Promise<unknown>;
 	    /**
+	     * @description
 	     * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
 	     * @callback uploadAFileByChunk~progressCallback
 	     * @param {FileDescriptor} fileDescriptor
@@ -6009,6 +6458,7 @@ declare module 'lib/services/FileServerService' {
 	    isTransferInProgress(): any;
 	    cancelAllTransfers(): void;
 	    /**
+	     * @description
 	     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
 	     *
 	     * @param {string} url [required] server url for request
@@ -6025,6 +6475,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    getBlobFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<unknown>;
 	    /**
+	     * @description
 	     * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
 	     *
 	     * @param {string} url [required] server url for request
@@ -6037,6 +6488,7 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string): Promise<Observable<any>>;
 	    /**
+	     * @description
 	     * Method creates blob from a file retrieved from server
 	     *
 	     * @private
@@ -6053,7 +6505,8 @@ declare module 'lib/services/FileServerService' {
 	     */
 	    getBlobFromUrl(url: string, mime: string, fileSize: number, fileName: string): Promise<unknown>;
 	    /**
-	    * Method retrieves user quota (capabilities) for user
+	     * @description
+	     * Method retrieves user quota (capabilities) for user
 	    *
 	    * @returns {Object} user quota for user
 	    *
@@ -6094,30 +6547,21 @@ declare module 'lib/services/FileStorageService' {
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    init(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @since 1.47.1
-	     * @method
-	     * @instance
-	     * @description
-	     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br/>
-	     *    Return a promise <br/>
-	     * @return {Message} Return the message sent
-	     */
-	    _addFileToConversation(conversation: any, file: any, data: any): Promise<unknown>;
 	    /**************** API ***************/
 	    /**
 	     * @public
 	     * @since 1.47.1
 	     * @method uploadFileToConversation
 	     * @instance
+	     * @async
+	     * @category Files TRANSFER
 	     * @param {Conversation} conversation   The conversation where the message will be added
 	     * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
 	     * @param {String} strMessage   An optional message to add with the file
 	     * @description
-	     *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br/>
-	     *    Return the promise <br/>
-	     * @return {Message} Return the message sent <br/>
+	     *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br>
+	     *    Return the promise <br>
+	     * @return {Message} Return the message sent <br>
 	     */
 	    uploadFileToConversation(conversation: any, file: any, strMessage: any): Promise<unknown>;
 	    /**
@@ -6125,35 +6569,41 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method uploadFileToBubble
 	     * @instance
+	     * @async
+	     * @category Files TRANSFER
 	     * @param {Bubble} bubble   The bubble where the message will be added
 	     * @param {File} file The file to add
 	     * @param {String} strMessage   An optional message to add with the file
 	     * @description
-	     *    Allow to add a file to an existing Bubble conversation <br/>
-	     *    Return a promise <br/>
-	     * @return {Message} Return the message sent <br/>
+	     *    Allow to add a file to an existing Bubble conversation <br>
+	     *    Return a promise <br>
+	     * @return {Message} Return the message sent <br>
 	     */
 	    uploadFileToBubble(bubble: any, file: any, strMessage: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.67.0
 	     * @method uploadFileToStorage
+	     * @category Files TRANSFER
+	     * @async
 	     * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
 	     * @instance
 	     * @description
-	     *   Send a file in user storage <br/>
+	     *   Send a file in user storage <br>
 	     */
 	    uploadFileToStorage(file: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1
 	     * @method downloadFile
+	     * @category Files TRANSFER
+	     * @async
 	     * @instance
 	     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
 	     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
 	     * @description
-	     *    Allow to download a file from the server) <br/>
-	     *    Return a promise <br/>
+	     *    Allow to download a file from the server) <br>
+	     *    Return a promise <br>
 	     * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
 	     */
 	    downloadFile(fileDescriptor: any, path?: string): Promise<unknown>;
@@ -6162,46 +6612,54 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.79.0
 	     * @method downloadFileInPath
 	     * @instance
+	     * @category Files TRANSFER
+	     * @async
 	     * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
 	     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
+	     * @async
 	     * @description
-	     *    Allow to download a file from the server and store it in provided path. <br/>
-	     *    Return a promise <br/>
-	     * @return {Observable<any>} Return an Observable object to see the completion of the download/save. <br/>
-	     * It returns a percentage of downloaded data Values are between 0 and 100 (include). <br/>
-	     * The last one value is the description and content of the file : <br/>
-	     *  { <br/>
-	     *      buffer : blobArray, // the buffer with the content of the file. <br/>
-	     *      type: mime, // The mime type of the encoded file <br/>
-	     *      fileSize: fileSize, // The size in octects of the file <br/>
-	     *      fileName: fileName // The file saved. <br/>
-	     *  } <br/>
-	     *  Warning !!! : <br/>
-	     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br/>
+	     *    Allow to download a file from the server and store it in provided path. <br>
+	     *    Return a promise <br>
+	     * @return {Observable<any>} Return an Observable object to see the completion of the download/save. <br>
+	     * It returns a percentage of downloaded data Values are between 0 and 100 (include). <br>
+	     * The last one value is the description and content of the file : <br>
+	     *  { <br>
+	     *      buffer : blobArray, // the buffer with the content of the file. <br>
+	     *      type: mime, // The mime type of the encoded file <br>
+	     *      fileSize: fileSize, // The size in octects of the file <br>
+	     *      fileName: fileName // The file saved. <br>
+	     *  } <br>
+	     *  Warning !!! : <br>
+	     *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br>
 	     */
 	    downloadFileInPath(fileDescriptor: any, path: string): Promise<Observable<any>>;
 	    /**
 	     * @public
 	     * @since 1.47.1
-	     * @method getUserQuotaConsumption
-	     * @instance
-	     * @description
-	     *    Get the current file storage quota and consumption for the connected user <br/>
-	     *    Return a promise <br/>
-	     * @return {Object} Return an object containing the user quota and consumption
-	     */
-	    /**
-	     * @public
-	     * @since 1.47.1
 	     * @method removeFile
 	     * @instance
+	     * @async
+	     * @category Files TRANSFER
 	     * @param {FileDescriptor} fileDescriptor   The description of the file to remove (short file descriptor)
 	     * @description
-	     *    Remove an uploaded file <br/>
-	     *    Return a promise <br/>
+	     *    Remove an uploaded file <br>
+	     *    Return a promise <br>
 	     * @return {Object} Return a SDK OK Object or a SDK error object depending the result
 	     */
 	    removeFile(fileDescriptor: any): Promise<unknown>;
+	    /**
+	     * @private
+	     * @since 1.47.1
+	     * @method
+	     * @instance
+	     * @async
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @description
+	     *    Allow to add a file to an existing Peer 2 Peer or Bubble conversation <br>
+	     *    Return a promise <br>
+	     * @return {Message} Return the message sent
+	     */
+	    _addFileToConversation(conversation: any, file: any, data: any): Promise<unknown>;
 	    /**********************************************************/
 	    /**  Basic accessors to FileStorage's properties   **/
 	    /**********************************************************/
@@ -6211,9 +6669,10 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getFileDescriptorFromId
 	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {String} id   The file id
 	     * @description
-	     *    Get the file descriptor the user own by it's id <br/>
+	     *    Get the file descriptor the user own by it's id <br>
 	     * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
 	     */
 	    getFileDescriptorFromId(id: any): any;
@@ -6222,10 +6681,12 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getFilesReceivedInConversation
 	     * @instance
+	     * @async
 	     * @param {Conversation} conversation   The conversation where to get the files
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     *    Get the list of all files received in a conversation with a contact <br/>
-	     *    Return a promise <br/>
+	     *    Get the list of all files received in a conversation with a contact <br>
+	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
 	    getFilesReceivedInConversation(conversation: any): Promise<unknown>;
@@ -6234,18 +6695,22 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getFilesReceivedInBubble
 	     * @instance
+	     * @async
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {Bubble} bubble   The bubble where to get the files
 	     * @description
-	     *    Get the list of all files received in a bubble <br/>
-	     *    Return a promise <br/>
+	     *    Get the list of all files received in a bubble <br>
+	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
 	    getFilesReceivedInBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @description
-	     * Method returns a file descriptor with full contact object in viewers'list by requesting server <br/>
+	     * Method returns a file descriptor with full contact object in viewers'list by requesting server <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @async
 	     * @param {string} fileId [required] Identifier of file descriptor
 	     * @return {Promise<FileDescriptor>} file descriptor
 	     *
@@ -6255,6 +6720,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @return {FileDescriptor[]}
 	     */
 	    getDocuments(): any;
@@ -6262,6 +6728,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @return {FileDescriptor}
 	     */
 	    getReceivedDocuments(): any;
@@ -6269,6 +6736,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
 	     */
@@ -6277,6 +6745,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
 	     */
@@ -6285,6 +6754,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {boolean} received
 	     * @return {FileDescriptor[]}
 	     */
@@ -6293,6 +6763,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} dbId
 	     * @return {FileDescriptor[]}
 	     */
@@ -6301,20 +6772,26 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} dbId
 	     * @return {FileDescriptor[]}
 	     */
 	    getSentFilesToContact(dbId: any): any;
 	    /**
-	     *
+	     * @method getReceivedFilesForRoom
 	     * @public
 	     *
+	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} bubbleId id of the bubble
+	     * @description
+	     *    Method to get the list of received files descriptors.
 	     * @return {FileDescriptor[]}
 	     */
 	    getReceivedFilesForRoom(bubbleId: any): any;
 	    /**
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @private
 	     *
 	     * @return {Object}
@@ -6326,8 +6803,9 @@ declare module 'lib/services/FileStorageService' {
 	    /**
 	     * @private
 	     * @description
-	     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br/>
+	     * Method requests server to create a file descriptor this will be saved to local file descriptor list (i.e. this.fileDescriptors) <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} name [required] name of file for which file descriptor has to be created
 	     * @param {string} extension [required] extension of file
 	     * @param {number} size [required] size of  file
@@ -6340,6 +6818,7 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {*} data
 	     * @return {FileDescriptor}
 	     */
@@ -6348,7 +6827,8 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     * @description
 	     *
-	     * Method request deletion of a file descriptor on the server and removes it from local storage <br/>
+	     * Method request deletion of a file descriptor on the server and removes it from local storage <br>
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} id [required] file descriptor id to be destroyed
 	     * @return {Promise<FileDescriptor[]>} list of remaining file descriptors
 	     */
@@ -6356,26 +6836,31 @@ declare module 'lib/services/FileStorageService' {
 	    /**
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     * Method request deletion of all files on the server and removes them from local storage <br/>
+	     * Method request deletion of all files on the server and removes them from local storage <br>
 	     * @return {Promise<{}>} ???
 	     */
 	    deleteAllFileDescriptor(): Promise<unknown>;
 	    /**
 	     * @public
-	     *
+	     * @method retrieveFileDescriptorsListPerOwner
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @async
+	     * @instance
 	     * @description
-	     * Method retrieve full list of files belonging to user making the request <br/>
+	     * Method retrieve full list of files belonging to user making the request <br>
 	     *
 	     * @return {Promise<FileDescriptor[]>}
 	     *
 	     */
-	    retrieveFileDescriptorsListPerOwner(): Promise<unknown>;
+	    retrieveFileDescriptorsListPerOwner(): Promise<[any]>;
 	    /**
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br/>
+	     * Method retrieve a list of [limit] files belonging to user making the request begining with offset <br>
 	     *
 	     * @return {Promise<FileDescriptor[]>}
 	     *
@@ -6385,8 +6870,10 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @description
-	     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br/>
+	     * Method request for the list of files received by a user from a given peer (i.e. inside a given conversation) <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @async
 	     * @param {string} userId [required] dbId of user making the request
 	     * @param {string} peerId [required] dbId of peer user in the conversation
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -6395,9 +6882,11 @@ declare module 'lib/services/FileStorageService' {
 	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
 	    /**
 	     * @public
-	     *
+	     * @method retrieveSentFiles
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @instance
 	     * @description
-	     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br/>
+	     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br>
 	     *
 	     * @param {string} peerId [required] id of peer user in the conversation
 	     * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
@@ -6407,9 +6896,12 @@ declare module 'lib/services/FileStorageService' {
 	    /**
 	     * @public
 	     *
+	     * @method retrieveReceivedFilesForRoom
+	     * @instance
 	     * @description
-	     * Method request for the list of files received in a room <br/>
+	     * Method request for the list of files received in a room <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} bubbleId [required] Id of the room
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
@@ -6418,9 +6910,12 @@ declare module 'lib/services/FileStorageService' {
 	    /**
 	     *
 	     * @public
-	     *
+	     * @method retrieveReceivedFiles
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @instance
+	     * @async
 	     * @description
-	     * Method request for the list of files received by a user <br/>
+	     * Method request for the list of files received by a user <br>
 	     *
 	     * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
@@ -6432,10 +6927,11 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getFilesSentInConversation
 	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {Conversation} conversation   The conversation where to get the files
 	     * @description
-	     *    Get the list of all files sent in a conversation with a contact <br/>
-	     *    Return a promise <br/>
+	     *    Get the list of all files sent in a conversation with a contact <br>
+	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
 	    getFilesSentInConversation(conversation: any): Promise<unknown>;
@@ -6445,20 +6941,22 @@ declare module 'lib/services/FileStorageService' {
 	     * @method getFilesSentInBubble
 	     * @instance
 	     * @param {Bubble} bubble   The bubble where to get the files
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     *    Get the list of all files sent in a bubble <br/>
-	     *    Return a promise <br/>
+	     *    Get the list of all files sent in a bubble <br>
+	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
 	    getFilesSentInBubble(bubble: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1
-	     * @method
+	     * @method getUserQuotaConsumption
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @instance
 	     * @description
-	     *    Get the current file storage quota and consumption for the connected user <br/>
-	     *    Return a promise <br/>
+	     *    Get the current file storage quota and consumption for the connected user <br>
+	     *    Return a promise <br>
 	     * @return {Object} Return an object containing the user quota and consumption
 	     */
 	    getUserQuotaConsumption(): Promise<unknown>;
@@ -6467,8 +6965,9 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getAllFilesSent
 	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br/>
+	     *    Get the list of files (represented using an array of File Descriptor objects) created and owned by the connected which is the list of file sent to all of his conversations and bubbles. <br>
 	     * @return {FileDescriptor[]} Return an array containing the list of FileDescriptor objects representing the files sent
 	     */
 	    getAllFilesSent(): any;
@@ -6477,16 +6976,18 @@ declare module 'lib/services/FileStorageService' {
 	     * @since 1.47.1
 	     * @method getAllFilesReceived
 	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br/>
+	     *    Get the list of files (represented using an array of File Descriptor objects) received by the connected user from all of his conversations and bubbles. <br>
 	     * @return {FileDescriptor[]} Return an array containing a list of FileDescriptor objects representing the files received
 	     */
 	    getAllFilesReceived(): any;
 	    /**
 	     * @private
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     * Method retrieve the data usage of a given user <br/>
+	     * Method retrieve the data usage of a given user <br>
 	     *
 	     * @return {Promise<{}>} : object data with the following properties:
 	     *                  - feature {string} : The feature key belonging to the user's profile
@@ -6499,8 +7000,9 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @description
-	     * Method deletes a viewer from the list of viewer of a given file <br/>
+	     * Method deletes a viewer from the list of viewer of a given file <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} viewerId [required] Identifier of viewer to be removed. Could be either a user or a room
 	     * @param {string} fileId [required] Identifier of the fileDescriptor from which the viewer will be removed
 	     * @return {Promise<{}>}
@@ -6514,6 +7016,7 @@ declare module 'lib/services/FileStorageService' {
 	     * @description
 	     * Method adds a viewer to a given file on server if it is not already one
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} fileId [required] Identifier of file
 	     * @param {string} viewerId [required] Identifier of viewer to be added
 	     * @param {string} viewerType [required] type of viewer to be added (user or room)
@@ -6525,20 +7028,22 @@ declare module 'lib/services/FileStorageService' {
 	     * @public
 	     * @method retrieveOneFileDescriptor
 	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
-	     * Method retrieve a specific file descriptor from server <br/>
+	     * Method retrieve a specific file descriptor from server <br>
 	     *
 	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
 	     * @return {Promise<FileDescriptor>} file descriptor retrieved
 	     *
 	     */
-	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
+	    retrieveOneFileDescriptor(fileId: any): Promise<any>;
 	    /**
 	     * @private
 	     *
 	     * @description
-	     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br/>
+	     * Method retrieve a specific file descriptor from server and stores it in local fileDescriptors (replace existing and add if new) <br>
 	     *
+	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} fileId [required] Identifier of file descriptor to retrieve
 	     * @return {Promise<FileDescriptor>} file descriptor retrieved or null if none found
 	     *
@@ -6568,7 +7073,7 @@ declare module 'lib/services/FileStorageService' {
 	     * @private
 	     *
 	     * @description
-	     * Method extract fileId part of URL <br/>
+	     * Method extract fileId part of URL <br>
 	     *
 	     * @param {string} url
 	     * @return {string}
@@ -7193,22 +7698,11 @@ declare module 'lib/services/ConversationsService' {
 	    _onReceipt(receipt: any): Promise<void>;
 	    sortFunction(aa: any, bb: any): number;
 	    /**
-	     * @public
-	     * @method sendIsTypingState
-	     * @instance ConversationsService
-	     * @description
-	     *    Switch the "is typing" state in a conversation<br>
-	     * @param {Conversation} conversation The conversation recipient
-	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
-	     * @return a promise with no success parameter
-	     */
-	    sendIsTypingState(conversation: Conversation, status: string): Promise<unknown>;
-	    /**
 	     * @private
 	     * @method
 	     * @instance
 	     * @description
-	     * Get a pstn conference <br/>
+	     * Get a pstn conference <br>
 	     */
 	    getRoomConferences(conversation: any): Promise<unknown>;
 	    /**
@@ -7216,7 +7710,7 @@ declare module 'lib/services/ConversationsService' {
 	     * @method
 	     * @instance
 	     * @description
-	     * Update a pstn conference <br/>
+	     * Update a pstn conference <br>
 	     */
 	    updateRoomConferences(): void;
 	    /*********************************************************/
@@ -7226,8 +7720,9 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method ackAllMessages
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    Mark all unread messages in the conversation as read. <br/>
+	     *    Mark all unread messages in the conversation as read. <br>
 	     * @param {string} conversationDbId ID of the conversation (dbId field)
 	     * @async
 	     * @return {Promise<Conversation[]>}
@@ -7240,8 +7735,9 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method getHistoryPage
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    Retrieve the remote history of a specific conversation. <br/>
+	     *    Retrieve the remote history of a specific conversation. <br>
 	     * @param {Conversation} conversation Conversation to retrieve
 	     * @param {number} size Maximum number of element to retrieve
 	     * @async
@@ -7249,17 +7745,18 @@ declare module 'lib/services/ConversationsService' {
 	     * @fulfil {Conversation[]} - Array of Conversation object
 	     * @category async
 	     */
-	    getHistoryPage(conversation: Conversation, size?: number): any;
+	    getHistoryPage(conversation: Conversation, size?: number): Promise<any>;
 	    /**
 	     *
 	     * @public
 	     * @method getOneMessageFromConversationId
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp <br/>
-	     * <br/>
-	     *    Time stamp is mandatory - the search is performed using it. <br/>
-	     *    Once results are returned, we look for a message with the message id specified. <br/>
+	     *    To retrieve ONE message archived on server exchanged in a conversation based on the specified message Id and the timestamp <br>
+	     * <br>
+	     *    Time stamp is mandatory - the search is performed using it. <br>
+	     *    Once results are returned, we look for a message with the message id specified. <br>
 	     * @param {string} conversationId : Id of the conversation
 	     * @param {string} messageId : Id of the message
 	     * @param {string} stamp : Time stamp. Time stamp is mandatory - the search is performed using it.
@@ -7272,8 +7769,9 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method getContactsMessagesFromConversationId
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br/>
+	     *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br>
 	     * @param {string} conversationId : Id of the conversation
 	     * @async
 	     * @return {Promise<any>}
@@ -7284,16 +7782,18 @@ declare module 'lib/services/ConversationsService' {
 	     * @private
 	     * @method sendFSMessage
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *   Send an file sharing message <br/>
+	     *   Send an file sharing message <br>
 	     */
 	    sendFSMessage(conversation: any, file: any, data: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendExistingMessage
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    Send a message to this conversation <br/>
+	     *    Send a message to this conversation <br>
 	     * @return {Message} The message sent
 	     * @param {Conversation} conversation
 	     * @param {string} message
@@ -7304,16 +7804,18 @@ declare module 'lib/services/ConversationsService' {
 	     * @private
 	     * @method
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *   Send an existing file sharing message <br/>
+	     *   Send an existing file sharing message <br>
 	     */
 	    /**
 	     * @private
 	     * @method
 	     * @instance
+	     * @category MESSAGES
 	     * @description
-	     *    Send a instant message to a conversation <br/>
-	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
+	     *    Send a instant message to a conversation <br>
+	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br>
 	     * @param {Conversation} conversation The conversation to clean
 	     * @param {string} data Test message to send
 	     * @param answeredMsg
@@ -7324,13 +7826,14 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method sendCorrectedChatMessage
+	     * @category MESSAGES
 	     * @instance
 	     * @description
-	     *    Send a corrected message to a conversation <br/>
-	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br/>
-	     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br/>
-	     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br/>
-	     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br/>
+	     *    Send a corrected message to a conversation <br>
+	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br>
+	     *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br>
+	     *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br>
+	     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br>
 	     * @param {Conversation} conversation
 	     * @param {string} data The message string corrected
 	     * @param {string} origMsgId The id of the original corrected message.
@@ -7347,10 +7850,11 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @since 1.58
 	     * @method deleteMessage
+	     * @category MESSAGES
 	     * @instance
 	     * @async
 	     * @description
-	     *    Delete a message by sending an empty string in a correctedMessage <br/>
+	     *    Delete a message by sending an empty string in a correctedMessage <br>
 	     * @param {Conversation} conversation The conversation object
 	     * @param {string} messageId The id of the message to be deleted
 	     * @return {Message} - message object with updated replaceMsgs property
@@ -7361,38 +7865,42 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @since 1.67.0
 	     * @method deleteAllMessageInOneToOneConversation
+	     * @category MESSAGES
 	     * @instance
 	     * @async
 	     * @description
-	     *   Delete all messages for the connected user on a one to one conversation. <br/>
+	     *   Delete all messages for the connected user on a one to one conversation. <br>
 	     * @param {Conversation} conversation The conversation object
 	     * @return {Message} - message object with updated replaceMsgs property
 	     */
 	    deleteAllMessageInOneToOneConversation(conversation: Conversation): Promise<unknown>;
 	    /**
 	     * @private
+	     * @category MESSAGES
 	     * @description
-	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-	     *      It allow to give back the status of the sending process. <br/>
+	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+	     *      It allow to give back the status of the sending process. <br>
 	     * @param conversation
 	     * @param message
 	     */
 	    storePendingMessage(conversation: any, message: any): void;
 	    /**
 	     * @private
+	     * @category MESSAGES
 	     * @description
-	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-	     *      It allow to give back the status of the sending process. <br/>
+	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+	     *      It allow to give back the status of the sending process. <br>
 	     * @param message
 	     */
 	    removePendingMessage(message: any): void;
 	    /**
 	     * @public
 	     * @method removeAllMessages
+	     * @category MESSAGES
 	     * @instance
 	     * @description
-	     *    Cleanup a conversation by removing all previous messages<br/>
-	     *    This method returns a promise <br/>
+	     *    Cleanup a conversation by removing all previous messages<br>
+	     *    This method returns a promise <br>
 	     * @param {Conversation} conversation The conversation to clean
 	     * @async
 	     * @return {Promise}
@@ -7403,10 +7911,11 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method removeMessagesFromConversation
+	     * @category MESSAGES
 	     * @instance
 	     * @description
-	     *    Remove a specific range of message in a conversation<br/>
-	     *    This method returns a promise <br/>
+	     *    Remove a specific range of message in a conversation<br>
+	     *    This method returns a promise <br>
 	     * @param {Conversation} conversation The conversation to clean
 	     * @param {Date} date The date since when the message should be deleted.
 	     * @param {number} number max number of messages to delete.
@@ -7418,30 +7927,45 @@ declare module 'lib/services/ConversationsService' {
 	    removeMessagesFromConversation(conversation: Conversation, date: Date, number: number): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method getAllConversations
+	     * @method sendIsTypingState
+	     * @category MESSAGES
 	     * @instance
 	     * @description
-	     *    Allow to get the list of existing conversations (p2p and bubbles) <br/>
+	     *    Switch the "is typing" state in a conversation<br>
+	     * @param {Conversation} conversation The conversation recipient
+	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
+	     * @return a promise with no success parameter
+	     */
+	    sendIsTypingState(conversation: Conversation, status: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllConversations
+	     * @category CONVERSATIONS
+	     * @instance
+	     * @description
+	     *    Allow to get the list of existing conversations (p2p and bubbles) <br>
 	     * @return {Conversation[]} An array of Conversation object
 	     */
 	    getAllConversations(): any[];
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *      Get all conversation <br/>
+	     *      Get all conversation <br>
 	     * @return {Conversation[]} The conversation list to retrieve
 	     */
 	    getConversations(): any[];
 	    /**
 	     * @public
 	     * @method openConversationForContact
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Open a conversation to a contact <br/>
-	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
-	     *    This method returns a promise <br/>
+	     *    Open a conversation to a contact <br>
+	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br>
+	     *    This method returns a promise <br>
 	     * @param {Contact} contact The contact involved in the conversation
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
@@ -7450,33 +7974,36 @@ declare module 'lib/services/ConversationsService' {
 	     * @public
 	     * @method openConversationForBubble
 	     * @since 1.65
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Open a conversation to a bubble <br/>
-	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br/>
-	     *    This method returns a promise <br/>
+	     *    Open a conversation to a bubble <br>
+	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br>
+	     *    This method returns a promise <br>
 	     * @param {Bubble} bubble The bubble involved in this conversation
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
 	    openConversationForBubble(bubble: Bubble): Promise<unknown>;
 	    /**
-	     * @private
+	     * @public
 	     * @method getS2SServerConversation
 	     * @since 1.65
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    get a conversation from id on S2S API Server.<br/>
-	     *    This method returns a promise <br/>
+	     *    get a conversation from id on S2S API Server.<br>
+	     *    This method returns a promise <br>
 	     * @param {string} conversationId The id of the conversation to find.
 	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
 	     */
 	    getS2SServerConversation(conversationId: string): Promise<unknown>;
 	    /**
-	     * @private
-	     * @method
+	     * @public
+	     * @method deleteServerConversation
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Allow to delete a conversation on server (p2p and bubbles) <br/>
+	     *    Allow to delete a conversation on server (p2p and bubbles) <br>
 	     * @param {string} conversationId of the conversation (id field)
 	     * @return {Promise}
 	     */
@@ -7484,10 +8011,11 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Allow to mute notification in a conversations (p2p and bubbles) <br/>
-	     *    When a conversation is muted/unmuted, all user's resources will receive the notification <br/>
+	     *    Allow to mute notification in a conversations (p2p and bubbles) <br>
+	     *    When a conversation is muted/unmuted, all user's resources will receive the notification <br>
 	     * @param {string} conversationId ID of the conversation (dbId field)
 	     * @param {Boolean} mute mutation state
 	     * @return {Promise}
@@ -7496,11 +8024,12 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method sendConversationByEmail
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br/>
-	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br/>
-	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br/>
+	     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br>
+	     *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br>
+	     *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br>
 	     * @param {string} conversationDbId ID of the conversation (dbId field)
 	     * @async
 	     * @return {Promise<Conversation[]>}
@@ -7511,45 +8040,50 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     */
 	    getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<Conversation>;
 	    /**
 	     * @public
 	     * @method getConversationById
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *      Get a p2p conversation by id <br/>
+	     *      Get a p2p conversation by id <br>
 	     * @param {string} conversationId Conversation id of the conversation to clean
 	     * @return {Conversation} The conversation to retrieve
 	     */
 	    getConversationById(conversationId: string): any;
 	    /**
-	     * @private
-	     * @method
+	     * @public
+	     * @method getConversationByDbId
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *      Get a conversation by db id <br/>
+	     *      Get a conversation by db id <br>
 	     * @param {string} dbId db id of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
 	    getConversationByDbId(dbId: string): Conversation;
 	    /**
-	     * @private
+	     * @public
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *      Get a bubble conversation by bubble id <br/>
+	     *      Get a bubble conversation by bubble id <br>
 	     * @param {string} bubbleId Bubble id of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
 	    getConversationByBubbleId(bubbleId: string): Promise<Conversation>;
 	    /**
-	     * @private
+	     * @public
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *      Get a bubble conversation by bubble id <br/>
+	     *      Get a bubble conversation by bubble id <br>
 	     * @param {string} bubbleJid Bubble jid of the conversation to retrieve
 	     * @return {Conversation} The conversation to retrieve
 	     */
@@ -7557,9 +8091,10 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method getBubbleConversation
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br/>
+	     *    Get a conversation associated to a bubble (using the bubble ID to retrieve it) <br>
 	     * @param {string} bubbleJid JID of the bubble (dbId field)
 	     * @param {string} conversationDbId
 	     * @param {Date} lastModification
@@ -7578,10 +8113,11 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @public
 	     * @method closeConversation
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Close a conversation <br/>
-	     *    This method returns a promise <br/>
+	     *    Close a conversation <br>
+	     *    This method returns a promise <br>
 	     * @param {Conversation} conversation The conversation to close
 	     * @async
 	     * @return {Promise}
@@ -7592,20 +8128,22 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Remove locally a conversation <br/>
-	     *    This method returns a promise <br/>
+	     *    Remove locally a conversation <br>
+	     *    This method returns a promise <br>
 	     * @param {Conversation} conversation The conversation to remove
 	     */
 	    removeConversation(conversation: Conversation): void;
 	    /**
 	     * @public
 	     * @method cleanConversations
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @async
 	     * @description
-	     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations. <br/>
+	     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations. <br>
 	     * @return {Promise<any>} the result of the deletion.
 	     * @category async
 	     */
@@ -7613,18 +8151,20 @@ declare module 'lib/services/ConversationsService' {
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Allow to get the list of existing conversations from server (p2p and bubbles) <br/>
+	     *    Allow to get the list of existing conversations from server (p2p and bubbles) <br>
 	     * @return {Conversation[]} An array of Conversation object
 	     */
 	    getServerConversations(): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method
+	     * @category CONVERSATIONS
 	     * @instance
 	     * @description
-	     *    Allow to create a conversations on server (p2p and bubbles) <br/>
+	     *    Allow to create a conversations on server (p2p and bubbles) <br>
 	     * @param {Conversation} conversation of the conversation (dbId field)
 	     * @return {Conversation} Created conversation object
 	     */
@@ -7768,123 +8308,129 @@ declare module 'lib/services/S2SService' {
 	     * @public
 	     * @method listConnectionsS2S
 	     * @instance
+	     * @category S2S Management
 	     * @description
-	     *      List all the connected user's connexions. <br/>
+	     *      List all the connected user's connexions. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    listConnectionsS2S(): Promise<any>;
 	    /**
 	     * @public
 	     * @method checkS2Sconnection
 	     * @instance
+	     * @category S2S Management
 	     * @description
-	     *      check the S2S connection with a head request. <br/>
+	     *      check the S2S connection with a head request. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    checkS2Sconnection(): Promise<any>;
 	    /**
 	     * @private
-	     * @method sendS2SPresence
-	     * @instance
-	     * @param {Object} obj Object {show, status} describing the presence : <br/>
-	     *  To put presence to cases : <br/>
-	     * "online":     {show = undefined, status = "mode=auto"} <br/>
-	     * "away": {show = "xa", status = "away"} <br/>
-	     * "dnd": {show = "dnd", status = ""} <br/>
-	     * "invisible": {show = "xa", status = ""} <br/>
-	     * @description
-	     *      set the presence of the connected user with s2s api . <br/>
-	     * @async
-	     * @return {Promise<Object, ErrorManager>}
-	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
-	     */
-	    sendS2SPresence(obj: any): Promise<any>;
-	    /**
-	     * @private
 	     * @method deleteConnectionsS2S
 	     * @instance
+	     * @category S2S Management
 	     * @param {Array} connexions a List of connections S2S to delete
 	     * @description
-	     *      Delete one by one a list of S2S connections of the connected user. <br/>
+	     *      Delete one by one a list of S2S connections of the connected user. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    deleteConnectionsS2S(connexions: any): Promise<any>;
 	    /**
 	     * @public
 	     * @method deleteAllConnectionsS2S
 	     * @instance
+	     * @category S2S Management
 	     * @description
-	     *      Delete all the connected user's S2S connexions. <br/>
+	     *      Delete all the connected user's S2S connexions. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    deleteAllConnectionsS2S(): Promise<any>;
 	    /**
 	     * @private
 	     * @method loginS2S
 	     * @instance
+	     * @category S2S Management
 	     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
 	     * @description
-	     *      Login to S2S event server the already connected user to REST API server. <br/>
+	     *      Login to S2S event server the already connected user to REST API server. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    loginS2S(callback_url: any): Promise<any>;
 	    /**
 	     * @public
 	     * @method infoS2S
 	     * @instance
+	     * @category S2S Management
 	     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
 	     * @description
-	     *      Get informations about a S2S connexions. <br/>
+	     *      Get informations about a S2S connexions. <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    infoS2S(s2sConnectionId: any): Promise<any>;
-	    /** S2S EVENTS */
 	    onS2SReady(event: any): Promise<void>;
-	    /** S2S methods */
 	    /**
 	     * @private
-	     * @method sendMessageInConversation
+	     * @method sendS2SPresence
 	     * @instance
-	     * @param {String} conversationId
-	     * @param {String} msg The message object to send. <br/>
-	     * { <br/>
-	     *   "message": { <br/>
-	     *   "subject": "Greeting", <br/>
-	     *   "lang": "en", <br/>
-	     *   "contents": [ <br/>
-	     *     { <br/>
-	     *       "type": "text/markdown", <br/>
-	     *       "data": "## Hello Bob" <br/>
-	     *     } <br/>
-	     *   ], <br/>
-	     *   "body": "Hello world" <br/>
-	     *   } <br/>
-	     * } <br/>
+	     * @category S2S Methods
+	     * @param {Object} obj Object {show, status} describing the presence : <br>
+	     *  To put presence to cases : <br>
+	     * "online":     {show = undefined, status = "mode=auto"} <br>
+	     * "away": {show = "xa", status = "away"} <br>
+	     * "dnd": {show = "dnd", status = ""} <br>
+	     * "invisible": {show = "xa", status = ""} <br>
 	     * @description
-	     *      Send a message in a conversation. Note, corrected message is not yet supported. <br/>
+	     *      set the presence of the connected user with s2s api . <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
+	     */
+	    sendS2SPresence(obj: any): Promise<any>;
+	    /**
+	     * @public
+	     * @method sendMessageInConversation
+	     * @instance
+	     * @category S2S Methods
+	     * @param {String} conversationId
+	     * @param {String} msg The message object to send. <br>
+	     * { <br>
+	     *   "message": { <br>
+	     *   "subject": "Greeting", <br>
+	     *   "lang": "en", <br>
+	     *   "contents": [ <br>
+	     *     { <br>
+	     *       "type": "text/markdown", <br>
+	     *       "data": "## Hello Bob" <br>
+	     *     } <br>
+	     *   ], <br>
+	     *   "body": "Hello world" <br>
+	     *   } <br>
+	     * } <br>
+	     * @description
+	     *      Send a message in a conversation. Note, corrected message is not yet supported. <br>
+	     * @async
+	     * @return {Promise<Object, ErrorManager>}
+	     * @fulfil {Object} - List of connexions or an error object depending on the result
+	     
 	     */
 	    sendMessageInConversation(conversationId: any, msg: any): Promise<any>;
 	    /**
@@ -7892,13 +8438,14 @@ declare module 'lib/services/S2SService' {
 	     * @method joinRoom
 	     * @param {String} bubbleId The id of the bubble to open the conversation.
 	     * @param {string} role Enum: "member" "moderator" of your role in this room
+	     * @category S2S Methods
 	     * @instance
 	     * @description
-	     *      send presence in S2S to join a bubble conversation <br/>
+	     *      send presence in S2S to join a bubble conversation <br>
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - List of connexions or an error object depending on the result
-	     * @category async
+	     
 	     */
 	    joinRoom(bubbleId: any, role: ROOMROLE): Promise<any>;
 	} enum ROOMROLE {
@@ -8082,7 +8629,7 @@ declare module 'lib/services/ImsService' {
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
-	import { GenericService } from 'lib/services/GenericService'; class IMService extends GenericService {
+	import { GenericService } from 'lib/services/GenericService'; class ImsService extends GenericService {
 	    private _conversations;
 	    private _pendingMessages;
 	    private _bulles;
@@ -8099,28 +8646,57 @@ declare module 'lib/services/ImsService' {
 	    stop(): Promise<unknown>;
 	    init(enableCarbonBool: any): Promise<void>;
 	    /**
+	     * @private
+	     * @method enableCarbon
+	     * @instance
+	     * @description
+	     *      Enable message carbon XEP-0280 <br>
+	     * @async
+	     * @category Ims MANAGEMENT
+	     * @return {Promise}
+	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
+	    
+	     */
+	    enableCarbon(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method disableCarbon
+	     * @instance
+	     * @description
+	     *      Disable message carbon XEP-0280 <br>
+	     * @async
+	     * @category Ims MANAGEMENT
+	     * @return {Promise}
+	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
+	    
+	     */
+	    disableCarbon(): Promise<unknown>;
+	    /**
 	     * @public
 	     * @since 1.39
 	     * @method getMessagesFromConversation
 	     * @instance
 	     * @description
-	     *    <b>(beta)</b> Retrieve the list of messages from a conversation <br/>
-	     *    Calling several times this method will load older message from the history (pagination) <br/>
+	     *    <b>(beta)</b> Retrieve the list of messages from a conversation <br>
+	     *    Calling several times this method will load older message from the history (pagination) <br>
 	     * @param {Conversation} conversation The conversation
 	     * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
 	     * @async
+	     * @category Ims MESSAGES
 	     * @return {Promise<Conversation, ErrorManager>}
 	     * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
-	     * @category async
+	    
 	     */
-	    getMessagesFromConversation(conversation: any, intNbMessage: any): any;
+	    getMessagesFromConversation(conversation: any, intNbMessage: any): Promise<any>;
 	    /**
 	     * @public
 	     * @since 1.39
 	     * @method getMessageFromConversationById
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br/>
+	     *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br>
 	     * @param {Conversation} conversation The conversation where to search for the message
 	     * @param {String} strMessageId The message id
 	     * @return {Message} The message if found or null
@@ -8131,8 +8707,10 @@ declare module 'lib/services/ImsService' {
 	     * @since 1.39
 	     * @method getMessageFromBubbleById
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *    Retrieve a specific message in a bubble using its id <br/>
+	     *    Retrieve a specific message in a bubble using its id <br>
 	     * @param {Bubble} bubble The bubble where to search for the message
 	     * @param {String} strMessageId The message id
 	     * @return {Message} The message if found or null
@@ -8140,12 +8718,28 @@ declare module 'lib/services/ImsService' {
 	    getMessageFromBubbleById(bubble: any, strMessageId: any): Promise<any>;
 	    /**
 	     * @public
+	     * @method markMessageAsRead
+	     * @instance
+	     * @description
+	     *  Send a 'read' receipt to the recipient <br>
+	     * @param {Message} messageReceived The message received to mark as read
+	     * @async
+	     * @category Ims MESSAGES
+	     * @return {Promise}
+	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
+	    
+	     */
+	    markMessageAsRead(messageReceived: any): Promise<unknown>;
+	    /**
+	     * @public
 	     * @since 1.39
 	     * @method sendMessageToConversation
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
 	     *    <b>(beta)</b> Send a instant message to a conversation<br>
-	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br/>
+	     *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br>
 	     * @param {Conversation} conversation The conversation recipient
 	     * @param {String} message The message to send
 	     * @param {String} [lang=en] The content language used
@@ -8154,18 +8748,19 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToContact
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *  Send a one-2-one message to a contact <br/>
+	     *  Send a one-2-one message to a contact <br>
 	     * @param {String} message The message to send
 	     * @param {Contact} contact The contact (should have at least a jid_im property)
 	     * @param {String} [lang=en] The content language used
@@ -8174,34 +8769,34 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+	    
 	     */
 	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @private
 	     * @description
-	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-	     *      It allow to give back the status of the sending process. <br/>
+	     *      Store the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+	     *      It allow to give back the status of the sending process. <br>
 	     * @param conversation
 	     * @param message
 	     */
 	    /**
 	     * @private
 	     * @description
-	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br/>
-	     *      It allow to give back the status of the sending process. <br/>
+	     *      delete the message in a pending list. This pending list is used to wait the "_onReceipt" event from server when a message is sent. <br>
+	     *      It allow to give back the status of the sending process. <br>
 	     * @param message
 	     */
-	    _onmessageReceipt(receipt: any): void;
 	    /**
 	     * @public
 	     * @method sendMessageToJid
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *  Send a one-2-one message to a contact identified by his Jid <br/>
+	     *  Send a one-2-one message to a contact identified by his Jid <br>
 	     * @param {String} message The message to send
 	     * @param {String} jid The contact Jid
 	     * @param {String} [lang=en] The content language used
@@ -8210,18 +8805,19 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [content.message] The content message body
 	     * @param {String} [subject] The message subject
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method sendMessageToJidAnswer
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *  Send a reply to a one-2-one message to a contact identified by his Jid <br/>
+	     *  Send a reply to a one-2-one message to a contact identified by his Jid <br>
 	     * @param {String} message The message to send
 	     * @param {String} jid The contact Jid
 	     * @param {String} [lang=en] The content language used
@@ -8231,18 +8827,19 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [subject] The message subject
 	     * @param {String} [answeredMsg] The message answered
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubble
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *  Send a message to a bubble <br/>
+	     *  Send a message to a bubble <br>
 	     * @param {String} message The message to send
 	     * @param {Bubble} bubble The bubble (should at least have a jid property)
 	     * @param {String} [lang=en] The content language used
@@ -8252,18 +8849,19 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any, mentions: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJid
 	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
 	     * @description
-	     *  Send a message to a bubble identified by its JID <br/>
+	     *  Send a message to a bubble identified by its JID <br>
 	     * @param {String} message The message to send
 	     * @param {String} jid The bubble JID
 	     * @param {String} [lang=en] The content language used
@@ -8273,18 +8871,19 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [subject] The message subject
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions?: any, urgency?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubbleJidAnswer
+	     * @async
+	     * @category Ims MESSAGES
 	     * @instance
 	     * @description
-	     *  Send a message to a bubble identified by its JID <br/>
+	     *  Send a message to a bubble identified by its JID <br>
 	     * @param {String} message The message to send
 	     * @param {String} jid The bubble JID
 	     * @param {String} [lang=en] The content language used
@@ -8295,18 +8894,20 @@ declare module 'lib/services/ImsService' {
 	     * @param {String} [answeredMsg] The message answered
 	     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-	     * @async
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	     * @category async
+
 	     */
 	    sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, mentions: any, urgency?: string): Promise<unknown>;
+	    _onmessageReceipt(receipt: any): void;
 	    /**
 	     * @public
 	     * @method sendIsTypingStateInBubble
-	     * @instance IMService
+	     * @async
+	     * @category Ims TYPING
+	     * @instance
 	     * @description
-	     *    Switch the "is typing" state in a bubble/room<br> <br/>
+	     *    Switch the "is typing" state in a bubble/room<br> <br>
 	     * @param {Bubble} bubble The destination bubble
 	     * @param {boolean} status The status, true for setting "is Typing", false to remove it
 	     * @return {Object} Return a promise with no parameter when succeed.
@@ -8315,7 +8916,9 @@ declare module 'lib/services/ImsService' {
 	    /**
 	     * @public
 	     * @method sendIsTypingStateInConversation
-	     * @instance IMService
+	     * @instance
+	     * @async
+	     * @category Ims TYPING
 	     * @description
 	     *    Switch the "is typing" state in a conversation<br>
 	     * @param {Conversation} conversation The conversation recipient
@@ -8323,49 +8926,8 @@ declare module 'lib/services/ImsService' {
 	     * @return Return a promise with no parameter when succeed
 	     */
 	    sendIsTypingStateInConversation(conversation: any, status: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method markMessageAsRead
-	     * @instance
-	     * @description
-	     *  Send a 'read' receipt to the recipient <br/>
-	     * @param {Message} messageReceived The message received to mark as read
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
-	     * @category async
-	     */
-	    markMessageAsRead(messageReceived: any): Promise<unknown> | {
-	        code: number;
-	        label: string;
-	        msg: string;
-	    };
-	    /**
-	     * @private
-	     * @method enableCarbon
-	     * @instance
-	     * @description
-	     *      Enable message carbon XEP-0280 <br/>
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
-	     * @category async
-	     */
-	    enableCarbon(): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method disableCarbon
-	     * @instance
-	     * @description
-	     *      Disable message carbon XEP-0280 <br/>
-	     * @async
-	     * @return {Promise}
-	     * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
-	     * @category async
-	     */
-	    disableCarbon(): Promise<unknown>;
 	}
-	export { IMService };
+	export { ImsService };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/channelEventHandler' {
@@ -8463,11 +9025,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @method createChannel
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
 	     * @return {Promise<Channel>} New Channel
 	     * @description
-	     *  Create a new public channel with a visibility limited to my company <br/>
+	     *  Create a new public channel with a visibility limited to my company <br>
 	     */
 	    createChannel(name: string, channelTopic: string): Promise<Channel>;
 	    /**
@@ -8475,12 +9038,13 @@ declare module 'lib/services/ChannelsService' {
 	     * @method createPublicChannel
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
 	     * @param {string} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
 	     * @description
-	     *  Create a new public channel with a visibility limited to my company <br/>
+	     *  Create a new public channel with a visibility limited to my company <br>
 	     */
 	    createPublicChannel(name: string, channelTopic: string, category: string): Promise<Channel>;
 	    /**
@@ -8488,6 +9052,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @method createClosedChannel (ex: createPrivateChannel)
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @deprecated [#1] since version 1.55 [#2].
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the createClosedChannel method instead,
@@ -8495,7 +9060,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {string} [description]  The description of the channel to create (max-length=255)
 	     * @return {Promise<Channel>} New Channel
 	     * @description
-	     *  Create a new private channel <br/>
+	     *  Create a new private channel <br>
 	     */
 	    createPrivateChannel(name: string, description: string): Promise<Channel>;
 	    /**
@@ -8503,12 +9068,13 @@ declare module 'lib/services/ChannelsService' {
 	     * @method createClosedChannel (ex: createPrivateChannel)
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} name  The name of the channel to create (max-length=255)
 	     * @param {string} [description]  The description of the channel to create (max-length=255)
 	     * @param {string} [category=""] The category of the channel
 	     * @return {Promise<Channel>} New Channel
 	     * @description
-	     *  Create a new closed channel <br/>
+	     *  Create a new closed channel <br>
 	     */
 	    createClosedChannel(name: string, description: string, category: string): Promise<Channel>;
 	    /**
@@ -8516,10 +9082,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @method deleteChannel
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {Channel} channel  The channel to delete
 	     * @return {Promise<Channel>} Promise object represents The channel deleted
 	     * @description
-	     *  Delete a owned channel <br/>
+	     *  Delete a owned channel <br>
 	     */
 	    deleteChannel(channel: Channel): Promise<Channel>;
 	    /**
@@ -8527,10 +9094,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @method findChannelsByName
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} name Search this provided substring in the channel name (case insensitive).
 	     * @return {Promise<Array<Channel>>} ChannelsService found
 	     * @description
-	     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
+	     *  Find channels by name. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br>
 	     */
 	    findChannelsByName(name: string): Promise<[Channel]>;
 	    /**
@@ -8538,15 +9106,17 @@ declare module 'lib/services/ChannelsService' {
 	     * @method findChannelsByTopic
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} topic Search this provided substring in the channel topic (case insensitive).
 	     * @return {Promise<Array<Channel>>} ChannelsService found
 	     * @description
-	     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br/>
+	     *  Find channels by topic. Only channels with visibility equals to 'company' can be found. First 100 results are returned. <br>
 	     */
 	    findChannelsByTopic(topic: string): Promise<[Channel]>;
 	    /**
 	     * @private
 	     * @method findChannels
+	     * @category Channels MANAGEMENT
 	     */
 	    private _findChannels;
 	    /**
@@ -8554,6 +9124,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @method getChannelById
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @deprecated [#1] since version 1.55 [#2].
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the fetchChannel method instead,
@@ -8561,7 +9132,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {boolean} [force=false] True to force a request to the server
 	     * @return {Promise<Channel>} The channel found
 	     * @description
-	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
+	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
 	     */
 	    getChannelById(id: string, force?: boolean): Promise<Channel>;
 	    /**
@@ -8569,11 +9140,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @method fetchChannel
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {string} id The id of the channel)
 	     * @param {boolean} [force=false] True to force a request to the server
 	     * @return {Promise<Channel>} The channel found
 	     * @description
-	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br/>
+	     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
 	     */
 	    fetchChannel(id: string, force?: boolean): Promise<Channel>;
 	    /**
@@ -8581,32 +9153,34 @@ declare module 'lib/services/ChannelsService' {
 	     * @method fetchChannelsByFilter
 	     * @since 1.55
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @description
-	     *    Find channels using a filter (on name, topic)<br/>
-	     *    Result may be filtered with result limit, offet and sortField or SortOrder <br/>
-	     *    Return a promise. <br/>
-	     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br/>
-	     *      {string} [filter.name] search by channel names (case insensitive substring). <br/>
-	     *      {string} [filter.topic] search by channel topics (case insensitive substring). <br/>
-	     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br/>
-	     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br/>
-	     *      {string} [filter.sortField="name"] sort channel list based on the given field. <br/>
-	     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br/>
-	     * @return {Promise<Channel[]>} Result of the find with <br/>
-	     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br/>
+	     *    Find channels using a filter (on name, topic)<br>
+	     *    Result may be filtered with result limit, offet and sortField or SortOrder <br>
+	     *    Return a promise. <br>
+	     * @param {Object} filter The filter with at least [filter.name] or [filter.topic] defined <br>
+	     *      {string} [filter.name] search by channel names (case insensitive substring). <br>
+	     *      {string} [filter.topic] search by channel topics (case insensitive substring). <br>
+	     *      {Number} [filter.limit=100] allow to specify the number of channels to retrieve. <br>
+	     *      {Number} [filter.offset] allow to specify the position of first channel to retrieve (first channel if not specified). Warning: if offset > total, no results are returned. <br>
+	     *      {string} [filter.sortField="name"] sort channel list based on the given field. <br>
+	     *      {Number} [filter.sortOrder="1"] specify order ascending/descending. 1 for ascending, -1 for descending. <br>
+	     * @return {Promise<Channel[]>} Result of the find with <br>
+	     *      {Array}   found channels informations with an array of { id, name, topic, creatorId, visibility, users_count } <br>
 	     */
 	    fetchChannelsByFilter(filter: any): Promise<[Channel]>;
 	    /**
 	     * @public
 	     * @method getChannels
 	     * @since 1.38
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @deprecated [#1] since version 1.55 [#2].
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the fetchMyChannels method instead,
 	     * @description
-	     *    Get the channels you own, are subscribed to, are publisher<br/>
-	     *    Return a promise. <br/>
+	     *    Get the channels you own, are subscribed to, are publisher<br>
+	     *    Return a promise. <br>
 	     * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
 	     */
 	    getChannels(): Promise<[Channel]>;
@@ -8615,144 +9189,63 @@ declare module 'lib/services/ChannelsService' {
 	     * @method fetchMyChannels
 	     * @since 1.38
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @param {boolean} force Boolean to force the get of channels's informations from server.
 	     * @description
-	     *    Get the channels you own, are subscribed to, are publisher<br/>
-	     *    Return a promise. <br/>
+	     *    Get the channels you own, are subscribed to, are publisher<br>
+	     *    Return a promise. <br>
 	     * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
 	     */
 	    fetchMyChannels(force?: boolean): Promise<[Channel]>;
 	    /**
 	     * @public
 	     * @method getAllChannels
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @return {Channel[]} An array of channels (owned, invited, subscribed)
 	     * @description
-	     *  Return the list of channels (owned, invited, subscribed) <br/>
+	     *  Return the list of channels (owned, invited, subscribed) <br>
 	     */
 	    getAllChannels(): [Channel];
 	    /**
 	     * @public
 	     * @method getAllOwnedChannel
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @deprecated [#1] since version 1.55 [#2].
 	     * [#3] Will be deleted in future version
 	     * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
 	     * @return {Channel[]} An array of channels (owned only)
 	     * @description
-	     *  Return the list of owned channels only <br/>
+	     *  Return the list of owned channels only <br>
 	     */
 	    getAllOwnedChannel(): [Channel];
 	    /**
 	     * @public
 	     * @method getAllOwnedChannels
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @return {Channel[]} An array of channels (owned only)
 	     * @description
-	     *  Return the list of owned channels only <br/>
+	     *  Return the list of owned channels only <br>
 	     */
 	    getAllOwnedChannels(): [Channel];
 	    /**
 	     * @public
-	     * @method getAllSubscribedChannel
-	     * @instance
-	     * @deprecated [#1] since version 1.55 [#2].
-	     * [#3] Will be deleted in future version
-	     * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
-	     * @return {Channel[]} An array of channels (subscribed only)
-	     * @description
-	     *  Return the list of subscribed channels only <br/>
-	     */
-	    getAllSubscribedChannel(): [Channel];
-	    /**
-	     * @public
-	     * @method getAllSubscribedChannels
-	     * @instance
-	     * @return {Channel[]} An array of channels (subscribed only)
-	     * @description
-	     *  Return the list of subscribed channels only <br/>
-	     */
-	    getAllSubscribedChannels(): [Channel];
-	    /**
-	     * @public
 	     * @method getAllPendingChannels
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @return {Channel[]} An array of channels (invited only)
 	     * @description
-	     *  Return the list of invited channels only <br/>
+	     *  Return the list of invited channels only <br>
 	     */
 	    getAllPendingChannels(): [Channel];
-	    /**
-	     * @public
-	     * @method publishMessageToChannel
-	     * @instance
-	     * @async
-	     * @param {Channel} channel The channel where to publish the message
-	     * @param {string} message Message content
-	     * @param {string} [title = "", limit=256] Message title
-	     * @param {string} [url = ""] An URL
-	     * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
-	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
-	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
-	     * @description
-	     *  Publish to a channel <br/>
-	     */
-	    publishMessageToChannel(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
-	    /**
-	     * @public
-	     * @method createItem
-	     * @instance
-	     * @async
-	     * @param {Channel} channel The channel where to publish the message
-	     * @param {string} message Message content
-	     * @param {string} [title = "", limit=256] Message title
-	     * @param {string} [url = ""] An URL
-	     * @param {any} imagesIds An Array of ids of the files stored in Rainbow
-	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
-	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
-	     * @description
-	     *  Publish to a channel <br/>
-	     */
-	    createItem(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
-	    /**
-	     * @public
-	     * @method subscribeToChannel
-	     * @instance
-	     * @async
-	     * @param {Channel} channel The channel to subscribe
-	     * @return {Promise<Channel>} The channel updated with the new subscription
-	     * @description
-	     *  Subscribe to a public channel <br/>
-	     */
-	    subscribeToChannel(channel: Channel): Promise<Channel>;
-	    /**
-	     * @public
-	     * @method
-	     * @since 1.47
-	     * @instance
-	     * @description
-	     *    Subscribe to a channel using its id<br/>
-	     *    Return a promise. <br/>
-	     * @param {string} id The id of the channel
-	     * @return {Object} Nothing or an error object depending on the result
-	     */
-	    subscribeToChannelById(id: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method unsubscribeFromChannel
-	     * @instance
-	     * @async
-	     * @param {Channel} channel The channel to unsubscribe
-	     * @return {Promise<string>} The status of the unsubscribe.
-	     * @description
-	     *  Unsubscribe from a public channel <br/>
-	     */
-	    unsubscribeFromChannel(channel: Channel): Promise<string>;
 	    /**
 	     * @public
 	     * @method updateChannelTopic
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {Channel} channel The channel to update
 	     * @param {string} description  The description of the channel to update (max-length=255)
 	     * @return {Promise<Channel>} Updated channel
@@ -8765,6 +9258,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @method updateChannelDescription
 	     * @instance
 	     * @async
+	     * @category Channels MANAGEMENT
 	     * @param {Channel} channel The channel to update
 	     * @param {string} description  The description of the channel to update (max-length=255)
 	     * @return {Promise<Channel>} Updated channel
@@ -8777,9 +9271,10 @@ declare module 'lib/services/ChannelsService' {
 	     * @method
 	     * @since 1.46
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @description
-	     *    Update a channel name<br/>
-	     *    Return a promise. <br/>
+	     *    Update a channel name<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The channel to update
 	     * @param {string} channelName The name of the channel
 	     * @return {Channel} Return the channel updated or an error
@@ -8789,12 +9284,13 @@ declare module 'lib/services/ChannelsService' {
 	     * @public
 	     * @method
 	     * @since 1.38
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @description
-	     *    Update a channel<br/>
-	     *      May be updated: name, topic, visibility, max_items and max_payload<br/>
-	     *      Please put null to not update a property.<br/>
-	     *    Return a promise. <br/>
+	     *    Update a channel<br>
+	     *      May be updated: name, topic, visibility, max_items and max_payload<br>
+	     *      Please put null to not update a property.<br>
+	     *    Return a promise. <br>
 	     * @param {string} id The id of the channel
 	     * @param {string} [channelTopic=""] The topic of the channel
 	     * @param {string} [visibility=public] public/company/closed group visibility for search
@@ -8809,10 +9305,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @public
 	     * @method updateChannelVisibility
 	     * @since 1.55
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @description
-	     *    Update a channel visibility<br/>
-	     *    Return a promise. <br/>
+	     *    Update a channel visibility<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The channel to update
 	     * @param {string} visibility  The new channel visibility (closed or company)
 	     * @return {Promise<Channel>} Return the channel updated or an error
@@ -8822,10 +9319,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @public
 	     * @method updateChannelVisibilityToPublic
 	     * @since 1.55
+	     * @category Channels MANAGEMENT
 	     * @instance
 	     * @description
-	     *    Set the channel visibility to company (visible for users in that company)<br/>
-	     *    Return a promise. <br/>
+	     *    Set the channel visibility to company (visible for users in that company)<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
@@ -8835,9 +9333,10 @@ declare module 'lib/services/ChannelsService' {
 	     * @method updateChannelVisibilityToClosed
 	     * @since 1.55
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @description
-	     *    Set the channel visibility to closed (not visible by users)<br/>
-	     *    Return a promise. <br/>
+	     *    Set the channel visibility to closed (not visible by users)<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
@@ -8847,9 +9346,10 @@ declare module 'lib/services/ChannelsService' {
 	     * @method
 	     * @since 1.43
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @description
-	     *    Update a channel avatar<br/>
-	     *    Return a promise. <br/>
+	     *    Update a channel avatar<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The Channel to update
 	     * @param {string} urlAvatar  The avatar Url.  It must be resized to 512 pixels before calling this API.
 	     * @return {Channel} Return the channel updated or an error
@@ -8860,21 +9360,223 @@ declare module 'lib/services/ChannelsService' {
 	     * @method
 	     * @since 1.43
 	     * @instance
+	     * @category Channels MANAGEMENT
 	     * @description
-	     *    Delete a channel avatar<br/>
-	     *    Return a promise. <br/>
+	     *    Delete a channel avatar<br>
+	     *    Return a promise. <br>
 	     * @param {Channel} channel The channel to update
 	     * @return {Channel} Return the channel updated or an error
 	     */
 	    deleteChannelAvatar(channel: Channel): Promise<unknown>;
 	    /**
+	     * @private
+	     * @param channelId
+	     * @category Channels MANAGEMENT
+	     * @description
+	     *      GET A CHANNEL <br>
+	     */
+	    getChannel(channelId: string): Promise<Channel>;
+	    /**
+	     * @private
+	     * @param channelId
+	     * @category Channels MANAGEMENT
+	     * @description
+	     *      GET A CHANNEL FROM CACHE <br>
+	     */
+	    private getChannelFromCache;
+	    private updateChannelsList;
+	    private addOrUpdateChannelToCache;
+	    private removeChannelFromCache;
+	    /**
+	     * @public
+	     * @method publishMessageToChannel
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param {Channel} channel The channel where to publish the message
+	     * @param {string} message Message content
+	     * @param {string} [title = "", limit=256] Message title
+	     * @param {string} [url = ""] An URL
+	     * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
+	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
+	     * @description
+	     *  Publish to a channel <br>
+	     */
+	    publishMessageToChannel(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
+	    /**
+	     * @public
+	     * @method createItem
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param {Channel} channel The channel where to publish the message
+	     * @param {string} message Message content
+	     * @param {string} [title = "", limit=256] Message title
+	     * @param {string} [url = ""] An URL
+	     * @param {any} imagesIds An Array of ids of the files stored in Rainbow
+	     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+	     * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
+	     * @description
+	     *  Publish to a channel <br>
+	     */
+	    createItem(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string): Promise<{}>;
+	    /**
+	     * @public
+	     * @method getMessagesFromChannel
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @deprecated [#1] since version 1.55 [#2].
+	     * [#3] Will be deleted in future version
+	     * [#4] In case you need similar behavior use the fetchChannelItems method instead,
+	     * @param {Channel} channel The channel
+	     * @return {Promise<Object[]>} The list of messages received
+	     * @description
+	     *  Retrieve the last messages from a channel <br>
+	     */
+	    getMessagesFromChannel(channel: Channel): Promise<any[]>;
+	    /**
+	     * @public
+	     * @method fetchChannelItems
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param {Channel} channel The channel
+	     * @param {number} maxMessages=100 [optional] number of messages to get, 100 by default
+	     * @param {Date} beforeDate [optional] - show items before a specific timestamp (ISO 8601 format)
+	     * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
+	     * @return {Promise<Object[]>} The list of messages received
+	     * @description
+	     *  Retrieve the last maxMessages messages from a channel <br>
+	     */
+	    fetchChannelItems(channel: Channel, maxMessages?: number, beforeDate?: Date, afterDate?: Date): Promise<Array<any>>;
+	    /**
+	     * @public
+	     * @method deleteMessageFromChannel
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @deprecated [#1] since version 1.55 [#2]. <br>
+	     * [#3] Will be deleted in future version <br>
+	     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br>
+	     * @param  {string} channelId The Id of the channel
+	     * @param  {string} messageId The Id of the message
+	     * @return {Promise<Channel>} The channel updated
+	     * @description
+	     *  Delete a message from a channel <br>
+	     */
+	    deleteMessageFromChannel(channelId: string, messageId: string): Promise<Channel>;
+	    /**
+	     * @public
+	     * @method deleteItemFromChannel
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param  {string} channelId The Id of the channel
+	     * @param  {string} itemId The Id of the item
+	     * @return {Promise<Channel>} The channel updated
+	     * @description
+	     *  Delete a message from a channel <br>
+	     */
+	    deleteItemFromChannel(channelId: string, itemId: string): Promise<Channel>;
+	    /**
+	     * @public
+	     * @method likeItem
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param  {Channel} channel The channel where the item must be liked.
+	     * @param  {string} itemId The Id of the item
+	     * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
+	     * @return {Promise<any>}
+	     * @description
+	     *  To like an Channel Item with the specified appreciation <br>
+	     */
+	    likeItem(channel: Channel, itemId: string, appreciation: Appreciation): Promise<any>;
+	    /**
+	     * @public
+	     * @method getDetailedAppreciations
+	     * @instance
+	     * @async
+	     * @category Channels MESSAGES/ITEMS
+	     * @param  {Channel} channel The channel where the item appreciations must be retrieved.
+	     * @param  {string} itemId The Id of the item
+	     * @return {Promise<any>}
+	     * @description
+	     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br>
+	     */
+	    getDetailedAppreciations(channel: Channel, itemId: string): Promise<any>;
+	    retrieveLatests(beforeDate?: Date): Promise<any>;
+	    /**
+	     * @public
+	     * @method getAllSubscribedChannel
+	     * @instance
+	     * @category Channels SUBSCRIPTION
+	     * @deprecated [#1] since version 1.55 [#2].
+	     * [#3] Will be deleted in future version
+	     * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
+	     * @return {Channel[]} An array of channels (subscribed only)
+	     * @description
+	     *  Return the list of subscribed channels only <br>
+	     */
+	    getAllSubscribedChannel(): [Channel];
+	    /**
+	     * @public
+	     * @method getAllSubscribedChannels
+	     * @instance
+	     * @category Channels SUBSCRIPTION
+	     * @return {Channel[]} An array of channels (subscribed only)
+	     * @description
+	     *  Return the list of subscribed channels only <br>
+	     */
+	    getAllSubscribedChannels(): [Channel];
+	    /**
+	     * @public
+	     * @method subscribeToChannel
+	     * @instance
+	     * @async
+	     * @category Channels SUBSCRIPTION
+	     * @param {Channel} channel The channel to subscribe
+	     * @return {Promise<Channel>} The channel updated with the new subscription
+	     * @description
+	     *  Subscribe to a public channel <br>
+	     */
+	    subscribeToChannel(channel: Channel): Promise<Channel>;
+	    /**
+	     * @public
+	     * @method
+	     * @since 1.47
+	     * @instance
+	     * @category Channels SUBSCRIPTION
+	     * @description
+	     *    Subscribe to a channel using its id<br>
+	     *    Return a promise. <br>
+	     * @param {string} id The id of the channel
+	     * @return {Object} Nothing or an error object depending on the result
+	     */
+	    subscribeToChannelById(id: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method unsubscribeFromChannel
+	     * @instance
+	     * @async
+	     * @category Channels SUBSCRIPTION
+	     * @param {Channel} channel The channel to unsubscribe
+	     * @return {Promise<string>} The status of the unsubscribe.
+	     * @description
+	     *  Unsubscribe from a public channel <br>
+	     */
+	    unsubscribeFromChannel(channel: Channel): Promise<string>;
+	    /**
 	     * @public
 	     * @method fetchChannelUsers
 	     * @instance
 	     * @async
-	     * @deprecated [#1] since version 1.55 [#2]. <br/>
-	     * [#3] Will be deleted in future version <br/>
-	     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br/>
+	     * @category Channels USERS
+	     * @deprecated [#1] since version 1.55 [#2]. <br>
+	     * [#3] Will be deleted in future version <br>
+	     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br>
 	     * @param {Channel} channel The channel
 	     * @param {Object} [options] A filter parameter
 	     * @param {Number} [options.page = 0] Display a specific page of results
@@ -8883,7 +9585,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
 	     * @return {Promise<Array<any>>} An array of users who belong to this channel
 	     * @description
-	     *  Get a pagined list of users who belongs to a channel <br/>
+	     *  Get a pagined list of users who belongs to a channel <br>
 	     */
 	    getUsersFromChannel(channel: Channel, options: any): Promise<{}[]>;
 	    /**
@@ -8891,6 +9593,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @method fetchChannelUsers
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Object} [options] A filter parameter
 	     * @param {Number} [options.page = 0] Display a specific page of results
@@ -8899,7 +9602,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
 	     * @return {Promise<Array<any>>} An array of users who belong to this channel
 	     * @description
-	     *  Get a pagined list of users who belongs to a channel <br/>
+	     *  Get a pagined list of users who belongs to a channel <br>
 	     */
 	    fetchChannelUsers(channel: Channel, options: any): Promise<Array<{}>>;
 	    /**
@@ -8907,13 +9610,14 @@ declare module 'lib/services/ChannelsService' {
 	     * @method removeAllUsersFromChannel
 	     * @instance
 	     * @async
-	     * @deprecated [#1] since version 1.55 [#2]. <br/>
-	     * [#3] Will be deleted in future version <br/>
-	     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br/>
+	     * @category Channels USERS
+	     * @deprecated [#1] since version 1.55 [#2]. <br>
+	     * [#3] Will be deleted in future version <br>
+	     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br>
 	     * @param {Channel} channel The channel
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
-	     *  Remove all users from a channel <br/>
+	     *  Remove all users from a channel <br>
 	     */
 	    removeAllUsersFromChannel(channel: Channel): Promise<Channel>;
 	    /**
@@ -8921,10 +9625,11 @@ declare module 'lib/services/ChannelsService' {
 	     * @method deleteAllUsersFromChannel
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @return {Promise<Channel>} The channel updated
 	     * @description
-	     *  Remove all users from a channel <br/>
+	     *  Remove all users from a channel <br>
 	     */
 	    deleteAllUsersFromChannel(channel: Channel): Promise<Channel>;
 	    /**
@@ -8932,6 +9637,7 @@ declare module 'lib/services/ChannelsService' {
 	     * @method updateChannelUsers
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Array<any>} users The users of the channel
 	     * @return {Promise<Channel>} Update Channel Users status
@@ -8944,11 +9650,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @method addOwnersToChannel
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Array<any>}owners
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
-	     *  Add a list of owners to the channel <br/>
+	     *  Add a list of owners to the channel <br>
 	     */
 	    addOwnersToChannel(channel: Channel, owners: any[]): Promise<Channel>;
 	    /**
@@ -8956,11 +9663,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @method addPublishersToChannel
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Array<Contact>} publishers The list of Contacts to add as publisher to channel.
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
-	     *  Add a list of publishers to the channel <br/>
+	     *  Add a list of publishers to the channel <br>
 	     */
 	    addPublishersToChannel(channel: Channel, publishers: Array<Contact>): Promise<Channel>;
 	    /**
@@ -8968,11 +9676,12 @@ declare module 'lib/services/ChannelsService' {
 	     * @method addMembersToChannel
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Array<Contact>} members array of users to add
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
-	     *  Add a list of members to the channel <br/>
+	     *  Add a list of members to the channel <br>
 	     */
 	    addMembersToChannel(channel: Channel, members: Array<Contact>): Promise<Channel>;
 	    /**
@@ -8980,14 +9689,15 @@ declare module 'lib/services/ChannelsService' {
 	     * @method removeUsersFromChannel1
 	     * @instance
 	     * @async
-	     * @deprecated [#1] since version 1.55 [#2]. <br/>
-	     * [#3] Will be deleted in future version <br/>
-	     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br/>
+	     * @category Channels USERS
+	     * @deprecated [#1] since version 1.55 [#2]. <br>
+	     * [#3] Will be deleted in future version <br>
+	     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br>
 	     * @param {Channel} channel The channel
 	     * @param {Array<Contact>} users An array of users to remove
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
-	     *  Remove a list of users from a channel <br/>
+	     *  Remove a list of users from a channel <br>
 	     */
 	    removeUsersFromChannel1(channel: Channel, users: Array<Contact>): Promise<Channel>;
 	    /**
@@ -8995,115 +9705,16 @@ declare module 'lib/services/ChannelsService' {
 	     * @method deleteUsersFromChannel
 	     * @instance
 	     * @async
+	     * @category Channels USERS
 	     * @param {Channel} channel The channel
 	     * @param {Array<Contact>} users An array of users to remove
 	     * @return {Promise<Channel>} The updated channel
 	     * @description
-	     *  Remove a list of users from a channel <br/>
+	     *  Remove a list of users from a channel <br>
 	     */
 	    deleteUsersFromChannel(channel: Channel, users: Array<Contact>): Promise<Channel>;
-	    /**
-	     * @public
-	     * @method getMessagesFromChannel
-	     * @instance
-	     * @async
-	     * @deprecated [#1] since version 1.55 [#2].
-	     * [#3] Will be deleted in future version
-	     * [#4] In case you need similar behavior use the fetchChannelItems method instead,
-	     * @param {Channel} channel The channel
-	     * @return {Promise<Object[]>} The list of messages received
-	     * @description
-	     *  Retrieve the last messages from a channel <br/>
-	     */
-	    getMessagesFromChannel(channel: Channel): Promise<any[]>;
-	    /**
-	     * @public
-	     * @method fetchChannelItems
-	     * @instance
-	     * @async
-	     * @param {Channel} channel The channel
-	     * @param {number} maxMessages=100 [optional] number of messages to get, 100 by default
-	     * @param {Date} beforeDate [optional] - show items before a specific timestamp (ISO 8601 format)
-	     * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
-	     * @return {Promise<Object[]>} The list of messages received
-	     * @description
-	     *  Retrieve the last maxMessages messages from a channel <br/>
-	     */
-	    fetchChannelItems(channel: Channel, maxMessages?: number, beforeDate?: Date, afterDate?: Date): Promise<Array<any>>;
-	    /**
-	     * @public
-	     * @method deleteMessageFromChannel
-	     * @instance
-	     * @async
-	     * @deprecated [#1] since version 1.55 [#2]. <br/>
-	     * [#3] Will be deleted in future version <br/>
-	     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br/>
-	     * @param  {string} channelId The Id of the channel
-	     * @param  {string} messageId The Id of the message
-	     * @return {Promise<Channel>} The channel updated
-	     * @description
-	     *  Delete a message from a channel <br/>
-	     */
-	    deleteMessageFromChannel(channelId: string, messageId: string): Promise<Channel>;
-	    /**
-	     * @public
-	     * @method deleteItemFromChannel
-	     * @instance
-	     * @async
-	     * @param  {string} channelId The Id of the channel
-	     * @param  {string} itemId The Id of the item
-	     * @return {Promise<Channel>} The channel updated
-	     * @description
-	     *  Delete a message from a channel <br/>
-	     */
-	    deleteItemFromChannel(channelId: string, itemId: string): Promise<Channel>;
 	    _onChannelMessageReceived(message: any): void;
 	    _onChannelMyAppreciationReceived(my_appreciation: any): void;
-	    /**
-	     * @private
-	     * @param channelId
-	     * @description
-	     *      GET A CHANNEL <br/>
-	     */
-	    getChannel(channelId: string): Promise<Channel>;
-	    /**
-	     * @public
-	     * @method likeItem
-	     * @instance
-	     * @async
-	     * @param  {Channel} channel The channel where the item must be liked.
-	     * @param  {string} itemId The Id of the item
-	     * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
-	     * @return {Promise<any>}
-	     * @description
-	     *  To like an Channel Item with the specified appreciation <br/>
-	     */
-	    likeItem(channel: Channel, itemId: string, appreciation: Appreciation): Promise<any>;
-	    /**
-	     * @public
-	     * @method getDetailedAppreciations
-	     * @instance
-	     * @async
-	     * @param  {Channel} channel The channel where the item appreciations must be retrieved.
-	     * @param  {string} itemId The Id of the item
-	     * @return {Promise<any>}
-	     * @description
-	     *  To know in details apprecations given on a channel item (by userId the apprecation given) <br/>
-	     */
-	    getDetailedAppreciations(channel: Channel, itemId: string): Promise<any>;
-	    /**
-	     * @private
-	     * @param channelId
-	     * @description
-	     *      GET A CHANNEL FROM CACHE <br/>
-	     */
-	    private getChannelFromCache;
-	    private updateChannelsList;
-	    private addOrUpdateChannelToCache;
-	    private removeChannelFromCache;
-	    retrieveLatests(beforeDate?: Date): Promise<any>;
-	    incrementInvitationCounter(): void;
-	    decrementInvitationCounter(): void;
 	    /****************************************************************/
 	    /*** MANAGEMENT EVENT HANDLER                                 ***/
 	    /****************************************************************/
@@ -9118,6 +9729,11 @@ declare module 'lib/services/ChannelsService' {
 	    private onDeleteChannel;
 	    private onUserSubscribeEvent;
 	    private onUserUnsubscribeEvent;
+	    /****************************************************************/
+	    /*** END MANAGEMENT EVENT HANDLER                             ***/
+	    /****************************************************************/
+	    incrementInvitationCounter(): void;
+	    decrementInvitationCounter(): void;
 	}
 	export { ChannelsService as ChannelsService };
 
@@ -9307,7 +9923,7 @@ declare module 'lib/services/TelephonyService' {
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core';
-	import { GenericService } from 'lib/services/GenericService'; class Telephony extends GenericService {
+	import { GenericService } from 'lib/services/GenericService'; class TelephonyService extends GenericService {
 	    private _contacts;
 	    private _bubbles;
 	    private _profiles;
@@ -9349,7 +9965,7 @@ declare module 'lib/services/TelephonyService' {
 	     * @method onTelPresenceChange
 	     * @instance
 	     * @description
-	     *      Method called when receiving an update on user presence <br/>
+	     *      Method called when receiving an update on user presence <br>
 	     */
 	    onTelPresenceChange(__event: any, attr?: any): boolean;
 	    /**
@@ -9357,15 +9973,16 @@ declare module 'lib/services/TelephonyService' {
 	     * @method onCallUpdated
 	     * @instance
 	     * @description
-	     *      Method called when receiving an update on a call <br/>
+	     *      Method called when receiving an update on a call <br>
 	     */
 	    onCallUpdated(callInfo: Call): void;
 	    /**
 	     * @public
 	     * @method isTelephonyAvailable
+	     * @category Telephony MANAGEMENT
 	     * @instance
 	     * @description
-	     *    Check if the telephony service can be used or not (if the connected user has a phone monitored by a PBX) <br/>
+	     *    Check if the telephony service can be used or not (if the connected user has a phone monitored by a PBX) <br>
 	     * @return {boolean} Return true if the telephony service is configured
 	     */
 	    isTelephonyAvailable(): boolean;
@@ -9373,8 +9990,9 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method getAgentVersion
 	     * @instance
+	     * @category Telephony MANAGEMENT
 	     * @description
-	     *    Get the associated PBX agent version <br/>
+	     *    Get the associated PBX agent version <br>
 	     * @return {string} Return the version of the agent or "unknown"
 	     */
 	    getAgentVersion(): any;
@@ -9382,8 +10000,9 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method getXMPPAgentStatus
 	     * @instance
+	     * @category Telephony MANAGEMENT
 	     * @description
-	     *    Get the status of the XMPP connection to the PBX Agent <br/>
+	     *    Get the status of the XMPP connection to the PBX Agent <br>
 	     * @return {string} Return the status of the connections to the agent or "unknown"
 	     */
 	    getXMPPAgentStatus(): any;
@@ -9391,8 +10010,9 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method getPhoneAPIStatus
 	     * @instance
+	     * @category Telephony MANAGEMENT
 	     * @description
-	     *    Get the status of the Phone API status for the PBX Agent <br/>
+	     *    Get the status of the Phone API status for the PBX Agent <br>
 	     * @return {string} Return the Phone API status for to this Agent or "unknown"
 	     */
 	    getPhoneAPIStatus(): any;
@@ -9400,6 +10020,8 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @private
 	     * @method getTelephonyState
+	     * @instance
+	     * @category Telephony MANAGEMENT
 	     * @param second
 	     */
 	    getTelephonyState(second: any): Promise<unknown>;
@@ -9409,8 +10031,9 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method getMediaPillarInfo
 	     * @instance
+	     * @category Telephony MANAGEMENT
 	     * @description
-	     *   This API allows user to retrieve the Jabber id of the Media Pillar linked to the system he belongs, or Media Pillar user to retrieve the Jabber id credentials and data of the Media Pillar he belongs. <br/>
+	     *   This API allows user to retrieve the Jabber id of the Media Pillar linked to the system he belongs, or Media Pillar user to retrieve the Jabber id credentials and data of the Media Pillar he belongs. <br>
 	     * @async
 	     * @return {Promise<any>}
 	     * @category async
@@ -9418,11 +10041,15 @@ declare module 'lib/services/TelephonyService' {
 	    getMediaPillarInfo(): Promise<any>;
 	    /**
 	     * @private
+	     * @category Telephony CALL
+	     * @instance
 	     * @param connectionElemObj
 	     */
 	    private createCallFromConnectionElem;
 	    /**
 	     * @private
+	     * @category Telephony CALL
+	     * @instance
 	     * @method getParticipantsFromParticipantsElem
 	     * @param participants
 	     */
@@ -9430,8 +10057,11 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method getVoiceMessageCounter
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      Get the number of voice message <br/>
+	     *      Get the number of voice message <br>
 	     * @return {Promise<integer>} Return resolved promise if succeed with the number of messages, and a rejected else.
 	     */
 	    getVoiceMessageCounter(): Promise<unknown>;
@@ -9441,45 +10071,57 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method getCallToHangOut
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      Get the call which can be hang out <br/>
+	     *      Get the call which can be hang out <br>
 	     * @return {Call} The call with the ability to be hang out.
 	     */
 	    getCallToHangOut(): any;
 	    /**
 	     * @public
 	     * @method getActiveCall
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      get the active call <br/>
+	     *      get the active call <br>
 	     * @return {Call} The active call
 	     */
 	    getActiveCall(): any;
 	    /**
 	     * @public
 	     * @method getActiveCalls
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      get active calls <br/>
+	     *      get active calls <br>
 	     * @return {Call} The active call
 	     */
 	    getActiveCalls(): any[];
 	    /**
 	     * @public
 	     * @method getCalls
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      get calls <br/>
+	     *      get calls <br>
 	     * @return {Call} The calls
 	     */
 	    getCalls(): any[];
 	    /**
 	     * @public
 	     * @method getCallsSize
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1 <br/>
+	     *      get calls tab size. Warning do not use length on the getCalls method result because it is the last index id +1 <br>
 	     * @return {Call} The calls tab size
 	     */
 	    getCallsSize(): number;
 	    /**
 	     * @private
+	     * @category Telephony CALL
+	     * @instance
 	     * @param {Array} tab The tab which need to be sized
 	     */
 	    getTabSize(tab: any): number;
@@ -9487,8 +10129,10 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method getActiveCall
 	     * @param {Contact} contact The contact with an active call with us.
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      get the active call for a contact <br/>
+	     *      get the active call for a contact <br>
 	     * @return {Call} The active call
 	     */
 	    getActiveCallsForContact(contact: any): any[];
@@ -9498,19 +10142,24 @@ declare module 'lib/services/TelephonyService' {
 	     * @public
 	     * @method makeCall
 	     * @instance
+	     * @async
+	     * @category Telephony CALL
 	     * @description
-	     *    Call a number <br/>
-	     *    Contacts and numbers are allowed <br/>
-	     *    Return a promise <br/>
+	     *    Call a number <br>
+	     *    Contacts and numbers are allowed <br>
+	     *    Return a promise <br>
 	     * @param {Contact} contact - contact object that you want to call
 	     * @param {String} phoneNumber The number to call
 	     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
 	     * @return {Promise<Call>} Return a promise with the call created
 	     */
-	    makeCall(contact: any, phoneNumber: any, correlatorData: any): Promise<unknown>;
+	    makeCall(contact: any, phoneNumber: any, correlatorData: any): Promise<any>;
 	    /**
 	     * @private
 	     * @method makeSimpleCall
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @param contact
 	     * @param phoneNumber
 	     * @param correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
@@ -9519,6 +10168,8 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @private
 	     * @method makeConsultationCall
+	     * @category Telephony CALL
+	     * @instance
 	     * @param contact
 	     * @param phoneNumber
 	     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
@@ -9528,10 +10179,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method makeCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Call a number <br/>
-	     *    Return a promise <br/>
+	     *    Call a number <br>
+	     *    Return a promise <br>
 	     * @param {String} phoneNumber The number to call
 	     * @param {String} correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
 	     * @return {Promise<Call>} Return a promise with the call created
@@ -9540,6 +10193,8 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @private
 	     * @method getPhoneInfo
+	     * @category Telephony CALL
+	     * @instance
 	     * @param contact
 	     * @param phoneNumber
 	     * @param correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
@@ -9550,10 +10205,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method releaseCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Release a call <br/>
-	     *    Return a promise <br/>
+	     *    Release a call <br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to release
 	     * @return {Promise<Call>} Return a promise with the call released
 	     */
@@ -9563,10 +10220,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method answerCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Answer a call <br/>
-	     *    Return a promise <br/>
+	     *    Answer a call <br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to answer
 	     * @return {Promise<Call>} Return a promise with the answered call.
 	     */
@@ -9576,10 +10235,11 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method holdCall
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Hold a call <br/>
-	     *    Return a promise <br/>
+	     *    Hold a call <br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to hold
 	     * @return {Call} Return a promise with the held call.
 	     */
@@ -9589,10 +10249,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method retrieveCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Retrieve a call <br/>
-	     *    Return a promise <br/>
+	     *    Retrieve a call <br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to retrieve
 	     * @return {Promise<Call>} Return a promise with the call retrieved
 	     */
@@ -9602,10 +10264,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method deflectCallToVM
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Deflect a call to the voice mail <br/>
-	     *    Return a promise <br/>
+	     *    Deflect a call to the voice mail <br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to deflect
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
 	     */
@@ -9615,10 +10279,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method deflectCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Deflect a call to an other telephone number<br/>
-	     *    Return a promise <br/>
+	     *    Deflect a call to an other telephone number<br>
+	     *    Return a promise <br>
 	     * @param {Call} call The call to deflect
 	     * @param {Object} callee The callee phone number informations where the call shopuld be deflecte'd.
 	     * @param {string} callee.calleeExtNumber : The phone number where the call is deflected, the format could be anything the user can type, it will be transformed in E164 format.,
@@ -9635,11 +10301,13 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method transfertCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Transfer a held call to the active call <br/>
-	     *    User should have transfer rights <br/>
-	     *    Return a promise <br/>
+	     *    Transfer a held call to the active call <br>
+	     *    User should have transfer rights <br>
+	     *    Return a promise <br>
 	     * @param {Call} activeCall The active call
 	     * @param {Call} heldCall The held call to transfer to the activeCall
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
@@ -9650,11 +10318,13 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method conferenceCall
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Create a conference with a held call and the active call <br/>
-	     *    User should have conference rights <br/>
-	     *    Return a promise <br/>
+	     *    Create a conference with a held call and the active call <br>
+	     *    User should have conference rights <br>
+	     *    Return a promise <br>
 	     * @param {Call} activeCall The active call
 	     * @param {Call} heldCall The held call to transfer to the activeCall
 	     * @return {Promise} Return a resolved promise .
@@ -9665,10 +10335,12 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method forwardToDevice
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Activate the forward to a number <br/>
-	     *    Return a promise <br/>
+	     *    Activate the forward to a number <br>
+	     *    Return a promise <br>
 	     * @param {String} phoneNumber The number to call
 	     * @return {Promise} Return a promise resolved.
 	    */
@@ -9676,43 +10348,38 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method forwardToVoicemail
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Activate the forward to VM <br/>
-	     *    Return a promise <br/>
+	     *    Activate the forward to VM <br>
+	     *    Return a promise <br>
 	     * @return {Promise} Return a promise resolved.
-
 	     */
 	    forwardToVoicemail(): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method cancelForward
+	     * @async
+	     * @category Telephony CALL
 	     * @instance
 	     * @description
-	     *    Cancel the forward <br/>
-	     *    Return a promise <br/>
+	     *    Cancel the forward <br>
+	     *    Return a promise <br>
 	     * @return {Promise<Call>} Return a promise with the canceled forward call.
 	     */
 	    cancelForward(): Promise<unknown>;
 	    getForwardStatus(): Promise<unknown>;
 	    /*************************************************************/
 	    /*************************************************************/
-	    nomadicLogin(phoneNumber: any, NotTakeIntoAccount?: any): Promise<unknown>;
-	    getNomadicStatus(): Promise<unknown>;
-	    /**
-	     * @private
-	      * @param response
-	     */
-	    updateNomadicData(response: any): Promise<void>;
-	    getNomadicObject(): any;
-	    getNomadicDestination(): any;
-	    /*************************************************************/
-	    /*************************************************************/
 	    /**
 	     * @public
 	     * @method sendDtmf
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @description
-	     *      send dtmf to the remote party <br/>
+	     *      send dtmf to the remote party <br>
 	     * @param {string} connectionId
 	     * @param {string} dtmf
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
@@ -9721,6 +10388,8 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @private
 	     * @method clearCall
+	     * @category Telephony CALL
+	     * @instance
 	     * @param Call call the call to reset.
 	     * @return nothing.
 	     */
@@ -9729,6 +10398,8 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @private
 	     * @method getOrCreateCall
+	     * @category Telephony CALL
+	     * @instance
 	     * @param status
 	     * @param connectionId
 	     * @param deviceType
@@ -9737,9 +10408,11 @@ declare module 'lib/services/TelephonyService' {
 	    getOrCreateCall(status: any, connectionId: any, deviceType: any, contact?: any): Call;
 	    /**
 	     * @private
+	     * @category Telephony CALL
+	     * @instance
 	     * @param callId
 	     * @description
-	     *      GET A CALL FROM CACHE <br/>
+	     *      GET A CALL FROM CACHE <br>
 	     */
 	    private getCallFromCache;
 	    addOrUpdateCallToCache(call: any): Call;
@@ -9747,52 +10420,85 @@ declare module 'lib/services/TelephonyService' {
 	    /**
 	     * @public
 	     * @method logon
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @param {String} endpointTel The endpoint device phone number.
 	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
 	     * @param {String} password optionnel Password or authorization code.
 	     * @param {String} groupId optionnel CCD Agent's group number
 	     * @description
-	     *      This api allows an CCD Agent to logon into the CCD system. <br/>
+	     *      This api allows an CCD Agent to logon into the CCD system. <br>
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
 	     */
 	    logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method logoff
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @param {String} endpointTel The endpoint device phone number.
 	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
 	     * @param {String} password optionnel Password or authorization code.
 	     * @param {String} groupId optionnel CCD Agent's group number
 	     * @description
-	     *      This api allows an CCD Agent logoff logon from the CCD system. <br/>
+	     *      This api allows an CCD Agent logoff logon from the CCD system. <br>
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
 	     */
 	    logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method withdrawal
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @param {String} agentId optionnel CCD Agent identifier (agent device number).
 	     * @param {String} groupId optionnel CCD Agent's group number
 	     * @param {String} status optionnel Used to deactivate the withdrawal state. Values: 'on', 'off'; 'on' is optional.
 	     * @description
-	     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready' <br/>
+	     *      This api allows an CCD Agent to change to the state 'Not Ready' on the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready' <br>
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
 	     */
 	    withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method wrapup
+	     * @async
+	     * @category Telephony CALL
+	     * @instance
 	     * @param {String} agentId CCD Agent identifier (agent device number).
 	     * @param {String} groupId CCD Agent's group number
 	     * @param {String} password optionnel Password or authorization code.
 	     * @param {String} status optionnel Used to deactivate the WrapUp state. Values: 'on', 'off'; 'on' is optional.
 	     * @description
-	     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'. <br/>
+	     *      This api allows an CCD Agent to change to the state Working After Call in the CCD system. When the parameter 'status' is passed and has the value 'off', the state is changed to 'Ready'. <br>
 	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
 	     */
 	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	    /*************************************************************/
+	    /*************************************************************/
+	    nomadicLogin(phoneNumber: any, NotTakeIntoAccount?: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getNomadicStatus
+	     * @async
+	     * @category Telephony NOMADIC
+	     * @instance
+	     * @description
+	     *      This api allows to get the nomadic status. <br>
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    getNomadicStatus(): Promise<unknown>;
+	    /**
+	     * @private
+	      * @param response
+	     */
+	    updateNomadicData(response: any): Promise<void>;
+	    getNomadicObject(): any;
+	    getNomadicDestination(): any;
 	}
-	export { Telephony as TelephonyService };
+	export { TelephonyService as TelephonyService };
 
 }
 declare module 'lib/services/AdminService' {
@@ -9811,7 +10517,7 @@ declare module 'lib/services/AdminService' {
 	    "INSTALLATION_DDI_NUMBER" = "installation_ddi_number",
 	    /** user_ddi_number */
 	    "USER_DDI_NUMBER" = "user_ddi_number"
-	} class Admin extends GenericService {
+	} class AdminService extends GenericService {
 	    private _contacts;
 	    static getClassName(): string;
 	    getClassName(): string;
@@ -9827,12 +10533,13 @@ declare module 'lib/services/AdminService' {
 	     * @method createCompany
 	     * @instance
 	     * @description
-	     *      Create a company <br/>
+	     *      Create a company <br>
 	     * @param {string} strName The name of the new company
 	     * @param {string} country Company country (ISO 3166-1 alpha3 format, size 3 car)
 	     * @param {string} state (optionnal if not USA)  define a state when country is 'USA' (["ALASKA", "....", "NEW_YORK", "....", "WYOMING"] ), else it is not managed by server. Default value on server side: ALABAMA
 	     * @param {OFFERTYPES} offerType Company offer type. Companies with offerType=freemium are not able to subscribe to paid offers, they must be premium to do so. Companies created with privateDC="HDS" are automatically created with offerType=premium (as a paid subscription to HDS Company offer is automatically done during the company creation. Values can be : freemium, premium
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created Company or an error object depending on the result
 	     * @category async
@@ -9853,7 +10560,7 @@ declare module 'lib/services/AdminService' {
 	     * @method createUserInCompany
 	     * @instance
 	     * @description
-	     *      Create a new user in a given company <br/>
+	     *      Create a new user in a given company <br>
 	     * @param {string} email The email of the user to create
 	     * @param {string} password The associated password
 	     * @param {string} firstname The user firstname
@@ -9863,6 +10570,7 @@ declare module 'lib/services/AdminService' {
 	     * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
 	     * @param {Array<string>} [roles] The roles the created user.
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Contact, ErrorManager>}
 	     * @fulfil {Contact} - Created contact in company or an error object depending on the result
 	     * @category async
@@ -9873,12 +10581,13 @@ declare module 'lib/services/AdminService' {
 	     * @method createGuestUser
 	     * @instance
 	     * @description
-	     *      Create a new guest user in the same company as the requester admin <br/>
+	     *      Create a new guest user in the same company as the requester admin <br>
 	     * @param {string} firstname The user firstname
 	     * @param {string} lastname  The user lastname
 	     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
 	     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created guest user in company or an error object depending on the result
 	     * @category async
@@ -9890,10 +10599,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.31
 	     * @instance
 	     * @description
-	     *      Create a new anonymous guest user in the same company as the requester admin   <br/>
-	     *      Anonymous guest user is user without name and firstname   <br/>
+	     *      Create a new anonymous guest user in the same company as the requester admin   <br>
+	     *      Anonymous guest user is user without name and firstname   <br>
 	     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created anonymous guest user in company or an error object depending on the result
 	     * @category async
@@ -9904,12 +10614,13 @@ declare module 'lib/services/AdminService' {
 	     * @method inviteUserInCompany
 	     * @instance
 	     * @description
-	     *      Invite a new user to join a company in Rainbow <br/>
+	     *      Invite a new user to join a company in Rainbow <br>
 	     * @param {string} email The email address of the contact to invite
 	     * @param {string} companyId     The id of the company where the user will be invited in
 	     * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
 	     * @param {string} [message=""] A custom message to send
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Created invitation or an error object depending on the result
 	     * @category async
@@ -9920,10 +10631,11 @@ declare module 'lib/services/AdminService' {
 	     * @method changePasswordForUser
 	     * @instance
 	     * @description
-	     *      Change a password for a user <br/>
+	     *      Change a password for a user <br>
 	     * @param {string} password The new password
 	     * @param {string} userId The id of the user
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Updated user or an error object depending on the result
 	     * @category async
@@ -9934,10 +10646,11 @@ declare module 'lib/services/AdminService' {
 	     * @method updateInformationForUser
 	     * @instance
 	     * @description
-	     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` <br/>
+	     *      Change information of a user. Fields that can be changed: `firstName`, `lastName`, `nickName`, `title`, `jobTitle`, `country`, `language`, `timezone`, `emails` <br>
 	     * @param {Object} objData An object (key: value) containing the data to change with their new value
 	     * @param {string} userId The id of the user
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Updated user or an error object depending on the result
 	     * @category async
@@ -9948,9 +10661,10 @@ declare module 'lib/services/AdminService' {
 	     * @method deleteUser
 	     * @instance
 	     * @description
-	     *      Delete an existing user <br/>
+	     *      Delete an existing user <br>
 	     * @param {string} userId The id of the user
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Deleted user or an error object depending on the result
 	     * @category async
@@ -9961,8 +10675,9 @@ declare module 'lib/services/AdminService' {
 	     * @method getAllCompanies
 	     * @instance
 	     * @description
-	     *      Get all companies for a given admin <br/>
+	     *      Get all companies for a given admin <br>
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
 	     * @category async
@@ -9980,26 +10695,12 @@ declare module 'lib/services/AdminService' {
 	    removeCompany(company: any): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method askTokenOnBehalf
-	     * @instance
-	     * @description
-	     *      Ask Rainbow for a token on behalf a user <br/>
-	     *      This allow to not use the secret key on client side <br/>
-	     * @param {string} loginEmail The user login email
-	     * @param {string} password The user password
-	     * @async
-	     * @return {Promise<Object, Error>}
-	     * @fulfil {Object} - Json object containing the user data, application data and token
-	     * @category async
-	     */
-	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
-	    /**
-	     * @public
 	     * @method getAllUsers
 	     * @instance
 	     * @description
-	     *      Get all users for a given admin <br/>
+	     *      Get all users for a given admin <br>
 	     * @async
+	     * @category Companies and users management
 	     * @param {string} format Allows to retrieve more or less user details in response.
 	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
 	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -10017,8 +10718,9 @@ declare module 'lib/services/AdminService' {
 	     * @method getAllUsersByCompanyId
 	     * @instance
 	     * @description
-	     *      Get all users for a given admin in a company <br/>
+	     *      Get all users for a given admin in a company <br>
 	     * @async
+	     * @category Companies and users management
 	     * @param {string} format Allows to retrieve more or less user details in response.
 	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
 	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -10038,8 +10740,9 @@ declare module 'lib/services/AdminService' {
 	     * @method getAllUsersBySearchEmailByCompanyId
 	     * @instance
 	     * @description
-	     *      Get all users for a given admin in a company by a search of string in email<br/>
+	     *      Get all users for a given admin in a company by a search of string in email<br>
 	     * @async
+	     * @category Companies and users management
 	     * @param {string} format Allows to retrieve more or less user details in response.
 	     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
 	     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
@@ -10059,9 +10762,10 @@ declare module 'lib/services/AdminService' {
 	     * @method getContactInfos
 	     * @instance
 	     * @description
-	     *      Get informations about a user <br/>
+	     *      Get informations about a user <br>
 	     * @param {string} userId The id of the user
 	     * @async
+	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing informations or an error object depending on the result
 	     * @category async
@@ -10072,129 +10776,129 @@ declare module 'lib/services/AdminService' {
 	     * @method updateContactInfos
 	     * @instance
 	     * @description
-	     *      Set informations about a user <br/>
+	     *      Set informations about a user <br>
 	     * @param {string} userId The id of the user
-	     * @param {Object} infos The infos of the user : <br/>
-	     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br/>
-	     * <br/> Must be unique (409 error is returned if a user already exists with the same email address). <br/>
-	     *  {string{8..64}}   [infos.password]        User password. <br/>
-	     * <br/> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br/>
-	     * {string{1..255}}  [infos.firstName]     User first name <br/>
-	     * {string{1..255}}  [infos.lastName]      User last name <br/>
-	     * {string{1..255}}  [infos.nickName]      User nickName <br/>
-	     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-	     * {string{1..255}}  [infos.jobTitle]      User job title <br/>
-	     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br/>
-	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br/>
-	     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br/>
-	     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br/>
-	     * the search API to search the user based on his tags. <br/>
-	     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br/>
-	     * {string{3..255}}          [infos.emails.email]    User email address <br/>
-	     * {string=home,work,other}  [infos.emails.type]     User email type <br/>
-	     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br/>
-	     * <br/>
-	     * <br/><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br/>
-	     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br/>
-	     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br/>
-	     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br/>
-	     * <br/>
-	     * <br/>If not provided, user country is used by default. <br/>
-	     * {string=home,work,other}              phoneNumbers.type           Phone number type <br/>
-	     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br/>
-	     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br/>
-	     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br/>
-	     * <br/> USA states code list: <br/>
-	     * <li> <code>AA</code>:"Armed Forces America", <br/>
-	     * <li> <code>AE</code>:"Armed Forces", <br/>
-	     * <li> <code>AP</code>:"Armed Forces Pacific", <br/>
-	     * <li> <code>AK</code>:"Alaska", <br/>
-	     * <li> <code>AL</code>:"Alabama", <br/>
-	     * <li> <code>AR</code>:"Arkansas", <br/>
-	     * <li> <code>AZ</code>:"Arizona", <br/>
-	     * <li> <code>CA</code>:"California", <br/>
-	     * <li> <code>CO</code>:"Colorado", <br/>
-	     * <li> <code>CT</code>:"Connecticut", <br/>
-	     * <li> <code>DC</code>:"Washington DC", <br/>
-	     * <li> <code>DE</code>:"Delaware", <br/>
-	     * <li> <code>FL</code>:"Florida", <br/>
-	     * <li> <code>GA</code>:"Georgia", <br/>
-	     * <li> <code>GU</code>:"Guam", <br/>
-	     * <li> <code>HI</code>:"Hawaii", <br/>
-	     * <li> <code>IA</code>:"Iowa", <br/>
-	     * <li> <code>ID</code>:"Idaho", <br/>
-	     * <li> <code>IL</code>:"Illinois", <br/>
-	     * <li> <code>IN</code>:"Indiana", <br/>
-	     * <li> <code>KS</code>:"Kansas", <br/>
-	     * <li> <code>KY</code>:"Kentucky", <br/>
-	     * <li> <code>LA</code>:"Louisiana", <br/>
-	     * <li> <code>MA</code>:"Massachusetts", <br/>
-	     * <li> <code>MD</code>:"Maryland", <br/>
-	     * <li> <code>ME</code>:"Maine", <br/>
-	     * <li> <code>MI</code>:"Michigan", <br/>
-	     * <li> <code>MN</code>:"Minnesota", <br/>
-	     * <li> <code>MO</code>:"Missouri", <br/>
-	     * <li> <code>MS</code>:"Mississippi", <br/>
-	     * <li> <code>MT</code>:"Montana", <br/>
-	     * <li> <code>NC</code>:"North Carolina", <br/>
-	     * <li> <code>ND</code>:"Northmo Dakota", <br/>
-	     * <li> <code>NE</code>:"Nebraska", <br/>
-	     * <li> <code>NH</code>:"New Hampshire", <br/>
-	     * <li> <code>NJ</code>:"New Jersey", <br/>
-	     * <li> <code>NM</code>:"New Mexico", <br/>
-	     * <li> <code>NV</code>:"Nevada", <br/>
-	     * <li> <code>NY</code>:"New York", <br/>
-	     * <li> <code>OH</code>:"Ohio", <br/>
-	     * <li> <code>OK</code>:"Oklahoma", <br/>
-	     * <li> <code>OR</code>:"Oregon", <br/>
-	     * <li> <code>PA</code>:"Pennsylvania", <br/>
-	     * <li> <code>PR</code>:"Puerto Rico", <br/>
-	     * <li> <code>RI</code>:"Rhode Island", <br/>
-	     * <li> <code>SC</code>:"South Carolina", <br/>
-	     * <li> <code>SD</code>:"South Dakota", <br/>
-	     * <li> <code>TN</code>:"Tennessee", <br/>
-	     * <li> <code>TX</code>:"Texas", <br/>
-	     * <li> <code>UT</code>:"Utah", <br/>
-	     * <li> <code>VA</code>:"Virginia", <br/>
-	     * <li> <code>VI</code>:"Virgin Islands", <br/>
-	     * <li> <code>VT</code>:"Vermont", <br/>
-	     * <li> <code>WA</code>:"Washington", <br/>
-	     * <li> <code>WI</code>:"Wisconsin", <br/>
-	     * <li> <code>WV</code>:"West Virginia", <br/>
-	     * <li> <code>WY</code>:"Wyoming" <br/>
-	     * <br/> Canada states code list: <br/>
-	     * <li> <code>AB</code>: "Alberta", <br/>
-	     * <li> <code>BC</code>: "British Columbia", <br/>
-	     * <li> <code>MB</code>: "Manitoba", <br/>
-	     * <li> <code>NB</code>:	"New Brunswick", <br/>
-	     * <li> <code>NL</code>: "Newfoundland and Labrador", <br/>
-	     * <li> <code>NS</code>: "Nova Scotia", <br/>
-	     * <li> <code>NT</code>: "Northwest Territories", <br/>
-	     * <li> <code>NU</code>: "Nunavut", <br/>
-	     * <li> <code>ON</code>: "Ontario", <br/>
-	     * <li> <code>PE</code>: "Prince Edward Island", <br/>
-	     * <li> <code>QC</code>: "Quebec", <br/>
-	     * <li> <code>SK</code>: "Saskatchewan", <br/>
-	     * <li> <code>YT</code>: "Yukon" <br/>
-	     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br/>
-	     * <br/>
-	     * <br/> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br/>
-	     * <br/> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br/>
-	     * <br/> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br/>
-	     * {string}          [infos.timezone]      User timezone name <br/>
-	     * <br/> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br/>
-	     * <br/> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br/>
-	     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br/>
-	     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br/>
-	     * <br/>
-	     * <br/>The general rule is that a user must have the roles that the wants to assign to someone else. <br/>
-	     * <br/>Examples: <br/>
+	     * @param {Object} infos The infos of the user : <br>
+	     * {string{3..255}}  [infos.loginEmail]      User email address (used for login). <br>
+	     * <br> Must be unique (409 error is returned if a user already exists with the same email address). <br>
+	     *  {string{8..64}}   [infos.password]        User password. <br>
+	     * <br> Rules: more than 8 characters, at least 1 capital letter, 1 number, 1 special character. <br>
+	     * {string{1..255}}  [infos.firstName]     User first name <br>
+	     * {string{1..255}}  [infos.lastName]      User last name <br>
+	     * {string{1..255}}  [infos.nickName]      User nickName <br>
+	     * {string{1..40}}   [infos.title]         User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br>
+	     * {string{1..255}}  [infos.jobTitle]      User job title <br>
+	     * {string[]{1..64}} [infos.tags]          An Array of free tags associated to the user. <br>
+	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+	     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. <br>
+	     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with <br>
+	     * the search API to search the user based on his tags. <br>
+	     * {Object[]}           [infos.emails]        Array of user emails addresses objects <br>
+	     * {string{3..255}}          [infos.emails.email]    User email address <br>
+	     * {string=home,work,other}  [infos.emails.type]     User email type <br>
+	     * {Object[]}           [infos.phoneNumbers]  Array of user phone numbers objects <br>
+	     * <br>
+	     * <br><u><i>Note:</i></u> For each provided number, the server tries to compute the associated E.164 number (<code>numberE164</code> field) using provided PhoneNumber country if available, user country otherwise. <br>
+	     * If <code>numberE164</code> can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) <br>
+	     * {string{1..32}}   [infos.phoneNumbers.number]    User phone number (as entered by user) <br>
+	     * {string{3}}       [infos.phoneNumbers.country]   Phone number country (ISO 3166-1 alpha3 format). Used to compute numberE164 field from number field. <br>
+	     * <br>
+	     * <br>If not provided, user country is used by default. <br>
+	     * {string=home,work,other}              phoneNumbers.type           Phone number type <br>
+	     * {string=landline,mobile,fax,other}    phoneNumbers.deviceType     Phone number device type <br>
+	     * {string{3}}       [infos.country]       User country (ISO 3166-1 alpha3 format) <br>
+	     * {string=null,"AA","AE","AP","AK","AL","AR","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","OR","PA","PR","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY","AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"} [infos.state] When country is 'USA' or 'CAN', a state can be defined. Else it is not managed. <br>
+	     * <br> USA states code list: <br>
+	     * <li> <code>AA</code>:"Armed Forces America", <br>
+	     * <li> <code>AE</code>:"Armed Forces", <br>
+	     * <li> <code>AP</code>:"Armed Forces Pacific", <br>
+	     * <li> <code>AK</code>:"Alaska", <br>
+	     * <li> <code>AL</code>:"Alabama", <br>
+	     * <li> <code>AR</code>:"Arkansas", <br>
+	     * <li> <code>AZ</code>:"Arizona", <br>
+	     * <li> <code>CA</code>:"California", <br>
+	     * <li> <code>CO</code>:"Colorado", <br>
+	     * <li> <code>CT</code>:"Connecticut", <br>
+	     * <li> <code>DC</code>:"Washington DC", <br>
+	     * <li> <code>DE</code>:"Delaware", <br>
+	     * <li> <code>FL</code>:"Florida", <br>
+	     * <li> <code>GA</code>:"Georgia", <br>
+	     * <li> <code>GU</code>:"Guam", <br>
+	     * <li> <code>HI</code>:"Hawaii", <br>
+	     * <li> <code>IA</code>:"Iowa", <br>
+	     * <li> <code>ID</code>:"Idaho", <br>
+	     * <li> <code>IL</code>:"Illinois", <br>
+	     * <li> <code>IN</code>:"Indiana", <br>
+	     * <li> <code>KS</code>:"Kansas", <br>
+	     * <li> <code>KY</code>:"Kentucky", <br>
+	     * <li> <code>LA</code>:"Louisiana", <br>
+	     * <li> <code>MA</code>:"Massachusetts", <br>
+	     * <li> <code>MD</code>:"Maryland", <br>
+	     * <li> <code>ME</code>:"Maine", <br>
+	     * <li> <code>MI</code>:"Michigan", <br>
+	     * <li> <code>MN</code>:"Minnesota", <br>
+	     * <li> <code>MO</code>:"Missouri", <br>
+	     * <li> <code>MS</code>:"Mississippi", <br>
+	     * <li> <code>MT</code>:"Montana", <br>
+	     * <li> <code>NC</code>:"North Carolina", <br>
+	     * <li> <code>ND</code>:"Northmo Dakota", <br>
+	     * <li> <code>NE</code>:"Nebraska", <br>
+	     * <li> <code>NH</code>:"New Hampshire", <br>
+	     * <li> <code>NJ</code>:"New Jersey", <br>
+	     * <li> <code>NM</code>:"New Mexico", <br>
+	     * <li> <code>NV</code>:"Nevada", <br>
+	     * <li> <code>NY</code>:"New York", <br>
+	     * <li> <code>OH</code>:"Ohio", <br>
+	     * <li> <code>OK</code>:"Oklahoma", <br>
+	     * <li> <code>OR</code>:"Oregon", <br>
+	     * <li> <code>PA</code>:"Pennsylvania", <br>
+	     * <li> <code>PR</code>:"Puerto Rico", <br>
+	     * <li> <code>RI</code>:"Rhode Island", <br>
+	     * <li> <code>SC</code>:"South Carolina", <br>
+	     * <li> <code>SD</code>:"South Dakota", <br>
+	     * <li> <code>TN</code>:"Tennessee", <br>
+	     * <li> <code>TX</code>:"Texas", <br>
+	     * <li> <code>UT</code>:"Utah", <br>
+	     * <li> <code>VA</code>:"Virginia", <br>
+	     * <li> <code>VI</code>:"Virgin Islands", <br>
+	     * <li> <code>VT</code>:"Vermont", <br>
+	     * <li> <code>WA</code>:"Washington", <br>
+	     * <li> <code>WI</code>:"Wisconsin", <br>
+	     * <li> <code>WV</code>:"West Virginia", <br>
+	     * <li> <code>WY</code>:"Wyoming" <br>
+	     * <br> Canada states code list: <br>
+	     * <li> <code>AB</code>: "Alberta", <br>
+	     * <li> <code>BC</code>: "British Columbia", <br>
+	     * <li> <code>MB</code>: "Manitoba", <br>
+	     * <li> <code>NB</code>:	"New Brunswick", <br>
+	     * <li> <code>NL</code>: "Newfoundland and Labrador", <br>
+	     * <li> <code>NS</code>: "Nova Scotia", <br>
+	     * <li> <code>NT</code>: "Northwest Territories", <br>
+	     * <li> <code>NU</code>: "Nunavut", <br>
+	     * <li> <code>ON</code>: "Ontario", <br>
+	     * <li> <code>PE</code>: "Prince Edward Island", <br>
+	     * <li> <code>QC</code>: "Quebec", <br>
+	     * <li> <code>SK</code>: "Saskatchewan", <br>
+	     * <li> <code>YT</code>: "Yukon" <br>
+	     * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language <br>
+	     * <br>
+	     * <br> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). <br>
+	     * <br> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... <br>
+	     * <br> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. <br>
+	     * {string}          [infos.timezone]      User timezone name <br>
+	     * <br> Allowed values: one of the timezone names defined in <a href="https://www.iana.org/time-zones">IANA tz database</a> <br>
+	     * <br> Timezone name are composed as follow: <code>Area/Location</code> (ex: Europe/Paris, America/New_York,...) <br>
+	     * {string=free,basic,advanced} [infos.accountType=free]  User subscription type <br>
+	     * {string[]=guest,user,admin,bp_admin,bp_finance,company_support,all_company_channels_admin,public_channels_admin,closed_channels_admin,app_admin,app_support,app_superadmin,directory_admin,support,superadmin} [infos.roles='["user"]']   List of user roles <br>
+	     * <br>
+	     * <br>The general rule is that a user must have the roles that the wants to assign to someone else. <br>
+	     * <br>Examples: <br>
 	     * <ul>
 	     *     <li>an <code>admin</code> can add or remove the role <code>admin</code> to another user of the company(ies) he manages,</li>
 	     *     <li>an <code>bp_admin</code> can add or remove the role <code>bp_admin</code> to another user of the company(ies) he manages,</li>
 	     *     <li>an <code>app_superadmin</code> can add or remove the role <code>app_superadmin</code> to another user...</li>
 	     * </ul>
-	     * Here are some explanations regarding the roles available in Rainbow: <br/>
+	     * Here are some explanations regarding the roles available in Rainbow: <br>
 	     * <ul>
 	     * <li><code>admin</code>, <code>bp_admin</code> and <code>bp_finance</code> roles are related to company management (and resources linked to companies, such as users, systems, subscriptions, ...).</li>
 	     * <li><code>bp_admin</code> and <code>bp_finance</code> roles can only be set to users of a BP company (company with isBP=true).</li>
@@ -10203,56 +10907,73 @@ declare module 'lib/services/AdminService' {
 	     * <li>Only <code>superadmin</code> can set <code>superadmin</code> and <code>support</code> roles to a user.</li>
 	     * <li>A user with admin rights (admin, bp_admin, superadmin) can't change his own roles, except for roles related to channels (<code>all_company_channels_admin</code>, <code>public_channels_admin</code> and <code>closed_channels_admin</code>).</li>
 	     * </ul>
-	     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br/>
-	     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br/>
-	     * <br/> companyName field is automatically filled on server side based on companyId. <br/>
-	     * {Boolean} [infos.isActive=true]         Is user active <br/>
-	     * {Boolean} [infos.isInitialized=false]   Is user initialized <br/>
-	     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br/>
-	     * </br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br/>
-	     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-	     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-	     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users <br/>
-	     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users <br/>
-	     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
-	     * <br/>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. <br/>
-	     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. <br/>
-	     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. <br/>
-	     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
-	     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br/>
-	     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br/>
-	     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br/>
-	     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     * {string} selectedTheme Set the selected theme for the user. <br/>
-	     * {Object} customData  User's custom data. <br/>
-	     *    key1 	string User's custom data key1. <br/>
-	     *    key2 	string Company's custom data key2. <br/>
-	     *  customData can only be created/updated by: <br/>
-	     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br/>
-	     *   Restrictions on customData Object: <br/>
-	     *   max 10 keys, <br/>
-	     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br/>
+	     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br>
+	     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br>
+	     * <br> companyName field is automatically filled on server side based on companyId. <br>
+	     * {Boolean} [infos.isActive=true]         Is user active <br>
+	     * {Boolean} [infos.isInitialized=false]   Is user initialized <br>
+	     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br>
+	     * <br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br>
+	     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+	     * - `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+	     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users <br>
+	     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users <br>
+	     * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
+	     * <br>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. <br>
+	     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. <br>
+	     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. <br>
+	     * Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
+	     * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). <br>
+	     * If created user does not have role <code>guest</code> and no timeToLive is provided, a default value of -1 is set (no expiration). <br>
+	     * {string=DEFAULT,RAINBOW,SAML} [infos.authenticationType] User authentication type (if not set company default authentication will be used) <br>
+	     * {string{0..64}}  [infos.userInfo1]      Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     * {string} selectedTheme Set the selected theme for the user. <br>
+	     * {Object} customData  User's custom data. <br>
+	     *    key1 	string User's custom data key1. <br>
+	     *    key2 	string Company's custom data key2. <br>
+	     *  customData can only be created/updated by: <br>
+	     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. <br>
+	     *   Restrictions on customData Object: <br>
+	     *   max 20 keys, <br>
+	     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). <br>
 	     *
 	     * @async
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing informations or an error object depending on the result
-	     * @category async
+	     * @category Companies and users management
 	     */
 	    updateContactInfos(userId: any, infos: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method askTokenOnBehalf
+	     * @instance
+	     * @description
+	     *      Ask Rainbow for a token on behalf a user <br>
+	     *      This allow to not use the secret key on client side <br>
+	     * @param {string} loginEmail The user login email
+	     * @param {string} password The user password
+	     * @async
+	     * @category Users at running
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the user data, application data and token
+	     * @category async
+	     */
+	    askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
 	    /**
 	     *
 	     * @public
 	     * @method getUserPresenceInformation
 	     * @instance
 	     * @description
-	     *      Get presence informations about a user <br/>
-	     * <br/>
-	     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br/>
-	     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br/>
-	     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br/>
+	     *      Get presence informations about a user <br>
+	     * <br>
+	     *      Company admin shall be able to check if a user can be reached or not, by checking the presence information (available, busy, away, etc). <br>
+	     *      Admin will have to select a user to get a presence snapshot when opening the user configuration profile. <br>
+	     *      A brute force defense is activated when too much request have been requested by the same administrator, to not overload the backend. As a result, an error 429 "Too Many Requests" will be returned . <br>
 	     * @param {string} userId The id of the user. If the userId is not provided, then it use the current loggedin user id.
 	     * @async
+	     * @category Users at running
 	     * @return {Promise<any>}
 	     * @category async
 	     */
@@ -10263,9 +10984,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to be retrieve the offers.
 	     * @description
-	     *      Method to retrieve all the offers of one company on server. <br/>
+	     *      Method to retrieve all the offers of one company on server. <br>
 	     * @return {Promise<Array<any>>}
 	     */
 	    retrieveAllOffersOfCompanyById(companyId?: string): Promise<Array<any>>;
@@ -10275,13 +10997,14 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to be retrieve the subscriptions.
-	     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </br>
-	     * - small: id offerId profileId isDefault</br>
-	     * - medium: id offerId profileId isDefault maxNumberUsers status</br>
-	     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)</br>
+	     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") <br>
+	     * - small: id offerId profileId isDefault<br>
+	     * - medium: id offerId profileId isDefault maxNumberUsers status<br>
+	     * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)<br>
 	     * @description
-	     *      Method to retrieve all the subscriptions of one company on server. <br/>
+	     *      Method to retrieve all the subscriptions of one company on server. <br>
 	     * @return {Promise<Array<any>>}
 	     */
 	    retrieveAllSubscriptionsOfCompanyById(companyId?: string, format?: string): Promise<Array<any>>;
@@ -10291,10 +11014,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} offerId Id of the offer to filter subscriptions.
 	     * @param {string} companyId Id of the company to get the subscription of the offer.
 	     * @description
-	     *      Method to get the subscription of one company for one offer. <br/>
+	     *      Method to get the subscription of one company for one offer. <br>
 	     * @return {Promise<any>}
 	     */
 	    getSubscriptionsOfCompanyByOfferId(offerId: any, companyId: any): Promise<any>;
@@ -10304,12 +11028,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} offerId Id of the offer to filter subscriptions.
 	     * @param {string} companyId Id of the company to get the subscription of the offer.
 	     * @param {number} maxNumberUsers
 	     * @param {boolean} autoRenew
 	     * @description
-	     *      Method to subscribe one company to one offer. <br/>
+	     *      Method to subscribe one company to one offer. <br>
 	     * @return {Promise<any>}
 	     */
 	    subscribeCompanyToOfferById(offerId: string, companyId?: string, maxNumberUsers?: number, autoRenew?: boolean): Promise<unknown>;
@@ -10319,10 +11044,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to get the subscription of the offer.
 	     * @description
-	     *      Method to subscribe one company to offer demo. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to subscribe one company to offer demo. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    subscribeCompanyToDemoOffer(companyId?: string): Promise<unknown>;
@@ -10332,10 +11058,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to get the subscription of the offer.
 	     * @description
-	     *      Method to unsubscribe one company to offer demo. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to unsubscribe one company to offer demo. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeCompanyToDemoOffer(companyId?: string): Promise<unknown>;
@@ -10345,10 +11072,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to the subscription of the offer.
 	     * @description
-	     *      Method to subscribe one company to offer Alert. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to subscribe one company to offer Alert. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    subscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
@@ -10358,10 +11086,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to the unsubscription of the offer.
 	     * @description
-	     *      Method to unsubscribe one company to offer Alert. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to unsubscribe one company to offer Alert. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
@@ -10371,10 +11100,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company the subscription of the offer.
 	     * @description
-	     *      Method to subscribe one company to offer Voice Enterprise. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to subscribe one company to offer Voice Enterprise. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    subscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
@@ -10384,10 +11114,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} companyId Id of the company to the unsubscription of the offer.
 	     * @description
-	     *      Method to unsubscribe one company to offer Voice Enterprise. <br/>
-	     *      Private offer on .Net platform. <br/>
+	     *      Method to unsubscribe one company to offer Voice Enterprise. <br>
+	     *      Private offer on .Net platform. <br>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
@@ -10397,10 +11128,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} offerId Id of the offer to filter subscriptions.
 	     * @param {string} companyId Id of the company to get the subscription of the offer.
 	     * @description
-	     *      Method to unsubscribe one company to one offer . <br/>
+	     *      Method to unsubscribe one company to one offer . <br>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeCompanyToOfferById(offerId: string, companyId?: string): Promise<unknown>;
@@ -10410,10 +11142,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} userId the id of the user which will subscribe. If not provided, the connected user is used.
 	     * @param {string} subscriptionId the id of the subscription to attach to user.
 	     * @description
-	     *      Method to subscribe one user to a subscription of the company. <br/>
+	     *      Method to subscribe one user to a subscription of the company. <br>
 	     * @return {Promise<any>}
 	     */
 	    subscribeUserToSubscription(userId?: string, subscriptionId?: string): Promise<unknown>;
@@ -10423,10 +11156,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.73
 	     * @instance
 	     * @async
+	     * @category Offers and Subscriptions.
 	     * @param {string} userId the id of the user which will unsubscribe. If not provided, the connected user is used.
 	     * @param {string} subscriptionId the id of the subscription to unsubscribe the user.
 	     * @description
-	     *      Method to unsubscribe one user to a subscription. <br/>
+	     *      Method to unsubscribe one user to a subscription. <br>
 	     * @return {Promise<any>}
 	     */
 	    unSubscribeUserToSubscription(userId?: string, subscriptionId?: string): Promise<unknown>;
@@ -10436,6 +11170,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - AD/LDAP masspro
 	     * @param {string} csvTxt the csv of the user and device to synchronize.
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
 	     * @param {string} label a text description of this import
@@ -10444,49 +11179,49 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
 	     * @description
-	     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br/>
-	     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br/>
-	     * <br/>
-	     * Supported fields for "user" management are: <br/>
-	     * __action__  delete, upsert, sync or detach <br/>
-	     * loginEmail  (mandatory) <br/>
-	     * password  (mandatory) <br/>
-	     * title <br/>
-	     * firstName <br/>
-	     * lastName <br/>
-	     * nickName <br/>
-	     * businessPhone{n}  (n is a number starting from 0 or 1) <br/>
-	     * mobilePhone{n}  (n is a number starting from 0 or 1) <br/>
-	     * email{n}  (n is a number starting from 0 or 1) <br/>
-	     * tags{n}  (n is a number starting from 0 to 4) <br/>
-	     * jobTitle <br/>
-	     * department <br/>
-	     * userInfo1 <br/>
-	     * userInfo2 <br/>
-	     * country <br/>
-	     * language <br/>
-	     * timezone <br/>
-	     * visibility <br/>
-	     * isInitialized <br/>
-	     * authenticationType <br/>
-	     * service{n} <br/>
-	     * accountType <br/>
-	     * photoUrl <br/>
-	     * <br/>
-	     * Supported fields for "device" management are: <br/>
-	     * loginEmail (mandatory) <br/>
-	     * pbxId <br/>
-	     * pbxShortNumber <br/>
-	     * pbxInternalNumber <br/>
-	     * number <br/>
-	     * <br/>
-	     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br/>
-	     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br/>
-	     * <br/>
-	     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br/>
-	     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br/>
-	     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br/>
-	     * <br/>
+	     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br>
+	     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br>
+	     * <br>
+	     * Supported fields for "user" management are: <br>
+	     * __action__  delete, upsert, sync or detach <br>
+	     * loginEmail  (mandatory) <br>
+	     * password  (mandatory) <br>
+	     * title <br>
+	     * firstName <br>
+	     * lastName <br>
+	     * nickName <br>
+	     * businessPhone{n}  (n is a number starting from 0 or 1) <br>
+	     * mobilePhone{n}  (n is a number starting from 0 or 1) <br>
+	     * email{n}  (n is a number starting from 0 or 1) <br>
+	     * tags{n}  (n is a number starting from 0 to 4) <br>
+	     * jobTitle <br>
+	     * department <br>
+	     * userInfo1 <br>
+	     * userInfo2 <br>
+	     * country <br>
+	     * language <br>
+	     * timezone <br>
+	     * visibility <br>
+	     * isInitialized <br>
+	     * authenticationType <br>
+	     * service{n} <br>
+	     * accountType <br>
+	     * photoUrl <br>
+	     * <br>
+	     * Supported fields for "device" management are: <br>
+	     * loginEmail (mandatory) <br>
+	     * pbxId <br>
+	     * pbxShortNumber <br>
+	     * pbxInternalNumber <br>
+	     * number <br>
+	     * <br>
+	     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br>
+	     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br>
+	     * <br>
+	     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br>
+	     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br>
+	     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br>
+	     * <br>
 	     * @return {Promise<any>} import summary result.
 	     */
 	    synchronizeUsersAndDeviceswithCSV(csvTxt?: string, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<{
@@ -10504,6 +11239,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - AD/LDAP masspro
 	     * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	     * @param {string} mode Select template to return.
 	     * - user: provider the user management template
@@ -10512,30 +11248,30 @@ declare module 'lib/services/AdminService' {
 	     * - rainbowvoice : provider the user and subscriber/DDI/device association management template.
 	     * @param {string} comment Only the template comment..
 	     * @description
-	     *      This API provides a CSV template. <br/>
-	     *      result : <br/>
-	     *      CSV {Object[]} lines with all supported headers and some samples : <br/>
-	     *      __action__ {string} Action to perform values : create, update, delete, upsert, detach <br/>
-	     *      loginEmail {string} email address - Main or professional email used as login <br/>
-	     *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) <br/>
-	     *      title optionnel {string} (e.g. Mr, Mrs, Dr, ...) <br/>
-	     *      firstName optionnel {string} <br/>
-	     *      lastName optionnel {string} <br/>
-	     *      nickName optionnel {string} <br/>
-	     *      businessPhone0 optionnel {string} E.164 number - DDI phone number (e.g. +33123456789) <br/>
-	     *      mobilePhone0 optionnel {string} E.164 number - Mobile phone number (e.g. +33601234567) <br/>
-	     *      email0 optionnel {string} email address - Personal email <br/>
-	     *      jobTitle optionnel {string} <br/>
-	     *      department optionnel {string} <br/>
-	     *      country optionnel {string} ISO 3166-1 alpha-3 - (e.g. FRA) <br/>
-	     *      language optionnel {string} ISO 639-1 (en) / with ISO 31661 alpha-2 (en-US) <br/>
-	     *      timezone optionnel {string} IANA tz database (Europe/Paris) <br/>
-	     *      pbxShortNumber optionnel {number} PBX extension number <br/>
-	     *      pbxInternalNumber optionnel {string} E.164 number - Private number when different from extension number <br/>
-	     *      selectedAppCustomisationTemplateName optionnel {string} Allow to specify an application customisation template for this user. The application customisation template has to be specified using its name (ex: "Chat and Audio", "Custom profile")     Values( Full, Phone, calls, only, Audio, only, Chat, and, Audio, Same, as, company, , profile) <br/>
-	     *      shortNumber optionnel string subscriber {number} (only for rainbowvoice mode) <br/>
-	     *      macAddress optionnel {string} macAddress of the associated SIP device of the subscriber (only for rainbowvoice mode) <br/>
-	     *      ddiE164Number optionnel string E.164 {number} - E164 number of the associted DDI of the subscriber (only for rainbowvoice mode) <br/>
+	     *      This API provides a CSV template. <br>
+	     *      result : <br>
+	     *      CSV {Object[]} lines with all supported headers and some samples : <br>
+	     *      __action__ {string} Action to perform values : create, update, delete, upsert, detach <br>
+	     *      loginEmail {string} email address - Main or professional email used as login <br>
+	     *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) <br>
+	     *      title optionnel {string} (e.g. Mr, Mrs, Dr, ...) <br>
+	     *      firstName optionnel {string} <br>
+	     *      lastName optionnel {string} <br>
+	     *      nickName optionnel {string} <br>
+	     *      businessPhone0 optionnel {string} E.164 number - DDI phone number (e.g. +33123456789) <br>
+	     *      mobilePhone0 optionnel {string} E.164 number - Mobile phone number (e.g. +33601234567) <br>
+	     *      email0 optionnel {string} email address - Personal email <br>
+	     *      jobTitle optionnel {string} <br>
+	     *      department optionnel {string} <br>
+	     *      country optionnel {string} ISO 3166-1 alpha-3 - (e.g. FRA) <br>
+	     *      language optionnel {string} ISO 639-1 (en) / with ISO 31661 alpha-2 (en-US) <br>
+	     *      timezone optionnel {string} IANA tz database (Europe/Paris) <br>
+	     *      pbxShortNumber optionnel {number} PBX extension number <br>
+	     *      pbxInternalNumber optionnel {string} E.164 number - Private number when different from extension number <br>
+	     *      selectedAppCustomisationTemplateName optionnel {string} Allow to specify an application customisation template for this user. The application customisation template has to be specified using its name (ex: "Chat and Audio", "Custom profile")     Values( Full, Phone, calls, only, Audio, only, Chat, and, Audio, Same, as, company, , profile) <br>
+	     *      shortNumber optionnel string subscriber {number} (only for rainbowvoice mode) <br>
+	     *      macAddress optionnel {string} macAddress of the associated SIP device of the subscriber (only for rainbowvoice mode) <br>
+	     *      ddiE164Number optionnel string E.164 {number} - E164 number of the associted DDI of the subscriber (only for rainbowvoice mode) <br>
 	     * @return {Promise<any>}
 	     */
 	    getCSVTemplate(companyId?: string, mode?: string, comment?: string): Promise<unknown>;
@@ -10545,30 +11281,31 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - AD/LDAP masspro
 	     * @param {string} CSVTxt CSV File content to be checked.
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
 	     * @description
-	     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br/>
-	     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
-	     *      { <br/>
-	     *           actions {Object} actions information <br/>
-	     *               sync optionnel {number} number of user synchronization actions <br/>
-	     *               upsert optionnel {number} number of user create/update actions <br/>
-	     *               delete optionnel {number} number of user remove actions <br/>
-	     *               detach optionnel {number} number of device unpairing actions <br/>
-	     *           reqId {string} check request identifier <br/>
-	     *           mode {string} request csv mode Valeurs autorisées : user, device <br/>
-	     *           columns {number} number of columns in the CSV <br/>
-	     *           delimiter {string} the CSV delimiter <br/>
-	     *           profiles {Object} the managed profiles <br/>
-	     *              name {string} the managed profiles name <br/>
-	     *              valid {boolean} the managed profiles validity <br/>
-	     *              assignedBefore {number} the assigned number of managed profiles before this import <br/>
-	     *              assignedAfter {number} the assigned number of managed profiles after this import has been fulfilled <br/>
-	     *              max number the {maximum} number of managed profiles available <br/>
-	     *      } <br/>
+	     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br>
+	     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
+	     *      { <br>
+	     *           actions {Object} actions information <br>
+	     *               sync optionnel {number} number of user synchronization actions <br>
+	     *               upsert optionnel {number} number of user create/update actions <br>
+	     *               delete optionnel {number} number of user remove actions <br>
+	     *               detach optionnel {number} number of device unpairing actions <br>
+	     *           reqId {string} check request identifier <br>
+	     *           mode {string} request csv mode Valeurs autorisées : user, device <br>
+	     *           columns {number} number of columns in the CSV <br>
+	     *           delimiter {string} the CSV delimiter <br>
+	     *           profiles {Object} the managed profiles <br>
+	     *              name {string} the managed profiles name <br>
+	     *              valid {boolean} the managed profiles validity <br>
+	     *              assignedBefore {number} the assigned number of managed profiles before this import <br>
+	     *              assignedAfter {number} the assigned number of managed profiles after this import has been fulfilled <br>
+	     *              max number the {maximum} number of managed profiles available <br>
+	     *      } <br>
 	     * @return {Promise<any>}
 	     */
 	    checkCSVforSynchronization(CSVTxt: any, companyId?: string, delimiter?: string, comment?: string): any;
@@ -10578,6 +11315,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.5.1
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - AD/LDAP masspro
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
 	     * @param {string} label a text description of this import. default undefined.
 	     * @param {boolean} noemails disable email sending. default true.
@@ -10586,91 +11324,91 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. default "%"
 	     * @param {string} csvData the csv of the user and device to synchronize.
 	     * @description
-	     *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. <br/>
-	     *      The first line of the CSV data describes the content format. <br/>
-	     *      Most of the field names are the field names of the admin createUser API. <br/>
-	     *      Additional field used for Subscriber management is: shortNumber <br/>
-	     *      Additional field used for DDI attachment is: ddiE164Number  <br/>
-	     *      Additional field used for Sip device attachment is: macAddress <br/>
-	     *  <br/>
-	     *      Supported fields for "user" management are: <br/>
-	     *      __action__    upsert, delete or detach <br/>
-	     *      loginEmail    (mandatory) <br/>
-	     *      password    (mandatory) <br/>
-	     *      title <br/>
-	     *      firstName <br/>
-	     *      lastName <br/>
-	     *      nickName <br/>
-	     *      businessPhone{n}    (n is a number starting from 0 or 1) <br/>
-	     *      mobilePhone{n}    (n is a number starting from 0 or 1) <br/>
-	     *      email{n}    (n is a number starting from 0 or 1) <br/>
-	     *      tags{n}    (n is a number starting from 0 to 4) <br/>
-	     *      jobTitle <br/>
-	     *      department <br/>
-	     *      userInfo1 <br/>
-	     *      userInfo2 <br/>
-	     *      country <br/>
-	     *      language <br/>
-	     *      timezone <br/>
-	     *      visibility <br/>
-	     *      isInitialized <br/>
-	     *      authenticationType <br/>
-	     *      service{n} <br/>
-	     *      accountType <br/>
-	     *      photoUrl <br/>
-	     *       <br/>
-	     *      Supported fields for "subscriber" management are: <br/>
-	     * <br/>
-	     *      loginEmail    (mandatory) <br/>
-	     *      shortNumber <br/>
-	     * <br/>
-	     *      Supported fields for "SIP Device" management are: <br/>
-	     * <br/>
-	     *      loginEmail    (mandatory) <br/>
-	     *      macAddress <br/>
-	     * <br/>
-	     *      Supported fields for "DDI" management are: <br/>
-	     * <br/>
-	     *      loginEmail    (mandatory) <br/>
-	     *      ddiE164Number <br/>
-	     * <br/>
-	     *      __action__ description : <br/>
-	     *      upsert: allows to modify user (update or create if doesn't exist). It attaches also a subscriber (if field shortNumber is filled) , attaches a Sip Device (if field macAddress is filled) and attaches a DDI (if field ddiE164Number is filled) <br/>
-	     *      Remark: empty fields are not taken into account. <br/>
-	     * <br/>
-	     *      detach: allows to detach subscriber (if field shortNumber is filled) ; to detach Sip Device (if field macAddress is filled) and to detach DDI (if field ddiE164Number is filled) <br/>
-	     *      If field shortNumber is filled; detach action is done not only on subscriber but also on Sip Device and DDI automatically (even if fields macAddress and ddiE164Number are not filled) <br/>
-	     *    <br/>
-	     *      delete: allows to delete a user (if user is attached to a subscriber ; this subscriber + DDI + Sip device are automatically detached) <br/>
-	     *       <br/>
-	     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br/>
-	     *   <br/>
-	     *      Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. If you really need to apply same CSV data again, you will have to delete its associated import report first. <br/>
-	     * <br/>
-	     *      Error codes: <br/>
-	     *      2001 'company {companyId} has no Cloud Pbx' <br/>
-	     *      2002 'ShortNumber {shortNumber} not in line with Cloud PBX Numbering Plan for company {companyId}' <br/>
-	     *      2003 'ShortNumber {shortNumber} is already assigned to someone else inside this company {companyId}' <br/>
-	     *      2004 'user {userId} is already assigned into another PBX of the company {companyId}' <br/>
-	     *      2005 'failed to create subscriber for user {userId} with shortNumber {shortNumber} into system {systemId}' <br/>
-	     *      2006 'failed to update subscriber number for user {userId} with this new shortNumber {shortNumber} into system {systemId}' <br/>
-	     *      2007 'there is no existing Sip Device with this macAddress {macAddress}' <br/>
-	     *      2008 'the existing Sip Device with this macAddress {macAddress} is not belonging to the requested company {companyId}' <br/>
-	     *      2009 'the existing Sip Device with this macAddress {macAddress} is attached to someone else: userId={userId}' <br/>
-	     *      2010 'another Sip Device with macAddress {macAddress} is attached to user={userId}' <br/>
-	     *      2011 'cannot assign/unassign a Sip device to this user {userId} ; he is not yet a subscriber' <br/>
-	     *      2012 'failed to attach this Sip Device {macAddress} with this user {userId} %s' <br/>
-	     *      2013 'cannot assign a DDI to this user {userId} ; he is not yet a subscriber' <br/>
-	     *      2014 'there is no existing DDI with this number {ddiE164Number}' <br/>
-	     *      2015 'the existing DDI with this number {ddiE164Number} is attached to someone else: userId={userId}' <br/>
-	     *      2016 'another DDI with number {ddiE164Number} is attached to user={userId}' <br/>
-	     *      2017 'failed to attach this DDI {ddiE164Number} with this user {userId}' <br/>
-	     *      2018 'failed to detach subscriber for user {userId}, no shortNumber is provided' <br/>
-	     *      2019 'failed to detach this subscriber {shortNumber into the request} from this user {userId}, user is attached to another subscriber {real subscriber shortNumber}' <br/>
-	     *      2020 'cannot detach a DDI to this user {userId} ; he is no more a subscriber' <br/>
-	     *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' <br/>
-	     *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' <br/>
-	     *      <br/>
+	     *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. <br>
+	     *      The first line of the CSV data describes the content format. <br>
+	     *      Most of the field names are the field names of the admin createUser API. <br>
+	     *      Additional field used for Subscriber management is: shortNumber <br>
+	     *      Additional field used for DDI attachment is: ddiE164Number  <br>
+	     *      Additional field used for Sip device attachment is: macAddress <br>
+	     *  <br>
+	     *      Supported fields for "user" management are: <br>
+	     *      __action__    upsert, delete or detach <br>
+	     *      loginEmail    (mandatory) <br>
+	     *      password    (mandatory) <br>
+	     *      title <br>
+	     *      firstName <br>
+	     *      lastName <br>
+	     *      nickName <br>
+	     *      businessPhone{n}    (n is a number starting from 0 or 1) <br>
+	     *      mobilePhone{n}    (n is a number starting from 0 or 1) <br>
+	     *      email{n}    (n is a number starting from 0 or 1) <br>
+	     *      tags{n}    (n is a number starting from 0 to 4) <br>
+	     *      jobTitle <br>
+	     *      department <br>
+	     *      userInfo1 <br>
+	     *      userInfo2 <br>
+	     *      country <br>
+	     *      language <br>
+	     *      timezone <br>
+	     *      visibility <br>
+	     *      isInitialized <br>
+	     *      authenticationType <br>
+	     *      service{n} <br>
+	     *      accountType <br>
+	     *      photoUrl <br>
+	     *       <br>
+	     *      Supported fields for "subscriber" management are: <br>
+	     * <br>
+	     *      loginEmail    (mandatory) <br>
+	     *      shortNumber <br>
+	     * <br>
+	     *      Supported fields for "SIP Device" management are: <br>
+	     * <br>
+	     *      loginEmail    (mandatory) <br>
+	     *      macAddress <br>
+	     * <br>
+	     *      Supported fields for "DDI" management are: <br>
+	     * <br>
+	     *      loginEmail    (mandatory) <br>
+	     *      ddiE164Number <br>
+	     * <br>
+	     *      __action__ description : <br>
+	     *      upsert: allows to modify user (update or create if doesn't exist). It attaches also a subscriber (if field shortNumber is filled) , attaches a Sip Device (if field macAddress is filled) and attaches a DDI (if field ddiE164Number is filled) <br>
+	     *      Remark: empty fields are not taken into account. <br>
+	     * <br>
+	     *      detach: allows to detach subscriber (if field shortNumber is filled) ; to detach Sip Device (if field macAddress is filled) and to detach DDI (if field ddiE164Number is filled) <br>
+	     *      If field shortNumber is filled; detach action is done not only on subscriber but also on Sip Device and DDI automatically (even if fields macAddress and ddiE164Number are not filled) <br>
+	     *    <br>
+	     *      delete: allows to delete a user (if user is attached to a subscriber ; this subscriber + DDI + Sip device are automatically detached) <br>
+	     *       <br>
+	     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
+	     *   <br>
+	     *      Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. If you really need to apply same CSV data again, you will have to delete its associated import report first. <br>
+	     * <br>
+	     *      Error codes: <br>
+	     *      2001 'company {companyId} has no Cloud Pbx' <br>
+	     *      2002 'ShortNumber {shortNumber} not in line with Cloud PBX Numbering Plan for company {companyId}' <br>
+	     *      2003 'ShortNumber {shortNumber} is already assigned to someone else inside this company {companyId}' <br>
+	     *      2004 'user {userId} is already assigned into another PBX of the company {companyId}' <br>
+	     *      2005 'failed to create subscriber for user {userId} with shortNumber {shortNumber} into system {systemId}' <br>
+	     *      2006 'failed to update subscriber number for user {userId} with this new shortNumber {shortNumber} into system {systemId}' <br>
+	     *      2007 'there is no existing Sip Device with this macAddress {macAddress}' <br>
+	     *      2008 'the existing Sip Device with this macAddress {macAddress} is not belonging to the requested company {companyId}' <br>
+	     *      2009 'the existing Sip Device with this macAddress {macAddress} is attached to someone else: userId={userId}' <br>
+	     *      2010 'another Sip Device with macAddress {macAddress} is attached to user={userId}' <br>
+	     *      2011 'cannot assign/unassign a Sip device to this user {userId} ; he is not yet a subscriber' <br>
+	     *      2012 'failed to attach this Sip Device {macAddress} with this user {userId} %s' <br>
+	     *      2013 'cannot assign a DDI to this user {userId} ; he is not yet a subscriber' <br>
+	     *      2014 'there is no existing DDI with this number {ddiE164Number}' <br>
+	     *      2015 'the existing DDI with this number {ddiE164Number} is attached to someone else: userId={userId}' <br>
+	     *      2016 'another DDI with number {ddiE164Number} is attached to user={userId}' <br>
+	     *      2017 'failed to attach this DDI {ddiE164Number} with this user {userId}' <br>
+	     *      2018 'failed to detach subscriber for user {userId}, no shortNumber is provided' <br>
+	     *      2019 'failed to detach this subscriber {shortNumber into the request} from this user {userId}, user is attached to another subscriber {real subscriber shortNumber}' <br>
+	     *      2020 'cannot detach a DDI to this user {userId} ; he is no more a subscriber' <br>
+	     *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' <br>
+	     *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' <br>
+	     *      <br>
 	     *
 	     *      Sample :
 	     *      <code class="  language-csv">
@@ -10681,7 +11419,7 @@ declare module 'lib/services/AdminService' {
 	     *          delete    ;lupin13@ejo.company.com      ; 81023     ;   aa:bb:cc:dd:ee:13 ; 33298300513      ;Password_123 ;Mr   ;Arsene13   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
 	     *          delete    ;lupin14@ejo.company.com      ;           ;                     ;                  ;             ;     ;           ;        ;        ;                 ;</code>
 	     *
-	     *      return an {Object}  . <br/>
+	     *      return an {Object}  . <br>
 	     * @return {Promise<any>}
 	     */
 	    importRainbowVoiceUsersWithCSVdata(companyId: string, label: string, noemails: boolean, nostrict: boolean, delimiter: string, comment: string, csvData: string): Promise<unknown>;
@@ -10691,12 +11429,13 @@ declare module 'lib/services/AdminService' {
 	    * @since 1.86.0
 	    * @instance
 	    * @async
+	    * @category AD/LDAP - AD/LDAP masspro
 	    * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	    * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
 	    * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
 	    * @description
-	    *      This API generates a file describing all users (csv or json format). <br/>
-	    *      return an {Object}  of synchronization data. <br/>
+	    *      This API generates a file describing all users (csv or json format). <br>
+	    *      return an {Object}  of synchronization data. <br>
 	    * @return {Promise<any>}
 	    */
 	    retrieveRainbowUserList(companyId?: string, format?: string, ldap_id?: boolean): Promise<unknown>;
@@ -10706,20 +11445,21 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @description
-	     *      This API allows to activate a Ldap connector. <br/>
-	     *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br/>
-	     * <br/>
-	     *      Note 1 A brute force defense is activated when too much activation have been requested. As a result, an error 429 "Too Many Requests" will be returned during an increasing period to dissuade a slow brute force attack. <br/>
-	     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br/>
-	     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br/>
-	     *       <br/>
-	     *      return { <br/>
-	     *          id {string} ldap connector unique identifier. <br/>
-	     *          companyId {string} Company linked to the Ldap connector. <br/>
-	     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br/>
-	     *          password {string} Generated Ldap connector user password. <br/>
-	     *          } <br/>
+	     *      This API allows to activate a Ldap connector. <br>
+	     *      A "Ldap user" is created and registered to the XMPP services. The Ldap user credentials (loginEmail and password) are generated randomly and returned in the response. <br>
+	     * <br>
+	     *      Note 1 A brute force defense is activated when too much activation have been requested. As a result, an error 429 "Too Many Requests" will be returned during an increasing period to dissuade a slow brute force attack. <br>
+	     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br>
+	     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br>
+	     *       <br>
+	     *      return { <br>
+	     *          id {string} ldap connector unique identifier. <br>
+	     *          companyId {string} Company linked to the Ldap connector. <br>
+	     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br>
+	     *          password {string} Generated Ldap connector user password. <br>
+	     *          } <br>
 	     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>}
 	     */
 	    ActivateALdapConnectorUser(): Promise<{
@@ -10734,6 +11474,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} companyId the id of the company that allows to filter connectors list on the companyIds provided in this option.
 	     * @param {string} format Allows to retrieve more or less user details in response.
 	     * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
@@ -10746,204 +11487,204 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} sortField Sort user list based on the given field. Default : displayName
 	     * @param {number} sortOrder Specify order when sorting user list. Default : 1. Values : -1, 1
 	     * @description
-	     *     This API allows administrators to retrieve all the ldap connectors. <br/>
-	     *     Users with superadmin, support role can retrieve the connectors from any company. <br/>
-	     *     Users with bp_admin or bp_finance role can only retrieve the connectors in companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-	     *     Users with admin role can only retrieve the connectors in companies they can manage. That is to say: <br/>
-	     *     an organization_admin can retrieve the connectors only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-	     *     a company_admin can only retrieve the connectors in his company. <br/>
-	     *     This API can return more or less connector information using format option in query string arguments (default is small). <br/>
-	     * <br/>
-	     *      return { // List of connector Objects. <br/>
-	     *          id string TV unique identifier. <br/>
-	     *          name string TV name. <br/>
-	     *          location optionnel string Location of the TV. <br/>
-	     *          locationDetail optionnel string More detail on the location of the TV. <br/>
-	     *          room optionnel string Name of the room where the TV is located. <br/>
-	     *          companyId string company linked to the TV. <br/>
-	     *          activationCode string Activation code (6 digits). The activationCode may be null in the case its generation in multi-environment database failed. In that case, a security mechanism takes place to generate this activation code asynchronously (try every minutes until the code creation is successful). As soon as the activation code is successfully generated in multi-environment database, the TV is updated accordingly (activationCode set to the generated code value) and with activationCodeGenerationStatus updated to done. <br/>
-	     *          codeUpdateDate date Date of last activation code update. <br/>
-	     *          status string TV status:    unassociated (no TV user).    associated with a TV user (the TV has been activated). <br/>
-	     *          statusUpdatedDate Date-Time Date of last tv status update. <br/>
-	     *          subscriptionId string Subscription to use when activating TV. <br/>
-	     *          loginEmail string User email address (used for login) <br/>
-	     *          firstName string User first name <br/>
-	     *          lastName string User last name <br/>
-	     *          displayName string User display name (firstName + lastName concatenated on server side) <br/>
-	     *          nickName optionnel string User nickName <br/>
-	     *          title optionnel string User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br/>
-	     *          jobTitle optionnel string User job title <br/>
-	     *          department optionnel string User department <br/>
-	     *          tags optionnel string[] An Array of free tags associated to the user. A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. tags can only be set by users who have administrator rights on the user. The user can't modify the tags. The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. <br/>
-	     *          emails Object[] Array of user emails addresses objects <br/>
-	     *             email string User email address <br/>
-	     *             type string Email type, one of home, work, other <br/>
-	     *          phoneNumbers Object[] Array of user phone numbers objects. Phone number objects can:   be created by user (information filled by user), come from association with a system (pbx) device (association is done by admin). <br/>
-	     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br/>
-	     *              number optionnel string User phone number (as entered by user) <br/>
-	     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br/>
-	     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br/>
-	     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br/>
-	     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br/>
-	     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br/>
-	     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br/>
-	     *              type 	String Phone number type, one of home, work, other. <br/>
-	     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br/>
-	     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br/>
-	     *         country 	String User country (ISO 3166-1 alpha3 format) <br/>
-	     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br/>
-	     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br/>
-	     *         timezone optionnel 	String User timezone name <br/>
-	     *         jid_im 	String User Jabber IM identifier <br/>
-	     *         jid_tel 	String User Jabber TEL identifier <br/>
-	     *         jid_password 	String User Jabber IM and TEL password <br/>
-	     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br/>
-	     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br/>
-	     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br/>
-	     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br/>
-	     *         companyName 	String User company name <br/>
-	     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br/>
-	     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br/>
-	     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-	     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br/>
-	     *         closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users <br/>
-	     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br/>
-	     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br/>
-	     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br/>
-	     *         isActive 	Boolean Is user active  <br/>
-	     *         isInitialized 	Boolean Is user initialized <br/>
-	     *         initializationDate 	Date-Time User initialization date <br/>
-	     *         activationDate 	Date-Time User activation date <br/>
-	     *         creationDate 	Date-Time User creation date <br/>
-	     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br/>
-	     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br/>
-	     *         createdBySelfRegister 	Boolean true if user has been created using self register <br/>
-	     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br/>
-	     *         userId 	String userId of the admin who created this user <br/>
-	     *         loginEmail 	String loginEmail of the admin who created this user <br/>
-	     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br/>
-	     *         userId 	String userId of the user who invited this user <br/>
-	     *         loginEmail 	String loginEmail of the user who invited this user <br/>
-	     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br/>
-	     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br/>
-	     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br/>
-	     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br/>
-	     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br/>
-	     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br/>
-	     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br/>
-	     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br/>
-	     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br/>
-	     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br/>
-	     *         useScreenSharingCustomisation can be: <br/>
-	     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br/>
-	     *            enabled: Each user of the company can share his screen. <br/>
-	     *            disabled: No user of the company can share his screen. <br/>
-	     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br/>
-	     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br/>
-	     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br/>
-	     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br/>
-	     *         FileSharingCustomisation can be: <br/>
-	     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br/>
-	     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br/>
-	     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br/>
-	     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br/>
-	     *         userTitleNameCustomisation can be: <br/>
-	     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br/>
-	     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br/>
-	     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br/>
-	     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br/>
-	     *         softphoneOnlyCustomisation can be: <br/>
-	     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br/>
-	     *            enabled: The user switch to a softphone mode only. <br/>
-	     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br/>
-	     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br/>
-	     *         useRoomCustomisation can be: <br/>
-	     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can use bubbles. <br/>
-	     *            disabled: The user can't use bubbles. <br/>
-	     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br/>
-	     *         phoneMeetingCustomisation can be: <br/>
-	     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can join phone meetings. <br/>
-	     *            disabled: The user can't join phone meetings. <br/>
-	     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br/>
-	     *         useChannelCustomisation can be: <br/>
-	     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can use some channels. <br/>
-	     *            disabled: The user can't use some channel. <br/>
-	     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br/>
-	     *         useWebRTCVideoCustomisation can be: <br/>
-	     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can switch to a Web RTC video conversation. <br/>
-	     *            disabled: The user can't switch to a Web RTC video conversation. <br/>
-	     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br/>
-	     *         useWebRTCAudioCustomisation can be: <br/>
-	     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can switch to a Web RTC audio conversation. <br/>
-	     *            disabled: The user can't switch to a Web RTC audio conversation. <br/>
-	     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br/>
-	     *         instantMessagesCustomisation can be: <br/>
-	     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can use instant messages. <br/>
-	     *            disabled: The user can't use instant messages. <br/>
-	     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br/>
-	     *         userProfileCustomisation can be: <br/>
-	     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can modify his profile. <br/>
-	     *            disabled: The user can't modify his profile. <br/>
-	     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br/>
-	     *         fileStorageCustomisation can be: <br/>
-	     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can manage and share files. <br/>
-	     *            disabled: The user can't manage and share files. <br/>
-	     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br/>
-	     *         overridePresenceCustomisation can be: <br/>
-	     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can change his presence. <br/>
-	     *            disabled: The user can't change his presence. <br/>
-	     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br/>
-	     *         changeTelephonyCustomisation can be: <br/>
-	     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can modify telephony settings. <br/>
-	     *            disabled: The user can't modify telephony settings. <br/>
-	     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br/>
-	     *         changeSettingsCustomisation can be: <br/>
-	     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can change all client general settings. <br/>
-	     *            disabled: The user can't change any client general setting. <br/>
-	     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br/>
-	     *         recordingConversationCustomisation can be: <br/>
-	     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can record a peer to peer or a multi-party call. <br/>
-	     *            disabled: The user can't record a peer to peer or a multi-party call. <br/>
-	     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br/>
-	     *         useGifCustomisation can be: <br/>
-	     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can send animated GIFs in conversations. <br/>
-	     *            disabled: The user can't send animated GIFs in conversations. <br/>
-	     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br/>
-	     *         fileCopyCustomisation can be: <br/>
-	     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can make a copy of a file to his personal cloud space. <br/>
-	     *            disabled: The user can't make a copy of a file to his personal cloud space. <br/>
-	     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br/>
-	     *         fileTransferCustomisation can be: <br/>
-	     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can transfer a file doesn't belong to him. <br/>
-	     *            disabled: The user can't transfer a file doesn't belong to him. <br/>
-	     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br/>
-	     *         forbidFileOwnerChangeCustomisation can be: <br/>
-	     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can't give the ownership of his file. <br/>
-	     *            disabled: The user can give the ownership of his file. <br/>
-	     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br/>
-	     *         useDialOutCustomisation can be: <br/>
-	     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br/>
-	     *            enabled: The user can be called by the Rainbow conference bridge. <br/>
-	     *            disabled: The user can't be called by the Rainbow conference bridge. <br/>
-	     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br/>
-	     *      } <br/>
+	     *     This API allows administrators to retrieve all the ldap connectors. <br>
+	     *     Users with superadmin, support role can retrieve the connectors from any company. <br>
+	     *     Users with bp_admin or bp_finance role can only retrieve the connectors in companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *     Users with admin role can only retrieve the connectors in companies they can manage. That is to say: <br>
+	     *     an organization_admin can retrieve the connectors only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *     a company_admin can only retrieve the connectors in his company. <br>
+	     *     This API can return more or less connector information using format option in query string arguments (default is small). <br>
+	     * <br>
+	     *      return { // List of connector Objects. <br>
+	     *          id string TV unique identifier. <br>
+	     *          name string TV name. <br>
+	     *          location optionnel string Location of the TV. <br>
+	     *          locationDetail optionnel string More detail on the location of the TV. <br>
+	     *          room optionnel string Name of the room where the TV is located. <br>
+	     *          companyId string company linked to the TV. <br>
+	     *          activationCode string Activation code (6 digits). The activationCode may be null in the case its generation in multi-environment database failed. In that case, a security mechanism takes place to generate this activation code asynchronously (try every minutes until the code creation is successful). As soon as the activation code is successfully generated in multi-environment database, the TV is updated accordingly (activationCode set to the generated code value) and with activationCodeGenerationStatus updated to done. <br>
+	     *          codeUpdateDate date Date of last activation code update. <br>
+	     *          status string TV status:    unassociated (no TV user).    associated with a TV user (the TV has been activated). <br>
+	     *          statusUpdatedDate Date-Time Date of last tv status update. <br>
+	     *          subscriptionId string Subscription to use when activating TV. <br>
+	     *          loginEmail string User email address (used for login) <br>
+	     *          firstName string User first name <br>
+	     *          lastName string User last name <br>
+	     *          displayName string User display name (firstName + lastName concatenated on server side) <br>
+	     *          nickName optionnel string User nickName <br>
+	     *          title optionnel string User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) <br>
+	     *          jobTitle optionnel string User job title <br>
+	     *          department optionnel string User department <br>
+	     *          tags optionnel string[] An Array of free tags associated to the user. A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. tags can only be set by users who have administrator rights on the user. The user can't modify the tags. The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. <br>
+	     *          emails Object[] Array of user emails addresses objects <br>
+	     *             email string User email address <br>
+	     *             type string Email type, one of home, work, other <br>
+	     *          phoneNumbers Object[] Array of user phone numbers objects. Phone number objects can:   be created by user (information filled by user), come from association with a system (pbx) device (association is done by admin). <br>
+	     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br>
+	     *              number optionnel string User phone number (as entered by user) <br>
+	     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br>
+	     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br>
+	     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
+	     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
+	     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
+	     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
+	     *              type 	String Phone number type, one of home, work, other. <br>
+	     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br>
+	     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
+	     *         country 	String User country (ISO 3166-1 alpha3 format) <br>
+	     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
+	     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
+	     *         timezone optionnel 	String User timezone name <br>
+	     *         jid_im 	String User Jabber IM identifier <br>
+	     *         jid_tel 	String User Jabber TEL identifier <br>
+	     *         jid_password 	String User Jabber IM and TEL password <br>
+	     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
+	     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
+	     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
+	     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
+	     *         companyName 	String User company name <br>
+	     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
+	     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br>
+	     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+	     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
+	     *         closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users <br>
+	     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br>
+	     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
+	     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br>
+	     *         isActive 	Boolean Is user active  <br>
+	     *         isInitialized 	Boolean Is user initialized <br>
+	     *         initializationDate 	Date-Time User initialization date <br>
+	     *         activationDate 	Date-Time User activation date <br>
+	     *         creationDate 	Date-Time User creation date <br>
+	     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br>
+	     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br>
+	     *         createdBySelfRegister 	Boolean true if user has been created using self register <br>
+	     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br>
+	     *         userId 	String userId of the admin who created this user <br>
+	     *         loginEmail 	String loginEmail of the admin who created this user <br>
+	     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br>
+	     *         userId 	String userId of the user who invited this user <br>
+	     *         loginEmail 	String loginEmail of the user who invited this user <br>
+	     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
+	     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
+	     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br>
+	     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br>
+	     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br>
+	     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br>
+	     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
+	     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
+	     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
+	     *         useScreenSharingCustomisation can be: <br>
+	     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br>
+	     *            enabled: Each user of the company can share his screen. <br>
+	     *            disabled: No user of the company can share his screen. <br>
+	     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
+	     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
+	     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br>
+	     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
+	     *         FileSharingCustomisation can be: <br>
+	     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
+	     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br>
+	     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br>
+	     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
+	     *         userTitleNameCustomisation can be: <br>
+	     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br>
+	     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br>
+	     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br>
+	     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
+	     *         softphoneOnlyCustomisation can be: <br>
+	     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br>
+	     *            enabled: The user switch to a softphone mode only. <br>
+	     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br>
+	     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
+	     *         useRoomCustomisation can be: <br>
+	     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br>
+	     *            enabled: The user can use bubbles. <br>
+	     *            disabled: The user can't use bubbles. <br>
+	     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
+	     *         phoneMeetingCustomisation can be: <br>
+	     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br>
+	     *            enabled: The user can join phone meetings. <br>
+	     *            disabled: The user can't join phone meetings. <br>
+	     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
+	     *         useChannelCustomisation can be: <br>
+	     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br>
+	     *            enabled: The user can use some channels. <br>
+	     *            disabled: The user can't use some channel. <br>
+	     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
+	     *         useWebRTCVideoCustomisation can be: <br>
+	     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br>
+	     *            enabled: The user can switch to a Web RTC video conversation. <br>
+	     *            disabled: The user can't switch to a Web RTC video conversation. <br>
+	     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
+	     *         useWebRTCAudioCustomisation can be: <br>
+	     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br>
+	     *            enabled: The user can switch to a Web RTC audio conversation. <br>
+	     *            disabled: The user can't switch to a Web RTC audio conversation. <br>
+	     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
+	     *         instantMessagesCustomisation can be: <br>
+	     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br>
+	     *            enabled: The user can use instant messages. <br>
+	     *            disabled: The user can't use instant messages. <br>
+	     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
+	     *         userProfileCustomisation can be: <br>
+	     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br>
+	     *            enabled: The user can modify his profile. <br>
+	     *            disabled: The user can't modify his profile. <br>
+	     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
+	     *         fileStorageCustomisation can be: <br>
+	     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br>
+	     *            enabled: The user can manage and share files. <br>
+	     *            disabled: The user can't manage and share files. <br>
+	     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
+	     *         overridePresenceCustomisation can be: <br>
+	     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br>
+	     *            enabled: The user can change his presence. <br>
+	     *            disabled: The user can't change his presence. <br>
+	     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
+	     *         changeTelephonyCustomisation can be: <br>
+	     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br>
+	     *            enabled: The user can modify telephony settings. <br>
+	     *            disabled: The user can't modify telephony settings. <br>
+	     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br>
+	     *         changeSettingsCustomisation can be: <br>
+	     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br>
+	     *            enabled: The user can change all client general settings. <br>
+	     *            disabled: The user can't change any client general setting. <br>
+	     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
+	     *         recordingConversationCustomisation can be: <br>
+	     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br>
+	     *            enabled: The user can record a peer to peer or a multi-party call. <br>
+	     *            disabled: The user can't record a peer to peer or a multi-party call. <br>
+	     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
+	     *         useGifCustomisation can be: <br>
+	     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br>
+	     *            enabled: The user can send animated GIFs in conversations. <br>
+	     *            disabled: The user can't send animated GIFs in conversations. <br>
+	     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
+	     *         fileCopyCustomisation can be: <br>
+	     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br>
+	     *            enabled: The user can make a copy of a file to his personal cloud space. <br>
+	     *            disabled: The user can't make a copy of a file to his personal cloud space. <br>
+	     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
+	     *         fileTransferCustomisation can be: <br>
+	     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br>
+	     *            enabled: The user can transfer a file doesn't belong to him. <br>
+	     *            disabled: The user can't transfer a file doesn't belong to him. <br>
+	     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
+	     *         forbidFileOwnerChangeCustomisation can be: <br>
+	     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br>
+	     *            enabled: The user can't give the ownership of his file. <br>
+	     *            disabled: The user can give the ownership of his file. <br>
+	     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
+	     *         useDialOutCustomisation can be: <br>
+	     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br>
+	     *            enabled: The user can be called by the Rainbow conference bridge. <br>
+	     *            disabled: The user can't be called by the Rainbow conference bridge. <br>
+	     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br>
+	     *      } <br>
 	     * @return {Promise<any>}
 	     */
 	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<any>;
@@ -10953,12 +11694,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} ldapId the Id of the ldap connector to delete.
 	     * @description
-	     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br/>
-	     *      return { <br/>
-	     *          status {string} Delete operation status message. <br/>
-	     *          } <br/>
+	     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br>
+	     *      return { <br>
+	     *          status {string} Delete operation status message. <br>
+	     *          } <br>
 	     * @return {Promise<{ status : string}>}
 	     */
 	    deleteLdapConnector(ldapId: string): Promise<{
@@ -10970,21 +11712,22 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @description
-	     *      This API allows to retrieve the configuration template for the connector. <br/>
-	     *      return { <br/>
-	     *         id 	String Config unique identifier. <br/>
-	     *         type 	String Config type  <br/>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-	     *         settings 	Object config settings <br/>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-	     *                 login 	String login for the ldap server. <br/>
-	     *                 password 	String password for the ldap server. <br/>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-	     *                 url 	String url of the ldap server. <br/>
-	     *          } <br/>
+	     *      This API allows to retrieve the configuration template for the connector. <br>
+	     *      return { <br>
+	     *         id 	String Config unique identifier. <br>
+	     *         type 	String Config type  <br>
+	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	String login for the ldap server. <br>
+	     *                 password 	String password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+	     *                 url 	String url of the ldap server. <br>
+	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
 	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
@@ -10994,6 +11737,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} companyId the id of the company.
 	     * @param {Object} settings config settings.
 	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
@@ -11004,26 +11748,26 @@ declare module 'lib/services/AdminService' {
 	     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
 	     * @param {string} settings.company.url url of the ldap server.
 	     * @description
-	     *      This API allows create configuration for the connector. <br/>
-	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-	     *      Users with superadmin, support role can create the connectors configuration from any company. <br/>
-	     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br/>
-	     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-	     *      a company_admin can only create the connectors configuration in his company. <br/>
-	     *      return { <br/>
-	     *         id 	String Config unique identifier. <br/>
-	     *         type 	String Config type  <br/>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-	     *         settings 	Object config settings <br/>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-	     *                 login 	String login for the ldap server. <br/>
-	     *                 password 	String password for the ldap server. <br/>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-	     *                 url 	String url of the ldap server. <br/>
-	     *          } <br/>
+	     *      This API allows create configuration for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can create the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only create the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	String Config unique identifier. <br>
+	     *         type 	String Config type  <br>
+	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	String login for the ldap server. <br>
+	     *                 password 	String password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+	     *                 url 	String url of the ldap server. <br>
+	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
 	    createConfigurationForLdapConnector(companyId: any, settings: any): Promise<unknown>;
@@ -11033,6 +11777,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} ldapConfigId ldap connector unique identifier
 	     * @param {Object} settings config settings
 	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
@@ -11044,26 +11789,26 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} settings.company.url url of the ldap server.
 	     * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
 	     * @description
-	     *      This API allows update configuration for the connector. <br/>
-	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-	     *      Users with superadmin, support role can update the connectors configuration from any company. <br/>
-	     *      Users with bp_admin or bp_finance role can only update the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-	     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br/>
-	     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-	     *      a company_admin can only update the connectors configuration in his company. <br/>
-	     *      return { <br/>
-	     *         id 	String Config unique identifier. <br/>
-	     *         type 	String Config type  <br/>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-	     *         settings 	Object config settings <br/>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-	     *                 login 	String login for the ldap server. <br/>
-	     *                 password 	String password for the ldap server. <br/>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-	     *                 url 	String url of the ldap server. <br/>
-	     *          } <br/>
+	     *      This API allows update configuration for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can update the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only update the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only update the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	String Config unique identifier. <br>
+	     *         type 	String Config type  <br>
+	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	String login for the ldap server. <br>
+	     *                 password 	String password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+	     *                 url 	String url of the ldap server. <br>
+	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
 	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict?: boolean): Promise<unknown>;
@@ -11073,28 +11818,29 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
 	     * @description
-	     *      This API allows to retrieve the configuration for the connector. <br/>
-	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br/>
-	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br/>
-	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br/>
-	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br/>
-	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br/>
-	     *      a company_admin can only retrieve the connectors configuration in his company. <br/>
-	     *      return { <br/>
-	     *         id 	String Config unique identifier. <br/>
-	     *         type 	String Config type  <br/>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br/>
-	     *         settings 	Object config settings <br/>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br/>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br/>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br/>
-	     *                 login 	String login for the ldap server. <br/>
-	     *                 password 	String password for the ldap server. <br/>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br/>
-	     *                 url 	String url of the ldap server. <br/>
-	     *          } <br/>
+	     *      This API allows to retrieve the configuration for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	String Config unique identifier. <br>
+	     *         type 	String Config type  <br>
+	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	String login for the ldap server. <br>
+	     *                 password 	String password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+	     *                 url 	String url of the ldap server. <br>
+	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
 	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
@@ -11104,9 +11850,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br/>
+	     *      This API allows administrator to retrieve a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPbxById(systemId: string): Promise<unknown>;
@@ -11116,6 +11863,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} barringOptions_permissions Identifier of the traffic barring permission to apply
 	     * @param {string} barringOptions_restrictions Identifier of the traffic barring restriction to apply
@@ -11133,7 +11881,7 @@ declare module 'lib/services/AdminService' {
 	     * @param {number} outgoingPrefix Company outgoing prefix
 	     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk)
 	     * @description
-	     *      This API allows to update a CloudPBX using its identifier. <br/>
+	     *      This API allows to update a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
@@ -11143,9 +11891,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to delete a CloudPBX using its identifier. <br/>
+	     *      This API allows to delete a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    deleteCloudPBX(systemId: string): Promise<unknown>;
@@ -11155,8 +11904,9 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @description
-	     *      This API allows administrator to retrieve a list of CloudPBXs. <br/>
+	     *      This API allows administrator to retrieve a list of CloudPBXs. <br>
 	     * @return {Promise<any>}
 	     * @param {number} limit Allow to specify the number of CloudPBXs to retrieve. Default value : 100
 	     * @param {number} offset llow to specify the position of first cloudPBX to retrieve (first site if not specified) Warning: if offset > total, no results are returned
@@ -11172,6 +11922,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} bpId Identifier of the BP to which CloudPBX should be linked with.
 	     * @param {string} companyId Required Identifier of the company for which CloudPBX should be created.
 	     * @param {string} customSipHeader_1 Value to put as CustomSipHeader_1 into SIP data for an external outgoing call.
@@ -11187,7 +11938,7 @@ declare module 'lib/services/AdminService' {
 	     * @param {boolean} routeInternalCallsToPeer Indicates if internal calls must be routed to peer (Only available if 'routeInternalCallsToPeerAllowed' is set to 'true' on external trunk).
 	     * @param {string} siteId Identifier of the site on which CloudPBX should be created.
 	     * @description
-	     *      This API allows to creates a CloudPBX for a given company. <br/>
+	     *      This API allows to creates a CloudPBX for a given company. <br>
 	     * @return {Promise<any>}
 	     */
 	    createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string): Promise<unknown>;
@@ -11197,9 +11948,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br/>
+	     *      This API allows to retrieve the CloudPBX CLI options for outbound calls using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXCLIPolicyForOutboundCalls(systemId: string): Promise<unknown>;
@@ -11209,10 +11961,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number".
 	     * @description
-	     *      This API allows to update a CloudPBX using its identifier. <br/>
+	     *      This API allows to update a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: CLOUDPBXCLIOPTIONPOLICY): Promise<unknown>;
@@ -11222,9 +11975,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br/>
+	     *      This API allows to retrieve a list of languages supported by a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXlanguages(systemId: string): Promise<unknown>;
@@ -11234,9 +11988,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br/>
+	     *      This API allows to retrieve a list of device models supported by a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXDeviceModels(systemId: string): Promise<unknown>;
@@ -11246,9 +12001,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br/>
+	     *      This API allows to retrieve a list of traffic barring options supported by a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXTrafficBarringOptions(systemId: string): Promise<unknown>;
@@ -11257,10 +12013,11 @@ declare module 'lib/services/AdminService' {
 	     * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
 	     * @since 2.1.0
 	     * @instance
+	     * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
 	     * @async
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @description
-	     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br/>
+	     *      This API allows to retrieve Emergency Numbers and Emergency Options supported by a CloudPBX using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string): Promise<unknown>;
@@ -11270,12 +12027,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} description Description for identifying the device
 	     * @param {number} deviceTypeId Device type Identifier - see API GET /cloudpbxs/:id/devicemodels to get the list of supported models for the CloudPBX.
 	     * @param {string} macAddress Device mac address - mandatory for SIP deskphone device
 	     * @description
-	     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br/>
+	     *      This API allows allows to create a new SIP device into a CloudPBX. This SIP device can then be assigned to an existing subscriber. <br>
 	     * @return {Promise<any>}
 	     */
 	    CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string): Promise<unknown>;
@@ -11285,11 +12043,12 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device to be reset
 	     * @description
-	     *      This API allows to reset a SIP deskphone device to its factory settings.<br/>
-	     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br/>
+	     *      This API allows to reset a SIP deskphone device to its factory settings.<br>
+	     *      Be aware that the device will no longer be operational, and should, after the factory reset, need to be manually configured (e.g. at least auto provisioning Url will need to be set). <br>
 	     * @return {Promise<any>}
 	     */
 	    factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
@@ -11299,10 +12058,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device to get
 	     * @description
-	     *      This API allows to retrieve a SIP device using the given deviceId.<br/>
+	     *      This API allows to retrieve a SIP device using the given deviceId.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXSIPDeviceById(systemId: string, deviceId: string): Promise<unknown>;
@@ -11312,10 +12072,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device to delete
 	     * @description
-	     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br/>
+	     *      This API allows to remove a SIP Device from a CloudPBX. To do so, the SIP device must no longer be associated to a subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    deleteCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
@@ -11325,12 +12086,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} description new description
 	     * @param {string} deviceId Unique identifier of the SIP device to delete
 	     * @param {string} macAddress new device mac address
 	     * @description
-	     *      This API allows to update a SIP device.<br/>
+	     *      This API allows to update a SIP device.<br>
 	     * @return {Promise<any>}
 	     */
 	    updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string): Promise<unknown>;
@@ -11351,8 +12113,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
 	     *      This parameter can be a list of phoneNumberId separated by a space (space has to be encoded)
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @description
-	     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br/>
+	     *      This API allows  to retrieve all SIP devices assigned into a CloudPBX.<br>
 	     * @return {Promise<any>}
 	     */
 	    getAllCloudPBXSIPDevice(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, assigned: boolean, phoneNumberId: string): Promise<unknown>;
@@ -11362,10 +12125,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device for which SIP registrations information should be retrieved.
 	     * @description
-	     *      This API allows to retrieve SIP registrations information relative to a device.<br/>
+	     *      This API allows to retrieve SIP registrations information relative to a device.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string): Promise<unknown>;
@@ -11375,19 +12139,20 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device for which the debug session access will be granted.
 	     * @param {string} duration Duration, in seconds, of the debug session - Only superadmin can set a debug duration different from the default one (configuration parameter: e.g. 30 minutes)
 	     * @description
-	     *      This API allows  to grant access to debug session on the given device.<br/>
-	     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br/>
-	     *      A debug session can be terminated by: <br/>
-	     *      Calling the device revoke API <br/>
-	     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br/>
+	     *      This API allows  to grant access to debug session on the given device.<br>
+	     *      When debug session is granted on the device, admins can retrieve the admin password of the device, url to access the device admin page and also initiate ssh session with the device. <br>
+	     *      A debug session can be terminated by: <br>
+	     *      Calling the device revoke API <br>
+	     *      After debug session has timed out, a periodic check is performed by the portal to revoke expired debug sessions (periodicity defined by configuration parameter). <br>
 	     *
-	     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br/>
-	     *      Please note that adminUrl could be unreachable depending on network configuration. <br/>
-	     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br/>
+	     *      During debug session, adminUrl and adminPassword of the device can be retrieved by getting device information.  <br>
+	     *      Please note that adminUrl could be unreachable depending on network configuration. <br>
+	     *      When a debug session is closed, ssh access to the device is deactivated, and the admin password of the device is modified.<br>
 	     * @return {Promise<any>}
 	     */
 	    grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string): Promise<unknown>;
@@ -11397,12 +12162,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
 	     * @description
-	     *      This API allows  to revoke access to debug session on the given device. <br/>
-	     *      When revoked, the debug session can no longer be used. <br/>
-	     *      The admin password is no longer visible (changed). <br/>
+	     *      This API allows  to revoke access to debug session on the given device. <br>
+	     *      When revoked, the debug session can no longer be used. <br>
+	     *      The admin password is no longer visible (changed). <br>
 	     * @return {Promise<any>}
 	     */
 	    revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string): Promise<unknown>;
@@ -11412,10 +12178,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Devices
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} deviceId Unique identifier of the SIP device access will be revoked
 	     * @description
-	     *      This API allows  to reboot a SIP deskphone device. <br/>
+	     *      This API allows  to reboot a SIP deskphone device. <br>
 	     * @return {Promise<any>}
 	     */
 	    rebootCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
@@ -11425,10 +12192,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
 	     * @description
-	     *      This API allows to get data of a CloudPBX Subscriber.<br/>
+	     *      This API allows to get data of a CloudPBX Subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11438,10 +12206,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id).
 	     * @description
-	     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br/>
+	     *      This API allows to delete a CloudPBX Subscriber. All its associated SIP devices become free for other subscribers.<br>
 	     * @return {Promise<any>}
 	     */
 	    deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11451,6 +12220,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} login SIP username (if not provided ; shortNumber is used as SIP username)
 	     * @param {string} password SIP password for all associated SIP devices (if not provided ; it will be automatically generated).
@@ -11458,8 +12228,8 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} shortNumber Internal Number of the new CloudPBX Subscriber
 	     * @param {string} userId Unique identifier of the associated Rainbow User
 	     * @description
-	     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br/>
-	     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br/>
+	     *      This API allows to create a new CloudPBX Subscriber for a Rainbow User.<br>
+	     *      This new subscriber will appear as a new entry into "phoneNumbers" list of the targeted Rainbow User.<br>
 	     * @return {Promise<any>}
 	     */
 	    createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string): Promise<unknown>;
@@ -11469,11 +12239,12 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber associated to the SIP device to retrieve.
 	     * @param {string} deviceId Unique identifier of the SIP device to retrieve
 	     * @description
-	     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br/>
+	     *      This API allows to retrieve a given SIP device assigned to a subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
@@ -11483,11 +12254,12 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the Sip device association must be deleted.
 	     * @param {string} deviceId Unique identifier of the SIP device to free
 	     * @description
-	     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br/>
+	     *      This API allows to remove association between subscriber and the Sip Device (SIP device becomes available for another subscriber).<br>
 	     * @return {Promise<any>}
 	     */
 	    removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
@@ -11503,8 +12275,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
 	     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @description
-	     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br/>
+	     *      This API allows  to retrieve all SIP devices assigned to a subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, phoneNumberId: string): Promise<unknown>;
@@ -11516,8 +12289,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber for which all SIP registrations must be retrieved
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @description
-	     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br/>
+	     *      This API allows to retrieve registrations info on all devices registered for a subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11531,11 +12305,12 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber on which the SIP device must be assigned
 	     * @param {string} deviceId Unique identifier of the device to assign
 	     * @param {string} macAddress device mac address
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @description
-	     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br/>
-	     *      The device must have been previously created.<br/>
-	     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br/>
-	     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br/>
+	     *      This API allows to assign a SIP device to a CloudPBX Subscriber.<br>
+	     *      The device must have been previously created.<br>
+	     *      Assigning a device to a subscriber can de done by specifying the device Id (preferred) in the request, or the device mac address.<br>
+	     *      Assigning a device to a subscriber can de done by specifying the device Id in the request, or the device mac address and deviceType Id.<br>
 	     * @return {Promise<any>}
 	     */
 	    assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string): Promise<unknown>;
@@ -11547,8 +12322,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier of the CloudPBX Subscriber to get (it is also its subscriber Id)
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
 	     * @description
-	     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br/>
+	     *      This API allows to get CLI policy of a CloudPBX Subscriber.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11559,8 +12335,9 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br/>
+	     *      This API allows to list all unassigned internal phone numbers for a given CloudPBX system.<br>
 	     * @return {Promise<any>}
 	     */
 	    getCloudPBXUnassignedInternalPhonenumbers(systemId: string): Promise<unknown>;
@@ -11581,8 +12358,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {boolean} isAssignedToAutoAttendant Allows to filter DDI numbers list if they are assigned to a Auto attendant or not
 	     * @param {boolean} isAssigned Allows to filter DDI numbers list if they are assigned (to a user or to a group or to a IVR) or not assigned
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br/>
+	     *      This API allows to get the list of DDI numbers associated to a CloudPBX.<br>
 	     * @return {Promise<any>}
 	     */
 	    listCloudPBXDDINumbersAssociated(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean): Promise<unknown>;
@@ -11594,8 +12372,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} number DDI number
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to create a DDI number for a CloudPBX.<br/>
+	     *      This API allows to create a DDI number for a CloudPBX.<br>
 	     * @return {Promise<any>}
 	     */
 	    createCloudPBXDDINumber(systemId: string, number: string): Promise<unknown>;
@@ -11607,9 +12386,10 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to delete a DDI number for a CloudPBX. <br/>
-	     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br/>
+	     *      This API allows to delete a DDI number for a CloudPBX. <br>
+	     *      Note : Default DDI can be deleted only if it is the last DDI of the CloudPBX. <br>
 	     * @return {Promise<any>}
 	     */
 	    deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11622,8 +12402,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} phoneNumberId PhoneNumber unique identifier
 	     * @param {string} userId Rainbow user unique identifier
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to associate a DDI number to a Rainbow user. <br/>
+	     *      This API allows to associate a DDI number to a Rainbow user. <br>
 	     * @return {Promise<any>}
 	     */
 	    associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
@@ -11636,8 +12417,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} phoneNumberId PhoneNumber unique identifier.
 	     * @param {string} userId Rainbow user unique identifier.
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to disassociate a DDI number from a Rainbow user. <br/>
+	     *      This API allows to disassociate a DDI number from a Rainbow user. <br>
 	     * @return {Promise<any>}
 	     */
 	    disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
@@ -11649,8 +12431,9 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} systemId CloudPBX unique identifier.
 	     * @param {string} phoneNumberId PhoneNumber unique identifier.
 	     * @async
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
 	     * @description
-	     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br/>
+	     *      This API allows to set a DDI number as default DDI for a CloudPBX. <br>
 	     * @return {Promise<any>}
 	     */
 	    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string): Promise<unknown>;
@@ -11661,8 +12444,9 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @async
 	     * @param {string} externalTrunkId External trunk unique identifier
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
 	     * @description
-	     *      This API allows to retrieve an external SIP trunk using its identifier. <br/>
+	     *      This API allows to retrieve an external SIP trunk using its identifier. <br>
 	     * @return {Promise<any>}
 	     */
 	    retrieveExternalSIPTrunkById(externalTrunkId: string): Promise<unknown>;
@@ -11672,15 +12456,16 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.0
 	     * @instance
 	     * @async
-	     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br/>
-	     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br/>
-	     * @param {string} status Allows to filter external SIP trunks by status. <br/>
-	     *          This filter allows to load all external SIP trunks according to their status. <br/>
-	     *          Valid values : "new" "active". <br/>
-	     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br/>
+	     * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx SIP Trunk
+	     * @param {string} rvcpInstanceId Allows to filter external SIP trunks by RVCP instance identifier. <br>
+	     *          This filter allows to load all external SIP trunks in relation with an RVCP Instance. <br>
+	     * @param {string} status Allows to filter external SIP trunks by status. <br>
+	     *          This filter allows to load all external SIP trunks according to their status. <br>
+	     *          Valid values : "new" "active". <br>
+	     * @param {string} trunkType Allows to filter external SIP trunks by their type. <br>
 	     * @description
-	     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br/>
-	     *      bp_admin can list only external SIP trunks he is allowed to use. <br/>
+	     *      This API allows superadmin or bp_admin to retrieve a list of external SIP trunks. <br>
+	     *      bp_admin can list only external SIP trunks he is allowed to use. <br>
 	     * @return {Promise<any>}
 	     */
 	    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
@@ -11690,13 +12475,14 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.1
 	     * @instance
 	     * @async
-	     * @param {string} name Site name. <br/>
+	     * @category sites
+	     * @param {string} name Site name. <br>
 	     *              Valid values : 1..255
-	     * @param {string} status Site status. <br/>
-	     *          Valid values : "active", "alerting", "hold", "terminated". <br/>
+	     * @param {string} status Site status. <br>
+	     *          Valid values : "active", "alerting", "hold", "terminated". <br>
 	     * @param {string} companyId Id of the company from which the site is linked.
 	     * @description
-	     *      This API allows administrators to create a site for a company they administrate.  <br/>
+	     *      This API allows administrators to create a site for a company they administrate.  <br>
 	     * @return {Promise<any>}
 	     */
 	    createASite(name: string, status: string, companyId: string): Promise<unknown>;
@@ -11706,9 +12492,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.1
 	     * @instance
 	     * @async
-	     * @param {string} siteId Site id. <br/>
+	     * @category sites
+	     * @param {string} siteId Site id. <br>
 	     * @description
-	     *      This API allows administrators to delete a site by id they administrate.  <br/>
+	     *      This API allows administrators to delete a site by id they administrate.  <br>
 	     * @return {Promise<any>}
 	     */
 	    deleteSite(siteId: string): Promise<unknown>;
@@ -11718,9 +12505,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.1
 	     * @instance
 	     * @async
-	     * @param {string} siteId Site id. <br/>
+	     * @category sites
+	     * @param {string} siteId Site id. <br>
 	     * @description
-	     *      This API allows administrators to get a site data by id they administrate.  <br/>
+	     *      This API allows administrators to get a site data by id they administrate.  <br>
 	     * @return {Promise<any>}
 	     */
 	    getSiteData(siteId: string): Promise<unknown>;
@@ -11730,22 +12518,23 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.1.1
 	     * @instance
 	     * @async
-	     * @param {string} format Allows to retrieve more or less site details in response. <br/>
-	     * - small: _id, name <br/>
-	     * - medium: _id, name, status, companyId <br/>
-	     * - full: all site fields <br/>
-	     * default : small <br/>
-	     * Valid values : small, medium, full <br/>
+	     * @category sites
+	     * @param {string} format Allows to retrieve more or less site details in response. <br>
+	     * - small: _id, name <br>
+	     * - medium: _id, name, status, companyId <br>
+	     * - full: all site fields <br>
+	     * default : small <br>
+	     * Valid values : small, medium, full <br>
 	     * @param {number} limit Allow to specify the number of companies to retrieve. (default=100).
 	     * @param {number} offset Allow to specify the position of first site to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
 	     * @param {string} sortField Sort site list based on the given field. (default="name").
 	     * @param {number} sortOrder Specify order when sorting site list. Default values : 1. Valid values : -1, 1.
-	     * @param {string} name Allows to filter sites list on field name. <br/>
-	     * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). <br/>
-	     * Ex: if filtering is done on sit, sites with the following names are match the filter 'My site', 'Site', 'A site 1', 'Site of company', 'Sit1', 'Sit2', ... <br/>
+	     * @param {string} name Allows to filter sites list on field name. <br>
+	     * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). <br>
+	     * Ex: if filtering is done on sit, sites with the following names are match the filter 'My site', 'Site', 'A site 1', 'Site of company', 'Sit1', 'Sit2', ... <br>
 	     * @param {string} companyId
 	     * @description
-	     *      This API allows administrators to get all sites they administrate.  <br/>
+	     *      This API allows administrators to get all sites they administrate.  <br>
 	     * @return {Promise<any>}
 	     */
 	    getAllSites(format: string, limit: number, offset: number, sortField: string, sortOrder: number, name: string, companyId: string): Promise<unknown>;
@@ -11754,13 +12543,14 @@ declare module 'lib/services/AdminService' {
 	     * @method updateSite
 	     * @since 2.1.1
 	     * @instance
+	     * @category sites
 	     * @async
-	     * @param {string} siteId Site id. <br/>
+	     * @param {string} siteId Site id. <br>
 	     * @param {string} name Site name
 	     * @param {string} status Site status. Valid values : "active", "alerting", "hold", "terminated"
 	     * @param {string} companyId Id of the company from which the site is linked.
 	     * @description
-	     *      This API allows administrators to update a given site by id they administrate.  <br/>
+	     *      This API allows administrators to update a given site by id they administrate.  <br>
 	     * @return {Promise<any>}
 	     */
 	    updateSite(siteId: string, name: string, status: string, companyId: string): Promise<unknown>;
@@ -11770,6 +12560,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param {string} companyId Id of the company the directory is linked to.
 	     * @param {string} firstName Contact first Name
 	     * @param {string} lastName Contact last Name
@@ -11785,13 +12576,13 @@ declare module 'lib/services/AdminService' {
 	     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
 	     * @param {string} jobTitle Contact Job title
 	     * @param {string} eMail Contact Email address
-	     * @param {Array<string>} tags An Array of free tags </br>
-	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
-	     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). </br>
+	     * @param {Array<string>} tags An Array of free tags <br>
+	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+	     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). <br>
 	     * @param {string} custom1 Custom field 1
 	     * @param {string} custom2 Custom field 2
 	     * @description
-	     *      This API allows administrators to Create a directory entry.  <br/>
+	     *      This API allows administrators to Create a directory entry.  <br>
 	     */
 	    createDirectoryEntry(companyId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
 	    /**
@@ -11800,9 +12591,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param {string} companyId Id of the company.
 	     * @description
-	     *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br/>
+	     *      This API allows administrators  to delete all the entries in the directory of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    deleteCompanyDirectoryAllEntry(companyId: string): Promise<unknown>;
@@ -11812,9 +12604,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param {string} entryId Id of the entry.
 	     * @description
-	     *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br/>
+	     *      This API allows administrators  to delete an entry from the directory of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    deleteDirectoryEntry(entryId: string): Promise<unknown>;
@@ -11824,15 +12617,16 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param {string} entryId Id of the entry.
-	     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
-	     * - small: id, firstName, lastName  <br/>
-	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
-	     * - full: all fields. <br/>
-	     * default : small <br/>
-	     * Valid values : small, medium, full <br/>
+	     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+	     * - small: id, firstName, lastName  <br>
+	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+	     * - full: all fields. <br>
+	     * default : small <br>
+	     * Valid values : small, medium, full <br>
 	     * @description
-	     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+	     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    getDirectoryEntryData(entryId: string, format?: string): Promise<unknown>;
@@ -11842,6 +12636,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param companyId
 	     * @param organisationIds
 	     * @param name
@@ -11852,18 +12647,18 @@ declare module 'lib/services/AdminService' {
 	     * @param fromUpdateDate
 	     * @param toUpdateDate
 	     * @param tags
-	     * @param {string} format Allows to retrieve more or less entry details in response. <br/>
-	     * - small: id, firstName, lastName  <br/>
-	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br/>
-	     * - full: all fields. <br/>
-	     * default : small <br/>
-	     * Valid values : small, medium, full <br/>
+	     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+	     * - small: id, firstName, lastName  <br>
+	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+	     * - full: all fields. <br>
+	     * default : small <br>
+	     * Valid values : small, medium, full <br>
 	     * @param limit
 	     * @param offset
 	     * @param sortField
 	     * @param sortOrder
 	     * @description
-	     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br/>
+	     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
@@ -11873,6 +12668,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
+	     * @category Rainbow Company Directory portal - directory
 	     * @param {string} entryId Id of the entry.
 	     * @param {string} firstName Contact first Name
 	     * @param {string} lastName Contact last Name
@@ -11888,13 +12684,13 @@ declare module 'lib/services/AdminService' {
 	     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
 	     * @param {string} jobTitle Contact Job title
 	     * @param {string} eMail Contact Email address
-	     * @param {Array<string>} tags An Array of free tags </br>
-	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </br>
+	     * @param {Array<string>} tags An Array of free tags <br>
+	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
 	     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
 	     * @param {string} custom1 Custom field 1
 	     * @param {string} custom2 Custom field 2
 	     * @description
-	     *      This API allows administrators to get an entry of the directory of a company they administrate.<br/>
+	     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    updateDirectoryEntry(entryId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
@@ -11909,10 +12705,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId The company id of the directory to export.<br/>
+	     * @category Rainbow Company Directory portal - directory
+	     * @param {string} companyId The company id of the directory to export.<br>
 	     * @param {string} filePath The folder where the directory will be exported.
 	     * @description
-	     *      This API allows administrators to export the directory in a CSV file.<br/>
+	     *      This API allows administrators to export the directory in a CSV file.<br>
 	     * @return {Promise<any>} If it succeed then it returns the file full path of the exported data. If it failed then it return the error.
 	     */
 	    exportDirectoryCsvFile(companyId: string, filePath: string): Promise<unknown>;
@@ -11922,11 +12719,12 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId The company id of the directory to export.<br/>
+	     * @category Rainbow Company Directory portal - directory
+	     * @param {string} companyId The company id of the directory to export.<br>
 	     * @param {string} fileFullPath The full file path to import.
 	     * @param {string} label The label used for the import.
 	     * @description
-	     *      This API allows administrators to import the directory from a CSV file.<br/>
+	     *      This API allows administrators to import the directory from a CSV file.<br>
 	     * @return {Promise<any>} .
 	     */
 	    ImportDirectoryCsvFile(companyId: string, fileFullPath: string, label: string): Promise<unknown>;
@@ -11936,10 +12734,11 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
+	     * @category Rainbow Company Directory portal - directory tags
+	     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. <br>
 	     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.
 	     * @description
-	     *      This API allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.<br/>
+	     *      This API allows administrators to list all the tags being assigned to the directory entries of the companies managed by the administrator.<br>
 	     * @return {Promise<any>}
 	     */
 	    getAllTagsAssignedToDirectoryEntries(companyId: string): Promise<unknown>;
@@ -11949,12 +12748,13 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </br>
-	     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br/>
+	     * @category Rainbow Company Directory portal - directory tags
+	     * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. <br>
+	     * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.<br>
 	     * @param {string} tag tag to remove.
 	     * @description
-	     *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
-	     *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).<br/>
+	     *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.<br>
+	     *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).<br>
 	     * @return {Promise<any>}
 	     */
 	    removeTagFromAllDirectoryEntries(companyId: string, tag: string): Promise<unknown>;
@@ -11964,13 +12764,14 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br/>
-	     * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br/>
+	     * @category Rainbow Company Directory portal - directory tags
+	     * @param {string} companyId Allows to rename a tag for the directory entries of the companyIds provided in this option.<br>
+	     * If companyId is not provided, the tag is renamed from all the directory entries of all the companies managed by the logged in administrator.<br>
 	     * @param {string} tag tag to rename.
 	     * @param {string} newTagName New tag name.
 	     * @description
-	     *      This API allows administrators to rename a tag being assigned to some directory entries of the companies managed by the administrator.<br/>
-	     *      The parameter companyId can be used to limit the renaming of the tag on the directory entries of the specified company(ies).<br/>
+	     *      This API allows administrators to rename a tag being assigned to some directory entries of the companies managed by the administrator.<br>
+	     *      The parameter companyId can be used to limit the renaming of the tag on the directory entries of the specified company(ies).<br>
 	     * @return {Promise<any>}
 	     */
 	    renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string): Promise<unknown>;
@@ -11980,9 +12781,10 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.2.0
 	     * @instance
 	     * @async
-	     * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br/>
+	     * @category Rainbow Company Directory portal - directory tags
+	     * @param {string} companyId Allows to compute the tags statistics for the directory entries of the companyIds provided in this option.<br>
 	     * @description
-	     *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br/>
+	     *      This API can be used to list all the tags being assigned to the directory entries of the companies managed by the administrator, with the number of directory entries for each tags.<br>
 	     * @return {Promise<any>}
 	     */
 	    getStatsRegardingTagsOfDirectoryEntries(companyId: string): Promise<unknown>;
@@ -11994,12 +12796,13 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} id Unique identifier of the application to which the client version refer. Default value is the AppId provided to login the SDK.
 	     * @param {string} version App version
 	     * @async
+	     * @category Clients Versions
 	     * @description
-	     *      This API can be used to define the minimal required version for a given client application.<br/>
-	     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br/>
-	     *      In that case, the client application can show an error message to the user requesting him to update his application.<br/>
-	     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br/>
-	     *      Users with superadmin role can define the minimal required version for any client applications.<br/>
+	     *      This API can be used to define the minimal required version for a given client application.<br>
+	     *      When a minimal required version is defined for a client application, if a user using an older version of this application tries to login to Rainbow, the login is forbidden with a specific error code (403020). <br>
+	     *      In that case, the client application can show an error message to the user requesting him to update his application.<br>
+	     *      To be noted that the application must provide the header x-rainbow-client-version with its current version so that this check can be performed.<br>
+	     *      Users with superadmin role can define the minimal required version for any client applications.<br>
 	     * @return {Promise<any>}
 	     */
 	    createAClientVersion(id: string, version: string): Promise<unknown>;
@@ -12010,10 +12813,11 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @param {string} clientId Application unique identifier to which the client version refer
 	     * @async
+	     * @category Clients Versions
 	     * @description
-	     *      This API can be used to delete the minimal required version defined for a given client application.<br/>
-	     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br/>
-	     *      Users with superadmin role can delete the minimal required version for any client applications.<br/>
+	     *      This API can be used to delete the minimal required version defined for a given client application.<br>
+	     *      When no minimal required version is defined for a client application, this application will allow to log users in Rainbow whatever their version.<br>
+	     *      Users with superadmin role can delete the minimal required version for any client applications.<br>
 	     * @return {Promise<any>}
 	     */
 	    deleteAClientVersion(clientId: string): Promise<unknown>;
@@ -12024,9 +12828,10 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @param {string} clientId Application unique identifier to which the client version refer
 	     * @async
+	     * @category Clients Versions
 	     * @description
-	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
-	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br>
+	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br>
 	     * @return {Promise<any>}
 	     */
 	    getAClientVersionData(clientId: string): Promise<unknown>;
@@ -12036,6 +12841,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 2.5.0
 	     * @instance
 	     * @async
+	     * @category Clients Versions
 	     * @param {string} name Allows to filter clients versions list on field name.
 	     * @param {string} typeClient Allows to filter clients versions list on field type.
 	     * @param {number} limit Allow to specify the number of clients versions to retrieve. Default value : 100.
@@ -12043,8 +12849,8 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} sortField Sort clients versions list based on the given field. Default value : "name"
 	     * @param {number} sortOrder Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
 	     * @description
-	     *      This API can be used to get the minimal required versions defined for the client applications.<br/>
-	     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     *      This API can be used to get the minimal required versions defined for the client applications.<br>
+	     *      Users with superadmin role can retrieve the minimal required version for all client applications.<br>
 	     * @return {Promise<any>}
 	     */
 	    getAllClientsVersions(name?: string, typeClient?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
@@ -12056,14 +12862,15 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} clientId Application unique identifier to which the client version refer
 	     * @param {string} version App version
 	     * @async
+	     * @category Clients Versions
 	     * @description
-	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br/>
-	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br/>
+	     *     This API can be used to get the minimal required version defined for a given client application (if any, otherwise a 404 http error is returned).<br>
+	     *     Users with superadmin role can retrieve the minimal required version for all client applications.<br>
 	     * @return {Promise<any>}
 	     */
 	    updateAClientVersion(clientId: string, version: string): Promise<unknown>;
 	}
-	export { Admin as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
+	export { AdminService as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
 
 }
 declare module 'lib/common/StateManager' {
@@ -12194,8 +13001,9 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method getAll
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Get all calls log history for the connected user <br/>
+	     *    Get all calls log history for the connected user <br>
 	     * @return {CallLog[]} An array of call log entry
 	     */
 	    getAll(): any[];
@@ -12203,8 +13011,9 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method getMissedCallLogCounter
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Get the number of call missed (state === "missed" && direction === "incoming") <br/>
+	     *    Get the number of call missed (state === "missed" && direction === "incoming") <br>
 	     * @return {Number} The number of call missed
 	     */
 	    getMissedCallLogCounter(): number;
@@ -12212,9 +13021,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method deleteOneCallLog
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Delete a call log from it's id<br/>
-	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+	     *    Delete a call log from it's id<br>
+	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
 	     * @param {string} id The call log id to remove
 	     * @return Nothing
 	     */
@@ -12223,9 +13033,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method deleteCallLogsForContact
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Delete all calls log items associated to a contact's given jid<br/>
-	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+	     *    Delete all calls log items associated to a contact's given jid<br>
+	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
 	     * @param {string} jid The call log id to remove
 	     * @return Nothing
 	     */
@@ -12234,9 +13045,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method deleteAllCallLogs
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Delete all call logs history<br/>
-	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br/>
+	     *    Delete all call logs history<br>
+	     *    You have to listen to event `rainbow_oncalllogupdated` to know when the action is finished <br>
 	     * @return Nothing
 	     */
 	    deleteAllCallLogs(): Promise<any>;
@@ -12244,9 +13056,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method markCallLogAsRead
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Mark a call log item as read<br/>
-	     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
+	     *    Mark a call log item as read<br>
+	     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br>
 	     * @param {string} id The call log id
 	     * @return Nothing
 	     */
@@ -12255,9 +13068,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method markAllCallsLogsAsRead
 	     * @instance
+	     * @category CallLog MANAGEMENT
 	     * @description
-	     *    Mark all call log items as read<br/>
-	     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br/>
+	     *    Mark all call log items as read<br>
+	     *    You have to listen to event `rainbow_oncalllogackupdated` to know when the action is finished <br>
 	     * @return Nothing
 	     */
 	    markAllCallsLogsAsRead(): Promise<void>;
@@ -12265,9 +13079,10 @@ declare module 'lib/services/CallLogService' {
 	     * @public
 	     * @method isInitialized
 	     * @instance
+	     * @category CallLog INITIALISATION
 	     * @description
-	     *    Check if the call log history has been received from Rainbow <br/>
-	     *    A false answer means that the call logs have not yet been retrieved from the server. <br/>
+	     *    Check if the call log history has been received from Rainbow <br>
+	     *    A false answer means that the call logs have not yet been retrieved from the server. <br>
 	     * @return {Boolean} True if the call logs have been retrieved. False elsewhere.
 	     */
 	    isInitialized(): boolean;
@@ -12653,12 +13468,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method markAlertMessageAsReceived
 	     * @instance
 	     * @async
+	     * @category Mark as Received / Read
 	     * @param {string} jid The Jid of the sender</param>
 	     * @param {string} messageXmppId the Xmpp Id of the alert message</param>
 	     * @description
-	     *    Mark as Received the specified alert message   <br/>
+	     *    Mark as Received the specified alert message   <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    markAlertMessageAsReceived(jid: string, messageXmppId: string): Promise<any>;
 	    /**
@@ -12666,12 +13482,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method markAlertMessageAsRead
 	     * @instance
 	     * @async
+	     * @category Mark as Received / Read
 	     * @param {string} jid The Jid of the sender
 	     * @param {string} messageXmppId the Xmpp Id of the alert message
 	     * @description
-	     *    Mark as Read the specified alert message   <br/>
+	     *    Mark as Read the specified alert message   <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    markAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any>;
 	    /**
@@ -12679,14 +13496,15 @@ declare module 'lib/services/AlertsService' {
 	     * @method createDevice
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {AlertDevice} device Device to create.
 	     * @description
-	     *    Create a device which can receive Alerts(notifications) from the server   <br/>
-	     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br/>
-	     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br/>
-	     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br/>
+	     *    Create a device which can receive Alerts(notifications) from the server   <br>
+	     *    AlertDevice.jid_im cannot be specified, it's always the Jid of the current user. <br>
+	     *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br>
+	     *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br>
 	     * @return {Promise<AlertDevice>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    createDevice(device: AlertDevice): Promise<AlertDevice>;
 	    /**
@@ -12694,15 +13512,16 @@ declare module 'lib/services/AlertsService' {
 	     * @method updateDevice
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {AlertDevice} device Device to Update.
 	     * @description
-	     *    Update a device which can receive Alerts(notifications) from the server <br/>
-	     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user <br/>
-	     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br/>
-	     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br/>
-	     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br/>
-	     * @return {Promise<AlertDevice>} the result of the operation.   <br/>
-	     * @category async
+	     *    Update a device which can receive Alerts(notifications) from the server <br>
+	     *    AlertDevice.CompanyId cannot be specified, it's always the Compnay of the current user <br>
+	     *    AlertDevice.Jid_im cannot be specified, it's always the Jid of the current user: Contacts.GetCurrentContactJid() <br>
+	     *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br>
+	     *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br>
+	     * @return {Promise<AlertDevice>} the result of the operation.   <br>
+	     
 	     */
 	    updateDevice(device: AlertDevice): Promise<AlertDevice>;
 	    private createOrUpdateDevice;
@@ -12711,11 +13530,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method deleteDevice
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {AlertDevice} device Device to delete.
 	     * @description
-	     *    Delete a device (using its id) <br/>
+	     *    Delete a device (using its id) <br>
 	     * @return {Promise<AlertDevice>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    deleteDevice(device: AlertDevice): Promise<AlertDevice>;
 	    /**
@@ -12723,11 +13543,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getDevice
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {string} deviceId Id of the device.
 	     * @description
-	     *    Get a device using its Id <br/>
+	     *    Get a device using its Id <br>
 	     * @return {Promise<AlertDevice>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getDevice(deviceId: string): Promise<AlertDevice>;
 	    /**
@@ -12735,6 +13556,7 @@ declare module 'lib/services/AlertsService' {
 	     * @method getDevices
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {string} companyId Allows to filter device list on the companyId provided in this option. (optional) If companyId is not provided, the devices linked to all the companies that the administrator manage are returned.
 	     * @param {string} userId Allows to filter device list on the userId provided in this option. (optional) If the user has no admin rights, this filter is forced to the logged in user's id (i.e. the user can only list is own devices).
 	     * @param {string} deviceName Allows to filter device list on the name provided in this option. (optional) The filtering is case insensitive and on partial name match: all devices containing the provided name value will be returned(whatever the position of the match). Ex: if filtering is done on My, devices with the following names are match the filter 'My device', 'My phone', 'This is my device', ...
@@ -12743,9 +13565,9 @@ declare module 'lib/services/AlertsService' {
 	     * @param {number} offset Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
 	     * @param {number} limit Allow to specify the number of devices to retrieve.
 	     * @description
-	     *    Get list of devices   <br/>
+	     *    Get list of devices   <br>
 	     * @return {Promise<AlertDevicesData>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<AlertDevicesData>;
 	    /**
@@ -12753,11 +13575,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getDevicesTags
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
 	     * @description
-	     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br/>
+	     *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getDevicesTags(companyId: string): Promise<any>;
 	    /**
@@ -12765,14 +13588,15 @@ declare module 'lib/services/AlertsService' {
 	     * @method renameDevicesTags
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {string} tag 	tag to rename.
-	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. </br>
+	     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. <br>
 	     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
 	     * @param {string} newTagName New tag name. (Body Parameters)
 	     * @description
 	     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    renameDevicesTags(newTagName: string, tag: string, companyId: string): Promise<unknown>;
 	    /**
@@ -12780,13 +13604,14 @@ declare module 'lib/services/AlertsService' {
 	     * @method deleteDevicesTags
 	     * @instance
 	     * @async
+	     * @category DEVICE
 	     * @param {string} tag 	tag to rename.
-	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. </br>
+	     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. <br>
 	     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
 	     * @description
 	     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    deleteDevicesTags(tag: string, companyId: string): Promise<unknown>;
 	    /**
@@ -12794,12 +13619,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method getstatsTags
 	     * @instance
 	     * @async
-	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  </br>
+	     * @category DEVICE
+	     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  <br>
 	     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
 	     * @description
 	     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getstatsTags(companyId: string): Promise<unknown>;
 	    /**
@@ -12807,11 +13633,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method createTemplate
 	     * @instance
 	     * @async
+	     * @category TEMPLATE
 	     * @param {AlertTemplate} template Template to create.
 	     * @description
-	     *    Create a template <br/>
+	     *    Create a template <br>
 	     * @return {Promise<AlertTemplate>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    createTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    /**
@@ -12819,11 +13646,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method updateTemplate
 	     * @instance
 	     * @async
+	     * @category TEMPLATE
 	     * @param {AlertTemplate} template Template to Update.
 	     * @description
-	     *    Update a template  <br/>
+	     *    Update a template  <br>
 	     * @return {Promise<AlertTemplate>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    updateTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    private createOrUpdateTemplate;
@@ -12832,11 +13660,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method deleteTemplate
 	     * @instance
 	     * @async
+	     * @category TEMPLATE
 	     * @param {AlertTemplate} template Template to Delete.
 	     * @description
-	     *    Delete a template <br/>
+	     *    Delete a template <br>
 	     * @return {Promise<AlertTemplate>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    deleteTemplate(template: AlertTemplate): Promise<AlertTemplate>;
 	    /**
@@ -12844,11 +13673,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getTemplate
 	     * @instance
 	     * @async
+	     * @category TEMPLATE
 	     * @param {string} templateId Id of the template.
 	     * @description
-	     *    Get an template by id <br/>
+	     *    Get an template by id <br>
 	     * @return {Promise<AlertTemplate>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getTemplate(templateId: string): Promise<AlertTemplate>;
 	    /**
@@ -12856,13 +13686,14 @@ declare module 'lib/services/AlertsService' {
 	     * @method getTemplates
 	     * @instance
 	     * @async
+	     * @category TEMPLATE
 	     * @param {string} companyId Id of the company (optional).
 	     * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
 	     * @param {number} limit Limit of templates to retrieve (100 by default).
 	     * @description
-	     *    Get templates <br/>
+	     *    Get templates <br>
 	     * @return {Promise<AlertTemplatesData>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getTemplates(companyId: string, offset?: number, limit?: number): Promise<AlertTemplatesData>;
 	    /**
@@ -12870,11 +13701,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method createFilter
 	     * @instance
 	     * @async
+	     * @category FILTERS
 	     * @param {AlertFilter} filter Filter to create.
 	     * @description
-	     *    Create a filter <br/>
+	     *    Create a filter <br>
 	     * @return {Promise<AlertFilter>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    createFilter(filter: AlertFilter): Promise<AlertFilter>;
 	    /**
@@ -12882,11 +13714,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method updateFilter
 	     * @instance
 	     * @async
+	     * @category FILTERS
 	     * @param {AlertFilter} filter Filter to Update.
 	     * @description
-	     *    Update a filter <br/>
+	     *    Update a filter <br>
 	     * @return {Promise<AlertFilter>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    updateFilter(filter: AlertFilter): Promise<AlertFilter>;
 	    createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<AlertFilter>;
@@ -12895,11 +13728,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method deleteFilter
 	     * @instance
 	     * @async
+	     * @category FILTERS
 	     * @param {AlertFilter} filter Filter to Delete.
 	     * @description
-	     *    Delete a filter <br/>
+	     *    Delete a filter <br>
 	     * @return {Promise<AlertFilter>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    deleteFilter(filter: AlertFilter): Promise<AlertFilter>;
 	    /**
@@ -12907,11 +13741,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getFilter
 	     * @instance
 	     * @async
+	     * @category FILTERS
 	     * @param {string} filterId Id of the Filter.
 	     * @description
-	     *    Get an filter by id <br/>
+	     *    Get an filter by id <br>
 	     * @return {Promise<AlertFilter>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getFilter(filterId: string): Promise<AlertFilter>;
 	    /**
@@ -12919,12 +13754,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method getFilters
 	     * @instance
 	     * @async
+	     * @category FILTERS
 	     * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
 	     * @param {number} limit Limit of filters to retrieve (100 by default).
 	     * @description
-	     *    Get filters : have required role(s) superadmin, admin <br/>
+	     *    Get filters : have required role(s) superadmin, admin <br>
 	     * @return {Promise<AlertFiltersData>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getFilters(offset?: number, limit?: number): Promise<AlertFiltersData>;
 	    /**
@@ -12932,13 +13768,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method createAlert
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {Alert} alert Alert to send.
 	     * @description
-	     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>
-	     *    The alert will be received by devices according the filter id and the company id used.   <br/>
-	     *    The content of the alert is based on the template id.   <br/>
+	     *    To create an alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br>
+	     *    The alert will be received by devices according the filter id and the company id used.   <br>
+	     *    The content of the alert is based on the template id.   <br>
 	     * @return {Promise<Alert>} the result of the operation.
-	     * @category async
 	     */
 	    createAlert(alert: Alert): Promise<Alert>;
 	    /**
@@ -12946,14 +13782,15 @@ declare module 'lib/services/AlertsService' {
 	     * @method updateAlert
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {Alert} alert Alert to update.
 	     * @description
-	     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br/>
-	     *    The alert will be received by devices according the filter id and the company id used.   <br/>
-	     *    The content of the alert is based on the template id.   <br/>
-	     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br/>
+	     *    To update an existing alert. The alert will be sent using the StartDate of the Alert object (so it's possible to set it in future). <br>
+	     *    The alert will be received by devices according the filter id and the company id used.   <br>
+	     *    The content of the alert is based on the template id.   <br>
+	     *    Note : if no expirationDate is provided, then the validity is one day from the API call. <br>
 	     * @return {Promise<Alert>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    updateAlert(alert: Alert): Promise<Alert>;
 	    createOrUpdateAlert(create: boolean, alert: Alert): Promise<Alert>;
@@ -12962,12 +13799,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method deleteAlert
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {Alert} alert Alert to Delete.
 	     * @description
-	     *    Delete an alert   <br/>
-	     *    All the data related to this notification are deleted, including the reports <br/>
+	     *    Delete an alert   <br>
+	     *    All the data related to this notification are deleted, including the reports <br>
 	     * @return {Promise<Alert>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    deleteAlert(alert: Alert): Promise<Alert>;
 	    /**
@@ -12975,11 +13813,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getAlert
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {string} alertId Id of the alert.
 	     * @description
-	     *    Get an alert by id <br/>
+	     *    Get an alert by id <br>
 	     * @return {Promise<Alert>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getAlert(alertId: string): Promise<Alert>;
 	    /**
@@ -12987,12 +13826,13 @@ declare module 'lib/services/AlertsService' {
 	     * @method getAlerts
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
 	     * @param {number} limit Limit of Alerts to retrieve (100 by default).
 	     * @description
-	     *    Get alerts : required role(s) superadmin,support,admin <br/>
+	     *    Get alerts : required role(s) superadmin,support,admin <br>
 	     * @return {Promise<AlertsData>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getAlerts(offset?: number, limit?: number): Promise<AlertsData>;
 	    /**
@@ -13000,14 +13840,15 @@ declare module 'lib/services/AlertsService' {
 	     * @method sendAlertFeedback
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {string} deviceId Id of the device.
 	     * @param {string} alertId Id of the alert.
 	     * @param {string} answerId Id of the answer.
 	     * @description
-	     *    To send a feedback from an alert.   <br/>
-	     *    To be used by end-user who has received the alert   <br/>
+	     *    To send a feedback from an alert.   <br>
+	     *    To be used by end-user who has received the alert   <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any>;
 	    /**
@@ -13015,23 +13856,24 @@ declare module 'lib/services/AlertsService' {
 	     * @method getAlertFeedbackSentForANotificationMessage
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification..
 	     * @description
-	     *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br/>
+	     *    This API allows to list the feedback sent by the devices for a given notification message (identified by its notification history's id). <br>
 	     * @return {Promise<any>} the result of the operation.
 	     * {
-	     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
-	     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
-	     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
-	     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
-	     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
-	     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
-	     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
-	     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
-	     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
-	     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+	     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br>
+	     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br>
+	     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br>
+	     * - small: id notificationId notificationHistoryId device.id creationDate <br>
+	     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br>
+	     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br>
+	     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br>
+	     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br>
+	     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
+	     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
 	     * }
-	     * @category async
+	     
 	     */
 	    getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any>;
 	    /**
@@ -13039,23 +13881,24 @@ declare module 'lib/services/AlertsService' {
 	     * @method getAlertFeedbackSentForAnAlert
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {string} alertId Id of the alert.
 	     * @description
-	     *    This API allows to list the feedback sent by the devices for a given notification. <br/>
+	     *    This API allows to list the feedback sent by the devices for a given notification. <br>
 	     * @return {Promise<any>} the result of the operation.
 	     * {
-	     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br/>
-	     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br/>
-	     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br/>
-	     * - small: id notificationId notificationHistoryId device.id creationDate <br/>
-	     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br/>
-	     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br/>
-	     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br/>
-	     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br/>
-	     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br/>
-	     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br/>
+	     * fromCreationDate optionnel 	Date-Time Allows to filter feedback submitted from provided date (ISO 8601 format). <br>
+	     * toCreationDate optionnel 	Date-Time Allows to filter feedback submitted until provided date (ISO 8601 format). <br>
+	     * format optionnel 	String Allows to retrieve more or less feedback details in response. <br>
+	     * - small: id notificationId notificationHistoryId device.id creationDate <br>
+	     * - medium: id notificationId notificationHistoryId device.id device.name creationDate data <br>
+	     * - full: id notificationId companyId notificationHistoryId device.id device.name device.type device.userId device.jid_im device.jid_resource creationDate data (default value : small. Possible values : small, medium, full) <br>
+	     * limit optionnel 	Number Allow to specify the number of feedback to retrieve. (default value : 100) <br>
+	     * offset optionnel 	Number Allow to specify the position of first feedback to retrieve (first feedback if not specified). Warning: if offset > total, no results are returned. (default value : 0) <br>
+	     * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
+	     * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
 	     * }
-	     * @category async
+	     
 	     */
 	    getAlertFeedbackSentForAnAlert(alertId: string): Promise<any>;
 	    /**
@@ -13063,16 +13906,17 @@ declare module 'lib/services/AlertsService' {
 	     * @method getAlertStatsFeedbackSentForANotificationMessage
 	     * @instance
 	     * @async
+	     * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
 	     * @param {string} notificationHistoryId notification history unique identifier. notificationHistoryId corresponds to the id in the history Array of the messages sent for the related notification.
 	     * @description
-	     *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br/>
+	     *    This API can be used to list all distinct feedback data submitted by the devices for a given notification message (identified by its notification history's id), with the number of devices for each distinct submitted feedback data. <br>
 	     * @return {Promise<any>} the result of the operation.
 	     * {
-	     *   stats 	Object[] List of feedback data submitted by the devices for this given notification message <br/>
-	     *      data 	String data submitted by the devices <br/>
-	     *      count 	String Number of devices having submitted this given data <br/>
+	     *   stats 	Object[] List of feedback data submitted by the devices for this given notification message <br>
+	     *      data 	String data submitted by the devices <br>
+	     *      count 	String Number of devices having submitted this given data <br>
 	     * }
-	     * @category async
+	     
 	     */
 	    getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any>;
 	    /**
@@ -13080,11 +13924,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getReportSummary
 	     * @instance
 	     * @async
+	     * @category REPORTS
 	     * @param {string} alertId Id of the alert.
 	     * @description
-	     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br/>
+	     *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getReportSummary(alertId: string): Promise<any>;
 	    /**
@@ -13092,11 +13937,12 @@ declare module 'lib/services/AlertsService' {
 	     * @method getReportDetails
 	     * @instance
 	     * @async
+	     * @category REPORTS
 	     * @param {string} alertId Id of the alert.
 	     * @description
-	     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br/>
+	     *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getReportDetails(alertId: string): Promise<any>;
 	    /**
@@ -13104,21 +13950,22 @@ declare module 'lib/services/AlertsService' {
 	     * @method getReportComplete
 	     * @instance
 	     * @async
+	     * @category REPORTS
 	     * @param {string} alertId Id of the alert.
 	     * @description
-	     *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br/>
-	     * <br/>
-	     *  The detailed CSV report is generated when one of the APIs getReportSummary or GET getReportDetails is called while the state of the notification message process has reached a final state: <br/>
-	     * <br/>
-	     *  completed: all the devices targeted by the notification have been notified and have acknowledged the reception of the message, <br/>
-	     *  expired: some devices targeted by the notification haven't acknowledged the reception of the message but the notification expiration date has been reached, <br/>
-	     *  cancelled: some devices targeted by the notification haven't acknowledged the reception of the message but the notification status has been set to terminated.<br/>
-	     * <br/>
-	     *  The generated detailed CSV report is stored in Rainbow filestorage backend. The fileDescriptor identifier returned by this API can then be used to download it using the Rainbow filestorage API GET /api/rainbow/fileserver/v1.0/files/:fileId <br/>
-	     *  The detailed CSV report contains the following columns: <br/>
-	     *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br/>
+	     *    Allows to get the fileDescriptor storing the detailed CSV report of the notification. <br>
+	     * <br>
+	     *  The detailed CSV report is generated when one of the APIs getReportSummary or GET getReportDetails is called while the state of the notification message process has reached a final state: <br>
+	     * <br>
+	     *  completed: all the devices targeted by the notification have been notified and have acknowledged the reception of the message, <br>
+	     *  expired: some devices targeted by the notification haven't acknowledged the reception of the message but the notification expiration date has been reached, <br>
+	     *  cancelled: some devices targeted by the notification haven't acknowledged the reception of the message but the notification status has been set to terminated.<br>
+	     * <br>
+	     *  The generated detailed CSV report is stored in Rainbow filestorage backend. The fileDescriptor identifier returned by this API can then be used to download it using the Rainbow filestorage API GET /api/rainbow/fileserver/v1.0/files/:fileId <br>
+	     *  The detailed CSV report contains the following columns: <br>
+	     *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br>
 	     * @return {Promise<any>} the result of the operation.
-	     * @category async
+	     
 	     */
 	    getReportComplete(alertId: string): Promise<any>;
 	}
@@ -13258,14 +14105,14 @@ declare module 'lib/connection/XMPPServiceHandler/webinarEventHandler' {
 	export { WebinarEventHandler };
 
 }
-declare module 'lib/services/WebinarService' {
+declare module 'lib/services/WebinarsService' {
 	/// <reference types="node" />
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core';
 	import { GenericService } from 'lib/services/GenericService';
 	import { Webinar } from 'lib/common/models/webinar';
-	export {}; class WebinarService extends GenericService {
+	export {}; class WebinarsService extends GenericService {
 	    private avatarDomain;
 	    private readonly _protocol;
 	    private readonly _host;
@@ -13320,9 +14167,10 @@ declare module 'lib/services/WebinarService' {
 	    /**
 	     * @name getWebinarFromCache
 	     * @private
+	     * @category Webinars Utils
 	     * @param {string} webinarId
 	     * @description
-	     *      GET A CHANNEL FROM CACHE <br/>
+	     *      GET A CHANNEL FROM CACHE <br>
 	     */
 	    private getWebinarFromCache;
 	    private addOrUpdateWebinarToCache;
@@ -13332,8 +14180,9 @@ declare module 'lib/services/WebinarService' {
 	     * @method createWebinar
 	     * @since 2.3.0
 	     * @instance
+	     * @category Webinars
 	     * @description
-	     *  Create a webinar (2 rooms are used for it).<br/>
+	     *  Create a webinar (2 rooms are used for it).<br>
 	     * @param {string} name The name of the bubble to create.
 	     * @param {string} subject Webinar subject.
 	     * @param {Date} waitingRoomStartDate Waiting room start date UTC format.
@@ -13350,16 +14199,17 @@ declare module 'lib/services/WebinarService' {
 	     * @param {string} chatOption Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
+	    
 	     */
 	    createWebinar(name: string, subject: string, waitingRoomStartDate: Date, webinarStartDate: Date, webinarEndDate: Date, reminderDates: Array<Date>, timeZone: string, register: boolean, approvalRegistrationMethod: string, passwordNeeded: boolean, isOrganizer: boolean, waitingRoomMultimediaURL: Array<string>, stageBackground: string, chatOption?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateWebinar
 	     * @since 2.3.0
+	     * @category Webinars
 	     * @instance
 	     * @description
-	     *  Update a webinar.<br/>
+	     *  Update a webinar.<br>
 	     * @param {string} webinarId Webinar identifier.
 	     * @param {string} name The name of the bubble to create.
 	     * @param {string} subject Webinar subject.
@@ -13377,7 +14227,6 @@ declare module 'lib/services/WebinarService' {
 	     * @param {string} chatOption Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
 	     */
 	    updateWebinar(webinarId: string, name: string, subject: string, waitingRoomStartDate: Date, webinarStartDate: Date, webinarEndDate: Date, reminderDates: Array<Date>, timeZone: string, register: boolean, approvalRegistrationMethod: string, passwordNeeded: boolean, lockRegistration: boolean, waitingRoomMultimediaURL: Array<string>, stageBackground: string, chatOption: string): Promise<unknown>;
 	    /**
@@ -13385,25 +14234,26 @@ declare module 'lib/services/WebinarService' {
 	     * @method getWebinarData
 	     * @since 2.3.0
 	     * @instance
+	     * @category Webinars
 	     * @description
-	     *  Get data for a given webinar.<br/>
+	     *  Get data for a given webinar.<br>
 	     * @param {string} webinarId Webinar identifier.
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
+	    
 	     */
 	    getWebinarData(webinarId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getWebinarsData
 	     * @instance
+	     * @category Webinars
 	     * @since 2.3.0
 	     * @description
-	     *  Get data for webinars where requester is creator, organizer, speaker and/or participant.<br/>
+	     *  Get data for webinars where requester is creator, organizer, speaker and/or participant.<br>
 	     * @param {string} role filter. Possible values : creator, organizer, speaker, participant
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
 	     */
 	    getWebinarsData(role: string): Promise<unknown>;
 	    /**
@@ -13411,10 +14261,12 @@ declare module 'lib/services/WebinarService' {
 	     * @method fetchMyWebinars
 	     * @since 2.3.0
 	     * @instance
+	     * @async
+	     * @category Webinars
 	     * @param {boolean} force Boolean to force the get of webinars's informations from server.
 	     * @description
-	     *    Get the webinars you own.<br/>
-	     *    Return a promise. <br/>
+	     *    Get the webinars you own.<br>
+	     *    Return a promise. <br>
 	     * @return {Promise<Webinar[]>} Return Promise
 	     */
 	    fetchMyWebinars(force?: boolean): Promise<Webinar[]>;
@@ -13423,17 +14275,18 @@ declare module 'lib/services/WebinarService' {
 	     * @method warnWebinarModerators
 	     * @since 2.3.0
 	     * @instance
+	     * @category Webinars
 	     * @description
-	     *  When main speakers and organizers are selected, it's time to warn each of them to join the practice room. when some webinar information change such as:<br/>
-	     *  As a result, moderatorsSelectedAnNotified boolean is set to true.<br/>
-	     * @param {string} webinarId Webinar unique identifier. <br/>
-	     * Notes:<br/>
-	     * API Call Mandatory before publishing the webinar event:<br/>
-	     *  The webinar can't be published if webinar moderators are not warned prior.<br/>
-	     *  see API publishAWebinarEvent<br/>
+	     *  When main speakers and organizers are selected, it's time to warn each of them to join the practice room. when some webinar information change such as:<br>
+	     *  As a result, moderatorsSelectedAnNotified boolean is set to true.<br>
+	     * @param {string} webinarId Webinar unique identifier. <br>
+	     * Notes:<br>
+	     * API Call Mandatory before publishing the webinar event:<br>
+	     *  The webinar can't be published if webinar moderators are not warned prior.<br>
+	     *  see API publishAWebinarEvent<br>
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
+	    
 	     */
 	    warnWebinarModerators(webinarId: string): Promise<unknown>;
 	    /**
@@ -13441,33 +14294,34 @@ declare module 'lib/services/WebinarService' {
 	     * @method publishAWebinarEvent
 	     * @since 2.3.0
 	     * @instance
+	     * @category Webinars
 	     * @description
-	     *  When main information about the webinar event are decided, it's up to open participant registration and allow automatic email sent when some webinar information change such as:<br/>
-	     *  cancellation<br/>
-	     *  date changes<br/>
-	     *  speakers added or removed<br/>
-	     *  As a result, emailNotification boolean is set to true. This boolean is checked when a participant try to submit a registration earlier. See API POST /api/rainbow/webinar/v1.0/webinars/self-register<br/>
-	     * @param {string} webinarId Webinar unique identifier. <br/>
+	     *  When main information about the webinar event are decided, it's up to open participant registration and allow automatic email sent when some webinar information change such as:<br>
+	     *  cancellation<br>
+	     *  date changes<br>
+	     *  speakers added or removed<br>
+	     *  As a result, emailNotification boolean is set to true. This boolean is checked when a participant try to submit a registration earlier. See API POST /api/rainbow/webinar/v1.0/webinars/self-register<br>
+	     * @param {string} webinarId Webinar unique identifier. <br>
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
+	    
 	     */
 	    publishAWebinarEvent(webinarId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method deleteWebinar
 	     * @since 2.3.0
+	     * @category Webinars
 	     * @instance
 	     * @description
-	     *  Delete a webinar.<br/>
-	     * @param {string} webinarId Webinar unique identifier. <br/>
+	     *  Delete a webinar.<br>
+	     * @param {string} webinarId Webinar unique identifier. <br>
 	     * @async
 	     * @return {Promise<any, ErrorManager>}
-	     * @category async
 	     */
 	    deleteWebinar(webinarId: string): Promise<unknown>;
 	}
-	export { WebinarService as WebinarService };
+	export { WebinarsService as WebinarsService };
 
 }
 declare module 'lib/services/RBVoiceService' {
@@ -13502,7 +14356,7 @@ declare module 'lib/Core' {
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
 	import { HTTPService } from 'lib/connection/HttpService';
-	import { IMService } from 'lib/services/ImsService';
+	import { ImsService } from 'lib/services/ImsService';
 	import { PresenceService } from 'lib/services/PresenceService';
 	import { ChannelsService } from 'lib/services/ChannelsService';
 	import { ContactsService } from 'lib/services/ContactsService';
@@ -13523,7 +14377,7 @@ declare module 'lib/Core' {
 	import { ProxyImpl } from 'lib/ProxyImpl';
 	import { AlertsService } from 'lib/services/AlertsService';
 	import { S2SService } from 'lib/services/S2SService';
-	import { WebinarService } from 'lib/services/WebinarService';
+	import { WebinarsService } from 'lib/services/WebinarsService';
 	import { RBVoiceService } from 'lib/services/RBVoiceService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
@@ -13539,7 +14393,7 @@ declare module 'lib/Core' {
 	    _http: HTTPService;
 	    _xmpp: XMPPService;
 	    _stateManager: StateManager;
-	    _im: IMService;
+	    _im: ImsService;
 	    _presence: PresenceService;
 	    _channels: ChannelsService;
 	    _contacts: ContactsService;
@@ -13555,7 +14409,7 @@ declare module 'lib/Core' {
 	    _calllog: CallLogService;
 	    _favorites: FavoritesService;
 	    _alerts: AlertsService;
-	    _webinar: WebinarService;
+	    _webinars: WebinarsService;
 	    _rbvoice: RBVoiceService;
 	    _invitations: InvitationsService;
 	    _botsjid: any;
@@ -13582,7 +14436,7 @@ declare module 'lib/Core' {
 	    get settings(): SettingsService;
 	    get presence(): PresenceService;
 	    get profiles(): ProfilesService;
-	    get im(): IMService;
+	    get im(): ImsService;
 	    get invitations(): InvitationsService;
 	    get contacts(): ContactsService;
 	    get conversations(): ConversationsService;
@@ -13605,7 +14459,7 @@ declare module 'lib/Core' {
 declare module 'lib/NodeSDK' {
 	import { Core } from 'lib/Core';
 	import { Appreciation } from 'lib/common/models/Channel';
-	import { IMService } from 'lib/services/ImsService';
+	import { ImsService } from 'lib/services/ImsService';
 	import { ChannelsService } from 'lib/services/ChannelsService';
 	import { S2SService } from 'lib/services/S2SService';
 	import { InvitationsService } from 'lib/services/InvitationsService';
@@ -13627,7 +14481,7 @@ declare module 'lib/NodeSDK' {
 	import { AlertsService } from 'lib/services/AlertsService';
 	import { ProfilesService } from 'lib/services/ProfilesService';
 	import { DataStoreType } from 'lib/config/config';
-	import { WebinarService } from 'lib/services/WebinarService';
+	import { WebinarsService } from 'lib/services/WebinarsService';
 	import { RBVoiceService } from 'lib/services/RBVoiceService'; class NodeSDK {
 	    _core: Core;
 	    startTime: Date;
@@ -13672,7 +14526,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
 	     * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
 	     * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
-	     * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).</br>
+	     * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
 	     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
 	     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
 	     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
@@ -13716,18 +14570,18 @@ declare module 'lib/NodeSDK' {
 	     * @public
 	     * @method start
 	     * @instance
-	     * @param {String} token a valid token to login without login/password. </br>
-	     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : </br>
-	     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. </br>
-	     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. </br>
-	     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. </br>
-	     *      It is recommended to renew the token upon the arrival of this event. </br>
+	     * @param {String} token a valid token to login without login/password. <br>
+	     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : <br>
+	     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. <br>
+	     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. <br>
+	     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. <br>
+	     *      It is recommended to renew the token upon the arrival of this event. <br>
 	     * @description
-	     *    Start the SDK </br>
-	     *    Note :</br>
-	     *    The token must be empty to signin with credentials.</br>
-	     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)</br>
-	     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example </br>
+	     *    Start the SDK <br>
+	     *    Note :<br>
+	     *    The token must be empty to signin with credentials.<br>
+	     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)<br>
+	     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
 	     * @memberof NodeSDK
 	     */
 	    start(token: any): Promise<unknown>;
@@ -13774,9 +14628,9 @@ declare module 'lib/NodeSDK' {
 	     * @instance
 	     * @description
 	     *    Get access to the IM module
-	     * @return {IMService}
+	     * @return {ImsService}
 	     */
-	    get im(): IMService;
+	    get im(): ImsService;
 	    /**
 	     * @public
 	     * @property {Object} channels
@@ -13984,12 +14838,12 @@ declare module 'lib/NodeSDK' {
 	    get rbvoice(): RBVoiceService;
 	    /**
 	     * @public
-	     * @property {WebinarService} alerts
+	     * @property {WebinarsService} alerts
 	     * @description
 	     *    Get access to the webinar module
-	     * @return {WebinarService}
+	     * @return {WebinarsService}
 	     */
-	    get webinar(): WebinarService;
+	    get webinars(): WebinarsService;
 	    /**
 	     * @public
 	     * @property {Object} DataStoreType
@@ -14003,19 +14857,19 @@ declare module 'lib/NodeSDK' {
 	     * @method getConnectionStatus
 	     * @instance
 	     * @description
-	     *    Get connections status of each low layer services, and also the full SDK state. </br>
-	     * </br>
-	     * { </br>
-	     * restStatus: boolean, The status of the REST connection authentication to rainbow server. </br>
-	     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server. </br>
-	     * s2sStatus: boolean, The status of the S2S Connection to rainbow server. </br>
-	     * state: SDKSTATUSENUM The state of the SDK. </br>
-	     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value. </br>
-	     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue. </br>
-	     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it. </br>
-	     * maxSimultaneousRequests : number, the number of request which can be launch at a same time. </br>
-	     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  </br>
-	     * } </br>
+	     *    Get connections status of each low layer services, and also the full SDK state. <br>
+	     * <br>
+	     * { <br>
+	     * restStatus: boolean, The status of the REST connection authentication to rainbow server. <br>
+	     * xmppStatus: boolean, The status of the XMPP Connection to rainbow server. <br>
+	     * s2sStatus: boolean, The status of the S2S Connection to rainbow server. <br>
+	     * state: SDKSTATUSENUM The state of the SDK. <br>
+	     * nbHttpAdded: number, the number of HTTP requests (any verb GET, HEAD, POST, ...) added in the HttpManager queue. Note that it is reset to zero when it reaches Number.MAX_SAFE_INTEGER value. <br>
+	     * httpQueueSize: number, the number of requests stored in the Queue. Note that when a request is sent to server, it is already removed from the queue. <br>
+	     * nbRunningReq: number, the number of requests which has been poped from the queue and the SDK did not yet received an answer for it. <br>
+	     * maxSimultaneousRequests : number, the number of request which can be launch at a same time. <br>
+	     * nbReqInQueue : number, the number of requests waiting for being treated by the HttpManager.  <br>
+	     * } <br>
 	     * @return {Promise<{ restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests : number }>}
 	     * @category async
 	     */
@@ -14034,7 +14888,7 @@ declare module 'lib/NodeSDK' {
 	     * @method Appreciation
 	     * @static
 	     * @description
-	     *    Get connections Appreciation type. </br>
+	     *    Get connections Appreciation type. <br>
 	     * @return {Appreciation}
 	     */
 	    static get Appreciation(): typeof Appreciation;

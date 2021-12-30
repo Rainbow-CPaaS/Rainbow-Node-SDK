@@ -187,7 +187,7 @@ class WebinarsService extends GenericService {
      * @category Webinars Utils
      * @param {string} webinarId
      * @description
-     *      GET A CHANNEL FROM CACHE <br/>
+     *      GET A CHANNEL FROM CACHE <br>
      */
     private getWebinarFromCache(webinarId: string): Webinar {
         let webinarsFound = null;
@@ -275,7 +275,7 @@ class WebinarsService extends GenericService {
      * @instance
      * @category Webinars
      * @description
-     *  Create a webinar (2 rooms are used for it).<br/>
+     *  Create a webinar (2 rooms are used for it).<br>
      * @param {string} name The name of the bubble to create.
      * @param {string} subject Webinar subject.
      * @param {Date} waitingRoomStartDate Waiting room start date UTC format.
@@ -364,7 +364,7 @@ class WebinarsService extends GenericService {
      * @category Webinars
      * @instance
      * @description
-     *  Update a webinar.<br/>
+     *  Update a webinar.<br>
      * @param {string} webinarId Webinar identifier.
      * @param {string} name The name of the bubble to create.
      * @param {string} subject Webinar subject.
@@ -444,7 +444,7 @@ class WebinarsService extends GenericService {
      * @instance
      * @category Webinars
      * @description
-     *  Get data for a given webinar.<br/>
+     *  Get data for a given webinar.<br>
      * @param {string} webinarId Webinar identifier.
      * @async
      * @return {Promise<any, ErrorManager>}
@@ -481,7 +481,7 @@ class WebinarsService extends GenericService {
      * @category Webinars
      * @since 2.3.0
      * @description
-     *  Get data for webinars where requester is creator, organizer, speaker and/or participant.<br/>
+     *  Get data for webinars where requester is creator, organizer, speaker and/or participant.<br>
      * @param {string} role filter. Possible values : creator, organizer, speaker, participant 
      * @async
      * @return {Promise<any, ErrorManager>}
@@ -520,8 +520,8 @@ class WebinarsService extends GenericService {
      * @category Webinars
      * @param {boolean} force Boolean to force the get of webinars's informations from server.
      * @description
-     *    Get the webinars you own.<br/>
-     *    Return a promise. <br/>
+     *    Get the webinars you own.<br>
+     *    Return a promise. <br>
      * @return {Promise<Webinar[]>} Return Promise 
      */
     async fetchMyWebinars(force? : boolean) : Promise<Webinar[]>{
@@ -571,13 +571,13 @@ class WebinarsService extends GenericService {
      * @instance
      * @category Webinars
      * @description
-     *  When main speakers and organizers are selected, it's time to warn each of them to join the practice room. when some webinar information change such as:<br/>
-     *  As a result, moderatorsSelectedAnNotified boolean is set to true.<br/>
-     * @param {string} webinarId Webinar unique identifier. <br/>
-     * Notes:<br/>
-     * API Call Mandatory before publishing the webinar event:<br/>
-     *  The webinar can't be published if webinar moderators are not warned prior.<br/>
-     *  see API publishAWebinarEvent<br/>
+     *  When main speakers and organizers are selected, it's time to warn each of them to join the practice room. when some webinar information change such as:<br>
+     *  As a result, moderatorsSelectedAnNotified boolean is set to true.<br>
+     * @param {string} webinarId Webinar unique identifier. <br>
+     * Notes:<br>
+     * API Call Mandatory before publishing the webinar event:<br>
+     *  The webinar can't be published if webinar moderators are not warned prior.<br>
+     *  see API publishAWebinarEvent<br>
      * @async
      * @return {Promise<any, ErrorManager>}
     
@@ -613,12 +613,12 @@ class WebinarsService extends GenericService {
      * @instance
      * @category Webinars
      * @description
-     *  When main information about the webinar event are decided, it's up to open participant registration and allow automatic email sent when some webinar information change such as:<br/>
-     *  cancellation<br/>
-     *  date changes<br/>
-     *  speakers added or removed<br/>
-     *  As a result, emailNotification boolean is set to true. This boolean is checked when a participant try to submit a registration earlier. See API POST /api/rainbow/webinar/v1.0/webinars/self-register<br/>
-     * @param {string} webinarId Webinar unique identifier. <br/>
+     *  When main information about the webinar event are decided, it's up to open participant registration and allow automatic email sent when some webinar information change such as:<br>
+     *  cancellation<br>
+     *  date changes<br>
+     *  speakers added or removed<br>
+     *  As a result, emailNotification boolean is set to true. This boolean is checked when a participant try to submit a registration earlier. See API POST /api/rainbow/webinar/v1.0/webinars/self-register<br>
+     * @param {string} webinarId Webinar unique identifier. <br>
      * @async
      * @return {Promise<any, ErrorManager>}
     
@@ -654,8 +654,8 @@ class WebinarsService extends GenericService {
      * @category Webinars
      * @instance
      * @description
-     *  Delete a webinar.<br/>
-     * @param {string} webinarId Webinar unique identifier. <br/>
+     *  Delete a webinar.<br>
+     * @param {string} webinarId Webinar unique identifier. <br>
      * @async
      * @return {Promise<any, ErrorManager>}
      */

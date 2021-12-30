@@ -53,7 +53,7 @@ const textAvatarColor = ["#ff4500", "#d38700", "#348833", "#007356", "#00b2a9", 
  * @name Contact
  * @public
  * @description
- *      This class is used to represent a contact or the connected user <br/>
+ *      This class is used to represent a contact or the connected user <br>
  *      A contact is defined by a set of public information (name, firstName, avatar...) and a set of private information that are only shared with contacts that are in the user's network or in the same company (email, phone numbers...)
  */
 class Contact {

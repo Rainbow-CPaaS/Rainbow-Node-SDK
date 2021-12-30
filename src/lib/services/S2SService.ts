@@ -26,7 +26,7 @@ const LOG_ID = "S2S - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module handles the s2s API's methods to Rainbow. <br/>
+     *      This module handles the s2s API's methods to Rainbow. <br>
      *      <br><br>
      *      The main methods proposed in that module allow to: <br>
      *      - Signin in s2s mode <br>
@@ -223,7 +223,7 @@ class S2SService extends GenericService{
      * @instance
      * @category S2S Management
      * @description
-     *      List all the connected user's connexions. <br/>
+     *      List all the connected user's connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -248,7 +248,7 @@ class S2SService extends GenericService{
      * @instance
      * @category S2S Management
      * @description
-     *      check the S2S connection with a head request. <br/>
+     *      check the S2S connection with a head request. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -274,7 +274,7 @@ class S2SService extends GenericService{
      * @category S2S Management
      * @param {Array} connexions a List of connections S2S to delete
      * @description
-     *      Delete one by one a list of S2S connections of the connected user. <br/>
+     *      Delete one by one a list of S2S connections of the connected user. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -307,7 +307,7 @@ class S2SService extends GenericService{
      * @instance
      * @category S2S Management
      * @description
-     *      Delete all the connected user's S2S connexions. <br/>
+     *      Delete all the connected user's S2S connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -331,7 +331,7 @@ class S2SService extends GenericService{
      * @category S2S Management
      * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
-     *      Login to S2S event server the already connected user to REST API server. <br/>
+     *      Login to S2S event server the already connected user to REST API server. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -359,7 +359,7 @@ class S2SService extends GenericService{
      * @category S2S Management
      * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
      * @description
-     *      Get informations about a S2S connexions. <br/>
+     *      Get informations about a S2S connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -398,14 +398,14 @@ class S2SService extends GenericService{
      * @method sendS2SPresence
      * @instance
      * @category S2S Methods
-     * @param {Object} obj Object {show, status} describing the presence : <br/>
-     *  To put presence to cases : <br/>
-     * "online":     {show = undefined, status = "mode=auto"} <br/>
-     * "away": {show = "xa", status = "away"} <br/>
-     * "dnd": {show = "dnd", status = ""} <br/>
-     * "invisible": {show = "xa", status = ""} <br/>
+     * @param {Object} obj Object {show, status} describing the presence : <br>
+     *  To put presence to cases : <br>
+     * "online":     {show = undefined, status = "mode=auto"} <br>
+     * "away": {show = "xa", status = "away"} <br>
+     * "dnd": {show = "dnd", status = ""} <br>
+     * "invisible": {show = "xa", status = ""} <br>
      * @description
-     *      set the presence of the connected user with s2s api . <br/>
+     *      set the presence of the connected user with s2s api . <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -430,22 +430,22 @@ class S2SService extends GenericService{
      * @instance
      * @category S2S Methods
      * @param {String} conversationId
-     * @param {String} msg The message object to send. <br/>
-     * { <br/>
-     *   "message": { <br/>
-     *   "subject": "Greeting", <br/>
-     *   "lang": "en", <br/>
-     *   "contents": [ <br/>
-     *     { <br/>
-     *       "type": "text/markdown", <br/>
-     *       "data": "## Hello Bob" <br/>
-     *     } <br/>
-     *   ], <br/>
-     *   "body": "Hello world" <br/>
-     *   } <br/>
-     * } <br/>
+     * @param {String} msg The message object to send. <br>
+     * { <br>
+     *   "message": { <br>
+     *   "subject": "Greeting", <br>
+     *   "lang": "en", <br>
+     *   "contents": [ <br>
+     *     { <br>
+     *       "type": "text/markdown", <br>
+     *       "data": "## Hello Bob" <br>
+     *     } <br>
+     *   ], <br>
+     *   "body": "Hello world" <br>
+     *   } <br>
+     * } <br>
      * @description
-     *      Send a message in a conversation. Note, corrected message is not yet supported. <br/>
+     *      Send a message in a conversation. Note, corrected message is not yet supported. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
@@ -471,7 +471,7 @@ class S2SService extends GenericService{
      * @category S2S Methods
      * @instance
      * @description
-     *      send presence in S2S to join a bubble conversation <br/>
+     *      send presence in S2S to join a bubble conversation <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result

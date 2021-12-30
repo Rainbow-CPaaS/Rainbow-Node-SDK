@@ -22,14 +22,14 @@ const LOG_ID = "GROUPS/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *		This service manages groups which allow to create his own lists of contacts. <br/>
+ *		This service manages groups which allow to create his own lists of contacts. <br>
  *		<br><br>
  *		The main methods proposed in that module allow to: <br>
- *		- Get all groups of the user <br/>
- *		- Create a new group <br/>
- *		- Delete an existing group <br/>
- *		- Add a contact in a group <br/>
- *		- Remove a contact from a group <br/>
+ *		- Get all groups of the user <br>
+ *		- Create a new group <br>
+ *		- Delete an existing group <br>
+ *		- Add a contact in a group <br>
+ *		- Remove a contact from a group <br>
  */
  class GroupsService extends GenericService{
     private _groups: any;
@@ -134,7 +134,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {string} comment The comment of the group to create
      * @param {boolean} isFavorite If true, the group is flagged as favorite
      * @description
-     *      Create a new group <br/>
+     *      Create a new group <br>
      * @async
      * @category Groups MANAGEMENT
      * @return {Promise<Object, ErrorManager>}
@@ -174,7 +174,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} group The group to delete
      * @description
-     *    Delete an owned group <br/>
+     *    Delete an owned group <br>
      * @async
       * @category Groups MANAGEMENT
       * @return {Promise<Object, ErrorManager>}
@@ -216,8 +216,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @async
      * @category Groups MANAGEMENT
      * @description
-     *    Delete all existing owned groups <br/>
-     *    Return a promise <br/>
+     *    Delete all existing owned groups <br>
+     *    Return a promise <br>
      * @return {Object} Nothing or an error object depending on the result
      */
     async deleteAllGroups() {
@@ -263,7 +263,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Object} group The group to update
      * @param {string} name The new name of the group
      * @description
-     * 		Update the name of a group <br/>
+     * 		Update the name of a group <br>
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
@@ -310,7 +310,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @private
      * @category Groups MANAGEMENT
      * @description
-     *      Internal method <br/>
+     *      Internal method <br>
      */
      getGroups() {
          let that = this;
@@ -354,7 +354,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} group The group
      * @description
-     * 		Set a group as a favorite one of the curent loggued in user. <br/>
+     * 		Set a group as a favorite one of the curent loggued in user. <br>
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
@@ -390,7 +390,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} group The group
      * @description
-     * 		Remove the favorite state of a group of the curent loggued in user. <br/>
+     * 		Remove the favorite state of a group of the curent loggued in user. <br>
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
@@ -425,7 +425,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @return {Array} The list of existing groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
      * @description
-     *  Return the list of existing groups <br/>
+     *  Return the list of existing groups <br>
      */
     getAll() {
         return this._groups;
@@ -438,7 +438,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @return {Array} The list of favorite groups with following fields: id, name, comment, isFavorite, owner, creationDate, array of users in the group
      * @description
-     *  Return the list of favorite groups <br/>
+     *  Return the list of favorite groups <br>
      */
     getFavoriteGroups() {
         return this._groups.filter((group) => {
@@ -455,7 +455,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {String} id group Id of the group to found
      * @return {Promise<any>} The group found if exist or undefined
      * @description
-     *  Return a group by its id <br/>
+     *  Return a group by its id <br>
      */
     getGroupById(id: string, forceServerSearch : boolean = false) : Promise<any>{
         return new Promise((resolve, reject) => {
@@ -514,7 +514,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {boolean} forceServerSearch force the update from server.
      * @return {Promise<any>} The group found if exist or undefined
      * @description
-     *  Return a group by its id <br/>
+     *  Return a group by its id <br>
      */
     async getGroupByName(name : string, forceServerSearch : boolean = false) : Promise<any>{
         return new Promise((resolve, reject) => {
@@ -576,7 +576,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Contact} contact The user to add in group
      * @param {Object} group The group
      * @description
-     * 		Add a contact in a group <br/>
+     * 		Add a contact in a group <br>
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
      * @category async
@@ -628,7 +628,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Contact} contact The user to remove from the group
      * @param {Object} group The destination group
      * @description
-     *		Remove a contact from a group <br/>
+     *		Remove a contact from a group <br>
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
      * @category async
@@ -679,7 +679,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} data Contains the groupId of the created group
      * @description
-     *		Method called when a group is created <br/>
+     *		Method called when a group is created <br>
      */
     async _onGroupCreated(data) {
         let that = this;
@@ -707,7 +707,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} data Contains the groupId of the deleted group
      * @description
-     *		Method called when a group is deleted <br/>
+     *		Method called when a group is deleted <br>
      */
     async _onGroupDeleted(data) {
         let that = this;
@@ -731,7 +731,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} data Contains the groupId of the updated group
      * @description
-     *		Method called when a group is updated (name, comment, isFavorite) <br/>
+     *		Method called when a group is updated (name, comment, isFavorite) <br>
      */
     async _onGroupUpdated(data) {
         let that = this;
@@ -759,7 +759,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} data Contains the groupId and the userId
      * @description
-     *		Method called when a user is added to a group <br/>
+     *		Method called when a user is added to a group <br>
      */
     async _onUserAddedInGroup(data) {
         let that = this;
@@ -790,7 +790,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @instance
      * @param {Object} data Contains the groupId and the userId
      * @description
-     *		Method called when a user is removed from a group <br/>
+     *		Method called when a user is removed from a group <br>
      */
     async _onUserRemovedFromGroup(data) {
         let that = this;
