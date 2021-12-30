@@ -607,6 +607,21 @@ class Events {
         this._evReceiver.on("evt_internal_invitationdetailsreceived", async function(bubble) {
             try {
                 if (bubble && bubble.users) {
+                    //bubble.users.forEach(async (user) => {
+                        for (const user of bubble.users) {
+                            if (that._core.options._imOptions.autoInitialBubblePresence) {
+                                if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
+                                    // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                    await that._core._presence.sendInitialBubblePresenceSync(bubble);
+                                }
+                            } else {
+                                that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                            }
+                        }
+                    //});
+                    
+                    /*
                     bubble.users.forEach(async (user) => {
                             if (that._core.options._imOptions.autoInitialBubblePresence) {
                                 if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {

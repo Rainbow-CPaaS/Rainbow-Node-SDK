@@ -1214,16 +1214,17 @@ class ConversationEventHandler extends GenericHandler {
                     attachNumber,
                 };
 
-                if (stanza.attrs.type===TYPE_GROUPCHAT) {
+                if (eventName) {
+                    data.event = eventName;
+                    data.eventJid = eventJid;
+                    data.isEvent = true;
+                }
+
+                if (stanza.attrs.type===TYPE_GROUPCHAT ) {
                     data.fromBubbleJid = fromBubbleJid;
                     data.fromBubbleUserJid = fromBubbleUserJid;
                     data.fromJid = xu.getRoomJIDFromFullJID(stanza.attrs.from);
 
-                    if (eventName) {
-                        data.event = eventName;
-                        data.eventJid = eventJid;
-                        data.isEvent = true;
-                    }
                     if (attention) {
                         data.attention = attention;
                     }

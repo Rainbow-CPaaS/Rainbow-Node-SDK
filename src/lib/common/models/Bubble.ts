@@ -2,6 +2,7 @@
 
 import { Contact } from "./Contact";
 import {orderByFilter} from "../Utils";
+import {constants} from "http2";
 
 export{};
 
@@ -47,6 +48,57 @@ function sortUsersByDate (userADate, userBDate) {
     return res;
 }
 
+interface CallbackOneParam<T1, T2 = any> {
+    (param1: T1): T2;
+}
+
+class InitialPresence {
+    private _initPresencePromise : Promise<any>;
+    private _initPresencePromiseResolve : CallbackOneParam<any>;
+    private _initPresenceAck : boolean;
+    private _initPresenceInterval : any;
+
+    constructor() {
+        this._initPresencePromise = null;
+        this._initPresencePromiseResolve = null;
+        this._initPresenceAck = false;
+        this._initPresenceInterval = null;
+    }
+
+    get initPresencePromise(): Promise<any> {
+        return this._initPresencePromise;
+    }
+
+    set initPresencePromise(value: Promise<any>) {
+        this._initPresencePromise = value;
+    }
+
+    get initPresencePromiseResolve(): CallbackOneParam<any> {
+        return this._initPresencePromiseResolve;
+    }
+
+    set initPresencePromiseResolve(value: CallbackOneParam<any>) {
+        this._initPresencePromiseResolve = value;
+    }
+
+    get initPresenceAck(): boolean {
+        return this._initPresenceAck;
+    }
+
+    set initPresenceAck(value: boolean) {
+        this._initPresenceAck = value;
+    }
+
+    get initPresenceInterval(): any {
+        return this._initPresenceInterval;
+    }
+
+    set initPresenceInterval(value: any) {
+        this._initPresenceInterval = value;
+    }
+
+}
+
 /**
  * @class
  * @name Bubble
@@ -57,8 +109,16 @@ function sortUsersByDate (userADate, userBDate) {
  *		Like for one-to-one conversation, A conversation within a bubble never ends and all interactions done can be retrieved. <br>
  */
 class Bubble {
+    get initialPresence(): InitialPresence {
+        return this._initialPresence;
+    }
+
+    set initialPresence(value: InitialPresence) {
+        this._initialPresence = value;
+    }
     public id: any;
     public name: any;
+    public nameForLogs: string = "";
     public topic: any;
     public jid: any;
     public creator: any;
@@ -80,6 +140,7 @@ class Bubble {
     public containerId: string;
     public containerName: string;
     public status: string = "none";
+    private _initialPresence : InitialPresence;
 
 
     public static RoomUserStatus = {
@@ -382,6 +443,12 @@ class Bubble {
          */
         this.status = "none";
 
+        /**
+         * @public
+         * @property {InitialPresence} initialPresence The management of sent initial presence in the bubble of the connected user.
+         * @readonly
+         */
+        this._initialPresence = new InitialPresence();
     }
 
     /**
@@ -413,6 +480,14 @@ class Bubble {
         } else {
             this.users = _users;
         }
+    }
+
+    get getNameForLogs(): string {
+        if (!this.nameForLogs && this.name) {
+            const temp = this.name.replace(/[^\s](?=.{1,}$)/g, "*");
+            this.nameForLogs = this.name.charAt(0) + temp.substr(1);
+        }
+        return this.nameForLogs;
     }
 
     async updateBubble(data, contactsService) {
@@ -555,6 +630,6 @@ class Bubble {
 }
 
 
-export {Bubble};
-export default {Bubble};
-module.exports = {Bubble};
+export {Bubble, InitialPresence};
+export default {Bubble, InitialPresence};
+module.exports = {Bubble, InitialPresence};

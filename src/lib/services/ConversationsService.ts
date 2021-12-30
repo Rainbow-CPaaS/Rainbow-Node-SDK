@@ -1542,7 +1542,7 @@ class ConversationsService extends GenericService {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                             if (bubble) {
-                                that._presence.sendInitialBubblePresence(bubble);
+                                that._presence.sendInitialBubblePresenceSync(bubble);
                             }
                             // Send conversations update event
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);

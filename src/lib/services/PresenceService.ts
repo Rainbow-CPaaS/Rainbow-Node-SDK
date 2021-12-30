@@ -374,6 +374,64 @@ class PresenceService extends GenericService{
         });
     }
 
+    /**
+     * @private
+     * @method sendInitialBubblePresenceSync
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {Bubble} bubble The Bubble
+     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    public sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + "(sendInitialBubblePresenceSync) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
+        if (bubble.initialPresence.initPresencePromise) {
+            return bubble.initialPresence.initPresencePromise;
+        }
+        if (bubble.initialPresence.initPresenceAck) {
+            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSync) -- ${bubble.getNameForLogs} -- ${bubble.id} -- bubble already activated`);
+            return Promise.resolve();
+        }
+//                    bubble.initialPresence.initPresencePromise()
+        bubble.initialPresence.initPresencePromise = new Promise((resolve, reject) => {
+            bubble.initialPresence.initPresencePromiseResolve = resolve;
+            //that.sendInitialRoomPresence(bubble, 0);
+            that.sendInitialBubblePresence(bubble);
+
+            // Retry mechanism
+            const maxAttemptNumber = 3;
+            let attemptNumber = 0;
+
+            bubble.initialPresence.initPresenceInterval = interval(intervalDelay).subscribe(() => {
+                if (attemptNumber < maxAttemptNumber) {
+                    // up to <maxAttemptNumber> retries
+                    attemptNumber += 1;
+                    that.sendInitialBubblePresence(bubble, attemptNumber);
+                } else {
+                    // if no response after <maxAttemptNumber> retries, we clean the presence promise in the bubble 
+                    // (to make it possible for further trials to re-establish presence state and chat history access)
+                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
+                    reject("(sendInitialBubblePresenceSync) : no response");
+                    bubble.initialPresence.initPresencePromise = null;
+                    if (bubble.initialPresence.initPresenceInterval) {
+                        bubble.initialPresence.initPresenceInterval.unsubscribe();
+                        bubble.initialPresence.initPresenceInterval = null;
+                    }
+
+                    //refresh the bubble from the local bubble cache
+                    //bubble = this.bubbles[bubble.dbId];
+                    //should sent an update, so that the conversation is updated and we can sent chat messages inside
+                    //that.eventService.publish(this.ROOM_UPDATE_EVENT, bubble);
+                    that._eventEmitter.emit("evt_internal_bubblepresencesent", bubble);
+                }
+            });
+        });
+        return bubble.initialPresence.initPresencePromise;
+    }
+
     //endregion Presence Bubbles
 
     //region Events

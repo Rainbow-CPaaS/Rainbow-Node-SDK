@@ -246,7 +246,7 @@ class BubblesManager {
                             let test = false;
                             if (getRandomInt(2) == 1 || !test) {
                                 that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubble : ", bubble.jid);
-                                await that._presence.sendInitialBubblePresence(bubble);
+                                await that._presence.sendInitialBubblePresenceSync(bubble);
                             } else {
                                 that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", because of random test do not send the initial presence to bubble : ", bubble.jid);
                             }

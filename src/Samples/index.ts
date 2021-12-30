@@ -388,9 +388,18 @@ let urlS2S;
     });
 
     let bubbleInvitationReceived = null;
-    rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", (bubble) => {
+    rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", async (bubble) => {
         logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
         bubbleInvitationReceived = bubble;
+
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        logger.log("debug", "MAIN - [rainbow_onbubbleinvitationreceived    ] :: bubble : ", bubble);
+        let message = "message de test : " + utc;
+        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", undefined, "middle");
+        /* await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+            "type": "text/markdown",
+            "message": message
+        }, "subject", undefined, "middle"); // */
     });
 
     rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: ConferenceSession) => {
@@ -1872,6 +1881,54 @@ let urlS2S;
                             "type": "text/markdown",
                             "message": message
                         }, "subject", undefined, "middle");
+                    });
+                });
+            }
+        }); // */
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
+    
+  async function testCreateBubbleAndInvite() {
+        let loginEmail = "vincent01@vbe.test.openrainbow.net";
+        let appointmentRoom = "testBot_";
+        //let botappointment = "vincent01@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: getContactByLoginEmail contact : ", contact);
+                let utc = new Date().toJSON().replace(/-/g, "/");
+                await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
+                    logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: createBubble request ok", bubble);
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                        /*let message = "message de test";
+                        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                            "type": "text/markdown",
+                            "message": message
+                        }, "subject", undefined, "middle");
+                        // */
+                    });
+                });
+            }
+        }); // */
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
+
+    async function testCreateBubbleWithNoInvitationAndSendMessage() {
+        let loginEmail = "vincent02@vbe.test.openrainbow.net";
+        let appointmentRoom = "testBot";
+        //let botappointment = "vincent01@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+                let utc = new Date().toJSON().replace(/-/g, "/");
+                await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
+                    logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                        /* let message = "message de test";
+                        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                            "type": "text/markdown",
+                            "message": message
+                        }, "subject", undefined, "middle");
+                        // */
                     });
                 });
             }
