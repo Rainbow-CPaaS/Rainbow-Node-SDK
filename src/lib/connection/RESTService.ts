@@ -1579,6 +1579,8 @@ Request Method: PUT
                 history = "all";
             }
 
+            that.logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
+
             that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), {
                     name: name,
                     topic: description,

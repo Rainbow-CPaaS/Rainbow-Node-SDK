@@ -565,12 +565,16 @@ class Bubbles extends GenericService {
                 for (let i = 0; i < bubblesIdAdded.length; i++) {
                     let bubbleId = bubblesIdAdded[i];
 
-                    that._bubbles.forEach((bubble: Bubble) => {
-                        if (bubble.id===bubbleId) {
-                            bubble.containerId = containerId;
-                            bubble.containerName = containerName;
+                    //that._bubbles.forEach((bubble: Bubble) => {
+                        for (const bubble of that._bubbles) {
+
+
+                            if (bubble.id===bubbleId) {
+                                bubble.containerId = containerId;
+                                bubble.containerName = containerName;
+                            }
                         }
-                    });
+                    //});
 
                     await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
                         that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble.");
@@ -583,12 +587,14 @@ class Bubbles extends GenericService {
             } else {
                 let bubbleId = bubblesIdAdded;
 
-                that._bubbles.forEach((bubble: Bubble) => {
-                    if (bubble.id===bubbleId) {
-                        bubble.containerId = containerId;
-                        bubble.containerName = containerName;
+                //that._bubbles.forEach((bubble: Bubble) => {
+                    for (const bubble of that._bubbles) {
+                        if (bubble.id===bubbleId) {
+                            bubble.containerId = containerId;
+                            bubble.containerName = containerName;
+                        }
                     }
-                });
+                //});
 
                 await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
                     that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to add.");
@@ -605,12 +611,14 @@ class Bubbles extends GenericService {
                 for (let i = 0; i < bubblesIdRemoved.length; i++) {
                     let bubbleId = bubblesIdRemoved[i];
 
-                    that._bubbles.forEach((bubble: Bubble) => {
-                        if (bubble.id===bubbleId) {
-                            bubble.containerId = undefined;
-                            bubble.containerName = undefined;
+                    //that._bubbles.forEach((bubble: Bubble) => {
+                        for (const bubble of that._bubbles) {
+                            if (bubble.id===bubbleId) {
+                                bubble.containerId = undefined;
+                                bubble.containerName = undefined;
+                            }
                         }
-                    });
+                    //});
 
                     await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
                         that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble to remove.");
@@ -622,12 +630,14 @@ class Bubbles extends GenericService {
                 }
             } else {
                 let bubbleId = bubblesIdRemoved;
-                that._bubbles.forEach((bubble: Bubble) => {
-                    if (bubble.id===bubbleId) {
-                        bubble.containerId = undefined;
-                        bubble.containerName = undefined;
+                //that._bubbles.forEach((bubble: Bubble) => {
+                    for (const bubble of that._bubbles) {
+                        if (bubble.id===bubbleId) {
+                            bubble.containerId = undefined;
+                            bubble.containerName = undefined;
+                        }
                     }
-                });
+                //});
 
                 await that.getBubbleById(bubbleId).then(async (bubbleUpdated: any) => {
                     that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) container received found bubble.");
@@ -653,12 +663,14 @@ class Bubbles extends GenericService {
             }
                 break;
             case "delete": {
-                that._bubbles.forEach((bubble: Bubble) => {
+                //that._bubbles.forEach((bubble: Bubble) => {
+                for (const bubble of that._bubbles) {
                     if (bubble.containerId===containerId) {
                         bubble.containerId = undefined;
                         bubble.containerName = undefined;
                     }
-                });
+                }
+                //});
                 that._logger.log("debug", LOG_ID + "(_onBubblesContainerReceived) delete action.");
                 that._eventEmitter.emit("evt_internal_bubblescontainerdeleted", eventInfo);
             }
@@ -1800,14 +1812,17 @@ getAllActiveBubbles
 
         if (bubble.confEndpoints!=null) {
             //foreach(Bubble.ConfEndpoint confEndpoint in bubble.confEndpoints)
-            bubble.confEndpoints.forEach((confEndpoint: any) => {
+            //bubble.confEndpoints.forEach((confEndpoint: any) => {
+            for (const confEndpoint of bubble.confEndpoints) {
+
                 // Create a non active conference and "add it to the cache" - in consequence the conference will be removed and ConfrenceUpdated event raised if necessary
                 let conference: ConferenceSession = new ConferenceSession(confEndpoint.ConfEndpointId, new List(), MEDIATYPE.WEBRTC);
                 //conference.id = confEndpoint.ConfEndpointId;
                 conference.active = false;
                 that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
                 that.addConferenceToCache(conference);
-            });
+                //});
+            }
         }
     }
 
@@ -2326,9 +2341,11 @@ getAllActiveBubbles
         async createBubble(name, description, withHistory = false) {
     
             let that = this;
-    
+            
             return new Promise((resolve, reject) => {
-    
+
+                that._logger.log("debug", LOG_ID + "(createBubble) enterring.");
+
                 if (typeof withHistory==="undefined") {
                     withHistory = false;
                 }
@@ -2345,10 +2362,12 @@ getAllActiveBubbles
                     return;
                 }
     
-                that._rest.createBubble(name, description, withHistory).then((bubble: any) => {
+                that._rest.createBubble(name, description, withHistory).then(async (bubble: any) => {
                     that._logger.log("debug", LOG_ID + "(createBubble) creation successfull");
-                    that._logger.log("internal", LOG_ID + "(createBubble) creation successfull, bubble", bubble);
+                    // that._logger.log("internal", LOG_ID + "(createBubble) creation successfull, bubble", bubble);
     
+                    let bubbleObj = await that.addOrUpdateBubbleToCache(bubble);
+                    that._logger.log("internal", LOG_ID + "(createBubble) creation successfull, bubble object : ", bubbleObj);
                     /*that._eventEmitter.once("evt_internal_bubblepresencechanged", function fn_onbubblepresencechanged() {
                         that._logger.log("debug", LOG_ID + "(createBubble) bubble presence successfull");
                         that._logger.log("debug", LOG_ID + "(createBubble) _exiting_");
@@ -2357,7 +2376,7 @@ getAllActiveBubbles
                         resolve(bubble);
                     }); // */
     
-                    that._presence.sendInitialBubblePresenceSync(bubble).then(async () => {
+                    that._presence.sendInitialBubblePresenceSync(bubbleObj).then(async () => {
                         /*// Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
                         await until(() => {
                                 return (that._bubbles.find((bubbleIter: any) => {
@@ -2367,12 +2386,13 @@ getAllActiveBubbles
                             "Waiting for the initial presence of a creation of bubble : " + bubble.jid);
                          */
                         //that._bubbles.push(Object.assign( new Bubble(), bubble));
-                        that._logger.log("debug", LOG_ID + "(createBubble) bubble successfully created and presence sent : ", bubble.jid);
+                        that._logger.log("debug", LOG_ID + "(createBubble) bubble successfully created and presence sent : ", bubbleObj.jid);
                         resolve(bubble);
                     });
     
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(createBubble) error");
+                    that._logger.log("internalerror", LOG_ID + "(createBubble) error : ", err);
                     return reject(err);
                 });
             });
@@ -2426,11 +2446,13 @@ getAllActiveBubbles
             } else if (bubble.status!==Bubble.RoomUserStatus.UNSUBSCRIBED) {
                 isArchived = false;
             } else {
-                bubble.users.forEach(user => {
+                //bubble.users.forEach(user => {
+                for (const user of bubble.users) {                    
                     if (user.status!==Bubble.RoomUserStatus.UNSUBSCRIBED && user.status!==Bubble.RoomUserStatus.DELETED) {
                         isArchived = false;
                     }
-                });
+                    //});
+                }
             }
     
             return isArchived;
@@ -2872,7 +2894,8 @@ getAllActiveBubbles
                         if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid); 
                         
                         let users = bubble.users;
-                        users.forEach(function (user) {
+                        for (const user of users) {
+                            //users.forEach(function (user) {
                             if (user.userId===that._rest.userId && user.status==="accepted") {
                                 if (that._options._imOptions.autoInitialBubblePresence) {
                                     if (bubbleObj.isActive) {
@@ -2886,7 +2909,8 @@ getAllActiveBubbles
                                     that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not send initial presence to bubble : ", bubbleObj.jid);
                                 }
                             }
-                        });
+                            //});
+                        }
                     });
     
                     Promise.all(prom).then(async () => {
@@ -3018,19 +3042,21 @@ getAllActiveBubbles
                     if (bubble.creator===that._rest.userId) {
                         if (bubble.confEndpoints!=null) {
                             //foreach(Bubble.ConfEndpoint confEndpoint in bubble.confEndpoints)
-                            bubble.confEndpoints.forEach((confEndpoint: any) => {
+                            for (const confEndpoint of bubble.confEndpoints) {
+                                //bubble.confEndpoints.forEach((confEndpoint: any) => {
                                 if (confEndpoint!=null) {
                                     if (confEndpoint.mediaType==="pstnAudio") {
                                         // It's an active and not scheduled meeting with a ConfEndpointId AND PstnAudio => So it's the Personal Conference
                                         //canAdd = true;
-    
+
                                         that._personalConferenceBubbleId = bubble.id;
                                         that._personalConferenceConfEndpointId = confEndpoint.confEndpointId;
                                         let mediaType = confEndpoint.mediaType;
                                         that._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) - Personal Conference found - BubbleID: ", that._personalConferenceBubbleId, " - ConfEndpointId: ", that._personalConferenceConfEndpointId, " - mediaType: ", mediaType);
                                     }
                                 }
-                            });
+                                //});
+                            }
                         }
                     }
                 }
@@ -3055,7 +3081,8 @@ getAllActiveBubbles
             // Link conference and bubble
             let conferenceId: string = null;
             if (bubble.confEndpoints!=null) {
-                bubble.confEndpoints.forEach((confEndpoint: any) => {
+                for (const confEndpoint of bubble.confEndpoints) {
+                    //bubble.confEndpoints.forEach((confEndpoint: any) => {
                     if (confEndpoint!=null) {
                         conferenceId = confEndpoint.confEndpointId;
                         if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
@@ -3064,10 +3091,10 @@ getAllActiveBubbles
                                 return item.key===conferenceId;
                             });
                         }
-    
+
                         this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) Link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
                         that._linkConferenceAndBubble.add(conferenceId, bubble.id);
-    
+
                         if (that._conferencesSessionById.containsKey(conferenceId)) {
                             //needToRaiseEvent = true;
                             //conference = that.getConferenceByIdFromCache(conferenceId);
@@ -3077,7 +3104,8 @@ getAllActiveBubbles
                             that.askConferenceSnapshot(confEndpoint.confEndpointId, confEndpoint.mediaType);
                         }
                     }
-                });
+                    //});
+                }
             }
             return bubbleObj;
         }
@@ -3098,11 +3126,13 @@ getAllActiveBubbles
                 let bubbleToRemove = this.getBubbleFromCache(bubbleId);
                 if (bubbleToRemove) {
                     // Remove from channels
-                    let bubbleIdToRemove = bubbleToRemove.id;
+                    let bubbleIdToRemove : any = bubbleToRemove.id;
                     // Remove link between conference and bubble
                     let conferenceId: string = null;
                     if (bubbleToRemove.confEndpoints!=null) {
-                        bubbleToRemove.confEndpoints.forEach((confEndpoint: any) => {
+                        for (const confEndpoint of bubbleToRemove.confEndpoints)
+                        {
+                            //bubbleToRemove.confEndpoints.forEach((confEndpoint: any) => {
                             if (confEndpoint!=null) {
                                 conferenceId = confEndpoint.confEndpointId;
                                 if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
@@ -3110,10 +3140,11 @@ getAllActiveBubbles
                                         return item.key===conferenceId;
                                     });
                                 }
-    
+
                                 this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) remove link conferenceId : ", conferenceId, " to bubbleId : ", bubbleToRemove.id);
                             }
-                        });
+                            //});
+                        }
                     }
     
                     that._logger.log("internal", LOG_ID + "(removeBubbleFromCache) remove from cache bubbleId : ", bubbleIdToRemove);
@@ -3161,7 +3192,8 @@ getAllActiveBubbles
                 }
                 let isActive = false;
                 let isInvited = false;
-                bubble.users.forEach(function (user) {
+                for (const user of bubble.users) {
+                    //bubble.users.forEach(function (user) {
                     if (user.userId===contact.id) {
                         switch (user.status) {
                             case "invited":
@@ -3174,7 +3206,8 @@ getAllActiveBubbles
                                 break;
                         }
                     }
-                });
+                    //});
+                }
     
                 if (!isActive && !isInvited) {
                     that._logger.log("warn", LOG_ID + "(promoteContactInBubble) Contact is not invited or is not already a member of the bubble");
@@ -3406,7 +3439,9 @@ getAllActiveBubbles
     
                 let isActive = false;
                 let isInvited = false;
-                bubble.users.forEach(function (user) {
+  //              bubble.users.forEach(function (user) {
+                for (const user of bubble.users) {
+                        
                     if (user.userId===contact.id) {
                         switch (user.status) {
                             case "invited":
@@ -3419,7 +3454,8 @@ getAllActiveBubbles
                                 break;
                         }
                     }
-                });
+                }
+//                });
     
                 if (isActive || isInvited) {
                     that._logger.log("warn", LOG_ID + "(inviteContactToBubble) Contact has been already invited or is already a member of the bubble");
@@ -4026,12 +4062,14 @@ getAllActiveBubbles
                 }
     
                 let contactStatus = "";
-    
-                bubble.users.forEach(function (user) {
+
+                for (const user of bubble.users) {
+                    //bubble.users.forEach(function (user) {
                     if (user.userId===contact.id) {
                         contactStatus = user.status;
                     }
-                });
+                    //});
+                }
     
                 that._logger.log("info", LOG_ID + "(removeContactFromBubble) remove contact with status", contactStatus);
     
@@ -4175,8 +4213,9 @@ getAllActiveBubbles
             //Clear both lists :
             bubble.organizers = [];
             bubble.members = [];
-    
-            bubble.users.forEach(function (user) {
+
+            for (const user of bubble.users) {
+                //bubble.users.forEach(function (user) {
                 if (user.status===Bubble.RoomUserStatus.ACCEPTED || user.status===Bubble.RoomUserStatus.INVITED || user.jid_im===bubble.ownerContact.jid) {
                     if (user.privilege===Bubble.Privilege.MODERATOR) {
                         bubble.organizers.push(user);
@@ -4184,7 +4223,8 @@ getAllActiveBubbles
                         bubble.members.push(user);
                     }
                 }
-            });
+                //});
+            }
         };
     
         /**

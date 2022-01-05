@@ -132,7 +132,7 @@ class Bubble {
     public disableNotifications: boolean;
     public lastAvatarUpdateDate: null;
     public guestEmails: any[];
-    public confEndpoints: [];
+    public confEndpoints: any[];
     public activeUsersCounter: number;
     public avatar: string;
     public organizers: Array<any>;

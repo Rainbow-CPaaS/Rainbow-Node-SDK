@@ -8,9 +8,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.8.0] - 2022-01-XX
 -   Fix documentation about line feed in HTML.
--   Replace sendInitialBubblePresence with sendInitialBubblePresenceSync method to take in to account the event received from server about the presence in the bubble.
+-   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
 
-## [2.7.0] - 2021-12-08
+## [2.7.0] - 2021-12-0
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
 -   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
 -   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 

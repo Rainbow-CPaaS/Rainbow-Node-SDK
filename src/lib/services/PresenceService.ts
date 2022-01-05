@@ -340,6 +340,34 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
+     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    async sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay);
+            if (initialPresenceSent) {
+                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent initialized.");
+                resolve (initialPresenceSent);
+            } else {
+                let err = {
+                    label : "no initial bubble presence promise."
+                };
+                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent is undefined, err : ", err);
+                reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @private
+     * @method sendInitialBubblePresence
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {Bubble} bubble The Bubble
      * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
@@ -385,8 +413,13 @@ class PresenceService extends GenericService{
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */
-    public sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+    public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
+        if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter.");
+            //that._logger.log("internalerror", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log("info", LOG_ID + "(sendInitialBubblePresenceSync) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
         if (bubble.initialPresence.initPresencePromise) {
             return bubble.initialPresence.initPresencePromise;
