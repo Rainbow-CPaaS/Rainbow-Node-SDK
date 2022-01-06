@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.8.0] - 2022-01-XX
 -   Fix documentation about line feed in HTML.
 -   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
+-   Fix missing mime.lookup with mime lib version > 1.5.0 .
 
 ## [2.7.0] - 2021-12-0
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.

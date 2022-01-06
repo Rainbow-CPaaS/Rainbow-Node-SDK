@@ -25,6 +25,9 @@ import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
 import {GenericService} from "./GenericService";
 
+import * as mime from "mime";
+if ( ! mime.lookup) mime.lookup = mime.getType;
+
 const LOG_ID = "FileStorage/SVCE - ";
 
 @logEntryExit(LOG_ID)
@@ -257,17 +260,26 @@ class FileStorage extends GenericService{
             } else {
                 let conversation = await that._conversations.getConversationByBubbleId(bubble.id); // getConversationByRoomDbId(bubble.dbId);
                 that._logger.log("internal", LOG_ID + "(uploadFileToBubble) ::  conversation : ", conversation, " by the bubble id ", bubble.id);
-                that._logger.log("internal", LOG_ID + "(uploadFileToBubble) ::  conversation.type : ", conversation.type, " vs Conversation.Type.ROOM ", Conversation.Type.ROOM);
 
                 if (!conversation) {
                     let errorMessage = "Parameter 'bubble' don't have a conversation";
-                    that._logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    that._logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage + ", try to open it.");
+
+                    conversation = await that._conversations.openConversationForBubble(bubble);
+
+                }
+
+                if (!conversation) {
+                        let errorMessage = "Parameter 'bubble' don't have a conversation";
+                        that._logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
+
+                        reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     /*reject({
                         code: SDK.ERRORBADREQUEST,
                         label: "Parameter 'bubble' don't have a conversation"
                     }); // */
                 } else if (conversation.type !== Conversation.Type.ROOM) {
+                    that._logger.log("internal", LOG_ID + "(uploadFileToBubble) ::  conversation.type : ", conversation.type, " vs Conversation.Type.ROOM ", Conversation.Type.ROOM);
                     let errorMessage = "Parameter 'conversation' is not a bubble conversation";
                     that._logger.log("error", LOG_ID + "(uploadFileToBubble) " + errorMessage);
                     reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));

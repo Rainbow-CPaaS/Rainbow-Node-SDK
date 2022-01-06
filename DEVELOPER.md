@@ -20,6 +20,14 @@ $ npm update
 
 ```
 
+To discover new releases of the packages, you run
+
+```bash
+
+$ npm outdated
+
+```
+
 ## Development
 ---
 

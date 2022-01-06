@@ -1164,9 +1164,9 @@ class ConversationsService extends GenericService {
      *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br>
      *    This method returns a promise <br>
      * @param {Bubble} bubble The bubble involved in this conversation
-     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+     * @return {Promise<Conversation>} The conversation (created or retrieved) or null in case of error
      */
-    openConversationForBubble(bubble : Bubble) {
+    openConversationForBubble(bubble : Bubble) : Promise<Conversation>{
         let that = this;
         return new Promise(function (resolve, __reject) {
 

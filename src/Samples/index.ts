@@ -61,7 +61,8 @@ import Bubble_1 from "../lib/common/models/Bubble";
 import {NodeSDK as RainbowSDK} from "../index";
 import Utils from "../lib/common/Utils";
 import fs = require("fs");
-import fileapi from "file-api";
+//import fileapi from "file-api";
+let fileapi = require('file-api');
 import {inspect} from "util";
 
 const inquirer = require("inquirer");
@@ -2395,6 +2396,7 @@ let urlS2S;
     }
 
     function testUploadFileToBubble() {
+        let that = this;
         let file = null;
         let strMessage = "message for the file";
         file = new fileapi.File({
@@ -2409,6 +2411,9 @@ let urlS2S;
         logger.log("debug", "EngineVincent00 - uploadFileToBubble getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
+            if (bubble.isActive == false) {
+                that.presence.sendInitialBubblePresenceSync(bubble);
+            } 
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessage).then((result) => {
                 logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
