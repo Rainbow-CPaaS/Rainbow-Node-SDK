@@ -29,6 +29,7 @@ import {DataStoreType} from "./config/config";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
+import {inspect} from "util";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -462,7 +463,7 @@ class NodeSDK {
                 }
                 
                 if (err) {
-                    console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(err));
+                    console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
                     // It looks that winston is close before this line :(, so console is used. 
                     // that.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
                     that.events.publish("connectionerror", err);
@@ -470,7 +471,7 @@ class NodeSDK {
                 } else {
                     let error = ErrorManager.getErrorManager().UNAUTHORIZED;
                     error.details = err;
-                    console.log("[index ] : rainbow_onconnectionerror : ", JSON.stringify(error));
+                    console.log("[index ] : rainbow_onconnectionerror : ", inspect(error));
                     that.events.publish("connectionerror", error);
                     reject(error);
                 }

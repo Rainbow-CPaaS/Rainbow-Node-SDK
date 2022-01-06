@@ -4169,10 +4169,10 @@ let urlS2S;
            }); // */
 //# sourceMappingURL=index.js.map
         } catch (err) {
-            console.log("MAIN - Error during starting : " + inspect(err));
+            console.log("MAIN - Error during starting : ", inspect(err));
         }
     }).catch((err) => {
-        console.log("MAIN - Error during starting : " + inspect(err));
+        console.log("MAIN - Error during starting : ", inspect(err));
     }); // */
 
 })();
