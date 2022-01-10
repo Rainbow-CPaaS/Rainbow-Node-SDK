@@ -2538,8 +2538,17 @@ getAllActiveBubbles
             let bubbles = that.getAll();
     
             bubbles.forEach(function (bubble) {
-                let deleteBubblePromise = function () {
-                    return that.deleteBubble(bubble);
+                let deleteBubblePromise = async function () {
+                    if (bubble.isActive) {
+                        return that.deleteBubble(bubble);
+                    } else {
+                        try {
+                            await that._presence.sendInitialBubblePresenceSync(bubble);
+                        } catch (err) {
+                            that._logger.log("debug", "(deleteAllBubbles) Error while ending presence : ", err);
+                        }
+                        return that.deleteBubble(bubble);
+                    }
                 };
                 deleteallBubblePromiseQueue.add(deleteBubblePromise);
             });
@@ -2589,7 +2598,7 @@ getAllActiveBubbles
         deleteBubble(bubble) {
             let that = this;
     
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
                     that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter.");
@@ -2606,7 +2615,15 @@ getAllActiveBubbles
                 }):true;
                 amIModerator = meUser ? meUser.privilege==="moderator":true;
                 userStatus = meUser ? meUser.status:"none";
-    
+
+                if (!bubble.isActive) {
+                    try {
+                        await that._presence.sendInitialBubblePresenceSync(bubble);
+                    } catch (err) {
+                        that._logger.log("debug", "(deleteBubble) Error while ending presence : ", err);
+                    }
+                }
+                
                 if (amIModerator) {
                     that._rest.deleteBubble(bubble.id).then((resultDelete) => {
                         //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
@@ -2629,8 +2646,8 @@ getAllActiveBubbles
                             //that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                             resolve(json);
                         }).catch(function (err) {
-                            that._logger.log("error", LOG_ID + "(leaveBubble) error.");
-                            that._logger.log("internalerror", LOG_ID + "(leaveBubble) error : ", err);
+                            that._logger.log("error", LOG_ID + "(deleteBubble) error.");
+                            that._logger.log("internalerror", LOG_ID + "(deleteBubble) error : ", err);
                             return reject(err);
                         });
                     }
@@ -2654,27 +2671,35 @@ getAllActiveBubbles
         closeAndDeleteBubble(bubble) {
             let that = this;
     
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
                 if (!bubble) {
-                    that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter ");
-                    that._logger.log("warn", LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter : ", bubble);
+                    that._logger.log("warn", LOG_ID + "(closeAndDeleteBubble) bad or empty 'bubble' parameter ");
+                    that._logger.log("warn", LOG_ID + "(closeAndDeleteBubble) bad or empty 'bubble' parameter : ", bubble);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
-    
+
+                if (!bubble.isActive) {
+                    try {
+                        await that._presence.sendInitialBubblePresenceSync(bubble);
+                    } catch (err) {
+                        that._logger.log("debug", "(closeAndDeleteBubble) Error while ending presence : ", err);
+                    }
+                }
+
                 that.closeBubble(bubble).then((updatedBubble: any) => {
                     that._rest.deleteBubble(updatedBubble.id).then(() => {
                         //let bubbleRemoved = await that.removeBubbleFromCache(updatedBubble.id);
                         /*let bubbleRemovedList = that._bubbles.splice(that._bubbles.findIndex(function(el) {
                             return el.id === updatedBubble.id;
                         }), 1); // */
-                        that._logger.log("debug", LOG_ID + "(deleteBubble) delete with id : ", updatedBubble.id, " bubble successfull");
-                        that._logger.log("internal", LOG_ID + "(deleteBubble) delete ", updatedBubble, " bubble successfull");
+                        that._logger.log("debug", LOG_ID + "(closeAndDeleteBubble) delete with id : ", updatedBubble.id, " bubble successfull");
+                        that._logger.log("internal", LOG_ID + "(closeAndDeleteBubble) delete ", updatedBubble, " bubble successfull");
                         //let bubbleRemoved = bubbleRemoved.length > 0 ? bubbleRemoved[0] : null;
                         //resolve( Object.assign(bubble, bubbleRemoved));
                         resolve(updatedBubble);
                     }).catch(function (err) {
-                        that._logger.log("error", LOG_ID + "(deleteBubble) error");
+                        that._logger.log("error", LOG_ID + "(closeAndDeleteBubble) error");
                         return reject(err);
                     });
                 }).catch((err) => {
@@ -2721,7 +2746,7 @@ getAllActiveBubbles
                 });
             };
     
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
                 if (!bubble) {
                     that._logger.log("warn", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter.");
                     that._logger.log("internalerror", LOG_ID + "(closeBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -2740,7 +2765,15 @@ getAllActiveBubbles
                             //}
                         }
                     });
-    
+
+                    if (!bubble.isActive) {
+                        try {
+                            await that._presence.sendInitialBubblePresenceSync(bubble);
+                        } catch (err) {
+                            that._logger.log("debug", "(closeBubble) Error while ending presence : ", err);
+                        }
+                    }
+
                     // unsubscribe the connected user
                     // queue.push(that._rest.userId);
     
@@ -2791,7 +2824,7 @@ getAllActiveBubbles
          */
         archiveBubble(bubble) {
             let that = this;
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
                     that._logger.log("warn", LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter.");
@@ -2799,7 +2832,15 @@ getAllActiveBubbles
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
-    
+
+                if (!bubble.isActive) {
+                    try {
+                        await that._presence.sendInitialBubblePresenceSync(bubble);
+                    } catch (err) {
+                        that._logger.log("debug", "(archiveBubble) Error while ending presence : ", err);
+                    }
+                }
+
                 that._rest.archiveBubble(bubble.id).then(function (json) {
                     that._logger.log("info", LOG_ID + "(archiveBubble) leave successfull");
                     that._xmpp.sendUnavailableBubblePresence(bubble.jid);
@@ -2828,7 +2869,7 @@ getAllActiveBubbles
          */
         leaveBubble(bubble) {
             let that = this;
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
                 let otherModerator = null;
                 let userStatus = "none";
     
@@ -2850,7 +2891,15 @@ getAllActiveBubbles
                     reject(ErrorManager.getErrorManager().FORBIDDEN);
                     return;
                 }
-    
+
+                if (!bubble.isActive) {
+                    try {
+                        await that._presence.sendInitialBubblePresenceSync(bubble);
+                    } catch (err) {
+                        that._logger.log("debug", "(leaveBubble) Error while ending presence : ", err);
+                    }
+                }
+
                 that._rest.leaveBubble(bubble.id, userStatus).then(function (json) {
                     that._logger.log("info", LOG_ID + "(leaveBubble) leave successfull");
                     that._xmpp.sendUnavailableBubblePresence(bubble.jid);

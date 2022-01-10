@@ -2137,8 +2137,30 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetAllOwnedArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
     }
 
-    async function testgetArchivedBubbles() {
+    async function testgetAllOwnedBubblesArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
+
+        async function asyncFilter(arr, predicate) {
+            const results = await Promise.all(arr.map(predicate));
+
+            return arr.filter((_v, index) => results[index]);
+        }
+
+        let bubblesNotArchived = await asyncFilter(result, async bubble => {
+            return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===false);
+        });
+        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+
+        let bubblesArchived = await asyncFilter(result, async bubble => {
+            return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===true);
+        });
+        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+
+    }
+
+    async function testgetArchivedBubbles() {
+        let result = rainbowSDK.bubbles.getAllBubbles();
         logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
         async function asyncFilter(arr, predicate) {
