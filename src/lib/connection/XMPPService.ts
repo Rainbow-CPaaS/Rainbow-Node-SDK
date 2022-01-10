@@ -136,6 +136,7 @@ class XMPPService extends GenericService {
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
     private copyMessage: boolean;
+    private enablesendurgentpushmessages: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
     private raiseLowLevelXmppInEvent: boolean;
@@ -166,6 +167,7 @@ class XMPPService extends GenericService {
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
+        this.enablesendurgentpushmessages = _im.enablesendurgentpushmessages;
         this.rateLimitPerHour = _im.rateLimitPerHour;
         this.messagesDataStore = _im.messagesDataStore;
         this.useXMPP = true;
@@ -419,10 +421,10 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(this.logger, this.eventEmitter, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
+        that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
-        that.reconnect = this.xmppClient.reconnect;
+        that.reconnect = that.xmppClient.reconnect;
 
         that.reconnect.delay = RECONNECT_INITIAL_DELAY;
 

@@ -119,8 +119,8 @@ let conf =  {
         autoLoadConversations: true,
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
-        enableCarbon: true
-
+        enableCarbon: true,
+        enablesendurgentpushmessages: false
     },
     mode:"xmpp",
     "concurrentRequests": 1000,

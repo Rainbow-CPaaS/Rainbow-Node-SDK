@@ -194,7 +194,8 @@ let urlS2S;
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
             "autoLoadContacts": true,
-            "enableCarbon": true
+            "enableCarbon": true,
+            "enablesendurgentpushmessages": true
         },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
