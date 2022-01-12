@@ -12,6 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix missing mime.lookup with mime lib version > 1.5.0 .
 -   Fix delete / leave bubbles methods in BubblesService when the bubble has the property isActive egal to false.
 -   Add a "enablesendurgentpushmessages" property in the options provided to the initialisation of the SDK. This property permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device.
+-   Add generation of search index in Jenkinsfile-sts.groovy file.
 
 ## [2.7.0] - 2021-12-0
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
