@@ -1,6 +1,6 @@
 // Jenkinsfile-sts file for the production of sts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-sts"
 
-@Library('rainbow-shared-library') _
+@Library('rainbow-shared-library@hubSearchIndex') _
 import groovy.transform.Field
 
 // Map with the default values
