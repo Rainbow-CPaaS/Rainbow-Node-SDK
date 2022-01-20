@@ -570,6 +570,7 @@ declare module 'lib/config/config' {
 	        autoLoadConversations: boolean;
 	        autoLoadContacts: boolean;
 	        enableCarbon: boolean;
+	        enablesendurgentpushmessages: boolean;
 	    };
 	    mode: string;
 	    concurrentRequests: number;
@@ -684,6 +685,7 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    password: any;
 	    socketClosed: boolean;
 	    storeMessages: any;
+	    enablesendurgentpushmessages: any;
 	    copyMessage: any;
 	    rateLimitPerHour: any;
 	    private nbMessagesSentThisHour;
@@ -693,10 +695,11 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    private iqSetEventRoster;
 	    socket: any;
 	    constructor(...args: any[]);
-	    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any): void;
+	    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any): void;
 	    onIqErrorReceived(msg: any, stanza: any): void;
 	    onIqResultReceived(msg: any, stanza: any): void;
 	    resetnbMessagesSentThisHour(): void;
+	    getJsonFromXML(xml: string): Promise<any>;
 	    send(...args: any[]): Promise<unknown>;
 	    sendIq(...args: any[]): Promise<unknown>;
 	    on(evt: any, cb: any): void;
@@ -1386,9 +1389,29 @@ declare module 'lib/common/models/Invitation' {
 }
 declare module 'lib/common/models/Bubble' {
 	import { Contact } from 'lib/common/models/Contact';
-	export {}; class Bubble {
+	export {};
+	interface CallbackOneParam<T1, T2 = any> {
+	    (param1: T1): T2;
+	} class InitialPresence {
+	    private _initPresencePromise;
+	    private _initPresencePromiseResolve;
+	    private _initPresenceAck;
+	    private _initPresenceInterval;
+	    constructor();
+	    get initPresencePromise(): Promise<any>;
+	    set initPresencePromise(value: Promise<any>);
+	    get initPresencePromiseResolve(): CallbackOneParam<any>;
+	    set initPresencePromiseResolve(value: CallbackOneParam<any>);
+	    get initPresenceAck(): boolean;
+	    set initPresenceAck(value: boolean);
+	    get initPresenceInterval(): any;
+	    set initPresenceInterval(value: any);
+	} class Bubble {
+	    get initialPresence(): InitialPresence;
+	    set initialPresence(value: InitialPresence);
 	    id: any;
 	    name: any;
+	    nameForLogs: string;
 	    topic: any;
 	    jid: any;
 	    creator: any;
@@ -1402,7 +1425,7 @@ declare module 'lib/common/models/Bubble' {
 	    disableNotifications: boolean;
 	    lastAvatarUpdateDate: null;
 	    guestEmails: any[];
-	    confEndpoints: [];
+	    confEndpoints: any[];
 	    activeUsersCounter: number;
 	    avatar: string;
 	    organizers: Array<any>;
@@ -1410,6 +1433,7 @@ declare module 'lib/common/models/Bubble' {
 	    containerId: string;
 	    containerName: string;
 	    status: string;
+	    private _initialPresence;
 	    static RoomUserStatus: {
 	        INVITED: string;
 	        ACCEPTED: string;
@@ -1469,6 +1493,7 @@ declare module 'lib/common/models/Bubble' {
 	    isMeetingBubble(): boolean;
 	    getStatusForUser(userId: any): any;
 	    setUsers(_users: any): void;
+	    get getNameForLogs(): string;
 	    updateBubble(data: any, contactsService: any): Promise<this>;
 	    /**
 	     * @function
@@ -1479,8 +1504,9 @@ declare module 'lib/common/models/Bubble' {
 	     */
 	    static BubbleFactory(avatarDomain: any, contactsService: any): (data: any) => Promise<Bubble>;
 	}
-	export { Bubble }; const _default: {
+	export { Bubble, InitialPresence }; const _default: {
 	    Bubble: typeof Bubble;
+	    InitialPresence: typeof InitialPresence;
 	};
 	export default _default;
 
@@ -2142,6 +2168,15 @@ declare module 'lib/services/BubblesService' {
 	     *      Method called when the name has changed for a bubble <br>
 	     */
 	    _onNameChanged(data: any): void;
+	    /**
+	     * @private
+	     * @method _onBubblePresenceSent
+	     * @instance
+	     * @param {Object} data contains information about bubble where the presence as been sent to receiv bubble events.
+	     * @description
+	     *      Method called when the presence has been sent to a bubble <br>
+	     */
+	    _onBubblePresenceSent(data: any): void;
 	    /**
 	     * @private
 	     * @method _onbubblepresencechanged
@@ -4861,6 +4896,7 @@ declare module 'lib/services/PresenceService' {
 	import { Core } from 'lib/Core';
 	import { PresenceLevel, PresenceRainbow } from 'lib/common/models/PresenceRainbow';
 	import { GenericService } from 'lib/services/GenericService';
+	import { Bubble } from 'lib/common/models/Bubble';
 	export {}; class PresenceService extends GenericService {
 	    private _settings;
 	    private _presenceEventHandler;
@@ -4943,10 +4979,35 @@ declare module 'lib/services/PresenceService' {
 	     * @async
 	     * @category Presence Bubbles
 	     * @param {Bubble} bubble The Bubble
+	     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
 	     * @description
 	     *      Method called when receiving an invitation to join a bubble <br>
 	     */
-	    sendInitialBubblePresence(bubble: any): Promise<unknown>;
+	    sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay?: number): Promise<any>;
+	    /**
+	     * @private
+	     * @method sendInitialBubblePresence
+	     * @instance
+	     * @async
+	     * @category Presence Bubbles
+	     * @param {Bubble} bubble The Bubble
+	     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble <br>
+	     */
+	    sendInitialBubblePresence(bubble: Bubble, attempt?: number): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method sendInitialBubblePresenceSync
+	     * @instance
+	     * @async
+	     * @category Presence Bubbles
+	     * @param {Bubble} bubble The Bubble
+	     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+	     * @description
+	     *      Method called when receiving an invitation to join a bubble <br>
+	     */
+	    sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay?: number): Promise<any>;
 	    /**
 	     * @private
 	     * @method _onUserSettingsChanged
@@ -5016,7 +5077,6 @@ declare module 'lib/services/PresenceService' {
 	     *    until: string
 	     *    }, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-	     
 	     */
 	    getCalendarStates(users?: Array<string>): Promise<unknown>;
 	    /**
@@ -7981,9 +8041,9 @@ declare module 'lib/services/ConversationsService' {
 	     *    Create a new one if the conversation doesn't exist or reopen a closed conversation<br>
 	     *    This method returns a promise <br>
 	     * @param {Bubble} bubble The bubble involved in this conversation
-	     * @return {Conversation} The conversation (created or retrieved) or null in case of error
+	     * @return {Promise<Conversation>} The conversation (created or retrieved) or null in case of error
 	     */
-	    openConversationForBubble(bubble: Bubble): Promise<unknown>;
+	    openConversationForBubble(bubble: Bubble): Promise<Conversation>;
 	    /**
 	     * @public
 	     * @method getS2SServerConversation
@@ -8566,6 +8626,7 @@ declare module 'lib/connection/XMPPService' {
 	    private shouldSendMessageToConnectedUser;
 	    private storeMessages;
 	    private copyMessage;
+	    private enablesendurgentpushmessages;
 	    private rateLimitPerHour;
 	    private messagesDataStore;
 	    private raiseLowLevelXmppInEvent;
@@ -13120,6 +13181,7 @@ declare module 'lib/common/Events' {
 	    _core: Core;
 	    private _logEmitter;
 	    sdkPublicEventsName: string[];
+	    waitBeforeBubblePresenceSend: boolean;
 	    constructor(_logger: Logger, _filterCallback: Function);
 	    get iee(): EventEmitter;
 	    get eee(): EventEmitter;
@@ -13284,6 +13346,7 @@ declare module 'lib/config/Options' {
 	        autoLoadConversations: boolean;
 	        autoLoadContacts: boolean;
 	        enableCarbon: boolean;
+	        enablesendurgentpushmessages: boolean;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -14346,6 +14409,46 @@ declare module 'lib/services/RBVoiceService' {
 	    stop(): Promise<unknown>;
 	    init(): Promise<void>;
 	    attachHandlers(): void;
+	    /**
+	     * @method retrieveAllAvailableCallLineIdentifications
+	     * @async
+	     * @category Rainbow Voice CLI Options
+	     * @instance
+	     * @mermaid
+	     * sequenceDiagram
+	     * participant App
+	     * participant Jira
+	     * App->>Jira:project({projectId})
+	     * Jira->>App:ProjectObject
+	     * App->>Jira:search()
+	     * Jira->>App:IssueObject[]
+	     * @description
+	     * This api returns all CLI options available.
+	     * @fulfil {Promise<any>} return result.
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Calling Line Identification (CLI) |
+	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br><br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br><br>Valeurs autorisées : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
+	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br><br>Valeurs autorisées : `user_ddi_number`, `installation_ddi_number` |
+	     * | phoneNumberId | String | phoneNumber Unique identifier that is used for identifying selected CLI |
+	     * | number | String | phoneNumber value that is used as CLI |
+	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br><br>Valeurs autorisées : `Group`, `Other` |
+	     * | name optionnel | String | Only when CLI policy is "other\_ddi\_number" and type is "Group". It is then the Group name |
+	     *
+	     */
+	    retrieveAllAvailableCallLineIdentifications(): Promise<unknown>;
+	    /**
+	     * @method retrieveCurrentCallLineIdentification
+	     * @async
+	     * @category Rainbow Voice CLI Options
+	     * @instance
+	     * @description
+	     * This api returns current Call line identification. <br>
+	     * @return {Promise<any>}
+	     */
+	    retrieveCurrentCallLineIdentification(): Promise<unknown>;
 	}
 	export { RBVoiceService as RBVoiceService };
 
@@ -14534,6 +14637,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
 	     * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
 	     * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+	     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
 	     * @param {Object} options.servicesToStart <br>
 	     *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
 	     *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>

@@ -576,8 +576,7 @@ class PresenceService extends GenericService{
      *    since: string,
      *    until: string 
      *    }, ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.     
      */
     async getCalendarStates(users : Array<string> = [undefined]) {
         let that = this;
