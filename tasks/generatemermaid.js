@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         //grunt.log.writeln(">> flags : " + JSON.stringify(this.flags ) );
         grunt.log.writeln(">> that.files : " + JSON.stringify(that.files ) );
 
-        let dest = that.files[0].dest;
+        let dest = that.files[0].dest + "/resources";
         for (const index in that.files[0].src) {
             let file = that.files[0].src[index];
             //let contents = grunt.file.read(file);
@@ -54,12 +54,20 @@ module.exports = function(grunt) {
                 //grunt.log.writeln(">> dest : " + dest + " debug code " + options.debugcode + " from " + file);
                 //let cmdStr = options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png";
                 let cmdStr = options.shellcmd;
+
+                if (!fs.existsSync(dest)){
+                    fs.mkdirSync(dest, { recursive: true });
+                }
+
+                let destFile = dest + "/" + path.basename(file) + ".png";
+                grunt.log.writeln(">> destFile : " + destFile);
+                
                 let args = [];
                 args.push("./node_modules/.bin/mmdc");
                 args.push("-i");
                 args.push(file);
                 args.push("-o");
-                args.push(dest + "/" + file + ".png");
+                args.push(destFile);
                 //grunt.log.writeln(">> dest : " + options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png");
                 grunt.log.writeln(">> cmdStr : " + cmdStr + ", args : ", args);
                 let cp = spawn(cmdStr, args);
