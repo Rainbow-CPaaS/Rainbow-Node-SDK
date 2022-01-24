@@ -2,7 +2,6 @@
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
-import {retry} from "rxjs";
 
 export {};
 
