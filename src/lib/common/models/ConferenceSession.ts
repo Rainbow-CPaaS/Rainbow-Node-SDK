@@ -623,7 +623,7 @@ class ConferenceSession {
         }
 
         let talkersStr = "";
-        let result = "";
+        let result = "" + this.id;
         /*
                     if (Talkers != null)
                         talkersStr = (Talkers.Count > 0) ? " [" + String.Join("], [", Talkers.ToArray()) + "] " : "";

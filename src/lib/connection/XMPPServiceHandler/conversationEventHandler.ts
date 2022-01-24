@@ -998,7 +998,7 @@ class ConversationEventHandler extends GenericHandler {
                                         // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
                                     } // */
                                     newConference.replaceConference = conference;
-                                    await this._bubbleService.addConferenceToCache(newConference);
+                                    await this._bubbleService.addOrUpdateConferenceToCache(newConference);
                                 } catch (err) {
                                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
                                 }
@@ -1135,7 +1135,7 @@ class ConversationEventHandler extends GenericHandler {
                             }
 
                             // Finally add conference to the cache
-                            await this._bubbleService.addConferenceToCache(conference);
+                            await this._bubbleService.addOrUpdateConferenceToCache(conference);
 
                             // */
                         } else {

@@ -707,6 +707,117 @@ class Bubbles extends GenericService {
 //region CONFERENCE SPECIFIC
 
     /**
+     * @method askConferenceSnapshot
+     * @public
+     * @instance
+     * @since 2.8.0
+     * @category PERSONAL CONFERENCE SPECIFIC
+     * @param {string} conferenceId The id of the conference.
+     * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
+     * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
+     * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
+     * @description
+     * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
+     * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
+     * If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+     * @return {Promise<void>}
+     */
+    async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE = MEDIATYPE.WEBRTC, limit : number = 100, offset : number = 0) {
+        let that = this;
+
+        if (!conferenceId) {
+            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) bad or empty 'conferenceId' parameter : ", conferenceId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let confSnapshop = await that._rest.askConferenceSnapshot(conferenceId, type, limit, offset);
+
+        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
+        let active: boolean = false;
+        active = confSnapshop["active"];
+
+        // Do something only if conference is active
+        if (active) {
+            // Get conference form cahe (if any)
+            let conference: ConferenceSession = await that.getConferenceByIdFromCache(conferenceId);
+            if (conference==null) {
+                conference = new ConferenceSession(conferenceId);
+            }
+
+            conference.active = true;
+
+            // Clear participants since this server request give all info about them
+            conference.participants = new List<Participant>();
+
+            try {
+                // Loop on participants found
+                let jArray = confSnapshop["participants"];
+
+                if ((jArray!=null)) {
+                    //jArray.forEach(async (jParticipant: any) => {
+                    for (const jParticipant of jArray) {
+                        let participant: Participant = null;
+                        if (jParticipant.hasOwnProperty("participantId")) {
+                            // Id
+                            let participantId = jParticipant["participantId"];
+
+                            // Create Participant object
+                            participant = new Participant(participantId);
+
+                            // Muted
+                            if (jParticipant.hasOwnProperty("mute"))
+                                participant.muted = (jParticipant["mute"]=="true");
+                            else
+                                participant.muted = false;
+
+                            // Hold
+                            if (jParticipant.hasOwnProperty("held"))
+                                participant.hold = (jParticipant["held"]=="true");
+                            else
+                                participant.hold = false;
+
+                            // IsModerator
+                            if (jParticipant.hasOwnProperty("participantRole"))
+                                participant.moderator = (jParticipant["participantRole"]=="moderator");
+                            else
+                                participant.moderator = false;
+
+                            // IsConnected
+                            if (jParticipant.hasOwnProperty("participantState"))
+                                participant.connected = (jParticipant["participantState"]=="connected");
+                            else
+                                participant.connected = false;
+
+                            // Jid_im
+                            if (jParticipant.hasOwnProperty("jid_im")) {
+                                participant.jid_im = jParticipant["jid_im"];
+                                participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err) => {
+                                    that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
+                                    return null;
+                                });
+                            }
+
+                            // PhoneNumber
+                            if (jParticipant.hasOwnProperty("phoneNumber"))
+                                participant.phoneNumber = jParticipant["phoneNumber"];
+
+                            // Finally add participant to the list
+                            conference.participants.add(participant);
+                        }
+                    }
+                }
+            } catch (e) {
+                that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
+            }
+
+            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
+
+            // Finally add conference to the cache
+            that.addOrUpdateConferenceToCache(conference);
+        }
+    }
+
+    /**
      * @method joinConference
      * @private
      * @category CONFERENCE SPECIFIC
@@ -1820,7 +1931,7 @@ getAllActiveBubbles
                 //conference.id = confEndpoint.ConfEndpointId;
                 conference.active = false;
                 that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
-                that.addConferenceToCache(conference);
+                that.addOrUpdateConferenceToCache(conference);
                 //});
             }
         }
@@ -1870,104 +1981,6 @@ getAllActiveBubbles
     async personalConferenceRename(name: string) {
         let that = this;
         return that._rest.personalConferenceRename(that._personalConferenceConfEndpointId, name);
-    }
-
-    /**
-     * @method askConferenceSnapshot
-     * @private
-     * @instance
-     * @param {string} conferenceId
-     * @param {MEDIATYPE} type
-     * @return {Promise<void>}
-     */
-    async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE) {
-        let that = this;
-        let confSnapshop = await that._rest.askConferenceSnapshot(conferenceId, type);
-
-        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
-        let active: boolean = false;
-        active = confSnapshop["active"];
-
-        // Do something only if conference is active
-        if (active) {
-            // Get conference form cahe (if any)
-            let conference: ConferenceSession = await that.getConferenceByIdFromCache(conferenceId);
-            if (conference==null) {
-                conference = new ConferenceSession(conferenceId);
-            }
-
-            conference.active = true;
-
-            // Clear participants since this server request give all info about them
-            conference.participants = new List<Participant>();
-
-            try {
-                // Loop on participants found
-                let jArray = confSnapshop["participants"];
-
-                if ((jArray!=null)) {
-                    //jArray.forEach(async (jParticipant: any) => {
-                    for (const jParticipant of jArray) {
-                        let participant: Participant = null;
-                        if (jParticipant.hasOwnProperty("participantId")) {
-                            // Id
-                            let participantId = jParticipant["participantId"];
-
-                            // Create Participant object
-                            participant = new Participant(participantId);
-
-                            // Muted
-                            if (jParticipant.hasOwnProperty("mute"))
-                                participant.muted = (jParticipant["mute"]=="true");
-                            else
-                                participant.muted = false;
-
-                            // Hold
-                            if (jParticipant.hasOwnProperty("held"))
-                                participant.hold = (jParticipant["held"]=="true");
-                            else
-                                participant.hold = false;
-
-                            // IsModerator
-                            if (jParticipant.hasOwnProperty("participantRole"))
-                                participant.moderator = (jParticipant["participantRole"]=="moderator");
-                            else
-                                participant.moderator = false;
-
-                            // IsConnected
-                            if (jParticipant.hasOwnProperty("participantState"))
-                                participant.connected = (jParticipant["participantState"]=="connected");
-                            else
-                                participant.connected = false;
-
-                            // Jid_im
-                            if (jParticipant.hasOwnProperty("jid_im")) {
-                                participant.jid_im = jParticipant["jid_im"];
-                                participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err) => {
-                                    that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
-                                    return null;
-                                });
-                            }
-
-                            // PhoneNumber
-                            if (jParticipant.hasOwnProperty("phoneNumber"))
-                                participant.phoneNumber = jParticipant["phoneNumber"];
-
-                            // Finally add participant to the list
-                            conference.participants.add(participant);
-                        }
-                    }
-                    ;
-                }
-            } catch (e) {
-                that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
-            }
-
-            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
-
-            // Finally add conference to the cache
-            that.addConferenceToCache(conference);
-        }
     }
 
     /**
@@ -2043,12 +2056,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @method addConferenceToCache
+     * @method addOrUpdateConferenceToCache
      * @private
      * @instance
      * @param {ConferenceSession} conference
      */
-    addConferenceToCache(conference: ConferenceSession) {
+    addOrUpdateConferenceToCache(conference: ConferenceSession) {
         let that = this;
         if (conference!=null) {
             let needToRaiseEvent: boolean = false;
@@ -2062,27 +2075,28 @@ getAllActiveBubbles
             // Add conference - only if still active
             if (conference.active) {
                 that._conferencesSessionById.add(conference.id, conference);
-                that._logger.log("debug", LOG_ID + "(addConferenceToCache) Added to conferences list cache - Conference : ", conference.ToString());
-                // log.DebugFormat("[addConferenceToCache] Added to conferences list cache - Conference:[{0}]", conference.ToString());
+                that._logger.log("debug", LOG_ID + "(addOrUpdateConferenceToCache) Added to conferences list cache - Conference : ", conference.ToString());
+                // log.DebugFormat("[addOrUpdateConferenceToCache] Added to conferences list cache - Conference:[{0}]", conference.ToString());
             } else {
                 needToRaiseEvent = true; // We always need to raise event even if conference is no more active - third party must known that the conference has ended
-                that._logger.log("debug", LOG_ID + "(addConferenceToCache) Not added to conferences list cache - Conference : ", conference.ToString());
-                // log.DebugFormat("[addConferenceToCache] Not added to conferences list cache - Conference[{0}]", conference.ToString());
+                that._logger.log("debug", LOG_ID + "(addOrUpdateConferenceToCache) Not added to conferences list cache - Conference : ", conference.ToString());
+                // log.DebugFormat("[addOrUpdateConferenceToCache] Not added to conferences list cache - Conference[{0}]", conference.ToString());
+                that._conferencesSessionById.add(conference.id, conference);
             }
 
             // If already linked to bubble raised ConferenceUpdated event
             if (linkedWithBubble) {
                 needToRaiseEvent = true;
             } else {
-                that._logger.log("debug", LOG_ID + "(addConferenceToCache) This conference : ", conference.id, " is not linked to a known bubble");
-                // log.WarnFormat("[addConferenceToCache] This conference [{0}] is not linked to a known bubble", conference.Id);
+                that._logger.log("debug", LOG_ID + "(addOrUpdateConferenceToCache) This conference : ", conference.id, " is not linked to a known bubble");
+                // log.WarnFormat("[addOrUpdateConferenceToCache] This conference [{0}] is not linked to a known bubble", conference.Id);
                 // NEED TO ENHANCE THIS PART
             }
 
             // Raise event outside lock
             if (needToRaiseEvent) {
-                that._logger.log("debug", LOG_ID + "(addConferenceToCache) ConferenceUpdated event raised.");
-                // log.DebugFormat("[addConferenceToCache] ConferenceUpdated event raised");
+                that._logger.log("debug", LOG_ID + "(addOrUpdateConferenceToCache) ConferenceUpdated event raised.");
+                // log.DebugFormat("[addOrUpdateConferenceToCache] ConferenceUpdated event raised");
                 // TODO: ConferenceUpdated.Raise(this, new ConferenceEventArgs(conference));
                 that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference);
             }

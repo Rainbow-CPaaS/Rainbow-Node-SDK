@@ -11,11 +11,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
 -   Fix missing mime.lookup with mime lib version > 1.5.0 .
 -   Fix delete / leave bubbles methods in BubblesService when the bubble has the property isActive egal to false.
--   Add a "enablesendurgentpushmessages" property in the options provided to the initialisation of the SDK. This property permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device.
+-   Add a `enablesendurgentpushmessages` property in the options provided to the initialisation of the SDK. This property permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device.
 -   Add generation of search index in Jenkinsfile-sts.groovy file.
--   Add "removeMacEOL" job in Jenkinsfile-sts.groovy file to remove from generated jsdoc the Mac (\r) end of line character which forbid the use of markdown table in comments.
--   Add "generatemermaid" job in Jenkinsfile-sts.groovy file to generate mermaid diagram from mmd files (to be used in SDK documentation).
--   Fix Conversation::getlastEditableMsg() method to return the editable only from sent messages. 
+-   Add `removeMacEOL` job in Jenkinsfile-sts.groovy file to remove from generated jsdoc the Mac (\r) end of line character which forbid the use of markdown table in comments.
+-   Add `generatemermaid` job in Jenkinsfile-sts.groovy file to generate mermaid diagram from mmd files (to be used in SDK documentation).
+-   Fix `Conversation::getlastEditableMsg()` method to return the editable only from sent messages. 
+-   Complete and set public the `BubblesService::askConferenceSnapshot` method to returns global information about conference.
 
 ## [2.7.0] - 2021-12-0
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.

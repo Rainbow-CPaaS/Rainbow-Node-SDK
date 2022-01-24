@@ -4418,13 +4418,12 @@ Request Method: PUT
         });
     }
 
-    askConferenceSnapshot(conferenceId : string, type : MEDIATYPE) {
+    askConferenceSnapshot(conferenceId : string, type : MEDIATYPE, limit : number = 100, offset : number = 0) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {};
             that.logger.log("internal", LOG_ID + "(askConferenceSnapshot) REST params : ", params);
-
-            that.http.get("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/snapshot?mediaType=" + type, that.getRequestHeader(), params).then((json) => {
+            that.http.get("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/snapshot?mediaType=" + type + "&limit=" + limit + "&offset=" + offset, that.getRequestHeader(), params).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(askConferenceSnapshot) successfull");
                 that.logger.log("internal", LOG_ID + "(askConferenceSnapshot) REST result : ", json.data);
