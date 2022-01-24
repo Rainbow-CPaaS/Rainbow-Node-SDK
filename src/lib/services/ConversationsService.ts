@@ -209,8 +209,64 @@ class ConversationsService extends GenericService {
         let that = this;
         let messageInfo = this.pendingMessages[receipt.id];
         if (messageInfo && messageInfo.message) {
-            let message = messageInfo.message;
+            let data = messageInfo.message;
             let conversation = messageInfo.conversation;
+
+            let message: Message = await Message.create(
+                    null,
+                    null,
+                    data.id,
+                    data.type,
+                    data.date,
+                    data.fromJid,
+                    Message.Side.RIGHT,
+                    data.status,
+                    Message.ReceiptStatus.NONE,
+                    !!data.isMarkdown,
+                    data.subject,
+                    data.geoloc,
+                     data.voiceMessage,
+                     data.alternativeContent,
+                     data.attention,
+                     data.mentions,
+                     data.urgency,
+                     data.urgencyAck,
+                     data.urgencyHandler,
+                    //data.translatedText,
+                    //data.isMerged,
+                    data.historyIndex,
+                    //data.showCorrectedMessages,
+                    //data.replaceMsgs,
+                    data.attachedMsgId,
+                    data.attachIndex,
+                    data.attachNumber,
+                    data.resource,
+                    data.toJid,
+                    data.content,
+                    data.lang,
+                    data.cc,
+                    data.cctype,
+                    data.isEvent,
+                    data.event,
+                    data.oob,
+                    data.fromBubbleJid,
+                    data.fromBubbleUserJid,
+                    data.answeredMsg,
+                    data.answeredMsgId,
+                    data.answeredMsgDate,
+                    data.answeredMsgStamp,
+                    data.eventJid,
+                    data.originalMessageReplaced,
+                    data.confOwnerId,
+                    data.confOwnerDisplayName,
+                    data.confOwnerJid,
+                    data.isForwarded,
+                    data.forwardedMsg
+            );
+            //that._logger.log("internal", LOG_ID + "(_onReceipt) with data Message : ", data);
+            data.updateMessage(data);
+            //that._logger.log("internal", LOG_ID + "(_onReceipt) with data updated Message : ", data);
+
 
             that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ")");
             that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ") : ", conversation);

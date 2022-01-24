@@ -2399,6 +2399,7 @@ class AdminService extends GenericService {
      * @param {string} settings.company.password password for the ldap server. 
      * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours. 
      * @param {string} settings.company.url url of the ldap server. 
+     * @param {string} settings.company.domain domain of the ldap server.
      * @description
      *      This API allows create configuration for the connector. <br>
      *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
@@ -2407,19 +2408,23 @@ class AdminService extends GenericService {
      *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
      *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
      *      a company_admin can only create the connectors configuration in his company. <br>
-     *      return { <br>
-     *         id 	String Config unique identifier. <br>
-     *         type 	String Config type  <br>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
-     *         settings 	Object config settings <br>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-     *                 login 	String login for the ldap server. <br>
-     *                 password 	String password for the ldap server. <br>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-     *                 url 	String url of the ldap server. <br>
-     *          } <br>
+     *      return an Object with
+     *      
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id | String | Config unique identifier. |
+     * | type | String | Config type |
+     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
+     * | settings | Object | config settings |
+     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
+     * | settings.company.login | String | login for the ldap server. |
+     * | settings.company.password | String | password for the ldap server. |
+     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
+     * | settings.company.url | String | url of the ldap server. |
+     * | settings.company.domain | String | domain of the ldap server. |
+     * 
      * @return {Promise<{Object}>}
      */
     createConfigurationForLdapConnector (companyId, settings) {

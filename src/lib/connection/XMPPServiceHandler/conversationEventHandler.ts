@@ -514,7 +514,64 @@ class ConversationEventHandler extends GenericHandler {
                                                     }
                                                 }
 
-                                                that._onMessageReceived(conversationId, data);
+                                                //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, Message.Side.LEFT, data.content, null, data.answeredMsg, data.answeredMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.isMarkdown, data.subject, data.attention, data.geoloc, data.alternativeContent);
+                                                let dataMessage: Message = await Message.create(
+                                                        null,
+                                                        null,
+                                                        data.id,
+                                                        data.type,
+                                                        data.date,
+                                                        data.fromJid,
+                                                        Message.Side.RIGHT,
+                                                        null,
+                                                        Message.ReceiptStatus.NONE,
+                                                        undefined, // data.isMarkdown,
+                                                        undefined, // data.subject,
+                                                        undefined, // data.geoloc,
+                                                        undefined, // data.voiceMessage,
+                                                        undefined, // data.alternativeContent,
+                                                        undefined, // data.attention,
+                                                        undefined, // data.mentions,
+                                                        undefined, // data.urgency,
+                                                        undefined, // data.urgencyAck,
+                                                        undefined, // data.urgencyHandler,
+                                                        //data.translatedText,
+                                                        //data.isMerged,
+                                                        undefined, // data.historyIndex,
+                                                        //data.showCorrectedMessages,
+                                                        //data.replaceMsgs,
+                                                        undefined, // data.attachedMsgId,
+                                                        undefined, // data.attachIndex,
+                                                        undefined, // data.attachNumber,
+                                                        data.resource,
+                                                        data.toJid,
+                                                        data.content,
+                                                        data.lang,
+                                                        data.cc,
+                                                        data.cctype,
+                                                        data.isEvent,
+                                                        undefined, // data.event,
+                                                        undefined, // data.oob,
+                                                        undefined, // data.fromBubbleJid,
+                                                        undefined, // data.fromBubbleUserJid,
+                                                        data.answeredMsg,
+                                                        data.answeredMsgId,
+                                                        data.answeredMsgDate,
+                                                        data.answeredMsgStamp,
+                                                        undefined,//data.eventJid,
+                                                        undefined, // data.originalMessageReplaced,
+                                                        undefined, // data.confOwnerId,
+                                                        undefined, // data.confOwnerDisplayName,
+                                                        undefined, // data.confOwnerJid,
+                                                        false, // data.isForwarded,
+                                                        undefined, // data.forwardedMsg
+                                                );
+                                                //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) with dataMessage Message : ", dataMessage);
+                                                dataMessage.updateMessage(data);
+                                                //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) with dataMessage updated Message : ", dataMessage);
+
+
+                                                that._onMessageReceived(conversationId, dataMessage);
 
                                             }
                                         });

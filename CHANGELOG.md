@@ -15,6 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add generation of search index in Jenkinsfile-sts.groovy file.
 -   Add "removeMacEOL" job in Jenkinsfile-sts.groovy file to remove from generated jsdoc the Mac (\r) end of line character which forbid the use of markdown table in comments.
 -   Add "generatemermaid" job in Jenkinsfile-sts.groovy file to generate mermaid diagram from mmd files (to be used in SDK documentation).
+-   Fix Conversation::getlastEditableMsg() method to return the editable only from sent messages. 
 
 ## [2.7.0] - 2021-12-0
 -   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.

@@ -180,7 +180,7 @@ let urlS2S;
         // IM options
         "im": {
             "sendReadReceipt": true,
-            "messageMaxLength": 1024,
+//            "messageMaxLength": 1024,
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "small",
             "storeMessages": false,
@@ -1196,6 +1196,16 @@ let urlS2S;
                 logger.log("debug", "MAIN - tesdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
 
             });
+        });
+    }
+    
+    function testgetlastEditableMsg() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let that = this;
+            let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
         });
     }
 

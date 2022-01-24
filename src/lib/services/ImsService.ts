@@ -452,16 +452,21 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-    
+
      */
-    sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
+    async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
+        let that = this;
         if (!contact || !contact.jid_im) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
+            that._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
-        return this.sendMessageToJid(message, contact.jid_im, lang, content, subject, urgency);
+        //return this.sendMessageToJid(message, contact.jid_im, lang, content, subject, urgency);
+
+        let conversation = await that._conversations.openConversationForContact(contact);
+        //that._logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", conversation);
+        return that.sendMessageToConversation(conversation, message, lang, content, subject, urgency);
     }
 
     /**
