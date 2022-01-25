@@ -19,6 +19,7 @@ import {AlertTemplate} from "../lib/common/models/AlertTemplate";
 import {Alert} from "../lib/common/models/Alert";
 import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 import {Contact} from "../lib/common/models/Contact";
+import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
 
 // @ts-ignore
@@ -76,8 +77,6 @@ let rainbowMode = "xmpp";
 
 //const ngrok = import('ngrok');
 import ngrok from 'ngrok';
-import {from} from "rxjs";
-import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 
 let urlS2S;
 
@@ -2507,6 +2506,29 @@ let urlS2S;
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
         });
+    }
+    
+    async function testaskConferenceSnapshot() {
+        let allConferences: [any] = await rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
+            logger.log("debug", "MAIN - testaskConferenceSnapshot all conferences : ", conferences);
+            return conferences;
+        });
+
+        try {
+            if (allConferences && allConferences.length > 0) {
+                let conferenceInfo: ConferenceSession = await rainbowSDK.bubbles.askConferenceSnapshot(allConferences[0].id);
+                logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
+            }
+        } catch (err) {
+            logger.log("debug", "MAIN - testaskConferenceSnapshot from existing conference Error : ", err);
+        }
+
+        try {
+            let conferenceInfo: ConferenceSession = await rainbowSDK.bubbles.askConferenceSnapshot("XX7831e66d88e93afaa37cXX");
+            logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
+        } catch (err) {
+            logger.log("debug", "MAIN - testaskConferenceSnapshot non existing conference Error : ", err);
+        }
     }
 
     function testStartConference() {

@@ -720,9 +720,9 @@ class Bubbles extends GenericService {
      * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
      * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
      * If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
-     * @return {Promise<void>}
+     * @return {Promise<ConferenceSession>}
      */
-    async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE = MEDIATYPE.WEBRTC, limit : number = 100, offset : number = 0) {
+    async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE = MEDIATYPE.WEBRTC, limit : number = 100, offset : number = 0): Promise<ConferenceSession> {
         let that = this;
 
         if (!conferenceId) {
@@ -735,11 +735,13 @@ class Bubbles extends GenericService {
         that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
         let active: boolean = false;
         active = confSnapshop["active"];
+        
+        let conference: ConferenceSession ;
 
         // Do something only if conference is active
         if (active) {
-            // Get conference form cahe (if any)
-            let conference: ConferenceSession = await that.getConferenceByIdFromCache(conferenceId);
+            // Get conference form cache (if any)
+            conference = await that.getConferenceByIdFromCache(conferenceId);
             if (conference==null) {
                 conference = new ConferenceSession(conferenceId);
             }
@@ -809,12 +811,18 @@ class Bubbles extends GenericService {
             } catch (e) {
                 that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
             }
+        } else {
+            conference = new ConferenceSession(conferenceId);
+            conference.active = false;
 
-            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
-
-            // Finally add conference to the cache
-            that.addOrUpdateConferenceToCache(conference);
+            // Clear participants since this server request give all info about them
+            conference.participants = new List<Participant>();
         }
+        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
+
+        // Finally add conference to the cache
+        that.addOrUpdateConferenceToCache(conference);
+        return conference;
     }
 
     /**
