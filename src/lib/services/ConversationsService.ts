@@ -264,7 +264,7 @@ class ConversationsService extends GenericService {
                     data.forwardedMsg
             );
             //that._logger.log("internal", LOG_ID + "(_onReceipt) with data Message : ", data);
-            data.updateMessage(data);
+            message.updateMessage(data);
             //that._logger.log("internal", LOG_ID + "(_onReceipt) with data updated Message : ", data);
 
 
