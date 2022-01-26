@@ -497,6 +497,7 @@ class ConversationsService extends GenericService {
     getOneMessageFromConversationId(conversationId:string, messageId : string, stamp:string) : Promise<Message> {
         let that = this;
         return new Promise(async (resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId, ", messageId : ", messageId);
             let conversation = that.getConversationById(conversationId);
             that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) conversation found, conversation.id: ", conversation.id);
             if (conversation) {
@@ -520,7 +521,7 @@ class ConversationsService extends GenericService {
                 }
             } else {
                 that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) No conversation found with this conversation ID : ", conversationId);
-                return reject();
+                return reject(undefined);
             }
         });
     }
@@ -887,6 +888,7 @@ class ConversationsService extends GenericService {
             newMsg.date = new Date();
             newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
             originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
+            that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
             this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
             return newMsg;
         } catch (err) {

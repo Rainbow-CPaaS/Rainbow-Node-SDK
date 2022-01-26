@@ -151,6 +151,7 @@ class Message {
     public conversation: Conversation;
     public isForwarded : boolean;
     public forwardedMsg : any;
+    public replacedByMessage: Message;
 
 
     constructor(serverAckTimer: any, 
@@ -591,6 +592,12 @@ class Message {
          */
         this.forwardedMsg = forwardedMsg;
 
+        /**
+         * @public
+         * @property {Message} replacedBuMessage original message has been replaced by the spotted Message..
+         * @readonly
+         */
+        this.replacedByMessage = null;
     }
 
     /**
@@ -767,7 +774,7 @@ class Message {
                     } else {
                         // dev-code-console //
                         //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val);
+                        console.log("WARNING : One property of the parameter of Message::updateMessage method is not present in the Message class can not update Message with : ", val);
                         // end-dev-code-console //
                     }
                 });

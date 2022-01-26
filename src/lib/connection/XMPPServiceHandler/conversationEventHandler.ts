@@ -1268,7 +1268,7 @@ class ConversationEventHandler extends GenericHandler {
                     historyIndex,
                     attachedMsgId,
                     attachIndex,
-                    attachNumber,
+                    attachNumber
                 };
 
                 if (eventName) {
@@ -1323,6 +1323,7 @@ class ConversationEventHandler extends GenericHandler {
                         data.originalMessageReplaced = {};
                         data.originalMessageReplaced.id = replaceMessageId;
                     }
+                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", This is a replace msg, so set data.originalMessageReplaced.replacedByMessage : ", replaceMessageId);
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
                     if (!hasATextMessage && !isForwarded) {

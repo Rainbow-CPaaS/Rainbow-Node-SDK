@@ -505,11 +505,11 @@ let urlS2S;
         // send manually a 'read' receipt to the sender
         // rainbowSDK.im.markMessageAsRead(data);
     });
-    rainbowSDK.events.on("rainbow_onuserinvitereceived", (data) => __awaiter(void 0, void 0, void 0, function* () {
+    rainbowSDK.events.on("rainbow_onuserinvitereceived", async (data) => {
         logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received. data", data);
-        let acceptInvitationResult = yield rainbowSDK.contacts.acceptInvitation(data);
+        let acceptInvitationResult = await rainbowSDK.contacts.acceptInvitation(data);
         logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
-    }));
+    });
     rainbowSDK.events.on("rainbow_onfileupdated", (data) => {
         logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received. data", data);
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
@@ -625,16 +625,14 @@ let urlS2S;
     }
 
 
-    function testgetContactByLoginEmailCaseSensitiveTest() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetContactByLoginEmailCaseSensitiveTest() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
-            let contactVincent00upperCase = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
+            let contactVincent00upperCase = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
             logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
-        });
     }
 
     function displayRoster() {
@@ -732,64 +730,55 @@ let urlS2S;
         });
     }
 
-    function testjoinContacts_AddContactToRoster() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testjoinContacts_AddContactToRoster() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            let contactVincent01 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             //let jid = contactVincent01.jid_im;
             //  let me = rainbowSDK.contacts.getConnectedUser();
             let tab = [];
             tab.push(contactVincent01.id);
             rainbowSDK.contacts.joinContacts(contactVincent00, tab);
-        });
     }
 
-    function testsendSubscription() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendSubscription() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            let contactVincent01 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             //let jid = contactVincent01.jid_im;
             //  let me = rainbowSDK.contacts.getConnectedUser();
             let tab = [];
             tab.push(contactVincent01.id);
             //rainbowSDK.contacts.addContact(contactVincent00, tab);
-        });
     }
 
-    function testaddToContactsList() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testaddToContactsList() {
             let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             //let jid = contactVincent01.jid_im;
             //  let me = rainbowSDK.contacts.getConnectedUser();
             //let tab = [];
             //tab.push(contactVincent01.id);
-            yield rainbowSDK.contacts.addToNetwork(contactVincent00);
-        });
+            await rainbowSDK.contacts.addToNetwork(contactVincent00);
     }
 
-    function testremoveFromNetwork() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testremoveFromNetwork() {
             let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : ", contactVincent00);
-            yield rainbowSDK.contacts.removeFromNetwork(contactVincent00);
-        });
+            await rainbowSDK.contacts.removeFromNetwork(contactVincent00);
     }
 
-    function testgetAllUsers() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetAllUsers() {
             // let utc = new Date().toJSON().replace(/-/g, '_');
-            let users = yield rainbowSDK.admin.getAllUsers("small", 2, 5, "firstName");
+            let users = await rainbowSDK.admin.getAllUsers("small", 2, 5, "firstName");
             logger.log("debug", "MAIN - [testgetAllUsers] after getAllUsers : ", users);
             //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             //let jid = contactVincent01.jid_im;
@@ -797,44 +786,37 @@ let urlS2S;
             //let tab = [];
             //tab.push(contactVincent01.id);
             //await rainbowSDK.contacts.addToNetwork(contactVincent00);
-        });
     }
 
-    function testgetAllUsersByCompanyId() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetAllUsersByCompanyId() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
 
-            let users = yield rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
+            let users = await rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
             logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
-        });
     }
 
-    function testgetAllUsersBySearchEmailByCompanyId() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetAllUsersBySearchEmailByCompanyId() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             let searchEmail = "cord";
-            let users = yield rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
+            let users = await rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
             logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
-        });
     }
 
-    function testgetServerFavorites() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetServerFavorites() {
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let favorites = yield rainbowSDK.favorites.fetchAllFavorites();
+            let favorites = await rainbowSDK.favorites.fetchAllFavorites();
             //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             //let jid = contactVincent01.jid_im;
             //  let me = rainbowSDK.contacts.getConnectedUser();
             //let tab = [];
             //tab.push(contactVincent01.id);
             //await rainbowSDK.contacts.addToNetwork(contactVincent00);
-        });
     }
 
     async function testcreateGuestUserError() {
@@ -853,25 +835,22 @@ let urlS2S;
     
     //region Messages
 
-    function testgetContactsMessagesFromConversationId() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetContactsMessagesFromConversationId() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             //let now = new Date().getTime();
             // get messages which are not events
-            let msgNotEvents = yield rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
             logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
-        });
     }
 
-    function testgetContactsMessagesFromConversationIdForGuest() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetContactsMessagesFromConversationIdForGuest() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -891,88 +870,82 @@ let urlS2S;
             });
             /*
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             //let now = new Date().getTime();
             // get messages which are not events
-            let msgNotEvents = yield rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
             logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
             // */
-        });
     }
 
-    function testremoveAllMessages() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testremoveAllMessages() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
-            let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+            let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
-        });
     }
 
-    function testsendMessageToConversationForContact() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendMessageToConversationForContact() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                //let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
-                let msgDeleted = yield rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+                let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
                 logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
             }
-            // let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+            // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             // logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
-        });
     }
 
-    function testsendMessageToConversationForContactIrles() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendMessageToConversationForContactIrles() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "christophe.irles@al-enterprise.com";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 2;
             let msgsSent = [];
             let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
@@ -984,43 +957,40 @@ let urlS2S;
             };
             let now = new Date().getTime();
             // Send message
-            //let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-            let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
+            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-        });
     }
 
-    function testsendMessageToJid() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendMessageToJid() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            //let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 1;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                let msgSent = yield rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
+                let msgSent = await rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
-                /*yield Utils.until(() => {
+                /*await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id) !== undefined;
                 }, "Wait for message to be added in conversation num : " + i);
-                let msgDeleted = yield rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+                let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
                 logger.log("debug", "MAIN - testsendMessageToJid - deleted in conversation the message : ", msgDeleted);
                 // */
             }
-            // let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+            // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             // logger.log("debug", "MAIN - testsendMessageToJid - conversation with messages removed : ", conversationWithMessagesRemoved);
-        });
     }
 
     function testsendMessageToConversation() {
@@ -1042,12 +1012,11 @@ let urlS2S;
         });
     }
 
-    function testsendMessageToConversation_html() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendMessageToConversation_html() {
             let that = this;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
                     "\n" +
                     "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
@@ -1063,67 +1032,61 @@ let urlS2S;
                 logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - result : ", result);
                 logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - conversation : ", conversation);
             });
-        });
     }
 
-    function testSendMessageToJid() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSendMessageToJid() {
             let that = this;
             let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
                 logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
             });
-        });
     }
 
-    function testsendCorrectedChatMessage() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendCorrectedChatMessage() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
             let msgSentOrig = msgsSent.slice(-1)[0];
             let msgStrModified = "modified : " + msgSentOrig.content;
             logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                let msgCorrectedSent = yield rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+            setTimeout(async () => {
+                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
                     logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
                 });
                 logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }), 10000);
-        });
+            }, 10000);
     }
 
-    function testsendCorrectedChatMessageWithContent() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendCorrectedChatMessageWithContent() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
@@ -1136,19 +1099,19 @@ let urlS2S;
                     type: "text/markdown"
                 };
                 // Send message
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
             let msgSentOrig = msgsSent.slice(-1)[0];
             let msgStrModified = "modified : " + msgSentOrig.content;
             logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
-            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+            setTimeout(async () => {
                 let now = new Date().getTime();
                 let txt = "# Test modified " + now + " \n" +
                         "\n" +
@@ -1158,20 +1121,18 @@ let urlS2S;
                     type: "text/markdown"
                 };
 
-                let msgCorrectedSent = yield rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
                     logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
                 });
                 logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
-            }), 10000);
-        });
+            }, 10000);
     }
 
-    function tesdeleteMessageFromConversation() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function tesdeleteMessageFromConversation() {
             let that = this;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
                     "\n" +
                     "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
@@ -1195,21 +1156,17 @@ let urlS2S;
                 logger.log("debug", "MAIN - tesdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
 
             });
-        });
     }
     
-    function testgetlastEditableMsg() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testgetlastEditableMsg() {
             let that = this;
             let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
-        });
     }
 
-    function testsendCorrectedChatMessageForBubble() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendCorrectedChatMessageForBubble() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -1225,87 +1182,79 @@ let urlS2S;
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date(); // .getTime()
                 // Send message
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
             let msgSentOrig = msgsSent.slice(-1)[0];
             let msgStrModified = "modified : " + msgSentOrig.message;
             logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                let msgCorrectedSent = yield rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+            setTimeout(async () => {
+                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
                     logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
                 });
                 logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }), 5000);
-        });
+            }, 5000);
     }
 
-    function testsendCorrectedChatMessageForBubbleInExistingConversation() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendCorrectedChatMessageForBubbleInExistingConversation() {
             //let that = this;
             let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
             let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
-            yield rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+            await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
             let msgSentOrig = conversation.getlastEditableMsg();
             let msgStrModified = "modified : " + msgSentOrig.content;
-            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+            setTimeout(async () => {
                 logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-                let msgCorrectedSent = yield rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
                     logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
                 });
                 logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }), 5000);
-        });
+            }, 5000);
     }
 
-    function testdeleteAllMessageInOneToOneConversation() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testdeleteAllMessageInOneToOneConversation() {
             let that = this;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             if (conversation && conversation.id) {
-                let result = yield rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+                let result = await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
                 logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
                 logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
             } else {
                 logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
             }
-        });
     }
 
-    function testSendMessageToJidOfMySelf() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSendMessageToJidOfMySelf() {
             let that = this;
             let contactEmailToSearch = options.credentials.login;
             logger.log("debug", "MAIN - testSendMessageToJidOfMySelf contactEmailToSearch : ", contactEmailToSearch);
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            yield rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJidOfMySelf", contact.jid, "FR", null, "Le sujet de node testSendMessageToJidOfMySelf").then((result) => {
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            await rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJidOfMySelf", contact.jid, "FR", null, "Le sujet de node testSendMessageToJidOfMySelf").then((result) => {
                 logger.log("debug", "MAIN - testSendMessageToJidOfMySelf sendMessageToJid - result : ", result);
             }).catch((err) => {
                 logger.log("debug", "MAIN - testSendMessageToJidOfMySelf Error : ", err);
             });
-        });
     }
 
-    function testSendMultipleMessages() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSendMultipleMessages() {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 100;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
@@ -1313,33 +1262,30 @@ let urlS2S;
                 let msgstr = "hello num " + i + " from node : " + now;
                 // Send message
                 logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", msgstr);
-                let msgSent = yield rainbowSDK.im.sendMessageToConversation(conversation, msgstr, "FR", null, "Le sujet de node : " + now).catch((err) => {
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, msgstr, "FR", null, "Le sujet de node : " + now).catch((err) => {
                     logger.log("internalerror", "MAIN - testSendMultipleMessages - error while sendMessageToConversation : ", err);
                 });
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
-                yield Utils.until(() => {
+                await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation Msg : " + msgstr);
             }
-            //let conversationWithMessagesRemoved = yield rainbowSDK.conversations.removeAllMessages(conversation);
+            //let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             //logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
-        });
     }
 
-    function testsendMessageToContactUrgencyMiddle() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testsendMessageToContactUrgencyMiddle() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
             rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'middle').then((result) => {
                 logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
-        });
     }
 
     //endregion Messages
@@ -1473,25 +1419,23 @@ let urlS2S;
         }
     }
 
-    function testcreateChannel() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testcreateChannel() {
             let mychannels = rainbowSDK.channels.getAllOwnedChannel();
             let mychannel = mychannels ? mychannels[0]:null;
             let utc = new Date().toJSON().replace(/-/g, "/");
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let channelCreated = yield rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
             logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
             let tab: any = [{"id": contact.id}];
-            let channelMembersAdded = yield rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
+            let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
             logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
-            let channelinfo = yield rainbowSDK.channels.fetchChannel(channelCreated.id);
+            let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
             logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
             /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
                 logger.log("debug", "createItem - res : ", res);
             }); // */
-        });
     }
 
     function testChannelDeleteMessage() {
@@ -2229,8 +2173,7 @@ let urlS2S;
         });
     }
 
-    function testSetBubbleCustomData() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSetBubbleCustomData() {
             let that = this;
             let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             let bubble;
@@ -2242,7 +2185,7 @@ let urlS2S;
             logger.log("debug", "MAIN - testSetBubbleCustomData - bubble : ", bubble);
             //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
             let now = new Date().getTime();
-            yield rainbowSDK.bubbles.setBubbleCustomData(bubble, {
+            await rainbowSDK.bubbles.setBubbleCustomData(bubble, {
                 "mypersonnaldata": "valueofmypersonnaldata",
                 "updateDate": now
             });
@@ -2257,77 +2200,65 @@ let urlS2S;
                 });
             // */
             //});
-        });
     }
 
-    function testSetBubbleName() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSetBubbleName() {
             let that = this;
             let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             let bubble;
             if (activesBubbles && activesBubbles.length > 0) {
                 //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = yield Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+                bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
             }
             //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
             logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
             //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
             let now = new Date().getTime();
-            let bubbleUpdated = yield rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
+            let bubbleUpdated = await rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
             logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
-        });
     }
 
-    function testSetBubbleTopic() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testSetBubbleTopic() {
             let that = this;
             let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             let bubble;
             if (activesBubbles && activesBubbles.length > 0) {
                 //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = yield Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+                bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
             }
             //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
             logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
             //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
             let now = new Date().getTime();
-            let bubbleUpdated = yield rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
+            let bubbleUpdated = await rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
             logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
-        });
     }
 
 
-    function testDeletebubble() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testDeletebubble() {
             let bubbleId = "5cde768d424fb13186b9e6d4";
-            let bubble = yield rainbowSDK.bubbles.getBubbleById(bubbleId);
+            let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
             rainbowSDK.bubbles.deleteBubble(bubble);
-        });
     }
 
-    function testDeleteBubble() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let bubbles = yield rainbowSDK.bubbles.getAllOwnedBubbles();
+    async function testDeleteBubble() {
+            let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
             logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
             rainbowSDK.bubbles.deleteBubble(bubbles[0]).then((resultDelete) => {
                 logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
             });
-        });
     }
 
-    function testDeleteBubble_ByBubbleId(bubbleId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let bubble = yield rainbowSDK.bubbles.getBubbleById(bubbleId);
+    async function testDeleteBubble_ByBubbleId(bubbleId) {
+            let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
             logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId, ", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
             rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
                 logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
             });
-        });
     }
 
-    function testLeaveBubble() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let bubbles = yield rainbowSDK.bubbles.getAllBubbles();
+    async function testLeaveBubble() {
+            let bubbles = await rainbowSDK.bubbles.getAllBubbles();
             logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
             for (const bubble of bubbles) {
                 if (bubble.name.indexOf("testBot")!= -1) {
@@ -2348,7 +2279,6 @@ let urlS2S;
                     logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
                 }
             }
-        });
     }
 
     function testCreateBubblesAndSetTags() {
@@ -2922,14 +2852,12 @@ let urlS2S;
         rainbowSDK.calllog.deleteAllCallLogs();
     }
 
-    function testDeleteCallLogsForContact() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testDeleteCallLogsForContact() {
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             let jid = contact.jid_im;
             rainbowSDK.calllog.deleteCallLogsForContact(jid);
-        });
     }
 
     function testmarkCallLogAsRead() {
@@ -2977,7 +2905,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] Release all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
-                    //yield rainbowSDK.telephony.releaseCall(c);
+                    //await rainbowSDK.telephony.releaseCall(c);
                     Utils.setTimeoutPromised(10000).then(() => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
@@ -3007,8 +2935,8 @@ let urlS2S;
             setTimeout(() => {
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] holdCall all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
-                calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
-                    yield rainbowSDK.telephony.holdCall(c);
+                calls.forEach(async (c) => {
+                    await rainbowSDK.telephony.holdCall(c);
                     Utils.setTimeoutPromised(6000).then(async () => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
@@ -3017,7 +2945,7 @@ let urlS2S;
 
                         await rainbowSDK.telephony.retrieveCall(c);
                     });
-                }));
+                });
             }, 15000);
             // */
         });
@@ -3040,7 +2968,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] Release all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
-                    //yield rainbowSDK.telephony.releaseCall(c);
+                    //await rainbowSDK.telephony.releaseCall(c);
                     Utils.setTimeoutPromised(10000).then(() => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
@@ -3168,21 +3096,19 @@ let urlS2S;
         });
     }
 
-    function testDeleteServerConversation() {
-        return __awaiter(this, void 0, void 0, function* () {
+    async function testDeleteServerConversation() {
             let that = this;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = yield rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = yield rainbowSDK.conversations.openConversationForContact(contact);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             if (conversation && conversation.id) {
-                let result = yield rainbowSDK.conversations.deleteServerConversation(conversation.dbId);
+                let result = await rainbowSDK.conversations.deleteServerConversation(conversation.dbId);
                 logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - result : ", result);
                 logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - conversation : ", conversation);
             } else {
                 logger.log("debug", "MAIN - testDeleteServerConversation conversation empty or no id defined - conversation : ", conversation);
             }
-        });
     }
 
     async function test_multireconnect() {
