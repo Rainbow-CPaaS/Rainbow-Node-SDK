@@ -387,7 +387,10 @@ pipeline {
                                  
                                  ls 
                                  
+                                 
                                 """
+
+                                 stash includes: 'Documentation', name: 'DocumentationFolder'
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
@@ -396,7 +399,9 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
+                                   unstash 'Documentation'
                                    sh script: """
+                                   
                                 echo "folder where run the Build Hub V2 search index."
 
                                  pwd 
