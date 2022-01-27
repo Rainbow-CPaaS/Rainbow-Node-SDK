@@ -399,7 +399,7 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
-                                   unstash 'Documentation'
+                                   unstash 'DocumentationFolder'
                                    sh script: """
                                    
                                 echo "folder where run the Build Hub V2 search index."
