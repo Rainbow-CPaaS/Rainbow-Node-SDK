@@ -396,9 +396,15 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
+                                   sh script: """
+                                echo "folder where run the Build Hub V2 search index."
+
                                  pwd 
                                  
                                  ls 
+
+                                """
+
                                 echo generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
