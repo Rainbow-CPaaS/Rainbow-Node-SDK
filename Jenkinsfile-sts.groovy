@@ -390,7 +390,7 @@ pipeline {
                                  
                                 """
 
-                                 stash includes: 'Documentation', name: 'DocumentationFolder'
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
@@ -399,18 +399,13 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
-                                   unstash 'DocumentationFolder'
+                                   // unstash 'DocumentationFolder'
                                    sh script: """
-                                   
-                                echo "folder where run the Build Hub V2 search index."
-
-                                 pwd 
-                                 
-                                 ls 
-
+                                 # echo "folder where run the Build Hub V2 search index."
+                                 # pwd 
+                                 # ls 
                                 """
-
-                                echo generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts")
+                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
