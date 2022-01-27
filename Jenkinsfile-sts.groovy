@@ -383,6 +383,10 @@ pipeline {
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
                                  
+                                 pwd 
+                                 
+                                 ls 
+                                 
                                 """
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
@@ -392,7 +396,10 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
-                                generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts")
+                                 pwd 
+                                 
+                                 ls 
+                                echo generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
