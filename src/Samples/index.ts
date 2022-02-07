@@ -75,8 +75,8 @@ import jwt from "jwt-decode";
 // let rainbowMode = "s2s" ;
 let rainbowMode = "xmpp";
 
-//const ngrok = import('ngrok');
-import ngrok from 'ngrok';
+let ngrok = require('ngrok');
+//import ngrok from 'ngrok';
 
 let urlS2S;
 
@@ -585,6 +585,18 @@ let urlS2S;
     });
 
     //region Contacts
+    
+    function testupdateMyInformations() {
+        let contactInfo = {
+           
+        };
+        rainbowSDK.contacts.updateMyInformations(contactInfo).then(result => {
+            logger.log("debug", "MAIN - [testupdateMyInformations    ] ::  result : ", result);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testupdateMyInformations    ] :: catch reject contact : ", err);
+        });
+    }
+    
     function testgetUserPresenceInformation() {
         rainbowSDK.admin.getUserPresenceInformation().then(result => {
             logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
@@ -1738,6 +1750,35 @@ let urlS2S;
         });
     }
 
+    async function testfileOwnershipChange() {
+        let that = this;
+        let contactEmail = "vincent03@vbe.test.openrainbow.net";
+        //let contactEmail = "vincent.berder@al-enterprise.com";
+        rainbowSDK.contacts.getContactByLoginEmail(contactEmail).then(async (contact: any) => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testfileOwnershipChange    ] :: getContactByLoginEmail contact : ", contact);
+
+                try {
+
+
+                    // let conversation = null;
+                    let file = null;
+                    //let strMessage = {message: "message for the file"};
+                    let strMessage = "message for the file";
+                    file = "c:\\temp\\IMG_20131005_173918.jpg";
+                    logger.log("debug", "MAIN - testfileOwnershipChange - file : ", file);
+                    // Share the file
+                    let fileStored: any = await rainbowSDK.fileStorage.uploadFileToStorage(file);
+                    logger.log("debug", "MAIN - testfileOwnershipChange - fileStored : ", fileStored); 
+                    let fileOwnerChanged = await rainbowSDK.fileStorage.fileOwnershipChange(fileStored.id, contact.id);
+                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged : ", fileOwnerChanged); 
+                } catch (err) {
+                    logger.log("error", "MAIN - testfileOwnershipChange - error : ", err);
+                }
+            }
+        });
+    }
+
     function testRetrieveOneFileDescriptor() {
         logger.log("debug", "Main - testRetrieveOneFileDescriptor - file - ");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId("5cab49e3827d70023481c17a");
@@ -1747,6 +1788,61 @@ let urlS2S;
         });
     }
 
+    async function testgetFileDescriptorsByCompanyId() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId. ");
+        /*let format  : string = "small";
+        let sortField : string = "name" ;
+        let bpId : string = undefined ;
+        let catalogId : string = undefined ;
+        let offerId : string = undefined ;
+        let offerCanBeSold : boolean = undefined ;
+        let externalReference : string = undefined;
+        let externalReference2 : string = undefined;
+        let salesforceAccountId : string = undefined;
+        let selectedAppCustomisationTemplate : string = undefined
+        let selectedThemeObj: boolean = undefined;
+        let offerGroupName : string = undefined;
+        let limit : number = 100;
+        let offset : number = 0;
+        let sortOrder : number = 1;
+        let name : string = "westworld guest_";
+        let status : string = undefined;
+        let visibility : string = undefined;
+        let organisationId : string = undefined
+        let isBP : boolean = undefined;
+        let hasBP : boolean = undefined;
+        let bpType : string = undefined;
+
+        let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
+        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - allCompanies : ", allCompanies.length);
+        
+        // */
+
+        let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId();
+        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - filesDescriptors : ", filesDescriptors);
+        
+        /*let companyId = connectedUser.companyId;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name==="vbeCompanie") {
+                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+
+        let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+        // */
+
+    }
+    
+    async function testretrieveFileDescriptorsListPerOwner() {
+        let filesDescriptors = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
+        logger.log("debug", "MAIN - testretrieveFileDescriptorsListPerOwner - filesDescriptors : ", filesDescriptors);
+    }
+    
     //endregion Files
 
     //region Bubbles
@@ -3434,6 +3530,229 @@ let urlS2S;
 
     //endregion
 
+    //region Company
+
+    async function testgetAllCompanies() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
+        let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - allCompanies : ", allCompanies.length);
+        /*let companyId = connectedUser.companyId;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name==="vbeCompanie") {
+                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+
+        let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+        // */
+
+    }
+
+    async function testgetAllCompaniesWithFilters() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters. ");
+        let format  : string = "small";
+        let sortField : string = "name" ; 
+        let bpId : string = undefined ;
+        let catalogId : string = undefined ;
+        let offerId : string = undefined ; 
+        let offerCanBeSold : boolean = undefined ; 
+        let externalReference : string = undefined; 
+        let externalReference2 : string = undefined;
+        let salesforceAccountId : string = undefined; 
+        let selectedAppCustomisationTemplate : string = undefined
+        let selectedThemeObj: boolean = undefined;
+        let offerGroupName : string = undefined;
+        let limit : number = 100;
+        let offset : number = 0;
+        let sortOrder : number = 1;
+        let name : string = "westworld";
+        let status : string = undefined;
+        let visibility : string = undefined;
+        let organisationId : string = undefined
+        let isBP : boolean = undefined;
+        let hasBP : boolean = undefined;
+        let bpType : string = undefined;
+        
+        let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
+        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - allCompanies : ", allCompanies.length);
+        
+        /*let companyId = connectedUser.companyId;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name==="vbeCompanie") {
+                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+
+        let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
+        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+        // */
+
+    }
+
+    async function testgetCompanyById() {
+        let myCompanyId = connectedUser.companyId;
+        let companyInfo = await rainbowSDK.admin.getCompanyById(myCompanyId)
+
+        logger.log("debug", "MAIN - testgetCompanyById - companyInfo : ", companyInfo);
+    }
+    
+    //endregion Company
+
+    //region Custom Templates
+    
+    async function testapplyCustomisationTemplates() {
+        let myCompanyId = connectedUser.companyId;
+        let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        
+        //let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, contact.id);
+        //let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", contact.companyId, undefined);
+        let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, undefined);
+        // let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", undefined, contact.id);
+        logger.log("debug", "MAIN - testapplyCustomisationTemplates - result : ", result);
+    }
+    
+    async function testcreateCustomisationTemplate () {
+//      let visibleBy: [],
+        let instantMessagesCustomisation  = 'enabled';
+        let useGifCustomisation = 'enabled';
+        let fileSharingCustomisation = 'enabled';
+        let fileStorageCustomisation = 'enabled';
+        let phoneMeetingCustomisation = 'enabled';
+        let useDialOutCustomisation = 'enabled';
+        let useChannelCustomisation = 'enabled';
+        let useRoomCustomisation = 'enabled';
+        let useWebRTCAudioCustomisation = 'enabled';
+        let useWebRTCVideoCustomisation = 'enabled';
+        let recordingConversationCustomisation = 'enabled';
+        let overridePresenceCustomisation = 'enabled';
+        let userProfileCustomisation = 'enabled';
+        let userTitleNameCustomisation = 'enabled';
+        let changeTelephonyCustomisation = 'enabled';
+        let changeSettingsCustomisation = 'enabled';
+        let fileCopyCustomisation = 'enabled';
+        let fileTransferCustomisation = 'enabled';
+        let forbidFileOwnerChangeCustomisation = 'enabled';
+        let useScreenSharingCustomisation = 'enabled';
+        let readReceiptsCustomisation = 'enabled';
+        let useSpeakingTimeStatistics = 'enabled';
+
+        let myCompanyId = connectedUser.companyId;
+
+        let name = 'MyTemplateVBE2';
+
+        let result : any= await rainbowSDK.admin.createCustomisationTemplate(name , myCompanyId , undefined , instantMessagesCustomisation , useGifCustomisation ,
+                fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
+                useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
+                userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
+                fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics );
+        logger.log("debug", "MAIN - testcreateCustomisationTemplate - result : ", result);        
+    }
+
+    async function testdeleteCustomisationTemplate() {
+        await testgetCompanyById();
+        let myCompanyId = connectedUser.companyId;
+        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
+
+        for (const template of result.data) {
+            logger.log("debug", "MAIN - testdeleteCustomisationTemplate - template : ", template);
+            let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
+            logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
+            if (template.name == "MyTemplateVBE2") {
+                let result2 : any= await rainbowSDK.admin.deleteCustomisationTemplate(template.id);
+                logger.log("debug", "MAIN - testdeleteCustomisationTemplate - delete result2 : ", result2);
+            }
+        }
+    }
+
+    async function testgetAllAvailableCustomisationTemplates() {
+        await testgetCompanyById();
+        let myCompanyId = connectedUser.companyId;
+        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - result : ", result);
+
+        for (const template of result.data) {
+            logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - template : ", template);
+            let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
+            logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - templateInfo : ", templateInfo);
+        }
+    }
+
+    async function testgetRequestedCustomisationTemplate() {
+        await testgetCompanyById();
+        let myCompanyId = connectedUser.companyId;
+        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - result : ", result);
+
+        for (const template of result.data) {
+            if (template.name == "MyTemplateVBE2") {
+                logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - template : ", template);
+                let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
+                logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - templateInfo : ", templateInfo);
+            }
+        }
+    }
+
+    async function testupdateCustomisationTemplate() {
+        await testgetCompanyById();
+        let myCompanyId = connectedUser.companyId;
+        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        logger.log("debug", "MAIN - testupdateCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
+
+        for (const template of result.data) {
+            logger.log("debug", "MAIN - testupdateCustomisationTemplate - template : ", template);
+            //let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
+            //logger.log("debug", "MAIN - testupdateCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
+            if (template.name == "MyTemplateVBE2") {
+                let instantMessagesCustomisation  = 'enabled';
+                let useGifCustomisation = 'enabled';
+                let fileSharingCustomisation = 'enabled';
+                let fileStorageCustomisation = 'enabled';
+                let phoneMeetingCustomisation = 'enabled';
+                let useDialOutCustomisation = 'enabled';
+                let useChannelCustomisation = 'enabled';
+                let useRoomCustomisation = 'enabled';
+                let useWebRTCAudioCustomisation = 'enabled';
+                let useWebRTCVideoCustomisation = 'enabled';
+                let recordingConversationCustomisation = 'enabled';
+                let overridePresenceCustomisation = 'enabled';
+                let userProfileCustomisation = 'enabled';
+                let userTitleNameCustomisation = 'enabled';
+                let changeTelephonyCustomisation = 'enabled';
+                let changeSettingsCustomisation = 'enabled';
+                let fileCopyCustomisation = 'enabled';
+                let fileTransferCustomisation = 'enabled';
+                let forbidFileOwnerChangeCustomisation = 'disabled';
+                let useScreenSharingCustomisation = 'enabled';
+                let readReceiptsCustomisation = 'enabled';
+                let useSpeakingTimeStatistics = 'enabled';
+
+                //let myCompanyId = connectedUser.companyId;
+
+                let name = 'MyTemplateVBE2';
+
+                let result2 : any= await rainbowSDK.admin.updateCustomisationTemplate(template.id, name , undefined , instantMessagesCustomisation , useGifCustomisation ,
+                        fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
+                        useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
+                        userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
+                        fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation, useSpeakingTimeStatistics );
+                logger.log("debug", "MAIN - testupdateCustomisationTemplate - updateCustomisationTemplate result2 : ", result2);        
+            }
+        }
+    }
+
+    //endregion Custom Templates
+    
     //region Directory
 
     async function testcreateDirectoryEntry() {

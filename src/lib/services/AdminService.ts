@@ -607,24 +607,108 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method getAllCompanies
+     * @param {string} format Allows to retrieve more or less company details in response. <br>
+     * - small: _id, name <br>
+     * - medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape, visibility <br>
+     * - full for superadmin, support, business_admin, bp_admin and bp_finance: All fields <br>
+     * - full for admin: All fields except BP fields (bpType, bpBusinessModel, bpApplicantNumber, bpCRDid, bpHasRightToSell, bpHasRightToConnect, bpIsContractAccepted, bpContractAcceptationInfo) <br>
+     *  <br>
+     * Default value : small <br>
+     * Possible values : small, medium, full <br>
+     * @param {string} sortField Sort items list based on the given field. Default value : name
+     * @param {string} bpId Allows to filter companies list on bpId field. <br>
+     * This filter allow to get all the End Customer companies associated to a given Business Partner company. <br>
+     * <br>
+     *  Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. <br>
+     *  Users with role bp_admin or bp_finance can use this filter on their own company. 
+     * @param {string} catalogId Allows to filter companies list on catalogId field. <br>
+     *     This filter allow to get all the companies linked to a given catalogId. <br>
+     *         <br>
+     *             Only users with role superadmin, support or business_admin can use this filter. 
+     * @param {string} offerId Allows to filter companies list on companies having subscribed to the provided offerId.
+     * @param {boolean} offerCanBeSold Allows to filter companies list on companies having subscribed to offers with canBeSold=true. <br>
+     *     This filter can only be used with the value true (false is not relevant, as all companies have a subscription to Essential which has canBeSold=false, so all companies would match offerCanBeSold=false).
+     * @param {string} externalReference Allows to filter companies list on externalReference field. <br>
+     *     The search is done on externalReference starting with the input characters, case sensitive (ex: ABC will match companies with externalReference ABC, ABCD, ABC12... ; but externalReference abc, AABC, 1ABC, ... will not match). <br>
+     *          <br>
+     *     Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
+     * @param {string} externalReference2 Allows to filter companies list on externalReference2 field. <br>
+     *     The search is done on externalReference2 starting with the input characters, case sensitive (ex: ABC will match companies with externalReference2 ABC, ABCD, ABC12... ; but externalReference2 abc, AABC, 1ABC, ... will not match). <br>
+     *         <br>
+     *     Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
+     * @param {string} salesforceAccountId Allows to filter companies list on salesforceAccountId field. <br>
+     * The search is done on the whole salesforceAccountId, case sensitive (no partial search). <br>
+     *  <br>
+     * Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. 
+     * @param {string} selectedAppCustomisationTemplate Allows to filter companies list on application customisation template applied for the company. <br>
+     *     This filter allows to get a list of companies for which we have applied the same application customisation template. <br>
+     *         <br>
+     *     Only users with role superadmin, support, bp_admin, admin can use this filter.
+     * @param {boolean} selectedThemeObj Allows to return selectedTheme attribute as an object: <br>
+     * - true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }), <br>
+     * - false return selectedTheme as a string. 
+     * @param {string} offerGroupName Allows to filter companies list on companies having subscribed to offers with provided groupName(s). <br>
+     *    Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. <br>
+     *    groupName can be retrieved from API GET /api/rainbow/subscription/v1.0/companies/:companyId/offers <br>
+     *    The search is done on the whole groupName(s), case sensitive (no partial search). <br>
+     *    Several groupName can be provided, seperated by a space.
+     * @param {number} limit Allow to specify the number of items to retrieve. <br>
+     *     Default value : 100
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). <br>
+     *     Warning: if offset > total, no results are returned.
+     * @param {number} sortOrder Specify order when sorting items list. <br>
+     *     Default value : 1 <br> 
+     *     Possible values : -1, 1
+     * @param {string} name Allows to filter companies list on the given keyword(s) on field name. <br>
+     *      <br>
+     *     The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match). <br>
+     *     Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
+     * @param {string} status Allows to filter companies list on the provided status(es) <br>
+     *      <br>
+     *      Possible values : initializing, active, alerting, hold, terminated
+     * @param {string} visibility Allows to filter companies list on the provided visibility(ies) <br>
+     *      <br>
+     *      Possible values : public, private, organization, closed, isolated
+     * @param {string} organisationId Allows to filter companies list on the organisationIds provided in this option. <br>
+     *      <br>
+     *      This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
+     * @param {boolean} isBP Allows to filter companies list on isBP field: <br>
+     *      <br>
+     *      true returns only Business Partner companies, <br>
+     *      false return only companies which are not Business Partner. <br>
+     *      <br>
+     *      This filter can only be used if user has role(s) superadmin, business_admin, support, bp_admin or admin.
+     * @param {boolean} hasBP Allows to filter companies list on companies being linked or not to a BP: <br>
+     *      <br>
+     *      true returns only companies linked to a BP (BP IR companies are also returned), <br>
+     *      false return only companies which are not linked to a BP.
+     *      <br>
+     *      This filter can only be used if user has role(s) superadmin, business_admin, support or bp_admin. <br>
+     *      <br>
+     *      Users with role bp_admin can only use this filter with value false.
+     * @param {string} bpType Allows to filter companies list on bpType field. <br>
+     *      <br>
+     *      This filter allow to get all the Business Partner companies from a given bpType. <br>
+     *      <br>
+     *      Only users with role superadmin, business_admin, support or bp_admin can use this filter.
      * @instance
      * @description
-     *      Get all companies for a given admin <br>
+     *      Get all companies for a given admin following request filters.<br>
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
      * @category async
      */
-    getAllCompanies() {
+    getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         let that = this;
 
         return new Promise(function (resolve, reject) {
             try {
 
-                that._rest.getAllCompanies().then((companies : any) => {
+                that._rest.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType).then((companies : any) => {
                     that._logger.log("debug", LOG_ID + "(getAllCompanies) Successfully get all companies");
-                    that._logger.log("internal", LOG_ID + "(getAllCompanies) : companies values : ", companies.data);
+                    that._logger.log("internal", LOG_ID + "(getAllCompanies) : companies values : ", companies);
                     resolve(companies);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getAllCompanies) ErrorManager when get All companies");
@@ -1115,6 +1199,707 @@ class AdminService extends GenericService {
 
     //endregion Companies and users management
 
+    //region Customisation Template
+
+    /**
+     * @public
+     * @method applyCustomisationTemplates
+     * @instance
+     * @description
+     *      This API allows an administrator to apply an application customisation template to a company or a user
+     *
+     *  **Why is an application template?**
+     *
+     *  - An application template is a set of key feature controlled by permission.
+     *  - A template can be applied to a company, to a user.
+     *  - A template to a user can be applied by an administrator action or by bulk using mass provisioning mechanism.
+     *  - Custom templates may be created
+     *
+     *  **Who can apply a template?**
+     *
+     *  - superadmin, bp_admin and company_admin can apply templates available for any company (public or private template)
+     *
+     *  **Restrictions about template types.**
+     *
+     *  - Each template has a type:
+     *
+     *    - default_company
+     *    - default_user
+     *    - private_default_company
+     *    - other
+     *
+     *  - It may have only one template of default_company and default_user type.
+     *
+     *  - A default_company or default_user template is always public.
+     *
+     *  - default_company is created by Rainbow team under name Full.
+     *
+     *  - default_user is a template used to reset user with default values. It is created by Rainbow team under name Same as company. It is public too.
+     *
+     *  - An 'other' template is public or private. If private, it belongs to a company.
+     *
+     *  - A private_default_company is private and belongs to a standalone company. It may have only one private_default_company per company.
+     *
+     *  To apply a template, a template name plus a companyId or a userId must be set. When both companyId or userId are set, an error occurs (400000).
+     *
+     *  You can find on which companies the template has been applied by using the API getAllCompanies with parameter selectedAppCustomisationTemplate=:templateId
+     *  The company field selectedAppCustomisationTemplate is the last template applyed for this company.
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method.
+     * @category async
+     * @param {string} name Template name.
+     * @param {string} companyId Company unique identifier
+     * @param {string} userId User unique identifier
+     */
+    applyCustomisationTemplates(name : string, companyId : string, userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(applyTemplates) : name : ", name, " companyId : ", companyId, " userId : ", userId);
+                that._logger.log("info", LOG_ID + "(applyTemplates) enter.");
+                that._rest.applyCustomisationTemplates(name, companyId, userId).then(json => {
+                    that._logger.log("debug", LOG_ID + "(applyTemplates) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(applyTemplates) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(applyTemplates) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(applyTemplates) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method createCustomisationTemplate
+     * @instance
+     * @description
+     *      This API allows an administrator to create an application customisation template for the given company.
+     *      
+     *      - The name of the template must be unique among all of its belonging to the company.
+     *      - The template is always private. So it has automatically private visibility.
+     *      - It can includes following items. When some of them are missing, the default value enabled is used. So the body can include only items to set with the statedisabled.
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method
+     * @category async
+     * @param {string} name Template name.
+     * @param {string} ownedByCompany Identifier of the company owning the template.
+     * @param {string} visibleBy When visibility is private, list of companyIds that can access the template (other than the 'ownedByCompany' one).
+     * @param {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.<br>
+     * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.<br>
+     * <br>
+     * instantMessagesCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can use instant messages.<br>
+     * - disabled: No user of the company can use instant messages.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.<br>
+     * Define if one or all users of a company has the is allowed to send animated GIFs in conversations<br>
+     * <br>
+     * useGifCustomisation can be:<br>
+     * 
+     * - enabled: The user can send animated GIFs in conversations.<br>
+     * - disabled: The user can't send animated GIFs in conversations.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} fileSharingCustomisation Activate/Deactivate file sharing capability per company<br>
+     * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.<br>
+     * <br>
+     * fileSharingCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>
+     * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.<br>
+     * <br>
+     * Default value : enabled<br>
+     * @param {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.<br>
+     * Define if one or all users of a company has the right to upload/download/copy or share documents.<br>
+     * <br>
+     * fileStorageCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can manage and share files.<br>
+     * - disabled: No user of the company can manage and share files.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).<br>
+     * Define if one or all users of a company has the right to join phone meetings.<br>
+     * <br>
+     * phoneMeetingCustomisation can be:<br>
+     *
+     * -  enabled: Each user of the company can join phone meetings.<br>
+     * - disabled: No user of the company can join phone meetings.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.<br>
+     * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.<br>
+     * <br>
+     * useDialOutCustomisation can be:<br>
+     * 
+     * - enabled: The user can be called by the Rainbow conference bridge.<br>
+     * - disabled: The user can't be called by the Rainbow conference bridge.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.<br>
+     * Define if one or all users of a company has the right to create channels or be a member of channels.<br>
+     * <br>
+     * useChannelCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can use some channels.<br>
+     * - disabled: No user of the company can use some channel.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.<br>
+     * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).<br>
+     * <br>
+     * useRoomCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can use bubbles.<br>
+     * - disabled: No user of the company can use bubbles.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.<br>
+     * Define if a user has the right to share his screen.<br>
+     * <br>
+     * useScreenSharingCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can share his screen.<br>
+     * - disabled: No user of the company can share his screen.<br>
+     * <br>
+     * @param {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.<br>
+     * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).<br>
+     * <br>
+     * useWebRTCVideoCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can switch to a Web RTC audio conversation.<br>
+     * - disabled: No user of the company can switch to a Web RTC audio conversation.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.<br>
+     * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).<br>
+     * <br>
+     * useWebRTCVideoCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can switch to a Web RTC video conversation.<br>
+     * - disabled: No user of the company can switch to a Web RTC video conversation.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.<br>
+     * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).<br>
+     * <br>
+     * recordingConversationCustomisation can be:<br>
+     * 
+     * - enabled: The user can record a peer to peer or a multi-party call.<br>
+     * - disabled: The user can't record a peer to peer or a multi-party call.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to change manually his presence.<br>
+     * Define if one or all users of a company has the right to change his presence manually or only use automatic states.<br>
+     * <br>
+     * overridePresenceCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can change his presence.<br>
+     * - disabled: No user of the company can change his presence.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.<br>
+     * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).<br>
+     * <br>
+     * userProfileCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can modify his profile.<br>
+     * - disabled: No user of the company can modify his profile.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company<br>
+     * Define if one or all users of a company is allowed to change some profile data.<br>
+     * <br>
+     * userTitleNameCustomisation can be:<br>
+     * 
+     * - enabled: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>
+     * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.<br>
+     * Define if one or all users of a company has the right to modify telephony settings like forward activation ....<br>
+     * <br>
+     * changeTelephonyCustomisation can be:<br>
+     * 
+     * - enabled: The user can modify telephony settings.<br>
+     * - disabled: The user can't modify telephony settings.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.<br>
+     * Define if one or all users of a company has the right to change his client general settings.<br>
+     * <br>
+     * changeSettingsCustomisation can be:<br>
+     * 
+     * - enabled: The user can change all client general settings.<br>
+     * - disabled: The user can't change any client general setting.<br>
+     * <br>
+     * Default value : enabled<br>
+     * @param {string} fileCopyCustomisation Activate/Deactivate the capability for a user to copy files<br>
+     * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.<br>
+     * <br>
+     * fileCopyCustomisation can be:<br>
+     * 
+     * - enabled: The user can make a copy of a file to his personal cloud space.<br>
+     * - disabled: The user can't make a copy of a file to his personal cloud space.<br>
+     * <br>
+     * default value : enabled
+     * @param {string} fileTransferCustomisation Activate/Deactivate the ability for a user to transfer files.<br>
+     * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.<br>
+     * <br>
+     * fileTransferCustomisation can be:<br>
+     * 
+     * - enabled: The user can transfer a file doesn't belong to him.<br>
+     * - disabled: The user can't transfer a file doesn't belong to him.<br>
+     * <br>
+     * Valeur par défaut : enabled<br>
+     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
+     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
+     * <br>
+     * forbidFileOwnerChangeCustomisation can be:<br>
+     * 
+     * - enabled: The user can't give the ownership of his file.<br>
+     * - disabled: The user can give the ownership of his file.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} readReceiptsCustomisation Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.<br>
+     * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.<br>
+     * <br>
+     * readReceiptsCustomisation can be:<br>
+     * 
+     * - enabled: The user allow the sender to check if an IM is read.<br>
+     * - disabled: The user doesn't allow the sender to check if an IM is read.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useSpeakingTimeStatistics Activate/Deactivate the ability for a user to see speaking time statistics.<br>
+     * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.<br>
+     * <br>
+     * useSpeakingTimeStatistics can be:<br>
+     * 
+     * - enabled: The user can use meeting speaking time statistics.<br>
+     * - disabled: The user can't can use meeting speaking time statistics.<br>
+     * <br>
+     * Default value : enabled
+     */
+    createCustomisationTemplate (name : string, ownedByCompany : string, visibleBy : Array<string>, instantMessagesCustomisation : string, useGifCustomisation : string,
+                                 fileSharingCustomisation : string, fileStorageCustomisation : string, phoneMeetingCustomisation : string, useDialOutCustomisation : string, useChannelCustomisation : string, useRoomCustomisation : string,
+                                 useScreenSharingCustomisation : string, useWebRTCAudioCustomisation : string, useWebRTCVideoCustomisation : string, recordingConversationCustomisation : string, overridePresenceCustomisation : string,
+                                 userProfileCustomisation : string, userTitleNameCustomisation : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, fileCopyCustomisation : string,
+                                 fileTransferCustomisation : string, forbidFileOwnerChangeCustomisation : string, readReceiptsCustomisation : string, useSpeakingTimeStatistics : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(createCustomisationTemplate) : name : ", name);
+                that._logger.log("info", LOG_ID + "(createCustomisationTemplate) enter.");
+                that._rest.createCustomisationTemplate(name , ownedByCompany , visibleBy , instantMessagesCustomisation , useGifCustomisation ,
+                        fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
+                        useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
+                        userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
+                        fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics ).then(json => {
+                    that._logger.log("debug", LOG_ID + "(createCustomisationTemplate) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(createCustomisationTemplate) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(createCustomisationTemplate) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createCustomisationTemplate) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCustomisationTemplate
+     * @instance
+     * @description
+     *      This API allows an administrator to delete an application customisation template.
+     *      
+     *      Users with superadmin role can delete any private template.
+     *      
+     *      Users with bp_admin or admin role can only delete template they owned.
+     *      The template to delete may have been applied to one or several companies. So, before the template deletion, we have to go back to the application of this template. A default template is applyed instead (Full)
+     *      This is done automitically and it could be necessary to advice the administrator before deleting the template.
+     *      You can find on which companies the template has been applied by using the API getAllCompanies using the parameter selectedAppCustomisationTemplate=:templateId       
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method
+     * @category async
+     * @param {string} templateId Template id.
+     */
+     deleteCustomisationTemplate(templateId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log("info", LOG_ID + "(deleteCustomisationTemplate) enter.");
+                that._rest.deleteCustomisationTemplate(templateId).then(json => {
+                    that._logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(deleteCustomisationTemplate) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteCustomisationTemplate) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllAvailableCustomisationTemplates
+     * @instance
+     * @description
+     *      This API allows administrator to retrieve application customisation templates supported by a given company.
+     *      
+     *      superadmin and support can get templates available for any company (the requested company has to be specified in companyId query parameter. bp_admin and company_admin get templates for its own company (no need to specify companyId parameter).
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method
+     * @category async
+     * @param {string} companyId Select a company other than the one the user belongs to (must be an admin of the company)
+     * @param {string} format Allows to retrieve more or less templates details in response.<br>  
+     * - small: id, name, visibility<br>
+     * - medium: id, name, visibility, visibleBy, type, createdBy, creationDate, ownedByCompany<br>
+     * - full: all fields<br>
+     * <br>
+     * Default value : small<br>
+     * Possible values : small, medium, full
+     * @param {number} limit Allow to specify the number of templates to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first templates to retrieve (first template if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort templates list based on the given field. Default value : name
+     * @param {number} sortOrder Specify order when sorting templates list. Default value : 1. Possible values : -1, 1
+     */
+    getAllAvailableCustomisationTemplates (companyId : string = undefined, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : companyId : ", companyId, " format : ", format, " limit : ", limit);
+                that._logger.log("info", LOG_ID + "(getAllAvailableCustomisationTemplates) enter.");
+                that._rest.getAllAvailableCustomisationTemplates(companyId , format , limit , offset , sortField , sortOrder).then(json => {
+                    that._logger.log("debug", LOG_ID + "(getAllAvailableCustomisationTemplates) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getAllAvailableCustomisationTemplates) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllAvailableCustomisationTemplates) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllAvailableCustomisationTemplates
+     * @instance
+     * @description
+     *      This API allows administrator to retrieve the requested application customisation template
+     *      
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method
+     * @category async
+     * @param {string} templateId Template id.
+     */
+    getRequestedCustomisationTemplate (templateId : string = undefined) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log("info", LOG_ID + "(getRequestedCustomisationTemplate) enter.");
+                that._rest.getRequestedCustomisationTemplate(templateId).then(json => {
+                    that._logger.log("debug", LOG_ID + "(getRequestedCustomisationTemplate) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getRequestedCustomisationTemplate) Error when getting a token");
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getRequestedCustomisationTemplate) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateCustomisationTemplate
+     * @instance
+     * @description
+     *     This API allows an administrator to update an application customisation template.
+     *     
+     *     A public template can't be updated using this API. Update is only allowed via a database migration.     
+     * @async
+     * @category Customisation Template
+     * @return {Promise<Object, Error>}
+     * @fulfil {Object} - Json object containing the result of the method
+     * @category async
+     * @param {string} templateId id of the template to update.
+     * @param {string} name Template name.
+     * @param {string} visibleBy When visibility is private, list of companyIds that can access the template (other than the 'ownedByCompany' one).
+     * @param {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.<br>
+     * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.<br>
+     * <br>
+     * instantMessagesCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can use instant messages.<br>
+     * - disabled: No user of the company can use instant messages.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.<br>
+     * Define if one or all users of a company has the is allowed to send animated GIFs in conversations<br>
+     * <br>
+     * useGifCustomisation can be:<br>
+     *
+     * - enabled: The user can send animated GIFs in conversations.<br>
+     * - disabled: The user can't send animated GIFs in conversations.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} fileSharingCustomisation Activate/Deactivate file sharing capability per company<br>
+     * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.<br>
+     * <br>
+     * fileSharingCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>
+     * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.<br>
+     * <br>
+     * Default value : enabled<br>
+     * @param {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.<br>
+     * Define if one or all users of a company has the right to upload/download/copy or share documents.<br>
+     * <br>
+     * fileStorageCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can manage and share files.<br>
+     * - disabled: No user of the company can manage and share files.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).<br>
+     * Define if one or all users of a company has the right to join phone meetings.<br>
+     * <br>
+     * phoneMeetingCustomisation can be:<br>
+     *
+     * -  enabled: Each user of the company can join phone meetings.<br>
+     * - disabled: No user of the company can join phone meetings.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.<br>
+     * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.<br>
+     * <br>
+     * useDialOutCustomisation can be:<br>
+     *
+     * - enabled: The user can be called by the Rainbow conference bridge.<br>
+     * - disabled: The user can't be called by the Rainbow conference bridge.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.<br>
+     * Define if one or all users of a company has the right to create channels or be a member of channels.<br>
+     * <br>
+     * useChannelCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can use some channels.<br>
+     * - disabled: No user of the company can use some channel.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.<br>
+     * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).<br>
+     * <br>
+     * useRoomCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can use bubbles.<br>
+     * - disabled: No user of the company can use bubbles.<br>
+     *<br>
+     *  Default value : enabled
+     * @param {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.<br>
+     * Define if a user has the right to share his screen.<br>
+     * <br>
+     * useScreenSharingCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can share his screen.<br>
+     * - disabled: No user of the company can share his screen.<br>
+     * <br>
+     * @param {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.<br>
+     * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).<br>
+     * <br>
+     * useWebRTCVideoCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can switch to a Web RTC audio conversation.<br>
+     * - disabled: No user of the company can switch to a Web RTC audio conversation.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.<br>
+     * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).<br>
+     * <br>
+     * useWebRTCVideoCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can switch to a Web RTC video conversation.<br>
+     * - disabled: No user of the company can switch to a Web RTC video conversation.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.<br>
+     * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).<br>
+     * <br>
+     * recordingConversationCustomisation can be:<br>
+     *
+     * - enabled: The user can record a peer to peer or a multi-party call.<br>
+     * - disabled: The user can't record a peer to peer or a multi-party call.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to change manually his presence.<br>
+     * Define if one or all users of a company has the right to change his presence manually or only use automatic states.<br>
+     * <br>
+     * overridePresenceCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can change his presence.<br>
+     * - disabled: No user of the company can change his presence.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.<br>
+     * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).<br>
+     * <br>
+     * userProfileCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can modify his profile.<br>
+     * - disabled: No user of the company can modify his profile.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company<br>
+     * Define if one or all users of a company is allowed to change some profile data.<br>
+     * <br>
+     * userTitleNameCustomisation can be:<br>
+     *
+     * - enabled: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>
+     * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.<br>
+     *<br>
+     * Default value : enabled
+     * @param {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.<br>
+     * Define if one or all users of a company has the right to modify telephony settings like forward activation ....<br>
+     * <br>
+     * changeTelephonyCustomisation can be:<br>
+     *
+     * - enabled: The user can modify telephony settings.<br>
+     * - disabled: The user can't modify telephony settings.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.<br>
+     * Define if one or all users of a company has the right to change his client general settings.<br>
+     * <br>
+     * changeSettingsCustomisation can be:<br>
+     *
+     * - enabled: The user can change all client general settings.<br>
+     * - disabled: The user can't change any client general setting.<br>
+     * <br>
+     * Default value : enabled<br>
+     * @param {string} fileCopyCustomisation Activate/Deactivate the capability for a user to copy files<br>
+     * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.<br>
+     * <br>
+     * fileCopyCustomisation can be:<br>
+     *
+     * - enabled: The user can make a copy of a file to his personal cloud space.<br>
+     * - disabled: The user can't make a copy of a file to his personal cloud space.<br>
+     * <br>
+     * default value : enabled
+     * @param {string} fileTransferCustomisation Activate/Deactivate the ability for a user to transfer files.<br>
+     * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.<br>
+     * <br>
+     * fileTransferCustomisation can be:<br>
+     *
+     * - enabled: The user can transfer a file doesn't belong to him.<br>
+     * - disabled: The user can't transfer a file doesn't belong to him.<br>
+     * <br>
+     * Valeur par défaut : enabled<br>
+     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
+     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
+     * <br>
+     * forbidFileOwnerChangeCustomisation can be:<br>
+     *
+     * - enabled: The user can't give the ownership of his file.<br>
+     * - disabled: The user can give the ownership of his file.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} readReceiptsCustomisation Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.<br>
+     * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.<br>
+     * <br>
+     * readReceiptsCustomisation can be:<br>
+     *
+     * - enabled: The user allow the sender to check if an IM is read.<br>
+     * - disabled: The user doesn't allow the sender to check if an IM is read.<br>
+     * <br>
+     * Default value : enabled
+     * @param {string} useSpeakingTimeStatistics Activate/Deactivate the ability for a user to see speaking time statistics.<br>
+     * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.<br>
+     * <br>
+     * useSpeakingTimeStatistics can be:<br>
+     *
+     * - enabled: The user can use meeting speaking time statistics.<br>
+     * - disabled: The user can't can use meeting speaking time statistics.<br>
+     * <br>
+     * Default value : enabled
+     */
+    updateCustomisationTemplate (templateId : string, name : string, visibleBy : string[],
+                                 instantMessagesCustomisation : string = "enabled", useGifCustomisation : string = "enabled", fileSharingCustomisation : string = "enabled", fileStorageCustomisation : string = "enabled", phoneMeetingCustomisation : string = "enabled",
+                                 useDialOutCustomisation : string = "enabled", useChannelCustomisation : string = "enabled", useRoomCustomisation : string = "enabled", useScreenSharingCustomisation : string = "enabled", useWebRTCAudioCustomisation : string = "enabled",
+                                 useWebRTCVideoCustomisation : string = "enabled", recordingConversationCustomisation : string = "enabled", overridePresenceCustomisation : string = "enabled", userProfileCustomisation : string = "enabled",
+                                 userTitleNameCustomisation : string = "enabled", changeTelephonyCustomisation : string = "enabled", changeSettingsCustomisation : string = "enabled", fileCopyCustomisation : string = "enabled",
+                                 fileTransferCustomisation : string = "enabled", forbidFileOwnerChangeCustomisation : string = "enabled", readReceiptsCustomisation : string = "enabled", useSpeakingTimeStatistics : string  = "enabled") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("internal", LOG_ID + "(updateCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log("info", LOG_ID + "(updateCustomisationTemplate) enter.");
+                that._rest.updateCustomisationTemplate(templateId, name, visibleBy ,
+                        instantMessagesCustomisation , useGifCustomisation , fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation ,
+                        useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation , useScreenSharingCustomisation , useWebRTCAudioCustomisation ,
+                        useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation , userProfileCustomisation ,
+                        userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
+                        fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics).then(json => {
+                    that._logger.log("debug", LOG_ID + "(updateCustomisationTemplate) Successfully done.");
+                    that._logger.log("internal", LOG_ID + "(updateCustomisationTemplate) : result : ", json);
+                    resolve(json);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(updateCustomisationTemplate) Error when getting a token");
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateCustomisationTemplate) error : ", err);
+                return reject(err);
+            }
+        });   
+    }
+    
+    //endregion Customisation Template
+    
     //region Users at running 
 
     /**
@@ -1850,8 +2635,8 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 let CSVResult = await that._rest.checkCSVforSynchronization(CSVTxt, companyId, delimiter, comment);
-                that._logger.log("debug", "(getCSVTemplate) - sent.");
-                that._logger.log("internal", "(getCSVTemplate) - result : ", CSVResult);
+                that._logger.log("debug", "(checkCSVforSynchronization) - sent.");
+                that._logger.log("internal", "(checkCSVforSynchronization) - result : ", CSVResult);
 
                 resolve (CSVResult);
             } catch (err) {
@@ -2014,8 +2799,8 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveRainbowUserList(companyId, format, ldap_id);
-                that._logger.log("debug", "(getCSVTemplate) - sent.");
-                that._logger.log("internal", "(getCSVTemplate) - result : ", result);
+                that._logger.log("debug", "(retrieveRainbowUserList) - sent.");
+                that._logger.log("internal", "(retrieveRainbowUserList) - result : ", result);
 
                 resolve (result);
             } catch (err) {

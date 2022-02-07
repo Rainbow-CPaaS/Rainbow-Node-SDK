@@ -6,7 +6,17 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.8.0] - 2022-01-XX
+## [2.9.0] - 2022-02-XX
+-   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 
+-   Add `FileStorage::getFileDescriptorsByCompanyId` method to get all file descriptors belonging to a given companyId. 
+-   Add `FileStorage::fileOwnershipChange` method to Drop the ownership of a file to another Rainbow user of the same company.
+-   Update `AdminService.getAllCompanies` method with parameters to filter the requested companies.
+-   Add `ContactsService::updateMyInformations` method to  update data of logged in user. This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL)
+-   Add Customization templates methods : `AdminService::applyCustomisationTemplates` `AdminService::createCustomisationTemplate` `AdminService::deleteCustomisationTemplates` `AdminService::getAllAvailableCustomisationTemplates` `AdminService::getRequestedCustomisationTemplate` `AdminService::updateCustomisationTemplate`
+-   Fix renew of token.  
+-   Update `Contact::isObsoleteCache` method to avoid the remove of roster's contacts from cache. 
+
+## [2.8.0] - 2022-01-28
 -   Fix documentation about line feed in HTML.
 -   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
 -   Fix missing mime.lookup with mime lib version > 1.5.0 .

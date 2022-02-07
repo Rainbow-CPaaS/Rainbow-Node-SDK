@@ -307,7 +307,7 @@ class XMPPService extends GenericService {
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
                             that.xmppClient = null;
-                            that.setStopped();
+                            //that.setStopped();
                             resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("debug", LOG_ID + "(stop) error received");

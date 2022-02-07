@@ -375,20 +375,20 @@ class Core {
         }
         
         self.onTokenRenewed = function onTokenRenewed() {
-            self.logger.log("info", LOG_ID +  "(tokenSurvey) token successfully renewed");
+            self.logger.log("info", LOG_ID +  "(onTokenRenewed) token successfully renewed");
             self._rest.startTokenSurvey();
         };
 
         self.onTokenExpired = function onTokenExpired() {
-            self.logger.log("info", LOG_ID +  "(tokenSurvey) token expired. Signin required");
+            self.logger.log("info", LOG_ID +  "(onTokenExpired) token expired. Signin required");
 /*
             self._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
             self._eventEmitter.iee.removeListener("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
 */
-            if (! self._rest.p_decodedtokenRest.oauth) {
+            if (!self._rest.p_decodedtokenRest || ( self._rest.p_decodedtokenRest && ! self._rest.p_decodedtokenRest.oauth)) {
                 self._eventEmitter.iee.emit("evt_internal_signinrequired");
             } else {
-                self.logger.log("info", LOG_ID +  "(tokenSurvey) oauth token expired. Extarnal renew required");
+                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. Extarnal renew required");
                 self._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
             }
         };

@@ -682,6 +682,7 @@ class Contact {
 
     isObsoleteCache() {
         //this._lastContactCacheUpdate = new Date("2021-03-23T18:30:05.754Z");
+        if (this.roster) return false; 
         let dayPlusOne = addDaysToDate(this._lastContactCacheUpdate,1) ;
         return (  dayPlusOne <  new Date() ) ; 
     }

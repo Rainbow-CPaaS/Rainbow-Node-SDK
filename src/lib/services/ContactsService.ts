@@ -672,6 +672,77 @@ class ContactsService extends GenericService {
         return contact.firstName + " " + contact.lastName;
     }
 
+    /**
+     * @public
+     * @method updateMyInformations
+     * @instance
+     * @category Contacts INFORMATIONS
+     * @param {Object} dataToUpdate : 
+     * { 
+     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx) Ordre de grandeur : 1..32 
+     * {string} type 	String Phone number type Valeurs autorisées : home, work, other
+     * {string} deviceType 	String Phone number device type Valeurs autorisées : landline, mobile, fax, other
+     * {boolean} isVisibleByOthers optionnel 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
+     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
+     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
+     * {string} internalNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group). Ordre de grandeur : 1..32 
+     * {Array<string>} emails optionnel 	Object Array of user emails addresses objects
+     * {Array<string>} phoneNumbers optionnel 	Object[] Array of user PhoneNumbers objects Notes: Provided PhoneNumbers data overwrite previous values: PhoneNumbers which are not known on server side are added, PhoneNumbers which are changed are updated, PhoneNumbers which are not provided but existed on server side are deleted. This does not applies to PhoneNumbers linked to a system(pbx), which can only be updated (addition and deletion of system PhoneNumbers are ignored). When number is present, the server tries to compute the associated E.164 number (numberE164 field) using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) PhoneNumber linked to a system (pbx) can also be updated. In that case, shortNumber and systemId of the existing system PhoneNumber must be provided with the fields to update (see example bellow).     * System phoneNumbers can't be created nor deleted using this API, only PCG can create/delete system PhoneNumbers.
+     * {string} selectedTheme optionnel 	String Theme to be used by the user If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
+     * {string} firstName optionnel 	String User first name Ordre de grandeur : 1..255
+     * {string} lastName optionnel 	String User last name Ordre de grandeur : 1..255
+     * {string} nickName optionnel 	String User nickName Ordre de grandeur : 1..255
+     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) Ordre de grandeur : 1..40
+     * {string} jobTitle optionnel 	String User job title Ordre de grandeur : 1..255
+     * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Valeur par défaut : same_than_company Valeurs autorisées : same_than_company, public, private, closed, isolated, none
+     * {boolean} isInitialized optionnel 	Boolean Is user initialized
+     * {string} timezone optionnel 	String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
+     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. Ordre de grandeur : 2|5
+     * {string} state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+     * {string} country optionnel 	String User country (ISO 3166-1 alpha3 format) Ordre de grandeur : 3
+     * {string} department optionnel 	String User department Ordre de grandeur : 1..255
+     * {string} email 	String User email address Ordre de grandeur : 3..255
+     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. Ordre de grandeur : 3
+     * {string} type 	String User email type Valeurs autorisées : home, work, other
+     * {string} customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
+     * }
+     * 
+     * @return {string} The contact first name and last name
+     * @description
+     *          This API can be used to update data of logged in user. This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL)
+     */
+    updateMyInformations(dataToUpdate) : Promise<any> {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(updateMyInformations) parameters : dataToUpdate : ", dataToUpdate);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!dataToUpdate) {
+                    that._logger.log("error", LOG_ID + "(updateMyInformations) bad or empty 'dataToUpdate' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let meId = that._rest.account.id; 
+                
+                that._rest.updateEndUserInformations(meId, dataToUpdate).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(updateMyInformations) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateMyInformations) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(updateMyInformations) Error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateMyInformations) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
     //endregion Contacts INFORMATIONS
 
     // ************************************************** //
