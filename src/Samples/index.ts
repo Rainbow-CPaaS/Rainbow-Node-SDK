@@ -1295,7 +1295,18 @@ let urlS2S;
             //let utc = new Date().toJSON().replace(/-/g, "_");
             let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
-            rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'middle').then((result) => {
+            rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, 'middle').then((result) => {
+                logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+            });
+    }
+
+    async function testsendMessageToContactUrgencyHigh() {
+            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+            rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'high').then((result) => {
                 logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
     }

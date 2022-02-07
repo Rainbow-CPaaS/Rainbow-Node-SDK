@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.9.0] - 2022-02-XX
+## [2.8.1] - 2022-02-07
 -   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 
 -   Add `FileStorage::getFileDescriptorsByCompanyId` method to get all file descriptors belonging to a given companyId. 
 -   Add `FileStorage::fileOwnershipChange` method to Drop the ownership of a file to another Rainbow user of the same company.
@@ -60,7 +60,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message.
 -   Update `AdminService::retrieveAllSubscriptionsOfCompanyById` API method with a format parameter to get "small","middle", or "full" data. 
 
-## [2.1.0-lts.0] - 2021-10-XX
+## [2.1.0-lts.0] - 2021-10-10
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
 -   Add tags : `dev-code-console` and `dev-code-internal` to `removedebugcode` task.
 -   Fix RESTService::synchronizeUsersAndDeviceswithCSV method.
