@@ -506,26 +506,28 @@ let urlS2S;
         // rainbowSDK.im.markMessageAsRead(data);
     });
     rainbowSDK.events.on("rainbow_onuserinvitereceived", async (data) => {
-        logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received. data", data);
+        logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received.  : ", data);
         let acceptInvitationResult = await rainbowSDK.contacts.acceptInvitation(data);
         logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
     });
     rainbowSDK.events.on("rainbow_onfileupdated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received. data", data);
+        logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received.");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-        logger.log("debug", "Main - (rainbow_onfileupdated), getFileDescriptorFromId - result : ", fileDescriptorsReceived);
-        rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceivedOwned: any) => {
-            logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned);
+        logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
+        /*rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceivedOwned: any) => {
+            logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned.length);
             for (let fileReceived of fileDescriptorsReceivedOwned) {
-                logger.log("debug", "Main - (rainbow_onfileupdated) - file - ", fileReceived);
+                logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileReceived.id : ", fileReceived.id, ", fileReceived.fileName : ", fileReceived.fileName, ", fileReceived.url : ", fileReceived.url, ", fileReceived.ownerId : ", fileReceived.ownerId);
+
             }
-        });
+        }); // */
     });
     rainbowSDK.events.on("rainbow_onfilecreated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onfilecreated) - rainbow event received. data", data);
+        logger.log("debug", "MAIN - (rainbow_onfilecreated) - rainbow event received.");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-        logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : ", fileDescriptorsReceived);
+        logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
     });
+    
     let countStop = 0;
     rainbowSDK.events.on("rainbow_onerror", (data) => {
         logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
@@ -1780,9 +1782,9 @@ let urlS2S;
                     logger.log("debug", "MAIN - testfileOwnershipChange - file : ", file);
                     // Share the file
                     let fileStored: any = await rainbowSDK.fileStorage.uploadFileToStorage(file);
-                    logger.log("debug", "MAIN - testfileOwnershipChange - fileStored : ", fileStored); 
+                    logger.log("debug", "MAIN - testfileOwnershipChange - fileStored.id : ", fileStored.id, ", fileStored.fileName : ", fileStored.fileName, ", fileStored.url : ", fileStored.url, ", fileStored.ownerId : ", fileStored.ownerId);
                     let fileOwnerChanged = await rainbowSDK.fileStorage.fileOwnershipChange(fileStored.id, contact.id);
-                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged : ", fileOwnerChanged); 
+                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged.id : ", fileOwnerChanged.id, ", fileOwnerChanged.fileName : ", fileOwnerChanged.fileName, ", fileOwnerChanged.url : ", fileOwnerChanged.url, ", fileOwnerChanged.ownerId : ", fileOwnerChanged.ownerId); 
                 } catch (err) {
                     logger.log("error", "MAIN - testfileOwnershipChange - error : ", err);
                 }

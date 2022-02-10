@@ -367,7 +367,7 @@ class FileStorage extends GenericService{
                     // let URLObj = $window.URL || $window.webkitURL;
                     // fileDescriptor.previewBlob = URLObj.createObjectURL(file);
                     await resizeImage(file.path, 512, 512).then(function (resizedImage) {
-                        that._logger.log("debug", LOG_ID + "(uploadFileToStorage) resizedImage : ", resizedImage);
+                        // that._logger.log("debug", LOG_ID + "(uploadFileToStorage) resizedImage : ", resizedImage);
                         file.preview = getBinaryData(resizedImage);
                     });
 
