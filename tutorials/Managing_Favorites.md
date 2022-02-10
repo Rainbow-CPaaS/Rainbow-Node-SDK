@@ -1,4 +1,5 @@
 ## Managing Favorites
+---
 
 Rainbow Node SDK allows you to store links to conversations with Users and Bubbles in a handy list called Favorites.
 
@@ -13,6 +14,7 @@ With those four you will have a good peak on what Users or Bubbles are the most 
 
 
 ### Retrieving Favorites List
+---
 
 You can retrieve Favorites List from the server by calling `fetchAllFavorites()` method that returns an Array. Favorites Array can be empty when no User or Bubble has been added to Favorites.
 It is an asynchronous method, therefore it returns a Promise containing the Favorites Array.
@@ -30,6 +32,7 @@ It is an asynchronous method, therefore it returns a Promise containing the Favo
 ```
 
 ### Creating a Favorite
+---
 
 To create a Favorite (add a new object to the Favorites list), use the `favorites.createFavorite()` method which accepts a Bubble or User dbId and type as arguments. `createFavorite()` returns a Promise due to its asynchronous nature.
 
@@ -68,6 +71,7 @@ Once a new Favorite is created, an event is going to be sent. Think of it as a c
 ```
 
 ### Deleting a Favorite
+---
 
 Analogically, it is possible to delete a Favorite from the Favorites list by calling the `favorites.deleteFavorite()` method which accepts a Favorite ID string. It is asynchronous and it returns a Promise.
 

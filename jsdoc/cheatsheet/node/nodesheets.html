@@ -47,12 +47,18 @@ AdminService : Promise.Object, ErrorManager : inviteUserInCompany(string, string
 AdminService : Promise.Object, ErrorManager : changePasswordForUser(string, string)
 AdminService : Promise.Object, ErrorManager : updateInformationForUser(Object, string)
 AdminService : Promise.Object, ErrorManager : deleteUser(string)
-AdminService : Promise.Object, ErrorManager : getAllCompanies()
+AdminService : Promise.Object, ErrorManager : getAllCompanies(string, string, string, string, string, boolean, string, string, string, string, boolean, string, number, number, number, string, string, string, string, boolean, boolean, string)
 AdminService : Promise.Object, ErrorManager : getAllUsers(string, number, number, string)
 AdminService : Promise.Object, ErrorManager : getAllUsersByCompanyId(string, number, number, string, string)
 AdminService : Promise.Object, ErrorManager : getAllUsersBySearchEmailByCompanyId(string, number, number, string, string, string)
 AdminService : Promise.Object, ErrorManager : getContactInfos(string)
 AdminService : Promise.Object, ErrorManager : updateContactInfos(string, Object)
+AdminService : Promise.Object, Error : applyCustomisationTemplates(string, string, string)
+AdminService : Promise.Object, Error : createCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
+AdminService : Promise.Object, Error : deleteCustomisationTemplate(string)
+AdminService : Promise.Object, Error : getAllAvailableCustomisationTemplates(string, string, number, number, string, number)
+AdminService : Promise.Object, Error : getAllAvailableCustomisationTemplates(string)
+AdminService : Promise.Object, Error : updateCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
 AdminService : Promise.Object, Error : askTokenOnBehalf(string, string)
 AdminService : Promise.any : getUserPresenceInformation(string)
 AdminService : Promise.any[] : retrieveAllOffersOfCompanyById(string)
@@ -75,7 +81,7 @@ AdminService : Promise.{id: string, companyId: string, loginEmail: string, passw
 AdminService : Promise.any : retrieveAllLdapConnectorUsersData(string, string, number, number, string, number)
 AdminService : Promise.{status: string} : deleteLdapConnector(string)
 AdminService : Promise.{Object} : retrieveLdapConnectorConfigTemplate()
-AdminService : Promise.{Object} : createConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string)
+AdminService : Promise.{Object} : createConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, string)
 AdminService : Promise.{Object} : updateConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, boolean)
 AdminService : Promise.{Object} : retrieveLdapConnectorConfig(string)
 AdminService : Promise.any : getCloudPbxById(string)
@@ -171,6 +177,7 @@ AlertsService : Promise.any : getAlertStatsFeedbackSentForANotificationMessage(s
 AlertsService : Promise.any : getReportSummary(string)
 AlertsService : Promise.any : getReportDetails(string)
 AlertsService : Promise.any : getReportComplete(string)
+Bubbles : Promise.ConferenceSession : askConferenceSnapshot(string, MEDIATYPE, number, number)
 Bubbles : Bubble : getBubbleByConferenceIdFromCache(string)
 Bubbles : string : getBubbleIdByConferenceIdFromCache(string)
 Bubbles : string[] : getConferencesIdByBubbleIdFromCache(string)
@@ -341,6 +348,7 @@ ContactsService : Promise.Object, ErrorManager : getMyInformations()
 ContactsService : string : getAvatarByContactId(string, string)
 ContactsService : Contact : getConnectedUser()
 ContactsService : string : getDisplayName(Contact)
+ContactsService : string : updateMyInformations(Object)
 ContactsService : Promise.Contact[] : getRosters()
 ContactsService : Promise.Contact : addToNetwork(Contact)
 ContactsService : Promise.Contact : addToContactsList(Contact)
@@ -395,6 +403,9 @@ FileStorage : Object : getUserQuotaConsumption()
 FileStorage : FileDescriptor[] : getAllFilesSent()
 FileStorage : FileDescriptor[] : getAllFilesReceived()
 FileStorage : Promise.FileDescriptor : retrieveOneFileDescriptor(string)
+FileStorage : Promise.any : getFileDescriptorsByCompanyId(string, boolean, string, string, string, boolean, string, number, number, string, number)
+FileStorage : Promise.FileDescriptor : copyFileInPersonalCloudSpace(string)
+FileStorage : Promise.FileDescriptor : fileOwnershipChange(string, string)
 GroupsService : Promise.Object, ErrorManager : createGroup(string, string, boolean)
 GroupsService : Promise.Object, ErrorManager : deleteGroup(Object)
 GroupsService : Object : deleteAllGroups()
@@ -564,6 +575,8 @@ Events ::event : rainbow_onwebinarupdated
 Events ::event : rainbow_onchannelupdated
 Events ::event : rainbow_onchannelusersubscription
 Events ::event : rainbow_onmediapropose
+Events ::event : rainbow_onmediaretract
+Events ::event : rainbow_onmediaaccept
 Events ::event : rainbow_oncalllogupdated
 Events ::event : rainbow_oncalllogackupdated
 Events ::event : rainbow_onfavoritecreated
@@ -790,6 +803,8 @@ Message [1] --> [1] Conversation
 Message : Conversation : conversation
 Message : boolean : isForwarded
 Message : any : forwardedMsg
+Message [1] --> [1] Message
+Message : Message : replacedByMessage
 Message : Object : Type
 Message : number : ReceiptStatus
 Message : string : Side

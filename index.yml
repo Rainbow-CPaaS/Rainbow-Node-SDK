@@ -14,6 +14,7 @@
   - Managing groups: 'ref:doc/sdk/node/guides/Managing_groups.md'
   - Sharing files: 'ref:doc/sdk/node/guides/Share_file_with_users.md'
   - Managing channels: 'ref:doc/sdk/node/guides/Managing_channels.md'
+  - Telephony calls: 'ref:doc/sdk/node/guides/Telephony_calls.md'
   - Retrieving calls history: 'ref:doc/sdk/node/guides/Retrieving_calls_history.md'
   - Using a proxy: 'ref:doc/sdk/node/guides/Proxy.md'
   - Development Kit: 'ref:doc/sdk/node/guides/Development_Kit.md'

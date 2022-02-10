@@ -6,6 +6,12 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.8.2] - 2022-02-XX
+-   Add documentation about telephony call : `Telephony_calls.md`.
+-   Update the `rainbow_onmediapropose` event with more data.
+-   Add events about Webrtc calls : `rainbow_onmediaretract` of the retract action, it is the call propose id received before.  
+-   Add events about Webrtc calls : `rainbow_onmediaaccept` of the accept action, it is the call propose id received before.    
+
 ## [2.8.1] - 2022-02-07
 -   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 
 -   Add `FileStorage::getFileDescriptorsByCompanyId` method to get all file descriptors belonging to a given companyId. 

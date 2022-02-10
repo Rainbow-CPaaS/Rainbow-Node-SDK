@@ -42,6 +42,7 @@ class TelephonyEventHandler extends GenericHandler {
 	public contactService: any;
 	public promiseQueue: any;
 	public _profiles: any;
+    public xmppUtils: XMPPUTils;
 	/*public onIqResultReceived: any;
 	public onIqGetPbxAgentStatusReceived: any;
 	public onMessageReceived: any;
@@ -85,6 +86,7 @@ class TelephonyEventHandler extends GenericHandler {
         this.MESSAGE_HEADLINE = "jabber:client.message.headline";
         this.MESSAGE_CLOSE = "jabber:client.message.headline";
         */
+        this.xmppUtils = XMPPUTils.getXMPPUtils();
 
         this.telephonyService = telephonyService;
         this.contactService = contactService;
@@ -165,6 +167,18 @@ class TelephonyEventHandler extends GenericHandler {
             let actionElmPropose = stanzaElem.getChild("propose");
             if (actionElmPropose !== undefined) {
                 this.onProposeMessageReceived(actionElmPropose, from);
+                return true;
+            }
+
+            let actionElmRetract = stanzaElem.getChild("retract");
+            if (actionElmRetract !== undefined) {
+                this.onRetractMessageReceived(actionElmRetract, from);
+                return true;
+            }
+
+            let actionElmAccept = stanzaElem.getChild("accept");
+            if (actionElmAccept !== undefined) {
+                this.onAcceptMessageReceived(actionElmAccept, from);
                 return true;
             }
 
@@ -293,13 +307,71 @@ class TelephonyEventHandler extends GenericHandler {
 
     async onProposeMessageReceived (node, from) {
         let that = this;
+        /*
+        stanza : <message 
+  xmlns='jabber:client' xml:lang='en' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' from='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/web_win_2.100.8_B753ZT1i' id='web_225e5b25-56e2-4bec-ad24-9c56863bae1f'>
+  <propose displayname='vincent00 berder00' id='web_aae57a25-b08f-48f3-9c17-343711f21dc8' 
+    xmlns='urn:xmpp:jingle-message:0'>
+    <description media='audio' 
+      xmlns='urn:xmpp:jingle:apps:rtp:1'/>
+      <unifiedplan 
+        xmlns='urn:xmpp:jingle:apps:jsep:1'/>
+      </propose>
+    </message>
+         */
 
         that.logger.log("internal", LOG_ID + "(onProposeMessageReceived) node - ", node);
+        let id = ( node.attrs ) ? node.attrs.id : undefined;
         let descriptionElm = node.getChild("description");
-        let media = descriptionElm.attrs.media;
+        let description : { media : string, xmlns : string } = { media : undefined, xmlns : undefined };
+        description.media = ( descriptionElm && descriptionElm.attrs ) ? descriptionElm.attrs.media : undefined;
+        description.xmlns = ( descriptionElm && descriptionElm.attrs ) ? descriptionElm.attrs.xmlns : undefined;
+        let resource = that.xmppUtils.getResourceFromFullJID(from);
+        let unifiedplanElm = node.getChild("unifiedplan");
+        let unifiedplan : { xmlns : string } = { xmlns : undefined };
+        unifiedplan.xmlns = ( unifiedplanElm && unifiedplanElm.attrs ) ? unifiedplanElm.attrs.xmlns : undefined;
+        let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
 
         let contact = await that.contactService.getContactByJid(from, true);
-        that.eventEmitter.emit("evt_internal_propose", {contact, media });
+        that.eventEmitter.emit("evt_internal_propose", {contact, resource, xmlns, description, unifiedplan, id });
+    };
+
+    async onRetractMessageReceived (node, from) {
+        /*
+        stanza : <message 
+  xmlns='jabber:client' xml:lang='en' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' from='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/web_win_2.100.8_B753ZT1i' id='web_8f8b799f-5b40-419f-b735-69af7b8a9b48'>
+  <retract displayname='vincent00 berder00' id='web_aae57a25-b08f-48f3-9c17-343711f21dc8' 
+    xmlns='urn:xmpp:jingle-message:0'/>
+  </message>
+         */
+        let that = this;
+
+        that.logger.log("internal", LOG_ID + "(onRetractMessageReceived) node - ", node);
+        let id = ( node.attrs ) ? node.attrs.id : undefined;
+        let resource = that.xmppUtils.getResourceFromFullJID(from);
+        let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
+
+        let contact = await that.contactService.getContactByJid(from, true);
+        that.eventEmitter.emit("evt_internal_retract", {contact, resource, xmlns, id });
+    };
+
+    async onAcceptMessageReceived (node, from) {
+        /*
+        stanza : <message 
+  xmlns='jabber:client' xml:lang='en' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/web_win_2.100.9_LqVU9olu' id='web_c0c98083-94e1-40a9-a5ab-7df2d08d8342'>
+  <accept 
+    xmlns='urn:xmpp:jingle-message:0' id='web_807f5001-e339-43c1-8818-d07abe75ebcb'/>
+  </message>
+         */
+        let that = this;
+
+        that.logger.log("internal", LOG_ID + "(onAcceptMessageReceived) node - ", node);
+        let id = ( node.attrs ) ? node.attrs.id : undefined;
+        let resource = that.xmppUtils.getResourceFromFullJID(from);
+        let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
+
+        let contact = await that.contactService.getContactByJid(from, true);
+        that.eventEmitter.emit("evt_internal_accept", {contact, resource, xmlns, id });
     };
 
     /*********************************************************************/

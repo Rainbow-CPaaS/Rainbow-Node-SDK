@@ -4,7 +4,7 @@ declare module 'lib/common/Utils' {
 	    reject: any;
 	    promise: any;
 	    constructor();
-	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: string): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
+	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: any): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
 	    type: any;
 	    data: Uint8Array;
 	}; function getRandomInt(max: any): number; function stackTrace(): string;
@@ -284,76 +284,15 @@ declare module 'lib/common/models/Call' {
 	export { Call };
 
 }
-declare module 'lib/common/models/Conversation' {
-	 class Conversation {
-	    id: any;
-	    dbId: any;
-	    type: any;
-	    owner: any;
-	    contact: any;
-	    bubble: any;
-	    capabilities: any;
-	    avatar: any;
-	    presenceStatus: any;
-	    name: any;
-	    filterName: any;
-	    missedCounter: any;
-	    missedCalls: any;
-	    messages: any;
-	    participantStatuses: any;
-	    draft: any;
-	    uploadFile: any;
-	    status: any;
-	    historyIndex: any;
-	    historyMessages: any;
-	    historyDefered: any;
-	    historyComplete: any;
-	    lastModification: any;
-	    creationDate: any;
-	    lastMessageText: any;
-	    lastMessageSender: any;
-	    pip: any;
-	    videoCall: any;
-	    audioCall: any;
-	    pstnConferenceSession: any;
-	    webConferenceSession: any;
-	    isMutedAudio: any;
-	    isMutedVideo: any;
-	    infoVisible: any;
-	    muted: any;
-	    randomBase: any;
-	    messageId: any;
-	    currentHistoryId: any;
-	    static Status: any;
-	    static Type: any;
-	    private static randomBase;
-	    private static messageId;
-	    preload: boolean;
-	    isFavorite: boolean;
-	    constructor(conversationId: any);
-	    /**
-	     * @private
-	     * @method addMessage
-	     * @memberof Conversation
-	     * @instance
-	     */
-	    addMessage(message: any): any;
-	    /*************************************************************/
-	    /*************************************************************/
-	    static createOneToOneConversation(participant: any): Conversation;
-	    static createBubbleConversation(bubble: any): Conversation;
-	    generateRandomID(): any;
-	    static getUniqueMessageId(): string;
-	    /*************************************************************/
-	    /*************************************************************/
-	    static stringToStatus(status: any): any;
-	    /*************************************************************/
-	    /*************************************************************/
-	    reset(): void;
-	    getMessageById(messId: any): any;
-	    getlastEditableMsg(): any;
+declare module 'lib/common/models/GeoLoc' {
+	export {}; class GeoLoc {
+	    datum: string;
+	    latitude: string;
+	    longitude: string;
+	    altitude: string;
+	    static create(datum: string, latitude: string, longitude: string, altitude: string): GeoLoc;
 	}
-	export { Conversation };
+	export { GeoLoc };
 
 }
 declare module 'lib/connection/RestServices/RESTTelephony' {
@@ -433,6 +372,254 @@ declare module 'lib/common/XMPPUtils' {
 	    getBareJidFromJid(jid: any): any;
 	}
 	export let xu: XMPPUTils;
+
+}
+declare module 'lib/common/models/Message' {
+	import { GeoLoc } from 'lib/common/models/GeoLoc';
+	import { Conversation } from 'lib/common/models/Conversation';
+	export {}; class Message {
+	    /**
+	     *  The Type of message.
+	     * @public
+	     * @enum {{ key: number, value: string }}
+	     * @readonly
+	     */
+	    static Type: any;
+	    /**
+	     * The Status of the Receipt.
+	     * @public
+	     * @enum {number}
+	     * @readonly
+	     */
+	    static ReceiptStatus: {
+	        /** No receipt received yet */
+	        NONE: number;
+	        /** No receipt received after a while (The server doesn't answer) */
+	        ERROR: number;
+	        /** Receipt in progress */
+	        IN_PROGRESS: number;
+	        /** The server has confirmed the reception of the message */
+	        SENT: number;
+	        /** The message has been received but not read */
+	        UNREAD: number;
+	        /** The message has been read */
+	        READ: number;
+	    };
+	    /**
+	     * @private
+	     */
+	    static ReceiptStatusText: string[];
+	    /**
+	     * The Side of Message's from
+	     * @public
+	     * @enum {string}
+	     * @readonly
+	     */
+	    static Side: {
+	        /** Message is from a recipient */
+	        LEFT: string;
+	        /** Message is from me */
+	        RIGHT: string;
+	        /** Specific admin message */
+	        ADMIN: string;
+	    };
+	    serverAckTimer: any;
+	    private index;
+	    id: string;
+	    type: any;
+	    date: Date;
+	    from: any;
+	    side: string;
+	    status: string;
+	    receiptStatus: number;
+	    fileId: string;
+	    fileName: string;
+	    isMarkdown: boolean;
+	    subject: string;
+	    geoloc: GeoLoc;
+	    voiceMessage: any;
+	    alternativeContent: any;
+	    attention: any;
+	    mentions: any;
+	    urgency: string;
+	    urgencyAck: boolean;
+	    urgencyHandler: any;
+	    historyIndex: string;
+	    fileErrorMsg: string;
+	    attachedMsgId: string;
+	    attachIndex: number;
+	    attachNumber: number;
+	    fromJid: any;
+	    resource: any;
+	    toJid: any;
+	    content: any;
+	    lang: any;
+	    cc: any;
+	    cctype: any;
+	    isEvent: any;
+	    event: any;
+	    oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    };
+	    fromBubbleJid: any;
+	    fromBubbleUserJid: any;
+	    answeredMsgId: string;
+	    answeredMsg: Message;
+	    answeredMsgDate: string;
+	    answeredMsgStamp: string;
+	    fileTransfer: any;
+	    eventJid: string;
+	    originalMessageReplaced: Message;
+	    confOwnerId: string;
+	    confOwnerDisplayName: string;
+	    confOwnerJid: string;
+	    conversation: Conversation;
+	    isForwarded: boolean;
+	    forwardedMsg: any;
+	    replacedByMessage: Message;
+	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, historyIndex: string, attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any);
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, /* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string, /*showCorrectedMessages: boolean,*/ /* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string, attachIndex: number, attachNumber: number, /* fromJid: any, */ resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
+	        url: string;
+	        mime: string;
+	        filename: string;
+	        filesize: string;
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
+	    /**
+	     * @private
+	     * @method
+	     * @instance
+	     */
+	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
+	    /**
+	     * Method extract fileId part of URL
+	     *
+	     * @private
+	     * @param {string} url
+	     * @returns {string}
+	     *
+	     * @memberof Conversation
+	     */
+	    static extractFileIdFromUrl(url: any): any;
+	    updateMessage(data: any): this;
+	    /**
+	     * @function
+	     * @public
+	     * @name MessageFactory
+	     * @description
+	     * This class is used to create a message from data object
+	     */
+	    static MessageFactory(): (data: any) => Message;
+	}
+	export { Message };
+
+}
+declare module 'lib/common/models/Conversation' {
+	 class Conversation {
+	    id: any;
+	    dbId: any;
+	    type: any;
+	    owner: any;
+	    contact: any;
+	    bubble: any;
+	    capabilities: any;
+	    avatar: any;
+	    presenceStatus: any;
+	    name: any;
+	    filterName: any;
+	    missedCounter: any;
+	    missedCalls: any;
+	    messages: any;
+	    participantStatuses: any;
+	    draft: any;
+	    uploadFile: any;
+	    status: any;
+	    historyIndex: any;
+	    historyMessages: any;
+	    historyDefered: any;
+	    historyComplete: any;
+	    lastModification: any;
+	    creationDate: any;
+	    lastMessageText: any;
+	    lastMessageSender: any;
+	    pip: any;
+	    videoCall: any;
+	    audioCall: any;
+	    pstnConferenceSession: any;
+	    webConferenceSession: any;
+	    isMutedAudio: any;
+	    isMutedVideo: any;
+	    infoVisible: any;
+	    muted: any;
+	    randomBase: any;
+	    messageId: any;
+	    currentHistoryId: any;
+	    static Status: any;
+	    static Type: any;
+	    private static randomBase;
+	    private static messageId;
+	    preload: boolean;
+	    isFavorite: boolean;
+	    constructor(conversationId: any);
+	    /**
+	     * @private
+	     * @method addMessage
+	     * @memberof Conversation
+	     * @instance
+	     */
+	    addMessage(message: any): any;
+	    /*************************************************************/
+	    /*************************************************************/
+	    static createOneToOneConversation(participant: any): Conversation;
+	    static createBubbleConversation(bubble: any): Conversation;
+	    generateRandomID(): any;
+	    static getUniqueMessageId(): string;
+	    /*************************************************************/
+	    /*************************************************************/
+	    static stringToStatus(status: any): any;
+	    /*************************************************************/
+	    /*************************************************************/
+	    reset(): void;
+	    getMessageById(messId: any): any;
+	    getlastEditableMsg(): any;
+	}
+	export { Conversation };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/GenericHandler' {
@@ -2203,6 +2390,23 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
 	    /**
+	     * @method askConferenceSnapshot
+	     * @public
+	     * @instance
+	     * @since 2.8.0
+	     * @category PERSONAL CONFERENCE SPECIFIC
+	     * @param {string} conferenceId The id of the conference.
+	     * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
+	     * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
+	     * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
+	     * @description
+	     * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
+	     * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
+	     * If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
+	     * @return {Promise<ConferenceSession>}
+	     */
+	    askConferenceSnapshot(conferenceId: string, type?: MEDIATYPE, limit?: number, offset?: number): Promise<ConferenceSession>;
+	    /**
 	     * @method joinConference
 	     * @private
 	     * @category CONFERENCE SPECIFIC
@@ -2643,15 +2847,6 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceRename(name: string): Promise<unknown>;
 	    /**
-	     * @method askConferenceSnapshot
-	     * @private
-	     * @instance
-	     * @param {string} conferenceId
-	     * @param {MEDIATYPE} type
-	     * @return {Promise<void>}
-	     */
-	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<void>;
-	    /**
 	     * @method conferenceModeratorAction
 	     * @private
 	     * @instance
@@ -2679,12 +2874,12 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean): void;
 	    /**
-	     * @method addConferenceToCache
+	     * @method addOrUpdateConferenceToCache
 	     * @private
 	     * @instance
 	     * @param {ConferenceSession} conference
 	     */
-	    addConferenceToCache(conference: ConferenceSession): void;
+	    addOrUpdateConferenceToCache(conference: ConferenceSession): void;
 	    /**
 	     * @public
 	     * @method getBubblesConsumption
@@ -4645,6 +4840,46 @@ declare module 'lib/services/ContactsService' {
 	     *      Get the display name of a contact <br>
 	     */
 	    getDisplayName(contact: Contact): string;
+	    /**
+	     * @public
+	     * @method updateMyInformations
+	     * @instance
+	     * @category Contacts INFORMATIONS
+	     * @param {Object} dataToUpdate :
+	     * {
+	     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx) Ordre de grandeur : 1..32
+	     * {string} type 	String Phone number type Valeurs autorisées : home, work, other
+	     * {string} deviceType 	String Phone number device type Valeurs autorisées : landline, mobile, fax, other
+	     * {boolean} isVisibleByOthers optionnel 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
+	     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
+	     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
+	     * {string} internalNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group). Ordre de grandeur : 1..32
+	     * {Array<string>} emails optionnel 	Object Array of user emails addresses objects
+	     * {Array<string>} phoneNumbers optionnel 	Object[] Array of user PhoneNumbers objects Notes: Provided PhoneNumbers data overwrite previous values: PhoneNumbers which are not known on server side are added, PhoneNumbers which are changed are updated, PhoneNumbers which are not provided but existed on server side are deleted. This does not applies to PhoneNumbers linked to a system(pbx), which can only be updated (addition and deletion of system PhoneNumbers are ignored). When number is present, the server tries to compute the associated E.164 number (numberE164 field) using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) PhoneNumber linked to a system (pbx) can also be updated. In that case, shortNumber and systemId of the existing system PhoneNumber must be provided with the fields to update (see example bellow).     * System phoneNumbers can't be created nor deleted using this API, only PCG can create/delete system PhoneNumbers.
+	     * {string} selectedTheme optionnel 	String Theme to be used by the user If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
+	     * {string} firstName optionnel 	String User first name Ordre de grandeur : 1..255
+	     * {string} lastName optionnel 	String User last name Ordre de grandeur : 1..255
+	     * {string} nickName optionnel 	String User nickName Ordre de grandeur : 1..255
+	     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) Ordre de grandeur : 1..40
+	     * {string} jobTitle optionnel 	String User job title Ordre de grandeur : 1..255
+	     * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Valeur par défaut : same_than_company Valeurs autorisées : same_than_company, public, private, closed, isolated, none
+	     * {boolean} isInitialized optionnel 	Boolean Is user initialized
+	     * {string} timezone optionnel 	String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
+	     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. Ordre de grandeur : 2|5
+	     * {string} state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+	     * {string} country optionnel 	String User country (ISO 3166-1 alpha3 format) Ordre de grandeur : 3
+	     * {string} department optionnel 	String User department Ordre de grandeur : 1..255
+	     * {string} email 	String User email address Ordre de grandeur : 3..255
+	     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. Ordre de grandeur : 3
+	     * {string} type 	String User email type Valeurs autorisées : home, work, other
+	     * {string} customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
+	     * }
+	     *
+	     * @return {string} The contact first name and last name
+	     * @description
+	     *          This API can be used to update data of logged in user. This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL)
+	     */
+	    updateMyInformations(dataToUpdate: any): Promise<any>;
 	    isTelJid(jid: any): boolean;
 	    getImJid(jid: any): any;
 	    getRessourceFromJid(jid: any): string;
@@ -5767,6 +6002,7 @@ declare module 'lib/connection/RESTService' {
 	    changePassword(password: any, userId: any): Promise<unknown>;
 	    updateInformation(objData: any, userId: any): Promise<unknown>;
 	    deleteUser(userId: any): Promise<unknown>;
+	    updateEndUserInformations(userId: any, objData: any): Promise<unknown>;
 	    getServerFavorites(): Promise<unknown>;
 	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
 	    removeServerFavorite(favoriteId: string): Promise<unknown>;
@@ -5855,6 +6091,9 @@ declare module 'lib/connection/RESTService' {
 	    retrieveUserConsumption(): Promise<unknown>;
 	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
 	    addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<unknown>;
+	    getFileDescriptorsByCompanyId(companyId: any, fileName: boolean, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    copyFileInPersonalCloudSpace(fileId: string): Promise<unknown>;
+	    fileOwnershipChange(fileId: string, userId: string): Promise<unknown>;
 	    getPartialDataFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
 	    getPartialBufferFromServer(url: any, minRange: any, maxRange: any, index: any): Promise<unknown>;
 	    getFileFromUrl(url: any): Promise<unknown>;
@@ -5866,11 +6105,17 @@ declare module 'lib/connection/RESTService' {
 	    getUserSettings(): Promise<unknown>;
 	    updateUserSettings(settings: any): Promise<unknown>;
 	    getServerCapabilities(): Promise<unknown>;
-	    getAllCompanies(): Promise<unknown>;
+	    getAllCompanies(format?: string, sortField?: string, bpId?: string, catalogId?: string, offerId?: string, offerCanBeSold?: boolean, externalReference?: string, externalReference2?: string, salesforceAccountId?: string, selectedAppCustomisationTemplate?: string, selectedThemeObj?: boolean, offerGroupName?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
 	    createCompany(name: any, country: any, state: any, offerType: any): Promise<unknown>;
 	    getCompany(companyId: any): Promise<unknown>;
 	    deleteCompany(companyId: any): Promise<unknown>;
 	    setVisibilityForCompany(companyId: any, visibleByCompanyId: any): Promise<unknown>;
+	    applyCustomisationTemplates(name: string, companyId: string, userId: string): Promise<unknown>;
+	    createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string): Promise<unknown>;
+	    deleteCustomisationTemplate(templateId: any): Promise<unknown>;
+	    getAllAvailableCustomisationTemplates(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    getRequestedCustomisationTemplate(templateId?: string): Promise<unknown>;
+	    updateCustomisationTemplate(templateId: string, name: string, visibleBy: string[], instantMessagesCustomisation?: string, useGifCustomisation?: string, fileSharingCustomisation?: string, fileStorageCustomisation?: string, phoneMeetingCustomisation?: string, useDialOutCustomisation?: string, useChannelCustomisation?: string, useRoomCustomisation?: string, useScreenSharingCustomisation?: string, useWebRTCAudioCustomisation?: string, useWebRTCVideoCustomisation?: string, recordingConversationCustomisation?: string, overridePresenceCustomisation?: string, userProfileCustomisation?: string, userTitleNameCustomisation?: string, changeTelephonyCustomisation?: string, changeSettingsCustomisation?: string, fileCopyCustomisation?: string, fileTransferCustomisation?: string, forbidFileOwnerChangeCustomisation?: string, readReceiptsCustomisation?: string, useSpeakingTimeStatistics?: string): Promise<unknown>;
 	    createPublicChannel(name: any, topic: any, category: string, visibility: any, max_items: any, max_payload_size: any): Promise<unknown>;
 	    deleteChannel(channelId: any): Promise<unknown>;
 	    findChannels(name: any, topic: any, category: any, limit: any, offset: any, sortField: any, sortOrder: any): Promise<unknown>;
@@ -5981,7 +6226,7 @@ declare module 'lib/connection/RESTService' {
 	    personalConferenceGetPassCodes(personalConferenceConfEndpointId: any): Promise<unknown>;
 	    personalConferenceResetPassCodes(personalConferenceConfEndpointId: any): Promise<unknown>;
 	    personalConferenceRename(personalConferenceConfEndpointId: string, name: string): Promise<unknown>;
-	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE): Promise<unknown>;
+	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE, limit?: number, offset?: number): Promise<unknown>;
 	    conferenceModeratorAction(conferenceId: string, mediaType: MEDIATYPE, action: string): Promise<unknown>;
 	    conferenceModeratorActionOnParticipant(conferenceId: string, mediaType: MEDIATYPE, participantId: string, action: string): Promise<unknown>;
 	    retrieveAllConferences(scheduled: any): Promise<unknown>;
@@ -6580,6 +6825,7 @@ declare module 'lib/services/FileStorageService' {
 	/// <reference types="node" />
 	export {};
 	import { Observable } from 'rxjs';
+	import { FileDescriptor } from 'lib/common/models/FileDescriptor';
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core';
@@ -7109,6 +7355,138 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     */
 	    retrieveAndStoreOneFileDescriptor(fileId: any, forceRetrieve: any): Promise<any>;
+	    /**
+	     * @public
+	     * @method getFileDescriptorsByCompanyId
+	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @description
+	     * Get all file descriptors belonging to a given companyId.  <br>
+	     * The result is paginated.  <br>
+	     *
+	     * @param {string} companyId Company unique identifier. If no value is provided then the companyId of the connected user is used.
+	     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. <br>
+	     *  <br>
+	     * - typeMIME=audio/wav allows to get all wav file <br>
+	     * - typeMime=audio allows to get all audio files whatever the extension <br>
+	     * - typeMIME=audio/wav&typeMIME=audio/mp3 allows to get all wav and mp3 files <br>
+	     *  <br>
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (rvcp_voice_promp, rvcp_record). <br>
+	     *  <br>
+	     * - purpose=rvcp_voice_promp allows to get all voice prompt used by Rainbow Voice Communication Platform <br>
+	     * - purpose=rvcp_record allows to get all records generated by Rainbow Voice Communication Platform <br>
+	     * - purpose=rvcp allows to get all Rainbow Voice Communication Platform files <br>
+	     *  <br>
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} format Allows to retrieve viewers of each file when the format is full. <br>
+	     *   <br>
+	     * - small: _id, fileName, extension, isClean <br>
+	     * - medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h <br>
+	     * - full: all descriptors fields except storageURL   <br>
+	     *  <br>
+	     * Default value : small <br>
+	     * Possible values : small, medium, full <br>
+	     *  <br>
+	     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+	     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possible values : -1, 1
+	     * @return {Promise<any>} all file descriptors belonging to a given companyId.
+	     *
+	     */
+	    getFileDescriptorsByCompanyId(companyId?: string, fileName?: boolean, extension?: string, typeMIME?: string, purpose?: string, isUploaded?: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method copyFileInPersonalCloudSpace
+	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @description
+	     * This API allows to keep a copy in my personal cloud space. Then:
+	     * - A new file descriptor is created.
+	     * - The viewer becomes owner. The file has not yet viewer.
+	     * - A copy of the file is put in the viewer's personal cloud space.
+	     * - A STANZA MESSAGE (type management) is sent to the owner of this new file. (tag 'file', action='update')
+	     *
+	     * To copy the file you must:
+	     *
+	     * - have enough space to store the file.(errorDetailsCode: 403630)
+	     * - not be the owner of the file.(errorDetailsCode: 403631)
+	     * - be an allowed viewer. The file is shared via a conversation or via a room.(errorDetailsCode: 403632)
+	     * - copy a file uploaded.(errorDetailsCode: 403630)
+	     * - have a personal cloud space in the same data center than the owner of the file.
+	     *
+	     * @param {string} fileId [required] Identifier of file descriptor to modify
+	     * @return {Promise<FileDescriptor>} File descriptor Object
+	     *
+	     */
+	    copyFileInPersonalCloudSpace(fileId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method fileOwnershipChange
+	     * @instance
+	     * @category Files FILE MANAGEMENT / PROPERTIES
+	     * @description
+	     * As a file owner, I want to Drop the ownership to another Rainbow user of the same company.     <br>
+	     *      Then:     <br>
+	     * <br>
+	     * The former owner becomes a viewer to stay allowed to get the display of the file.     <br>
+	     * The new owner may loose his status of viewer when needed (as he becomes owner).     <br>
+	     * <br>
+	     * Error cases:
+	     *
+	     * - the former owner's company must allow file ownership change (forbidFileOwnerChangeCustomisation == disabled) errorDetailCode 403156 Access denied: this API can only be called by users having the feature key forbidFileOwnerChangeCustomisation disabled
+	     * - the logged in user is not the owner (errorDetailsCode: 403629)
+	     * - the new owner must belong to the same company of the current owner. errorDetailCode 403637 User [userId] doesn't belong to the company [companyId]
+	     * - the target file is not uploaded yet. errorDetailCode 403638 File [fileId] is not uploaded yet. So it can't be re-allocated.
+	     * - the new owner must have enough space to store the file.(errorDetailsCode: 403630)
+	     * - A STANZA MESSAGE (type management) is sent to the owner and each viewers. (tag 'file', action='update', owner='xxxxxxxxxxxxx')
+	     *
+	     * @param {string} fileId [required] Identifier of file descriptor to modify
+	     * @param {string} userId ID of another user which will become owner.
+	     * @return {Promise<FileDescriptor>} File descriptor Object
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | File descriptor Object |
+	     * | id  | String | File unique identifier (like 56d0277a0261b53142a5cab5) |
+	     * | fileName | String | Name of the file |
+	     * | ownerId | String | Rainbow Id of the file owner |
+	     * | md5sum | String | md5 of the file get from the backend file storage (default: "", refreshed each time the file is uploaded) |
+	     * | extension | String | File extension (jpeg, txt, ...) |
+	     * | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (image/jpeg,text/plain,...) |
+	     * | size | Number | Size of the file (Default: value given by Rainbow clients). Refreshed from the backend file storage each time the file is uploaded. |
+	     * | registrationDate | Date-Time | Date when the submit to upload this file was registered |
+	     * | isUploaded | Boolean | true when the file was uploaded at least one time |
+	     * | uploadedDate | Date-Time | Last time when the file was uploaded |
+	     * | viewers | Object\[\] | A set of objects including user or room Rainbow Id, type (user, room) |
+	     * | thumbnail | Object | Data of the thumbnail 'low resolution' (200X200 for images, 300x300 for .pdf, at least one dimension is 200 or 300)) |
+	     * | availableThumbnail | Boolean | Thumbnail availability |
+	     * | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+	     * | size | Number | Thumbnail size |
+	     * | md5sum | String | md5 of the thumbnail get from the backend file storage |
+	     * | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+	     * | thumbnail500 | Object | Data of the thumbnail 'High resolution' (500x500 - at least one dimension is 500) |
+	     * | availableThumbnail | Boolean | Thumbnail availability |
+	     * | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+	     * | size | Integer | Thumbnail size |
+	     * | md5sum | String | md5 of the thumbnail get from the backend file storage |
+	     * | isClean | Boolean | Null when the file is not yet scanned by an anti-virus |
+	     * | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+	     * | avReport | String | Null when the file is not yet scanned by an anti-virus |
+	     * | original_w | Number | For images only (jpeg, jpg, png, gif, pdf), this is the original width. It is processed at the same time as the thumbnails processing. (asynchronously) |
+	     * | original_h | Number | For images only (jpeg, jpg, png, gif, pdf), this is the original height. It is processed at the same time as the thumbnails processing. (asynchronously) |
+	     * | tags | Object | Wrap a set of data according with the file use |
+	     * | path | String | The path under which the owner will be able to classified the file. The folder management is not yet available; only a get files per path. For instance this facility is used to implement OXO visual voice mail feature on client side.<br><br>* /<br>* /voice-messages |
+	     * | msgId | String | When the file is generated by the Rainbow visual voice mail feature - The message Id (ex: "g0F6jhGrIXN5NQa") |
+	     * | messageType | String | When the file is generated by the Rainbow visual voice mail feature - The message type<br><br>default : `voice_message`<br><br>Possible values : `voice_message`, `conv_recording` |
+	     * | duration | Number | The message duration in second (voice message duration) |
+	     *
+	     *
+	     */
+	    fileOwnershipChange(fileId: any, userId: any): Promise<FileDescriptor>;
 	    /**********************************************************/
 	    /**  Utilities                                           **/
 	    /**********************************************************/
@@ -7142,192 +7520,6 @@ declare module 'lib/services/FileStorageService' {
 	    extractFileIdFromUrl(url: any): any;
 	}
 	export { FileStorage as FileStorageService };
-
-}
-declare module 'lib/common/models/GeoLoc' {
-	export {}; class GeoLoc {
-	    datum: string;
-	    latitude: string;
-	    longitude: string;
-	    altitude: string;
-	    static create(datum: string, latitude: string, longitude: string, altitude: string): GeoLoc;
-	}
-	export { GeoLoc };
-
-}
-declare module 'lib/common/models/Message' {
-	import { GeoLoc } from 'lib/common/models/GeoLoc';
-	import { Conversation } from 'lib/common/models/Conversation';
-	export {}; class Message {
-	    /**
-	     *  The Type of message.
-	     * @public
-	     * @enum {{ key: number, value: string }}
-	     * @readonly
-	     */
-	    static Type: any;
-	    /**
-	     * The Status of the Receipt.
-	     * @public
-	     * @enum {number}
-	     * @readonly
-	     */
-	    static ReceiptStatus: {
-	        /** No receipt received yet */
-	        NONE: number;
-	        /** No receipt received after a while (The server doesn't answer) */
-	        ERROR: number;
-	        /** Receipt in progress */
-	        IN_PROGRESS: number;
-	        /** The server has confirmed the reception of the message */
-	        SENT: number;
-	        /** The message has been received but not read */
-	        UNREAD: number;
-	        /** The message has been read */
-	        READ: number;
-	    };
-	    /**
-	     * @private
-	     */
-	    static ReceiptStatusText: string[];
-	    /**
-	     * The Side of Message's from
-	     * @public
-	     * @enum {string}
-	     * @readonly
-	     */
-	    static Side: {
-	        /** Message is from a recipient */
-	        LEFT: string;
-	        /** Message is from me */
-	        RIGHT: string;
-	        /** Specific admin message */
-	        ADMIN: string;
-	    };
-	    serverAckTimer: any;
-	    private index;
-	    id: string;
-	    type: any;
-	    date: Date;
-	    from: any;
-	    side: string;
-	    status: string;
-	    receiptStatus: number;
-	    fileId: string;
-	    fileName: string;
-	    isMarkdown: boolean;
-	    subject: string;
-	    geoloc: GeoLoc;
-	    voiceMessage: any;
-	    alternativeContent: any;
-	    attention: any;
-	    mentions: any;
-	    urgency: string;
-	    urgencyAck: boolean;
-	    urgencyHandler: any;
-	    historyIndex: string;
-	    fileErrorMsg: string;
-	    attachedMsgId: string;
-	    attachIndex: number;
-	    attachNumber: number;
-	    fromJid: any;
-	    resource: any;
-	    toJid: any;
-	    content: any;
-	    lang: any;
-	    cc: any;
-	    cctype: any;
-	    isEvent: any;
-	    event: any;
-	    oob: {
-	        url: string;
-	        mime: string;
-	        filename: string;
-	        filesize: string;
-	    };
-	    fromBubbleJid: any;
-	    fromBubbleUserJid: any;
-	    answeredMsgId: string;
-	    answeredMsg: Message;
-	    answeredMsgDate: string;
-	    answeredMsgStamp: string;
-	    fileTransfer: any;
-	    eventJid: string;
-	    originalMessageReplaced: Message;
-	    confOwnerId: string;
-	    confOwnerDisplayName: string;
-	    confOwnerJid: string;
-	    conversation: Conversation;
-	    isForwarded: boolean;
-	    forwardedMsg: any;
-	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, historyIndex: string, attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
-	        url: string;
-	        mime: string;
-	        filename: string;
-	        filesize: string;
-	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any);
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, /* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string, /*showCorrectedMessages: boolean,*/ /* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string, attachIndex: number, attachNumber: number, /* fromJid: any, */ resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
-	        url: string;
-	        mime: string;
-	        filename: string;
-	        filesize: string;
-	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFileSharingMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileId: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createWebRTCMessage(id: any, date: any, from: any, side: any, data: any, status: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createFTMessage(id: any, date: any, from: any, side: any, data: any, status: any, fileTransfer: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
-	    /**
-	     * @private
-	     * @method
-	     * @instance
-	     */
-	    static createRecordingAdminMessage(id: any, date: any, from: any, type: any, cmd: any): Message;
-	    /**
-	     * Method extract fileId part of URL
-	     *
-	     * @private
-	     * @param {string} url
-	     * @returns {string}
-	     *
-	     * @memberof Conversation
-	     */
-	    static extractFileIdFromUrl(url: any): any;
-	    updateMessage(data: any): this;
-	    /**
-	     * @function
-	     * @public
-	     * @name MessageFactory
-	     * @description
-	     * This class is used to create a message from data object
-	     */
-	    static MessageFactory(): (data: any) => Message;
-	}
-	export { Message };
 
 }
 declare module 'lib/common/models/webConferenceParticipant' {
@@ -8832,7 +9024,7 @@ declare module 'lib/services/ImsService' {
 	     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
 	     * @return {Promise<Message, ErrorManager>}
 	     * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-	    
+
 	     */
 	    sendMessageToContact(message: any, contact: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
 	    /**
@@ -9856,6 +10048,7 @@ declare module 'lib/common/models/VoiceMail' {
 }
 declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
+	import { XMPPUTils } from 'lib/common/XMPPUtils';
 	export {};
 	import { Call } from 'lib/common/models/Call';
 	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler'; class TelephonyEventHandler extends GenericHandler {
@@ -9866,6 +10059,7 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    contactService: any;
 	    promiseQueue: any;
 	    _profiles: any;
+	    xmppUtils: XMPPUTils;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(xmppService: XMPPService, telephonyService: any, contactService: any, profileService: any);
@@ -9873,6 +10067,8 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    onIqGetPbxAgentStatusReceived(stanza: any, node: any): void;
 	    onMessageReceived(msg: any, stanza: any): boolean;
 	    onProposeMessageReceived(node: any, from: any): Promise<void>;
+	    onRetractMessageReceived(node: any, from: any): Promise<void>;
+	    onAcceptMessageReceived(node: any, from: any): Promise<void>;
 	    /*********************************************************************/
 	    /** INITIATED CALL STUFF                                           **/
 	    /*********************************************************************/
@@ -10734,16 +10930,100 @@ declare module 'lib/services/AdminService' {
 	    /**
 	     * @public
 	     * @method getAllCompanies
+	     * @param {string} format Allows to retrieve more or less company details in response. <br>
+	     * - small: _id, name <br>
+	     * - medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape, visibility <br>
+	     * - full for superadmin, support, business_admin, bp_admin and bp_finance: All fields <br>
+	     * - full for admin: All fields except BP fields (bpType, bpBusinessModel, bpApplicantNumber, bpCRDid, bpHasRightToSell, bpHasRightToConnect, bpIsContractAccepted, bpContractAcceptationInfo) <br>
+	     *  <br>
+	     * Default value : small <br>
+	     * Possible values : small, medium, full <br>
+	     * @param {string} sortField Sort items list based on the given field. Default value : name
+	     * @param {string} bpId Allows to filter companies list on bpId field. <br>
+	     * This filter allow to get all the End Customer companies associated to a given Business Partner company. <br>
+	     * <br>
+	     *  Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. <br>
+	     *  Users with role bp_admin or bp_finance can use this filter on their own company.
+	     * @param {string} catalogId Allows to filter companies list on catalogId field. <br>
+	     *     This filter allow to get all the companies linked to a given catalogId. <br>
+	     *         <br>
+	     *             Only users with role superadmin, support or business_admin can use this filter.
+	     * @param {string} offerId Allows to filter companies list on companies having subscribed to the provided offerId.
+	     * @param {boolean} offerCanBeSold Allows to filter companies list on companies having subscribed to offers with canBeSold=true. <br>
+	     *     This filter can only be used with the value true (false is not relevant, as all companies have a subscription to Essential which has canBeSold=false, so all companies would match offerCanBeSold=false).
+	     * @param {string} externalReference Allows to filter companies list on externalReference field. <br>
+	     *     The search is done on externalReference starting with the input characters, case sensitive (ex: ABC will match companies with externalReference ABC, ABCD, ABC12... ; but externalReference abc, AABC, 1ABC, ... will not match). <br>
+	     *          <br>
+	     *     Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
+	     * @param {string} externalReference2 Allows to filter companies list on externalReference2 field. <br>
+	     *     The search is done on externalReference2 starting with the input characters, case sensitive (ex: ABC will match companies with externalReference2 ABC, ABCD, ABC12... ; but externalReference2 abc, AABC, 1ABC, ... will not match). <br>
+	     *         <br>
+	     *     Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
+	     * @param {string} salesforceAccountId Allows to filter companies list on salesforceAccountId field. <br>
+	     * The search is done on the whole salesforceAccountId, case sensitive (no partial search). <br>
+	     *  <br>
+	     * Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
+	     * @param {string} selectedAppCustomisationTemplate Allows to filter companies list on application customisation template applied for the company. <br>
+	     *     This filter allows to get a list of companies for which we have applied the same application customisation template. <br>
+	     *         <br>
+	     *     Only users with role superadmin, support, bp_admin, admin can use this filter.
+	     * @param {boolean} selectedThemeObj Allows to return selectedTheme attribute as an object: <br>
+	     * - true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }), <br>
+	     * - false return selectedTheme as a string.
+	     * @param {string} offerGroupName Allows to filter companies list on companies having subscribed to offers with provided groupName(s). <br>
+	     *    Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. <br>
+	     *    groupName can be retrieved from API GET /api/rainbow/subscription/v1.0/companies/:companyId/offers <br>
+	     *    The search is done on the whole groupName(s), case sensitive (no partial search). <br>
+	     *    Several groupName can be provided, seperated by a space.
+	     * @param {number} limit Allow to specify the number of items to retrieve. <br>
+	     *     Default value : 100
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). <br>
+	     *     Warning: if offset > total, no results are returned.
+	     * @param {number} sortOrder Specify order when sorting items list. <br>
+	     *     Default value : 1 <br>
+	     *     Possible values : -1, 1
+	     * @param {string} name Allows to filter companies list on the given keyword(s) on field name. <br>
+	     *      <br>
+	     *     The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match). <br>
+	     *     Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
+	     * @param {string} status Allows to filter companies list on the provided status(es) <br>
+	     *      <br>
+	     *      Possible values : initializing, active, alerting, hold, terminated
+	     * @param {string} visibility Allows to filter companies list on the provided visibility(ies) <br>
+	     *      <br>
+	     *      Possible values : public, private, organization, closed, isolated
+	     * @param {string} organisationId Allows to filter companies list on the organisationIds provided in this option. <br>
+	     *      <br>
+	     *      This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
+	     * @param {boolean} isBP Allows to filter companies list on isBP field: <br>
+	     *      <br>
+	     *      true returns only Business Partner companies, <br>
+	     *      false return only companies which are not Business Partner. <br>
+	     *      <br>
+	     *      This filter can only be used if user has role(s) superadmin, business_admin, support, bp_admin or admin.
+	     * @param {boolean} hasBP Allows to filter companies list on companies being linked or not to a BP: <br>
+	     *      <br>
+	     *      true returns only companies linked to a BP (BP IR companies are also returned), <br>
+	     *      false return only companies which are not linked to a BP.
+	     *      <br>
+	     *      This filter can only be used if user has role(s) superadmin, business_admin, support or bp_admin. <br>
+	     *      <br>
+	     *      Users with role bp_admin can only use this filter with value false.
+	     * @param {string} bpType Allows to filter companies list on bpType field. <br>
+	     *      <br>
+	     *      This filter allow to get all the Business Partner companies from a given bpType. <br>
+	     *      <br>
+	     *      Only users with role superadmin, business_admin, support or bp_admin can use this filter.
 	     * @instance
 	     * @description
-	     *      Get all companies for a given admin <br>
+	     *      Get all companies for a given admin following request filters.<br>
 	     * @async
 	     * @category Companies and users management
 	     * @return {Promise<Object, ErrorManager>}
 	     * @fulfil {Object} - Json object containing with all companies (companyId and companyName) or an error object depending on the result
 	     * @category async
 	     */
-	    getAllCompanies(): Promise<unknown>;
+	    getAllCompanies(format?: string, sortField?: string, bpId?: string, catalogId?: string, offerId?: string, offerCanBeSold?: boolean, externalReference?: string, externalReference2?: string, salesforceAccountId?: string, selectedAppCustomisationTemplate?: string, selectedThemeObj?: boolean, offerGroupName?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
 	    /**
 	     * get a company
 	     * @private
@@ -11005,6 +11285,554 @@ declare module 'lib/services/AdminService' {
 	     * @category Companies and users management
 	     */
 	    updateContactInfos(userId: any, infos: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method applyCustomisationTemplates
+	     * @instance
+	     * @description
+	     *      This API allows an administrator to apply an application customisation template to a company or a user
+	     *
+	     *  **Why is an application template?**
+	     *
+	     *  - An application template is a set of key feature controlled by permission.
+	     *  - A template can be applied to a company, to a user.
+	     *  - A template to a user can be applied by an administrator action or by bulk using mass provisioning mechanism.
+	     *  - Custom templates may be created
+	     *
+	     *  **Who can apply a template?**
+	     *
+	     *  - superadmin, bp_admin and company_admin can apply templates available for any company (public or private template)
+	     *
+	     *  **Restrictions about template types.**
+	     *
+	     *  - Each template has a type:
+	     *
+	     *    - default_company
+	     *    - default_user
+	     *    - private_default_company
+	     *    - other
+	     *
+	     *  - It may have only one template of default_company and default_user type.
+	     *
+	     *  - A default_company or default_user template is always public.
+	     *
+	     *  - default_company is created by Rainbow team under name Full.
+	     *
+	     *  - default_user is a template used to reset user with default values. It is created by Rainbow team under name Same as company. It is public too.
+	     *
+	     *  - An 'other' template is public or private. If private, it belongs to a company.
+	     *
+	     *  - A private_default_company is private and belongs to a standalone company. It may have only one private_default_company per company.
+	     *
+	     *  To apply a template, a template name plus a companyId or a userId must be set. When both companyId or userId are set, an error occurs (400000).
+	     *
+	     *  You can find on which companies the template has been applied by using the API getAllCompanies with parameter selectedAppCustomisationTemplate=:templateId
+	     *  The company field selectedAppCustomisationTemplate is the last template applyed for this company.
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method.
+	     * @category async
+	     * @param {string} name Template name.
+	     * @param {string} companyId Company unique identifier
+	     * @param {string} userId User unique identifier
+	     */
+	    applyCustomisationTemplates(name: string, companyId: string, userId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createCustomisationTemplate
+	     * @instance
+	     * @description
+	     *      This API allows an administrator to create an application customisation template for the given company.
+	     *
+	     *      - The name of the template must be unique among all of its belonging to the company.
+	     *      - The template is always private. So it has automatically private visibility.
+	     *      - It can includes following items. When some of them are missing, the default value enabled is used. So the body can include only items to set with the statedisabled.
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method
+	     * @category async
+	     * @param {string} name Template name.
+	     * @param {string} ownedByCompany Identifier of the company owning the template.
+	     * @param {string} visibleBy When visibility is private, list of companyIds that can access the template (other than the 'ownedByCompany' one).
+	     * @param {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.<br>
+	     * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.<br>
+	     * <br>
+	     * instantMessagesCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use instant messages.<br>
+	     * - disabled: No user of the company can use instant messages.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.<br>
+	     * Define if one or all users of a company has the is allowed to send animated GIFs in conversations<br>
+	     * <br>
+	     * useGifCustomisation can be:<br>
+	     *
+	     * - enabled: The user can send animated GIFs in conversations.<br>
+	     * - disabled: The user can't send animated GIFs in conversations.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} fileSharingCustomisation Activate/Deactivate file sharing capability per company<br>
+	     * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.<br>
+	     * <br>
+	     * fileSharingCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>
+	     * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.<br>
+	     * <br>
+	     * Default value : enabled<br>
+	     * @param {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.<br>
+	     * Define if one or all users of a company has the right to upload/download/copy or share documents.<br>
+	     * <br>
+	     * fileStorageCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can manage and share files.<br>
+	     * - disabled: No user of the company can manage and share files.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).<br>
+	     * Define if one or all users of a company has the right to join phone meetings.<br>
+	     * <br>
+	     * phoneMeetingCustomisation can be:<br>
+	     *
+	     * -  enabled: Each user of the company can join phone meetings.<br>
+	     * - disabled: No user of the company can join phone meetings.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.<br>
+	     * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.<br>
+	     * <br>
+	     * useDialOutCustomisation can be:<br>
+	     *
+	     * - enabled: The user can be called by the Rainbow conference bridge.<br>
+	     * - disabled: The user can't be called by the Rainbow conference bridge.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.<br>
+	     * Define if one or all users of a company has the right to create channels or be a member of channels.<br>
+	     * <br>
+	     * useChannelCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use some channels.<br>
+	     * - disabled: No user of the company can use some channel.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.<br>
+	     * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).<br>
+	     * <br>
+	     * useRoomCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use bubbles.<br>
+	     * - disabled: No user of the company can use bubbles.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.<br>
+	     * Define if a user has the right to share his screen.<br>
+	     * <br>
+	     * useScreenSharingCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can share his screen.<br>
+	     * - disabled: No user of the company can share his screen.<br>
+	     * <br>
+	     * @param {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.<br>
+	     * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).<br>
+	     * <br>
+	     * useWebRTCVideoCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can switch to a Web RTC audio conversation.<br>
+	     * - disabled: No user of the company can switch to a Web RTC audio conversation.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.<br>
+	     * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).<br>
+	     * <br>
+	     * useWebRTCVideoCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can switch to a Web RTC video conversation.<br>
+	     * - disabled: No user of the company can switch to a Web RTC video conversation.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.<br>
+	     * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).<br>
+	     * <br>
+	     * recordingConversationCustomisation can be:<br>
+	     *
+	     * - enabled: The user can record a peer to peer or a multi-party call.<br>
+	     * - disabled: The user can't record a peer to peer or a multi-party call.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to change manually his presence.<br>
+	     * Define if one or all users of a company has the right to change his presence manually or only use automatic states.<br>
+	     * <br>
+	     * overridePresenceCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can change his presence.<br>
+	     * - disabled: No user of the company can change his presence.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.<br>
+	     * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).<br>
+	     * <br>
+	     * userProfileCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can modify his profile.<br>
+	     * - disabled: No user of the company can modify his profile.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company<br>
+	     * Define if one or all users of a company is allowed to change some profile data.<br>
+	     * <br>
+	     * userTitleNameCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>
+	     * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.<br>
+	     * Define if one or all users of a company has the right to modify telephony settings like forward activation ....<br>
+	     * <br>
+	     * changeTelephonyCustomisation can be:<br>
+	     *
+	     * - enabled: The user can modify telephony settings.<br>
+	     * - disabled: The user can't modify telephony settings.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.<br>
+	     * Define if one or all users of a company has the right to change his client general settings.<br>
+	     * <br>
+	     * changeSettingsCustomisation can be:<br>
+	     *
+	     * - enabled: The user can change all client general settings.<br>
+	     * - disabled: The user can't change any client general setting.<br>
+	     * <br>
+	     * Default value : enabled<br>
+	     * @param {string} fileCopyCustomisation Activate/Deactivate the capability for a user to copy files<br>
+	     * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.<br>
+	     * <br>
+	     * fileCopyCustomisation can be:<br>
+	     *
+	     * - enabled: The user can make a copy of a file to his personal cloud space.<br>
+	     * - disabled: The user can't make a copy of a file to his personal cloud space.<br>
+	     * <br>
+	     * default value : enabled
+	     * @param {string} fileTransferCustomisation Activate/Deactivate the ability for a user to transfer files.<br>
+	     * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.<br>
+	     * <br>
+	     * fileTransferCustomisation can be:<br>
+	     *
+	     * - enabled: The user can transfer a file doesn't belong to him.<br>
+	     * - disabled: The user can't transfer a file doesn't belong to him.<br>
+	     * <br>
+	     * Valeur par défaut : enabled<br>
+	     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
+	     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
+	     * <br>
+	     * forbidFileOwnerChangeCustomisation can be:<br>
+	     *
+	     * - enabled: The user can't give the ownership of his file.<br>
+	     * - disabled: The user can give the ownership of his file.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} readReceiptsCustomisation Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.<br>
+	     * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.<br>
+	     * <br>
+	     * readReceiptsCustomisation can be:<br>
+	     *
+	     * - enabled: The user allow the sender to check if an IM is read.<br>
+	     * - disabled: The user doesn't allow the sender to check if an IM is read.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useSpeakingTimeStatistics Activate/Deactivate the ability for a user to see speaking time statistics.<br>
+	     * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.<br>
+	     * <br>
+	     * useSpeakingTimeStatistics can be:<br>
+	     *
+	     * - enabled: The user can use meeting speaking time statistics.<br>
+	     * - disabled: The user can't can use meeting speaking time statistics.<br>
+	     * <br>
+	     * Default value : enabled
+	     */
+	    createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteCustomisationTemplate
+	     * @instance
+	     * @description
+	     *      This API allows an administrator to delete an application customisation template.
+	     *
+	     *      Users with superadmin role can delete any private template.
+	     *
+	     *      Users with bp_admin or admin role can only delete template they owned.
+	     *      The template to delete may have been applied to one or several companies. So, before the template deletion, we have to go back to the application of this template. A default template is applyed instead (Full)
+	     *      This is done automitically and it could be necessary to advice the administrator before deleting the template.
+	     *      You can find on which companies the template has been applied by using the API getAllCompanies using the parameter selectedAppCustomisationTemplate=:templateId
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method
+	     * @category async
+	     * @param {string} templateId Template id.
+	     */
+	    deleteCustomisationTemplate(templateId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllAvailableCustomisationTemplates
+	     * @instance
+	     * @description
+	     *      This API allows administrator to retrieve application customisation templates supported by a given company.
+	     *
+	     *      superadmin and support can get templates available for any company (the requested company has to be specified in companyId query parameter. bp_admin and company_admin get templates for its own company (no need to specify companyId parameter).
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method
+	     * @category async
+	     * @param {string} companyId Select a company other than the one the user belongs to (must be an admin of the company)
+	     * @param {string} format Allows to retrieve more or less templates details in response.<br>
+	     * - small: id, name, visibility<br>
+	     * - medium: id, name, visibility, visibleBy, type, createdBy, creationDate, ownedByCompany<br>
+	     * - full: all fields<br>
+	     * <br>
+	     * Default value : small<br>
+	     * Possible values : small, medium, full
+	     * @param {number} limit Allow to specify the number of templates to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first templates to retrieve (first template if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort templates list based on the given field. Default value : name
+	     * @param {number} sortOrder Specify order when sorting templates list. Default value : 1. Possible values : -1, 1
+	     */
+	    getAllAvailableCustomisationTemplates(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAllAvailableCustomisationTemplates
+	     * @instance
+	     * @description
+	     *      This API allows administrator to retrieve the requested application customisation template
+	     *
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method
+	     * @category async
+	     * @param {string} templateId Template id.
+	     */
+	    getRequestedCustomisationTemplate(templateId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateCustomisationTemplate
+	     * @instance
+	     * @description
+	     *     This API allows an administrator to update an application customisation template.
+	     *
+	     *     A public template can't be updated using this API. Update is only allowed via a database migration.
+	     * @async
+	     * @category Customisation Template
+	     * @return {Promise<Object, Error>}
+	     * @fulfil {Object} - Json object containing the result of the method
+	     * @category async
+	     * @param {string} templateId id of the template to update.
+	     * @param {string} name Template name.
+	     * @param {string} visibleBy When visibility is private, list of companyIds that can access the template (other than the 'ownedByCompany' one).
+	     * @param {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.<br>
+	     * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.<br>
+	     * <br>
+	     * instantMessagesCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use instant messages.<br>
+	     * - disabled: No user of the company can use instant messages.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.<br>
+	     * Define if one or all users of a company has the is allowed to send animated GIFs in conversations<br>
+	     * <br>
+	     * useGifCustomisation can be:<br>
+	     *
+	     * - enabled: The user can send animated GIFs in conversations.<br>
+	     * - disabled: The user can't send animated GIFs in conversations.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} fileSharingCustomisation Activate/Deactivate file sharing capability per company<br>
+	     * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.<br>
+	     * <br>
+	     * fileSharingCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>
+	     * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.<br>
+	     * <br>
+	     * Default value : enabled<br>
+	     * @param {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.<br>
+	     * Define if one or all users of a company has the right to upload/download/copy or share documents.<br>
+	     * <br>
+	     * fileStorageCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can manage and share files.<br>
+	     * - disabled: No user of the company can manage and share files.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).<br>
+	     * Define if one or all users of a company has the right to join phone meetings.<br>
+	     * <br>
+	     * phoneMeetingCustomisation can be:<br>
+	     *
+	     * -  enabled: Each user of the company can join phone meetings.<br>
+	     * - disabled: No user of the company can join phone meetings.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.<br>
+	     * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.<br>
+	     * <br>
+	     * useDialOutCustomisation can be:<br>
+	     *
+	     * - enabled: The user can be called by the Rainbow conference bridge.<br>
+	     * - disabled: The user can't be called by the Rainbow conference bridge.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.<br>
+	     * Define if one or all users of a company has the right to create channels or be a member of channels.<br>
+	     * <br>
+	     * useChannelCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use some channels.<br>
+	     * - disabled: No user of the company can use some channel.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.<br>
+	     * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).<br>
+	     * <br>
+	     * useRoomCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can use bubbles.<br>
+	     * - disabled: No user of the company can use bubbles.<br>
+	     *<br>
+	     *  Default value : enabled
+	     * @param {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.<br>
+	     * Define if a user has the right to share his screen.<br>
+	     * <br>
+	     * useScreenSharingCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can share his screen.<br>
+	     * - disabled: No user of the company can share his screen.<br>
+	     * <br>
+	     * @param {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.<br>
+	     * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).<br>
+	     * <br>
+	     * useWebRTCVideoCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can switch to a Web RTC audio conversation.<br>
+	     * - disabled: No user of the company can switch to a Web RTC audio conversation.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.<br>
+	     * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).<br>
+	     * <br>
+	     * useWebRTCVideoCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can switch to a Web RTC video conversation.<br>
+	     * - disabled: No user of the company can switch to a Web RTC video conversation.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.<br>
+	     * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).<br>
+	     * <br>
+	     * recordingConversationCustomisation can be:<br>
+	     *
+	     * - enabled: The user can record a peer to peer or a multi-party call.<br>
+	     * - disabled: The user can't record a peer to peer or a multi-party call.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to change manually his presence.<br>
+	     * Define if one or all users of a company has the right to change his presence manually or only use automatic states.<br>
+	     * <br>
+	     * overridePresenceCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can change his presence.<br>
+	     * - disabled: No user of the company can change his presence.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.<br>
+	     * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).<br>
+	     * <br>
+	     * userProfileCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can modify his profile.<br>
+	     * - disabled: No user of the company can modify his profile.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company<br>
+	     * Define if one or all users of a company is allowed to change some profile data.<br>
+	     * <br>
+	     * userTitleNameCustomisation can be:<br>
+	     *
+	     * - enabled: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>
+	     * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.<br>
+	     *<br>
+	     * Default value : enabled
+	     * @param {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.<br>
+	     * Define if one or all users of a company has the right to modify telephony settings like forward activation ....<br>
+	     * <br>
+	     * changeTelephonyCustomisation can be:<br>
+	     *
+	     * - enabled: The user can modify telephony settings.<br>
+	     * - disabled: The user can't modify telephony settings.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.<br>
+	     * Define if one or all users of a company has the right to change his client general settings.<br>
+	     * <br>
+	     * changeSettingsCustomisation can be:<br>
+	     *
+	     * - enabled: The user can change all client general settings.<br>
+	     * - disabled: The user can't change any client general setting.<br>
+	     * <br>
+	     * Default value : enabled<br>
+	     * @param {string} fileCopyCustomisation Activate/Deactivate the capability for a user to copy files<br>
+	     * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.<br>
+	     * <br>
+	     * fileCopyCustomisation can be:<br>
+	     *
+	     * - enabled: The user can make a copy of a file to his personal cloud space.<br>
+	     * - disabled: The user can't make a copy of a file to his personal cloud space.<br>
+	     * <br>
+	     * default value : enabled
+	     * @param {string} fileTransferCustomisation Activate/Deactivate the ability for a user to transfer files.<br>
+	     * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.<br>
+	     * <br>
+	     * fileTransferCustomisation can be:<br>
+	     *
+	     * - enabled: The user can transfer a file doesn't belong to him.<br>
+	     * - disabled: The user can't transfer a file doesn't belong to him.<br>
+	     * <br>
+	     * Valeur par défaut : enabled<br>
+	     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
+	     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
+	     * <br>
+	     * forbidFileOwnerChangeCustomisation can be:<br>
+	     *
+	     * - enabled: The user can't give the ownership of his file.<br>
+	     * - disabled: The user can give the ownership of his file.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} readReceiptsCustomisation Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.<br>
+	     * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.<br>
+	     * <br>
+	     * readReceiptsCustomisation can be:<br>
+	     *
+	     * - enabled: The user allow the sender to check if an IM is read.<br>
+	     * - disabled: The user doesn't allow the sender to check if an IM is read.<br>
+	     * <br>
+	     * Default value : enabled
+	     * @param {string} useSpeakingTimeStatistics Activate/Deactivate the ability for a user to see speaking time statistics.<br>
+	     * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.<br>
+	     * <br>
+	     * useSpeakingTimeStatistics can be:<br>
+	     *
+	     * - enabled: The user can use meeting speaking time statistics.<br>
+	     * - disabled: The user can't can use meeting speaking time statistics.<br>
+	     * <br>
+	     * Default value : enabled
+	     */
+	    updateCustomisationTemplate(templateId: string, name: string, visibleBy: string[], instantMessagesCustomisation?: string, useGifCustomisation?: string, fileSharingCustomisation?: string, fileStorageCustomisation?: string, phoneMeetingCustomisation?: string, useDialOutCustomisation?: string, useChannelCustomisation?: string, useRoomCustomisation?: string, useScreenSharingCustomisation?: string, useWebRTCAudioCustomisation?: string, useWebRTCVideoCustomisation?: string, recordingConversationCustomisation?: string, overridePresenceCustomisation?: string, userProfileCustomisation?: string, userTitleNameCustomisation?: string, changeTelephonyCustomisation?: string, changeSettingsCustomisation?: string, fileCopyCustomisation?: string, fileTransferCustomisation?: string, forbidFileOwnerChangeCustomisation?: string, readReceiptsCustomisation?: string, useSpeakingTimeStatistics?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method askTokenOnBehalf
@@ -11808,6 +12636,7 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} settings.company.password password for the ldap server.
 	     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
 	     * @param {string} settings.company.url url of the ldap server.
+	     * @param {string} settings.company.domain domain of the ldap server.
 	     * @description
 	     *      This API allows create configuration for the connector. <br>
 	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
@@ -11816,19 +12645,23 @@ declare module 'lib/services/AdminService' {
 	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
 	     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
 	     *      a company_admin can only create the connectors configuration in his company. <br>
-	     *      return { <br>
-	     *         id 	String Config unique identifier. <br>
-	     *         type 	String Config type  <br>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
-	     *         settings 	Object config settings <br>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-	     *                 login 	String login for the ldap server. <br>
-	     *                 password 	String password for the ldap server. <br>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-	     *                 url 	String url of the ldap server. <br>
-	     *          } <br>
+	     *      return an Object with
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id | String | Config unique identifier. |
+	     * | type | String | Config type |
+	     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
+	     * | settings | Object | config settings |
+	     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+	     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+	     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
+	     * | settings.company.login | String | login for the ldap server. |
+	     * | settings.company.password | String | password for the ldap server. |
+	     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
+	     * | settings.company.url | String | url of the ldap server. |
+	     * | settings.company.domain | String | domain of the ldap server. |
+	     *
 	     * @return {Promise<{Object}>}
 	     */
 	    createConfigurationForLdapConnector(companyId: any, settings: any): Promise<unknown>;

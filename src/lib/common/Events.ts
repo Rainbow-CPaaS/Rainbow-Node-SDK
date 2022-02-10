@@ -153,6 +153,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onchannelupdated <br>
  * @fires Events#rainbow_onchannelusersubscription <br>
  * @fires Events#rainbow_onmediapropose <br>
+ * @fires Events#rainbow_onmediaretract <br>
  * @fires Events#rainbow_oncalllogupdated <br>
  * @fires Events#rainbow_oncalllogackupdated <br>
  * @fires Events#rainbow_onfavoritecreated <br>
@@ -247,6 +248,7 @@ class Events {
         "rainbow_onchannelupdated",
         "rainbow_onchannelusersubscription",
         "rainbow_onmediapropose",
+        "rainbow_onmediaretract",
         "rainbow_oncalllogupdated",
         "rainbow_oncalllogackupdated",
         "rainbow_onfavoritecreated",
@@ -1070,20 +1072,56 @@ class Events {
             that.publishEvent("channelusersubscription", data);
         });
 
-        // ****************** CALLLOGS *********************
-
+        // ****************** WEBRTC ***********************
+        
         this._evReceiver.on("evt_internal_propose", function (data) {
             /**
              * @event Events#rainbow_onmediapropose
              * @public
-             * @param { Object } infos about the proposed for media :
-             *  { Contact } infos about the contact who proposed for media
-             *  { media } infos about media for the proposed event.
+             * @param { Object } data infos about the proposed for media : <br>
+             *  { Contact } data.contact infos about the contact who proposed for media<br>
+             *  { string } data.xmlns namespace of the propose action<br>
+             *  { string } data.resource resource the resource that has sent the proposed event.<br>
+             *  { Object } data.description { media : string, xmlns :string } infos about media for the proposed event.<br>
+             *  { Object } data.unifiedplan { xmlns : string } information about the version stack proposed. <br>
+             *  { string } data.id id of the propose action, can be used to follow the call if retractected.<br>
              * @description
              *      Fired when received an event of propose for media.
              */
             that.publishEvent("mediapropose", data);
         });
+
+        this._evReceiver.on("evt_internal_retract", function (data) {
+            /**
+             * @event Events#rainbow_onmediaretract
+             * @public
+             * @param { Object } data infos about the proposed for media : <br>
+             *  { Contact } data.contact infos about the contact who proposed for media<br>
+             *  { resource } data.resource the resource that has sent the proposed event.<br>
+             *  { string } data.xmlns namespace of the propose action<br>
+             *  { string } data.id id of the retract action, it is the call propose id received before.<br>
+             * @description
+             *      Fired when received an event of propose for media.
+             */
+            that.publishEvent("mediaretract", data);
+        });
+        
+        this._evReceiver.on("evt_internal_accept", function (data) {
+            /**
+             * @event Events#rainbow_onmediaaccept
+             * @public
+             * @param { Object } data infos about the accept Webrtc call : <br>
+             *  { Contact } data.contact infos about the contact who accept for media<br>
+             *  { resource } data.resource the resource that has sent the accept event.<br>
+             *  { string } data.xmlns namespace of the accept action<br>
+             *  { string } data.id id of the accept action, it is the call propose id received before.<br>
+             * @description
+             *      Fired when received an event of accept for media.
+             */
+            that.publishEvent("mediaaccept", data);
+        });
+        
+        // ****************** CALLLOGS *********************
 
         this._evReceiver.on("evt_internal_calllogupdated", function (data) {
             /**
