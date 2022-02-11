@@ -10,7 +10,26 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add documentation about telephony call : `Telephony_calls.md`.
 -   Update the `rainbow_onmediapropose` event with more data.
 -   Add events about Webrtc calls : `rainbow_onmediaretract` of the retract action, it is the call propose id received before.  
--   Add events about Webrtc calls : `rainbow_onmediaaccept` of the accept action, it is the call propose id received before.    
+-   Add events about Webrtc calls : `rainbow_onmediaaccept` of the accept action, it is the call propose id received before.
+-   Add Rainbow Voice API :
+    * `RBVoiceService::retrieveAllAvailableCallLineIdentifications` : This api returns all CLI options available.  
+    * `RBVoiceService::retrieveCurrentCallLineIdentification` : This api returns current Call line identification.
+    * `RBVoiceService::setCurrentActiveCallLineIdentification` : This api allows user to set the current CLI.
+    * `RBVoiceService::addMemberToGroup` : This part of the API allows a user having manager role on a group to add another user.
+    * `RBVoiceService::deleteVoiceMessageAssociatedToAGroup` : Deletion of the given voice message.
+    * `RBVoiceService::getVoiceMessagesAssociatedToGroup` : Returns the list of voice messages associated to a group. 
+    * `RBVoiceService::getGroupForwards` : This API allows to get all cloud PBX group forwards.
+    * `RBVoiceService::getTheUserGroup` : This API allows to retrieve the groups where the logged user is member.
+    * `RBVoiceService::joinAGroup` : This part of the API allows a user to join a group. 
+    * `RBVoiceService::joinAllGroups` : Allow a user to join all the groups he belongs to.
+    * `RBVoiceService::leaveAGroup` : This part of the API allows a user to leave a group.
+    * `RBVoiceService::leaveAllGroups` : Allow a user to leave all the groups he belongs to.
+    * `RBVoiceService::removeMemberFromGroup` : This part of the API allows a manager to remove a member from a group.
+    * `RBVoiceService::retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser` : Returns the number of read/unread messages for each hunting group where logged in user is a member.
+    * `RBVoiceService::updateAVoiceMessageAssociatedToAGroup` : Update the given voice message - mark it as read or unread When a message is 'unread', it is considered as a new message.
+    * `RBVoiceService::updateAGroup` : This API allows a manager of to group to modify some settings of a Cloud PBX hunting group.
+    * `RBVoiceService::updateGroupForward` : This API allows to update the forwards of a cloud PBX group.
+    * `RBVoiceService::updateGroupMember` : This part of the API allows a manager to update a member inside a group.
 
 ## [2.8.1] - 2022-02-07
 -   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 

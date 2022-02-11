@@ -7255,15 +7255,17 @@ Request Method: PUT
         });
     }
 
-    setCurrentActiveCallLineIdentification (policy : string,   phoneNumberId  : string) {
+    setCurrentActiveCallLineIdentification (policy : string,   phoneNumberId?  : string) {
+        // API https://api.openrainbow.org/voice/#api-CLI_Options-Set_CLI
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) policy : ", policy + ", phoneNumberId : ", phoneNumberId );
+            that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) policy : ", policy + ", phoneNumberId : ", phoneNumberId);
             let data = {
                 policy,
                 phoneNumberId
             };
+
             that.http.put("/api/rainbow/voice/v1.0/cli-options", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(setCurrentActiveCallLineIdentification) successfull");
                 that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) REST result : ", json.data);
@@ -7321,8 +7323,8 @@ Request Method: PUT
                     });
         });
     }
-    
-    getVoiceMessagesAssociatedToGroup (groupId : string, limit = 100, offset = 0, sortField="name", sortOrder : number, fromDate : string, toDate : string, callerName : string, callerNumber : string ) {
+
+    getVoiceMessagesAssociatedToGroup (groupId : string, limit : number = 100, offset: number = 0, sortField:string ="name", sortOrder : number, fromDate : string, toDate : string, callerName : string, callerNumber : string ) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages 
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetGroupVoiceMessages
         let that = this;
@@ -7516,6 +7518,54 @@ Request Method: PUT
                         that.logger.log("internalerror", LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
+        });
+    }
+
+    retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser() {
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/messages-summary 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetGroupsMessagesSummary
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/groups/messages-summary" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*addParamToUrl(urlParamsTab, "limit", limit + "");
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateAGroup (groupId : string, externalNumberId : string, isEmptyAllowed : boolean) {
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId 
+        // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroup
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId, ", externalNumberId : ", externalNumberId, ", isEmptyAllowed : ", isEmptyAllowed );
+            let data = {
+                externalNumberId,
+                isEmptyAllowed
+            };
+            that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateAGroup) successfull");
+                that.logger.log("internal", LOG_ID + "(updateAGroup) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateAGroup) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateAGroup) error : ", err);
+                return reject(err);
+            });
         });
     }
 
