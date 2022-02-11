@@ -158,6 +158,10 @@ class Core {
                         that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                         return resolve(json);
+                    }).catch((err)=> {
+                        that.logger.log("debug", LOG_ID + "(signin) signed failed : ", err);
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        return reject(err);
                     });
                 }
             });
