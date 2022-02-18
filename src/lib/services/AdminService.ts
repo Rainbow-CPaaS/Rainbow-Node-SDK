@@ -55,7 +55,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  * @description
  *      This module handles the management of users. Using it, You will be able to create new users, to modify information of users and to delete them.<br>
  *      This module can be use too to create Guest users who are specific temporaly users that can be used in Rainbow. <br>
- *      <br><br>
+ *      <br>
  *      The main methods proposed in that module allow to: <br>
  *      - Create a new user in a specified company <br>
  *      - Modify information of an existing user <br>
@@ -5174,7 +5174,7 @@ class AdminService extends GenericService {
     
     //endregion Rainbow Voice Communication Platform Provisioning 
 
-    //region sites
+    //region Sites
 
     /**
      * @public
@@ -5393,7 +5393,7 @@ class AdminService extends GenericService {
         });
     }
 
-    //endregion sites
+    //endregion Sites
 
     //region Rainbow Company Directory Portal 
     // https://api.openrainbow.org/directory/
@@ -5620,29 +5620,84 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Rainbow Company Directory portal - directory
-     * @param companyId
-     * @param organisationIds
-     * @param name
-     * @param search
-     * @param type
-     * @param companyName
-     * @param phoneNumbers
-     * @param fromUpdateDate
-     * @param toUpdateDate
-     * @param tags
+     * @param {string} companyId Allows to filter the list of directory entries on the companyIds provided in this option
+     * @param {string} organisationIds Allows to filter the list of directory entries on the organisationIds provided in this option
+     * @param {string} name Allows to filter the list of directory entries of user type on the name provided in this option. <br>
+     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - on only firstname or lastname (ex: 'john' find 'John Doe')
+     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. <br>
+     * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
+     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+     * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)<br>
+     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Valeur par défaut : user. Valeurs autorisées : user, company
+     * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. <br>
+     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - on only companyName (ex: 'john' find 'John Doe')
+     * @param {string} phoneNumbers Allows to filter the list of directory entries on the number provided in this option. (users and companies type) <br>
+     *     Note the numbers must be in E164 format separated by a space and the character "+" replaced by "%2B". ex. "phoneNumbers=%2B33390676790 %2B33611223344"
+     * @param {Date} fromUpdateDate Allows to filter the list of directory entries from provided date (ISO 8601 format eg: '2019-04-11 16:06:47').
+     * @param {Date} toUpdateDate Allows to filter the list of directory entries until provided date (ISO 8601 format).
+     * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. <br>
+     *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). <br>
+     *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
      * @param {string} format Allows to retrieve more or less entry details in response. <br>
      * - small: id, firstName, lastName  <br>
      * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
      * - full: all fields. <br>
      * default : small <br>
      * Valid values : small, medium, full <br>
-     * @param limit
-     * @param offset
-     * @param sortField
-     * @param sortOrder
+     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Valeur par défaut : 100
+     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort directory list based on the given field. Valeur par défaut : lastName
+     * @param {number} sortOrder Specify order when sorting phone book list. Valeur par défaut : 1. Valeurs autorisées : -1, 1
+     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Valeur par défaut : all. Valeurs autorisées : personal, company, all
      * @description
-     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br>
+     *   This API allows users to get an entry of the directory of a company they administrate.<br>
+     *   superadmin and support can get a directory entry of all companies.<br>
+     *   bp_admin can only get a directory entry of their own companies or their End Customer companies.<br>
+     *   organization_admin can only get a directory entry of the companies under their organization.<br>
+     *   other users can only get a directory entry of their onw companies (and companies visible in their organisation if any). users can get the entries of their own directory too.<br>
+     *   <br>
+     *   name, phoneNumbers, search and tags parameters are exclusives.
      * @return {Promise<any>}
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | Data objects |
+     * | id  | String | Directory entry identifier |
+     * | companyId optionnel | String | Id of the company |
+     * | userId optionnel | String | Id of the user |
+     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Valeurs autorisées : `user`, `company` |
+     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
+     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
+     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
+     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
+     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
+     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
+     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
+     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
+     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+     * 
+     * 
      */
     getListDirectoryEntriesData (companyId : string,
                                  organisationIds : string,
@@ -5658,13 +5713,14 @@ class AdminService extends GenericService {
                                  limit : number = 100,
                                  offset : number = 0,
                                  sortField : string = "lastName",
-                                 sortOrder : number = 1) {
+                                 sortOrder : number = 1,
+                                 view  : string = "all") {
         let that = this;
 
         return new Promise(function (resolve, reject) {
             try {
 
-                that._rest.getListDirectoryEntriesData (companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder ).then((result) => {
+                that._rest.getListDirectoryEntriesData (companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view ).then((result) => {
                     that._logger.log("debug", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent. ");
                     that._logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent : ", result);
                     resolve(result);

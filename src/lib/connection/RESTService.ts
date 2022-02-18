@@ -9021,7 +9021,9 @@ Request Method: PUT
                                  limit : number, 
                                  offset : number, 
                                  sortField : string,
-                                 sortOrder : number) {
+                                 sortOrder : number,
+                                 view : string) {
+        // API https://api.openrainbow.org/directory/#api-directory-GetDirectoryList
         // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries 
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -9043,6 +9045,7 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "offset", offset + "");
             addParamToUrl(urlParamsTab, "sortField", sortField);
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "view", view );
             url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) REST url : ", url);
