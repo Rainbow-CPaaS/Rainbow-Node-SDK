@@ -3827,8 +3827,63 @@ let urlS2S;
             logger.log("error", "MAIN - [testgetCSVTemplate    ] :: error : ", err);
         });
     }
+    
+    function testgetListDirectoryEntriesData () {
+        let emailToSearch = "Bouvet@vbe.test.openrainbow.net";
+        let companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate,
+                tags, format, limit, offset, sortField, sortOrder, view = undefined;
 
-    //endregion
+        search = "Bouvet";
+        //search = emailToSearch;
+        type = "user";
+        //search = emailToSearch;
+
+        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res : any) => {
+            if (res) {
+                logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res : ", res);
+                if (res.data) {
+                    for (let i = 0; i < res.data.length; i++) {
+                        logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res[", i, "] : ", res.data[i]);
+                    }
+                }
+            }
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
+        });
+    }
+
+    function testgetDirectoryEntryData () {
+        let emailToSearch = "Bouvet@vbe.test.openrainbow.net";
+        let companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate,
+                tags, format, limit, offset, sortField, sortOrder, view = undefined;
+
+        search = "Bouvet";
+        //search = emailToSearch;
+        type = "user";
+        //search = emailToSearch;
+
+        format= "full";
+        
+        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res : any) => {
+            if (res) {
+                logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res : ", res);
+                if (res.data) {
+                    for (let i = 0; i < res.data.length; i++) {
+                        logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i]);
+                        if (res.data[i].companyName == "compa") {
+                            rainbowSDK.admin.getDirectoryEntryData(res.data[i].id, "full").then((result) => {
+                                logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i], ", result : ", result);
+                            });
+                        }
+                    }
+                }
+            }
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
+        });
+    }
+
+    //endregion Directory
 
     //region ldap
 

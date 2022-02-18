@@ -233,7 +233,7 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
             urlParams[0] += "?";
         }
         //urlParams[0] += urlParams[0] ? "&" : "?";
-        urlParams[0] += paramName + "=" + paramValue;
+        urlParams[0] += paramName + "=" + encodeURIComponent(paramValue);
     }
 }
 
