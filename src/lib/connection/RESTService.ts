@@ -7220,7 +7220,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error : ", err);
@@ -7246,7 +7246,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveCurrentCallLineIdentification) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveCurrentCallLineIdentification) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveCurrentCallLineIdentification) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveCurrentCallLineIdentification) error : ", err);
@@ -7269,7 +7269,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/cli-options", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(setCurrentActiveCallLineIdentification) successfull");
                 that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(setCurrentActiveCallLineIdentification) error.");
                 that.logger.log("internalerror", LOG_ID, "(setCurrentActiveCallLineIdentification) error : ", err);
@@ -7297,7 +7297,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/members", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(addMemberToGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(addMemberToGroup) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(addMemberToGroup) error.");
                 that.logger.log("internalerror", LOG_ID, "(addMemberToGroup) error : ", err);
@@ -7347,7 +7347,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getVoiceMessagesAssociatedToGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error : ", err);
@@ -7380,7 +7380,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getGroupForwards) successfull");
                 that.logger.log("internal", LOG_ID + "(getGroupForwards) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getGroupForwards) error");
                 that.logger.log("internalerror", LOG_ID, "(getGroupForwards) error : ", err);
@@ -7414,7 +7414,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getTheUserGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(getTheUserGroup) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getTheUserGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(getTheUserGroup) error : ", err);
@@ -7434,7 +7434,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(joinAGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(joinAGroup) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(joinAGroup) error.");
                 that.logger.log("internalerror", LOG_ID, "(joinAGroup) error : ", err);
@@ -7454,7 +7454,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/groups/join", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(joinAllGroups) successfull");
                 that.logger.log("internal", LOG_ID + "(joinAllGroups) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(joinAllGroups) error.");
                 that.logger.log("internalerror", LOG_ID, "(joinAllGroups) error : ", err);
@@ -7474,7 +7474,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/leave", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(leaveAGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(leaveAGroup) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(leaveAGroup) error.");
                 that.logger.log("internalerror", LOG_ID, "(leaveAGroup) error : ", err);
@@ -7494,7 +7494,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/groups/leave", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(leaveAllGroups) successfull");
                 that.logger.log("internal", LOG_ID + "(leaveAllGroups) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(leaveAllGroups) error.");
                 that.logger.log("internalerror", LOG_ID, "(leaveAllGroups) error : ", err);
@@ -7538,7 +7538,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error : ", err);
@@ -7560,7 +7560,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateAGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(updateAGroup) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateAGroup) error.");
                 that.logger.log("internalerror", LOG_ID, "(updateAGroup) error : ", err);
@@ -7581,7 +7581,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) successfull");
                 that.logger.log("internal", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error.");
                 that.logger.log("internalerror", LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error : ", err);
@@ -7607,7 +7607,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/forwards/" + callForwardType, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateGroupForward) successfull");
                 that.logger.log("internal", LOG_ID + "(updateGroupForward) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateGroupForward) error.");
                 that.logger.log("internalerror", LOG_ID, "(updateGroupForward) error : ", err);
@@ -7630,7 +7630,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateGroupMember) successfull");
                 that.logger.log("internal", LOG_ID + "(updateGroupMember) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateGroupMember) error.");
                 that.logger.log("internalerror", LOG_ID, "(updateGroupMember) error : ", err);
@@ -7640,6 +7640,136 @@ Request Method: PUT
     }
     
     //endregion Rainbow Voice Cloud PBX group    
+    
+    //region Rainbow Voice Deskphones
+    
+    activateDeactivateDND(activate: boolean){
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/dnd
+        // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Dnd_state
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(activateDeactivateDND) activate : ", activate );
+            let data = undefined;
+            that.http.put("/api/rainbow/voice/v1.0/deskphones/dnd?activate=" + activate, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(activateDeactivateDND) successfull");
+                that.logger.log("internal", LOG_ID + "(activateDeactivateDND) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(activateDeactivateDND) error.");
+                that.logger.log("internalerror", LOG_ID, "(activateDeactivateDND) error : ", err);
+                return reject(err);
+            });
+        });
+
+    }
+    
+    configureAndActivateDeactivateForward(callForwardType: string, type : string, number : string, timeout : number , activated : boolean  ){
+        // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/forwards/:callForwardType
+        // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Forward_state
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(configureAndActivateDeactivateForward) callForwardType : ", callForwardType );
+            let data = {
+                type,
+                number,
+                timeout,
+                activated
+            };
+            that.http.put("/api/rainbow/voice/v1.0/deskphones/forwards/" + callForwardType, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(configureAndActivateDeactivateForward) successfull");
+                that.logger.log("internal", LOG_ID + "(configureAndActivateDeactivateForward) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(configureAndActivateDeactivateForward) error.");
+                that.logger.log("internalerror", LOG_ID, "(configureAndActivateDeactivateForward) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    retrieveActiveForwards(){
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/forwards     
+        // API https://api.openrainbow.org/voice/#api-Deskphones-Get_active_forwards
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/deskphones/forwards" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "type", type + "");
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveActiveForwards) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveActiveForwards) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveActiveForwards) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveActiveForwards) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveActiveForwards) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    retrieveDNDState(){
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/dnd     
+        // API https://api.openrainbow.org/voice/#api-Deskphones-Get_Dnd_state
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/deskphones/dnd";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "type", type + "");
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveDNDState) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveDNDState) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveDNDState) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveDNDState) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveDNDState) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    searchUsersGroupsContactsByName(displayName : string, limit : number ){
+        // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/searchbyname     
+        // API https://api.openrainbow.org/voice/#api-Deskphones-Search_by_name
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/deskphones/searchbyname" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            
+            addParamToUrl(urlParamsTab, "displayName", displayName);
+            addParamToUrl(urlParamsTab, "limit", limit);
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(searchUsersGroupsContactsByName) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(searchUsersGroupsContactsByName) successfull");
+                that.logger.log("internal", LOG_ID + "(searchUsersGroupsContactsByName) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchUsersGroupsContactsByName) error");
+                that.logger.log("internalerror", LOG_ID, "(searchUsersGroupsContactsByName) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Rainbow Voice Deskphones
     
     //region Rainbow Voice Personal Routines    
 
@@ -7654,7 +7784,7 @@ Request Method: PUT
             that.http.post("/api/rainbow/voice/v1.0/personalroutines/" + routineId + "/activate", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(activatePersonalRoutine) successfull");
                 that.logger.log("internal", LOG_ID + "(activatePersonalRoutine) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(activatePersonalRoutine) error.");
                 that.logger.log("internalerror", LOG_ID, "(activatePersonalRoutine) error : ", err);
@@ -7662,7 +7792,46 @@ Request Method: PUT
             });
         });
     }
-    
+
+    createCustomPersonalRoutine (name : string) {
+        // POST  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines     
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Create_PersonalRoutine
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(createCustomPersonalRoutine) name : ", name);
+            let data = {
+            };
+            that.http.post("/api/rainbow/voice/v1.0/personalroutines", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createCustomPersonalRoutine) successfull");
+                that.logger.log("internal", LOG_ID + "(createCustomPersonalRoutine) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createCustomPersonalRoutine) error.");
+                that.logger.log("internalerror", LOG_ID, "(createCustomPersonalRoutine) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteCustomPersonalRoutine(routineId : string) {
+        // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId      
+        // API https://api.openrainbow.org/voice/#api-Personal_Routines-Delete_PersonalRoutine
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/voice/v1.0/personalroutines/" + routineId;
+            that.http.delete( url, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteCustomPersonalRoutine) (" + routineId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
     getPersonalRoutineData (routineId : string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId 
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutine
@@ -7688,7 +7857,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getPersonalRoutineData) successfull");
                 that.logger.log("internal", LOG_ID + "(getPersonalRoutineData) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getPersonalRoutineData) error");
                 that.logger.log("internalerror", LOG_ID, "(getPersonalRoutineData) error : ", err);
@@ -7697,12 +7866,12 @@ Request Method: PUT
         });
     }
 
-    getAllPersonalRoutines () {
+    getAllPersonalRoutines (userId ) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines 
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutines
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url : string = "/api/rainbow/voice/v1.0/personalroutines/" ;
+            let url : string = "/api/rainbow/voice/v1.0/personalroutines?userId=" + userId  ;
             let urlParamsTab : string[]= [];
             urlParamsTab.push(url);
             /*
@@ -7722,7 +7891,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getAllPersonalRoutines) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllPersonalRoutines) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getAllPersonalRoutines) error");
                 that.logger.log("internalerror", LOG_ID, "(getAllPersonalRoutines) error : ", err);
@@ -7731,7 +7900,7 @@ Request Method: PUT
         });
     }
 
-    updatePersonalRoutineData (routineId : string, dndPresence : boolean, name : string, deviceMode : {manage : boolean, mode : string}, immediateCallForward : {manage : boolean, activate : boolean, number  : string, destinationType : string}, noreplyCallForward : { manage : boolean, activate : boolean, number : string, destinationType : string, noReplyDelay : number}, huntingGroups : { withdrawAll : boolean} ) {
+    updatePersonalRoutineData (routineId : string, dndPresence : boolean, name : string, presence  : { manage : boolean, value: string }, deviceMode : {manage : boolean, mode : string}, immediateCallForward : {manage : boolean, activate : boolean, number  : string, destinationType : string}, busyCallForward : { manage : boolean, activate : boolean, number : string, destinationType : string}, noreplyCallForward : { manage : boolean, activate : boolean, number : string, destinationType : string, noReplyDelay : number}, huntingGroups : { withdrawAll : boolean} ) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId 
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Update_PersonalRoutine
         let that = this;
@@ -7739,16 +7908,18 @@ Request Method: PUT
             that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) routineId : ", routineId + ", name : ", name );
             let data = {
                 dndPresence,
-                name, 
+                name,
+                presence,
                 deviceMode, 
-                immediateCallForward, 
+                immediateCallForward,
+                busyCallForward,
                 noreplyCallForward, 
                 huntingGroups 
             };
             that.http.put("/api/rainbow/voice/v1.0/personalroutines/" + routineId, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updatePersonalRoutineData) successfull");
                 that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updatePersonalRoutineData) error.");
                 that.logger.log("internalerror", LOG_ID, "(updatePersonalRoutineData) error : ", err);
@@ -7774,7 +7945,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/routing", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(manageUserRoutingData) successfull");
                 that.logger.log("internal", LOG_ID + "(manageUserRoutingData) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(manageUserRoutingData) error.");
                 that.logger.log("internalerror", LOG_ID, "(manageUserRoutingData) error : ", err);
@@ -7808,7 +7979,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrievetransferRoutingData) successfull");
                 that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrievetransferRoutingData) error");
                 that.logger.log("internalerror", LOG_ID, "(retrievetransferRoutingData) error : ", err);
@@ -7842,7 +8013,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveUserRoutingData) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveUserRoutingData) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveUserRoutingData) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveUserRoutingData) error : ", err);
@@ -7852,9 +8023,46 @@ Request Method: PUT
     }
     
     //endregion Rainbow Voice Routing    
+
+    //region Rainbow Voice Settings 
+
+    retrieveVoiceUserSettings () {
+        // GET  https://api.openrainbow.org/api/rainbow/voice/v1.0/settings
+        // API https://api.openrainbow.org/voice/#api-Settings-Get_settings
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/voice/v1.0/settings" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            /*addParamToUrl(urlParamsTab, "calleeId", calleeId );
+            addParamToUrl(urlParamsTab, "addresseeId", addresseeId );
+            addParamToUrl(urlParamsTab, "addresseePhoneNumber", addresseePhoneNumber );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveVoiceUserSettings) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveVoiceUserSettings) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveVoiceUserSettings) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveVoiceUserSettings) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveVoiceUserSettings) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Rainbow Voice Settings  
     
     //region Rainbow Voice Voice
-
     
     addParticipant3PCC(callId : string, callData : { callee : string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/participants     
@@ -8110,7 +8318,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(snapshot3PCC) successfull");
                 that.logger.log("internal", LOG_ID + "(snapshot3PCC) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(snapshot3PCC) error");
                 that.logger.log("internalerror", LOG_ID, "(snapshot3PCC) error : ", err);
@@ -8203,7 +8411,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) successfull");
                 that.logger.log("internal", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error");
                 that.logger.log("internalerror", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error : ", err);
@@ -8244,7 +8452,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getVoiceMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(getVoiceMessages) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getVoiceMessages) error");
                 that.logger.log("internalerror", LOG_ID, "(getVoiceMessages) error : ", err);
@@ -8279,7 +8487,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getUserDevices) successfull");
                 that.logger.log("internal", LOG_ID + "(getUserDevices) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getUserDevices) error");
                 that.logger.log("internalerror", LOG_ID, "(getUserDevices) error : ", err);
@@ -8299,7 +8507,7 @@ Request Method: PUT
             that.http.put("/api/rainbow/voice/v1.0/messages/" + messageId, that.getRequestHeader(), urlData, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateVoiceMessage) successfull");
                 that.logger.log("internal", LOG_ID + "(updateVoiceMessage) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateVoiceMessage) error.");
                 that.logger.log("internalerror", LOG_ID, "(updateVoiceMessage) error : ", err);
@@ -8339,7 +8547,7 @@ Request Method: PUT
             that.http.put(url, that.getRequestHeader(), urlData, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(forwardCall) successfull");
                 that.logger.log("internal", LOG_ID + "(forwardCall) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(forwardCall) error.");
                 that.logger.log("internalerror", LOG_ID, "(forwardCall) error : ", err);
@@ -8375,7 +8583,7 @@ Request Method: PUT
             that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getASubscriberForwards) successfull");
                 that.logger.log("internal", LOG_ID + "(getASubscriberForwards) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getASubscriberForwards) error.");
                 that.logger.log("internalerror", LOG_ID, "(getASubscriberForwards) error : ", err);
@@ -8417,7 +8625,7 @@ Request Method: PUT
             that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(searchCloudPBXhuntingGroups) successfull");
                 that.logger.log("internal", LOG_ID + "(searchCloudPBXhuntingGroups) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(searchCloudPBXhuntingGroups) error.");
                 that.logger.log("internalerror", LOG_ID, "(searchCloudPBXhuntingGroups) error : ", err);

@@ -30,6 +30,43 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
     * `RBVoiceService::updateAGroup` : This API allows a manager of to group to modify some settings of a Cloud PBX hunting group.
     * `RBVoiceService::updateGroupForward` : This API allows to update the forwards of a cloud PBX group.
     * `RBVoiceService::updateGroupMember` : This part of the API allows a manager to update a member inside a group.
+    * `RBVoiceService::activateDeactivateDND` : This API allows logged in user to activate or deactivate his DND state.
+    * `RBVoiceService::configureAndActivateDeactivateForward` : This API allows logged in user to activate or deactivate a forward.
+    * `RBVoiceService::retrieveActiveForwards` : This API allows logged in user to retrieve his active forwards.
+    * `RBVoiceService::retrieveDNDState` : This API allows logged in user to retrieve his DND state.
+    * `RBVoiceService::searchUsersGroupsContactsByName` : This API allows to retrieve phone numbers associated to Rainbow users, groups, Office365 contacts and external directories contacts.
+    * `RBVoiceService::activatePersonalRoutine` : This api activate a user's personal routine.
+    * `RBVoiceService::createCustomPersonalRoutine` : This api create a user's custom personal routine.
+    * `RBVoiceService::deleteCustomPersonalRoutine` : This api delete a user's custom personal routine.
+    * `RBVoiceService::getPersonalRoutineData` : This api returns a user's personal routine data.
+    * `RBVoiceService::getAllPersonalRoutines` : This api returns all user's personal routines data.
+    * `RBVoiceService::updatePersonalRoutineData` : This api updates a user's personal routine data, it's not possible to update the work routine, it contains memorized data before the activation of another routine.
+    * `RBVoiceService::manageUserRoutingData` : This api allows user routing management.
+    * `RBVoiceService::retrievetransferRoutingData` : For transfer, get addressee routing data.
+    * `RBVoiceService::retrieveUserRoutingData` : This api returns user routing information.
+    * `RBVoiceService::retrieveVoiceUserSettings` : Allows logged in user to retrieve his voice settings.
+    * `RBVoiceService::addParticipant3PCC` : Adds a participant in a call, as a one step conference.
+    * `RBVoiceService::answerCall3PCC` : This is a 3PCC answer call.
+    * `RBVoiceService::blindTransferCall3PCC` : This is a 3PCC blind transfer call. Immediate transfer of an active call to a new destination.
+    * `RBVoiceService::deflectCall3PCC` : This is a 3PCC deflect call. During ringing state, user transfer the call to another destination.
+    * `RBVoiceService::holdCall3PCC` : This is a 3PCC hold call.
+    * `RBVoiceService::makeCall3PCC` : This api makes a 3PCC call between 2 users.
+    * `RBVoiceService::mergeCall3PCC` : This is a 3PCC merge call. Merge an held call into the active call (single call or conference call).
+    * `RBVoiceService::pickupCall3PCC` : 3PCC pickup call can be used in case of manager/assistant context, when an assistant wants to pickup a call on a manager.
+    * `RBVoiceService::releaseCall3PCC` : This is a 3PCC release call.
+    * `RBVoiceService::retrieveCall3PCC` : This is a 3PCC retrieve call.
+    * `RBVoiceService::sendDTMF3PCC` : This is a 3PCC send DTMF.
+    * `RBVoiceService::snapshot3PCC` : This is a 3PCC Snapshot of the user's calls and devices.
+    * `RBVoiceService::transferCall3PCC` : This is a 3PCC transfer call. Transfer the active call to the given held call.
+    * `RBVoiceService::deleteAVoiceMessage` : Deletion of the given voice message.
+    * `RBVoiceService::deleteAllVoiceMessages` : Deletion of all user's voice messages.
+    * `RBVoiceService::getEmergencyNumbersAndEmergencyOptions` : This api returns emergency numbers the user can use (+ emergency options).
+    * `RBVoiceService::getVoiceMessages` : Returns the list of voice messages.
+    * `RBVoiceService::getUserDevices` : This api returns user devices information.
+    * `RBVoiceService::updateVoiceMessage` : Update the given voice message - mark it as read or unread.
+    * `RBVoiceService::forwardCall` : This api activates/deactivates a forward.
+    * `RBVoiceService::getASubscriberForwards` : This api gets the user forwards.
+    * `RBVoiceService::searchCloudPBXhuntingGroups` : This API allows to retrieve Cloud PBX Hunting Groups.
 
 ## [2.8.1] - 2022-02-07
 -   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 
