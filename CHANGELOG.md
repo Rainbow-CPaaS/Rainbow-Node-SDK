@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.8.2] - 2022-02-XX
+## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.
 -   Update the `rainbow_onmediapropose` event with more data.
 -   Add events about Webrtc calls : `rainbow_onmediaretract` of the retract action, it is the call propose id received before.  
