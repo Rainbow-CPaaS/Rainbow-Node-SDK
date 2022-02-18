@@ -5671,6 +5671,7 @@ class AdminService extends GenericService {
      *   <br>
      *   name, phoneNumbers, search and tags parameters are exclusives.
      * @return {Promise<any>}
+     * <br>
      * 
      * | Champ | Type | Description |
      * | --- | --- | --- |
