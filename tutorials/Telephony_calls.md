@@ -385,9 +385,6 @@ It provides the global rainbow "phone" presence, and also the presence for the r
 }
 ```
 
-<center>
-<img src="EventModeIncommingCalls.png">
-</center>
 
 ### Outgoing Telephony call event sequence
 ---
