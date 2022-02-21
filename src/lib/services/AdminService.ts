@@ -1463,7 +1463,7 @@ class AdminService extends GenericService {
      * - enabled: The user can transfer a file doesn't belong to him.<br>
      * - disabled: The user can't transfer a file doesn't belong to him.<br>
      * <br>
-     * Valeur par défaut : enabled<br>
+     * Default value : enabled<br>
      * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
      * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
      * <br>
@@ -1837,7 +1837,7 @@ class AdminService extends GenericService {
      * - enabled: The user can transfer a file doesn't belong to him.<br>
      * - disabled: The user can't transfer a file doesn't belong to him.<br>
      * <br>
-     * Valeur par défaut : enabled<br>
+     * Default value : enabled<br>
      * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
      * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
      * <br>
@@ -2617,7 +2617,7 @@ class AdminService extends GenericService {
      *               delete optionnel {number} number of user remove actions <br>
      *               detach optionnel {number} number of device unpairing actions <br>
      *           reqId {string} check request identifier <br>
-     *           mode {string} request csv mode Valeurs autorisées : user, device <br>
+     *           mode {string} request csv mode Possible values : user, device <br>
      *           columns {number} number of columns in the CSV <br>
      *           delimiter {string} the CSV delimiter <br>
      *           profiles {Object} the managed profiles <br>
@@ -2970,7 +2970,7 @@ class AdminService extends GenericService {
      *            disabled: No user of the company can share his screen. <br>
      *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
      *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
-     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br>
+     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Possible values : done, in_progress <br>
      *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
      *         FileSharingCustomisation can be: <br>
      *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
@@ -5637,7 +5637,7 @@ class AdminService extends GenericService {
      * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
      * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
      * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)<br>
-     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Valeur par défaut : user. Valeurs autorisées : user, company
+     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Default value : user. Possible values : user, company
      * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. <br>
      * - keywords exact match (ex: 'John Doe' find 'John Doe')
      * - keywords partial match (ex: 'Jo Do' find 'John Doe')
@@ -5657,11 +5657,11 @@ class AdminService extends GenericService {
      * - full: all fields. <br>
      * default : small <br>
      * Valid values : small, medium, full <br>
-     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Valeur par défaut : 100
+     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
      * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort directory list based on the given field. Valeur par défaut : lastName
-     * @param {number} sortOrder Specify order when sorting phone book list. Valeur par défaut : 1. Valeurs autorisées : -1, 1
-     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Valeur par défaut : all. Valeurs autorisées : personal, company, all
+     * @param {string} sortField Sort directory list based on the given field. Default value : lastName
+     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
      * @description
      *   This API allows users to get an entry of the directory of a company they administrate.<br>
      *   superadmin and support can get a directory entry of all companies.<br>
@@ -5679,7 +5679,7 @@ class AdminService extends GenericService {
      * | id  | String | Directory entry identifier |
      * | companyId optionnel | String | Id of the company |
      * | userId optionnel | String | Id of the user |
-     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Valeurs autorisées : `user`, `company` |
+     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
      * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
      * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
      * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
