@@ -472,7 +472,8 @@ class Message {
         this.urgency = urgency;
 
         /**
-         * @private
+         * @public
+         * @property {boolean} urgencyAck give the information that an urgent message has been updated.
          * @readonly
          */
         this.urgencyAck = urgencyAck;

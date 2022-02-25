@@ -496,6 +496,58 @@ let urlS2S;
                 logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - result : ", result);
             });
         } // */
+        /*
+         <message 
+  xmlns='jabber:client' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/node_VpzTvyYF' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' type='chat'>
+  <sent 
+    xmlns='urn:xmpp:carbons:2'>
+    <forwarded 
+      xmlns='urn:xmpp:forward:0'>
+      <message xml:lang='en' to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/web_win_2.101.3_3QO8WdOK' type='chat' id='web_28273cf2-b320-43c5-a195-7dc88c0935c60' 
+        xmlns='jabber:client'>
+        <archived stamp='2022-02-25T10:06:45.263921Z' by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921' 
+          xmlns='urn:xmpp:mam:tmp'/>
+          <stanza-id by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921' 
+            xmlns='urn:xmpp:sid:0'/>
+            <store 
+              xmlns='urn:xmpp:hints'/>
+              <request 
+                xmlns='urn:xmpp:receipts'/>
+                <active 
+                  xmlns='http://jabber.org/protocol/chatstates'/>
+                  <answeredMsg stamp='1645783648376'>web_f0d90f96-ec85-41dc-969d-371a30a59aa80</answeredMsg>
+                  <body xml:lang='en'>Acknowledged</body>
+                </message>
+              </forwarded>
+            </sent>
+          </message>
+         */
+        let ackUngency = false; 
+        if (ackUngency && message && message.urgency === "high" ) {
+            if (message.fromBubbleJid ) {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message,undefined,"std").then((result) => {
+                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                });
+            }  else {
+                rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
+                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                });
+            } // */
+        }
+                
+        let ignoreAckUngency = false; 
+        if (ignoreAckUngency && message && message.urgency === "high" ) {
+            if (message.fromBubbleJid ) {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("Ignored", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
+                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                });
+            }  else {
+                rainbowSDK.im.sendMessageToJidAnswer("Ignored", message.fromJid, 'EN', null, "Ignored", message, "std").then((result) => {
+                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                });
+            } // */
+        }
+        
     });
     rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
         logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
@@ -3965,6 +4017,27 @@ let urlS2S;
         });
     }
 
+    
+    async function teststopConferenceV2() {
+        let bubbleId = "6213b94219fa5d0143a71e3c";
+        
+        rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStarted) => {
+            logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
+        }).catch (err => {
+            logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
+        });
+    }
+    
+    async function tesaskConferenceSnapshot() {
+        let confId = "60d5a4ee0eeee002d144e9bf";
+        
+        rainbowSDK.bubbles.askConferenceSnapshot(confId).then(async (confStarted) => {
+            logger.log("debug", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request ok, confStarted : ", confStarted);
+        }).catch (err => {
+            logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
+        });
+    }
+    
     //endregion Conference V2
 
     //region Webinar

@@ -638,6 +638,59 @@ class ImsService extends GenericService{
         return messageSent;
     }
 
+    /**
+     * @public
+     * @method sendMessageToJidAcknowledged
+     * @instance
+     * @async
+     * @category Ims MESSAGES
+     * @description
+     *  Send an Acknowledged reply to an urgent message (one to one, or bubble) <br>
+     * @param {String} message The message to acknoledge 
+     * @return {Promise<Message, ErrorManager>}
+     * @fulfil {Message} - the message 
+     */
+    async sendMessageToJidAcknowledged(message) {
+        let that = this;
+        if ( message && message.urgency === "high" ) {
+            if (message.fromBubbleJid ) {
+                return that.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message,undefined,"std").then((result) => {
+                    that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
+                });
+            }  else {
+                return that.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
+                    that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
+                });
+            } // */
+        }
+    }
+
+    /**
+     * @public
+     * @method sendMessageToJidIgnored
+     * @instance
+     * @async
+     * @category Ims MESSAGES
+     * @description
+     *  Send an Ignored reply to an urgent message (one to one, or bubble) <br>
+     * @param {String} message The message to Ignored 
+     * @return {Promise<Message, ErrorManager>}
+     * @fulfil {Message} - the message 
+     */
+    async sendMessageToJidIgnored(message) {
+        let that = this;
+        if ( message && message.urgency === "high" ) {
+            if (message.fromBubbleJid ) {
+                return that.sendMessageToBubbleJidAnswer("Ignored", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
+                    that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
+                });
+            }  else {
+                return that.sendMessageToJidAnswer("Ignored", message.fromJid, 'EN', null, "Ignored", message, "std").then((result) => {
+                    that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
+                });
+            } // */
+        }
+    }
 
     /**
      * @public
