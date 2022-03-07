@@ -535,14 +535,14 @@ let urlS2S;
             } // */
         }
                 
-        let ignoreAckUngency = false; 
+        let ignoreAckUngency = true; 
         if (ignoreAckUngency && message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
-                rainbowSDK.im.sendMessageToBubbleJidAnswer("Ignored", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                 });
             }  else {
-                rainbowSDK.im.sendMessageToJidAnswer("Ignored", message.fromJid, 'EN', null, "Ignored", message, "std").then((result) => {
+                rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                 });
             } // */
@@ -897,6 +897,15 @@ let urlS2S;
         }
     }
 
+    function testsearchUsers() {
+        let usershouldbeUnkown = "unknowcontact@openrainbow.org";
+        rainbowSDK.contacts.searchUsers(20,undefined,"vincent").then(contact => {
+            logger.log("debug", "MAIN - [testsearchUsers    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testsearchUsers    ] :: catch reject contact : ", err);
+        });
+    }
+    
     //endregion Contacts
     
     //region Messages
@@ -2709,7 +2718,7 @@ let urlS2S;
         bubbleMessageSubject += utc;
         await rainbowSDK.bubbles.createBubble(bubbleName, bubbleDescription, false).then(async (bubble: any) => {
             logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
-            rainbowSDK.bubbles.createPublicUrl(bubble.id).then(async (publicUrl) => {
+            rainbowSDK.bubbles.createPublicUrl(bubble).then(async (publicUrl) => {
                 logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createPublicUrl publicUrl : ", publicUrl);
                 rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest").then(async (result) => {
                     logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: registerGuestForAPublicURL result : ", result);

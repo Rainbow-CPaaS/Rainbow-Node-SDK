@@ -9,6 +9,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.9.0] - 2022-02-XX
 -   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
 -   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
+-   Add `ContactsService::searchInAlldirectories` This API allows to search for resources matching given keywords. 
+-   Add `ContactsService::searchInPhonebook` This API allows to search for resources matching given keywords.The search is done on name and phone number.
+-   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
+-   Add `ContactsService::searchUsers` This API allows to search users.
 
 ## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.

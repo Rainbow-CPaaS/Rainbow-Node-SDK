@@ -2234,7 +2234,7 @@ getAllActiveBubbles
          */
         async getBubbleByJid(jid, force?: boolean): Promise<Bubble> {
             let that = this;
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
     
                 if (!jid) {
@@ -2251,7 +2251,7 @@ getAllActiveBubbles
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                    return that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
+                    return await that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
     
                         if (bubbleFromServer) {
@@ -4959,7 +4959,7 @@ getAllActiveBubbles
          */
         async createPublicUrl(bubble: Bubble): Promise<any> {
             let that = this;
-            if (!bubble) {
+            if (!bubble || !bubble.id) {
                 this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
                 return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);

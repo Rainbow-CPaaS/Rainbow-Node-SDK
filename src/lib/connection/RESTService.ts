@@ -636,6 +636,146 @@ class RESTService extends GenericRESTService {
     }
 
     //region Contacts API
+    
+    //region Contacts API - Search portal
+
+    // phonebook
+    searchInAlldirectories (pbxId? : string, systemId? : string, numberE164? : string, shortnumber? : string, format : string = "small", limit : number = 100, offset? : number, sortField : string = "reverseDisplayName", sortOrder : number = 1) {
+        // API https://api.openrainbow.org/search/#api-phonebook-search_alldirectories_by_GET
+        // GET /api/rainbow/search/v1.0/alldirectories
+
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST numberE164 : ", numberE164);
+
+            let url: string = "/api/rainbow/search/v1.0/alldirectories";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "pbxId", pbxId);
+            addParamToUrl(urlParamsTab, "systemId", systemId);
+            addParamToUrl(urlParamsTab, "numberE164", numberE164);
+            addParamToUrl(urlParamsTab, "shortnumber", shortnumber);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(searchInAlldirectories) successfull");
+                that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchInAlldirectories) error");
+                that.logger.log("internalerror", LOG_ID, "(searchInAlldirectories) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    searchInPhonebook (pbxId : string, name : string, number : string, format : string, limit : number, offset : number, sortField : string, sortOrder : number ) {
+        // API https://api.openrainbow.org/search/#api-phonebook-search_phonebooks_by_GET
+        // GET /api/rainbow/search/v1.0/phonebooks
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST number : ", number);
+
+            let url: string = "/api/rainbow/search/v1.0/phonebooks";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "pbxId", pbxId);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "number", number);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(searchInPhonebook) successfull");
+                that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchInPhonebook) error");
+                that.logger.log("internalerror", LOG_ID, "(searchInPhonebook) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    // users
+    searchUserByPhonenumber(number) {
+        // API https://api.openrainbow.org/search/#api-users-search_phone-numbers_users
+        // GET /api/rainbow/search/v1.0/phone-numbers/:number/users
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST number : ", number);
+
+            let url: string = "/api/rainbow/search/v1.0/phone-numbers/" + number + "/users";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+//            addParamToUrl(urlParamsTab, "limit", limit);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(searchUserByPhonenumber) successfull");
+                that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchUserByPhonenumber) error");
+                that.logger.log("internalerror", LOG_ID, "(searchUserByPhonenumber) error : ", err);
+                return reject(err);
+            });
+        });    
+    }
+    
+    searchUsers(limit : number = 20, displayName? : string, search? : string, companyId? : string, excludeCompanyId? : string, offset? : number, sortField? : string, sortOrder : number = 1){
+        // API https://api.openrainbow.org/search/#api-users-SearchUsers
+        // GET /api/rainbow/search/v1.0/users
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(searchUsers) REST companyId : ", companyId);
+
+            let url: string = "/api/rainbow/search/v1.0/users";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "displayName", displayName);
+            addParamToUrl(urlParamsTab, "search", search);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "excludeCompanyId", excludeCompanyId);
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(searchUsers) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(searchUsers) successfull");
+                that.logger.log("internal", LOG_ID + "(searchUsers) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(searchUsers) error");
+                that.logger.log("internalerror", LOG_ID, "(searchUsers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Contacts API - Search portal
 
     async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
         let that = this;

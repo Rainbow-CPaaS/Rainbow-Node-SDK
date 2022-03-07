@@ -19,6 +19,7 @@ import {RESTService} from "../connection/RESTService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {GenericService} from "./GenericService";
+import {Message} from "../common/models/Message";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -646,19 +647,21 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send an Acknowledged reply to an urgent message (one to one, or bubble) <br>
-     * @param {String} message The message to acknoledge 
+     * @param {Message} message The message to acknoledge 
+     * @param {string} lang the lang used to acknowledged the message.
+     * @param {string} ackLabel the label used to acknowledged the message.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidAcknowledged(message) {
+    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged") {
         let that = this;
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message,undefined,"std").then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,undefined,"std").then((result) => {
                     that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
+                return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, "std").then((result) => {
                     that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             } // */
@@ -673,19 +676,21 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send an Ignored reply to an urgent message (one to one, or bubble) <br>
-     * @param {String} message The message to Ignored 
+     * @param {Message} message The message to Ignored
+     * @param {string} lang the lang used to ignore the message.
+     * @param {string} ignLabel the label used to ignore the message.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidIgnored(message) {
+    async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored") {
         let that = this;
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer("Ignored", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std").then((result) => {
                     that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer("Ignored", message.fromJid, 'EN', null, "Ignored", message, "std").then((result) => {
+                return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, "std").then((result) => {
                     that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             } // */
