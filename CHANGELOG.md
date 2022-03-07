@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ContactsService::searchInPhonebook` This API allows to search for resources matching given keywords.The search is done on name and phone number.
 -   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
 -   Add `ContactsService::searchUsers` This API allows to search users.
+-   Add `AdminService::deleteLdapConnectorConfig` This API can be used to delete a ldap connector config.
 
 ## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.
