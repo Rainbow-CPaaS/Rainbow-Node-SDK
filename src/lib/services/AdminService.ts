@@ -5803,7 +5803,7 @@ class AdminService extends GenericService {
      * @param {string} custom1 Custom field 1
      * @param {string} custom2 Custom field 2
      * @description
-     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
+     *      This API allows administrators to update an entry of the directory of a company they administrate.<br>
      * @return {Promise<any>}
      */
     updateDirectoryEntry  (entryId : string, 
