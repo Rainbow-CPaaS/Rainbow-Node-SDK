@@ -14,6 +14,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
 -   Add `ContactsService::searchUsers` This API allows to search users.
 -   Add `AdminService::deleteLdapConnectorConfig` This API can be used to delete a ldap connector config.
+-   Add `ContactsService::createPersonalDirectoryEntry` This API allows connected user to Create a personal directory entry. 
+-   Add `ContactsService::getListPersonalDirectoryEntriesData` This API allows connected users to get an entry of his personal directory. 
+-   Add `ContactsService::updatePersonalDirectoryEntry` This API allows the connected user to update an entry of his personnal directory. 
+-   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
+-   Fix logs when a restart of the SDK is done. 
 
 ## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.

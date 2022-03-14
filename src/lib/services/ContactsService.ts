@@ -1432,6 +1432,348 @@ class ContactsService extends GenericService {
     
     //endregion Contacts Search
     
+    //region Contacts Personnal Directory 
+
+    /**
+     * @public
+     * @method createPersonalDirectoryEntry
+     * @since 2.9.0
+     * @instance
+     * @async
+     * @category Contacts Personal Directory
+     * @param {string} firstName Contact first Name
+     * @param {string} lastName Contact last Name
+     * @param {string} companyName Company Name of the contact
+     * @param {string} department Contact address: Department
+     * @param {string} street Contact address: Street
+     * @param {string} city Contact address: City
+     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+     * @param {string} postalCode Contact address: postal code / ZIP
+     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {string} jobTitle Contact Job title
+     * @param {string} eMail Contact Email address
+     * @param {Array<string>} tags An Array of free tags <br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). <br>
+     * @param {string} custom1 Custom field 1
+     * @param {string} custom2 Custom field 2
+     * @description
+     *      This API allows connected user to Create a personal directory entry.  <br>
+     */
+    createPersonalDirectoryEntry (
+                           firstName : string,
+                           lastName : string,
+                           companyName : string,
+                           department : string,
+                           street : string,
+                           city : string,
+                           state : string,
+                           postalCode : string,
+                           country : string,
+                           workPhoneNumbers : string[],
+                           mobilePhoneNumbers : string[],
+                           otherPhoneNumbers : string[],
+                           jobTitle : string,
+                           eMail : string,
+                           tags : string[],
+                           custom1 : string,
+                           custom2 : string
+    ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._logger.log("info", LOG_ID + "(createPersonalDirectoryEntry) __ entering __ firstName :  ", firstName , ", lastName : ", lastName, ", companyName : ", companyName, ", department : ", department , ", street : ", street, " city : ", city, 
+                        ",  state : ", state, " postalCode : ", postalCode, ", country : ", country, ", workPhoneNumbers : ", workPhoneNumbers, ", mobilePhoneNumbers : ", mobilePhoneNumbers, ", otherPhoneNumbers : ", otherPhoneNumbers, ", jobTitle : ", jobTitle, ", eMail : ", eMail,
+                        ", tags : ", tags, ", custom1 : ", custom1, " custom2 : ", custom2);
+
+                that._rest.createDirectoryEntry ( undefined,
+                        firstName,
+                        lastName,
+                        companyName,
+                        department,
+                        street,
+                        city,
+                        state,
+                        postalCode,
+                        country,
+                        workPhoneNumbers,
+                        mobilePhoneNumbers,
+                        otherPhoneNumbers,
+                        jobTitle,
+                        eMail,
+                        tags,
+                        custom1,
+                        custom2).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createPersonalDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createPersonalDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createPersonalDirectoryEntry) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createPersonalDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+   
+    /**
+     * @public
+     * @method getListPersonalDirectoryEntriesData
+     * @since 2.9.0
+     * @instance
+     * @async
+     * @category Contacts Personnal Directory
+     * @param {string} name Allows to filter the list of directory entries of user type on the name provided in this option. <br>
+     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - on only firstname or lastname (ex: 'john' find 'John Doe')
+     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. <br>
+     * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
+     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+     * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)<br>
+     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Default value : user. Possible values : user, company
+     * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. <br>
+     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+     * - case insensitive (ex: 'john doe' find 'John Doe')
+     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+     * - on only companyName (ex: 'john' find 'John Doe')
+     * @param {string} phoneNumbers Allows to filter the list of directory entries on the number provided in this option. (users and companies type) <br>
+     *     Note the numbers must be in E164 format separated by a space and the character "+" replaced by "%2B". ex. "phoneNumbers=%2B33390676790 %2B33611223344"
+     * @param {Date} fromUpdateDate Allows to filter the list of directory entries from provided date (ISO 8601 format eg: '2019-04-11 16:06:47').
+     * @param {Date} toUpdateDate Allows to filter the list of directory entries until provided date (ISO 8601 format).
+     * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. <br>
+     *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). <br>
+     *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
+     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+     * - small: id, firstName, lastName  <br>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+     * - full: all fields. <br>
+     * default : small <br>
+     * Valid values : small, medium, full <br>
+     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort directory list based on the given field. Default value : lastName
+     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
+     * @description
+     *   This API allows connected users to get an entry of his personal directory.<br>
+     *   <br>
+     *   name, phoneNumbers, search and tags parameters are exclusives.
+     * @return {Promise<any>}
+     * <br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | Data objects |
+     * | id  | String | Directory entry identifier |
+     * | companyId optionnel | String | Id of the company |
+     * | userId optionnel | String | Id of the user |
+     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
+     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
+     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
+     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
+     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
+     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
+     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
+     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
+     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
+     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+     *
+     *
+     */
+    getListPersonalDirectoryEntriesData (
+                                 name : string,
+                                 search : string,
+                                 type : string,
+                                 companyName : string,
+                                 phoneNumbers : string,
+                                 fromUpdateDate : Date,
+                                 toUpdateDate : Date,
+                                 tags  : string,
+                                 format : string = "small",
+                                 limit : number = 100,
+                                 offset : number = 0,
+                                 sortField : string = "lastName",
+                                 sortOrder : number = 1,
+                                 view  : string = "all") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getListDirectoryEntriesData (undefined, undefined, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListPersonalDirectoryEntriesData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListPersonalDirectoryEntriesData) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListPersonalDirectoryEntriesData) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getListPersonalDirectoryEntriesData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updatePersonalDirectoryEntry
+     * @since 2.2.0
+     * @instance
+     * @async
+     * @category Contacts Personnal Directory
+     * @param {string} entryId Id of the entry.
+     * @param {string} firstName Contact first Name
+     * @param {string} lastName Contact last Name
+     * @param {string} companyName Company Name of the contact
+     * @param {string} department Contact address: Department
+     * @param {string} street Contact address: Street
+     * @param {string} city Contact address: City
+     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+     * @param {string} postalCode Contact address: postal code / ZIP
+     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {string} jobTitle Contact Job title
+     * @param {string} eMail Contact Email address
+     * @param {Array<string>} tags An Array of free tags <br>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
+     * @param {string} custom1 Custom field 1
+     * @param {string} custom2 Custom field 2
+     * @description
+     *      This API allows the connected user to update an entry of his personnal directory.<br>
+     * @return {Promise<any>}
+     */
+    updatePersonalDirectoryEntry  (entryId : string,
+                           firstName : string = undefined,
+                           lastName : string = undefined,
+                           companyName : string = undefined,
+                           department : string = undefined,
+                           street : string = undefined,
+                           city : string = undefined,
+                           state : string = undefined,
+                           postalCode : string = undefined,
+                           country : string = undefined,
+                           workPhoneNumbers : string[] = undefined,
+                           mobilePhoneNumbers : string[] = undefined,
+                           otherPhoneNumbers : string[] = undefined,
+                           jobTitle : string = undefined,
+                           eMail : string = undefined,
+                           tags : string[] = undefined,
+                           custom1 : string = undefined,
+                           custom2 : string = undefined) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    that._logger.log("warn", LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.updateDirectoryEntry(entryId,
+                        firstName,
+                        lastName,
+                        companyName,
+                        department,
+                        street,
+                        city,
+                        state,
+                        postalCode,
+                        country,
+                        workPhoneNumbers,
+                        mobilePhoneNumbers,
+                        otherPhoneNumbers,
+                        jobTitle,
+                        eMail,
+                        tags,
+                        custom1,
+                        custom2).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updatePersonalDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updatePersonalDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updatePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updatePersonalDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method deletePersonalDirectoryEntry
+     * @since 2.9.0
+     * @instance
+     * @async
+     * @category Contacts Personnal Directory
+     * @param {string} entryId Id of the entry.
+     * @description
+     *      This API allows connected user to delete an entry from his personal directory.<br>
+     * @return {Promise<any>}
+     */
+    deletePersonalDirectoryEntry (entryId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    that._logger.log("warn", LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteDirectoryEntry (entryId ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deletePersonalDirectoryEntry) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deletePersonalDirectoryEntry) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deletePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deletePersonalDirectoryEntry) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion Contacts Personnal Directory
+    
     //region Events
      
     /**

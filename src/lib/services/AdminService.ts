@@ -2147,12 +2147,17 @@ class AdminService extends GenericService {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
                 that._logger.log("debug", "(subscribeCompanyToDemoOffer) - Offers : ", Offers);
+                let found = false;
                 for (let offer of Offers) {
                     that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer : ", offer);
-                    if (offer.name === "Enterprise Demo") {
+                    if (offer.name === "Enterprise Demo" || offer.name === "Enterprise Custom" ) {
+                        found = true;
                         that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
-                        resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
+                        return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
+                }
+                if (!found) {
+                    return reject ({code : -1, label : "Subscription not found."})
                 }
             } catch (err) {
                 return reject(err);
@@ -2180,13 +2185,18 @@ class AdminService extends GenericService {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
+                let found = false
                 that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
                     that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer : ", offer);
-                    if (offer.name === "Enterprise Demo") {
+                    if (offer.name === "Enterprise Demo" || offer.name === "Enterprise Custom") {
                         that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
-                        resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
+                        found = true;
+                        return resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }
+                }
+                if (!found) {
+                    return reject ({code : -1, label : "un Subscription not found."})
                 }
             } catch (err) {
                 return reject(err);

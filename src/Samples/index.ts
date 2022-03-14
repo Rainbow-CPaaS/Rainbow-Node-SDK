@@ -3945,6 +3945,97 @@ let urlS2S;
     }
 
     //endregion Directory
+    
+    //region Personal Directory
+
+    async function testcreatePersonalDirectoryEntry() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. ");
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
+
+        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. utcEmail : ", utcEmail);
+
+        let companyId = connectedUser.companyId,
+                firstName = "testPersonalDirectory_firstname_" + utc,
+                lastName = "testPersonalDirectory_firstname_" + utc,
+                companyName = connectedUser.companyName,
+                department = "SBU",
+                street = "1 rte Albert Schweitzer",
+                city = "Illkirch",
+                state = null,
+                postalCode = "67115",
+                country: "France",
+                workPhoneNumbers = ["0011223344"],
+                mobilePhoneNumbers = [],
+                otherPhoneNumbers = [],
+                jobTitle = "Validation Engineer",
+                eMail = utcEmail + "_test@vbe.test.openrainbow.net",
+                tags = [],
+                custom1 = "",
+                custom2 = "";
+        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry( firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
+        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry - result : ", result);
+
+        // */
+        //});
+    }
+
+    async function testgetListPersonalDirectoryEntriesData() {
+        let result = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+        logger.log("debug", "MAIN - getListPersonalDirectoryEntriesData - result : ", result);
+    }
+    
+    async function testupdatePersonalDirectoryEntry() {
+        let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+        logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
+            let result = await rainbowSDK.contacts.updatePersonalDirectoryEntry(personalDirectoryList.data[0].id, personalDirectoryList.data[0].firstName + "_updated");
+            logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - updatePersonalDirectoryEntry result : ", result);
+            let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+        }
+    }
+
+    async function testdeletePersonalDirectoryEntry() {
+        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. ");
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
+
+        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. utcEmail : ", utcEmail);
+
+        let companyId = connectedUser.companyId,
+                firstName = "testPersonalDirectory_firstname_" + utc,
+                lastName = "testPersonalDirectory_firstname_" + utc,
+                companyName = connectedUser.companyName,
+                department = "SBU",
+                street = "1 rte Albert Schweitzer",
+                city = "Illkirch",
+                state = null,
+                postalCode = "67115",
+                country = "FRA",
+                workPhoneNumbers = ["0011223344"],
+                mobilePhoneNumbers = [],
+                otherPhoneNumbers = [],
+                jobTitle = "Validation Engineer",
+                eMail = utcEmail + "_test@vbe.test.openrainbow.net",
+                tags = [],
+                custom1 = "",
+                custom2 = "";
+        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry( firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
+        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - createPersonalDirectoryEntry result : ", result);
+
+        let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
+            let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
+            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
+            let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+        }
+    }
+    
+    //endregion Personal Directory
 
     //region ldap
 
@@ -4245,6 +4336,19 @@ let urlS2S;
     }
 
 // */
+
+    async function testStopAndStart() {
+        await rainbowSDK.stop();
+        let token = undefined;
+
+        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK stopped.");
+        await rainbowSDK.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        await rainbowSDK.stop();
+    }
+
 
     rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {

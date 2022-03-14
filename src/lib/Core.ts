@@ -610,6 +610,10 @@ class Core {
     start(token) {
         let that = this;
 
+        // Initialize the logger
+        let loggerModule = new Logger(that.options._options);
+        this.logger = loggerModule.log;
+        
         this.logger.log("debug", LOG_ID + "(start) _entering_");
         this.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 

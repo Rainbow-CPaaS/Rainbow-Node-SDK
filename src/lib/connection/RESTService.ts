@@ -9059,26 +9059,62 @@ Request Method: PUT
         // POST  https://openrainbow.com/api/rainbow/directory/v1.0/entries     
         let that = this;
         return new Promise(function (resolve, reject) {
-            let data = {
-                companyId,
-                firstName,
-                lastName,
-                companyName,
-                department,
-                street,
-                city,
-                state,
-                postalCode,
-                country,
-                workPhoneNumbers,
-                mobilePhoneNumbers,
-                otherPhoneNumbers,
-                jobTitle,
-                eMail,
-                tags,
-                custom1,
-                custom2
-            } ;
+            let data : any = {};
+
+            if (companyId) {
+                data.companyId = companyId;
+            }
+            if (firstName) {
+                data.firstName = firstName;
+            }
+            if (lastName) {
+                data.lastName = lastName;
+            }
+            if (companyName) {
+                data.companyName = companyName;
+            }
+            if (department) {
+                data.department = department;
+            }
+            if (street) {
+                data.street = street;
+            }
+            if (city) {
+                data.city = city;
+            }
+            if (state) {
+                data.state = state;
+            }
+            if (postalCode) {
+                data.postalCode = postalCode;
+            }
+            if (country) {
+                data.country = country;
+            }
+            if (workPhoneNumbers) {
+                data.workPhoneNumbers = workPhoneNumbers;
+            }
+            if (mobilePhoneNumbers) {
+                data.mobilePhoneNumbers = mobilePhoneNumbers;
+            }
+            if (otherPhoneNumbers) {
+                data.otherPhoneNumbers = otherPhoneNumbers;
+            }
+            if (jobTitle) {
+                data.jobTitle = jobTitle;
+            }
+            if (eMail) {
+                data.eMail = eMail;
+            }
+            if (tags) {
+                data.tags = tags;
+            }
+            if (custom1) {
+                data.custom1 = custom1;
+            }
+            if (custom2) {
+                data.custom2 = custom2;
+            }
             that.logger.log("internal", LOG_ID + "(createDirectoryEntry) args : ", data );
             that.http.post("/api/rainbow/directory/v1.0/entries", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createDirectoryEntry) successfull");
@@ -9230,26 +9266,60 @@ Request Method: PUT
                          custom2: string) {
         // PUT https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId
         let that = this;
-        let data = {
-            firstName,
-            lastName,
-            companyName,
-            department,
-            street,
-            city,
-            state,
-            postalCode,
-            country,
-            workPhoneNumbers,
-            mobilePhoneNumbers,
-            otherPhoneNumbers,
-            jobTitle,
-            eMail,
-            tags,
-            custom1,
-            custom2
-        };
-
+        let data : any = {};
+        
+        if (firstName) {
+            data.firstName = firstName;
+        }
+        if (lastName) {
+            data.lastName = lastName;
+        }
+        if (companyName) {
+            data.companyName = companyName;
+        }
+        if (department) {
+            data.department = department;
+        }
+        if (street) {
+            data.street = street;
+        }
+        if (city) {
+            data.city = city;
+        }
+        if (state) {
+            data.state = state;
+        }
+        if (postalCode) {
+            data.postalCode = postalCode;
+        }
+        if (country) {
+            data.country = country;
+        }
+        if (workPhoneNumbers) {
+            data.workPhoneNumbers = workPhoneNumbers;
+        }
+        if (mobilePhoneNumbers) {
+            data.mobilePhoneNumbers = mobilePhoneNumbers;
+        }
+        if (otherPhoneNumbers) {
+            data.otherPhoneNumbers = otherPhoneNumbers;
+        }
+        if (jobTitle) {
+            data.jobTitle = jobTitle;
+        }
+        if (eMail) {
+            data.eMail = eMail;
+        }
+        if (tags) {
+            data.tags = tags;
+        }
+        if (custom1) {
+            data.custom1 = custom1;
+        }
+        if (custom2) {
+            data.custom2 = custom2;
+        }
+        
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
 
