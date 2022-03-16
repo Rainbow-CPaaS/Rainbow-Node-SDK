@@ -947,5 +947,8 @@ class NodeSDK {
 
 }
 
+module.exports = NodeSDK;
 module.exports.NodeSDK = NodeSDK;
+module.exports.default = NodeSDK;
+export default NodeSDK;
 export { NodeSDK as NodeSDK}; //, OptionsType};
