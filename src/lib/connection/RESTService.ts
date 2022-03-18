@@ -1298,6 +1298,81 @@ class RESTService extends GenericRESTService {
         });
     };
 
+    getInvitationsSent(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getInvitationsSent) successfull");
+                that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getInvitationsSent) error");
+                that.logger.log("internalerror", LOG_ID, "(getInvitationsSent) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getAllReceivedInvitations() {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+    
+    getInvitationsReceived(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getInvitationsReceived) successfull");
+                that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getInvitationsReceived) error");
+                that.logger.log("internalerror", LOG_ID, "(getInvitationsReceived) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
     getServerInvitation(invitationId) {
         let that = this;
         return new Promise((resolve, reject) => {
@@ -1313,10 +1388,26 @@ class RESTService extends GenericRESTService {
         });
     };
 
-    sendInvitationByEmail(email, lang, customMessage) {
+    sendInvitationByCriteria(email : string, lang : string, customMessage : string, invitedPhoneNumber : string, invitedUserId : string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            let params = {email: email, lang: lang, customMessage: customMessage};
+            let params : any = {};
+            if (email) {
+                params.email = email;
+            } 
+            if (lang) {
+                params.lang = lang;
+            } 
+            if (customMessage) {
+                params.customMessage = customMessage;
+            } 
+            if (invitedPhoneNumber) {
+                params.invitedPhoneNumber = invitedPhoneNumber;
+            } 
+            if (invitedUserId) {
+                params.invitedUserId = invitedUserId;
+            } 
+
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendInvitationByEmail) successfull");
                 that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST result : ", json);
@@ -1372,21 +1463,6 @@ class RESTService extends GenericRESTService {
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
                 that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getAllReceivedInvitations() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
                 return reject(err);
             });
         });

@@ -19,7 +19,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ContactsService::updatePersonalDirectoryEntry` This API allows the connected user to update an entry of his personnal directory. 
 -   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
 -   Fix logs when a restart of the SDK is done.
--   Fix default typescript export. 
+-   Fix default typescript export.
+-   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` and fix documentation.  
+-   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
+-   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
+-   Add `InvitationsService::searchInvitationsSentFromServer` This API is to retrieve the invites sent to others Rainbow users from server.
 
 ## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.

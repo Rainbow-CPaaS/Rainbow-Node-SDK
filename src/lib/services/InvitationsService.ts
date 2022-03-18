@@ -461,6 +461,38 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @since 2.9.0
+	 * @method searchInvitationsReceivedFromServer
+	 * @instance
+	 * @category Invitations RECEIVED
+	 * @param {string} sortField Sort items list based on the given field. Valeur par défaut : lastNotificationDate.
+	 * @param {string} status List all invitations having the provided status(es). Valeurs autorisées : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	 * @param {string} format Allows to retrieve more or less invitation details in response. Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
+	 * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 500
+	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	 * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+	 * @description
+	 *    retrieve the invites received from others Rainbow users from server.<br>
+	 * @return {any} The list of invite received
+	 */
+	searchInvitationsReceivedFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			return that._rest.getInvitationsReceived(sortField, status, format, limit, offset, sortOrder).then(
+					function success(response: any) {
+						that._logger.log("info", LOG_ID + "(searchInvitationsReceivedFromServer) success (found " + response.data.length + " invitations)");
+						resolve(response);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(searchInvitationsReceivedFromServer) error ");
+						that._logger.log("internalerror", LOG_ID + "(searchInvitationsReceivedFromServer) error : ", err);
+						reject(err);
+					});
+		});
+	}
+	
+	/**
+	 * @public
 	 * @since 1.65
 	 * @method 	getAcceptedInvitations
 	 * @instance
@@ -715,29 +747,137 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @since 2.9.0
+	 * @method searchInvitationsSentFromServer
+	 * @instance
+	 * @category Invitations SENT
+	 * @param {string} sortField Sort items list based on the given field. Valeur par défaut : lastNotificationDate
+	 * @param {string} status List all invitations having the provided status(es). Valeurs autorisées : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	 * @param {string} format Allows to retrieve more or less invitation details in response. Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
+	 * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 500
+	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	 * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+	 * @description
+	 *    retrieve the invites sent to others Rainbow users from server.<br>
+	 * @return {any} The list of invite sent
+	 */
+	searchInvitationsSentFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			return that._rest.getInvitationsSent(sortField, status, format, limit, offset, sortOrder).then(
+					function success(response: any) {
+						that._logger.log("info", LOG_ID + "(searchInvitationsSentFromServer) success (found " + response.data.length + " invitations)");
+						resolve(response);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(searchInvitationsSentFromServer) error ");
+						that._logger.log("internalerror", LOG_ID + "(searchInvitationsSentFromServer) error : ", err);
+						reject(err);
+					});
+		});
+	}
+	
+	/**
+	 * @public
 	 * @since 1.65
 	 * @method sendInvitationByEmail
 	 * @instance
 	 * @category Invitations SENT
 	 * @async
 	 * @description
-	 *    Send an invitation email as UCaaS <br>
-	 * @param {string} email The email
-	 * @param {string} [customMessage] The email text (optional)
+	 *    This API allows logged in user to invite another user by email. <br>
+	 *    At the end of the process, if invited user accepts the invitation, invited user and inviting user will be searchable mutually and will be in each other rosters.  <br>
+	 * @param {string} email The email.
+	 * @param {string} lang The lang of the message.
+	 * @param {string} customMessage The email text (optional).
 	 * @return {Object} A promise that contains the contact added or an object describing an error
 	 */
-	async sendInvitationByEmail(email, lang, customMessage) {
+	async sendInvitationByEmail(email : string, lang : string, customMessage : string) {
+		let that = this;
+		return that.sendInvitationByCriteria(email, null,null, lang, customMessage );
+	};
+
+	/**
+	 * @public
+	 * @since 2.9.0
+	 * @method sendInvitationByCriteria
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @description
+	 *    This API allows logged in user to invite another user by criteria. <br>
+	 *    At the end of the process, if invited user accepts the invitation, invited user and inviting user will be searchable mutually and will be in each other rosters.  <br>
+	 *    
+	 *
+	 * **Notes**:
+	 *
+	 * * One of email, invitedPhoneNumber or invitedUserId is mandatory.
+	 * * It's not possible to invite users having only the role `guest`. (CPAAS user)
+	 * * Users with visibility `isolated` or being in a company with visibility `isolated` are not allowed to invite external users.
+	 * * Users with visibility `isolated` or being in a company with visibility `isolated` are not allowed to be invited by external users.  
+	 *    From **1.53.0**, a user can be embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.  
+	 *    It is not a user with the role `guest`.  
+	 *    This user gets the role `user` and the flag `guestMode` is set to true, waiting for the user finalizes his account. Besides, his `visibility` is 'none'.  
+	 *    We can't invite this kind of user to join the logged in network. (HTTP error 403509)  
+	 *      
+	 *    Here are some details about this API and user invitation features.  
+	 *    Users can be invited:
+	 *
+	 * * by `email`:
+	 *    * If the provided email corresponds to the loginEmail of a Rainbow user, a visibility request is sent (if this Rainbow user is not in logged in user roster).
+	 *        * An InviteUser entry is stored in database (with a generated invitationId).
+	 *        * The invited user receive an email with a validation link (containing the invitationId).
+	 *        * The invited user is notified with an XMPP message (containing the invitationId).
+	 *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite action="create" id='57cd5922d341df5812bbcb72' type='received' status='pending' xmlns='jabber:iq:configuration'/>  </message> 	  	 
+	 *        * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device).
+	 *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite action="create" id='57cd5922d341df5812bbcb72' type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	 *        * The list of all visibility requests received by the logged in user (invited user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetReceivedInvites)
+	 *        * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	 *        * The inviting user can re-send a visibility request notification (only by email) using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite)
+	 *        * To accept the visibility request (invited user side), client has to call API [POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/accept](#api-enduser_invitations-enduser_users_AcceptInvites)  
+	 *            Once accepted, invited and inviting user will be in each other roster and will be mutually visible (search API, GET users, GET users/:userId, ...)
+	 *        * To decline the visibility request (invited user side), client has to call API [POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/decline](#api-enduser_invitations-enduser_users_DeclineInvites)
+	 *    * If the provided email is not known in Rainbow, an invitation is sent to this email to invite the person to create a Rainbow account
+	 *        * An InviteUser entry is stored in database (with a generated invitationId).
+	 *        * The invited user receive an email with a creation link (containing the invitationId).
+	 *        * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device). 	 
+	 *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite id='57cd5922d341df5812bbcb72' action="create" type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	 *        * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	 *        * The inviting user can re-send a visibility request notification (only by email) using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite)
+	 *        * To create his Rainbow account, the invited user has to use API "Self register a user" ([POST /api/rainbow/enduser/v1.0/users/self-register](#api-enduser_users-enduser_SelfRegisterUsers))
+	 * * by phoneNumber (`invitedPhoneNumber`):
+	 *    * No match is done on potential existing Rainbow users.
+	 *    * An InviteUser entry is stored in database (with a generated invitationId).
+	 *    * No email is sent to invited user. It is **up to clients calling this API to send an SMS to the invited user's phone** (with the invitationId).
+	 *    * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device).
+	 *        <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite id='57cd5922d341df5812bbcb72' action="create" type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	 *    * If the invitedPhoneNumber correspond to a user already existing in Rainbow, he **will not** be able to see the request using the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetReceivedInvites), as no match is done between the invitedPhoneNumber and a potential user existing in Rainbow
+	 *    * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	 *    * The inviting user can re-send a visibility request notification done by phoneNumber using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite), however it is still **up to client to send an SMS to the invited user's phone** (the API only updates the field lastNotificationDate). If needed, it is **up to clients to re-send the SMS to the invited user's phone**.
+	 *    * To create his Rainbow account, the invited user has to use API "Self register a user" using the associated invitationId ([POST /api/rainbow/enduser/v1.0/users/self-register](#api-enduser_users-enduser_SelfRegisterUsers))
+	 * * by Rainbow user id (`invitedUserId`):
+	 *    * if no user is found with the provided invitedUserId, an error 404 is returned
+	 *    * otherwise, a visibility request is sent (if this Rainbow user is not in logged in user roster).  
+	 *        Same documentation than existing user invited by email apply (see above).
+	 * @param {string} email The email.
+	 * @param {string} invitedPhoneNumber Invited phone number.
+	 * @param {string} invitedUserId Invited Rainbow user unique ID
+	 * @param {string} lang The lang of the message.
+	 * @param {string} customMessage The email text (optional).
+	 * @return {Object} A promise that contains the contact added or an object describing an error
+	 */
+	async sendInvitationByCriteria(email: string, invitedPhoneNumber : string, invitedUserId : string, lang : string, customMessage : string) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that._logger.log("info", LOG_ID + "sendInvitationByEmail");
-			return that._rest.sendInvitationByEmail(email, lang, customMessage ).then(
+			that._logger.log("info", LOG_ID + "(sendInvitationByCriteria)");
+			return that._rest.sendInvitationByCriteria(email, lang, customMessage, invitedPhoneNumber, invitedUserId ).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationByEmail - success");
+						that._logger.log("info", LOG_ID + "(sendInvitationByCriteria) - success");
 						resolve(data);
 					},
 					function failure(err) {
-						that._logger.log("error", LOG_ID + "(joinContactInvitation) error ");
-						that._logger.log("internalerror", LOG_ID + "(joinContactInvitation) error : ", err);
+						that._logger.log("error", LOG_ID + "(sendInvitationByCriteria) error ");
+						that._logger.log("internalerror", LOG_ID + "(sendInvitationByCriteria) error : ", err);
 						reject(err);
 					});
 		});
@@ -803,7 +943,7 @@ class InvitationsService extends GenericService {
 	/**
 	 * @public
 	 * @since 1.65
-	 * @method sendInvitationByEmail
+	 * @method sendInvitationsByBulk
 	 * @instance
 	 * @category Invitations SENT
 	 * @async
@@ -813,27 +953,31 @@ class InvitationsService extends GenericService {
 	 * @param {Array} listOfMails The list of emails
 	 * @return {Object} A promise that the invite result or an object describing an error
 	 */
-	async sendInvitationsParBulk(listOfMails) {
+	async sendInvitationsByBulk(listOfMails) {
 		let that = this;
 
 		if (!listOfMails.length || listOfMails.length > 100) {
-			that._logger.log("error", LOG_ID + "[InvitationService] sendInvitationsParBulk mail list length not correct");
+			that._logger.log("error", LOG_ID + "(sendInvitationsByBulk) mail list length not correct");
 			return Promise.reject();
 		}
 
 		return new Promise(function (resolve, reject) {
 			that._rest.sendInvitationsParBulk(listOfMails).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "[InvitationService] sendInvitationsParBulk - success");
+						that._logger.log("info", LOG_ID + "(sendInvitationsByBulk) - success");
 						resolve(data);
 					},
 					function failure(err) {
-						that._logger.log("error", LOG_ID + "(reSendInvitation) error ");
-						that._logger.log("internalerror", LOG_ID + "(reSendInvitation) error : ", err);
+						that._logger.log("error", LOG_ID + "(sendInvitationsByBulk) error ");
+						that._logger.log("internalerror", LOG_ID + "(sendInvitationsByBulk) error : ", err);
 						reject(err);
 					});
 		});
 	};
+	
+	async sendInvitationsParBulk(listOfMails) {
+		return this.sendInvitationsByBulk(listOfMails);
+	}
 
 	//endregion Invitations SENT
 
