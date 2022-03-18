@@ -483,9 +483,8 @@ class XMPPService extends GenericService {
         that.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {
             that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
-
-            let forceMonitoring = true;
-            if (that.company && (that.company.isMonitorable == true || forceMonitoring)) {
+            
+            if (that.company && (that.company.isMonitorable == true )) {
                 // send monitoring iq.
                 /* 
                 <iq xmlns="jabber:client" from="romeo@montague.example/garden" id="123456" type="set" >
