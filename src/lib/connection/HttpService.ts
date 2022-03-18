@@ -3,6 +3,7 @@
 //let unirest = require("unirest");
 import {logEntryExit} from "../common/Utils";
 import {HttpManager, RequestForQueue} from "./HttpManager";
+import * as util from "util";
 
 
 require('http').globalAgent.maxSockets = 999;
@@ -567,7 +568,14 @@ safeJsonParse(str) {
                                 that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
                                 that.logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                let errorDetails = bodyjs.errorDetails;
+                                if (errorDetails) {
+                                    if (typeof errorDetails === "object"){
+                                        // errorDetails = JSON.stringify(errorDetails);
+                                        errorDetails = util.inspect(errorDetails, false, 4, true);
+                                    }
+                                }
+                                let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
 
                                 that.tokenExpirationControl(bodyjs);

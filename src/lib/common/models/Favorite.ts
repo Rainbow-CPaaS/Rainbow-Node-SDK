@@ -20,8 +20,20 @@ class Favorite {
     public conv: any;
 
     constructor(id: string, peerId: string, type: string) {
+        /**
+         * id of the Favorite 
+         * @type {string}
+         */
         this.id = id;
+        /**
+         * the peerId of the favorite
+         * @type {string}
+         */
         this.peerId = peerId;
+        /**
+         * The type of the favorite
+         * @type {string}
+         */
         this.type = type;
     }
 }

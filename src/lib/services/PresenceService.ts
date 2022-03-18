@@ -13,6 +13,8 @@ import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
 import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
 import {GenericService} from "./GenericService";
+import {interval} from "rxjs";
+import {Bubble} from "../common/models/Bubble";
 
 export {};
 
@@ -26,10 +28,10 @@ const LOG_ID = "PRES/SVCE - ";
  * @version SDKVERSION
  * @public
  * @description
- *      This module manages the presence of the connected user. <br/>
+ *      This module manages the presence of the connected user. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Change the connected user presence <br/>
+ *      - Change the connected user presence <br>
  */
 class PresenceService extends GenericService{
     private _settings: SettingsService;
@@ -135,15 +137,19 @@ class PresenceService extends GenericService{
         that.setInitialized();
     }
 
+    //region Presence CONNECTED USER
+
     /**
      * @private
      * @method sendInitialPresence
      * @instance
+     * @async
+     * @category Presence CONNECTED USER
      * @description
-     *  Send the initial presence (online) <br/>
-     * @return {ErrorManager.Ok} A promise containing the result
+     *  Send the initial presence (online) <br>
+     * @return {Promise<ErrorManager.Ok>} A promise containing the result
      */
-    sendInitialPresence() {
+    async sendInitialPresence() {
 
         let that = this;
         return new Promise((resolve) => {
@@ -164,16 +170,17 @@ class PresenceService extends GenericService{
      * @public
      * @method setPresenceTo
      * @instance
-     * @description
-     *    Allow to change the presence of the connected user <br/>
-     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br/>
-     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
      * @async
-     * @return {Promise<ErrorManager>}
+     * @category Presence CONNECTED USER
+     * @description
+     *    Allow to change the presence of the connected user <br>
+     *    Only the following values are authorized: 'dnd', 'away', 'invisible' or 'online' <br>
+     * @param {String} presence The presence value to set i.e: 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+     * @return {Promise<any, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-     * @category async
+     
      */
-    setPresenceTo(presence) {
+    async setPresenceTo(presence) {
         let that = this;
         let presenceRainbow = new PresenceRainbow(presence);
        // let show = "online";
@@ -224,27 +231,29 @@ class PresenceService extends GenericService{
             await that._settings.updateUserSettings({presence: presenceRainbow.presenceLevel});
         });
     }
-
+    
     /**
      * @public
      * @method getUserConnectedPresence
      * @instance
+     * @category Presence CONNECTED USER
      * @description
-     *      Get user presence status calculated from events. <br/>
+     *      Get user presence status calculated from events. <br>
      */
     getUserConnectedPresence() : PresenceRainbow {
         return this._currentPresence ;
     }
-
+   
      /**
      * @private
      * @method _setUserPresenceStatus
      * @instance
+     * @async
+     * @category Presence CONNECTED USER
      * @description
-     *      Send user presence status and message to xmpp. <br/>
+     *      Send user presence status and message to xmpp. <br>
      */
-    //_setUserPresenceStatus( status, message?) {
-    _setUserPresenceStatus( presenceRainbow : PresenceRainbow) {
+    async _setUserPresenceStatus( presenceRainbow : PresenceRainbow) {
          let that = this;
          return new Promise(async (resolve, reject) => {
 
@@ -276,92 +285,6 @@ class PresenceService extends GenericService{
                      resolve(undefined);
                  })
              }
-
-             /*if (that._useXMPP) {
-                 if (status === "online") {
-                     that.manualState = false;
-                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve(undefined);
-                     });
-                     that._xmpp.setPresence(null, status);
-                 } else {
-                     that.manualState = true;
-                     if (status === "away") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         that._xmpp.setPresence("away", message);
-                     } else if (status === "dnd") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         that._xmpp.setPresence("dnd", message);
-                     } else if (status === "xa") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         that._xmpp.setPresence("xa", message);
-                     } else {
-                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                         return reject(error);
-                     }
-                 }
-             }
-             if (that._useS2S) {
-                 if (status === "online") {
-                     that.manualState = false;
-                     that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                         that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                         that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                         that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                         resolve(undefined);
-                     });
-                     await that._s2s.sendS2SPresence({"show" : null, "status" : status});
-                 } else {
-                     that.manualState = true;
-                     if (status === "away") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         await that._s2s.sendS2SPresence({"show" : "away", "status" : message});
-                     } else if (status === "dnd") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         await that._s2s.sendS2SPresence({"show" : "dnd", "status" : message});
-                     } else if (status === "xa") {
-                         that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                             that._logger.log("info", LOG_ID + "(_setUserPresenceStatus) received.");
-                             that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
-                             that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
-                             resolve(ErrorManager.getErrorManager().OK);
-                         });
-                         await that._s2s.sendS2SPresence({"show" : "xa", "status" : message});
-                     } else {
-                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                         return reject(error);
-                     }
-                 }
-                 //resolve (that._s2s.sendS2SPresence( { show:"", status: ""} ));
-             } // */
          });
      }
 
@@ -369,10 +292,12 @@ class PresenceService extends GenericService{
      * @private
      * @method _sendPresenceFromConfiguration
      * @instance
+     * @async
+     * @category Presence CONNECTED USER
      * @description
-     *      Send user presence according to user settings presence. <br/>
+     *      Send user presence according to user settings presence. <br>
      */
-    _sendPresenceFromConfiguration() {
+    async _sendPresenceFromConfiguration() {
         let that = this;
         return new Promise( (resolve, reject) => {
             let presenceRainbow : PresenceRainbow = new PresenceRainbow();
@@ -404,23 +329,59 @@ class PresenceService extends GenericService{
         });
     }
 
+    //endregion Presence CONNECTED USER
+
+    //region Presence Bubbles
+
     /**
      * @private
      * @method sendInitialBubblePresence
      * @instance
+     * @async
+     * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
+     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
      * @description
-     *      Method called when receiving an invitation to join a bubble <br/>
+     *      Method called when receiving an invitation to join a bubble <br>
      */
-    sendInitialBubblePresence(bubble) {
+    async sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay);
+            if (initialPresenceSent) {
+                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent initialized.");
+                resolve (initialPresenceSent);
+            } else {
+                let err = {
+                    label : "no initial bubble presence promise."
+                };
+                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent is undefined, err : ", err);
+                reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @private
+     * @method sendInitialBubblePresence
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {Bubble} bubble The Bubble
+     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    async sendInitialBubblePresence(bubble : Bubble,  attempt : number = 0) {
         let that = this;
         return new Promise(async function(resolve, reject) {
             if (!bubble || !bubble.jid) {
                 that._logger.log("debug", LOG_ID + "(sendInitialBubblePresence) failed");
-                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) No roomid provided");
-                reject({code:-1, label:"roomid is not defined!!!"});
-            }
-            else {
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
+                reject({code:-1, label:"Bubble id is not defined!!!"});
+            } else {
+                const attemptInfo = attempt ? " -- attempt " + attempt : "";
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
                 if (that._useXMPP) {
                     let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
                     that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble);
@@ -443,10 +404,77 @@ class PresenceService extends GenericService{
 
     /**
      * @private
+     * @method sendInitialBubblePresenceSync
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {Bubble} bubble The Bubble
+     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+        let that = this;
+        if (!bubble) {
+            that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter.");
+            //that._logger.log("internalerror", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        that._logger.log("info", LOG_ID + "(sendInitialBubblePresenceSync) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
+        if (bubble.initialPresence.initPresencePromise) {
+            return bubble.initialPresence.initPresencePromise;
+        }
+        if (bubble.initialPresence.initPresenceAck) {
+            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSync) -- ${bubble.getNameForLogs} -- ${bubble.id} -- bubble already activated`);
+            return Promise.resolve();
+        }
+//                    bubble.initialPresence.initPresencePromise()
+        bubble.initialPresence.initPresencePromise = new Promise((resolve, reject) => {
+            bubble.initialPresence.initPresencePromiseResolve = resolve;
+            //that.sendInitialRoomPresence(bubble, 0);
+            that.sendInitialBubblePresence(bubble);
+
+            // Retry mechanism
+            const maxAttemptNumber = 3;
+            let attemptNumber = 0;
+
+            bubble.initialPresence.initPresenceInterval = interval(intervalDelay).subscribe(() => {
+                if (attemptNumber < maxAttemptNumber) {
+                    // up to <maxAttemptNumber> retries
+                    attemptNumber += 1;
+                    that.sendInitialBubblePresence(bubble, attemptNumber);
+                } else {
+                    // if no response after <maxAttemptNumber> retries, we clean the presence promise in the bubble 
+                    // (to make it possible for further trials to re-establish presence state and chat history access)
+                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
+                    reject("(sendInitialBubblePresenceSync) : no response");
+                    bubble.initialPresence.initPresencePromise = null;
+                    if (bubble.initialPresence.initPresenceInterval) {
+                        bubble.initialPresence.initPresenceInterval.unsubscribe();
+                        bubble.initialPresence.initPresenceInterval = null;
+                    }
+
+                    //refresh the bubble from the local bubble cache
+                    //bubble = this.bubbles[bubble.dbId];
+                    //should sent an update, so that the conversation is updated and we can sent chat messages inside
+                    //that.eventService.publish(this.ROOM_UPDATE_EVENT, bubble);
+                    that._eventEmitter.emit("evt_internal_bubblepresencesent", bubble);
+                }
+            });
+        });
+        return bubble.initialPresence.initPresencePromise;
+    }
+
+    //endregion Presence Bubbles
+
+    //region Events
+    
+    /**
+     * @private
      * @method _onUserSettingsChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user settings <br/>
+     *      Method called when receiving an update on user settings <br>
      */
     _onUserSettingsChanged() {
         let that = this;
@@ -458,7 +486,7 @@ class PresenceService extends GenericService{
      * @method _onPresenceChanged
      * @instance
      * @description
-     *      Method called when receiving an update on user presence <br/>
+     *      Method called when receiving an update on user presence <br>
      */
     _onMyPresenceChanged(user) {
         let that = this;
@@ -471,23 +499,26 @@ class PresenceService extends GenericService{
 
         //}
     }
+    
+    //endregion Events
 
-    //region calendar
+    //region Presence CALENDAR
 
     /**
      * @public
      * @method getCalendarState
      * @instance
+     * @category Presence CALENDAR
      * @description
-     *    Allow to get the calendar presence of the connected user <br/>
-     *    return promise with {  <br/>
-     *    busy: boolean, // Does the connected user is busy ? <br/>
-     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
-     *    subject: string, // The meeting subject. <br/>
-     *    since: string, // The meeting since date. <br/>
-     *    until: string // Date until the current presence is valid <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    Allow to get the calendar presence of the connected user <br>
+     *    return promise with {  <br>
+     *    busy: boolean, // Does the connected user is busy ? <br>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br> 
+     *    subject: string, // The meeting subject. <br>
+     *    since: string, // The meeting since date. <br>
+     *    until: string // Date until the current presence is valid <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise<{  
      *    busy: boolean, 
@@ -497,9 +528,9 @@ class PresenceService extends GenericService{
      *    until: string  
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     
      */
-    getCalendarState() {
+    async getCalendarState() {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -524,18 +555,19 @@ class PresenceService extends GenericService{
      * @public
      * @method getCalendarStates
      * @instance
+     * @category Presence CALENDAR
      * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
      * @description
-     *    Allow to get the calendar presence of severals users <br/>
+     *    Allow to get the calendar presence of severals users <br>
      *    return promise with {  
-     *    usersIdentifier : { // List of calendar user states. <br/>
-     *    busy: boolean, // Does the connected user is busy ? <br/>
-     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br/> 
-     *    subject: string, // The meeting subject. <br/>
-     *    since: string, // The meeting since date. <br/>
-     *    until: string // Date until the current presence is valid <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    usersIdentifier : { // List of calendar user states. <br>
+     *    busy: boolean, // Does the connected user is busy ? <br>
+     *    status: string, // The status of the connected user (one of "free", "busy" or "out_of_office") <br> 
+     *    subject: string, // The meeting subject. <br>
+     *    since: string, // The meeting since date. <br>
+     *    until: string // Date until the current presence is valid <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *    busy: boolean, 
@@ -544,10 +576,9 @@ class PresenceService extends GenericService{
      *    since: string,
      *    until: string 
      *    }, ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.     
      */
-    getCalendarStates(users : Array<string> = [undefined]) {
+    async getCalendarStates(users : Array<string> = [undefined]) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -571,22 +602,23 @@ class PresenceService extends GenericService{
      * @public
      * @method setCalendarRegister
      * @instance
+     * @category Presence CALENDAR
      * @param {string} type Calendar type. Default : office365, Authorized values : office365, google
      * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page. Default : false.
      * @param {string} callback Redirect URL to the requesting client.
      * @description
-     *    Register a new calendar.<br/>
+     *    Register a new calendar.<br>
      *    return promise with {  
-     *    "url" : string // Calendar provider's OAuth URL <br/>
-     *    } <br/>
+     *    "url" : string // Calendar provider's OAuth URL <br>
+     *    } <br>
      * @async
      * @return {Promise<{  
      *    "url" : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     
      */
-    setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
+    async setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -610,17 +642,18 @@ class PresenceService extends GenericService{
      * @public
      * @method getCalendarAutomaticReplyStatus
      * @instance
+     * @category Presence CALENDAR
      * @param {string} userId The id of user to retrieve the calendar automatic reply status.
      * @description
-     *    Allow to retrieve the calendar automatic reply status <br/>
-     *    return promise with { <br/>
-     *    enabled : string, // 	its status <br/>
-     *    start : string, // its start date <br/>
-     *    end : string, // its end date <br/>
-     *    message_text : string, // its message as plain text <br/>
-     *    message_thtml : string // its message as html <br/> 
-     *    }  <br/>
-     *    <br/>
+     *    Allow to retrieve the calendar automatic reply status <br>
+     *    return promise with { <br>
+     *    enabled : string, // 	its status <br>
+     *    start : string, // its start date <br>
+     *    end : string, // its end date <br>
+     *    message_text : string, // its message as plain text <br>
+     *    message_thtml : string // its message as html <br> 
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise<{ 
      *    enabled : string,
@@ -630,9 +663,9 @@ class PresenceService extends GenericService{
      *    message_thtml : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     
      */
-    getCalendarAutomaticReplyStatus(userId? : string ) {
+    async getCalendarAutomaticReplyStatus(userId? : string ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -656,20 +689,21 @@ class PresenceService extends GenericService{
      * @public
      * @method enableCalendar
      * @instance
+     * @category Presence CALENDAR
      * @description
-     *    Allow to enable the calendar. <br/>
-     *    return promise with { <br/>
-     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-     *    }  <br/>
-     *    <br/>
+     *    Allow to enable the calendar. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     
      */
-    enableCalendar( ) {
+    async enableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -693,20 +727,21 @@ class PresenceService extends GenericService{
      * @public
      * @method disableCalendar
      * @instance
+     * @category Presence CALENDAR
      * @description
-     *    Allow to disable the calendar. <br/>
-     *    return promise with { <br/>
-     *       Status : string // Operation status ("enabled" or "disabled") <br/>
-     *    }  <br/>
-     *    <br/>
+     *    Allow to disable the calendar. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
      * @async
      * @return {Promise< { 
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     * @category async
+     
      */
-    disableCalendar( ) {
+    async disableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -726,7 +761,7 @@ class PresenceService extends GenericService{
         });
     }
     
-    // endregion
+    // endregion Presence CALENDAR
 }
 
 module.exports.PresenceService = PresenceService;

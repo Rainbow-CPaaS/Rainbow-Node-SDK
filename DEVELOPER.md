@@ -20,6 +20,23 @@ $ npm update
 
 ```
 
+To discover new releases of the packages, you run
+
+```bash
+
+$ npm outdated
+
+```
+
+To upgrades your package.json dependencies to the latest versions, ignoring specified versions.
+
+```bash
+
+$ npm install -g npm-check-updates
+$ ncu
+
+```
+
 ## Development
 ---
 

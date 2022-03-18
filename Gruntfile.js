@@ -10,6 +10,16 @@ module.exports = function(grunt) {
 
     jsdoc2md: {
       separateOutputFiles: {
+          options: {
+              //"template": "./jsdoc/Template/body.hbs",
+              "no-gfm": false,
+              "no-cache": true,
+              "separators": true,
+              "param-list-format": "table", // "table" (default) or "list"
+              "example-lang": "js",
+              // "plugin": ["jsdoc-mermaid"],
+              "partial": "jsdoc/Template/body.hbs"
+          },
         files: [
             { src: "lib/common/Events.js", dest: "build/events.md" },
             { src: "lib/services/AdminService.js", dest: "build/admin.md" },
@@ -25,8 +35,11 @@ module.exports = function(grunt) {
             { src: "lib/services/ImsService.js", dest: "build/im.md" },
             { src: "lib/services/InvitationsService.js", dest: "build/invitations.md" },
             { src: "lib/services/PresenceService.js", dest: "build/presence.md" },
+            { src: "lib/services/ProfilesService.js", dest: "build/profiles.md" },
+            { src: "lib/services/RBVoiceService.js", dest: "build/rbvoice.md" },
             { src: "lib/services/S2SService.js", dest: "build/s2s.md" },
             { src: "lib/services/TelephonyService.js", dest: "build/telephony.md" },
+            { src: "lib/services/WebinarsService.js", dest: "build/webinars.md" },
             { src: "lib/NodeSDK.js", dest: "build/sdk.md" },
             { src: "lib/common/models/Alert.js", dest: "build/alert.md" },
             { src: "lib/common/models/AlertDevice.js", dest: "build/alertdevice.md" },
@@ -49,7 +62,15 @@ module.exports = function(grunt) {
             { src: "lib/common/models/PresenceRainbow.js", dest: "build/presencerainbow.md" },
             { src: "lib/common/models/Settings.js", dest: "build/settings.md" }
         ]
-      }
+      },
+        withOptions: {
+            options: {
+                "template": "./jsdoc/Template/body.hbs",
+                'no-gfm': false,
+                // "plugin": ["jsdoc-mermaid"],
+                "no-cache": true
+            }
+        }
     },
 
     clean: {
@@ -96,6 +117,37 @@ module.exports = function(grunt) {
         }
     },
 
+    removeMacEOL: {
+          all: {
+              options: {
+                  singleline: false,
+                  multiline: false,
+                  debugcode: true,
+                  replaceCodeTab: [[/(\r\n|\n|\r)/gm, "\r\n"]]
+              },
+              src: ['build/*.md']
+          },
+          debug: {
+              options: {
+                  singleline: false,
+                  multiline: false,
+                  debugcode: true,
+                      replaceCodeTab: [[/(\r\n|\n|\r)/gm, "\r\n"]]
+              },
+              src: ['build/*.md']
+          }
+    },
+        "generatemermaid": {
+          "all": {
+              "options": {
+                  "shellcmd": "sh",
+                  "debugcode": true
+              },
+              "src": ['jsdoc/diagramsMermaid/*.mmd'],
+              "dest": './build'
+          }
+    },
+      
     generateRss:{
         all: {
             options: {
@@ -133,6 +185,19 @@ module.exports = function(grunt) {
         }
     },
 
+  /*    mermaid: {
+          "default": {
+              "src": './jsdoc/diagramsMermaid/*.mmd',
+              "dest": './build'
+          },
+          "other": {
+              "src": './jsdoc/diagramsMermaid/*.mmd',
+              "dest": './build'
+          }
+      },
+      
+   // */
+      
     jsdoc: {
         nodesheets: {
             src: [
@@ -273,6 +338,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-exec");
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks("dts-generator");
+//  grunt.loadNpmTasks("grunt-mermaid");
+  
   // grunt.loadNpmTasks('grunt-touch');
 
     grunt.registerTask('generateFossRun', 'My "generateFossRun" task.', function() {
@@ -284,11 +351,11 @@ module.exports = function(grunt) {
   grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
   grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
   //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
+    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
 
   grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode:debug"]);
   //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
 
   //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);

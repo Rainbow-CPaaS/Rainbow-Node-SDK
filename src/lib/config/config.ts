@@ -34,7 +34,9 @@ let conf =  {
             host: "sandbox.openrainbow.com",
             port: "443",
             protocol: "wss",
-            timeBetweenXmppRequests: "20"
+            timeBetweenXmppRequests: "20",
+            "raiseLowLevelXmppInEvent": false,
+            "raiseLowLevelXmppOutReq": false
         },
         s2s: {
             hostCallback: "nrock",
@@ -51,7 +53,9 @@ let conf =  {
             host: "openrainbow.com",
             port: "443",
             protocol: "wss",
-            timeBetweenXmppRequests: "20"
+            timeBetweenXmppRequests: "20",
+            "raiseLowLevelXmppInEvent": false,
+            "raiseLowLevelXmppOutReq": false
         },
         s2s: {
             hostCallback: "nrock",
@@ -68,7 +72,9 @@ let conf =  {
             host: "",
             port: "443",
             protocol: "wss",
-            timeBetweenXmppRequests: "20"
+            timeBetweenXmppRequests: "20",
+            "raiseLowLevelXmppInEvent": false,
+            "raiseLowLevelXmppOutReq": false
         },
         s2s: {
             hostCallback: "nrock",
@@ -113,8 +119,8 @@ let conf =  {
         autoLoadConversations: true,
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
-        enableCarbon: true
-
+        enableCarbon: true,
+        enablesendurgentpushmessages: false
     },
     mode:"xmpp",
     "concurrentRequests": 1000,

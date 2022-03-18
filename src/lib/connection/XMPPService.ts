@@ -96,7 +96,8 @@ const NameSpacesLabels = {
     "MamNameSpace" : "urn:xmpp:mam:1",
     "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
     "AttentionNS" : "urn:xmpp:attention:0",
-    "IncidentCap" : "http://www.incident.com/cap/1.0"
+    "IncidentCap" : "http://www.incident.com/cap/1.0",
+    "MonitoringNS" : "urn:xmpp:monitoring:0"
 };
 
 @logEntryExit(LOG_ID)
@@ -136,8 +137,12 @@ class XMPPService extends GenericService {
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
     private copyMessage: boolean;
+    private enablesendurgentpushmessages: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
+    private raiseLowLevelXmppInEvent: boolean;
+    private raiseLowLevelXmppOutReq: boolean;
+    private company: any;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
@@ -164,6 +169,7 @@ class XMPPService extends GenericService {
         this.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         this.storeMessages = _im.storeMessages;
         this.copyMessage = _im.copyMessage;
+        this.enablesendurgentpushmessages = _im.enablesendurgentpushmessages;
         this.rateLimitPerHour = _im.rateLimitPerHour;
         this.messagesDataStore = _im.messagesDataStore;
         this.useXMPP = true;
@@ -174,6 +180,8 @@ class XMPPService extends GenericService {
         this.pingTimer = null;
         this.forceClose = false;
         this.applicationId = _application.appID;
+        this.raiseLowLevelXmppInEvent = _xmpp.raiseLowLevelXmppInEvent;
+        this.raiseLowLevelXmppOutReq = _xmpp.raiseLowLevelXmppOutReq;
 
         this._startConfig =  {
             start_up: true,
@@ -230,6 +238,8 @@ class XMPPService extends GenericService {
                 //that.resourceId =  "/node_" + that.generatedRandomId ;
                 that.resourceId =  "node_" + that.generatedRandomId ;
                 that.jid = account.jid_im;
+                
+                that.company = account.company;
 
                 that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
 
@@ -301,7 +311,7 @@ class XMPPService extends GenericService {
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
                             that.xmppClient = null;
-                            that.setStopped();
+                            //that.setStopped();
                             resolve(undefined);
                         }).catch((err) => {
                             that.logger.log("debug", LOG_ID + "(stop) error received");
@@ -415,10 +425,10 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(this.logger, this.timeBetweenXmppRequests, this.storeMessages, this.rateLimitPerHour, this.messagesDataStore, this.copyMessage);
+        that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
-        that.reconnect = this.xmppClient.reconnect;
+        that.reconnect = that.xmppClient.reconnect;
 
         that.reconnect.delay = RECONNECT_INITIAL_DELAY;
 
@@ -447,20 +457,52 @@ class XMPPService extends GenericService {
             return bind(that.xmppUtils.getResourceFromFullJID(this.fullJid));
         }); // */
 
+        /*
+                "raiseLowLevelXmppInEvent": true,
+        "raiseLowLevelXmppOutReq": true
+         */
+        
         that.xmppClient.on("input", function fn_input (packet) {
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(prettydata.xml(packet)));
+            let xmlStr = prettydata.xml(packet);
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(xmlStr));
             that.startOrResetIdleTimer(true);
+            if (that.raiseLowLevelXmppInEvent ) {
+                that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
+            }
         });
 
         that.xmppClient.on("output", function fn_output (packet) {
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(prettydata.xml(packet)));
+            let xmlStr = prettydata.xml(packet);
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(xmlStr));
             that.startOrResetIdleTimer(false);
+            if (that.raiseLowLevelXmppOutReq ) {
+                that.eventEmitter.emit("evt_internal_xmmprequestsent", xmlStr);
+            }
         });
 
         that.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {
             that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
+            
+            if (that.company && (that.company.isMonitorable == true )) {
+                // send monitoring iq.
+                /* 
+                <iq xmlns="jabber:client" from="romeo@montague.example/garden" id="123456" type="set" >
+  <enable xmlns="urn:xmpp:monitoring:0" companyId="60ae30f1334f9a0741e4102f"/>
+</iq>
+                 */
+                let companyId = that.company.id;
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) Send subscribe monitoring. companyId : ", companyId);
+                let stanza = xml("iq", {
+                    type: "set",                    
+                    xmlns: NameSpacesLabels.ClientNameSpace,
+                    "id": that.xmppUtils.getUniqueMessageId()
+                }, xml("enable", { "companyId" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
 
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send - 'iq set' : ", stanza.root().toString());
+                that.xmppClient.sendIq(stanza);
+            }
+            
             if (!that.isReconnecting) {
                 that.eventEmitter.emit("xmppconnected");
             }

@@ -2,6 +2,7 @@
 
 import { Contact } from "./Contact";
 import {orderByFilter} from "../Utils";
+import {constants} from "http2";
 
 export{};
 
@@ -47,6 +48,57 @@ function sortUsersByDate (userADate, userBDate) {
     return res;
 }
 
+interface CallbackOneParam<T1, T2 = any> {
+    (param1: T1): T2;
+}
+
+class InitialPresence {
+    private _initPresencePromise : Promise<any>;
+    private _initPresencePromiseResolve : CallbackOneParam<any>;
+    private _initPresenceAck : boolean;
+    private _initPresenceInterval : any;
+
+    constructor() {
+        this._initPresencePromise = null;
+        this._initPresencePromiseResolve = null;
+        this._initPresenceAck = false;
+        this._initPresenceInterval = null;
+    }
+
+    get initPresencePromise(): Promise<any> {
+        return this._initPresencePromise;
+    }
+
+    set initPresencePromise(value: Promise<any>) {
+        this._initPresencePromise = value;
+    }
+
+    get initPresencePromiseResolve(): CallbackOneParam<any> {
+        return this._initPresencePromiseResolve;
+    }
+
+    set initPresencePromiseResolve(value: CallbackOneParam<any>) {
+        this._initPresencePromiseResolve = value;
+    }
+
+    get initPresenceAck(): boolean {
+        return this._initPresenceAck;
+    }
+
+    set initPresenceAck(value: boolean) {
+        this._initPresenceAck = value;
+    }
+
+    get initPresenceInterval(): any {
+        return this._initPresenceInterval;
+    }
+
+    set initPresenceInterval(value: any) {
+        this._initPresenceInterval = value;
+    }
+
+}
+
 /**
  * @class
  * @name Bubble
@@ -57,8 +109,16 @@ function sortUsersByDate (userADate, userBDate) {
  *		Like for one-to-one conversation, A conversation within a bubble never ends and all interactions done can be retrieved. <br>
  */
 class Bubble {
+    get initialPresence(): InitialPresence {
+        return this._initialPresence;
+    }
+
+    set initialPresence(value: InitialPresence) {
+        this._initialPresence = value;
+    }
     public id: any;
     public name: any;
+    public nameForLogs: string = "";
     public topic: any;
     public jid: any;
     public creator: any;
@@ -72,13 +132,15 @@ class Bubble {
     public disableNotifications: boolean;
     public lastAvatarUpdateDate: null;
     public guestEmails: any[];
-    public confEndpoints: [];
+    public confEndpoints: any[];
     public activeUsersCounter: number;
     public avatar: string;
     public organizers: Array<any>;
     public members: Array<any>;
     public containerId: string;
     public containerName: string;
+    public status: string = "none";
+    private _initialPresence : InitialPresence;
 
 
     public static RoomUserStatus = {
@@ -204,7 +266,7 @@ class Bubble {
         } else {
             this.users = _users;
         }
-
+        
         /**
          * @public
          * @readonly
@@ -248,7 +310,9 @@ class Bubble {
         /**
          * @public
          * @readonly
-         * @property {string} id The ID of the Bubble
+         * @property {string} isActive When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.
+         * This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.
+         * This flag is read-only.
          * @instance
          */        
         this.isActive = _isActive;
@@ -321,13 +385,13 @@ class Bubble {
          * @public
          * @readonly
          * @property  {String} autoRegister    A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(<a href="#api-users_rooms_public_link">users public link</a>).
-         * </br>According with autoRegister value, if another person uses the link to join the room:
+         * <br>According with autoRegister value, if another person uses the link to join the room:
          * <ul>
-         * <li>autoRegister = 'unlock':</br>
+         * <li>autoRegister = 'unlock':<br>
          *    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.</li>
-         * <li>autoRegister = 'lock':</br>
+         * <li>autoRegister = 'lock':<br>
          *    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.</li>
-         * <li>autoRegister = 'unlock_ack':</br>
+         * <li>autoRegister = 'unlock_ack':<br>
          *    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.</li>
          * </ul>
          * @instance
@@ -371,6 +435,20 @@ class Bubble {
          * @readonly
          */
         this.containerName = _containerName;
+
+        /**
+         * @public
+         * @property {string} status The status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted')
+         * @readonly
+         */
+        this.status = "none";
+
+        /**
+         * @public
+         * @property {InitialPresence} initialPresence The management of sent initial presence in the bubble of the connected user.
+         * @readonly
+         */
+        this._initialPresence = new InitialPresence();
     }
 
     /**
@@ -402,6 +480,14 @@ class Bubble {
         } else {
             this.users = _users;
         }
+    }
+
+    get getNameForLogs(): string {
+        if (!this.nameForLogs && this.name) {
+            const temp = this.name.replace(/[^\s](?=.{1,}$)/g, "*");
+            this.nameForLogs = this.name.charAt(0) + temp.substr(1);
+        }
+        return this.nameForLogs;
     }
 
     async updateBubble(data, contactsService) {
@@ -437,6 +523,17 @@ class Bubble {
             if (data.creator) {
                 that.ownerContact = await contactsService.getContactById(data.creator, false);
                 that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
+            }
+
+            if (data.users) {
+                data.users.forEach((userData: any) => {
+                    const contact = contactsService.getContactById(userData.userId);
+                    //if (contact) {                      
+                        if (contactsService.isUserContact(contact)) {
+                            that.status = userData.status;
+                        }
+                    //}
+                })
             }
         }
 
@@ -496,22 +593,34 @@ class Bubble {
                         }
                     });
                 if (data.creator) {
-                    await contactsService.getContactById(data.creator, false).then((result) => {
-                        //console.log("(BubbleFactory) getContactById : ", result);
-                        bubble.ownerContact = result;
-                        if (bubble.ownerContact) {
-                            if (bubble.ownerContact.jid === contactsService.userContact.jid) {
-                                bubble.owner = true;
-                            } else {
-                                // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
-                                bubble.owner = false;
-                            }
+                    //await contactsService.getContactById(data.creator, false).then((result : Contact) => {
+                    let result2 : Contact = await contactsService.getContactById(data.creator, false)
+                    //console.log("(BubbleFactory) getContactById : ", result);
+                    bubble.ownerContact = result2;
+                    if (bubble.ownerContact) {
+                        if (bubble.ownerContact.jid===contactsService.userContact.jid) {
+                            bubble.owner = true;
                         } else {
-                            // dev-code-console //
-                            console.log("(BubbleFactory) ownerContact empty.");
-                            // end-dev-code-console //
+                            // console.log("(BubbleFactory) OWNER false : " + bubble.ownerContact.jid + " : " + contactsService.userContact.jid);
+                            bubble.owner = false;
                         }
-                    });
+                    } else {
+                        // dev-code-console //
+                        console.log("(BubbleFactory) ownerContact empty.");
+                        // end-dev-code-console //
+                    }
+                }
+                if (data.users) {
+                    //data.users.forEach(async (userData: any) => {
+                    for (const userData of data.users) {
+                        const contact = await  contactsService.getContactById(userData.userId);
+                        //if (contact) {                      
+                        if (contactsService.isUserContact(contact)) {
+                            bubble.status = userData.status;
+                        }
+                        //}
+                    }
+                    //})
                 }
             }
 
@@ -521,6 +630,6 @@ class Bubble {
 }
 
 
-export {Bubble};
-export default {Bubble};
-module.exports = {Bubble};
+export {Bubble, InitialPresence};
+export default {Bubble, InitialPresence};
+module.exports = {Bubble, InitialPresence};

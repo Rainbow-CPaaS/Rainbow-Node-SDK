@@ -30,7 +30,7 @@ const createVoiceMail = (profilesService) => {
  * @name VoiceMail
  * @private
  * @description
- *      This class is used to represent a VoiceMail <br/>
+ *      This class is used to represent a VoiceMail <br>
  */
 class VoiceMail {
 	public VMFlag: any;

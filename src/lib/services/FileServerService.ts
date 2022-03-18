@@ -37,7 +37,7 @@ const ONE_GIGABYTE = 1024 * 1024 * 1024;
  * @version SDKVERSION
 * @public
 * @description
-*      This service manage files on server side <br/>
+*      This service manage files on server side <br>
 */
 class FileServer extends GenericService{
     private _capabilities: any;
@@ -138,13 +138,14 @@ class FileServer extends GenericService{
     }
 
     /**
-     * Method retrieve data from server using range request mecanism (RFC7233)
      *
      * @private
      * @param {string} url [required] server url for request
      * @param {number} minRange [requied] minimum value of range
      * @param {number} maxRange [required] maximum value of range
      * @param {number} index [required] index of the part. Used to re-assemble the data
+     * @description
+     *    Method retrieve data from server using range request mecanism (RFC7233)
      * @returns {Object} structure containing the response data from server and the index
      *
      */
@@ -157,6 +158,7 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @description
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
      *
      * @param {string} url [required] server url for request
@@ -226,6 +228,7 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @description
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
      *
      * @param destFile
@@ -358,6 +361,7 @@ class FileServer extends GenericService{
 
 
     /**
+     * @description
      * Method sends data file to server
      *
      * @private
@@ -425,6 +429,7 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @description
      * Method sends data to server using range request mecanism (RFC7233)
      *
      * @private
@@ -453,6 +458,7 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @description
      * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
      * @callback uploadAFileByChunk~progressCallback
      * @param {FileDescriptor} fileDescriptor
@@ -587,6 +593,7 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @description
      * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
      *
      * @param {string} url [required] server url for request
@@ -701,6 +708,7 @@ class FileServer extends GenericService{
     };
 
     /**
+     * @description
      * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
      *
      * @param {string} url [required] server url for request
@@ -832,6 +840,7 @@ class FileServer extends GenericService{
     };
 
     /**
+     * @description
      * Method creates blob from a file retrieved from server
      *
      * @private
@@ -896,7 +905,8 @@ class FileServer extends GenericService{
     }
 
     /**
-    * Method retrieves user quota (capabilities) for user
+     * @description
+     * Method retrieves user quota (capabilities) for user
     *
     * @returns {Object} user quota for user
     *

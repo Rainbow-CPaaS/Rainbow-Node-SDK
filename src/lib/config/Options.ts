@@ -256,6 +256,8 @@ class Options {
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow " + this._options.rainbow.host + " platform");
                 break;
         }
+        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppInEvent) { xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent; }
+        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppOutReq) { xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq; }
         return xmppOptions;
     }
 
@@ -394,7 +396,8 @@ class Options {
             autoInitialBubblePresence: true,
             autoLoadConversations: true,
             autoLoadContacts: true,
-            enableCarbon: true
+            enableCarbon: true,
+            enablesendurgentpushmessages: false
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -416,6 +419,7 @@ class Options {
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
+        optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
 
         return optionsIM;
     }

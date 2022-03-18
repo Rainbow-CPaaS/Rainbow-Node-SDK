@@ -119,7 +119,7 @@ pipeline {
                     ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
                     ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         
-                    #echo "registry=http://10.10.13.10:4873/
+                    #echo "registry=https://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
                     echo ---------- Set the NPM config and install node stable version :
@@ -215,7 +215,7 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                        stage('Debian Build') {
+                        stage('Build Debian Folder') {
                             try {                         
                                 echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
                                 sh script: """
@@ -241,17 +241,45 @@ pipeline {
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Development_Kit.md"  |tee "Documentation/doc/sdk/node/lts/guides/Development_Kit.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/lts/guides/Getting_Started.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/lts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_bubble.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_bubble.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/lts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
                                 
-                                echo FIND Documentation :  
-                                find Documentation/
-                                #cd "${workspace}/Documentation"
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                                
                                 """
+     
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+                        
+                         stage("Generate documentation search index") {
+                            try {
+                                echo "Build Hub V2 search index : "
+                                   // unstash 'DocumentationFolder'
+                                   sh script: """
+                                 # echo "folder where run the Build Hub V2 search index."
+                                 # pwd 
+                                 # ls 
+                                """
+                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+                          
+                         stage('Build Debian package') {
+                            try {
                                 echo "Build debian the package : "
+                                sh script: """
+                                    #find Documentation/
+                                    #cd "${workspace}/Documentation"
+                                """
+                                
                                 debianBuild(
                                     debianPath: 'Documentation',
                                     nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
@@ -260,8 +288,11 @@ pipeline {
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
+                            finally {
+                                //    notifyBuild(currentBuild.result)
+                            }
                         }
-                          
+                            
                         stage('Debian Publish') {
                             try {
                                 echo "Publish Debian package : "

@@ -1,7 +1,8 @@
 ﻿"use strict";
 
 import {List} from "ts-generic-collections-linq";
-import {Appreciation, Channel} from "./Channel";
+import {MEDIATYPE} from "../../connection/RESTService";
+import {Contact} from "./Contact";
 
 export {};
 
@@ -12,6 +13,13 @@ export {};
 ///
 /// The Jid_im of the participant can be compared to the Jid_im of a <see cref="Contact"/>
 /// </summary>
+/**
+ * @class
+ * @name Participant
+ * @public
+ * @description
+ *      This class Define a participant to a conference. <br>
+ */
 class Participant {
     /// <summary>
     /// <see cref="String"/> - Id of the participant. CANNNOT BE COMPARED to Id of a <see cref="Contact"/>
@@ -43,18 +51,39 @@ class Participant {
     /// </summary>
     private _hold: boolean; // { get; set; }
 
+    private _talkingTime : number;
+    private _microphone : boolean;
+    private _delegateCapability : boolean;
+    
     /// <summary>
     /// <see cref="Boolean"/> - To know if the participant has the audio or not
     /// </summary>
     private _connected: boolean // { get; set; }
 
-    constructor() {
+    private _contact: Contact;
+
+    constructor(id: string) {
+        this._id = id;
     }
 
+    /**
+     *
+     *  @name id
+     * @return {string}
+     * @description
+     *    get the id of the participant. The Id of the particpant is NOT AT ALL related to the Id of a Contact.
+     */
     get id(): string {
         return this._id;
     }
 
+    /**
+     *
+     *  @name id
+     * @param {string} value
+     * @description
+     *    set the id of the participant. The Id of the particpant is NOT AT ALL related to the Id of a Contact.
+     */
     set id(value: string) {
         this._id = value;
     }
@@ -107,6 +136,38 @@ class Participant {
         this._connected = value;
     }
 
+    get contact(): Contact {
+        return this._contact;
+    }
+
+    set contact(value: Contact) {
+        this._contact = value;
+    }
+
+    get talkingTime(): number {
+        return this._talkingTime;
+    }
+
+    set talkingTime(value: number) {
+        this._talkingTime = value;
+    }
+
+    get microphone(): boolean {
+        return this._microphone;
+    }
+
+    set microphone(value: boolean) {
+        this._microphone = value;
+    }
+
+    get delegateCapability(): boolean {
+        return this._delegateCapability;
+    }
+
+    set delegateCapability(value: boolean) {
+        this._delegateCapability = value;
+    }
+
     /// <summary>
     /// Serialize this object to String
     /// </summary>
@@ -115,7 +176,121 @@ class Participant {
         let tab = "- ";
         let result = "";
         // let result = String.Format($"Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]");
-        return result;
+        return `Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]`;
+    }
+}
+
+/**
+ * @class
+ * @name Talker
+ * @public
+ * @description
+ *      This class Define a participant talking in a conference. <br>
+ */
+class Talker {
+    private _participant: Participant;
+    private _talkingTime: number;
+    private _publisher: boolean;
+    private _simulcast: boolean;
+
+    constructor(participant: Participant) {
+        this._participant = participant;
+    }
+
+    get participant(): Participant {
+        return this._participant;
+    }
+
+    set participant(value: Participant) {
+        this._participant = value;
+    }
+
+    get talkingTime(): number {
+        return this._talkingTime;
+    }
+
+    set talkingTime(value: number) {
+        this._talkingTime = value;
+    }
+
+    get publisher(): boolean {
+        return this._publisher;
+    }
+
+    set publisher(value: boolean) {
+        this._publisher = value;
+    }
+
+    get simulcast(): boolean {
+        return this._simulcast;
+    }
+
+    set simulcast(value: boolean) {
+        this._simulcast = value;
+    }
+
+    public ToString(): string {
+        let tab = "- ";
+        let result = "";
+        // let result = String.Format($"Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]");
+        return `participant Id:[{_participant.id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]`;
+    }
+}
+
+/**
+ * @class
+ * @name Silent
+ * @public
+ * @description
+ *      This class Define a participant talking in a conference. <br>
+ */
+class Silent {
+    private _participant: Participant;
+    private _talkingTime: string;
+    private _publisher: boolean;
+    private _simulcast: boolean;
+
+    constructor(participant: Participant) {
+        this._participant = participant;
+    }
+
+    get participant(): Participant {
+        return this._participant;
+    }
+
+    set participant(value: Participant) {
+        this._participant = value;
+    }
+
+    get talkingTime(): string {
+        return this._talkingTime;
+    }
+
+    set talkingTime(value: string) {
+        this._talkingTime = value;
+    }
+
+    get publisher(): boolean {
+        return this._publisher;
+    }
+
+    set publisher(value: boolean) {
+        this._publisher = value;
+    }
+
+    get simulcast(): boolean {
+        return this._simulcast;
+    }
+
+    set simulcast(value: boolean) {
+        this._simulcast = value;
+    }
+
+    public ToString(): string {
+        let tab = "- ";
+        let result = "";
+        // let result = String.Format($"Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]");
+        return `participant Id:[{_participant.id}] {tab}Jid_im:[{Jid_im}] {tab}PhoneNumber:[{PhoneNumber}] {tab}Moderator:[{Moderator}] {tab}Muted:[{Muted}] {tab}Hold:[{Hold}] {tab}Connected:[{Connected}]`;
     }
 }
 
@@ -127,7 +302,7 @@ class Participant {
 /// The Jid_im of the participant can be compared to the Jid_im of a <see cref="Contact"/>
 /// </summary>
 class Publisher {
-/// <summary>
+    /// <summary>
     /// <see cref="String"/> - Id of the publisher. CANNNOT BE COMPARED to Id of a <see cref="Contact"/>
     /// </summary>
     private _id: string; // { get; set; }
@@ -140,9 +315,22 @@ class Publisher {
     /// <summary>
     /// <see cref="T:List{String}"/> - List of media used by the publisher - can be "sharing" or "video"
     /// </summary>
-    private _media: List<string>; // { get; set; }
+    private _media: List<string> = new List<string>(); // { get; set; }
 
-    constructor() {
+    private _participant : Participant;
+
+    get participant(): Participant {
+        return this._participant;
+    }
+
+    set participant(value: Participant) {
+        this._participant = value;
+    }
+
+//    private _contact: Contact;
+
+    constructor(id) {
+        this.id = id;
     }
 
     get id(): string {
@@ -169,13 +357,23 @@ class Publisher {
         this._media = value;
     }
 
+/*
+    get contact(): Contact {
+        return this._contact;
+    }
+
+    set contact(value: Contact) {
+        this._contact = value;
+    }
+*/
+
     /// <summary>
     /// Serialize this object to String
     /// </summary>
     /// <returns><see cref="String"/> as serialization result</returns>
     public ToString(): string {
         let tab = "- ";
-        let result = "";
+        let result = `Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}MediaType:[{String.Join(", ", Media.ToArray())}]`;
         // let result = String.Format($"Id:[{Id}] {tab}Jid_im:[{Jid_im}] {tab}MediaType:[{String.Join(", ", Media.ToArray())}]");
         return result;
     }
@@ -187,7 +385,7 @@ class Publisher {
 /// Id of the Conference is related to a Bubble using Bubble.ConfEndpoints.ConfEndpointId
 /// </summary>
 class ConferenceSession {
-/// <summary>
+    /// <summary>
     /// <see cref="string"/> - Id of the conference - it's equal to Bubble.ConfEndpoints.ConfEndpointId
     /// </summary>
     private _id: string; //{ get; set; }
@@ -206,6 +404,8 @@ class ConferenceSession {
     /// <see cref="Boolean"/> - To know if the conference is locked. No new participant can join the conference if locked.
     /// </summary>
     private _locked: boolean; // { get; set; }
+    
+    private _talkerActive: boolean;
 
     /// <summary>
     /// <see cref="Boolean"/> - To know if the conference is recorded
@@ -216,24 +416,38 @@ class ConferenceSession {
     /// <see cref="String"/> - Media type used in this conference. See <see cref="Bubble.MediaType"/> for possible values.
     /// </summary>
     private _mediaType: string; // { get; set; }
+    
+/*
+    This value is an initial value provided with <conference-state> node in <conference-info> node in Message stanza. It has to be increment by us when a participant or publisher is added.
+    private _participantCount : number;    
+    private _publisherCount : number;
+*/
 
+    private _reason : string;
     /// <summary>
     /// <see cref="T:List{Participant}"/> - List of <see cref="Participant"/>
     /// </summary>
-    private _participants: List<Participant>; // { get; set; }
+    private _participants: List<Participant> = new List<Participant>(); // { get; set; }
 
     /// <summary>
     /// <see cref="T:List{Publisher}"/> - List of <see cref="Publisher"/>
     /// </summary>
-    private _publishers: List<Publisher>; // { get; set; }
+    private _publishers: List<Publisher> = new List<Publisher>(); // { get; set; }
 
     /// <summary>
     /// <see cref="T:List{String}"/> - List of talkers (using the ID of the participant)
     /// </summary>
-    private _talkers: List<String>; //{ get; set; }
+    private _talkers: List<Talker> = new List<Talker>(); //{ get; set; }
+    
+    private _silents: List<Silent> = new List<Silent>(); //{ get; set; }
+    private _replacedByConference: ConferenceSession;
+    private _replaceConference: ConferenceSession;
 
-    constructor() {
-
+    constructor(id: string, participants: List<Participant> = new List (), mediaType: MEDIATYPE = MEDIATYPE.WEBRTC) {
+        let that = this;
+        that._id = id;
+        that._participants = participants;
+        that._mediaType = mediaType;
     }
 
     get id(): string {
@@ -300,12 +514,80 @@ class ConferenceSession {
         this._publishers = value;
     }
 
-    get talkers(): List<String> {
+    get talkers(): List<Talker> {
         return this._talkers;
     }
 
-    set talkers(value: List<String>) {
+    set talkers(value: List<Talker>) {
         this._talkers = value;
+    }
+
+    get silents(): List<Silent> {
+        return this._silents;
+    }
+
+    set silents(value: List<Silent>) {
+        this._silents = value;
+    }
+
+    get talkerActive(): boolean {
+        return this._talkerActive;
+    }
+
+    set talkerActive(value: boolean) {
+        this._talkerActive = value;
+    }
+
+/*
+    get participantCount(): number {
+        return this._participantCount;
+    }
+
+    set participantCount(value: number) {
+        this._participantCount = value;
+    }
+
+    get publisherCount(): number {
+        return this._publisherCount;
+    }
+
+    set publisherCount(value: number) {
+        this._publisherCount = value;
+    }
+// */
+
+    get reason(): string {
+        return this._reason;
+    }
+
+    set reason(value: string) {
+        this._reason = value;
+    }
+
+    get replacedByConference(): ConferenceSession {
+        return this._replacedByConference;
+    }
+
+    set replacedByConference(value: ConferenceSession) {
+        this._replaceConference = null; // can not replace a conf if this conf is replaced.
+        this._replacedByConference = value;
+    }
+
+    get replaceConference(): ConferenceSession {
+        return this._replaceConference;
+    }
+
+    set replaceConference(conference: ConferenceSession) {
+        let that = this;
+        that._replaceConference = conference;
+        /*that.participants = conference.participants;
+        that.publishers = conference.publishers ;
+        that.talkers = conference.talkers ;
+        that.silents = conference.silents ;
+        // */
+        conference.reset();
+        conference.active = false;
+        conference.replacedByConference = that;
     }
 
     /// <summary>
@@ -341,7 +623,7 @@ class ConferenceSession {
         }
 
         let talkersStr = "";
-        let result = "";
+        let result = "" + this.id;
         /*
                     if (Talkers != null)
                         talkersStr = (Talkers.Count > 0) ? " [" + String.Join("], [", Talkers.ToArray()) + "] " : "";
@@ -352,9 +634,33 @@ class ConferenceSession {
                         $"  {tab}Talkers:[{talkersStr}]" );
         */
 
+        //result = this;
+        //result = JSON.stringify(this);
         return result;
+    }
+
+    reset() {
+        let that = this;
+/*
+        that._participants = new List<Participant>(); // { get; set; }
+        that._publishers = new List<Publisher>(); // { get; set; }
+        that._talkers = new List<Talker>(); //{ get; set; }
+        that._silents = new List<Silent>(); //{ get; set; }
+// */
+        that._participants.clear();
+        that._publishers.clear();
+        that._talkers.clear();
+        that._silents.clear();
+        /*that._active = false;
+        that._locked = false;
+        that._talkerActive = false;
+        // */
     }
 }
 
+module.exports.Talker = Talker;
+module.exports.Silent = Silent;
+module.exports.Publisher = Publisher;
+module.exports.Participant = Participant;
 module.exports.ConferenceSession = ConferenceSession;
-export {ConferenceSession};
+export {Publisher, Participant, ConferenceSession, Talker, Silent};

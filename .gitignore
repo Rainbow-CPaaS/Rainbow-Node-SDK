@@ -276,3 +276,4 @@ fabric.properties
 /tasks/generateFoss.d.ts
 /tasks/generateFoss.js
 /tasks/generateFoss.js.map
+/runcpdoc.bat

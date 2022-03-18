@@ -27,6 +27,7 @@ const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
 //const debug = require("@xmpp/debug");
+const xml2js = require('xml2js');
 
 const Element = require('ltx').Element;
 
@@ -34,6 +35,7 @@ let LOG_ID='XMPPCLIENT';
 
 class XmppClient  {
 	public options: any;
+    public eventEmitter: any;
 	public restartConnectEnabled: any;
 	public client: any;
 	public iqGetEventWaiting: any;
@@ -42,10 +44,11 @@ class XmppClient  {
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
-	public username: any;
+    public username: any;
 	public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
+    enablesendurgentpushmessages: any;
     copyMessage: any = true;
     rateLimitPerHour: any;
     private nbMessagesSentThisHour: number;
@@ -78,9 +81,10 @@ class XmppClient  {
 
     }
 
-    init(_logger, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage) {
+    init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
         let that = this;
         that.logger = _logger;
+        this.eventEmitter = _eventemitter;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
         that.storeMessages = _storeMessages;
@@ -88,6 +92,7 @@ class XmppClient  {
         that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date ();
         that.copyMessage = _copyMessage;
+        that.enablesendurgentpushmessages = _enablesendurgentpushmessages;
 
         if (that.messagesDataStore) {
             switch (that.messagesDataStore) {
@@ -198,12 +203,25 @@ class XmppClient  {
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _exiting_");
     }
 
+    async getJsonFromXML(xml : string) {
+        try {
+            const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+            // convert it to a JSON string
+            return result;
+            //return JSON.stringify(result, null, 4);
+        } catch (err) {
+            //console.log(err);
+            return {};
+        }
+    }
+    
     send(...args) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(send) _entering_");
         return new Promise((resolve) => {
             let prom = this.xmppQueue.addPromise(
-                new Promise((resolve2, reject2) => {
+                new Promise(async (resolve2, reject2) => {
                     /*
                     if (args && args[0]) {
                         that.logger.log("internal", LOG_ID + "(send) stanza to send ", that.logger.colors.gray(args[0].toString()));
@@ -220,6 +238,23 @@ class XmppClient  {
 
                     let stanza = args[0];
 
+                    if (that.enablesendurgentpushmessages && stanza && stanza.name == "message") {
+                        let stanzaJson = await that.getJsonFromXML(stanza);
+                        that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
+                        //if (stanzaJson && stanzaJson.message != undefined) {
+                            //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message.");
+                            if (stanzaJson.message.body && stanzaJson.message.body != "") {
+                                that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                                // <retry-push xmlns='urn:xmpp:hints'/> 
+                                let retryPush = "retry-push"; 
+                                stanza.append(xml(retryPush, {
+                                    "xmlns": NameSpacesLabels.HintsNameSpace
+                                }));
+                                that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                            } 
+                        //} 
+                    }
+                    
                     if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                    // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                         // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");

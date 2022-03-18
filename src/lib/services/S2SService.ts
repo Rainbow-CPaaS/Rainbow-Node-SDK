@@ -26,7 +26,7 @@ const LOG_ID = "S2S - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This module handles the s2s API's methods to Rainbow. <br/>
+     *      This module handles the s2s API's methods to Rainbow. <br>
      *      <br><br>
      *      The main methods proposed in that module allow to: <br>
      *      - Signin in s2s mode <br>
@@ -215,18 +215,21 @@ class S2SService extends GenericService{
         that.setInitialized();
     }
     
+    // region S2S Management
+    
     /**
      * @public
      * @method listConnectionsS2S
      * @instance
+     * @category S2S Management
      * @description
-     *      List all the connected user's connexions. <br/>
+     *      List all the connected user's connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
-    listConnectionsS2S() {
+    async listConnectionsS2S() {
         let that = this;
         that._logger.log("internal", LOG_ID + "(listConnectionsS2S) will get all the cnx S2S");
         return that._rest.listConnectionsS2S()
@@ -243,12 +246,13 @@ class S2SService extends GenericService{
      * @public
      * @method checkS2Sconnection
      * @instance
+     * @category S2S Management
      * @description
-     *      check the S2S connection with a head request. <br/>
+     *      check the S2S connection with a head request. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
     async checkS2Sconnection() {
         let that = this;
@@ -265,47 +269,18 @@ class S2SService extends GenericService{
 
     /**
      * @private
-     * @method sendS2SPresence
-     * @instance
-     * @param {Object} obj Object {show, status} describing the presence : <br/>
-     *  To put presence to cases : <br/>
-     * "online":     {show = undefined, status = "mode=auto"} <br/>
-     * "away": {show = "xa", status = "away"} <br/>
-     * "dnd": {show = "dnd", status = ""} <br/>
-     * "invisible": {show = "xa", status = ""} <br/>
-     * @description
-     *      set the presence of the connected user with s2s api . <br/>
-     * @async
-     * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
-     */
-    sendS2SPresence( obj ) {
-        let that = this;
-        that._logger.log("internal", LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
-        return that._rest.sendS2SPresence(obj)
-            .then( response => {
-                that._logger.log("internal", LOG_ID + "(sendS2SPresence) worked." );
-                //console.log( response.data )
-                //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(sendS2SPresence) connexions S2S : ", response );
-                return response;
-            } );
-    }
-
-    /**
-     * @private
      * @method deleteConnectionsS2S
      * @instance
+     * @category S2S Management
      * @param {Array} connexions a List of connections S2S to delete
      * @description
-     *      Delete one by one a list of S2S connections of the connected user. <br/>
+     *      Delete one by one a list of S2S connections of the connected user. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
-    deleteConnectionsS2S ( connexions ) {
+    async deleteConnectionsS2S ( connexions ) {
         let that = this;
         that._logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S.");
         that._logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
@@ -330,14 +305,15 @@ class S2SService extends GenericService{
      * @public
      * @method deleteAllConnectionsS2S
      * @instance
+     * @category S2S Management
      * @description
-     *      Delete all the connected user's S2S connexions. <br/>
+     *      Delete all the connected user's S2S connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
-    deleteAllConnectionsS2S(){
+    async deleteAllConnectionsS2S(){
         let that = this;
 
         that._logger.log("internal", LOG_ID + "(deleteAllConnectionsS2S) ");
@@ -352,15 +328,16 @@ class S2SService extends GenericService{
      * @private
      * @method loginS2S
      * @instance
+     * @category S2S Management
      * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
-     *      Login to S2S event server the already connected user to REST API server. <br/>
+     *      Login to S2S event server the already connected user to REST API server. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
-    loginS2S (callback_url) {
+    async loginS2S (callback_url) {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
         that._logger.log("debug", LOG_ID + "(loginS2S) will login  S2S.");
@@ -379,15 +356,16 @@ class S2SService extends GenericService{
      * @public
      * @method infoS2S
      * @instance
+     * @category S2S Management
      * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
      * @description
-     *      Get informations about a S2S connexions. <br/>
+     *      Get informations about a S2S connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
-    infoS2S (s2sConnectionId) {
+    async infoS2S (s2sConnectionId) {
         let that = this;
         that._logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
         that._logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
@@ -401,9 +379,9 @@ class S2SService extends GenericService{
             } );
     }
 
-    // */
+    //endregion S2S Management
 
-    /** S2S EVENTS */
+    //region Events 
 
     async onS2SReady(event) {
         let that = this;
@@ -411,32 +389,67 @@ class S2SService extends GenericService{
         await this._rest.setS2SConnection(event.id);
     }
 
-    /** S2S methods */
+    //endregion Events
+    
+    //region S2S Methods 
+
     /**
      * @private
-     * @method sendMessageInConversation
+     * @method sendS2SPresence
      * @instance
-     * @param {String} conversationId
-     * @param {String} msg The message object to send. <br/>
-     * { <br/>
-     *   "message": { <br/>
-     *   "subject": "Greeting", <br/>
-     *   "lang": "en", <br/>
-     *   "contents": [ <br/>
-     *     { <br/>
-     *       "type": "text/markdown", <br/>
-     *       "data": "## Hello Bob" <br/>
-     *     } <br/>
-     *   ], <br/>
-     *   "body": "Hello world" <br/>
-     *   } <br/>
-     * } <br/>
+     * @category S2S Methods
+     * @param {Object} obj Object {show, status} describing the presence : <br>
+     *  To put presence to cases : <br>
+     * "online":     {show = undefined, status = "mode=auto"} <br>
+     * "away": {show = "xa", status = "away"} <br>
+     * "dnd": {show = "dnd", status = ""} <br>
+     * "invisible": {show = "xa", status = ""} <br>
      * @description
-     *      Send a message in a conversation. Note, corrected message is not yet supported. <br/>
+     *      set the presence of the connected user with s2s api . <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
+     */
+    sendS2SPresence( obj ) {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
+        return that._rest.sendS2SPresence(obj)
+                .then( response => {
+                    that._logger.log("internal", LOG_ID + "(sendS2SPresence) worked." );
+                    //console.log( response.data )
+                    //connectionInfo = response.data.data
+                    that._logger.log("internal", LOG_ID + "(sendS2SPresence) connexions S2S : ", response );
+                    return response;
+                } );
+    }
+
+    /**
+     * @public
+     * @method sendMessageInConversation
+     * @instance
+     * @category S2S Methods
+     * @param {String} conversationId
+     * @param {String} msg The message object to send. <br>
+     * { <br>
+     *   "message": { <br>
+     *   "subject": "Greeting", <br>
+     *   "lang": "en", <br>
+     *   "contents": [ <br>
+     *     { <br>
+     *       "type": "text/markdown", <br>
+     *       "data": "## Hello Bob" <br>
+     *     } <br>
+     *   ], <br>
+     *   "body": "Hello world" <br>
+     *   } <br>
+     * } <br>
+     * @description
+     *      Send a message in a conversation. Note, corrected message is not yet supported. <br>
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - List of connexions or an error object depending on the result
+     
      */
     sendMessageInConversation(conversationId, msg) {
         let that = this;
@@ -455,13 +468,14 @@ class S2SService extends GenericService{
      * @method joinRoom
      * @param {String} bubbleId The id of the bubble to open the conversation.
      * @param {string} role Enum: "member" "moderator" of your role in this room
+     * @category S2S Methods
      * @instance
      * @description
-     *      send presence in S2S to join a bubble conversation <br/>
+     *      send presence in S2S to join a bubble conversation <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
-     * @category async
+     
      */
     joinRoom(bubbleId, role : ROOMROLE) {
         let that = this;
@@ -474,7 +488,8 @@ class S2SService extends GenericService{
                 return response;
             } );
     }
-
+    
+    //endregion S2S Methods
 }
 
 /**

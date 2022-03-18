@@ -6,11 +6,145 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.1.0-lts.0] - 2021-11-25
--   Fix type of parameter of `ConversationsService::sendIsTypingState` API.
--   Add an events name list in `events::sdkPublicEventsName` tab.  
+## [2.9.0] - 2022-03-18
+-   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
+-   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
+-   Add `ContactsService::searchInAlldirectories` This API allows to search for resources matching given keywords. 
+-   Add `ContactsService::searchInPhonebook` This API allows to search for resources matching given keywords.The search is done on name and phone number.
+-   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
+-   Add `ContactsService::searchUsers` This API allows to search users.
+-   Add `AdminService::deleteLdapConnectorConfig` This API can be used to delete a ldap connector config.
+-   Add `ContactsService::createPersonalDirectoryEntry` This API allows connected user to Create a personal directory entry. 
+-   Add `ContactsService::getListPersonalDirectoryEntriesData` This API allows connected users to get an entry of his personal directory. 
+-   Add `ContactsService::updatePersonalDirectoryEntry` This API allows the connected user to update an entry of his personnal directory. 
+-   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
+-   Fix logs when a restart of the SDK is done.
+-   Fix default typescript export.
+-   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+-   Fix documentation of `InvitationsService::sendInvitationsByBulk` and `InvitationsService::sendInvitationByEmail`  
+-   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
+-   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
+-   Add `InvitationsService::searchInvitationsSentFromServer` This API is to retrieve the invites sent to others Rainbow users from server.
+-   Add `ContactsService::getCompanyInfos` This API allows user to get a company data.
+-   Add an automatic start of monitoring on server when the company of the connected user has the `isMonitorable` property setted to true.
 
-## [2.1.0-lts.0] - 2021-10-20
+## [2.8.2] - 2022-02-18
+-   Add documentation about telephony call : `Telephony_calls.md`.
+-   Update the `rainbow_onmediapropose` event with more data.
+-   Add events about Webrtc calls : `rainbow_onmediaretract` of the retract action, it is the call propose id received before.  
+-   Add events about Webrtc calls : `rainbow_onmediaaccept` of the accept action, it is the call propose id received before.
+-   Add Rainbow Voice API :
+    * `RBVoiceService::retrieveAllAvailableCallLineIdentifications` : This api returns all CLI options available.  
+    * `RBVoiceService::retrieveCurrentCallLineIdentification` : This api returns current Call line identification.
+    * `RBVoiceService::setCurrentActiveCallLineIdentification` : This api allows user to set the current CLI.
+    * `RBVoiceService::addMemberToGroup` : This part of the API allows a user having manager role on a group to add another user.
+    * `RBVoiceService::deleteVoiceMessageAssociatedToAGroup` : Deletion of the given voice message.
+    * `RBVoiceService::getVoiceMessagesAssociatedToGroup` : Returns the list of voice messages associated to a group. 
+    * `RBVoiceService::getGroupForwards` : This API allows to get all cloud PBX group forwards.
+    * `RBVoiceService::getTheUserGroup` : This API allows to retrieve the groups where the logged user is member.
+    * `RBVoiceService::joinAGroup` : This part of the API allows a user to join a group. 
+    * `RBVoiceService::joinAllGroups` : Allow a user to join all the groups he belongs to.
+    * `RBVoiceService::leaveAGroup` : This part of the API allows a user to leave a group.
+    * `RBVoiceService::leaveAllGroups` : Allow a user to leave all the groups he belongs to.
+    * `RBVoiceService::removeMemberFromGroup` : This part of the API allows a manager to remove a member from a group.
+    * `RBVoiceService::retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser` : Returns the number of read/unread messages for each hunting group where logged in user is a member.
+    * `RBVoiceService::updateAVoiceMessageAssociatedToAGroup` : Update the given voice message - mark it as read or unread When a message is 'unread', it is considered as a new message.
+    * `RBVoiceService::updateAGroup` : This API allows a manager of to group to modify some settings of a Cloud PBX hunting group.
+    * `RBVoiceService::updateGroupForward` : This API allows to update the forwards of a cloud PBX group.
+    * `RBVoiceService::updateGroupMember` : This part of the API allows a manager to update a member inside a group.
+    * `RBVoiceService::activateDeactivateDND` : This API allows logged in user to activate or deactivate his DND state.
+    * `RBVoiceService::configureAndActivateDeactivateForward` : This API allows logged in user to activate or deactivate a forward.
+    * `RBVoiceService::retrieveActiveForwards` : This API allows logged in user to retrieve his active forwards.
+    * `RBVoiceService::retrieveDNDState` : This API allows logged in user to retrieve his DND state.
+    * `RBVoiceService::searchUsersGroupsContactsByName` : This API allows to retrieve phone numbers associated to Rainbow users, groups, Office365 contacts and external directories contacts.
+    * `RBVoiceService::activatePersonalRoutine` : This api activate a user's personal routine.
+    * `RBVoiceService::createCustomPersonalRoutine` : This api create a user's custom personal routine.
+    * `RBVoiceService::deleteCustomPersonalRoutine` : This api delete a user's custom personal routine.
+    * `RBVoiceService::getPersonalRoutineData` : This api returns a user's personal routine data.
+    * `RBVoiceService::getAllPersonalRoutines` : This api returns all user's personal routines data.
+    * `RBVoiceService::updatePersonalRoutineData` : This api updates a user's personal routine data, it's not possible to update the work routine, it contains memorized data before the activation of another routine.
+    * `RBVoiceService::manageUserRoutingData` : This api allows user routing management.
+    * `RBVoiceService::retrievetransferRoutingData` : For transfer, get addressee routing data.
+    * `RBVoiceService::retrieveUserRoutingData` : This api returns user routing information.
+    * `RBVoiceService::retrieveVoiceUserSettings` : Allows logged in user to retrieve his voice settings.
+    * `RBVoiceService::addParticipant3PCC` : Adds a participant in a call, as a one step conference.
+    * `RBVoiceService::answerCall3PCC` : This is a 3PCC answer call.
+    * `RBVoiceService::blindTransferCall3PCC` : This is a 3PCC blind transfer call. Immediate transfer of an active call to a new destination.
+    * `RBVoiceService::deflectCall3PCC` : This is a 3PCC deflect call. During ringing state, user transfer the call to another destination.
+    * `RBVoiceService::holdCall3PCC` : This is a 3PCC hold call.
+    * `RBVoiceService::makeCall3PCC` : This api makes a 3PCC call between 2 users.
+    * `RBVoiceService::mergeCall3PCC` : This is a 3PCC merge call. Merge an held call into the active call (single call or conference call).
+    * `RBVoiceService::pickupCall3PCC` : 3PCC pickup call can be used in case of manager/assistant context, when an assistant wants to pickup a call on a manager.
+    * `RBVoiceService::releaseCall3PCC` : This is a 3PCC release call.
+    * `RBVoiceService::retrieveCall3PCC` : This is a 3PCC retrieve call.
+    * `RBVoiceService::sendDTMF3PCC` : This is a 3PCC send DTMF.
+    * `RBVoiceService::snapshot3PCC` : This is a 3PCC Snapshot of the user's calls and devices.
+    * `RBVoiceService::transferCall3PCC` : This is a 3PCC transfer call. Transfer the active call to the given held call.
+    * `RBVoiceService::deleteAVoiceMessage` : Deletion of the given voice message.
+    * `RBVoiceService::deleteAllVoiceMessages` : Deletion of all user's voice messages.
+    * `RBVoiceService::getEmergencyNumbersAndEmergencyOptions` : This api returns emergency numbers the user can use (+ emergency options).
+    * `RBVoiceService::getVoiceMessages` : Returns the list of voice messages.
+    * `RBVoiceService::getUserDevices` : This api returns user devices information.
+    * `RBVoiceService::updateVoiceMessage` : Update the given voice message - mark it as read or unread.
+    * `RBVoiceService::forwardCall` : This api activates/deactivates a forward.
+    * `RBVoiceService::getASubscriberForwards` : This api gets the user forwards.
+    * `RBVoiceService::searchCloudPBXhuntingGroups` : This API allows to retrieve Cloud PBX Hunting Groups.
+
+## [2.8.1] - 2022-02-07
+-   Add `FileStorage::copyFileInPersonalCloudSpace` method to keep a copy of a file in my personal cloud space. 
+-   Add `FileStorage::getFileDescriptorsByCompanyId` method to get all file descriptors belonging to a given companyId. 
+-   Add `FileStorage::fileOwnershipChange` method to Drop the ownership of a file to another Rainbow user of the same company.
+-   Update `AdminService.getAllCompanies` method with parameters to filter the requested companies.
+-   Add `ContactsService::updateMyInformations` method to  update data of logged in user. This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL)
+-   Add Customization templates methods : `AdminService::applyCustomisationTemplates` `AdminService::createCustomisationTemplate` `AdminService::deleteCustomisationTemplates` `AdminService::getAllAvailableCustomisationTemplates` `AdminService::getRequestedCustomisationTemplate` `AdminService::updateCustomisationTemplate`
+-   Fix renew of token.  
+-   Update `Contact::isObsoleteCache` method to avoid the remove of roster's contacts from cache. 
+
+## [2.8.0] - 2022-01-28
+-   Fix documentation about line feed in HTML.
+-   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
+-   Fix missing mime.lookup with mime lib version > 1.5.0 .
+-   Fix delete / leave bubbles methods in BubblesService when the bubble has the property isActive egal to false.
+-   Add a `enablesendurgentpushmessages` property in the options provided to the initialisation of the SDK. This property permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device.
+-   Add generation of search index in Jenkinsfile-sts.groovy file.
+-   Add `removeMacEOL` job in Jenkinsfile-sts.groovy file to remove from generated jsdoc the Mac (\r) end of line character which forbid the use of markdown table in comments.
+-   Add `generatemermaid` job in Jenkinsfile-sts.groovy file to generate mermaid diagram from mmd files (to be used in SDK documentation).
+-   Fix `Conversation::getlastEditableMsg()` method to return the editable only from sent messages. 
+-   Complete and set public the `BubblesService::askConferenceSnapshot` method to returns global information about conference.
+
+## [2.7.0] - 2021-12-0
+-   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
+-   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
+-   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 
+-   Add `ProfilesService::revokeThirdPartyAccess` to revoke the access of a third-party application from Rainbow. 
+
+## [2.6.2] - 2021-12-02
+-   Fix initialisation of _contactService in FileStorageService.
+-   Add `Bubble::status` property which is the status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted'). The initial value is "none", it is not a real value.
+-   Add `BubblesService::isBubbleArchived` method to check if the Bubble is an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedArchivedBubbles` method to get all the owned Bubbles in an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedNotArchivedBubbles` method to  get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed).
+-   Add "unsubscribed=true" parameter to resquests to server about bubbles. Beside owner and invited/accepted users keep also unsubscribed users.
+-   Update `AdminService` `AlertsService` `BubblesService` `ContactsService` `ConversationsService` with categories in the documentation.
+
+## [2.6.1] - 2021-11-19
+-   Fix `GroupsService::getGroupByName` and `GroupsService::getGroupById` methods.
+
+## [2.6.0] - 2021-11-18
+-   Add parameter `raiseLowLevelXmppInEvent` to SDK options to raise an event `rainbow_onxmmpeventreceived` when an XMPP stanza is received. The default value is false. 
+-   Add parameter `raiseLowLevelXmppOutReq` to SDK options to raise an event `rainbow_onxmmprequestsent` when an XMPP stanza is sent. The default value is false.
+-   Fix `AdminService::retrieveRainbowUserList` method.
+-   Update conferences related methods documentation in BubblesService.
+-   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
+-   Add `Manage_conferences` documentation for information about conferences.
+-   Fix events documentation and low layer documentation.
+-   Update `GroupsService::getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `Contact` property `roster` to false when the `rainbow_oncontactremovedfromnetwork` event is raised instead of removing the Contact from cache.
+-   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message.
+-   Update `AdminService::retrieveAllSubscriptionsOfCompanyById` API method with a format parameter to get "small","middle", or "full" data. 
+
+## [2.1.0-lts.0] - 2021-10-10
 -   Update grunt task `removedebugcode` to define the replaced tags in Gruntfile.js config instead of in the code. 
 -   Add tags : `dev-code-console` and `dev-code-internal` to `removedebugcode` task.
 -   Fix RESTService::synchronizeUsersAndDeviceswithCSV method.

@@ -22,11 +22,11 @@ const LOG_ID = "SETT/SVCE - ";
  * @name Settings
  * @version SDKVERSION
  * @description
- *      This module manages the settings of the connected user. <br/>
+ *      This module manages the settings of the connected user. <br>
  *      <br><br>
  *      The main methods proposed in that module allow to: <br>
- *      - Get user settings <br/>
- *      - Update user settings <br/>
+ *      - Get user settings <br>
+ *      - Update user settings <br>
  */
 class Settings extends GenericService {
 
@@ -96,7 +96,7 @@ class Settings extends GenericService {
      * @method getUserSettings
      * @instance
      * @description
-     *  Get current User Settings <br/>
+     *  Get current User Settings <br>
      * @return {Promise<UserSettings>} A promise containing the result
      */
     getUserSettings() {
@@ -119,7 +119,7 @@ class Settings extends GenericService {
      * @method updateUserSettings
      * @instance
      * @description
-     *  Update current User Settings <br/>
+     *  Update current User Settings <br>
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
      */
     updateUserSettings(settings) {

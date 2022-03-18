@@ -1,6 +1,6 @@
 // Jenkinsfile-sts file for the production of sts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-sts"
 
-@Library('rainbow-shared-library') _
+@Library('rainbow-shared-library@hubSearchIndex') _
 import groovy.transform.Field
 
 // Map with the default values
@@ -171,27 +171,28 @@ pipeline {
                     //echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
 
                 sh script: """
-                                    #echo "registry=http://10.10.13.10:4873/
+                                    #echo "registry=https://10.10.13.10:4873/
                                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                                         
                                     echo ---------- Set the NPM config and install node stable version :
-                                    mkdir ${WORKSPACE}/.npm-packages
-                                    npm config set prefix "${WORKSPACE}/.npm-packages"
-                                    export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                                    
+                                    #mkdir ${WORKSPACE}/.npm-packages
+                                    #npm config set prefix "${WORKSPACE}/.npm-packages"
+                                    #export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
                 
-                                    more ~/.npmrc > ~/.npmrc.sav 
-                                    echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                                    echo "registry=http://registry.npmjs.org/
-                                    //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                                    #more ~/.npmrc > ~/.npmrc.sav 
+                                    #echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                    #echo "registry=https://registry.npmjs.org/
+                                    #//registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                                         
-                                    #sudo npm install npm -g
-                                    sudo npm install n -g
-                                    sudo n stable
+                                    ##sudo npm install npm -g
+                                    #sudo npm install n -g
+                                    #sudo n stable
 
-                                    #npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
-                                    npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    ##npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    #npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
                                                                                 
-                                    more ~/.npmrc.sav > ~/.npmrc
+                                    #more ~/.npmrc.sav > ~/.npmrc
                                 """
                 }
             }
@@ -230,7 +231,7 @@ pipeline {
                     #git checkout "delivered${RAINBOWNODESDKVERSION}"
                     #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         
-                    #echo "registry=http://10.10.13.10:4873/
+                    #echo "registry=https://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
                     echo ---------- Set the NPM config and install node stable version :
@@ -352,7 +353,7 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                        stage('Debian Build') {
+                        stage('Build Debian Folder') {
                             try {                         
                                 echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
                                 sh script: """
@@ -375,16 +376,49 @@ pipeline {
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubble.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubble.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
                                  
-                                #find Documentation/
-                                #cd "${workspace}/Documentation"
+                                 pwd 
+                                 
+                                 ls 
+                                 
+                                 
                                 """
+
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+                          
+                        stage("Generate documentation search index") {
+                            try {
+                                echo "Build Hub V2 search index : "
+                                   // unstash 'DocumentationFolder'
+                                   sh script: """
+                                 # echo "folder where run the Build Hub V2 search index."
+                                 # pwd 
+                                 # ls 
+                                """
+                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+
+                        stage('Build Debian package') {
+                            try {
                                 echo "Build debian the package : "
+                                sh script: """
+                                    #find Documentation/
+                                    #cd "${workspace}/Documentation"
+                                """
+                                
                                 debianBuild(
                                     debianPath: 'Documentation',
                                     nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
@@ -392,6 +426,9 @@ pipeline {
                                 )
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                            finally {
+                                //    notifyBuild(currentBuild.result)
                             }
                         }
                           

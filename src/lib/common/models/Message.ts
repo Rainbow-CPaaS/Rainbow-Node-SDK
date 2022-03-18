@@ -12,7 +12,7 @@ export {};
  * @name Message
  * @public
  * @description
- *      This class is used to represent a message in a conversation <br/>
+ *      This class is used to represent a message in a conversation <br>
  *      A message is exchanged when discussing in One-to-One or in a Bubble.
  */
 class Message {
@@ -151,6 +151,7 @@ class Message {
     public conversation: Conversation;
     public isForwarded : boolean;
     public forwardedMsg : any;
+    public replacedByMessage: Message;
 
 
     constructor(serverAckTimer: any, 
@@ -471,7 +472,8 @@ class Message {
         this.urgency = urgency;
 
         /**
-         * @private
+         * @public
+         * @property {boolean} urgencyAck give the information that an urgent message has been updated.
          * @readonly
          */
         this.urgencyAck = urgencyAck;
@@ -591,6 +593,12 @@ class Message {
          */
         this.forwardedMsg = forwardedMsg;
 
+        /**
+         * @public
+         * @property {Message} replacedBuMessage original message has been replaced by the spotted Message..
+         * @readonly
+         */
+        this.replacedByMessage = null;
     }
 
     /**
@@ -767,7 +775,7 @@ class Message {
                     } else {
                         // dev-code-console //
                         //console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class can not update Message with : ", val);
+                        console.log("WARNING : One property of the parameter of Message::updateMessage method is not present in the Message class can not update Message with : ", val);
                         // end-dev-code-console //
                     }
                 });

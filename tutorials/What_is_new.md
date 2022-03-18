@@ -6,6 +6,144 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.9.0 - STS Version - LTS BETA - March 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+
+**Others Changes**
+
+-   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
+-   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
+-   Add `ContactsService::searchInAlldirectories` This API allows to search for resources matching given keywords. 
+-   Add `ContactsService::searchInPhonebook` This API allows to search for resources matching given keywords.The search is done on name and phone number.
+-   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
+-   Add `ContactsService::searchUsers` This API allows to search users.
+-   Add `AdminService::deleteLdapConnectorConfig` This API can be used to delete a ldap connector config.
+-   Add `ContactsService::createPersonalDirectoryEntry` This API allows connected user to Create a personal directory entry. 
+-   Add `ContactsService::getListPersonalDirectoryEntriesData` This API allows connected users to get an entry of his personal directory. 
+-   Add `ContactsService::updatePersonalDirectoryEntry` This API allows the connected user to update an entry of his personnal directory. 
+-   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
+-   Fix logs when a restart of the SDK is done.
+-   Fix default typescript export.
+-   Fix documentation of `InvitationsService::sendInvitationsByBulk` and `InvitationsService::sendInvitationByEmail`  
+-   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
+-   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
+-   Add `InvitationsService::searchInvitationsSentFromServer` This API is to retrieve the invites sent to others Rainbow users from server.
+-   Add `ContactsService::getCompanyInfos` This API allows user to get a company data.
+-   Add an automatic start of monitoring on server when the company of the connected user has the `isMonitorable` property setted to true.
+
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   Fix documentation about line feed in HTML.
+-   Replace `sendInitialBubblePresence` with `sendInitialBubblePresenceSync` method to take in to account the event received from server about the presence in the bubble.
+-   Fix missing mime.lookup with mime lib version > 1.5.0 .
+-   Fix delete / leave bubbles methods in BubblesService when the bubble has the property isActive egal to false.
+-   Add a `enablesendurgentpushmessages` property in the options provided to the initialisation of the SDK. This property permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device.
+-   Add generation of search index in Jenkinsfile-sts.groovy file.
+-   Add `removeMacEOL` job in Jenkinsfile-sts.groovy file to remove from generated jsdoc the Mac (\r) end of line character which forbid the use of markdown table in comments.
+-   Add `generatemermaid` job in Jenkinsfile-sts.groovy file to generate mermaid diagram from mmd files (to be used in SDK documentation).
+-   Fix `Conversation::getlastEditableMsg()` method to return the editable only from sent messages. 
+-   Complete and set public the `BubblesService::askConferenceSnapshot` method to returns global information about conference.
+
+
+### SDK for Node.JS 2.7.0 - STS Version - November 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   Update `CallLogService` `ChannelsService` `CallLogService` `ChannelsService` `FileStorage` with categories in the documentation.
+-   Update `GroupsService` `ImsService` `InvitationsSerice` `PresenceService` `ProfilesService` `S2SService` `TelephonyService` with categories in the documentation.
+-   Add `ProfilesService::getThirdPartyApps` to get The list of the Third Party Application that have access to this Rainbow Account. 
+-   Add `ProfilesService::revokeThirdPartyAccess` to revoke the access of a third-party application from Rainbow. 
+-   Fix initialisation of _contactService in FileStorageService.
+-   Add `Bubble::status` property which is the status of the connected user in the bubble ('invited', 'accepted', 'unsubscribed', 'rejected' or 'deleted'). The initial value is "none", it is not a real value.
+-   Add `BubblesService::isBubbleArchived` method to check if the Bubble is an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedArchivedBubbles` method to get all the owned Bubbles in an Archive state (everybody 'unsubscribed'). 
+-   Add `BubblesService::getAllOwnedNotArchivedBubbles` method to  get all the owned Bubbles which are NOT in an Archive state (everybody unsubscribed).
+-   Add "unsubscribed=true" parameter to resquests to server about bubbles. Beside owner and invited/accepted users keep also unsubscribed users.
+-   Update `AdminService` `AlertsService` `BubblesService` `ContactsService` `ConversationsService` with categories in the documentation.
+-   Fix `GroupsService::getGroupByName` and `GroupsService::getGroupById` methods.
+
+
+### SDK for Node.JS 2.6.0 - STS Version - November 2021
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Update `GroupsService::getGroupByName` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `GroupsService::getGroupById` method to search the group on server if not found in cache, so now the method is asynchronous and has a new `forceServerSearch` parameter.
+-   Update `AdminService::retrieveAllSubscriptionsOfCompanyById` API method with a format parameter to get small,middle, or full data.
+
+**Others Changes**
+
+-   Add parameter `raiseLowLevelXmppInEvent` to SDK options to raise an event `rainbow_onxmmpeventreceived` when an XMPP stanza is received. The default value is false. 
+-   Add parameter `raiseLowLevelXmppOutReq` to SDK options to raise an event `rainbow_onxmmprequestsent` when an XMPP stanza is sent. The default value is false.
+-   Fix `AdminService::retrieveRainbowUserList` method.
+-   Update conferences related methods documentation in BubblesService.
+-   Add `rainbow_onbubbleconferenceupdated` event raised during conference life. See `Manage_conferences` documentation and `BubblesService` API for details.
+-   Add `Manage_conferences` documentation for information about conferences.
+-   Fix events documentation and low layer documentation.
+-   Update `Contact::roster` property to false when the `rainbow_oncontactremovedfromnetwork` event is raised instead of removing the Contact from cache.
+-   Add `Contact::isAlertNotificationEnabled` property which allow to know if a user is able to send/receiv an urgency message. 
+
+
 ### SDK for Node.JS 2.1.0-lts.0 - LTS Version - October 2021
 
 ---
@@ -1951,7 +2089,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **SDK**
 
--   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubble)
+-   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubbles)
 
 **API**
 

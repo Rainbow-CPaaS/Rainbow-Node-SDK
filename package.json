@@ -1,6 +1,6 @@
 {
   "name": "rainbow-node-sdk",
-  "version": "2.1.0-lts.0",
+  "version": "2.9.0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
   "type": "commonjs",
@@ -41,6 +41,7 @@
   "homepage": "https://github.com/Rainbow-CPaaS/Rainbow-Node-SDK.git",
   "types": "./index.d.ts",
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^8.13.8",
     "@tsconfig/node14": "^1.0.1",
     "@types/node": "^16.9.1",
     "@xmpp/debug": "^0.13.0",

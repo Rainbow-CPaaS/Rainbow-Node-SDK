@@ -7,6 +7,7 @@ import {ErrorManager} from "./ErrorManager";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {Logger} from "./Logger";
+import {setTimeoutPromised} from "./Utils";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
@@ -84,82 +85,86 @@ class Emitter extends EventEmitterClass{
  * @class
  * @name Events
  * @description
- *      This module fires every events that come from Rainbow.<br/>
- *      To receive them, you need to subscribe individually to each of the following events<br/>
- * @fires Events#rainbow_onrainbowversionwarning
- * @fires Events#rainbow_onmessageserverreceiptreceived
- * @fires Events#rainbow_onmessagereceiptreceived
- * @fires Events#rainbow_onmessagereceiptreadreceived
- * @fires Events#rainbow_onmessagereceived
- * @fires Events#rainbow_onsendmessagefailed
- * @fires Events#rainbow_oncontactpresencechanged
- * @fires Events#rainbow_onpresencechanged
- * @fires Events#rainbow_onconversationremoved
- * @fires Events#rainbow_onconversationchanged
- * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
- * @fires Events#rainbow_onchatstate
- * @fires Events#rainbow_oncontactinformationchanged
- * @fires Events#rainbow_onuserinformationchanged
- * @fires Events#rainbow_onuserinvitereceived
- * @fires Events#rainbow_onuserinviteaccepted
- * @fires Events#rainbow_onuserinvitecanceled
- * @fires Events#rainbow_oncontactremovedfromnetwork
- * @fires Events#rainbow_onbubbleaffiliationchanged
- * @fires Events#rainbow_onbubblepresencechanged
- * @fires Events#rainbow_onbubbleownaffiliationchanged
- * @fires Events#rainbow_onbubbledeleted
- * @fires Events#rainbow_onbubbleinvitationreceived
- * @fires Events#rainbow_onbubbleconferencestartedreceived
- * @fires Events#rainbow_onbubbleconferencestoppedreceived
- * @fires Events#rainbow_onbubblecustomdatachanged
- * @fires Events#rainbow_onbubbletopicchanged
- * @fires Events#rainbow_onbubbleprivilegechanged
- * @fires Events#rainbow_onbubbleavatarchanged
- * @fires Events#rainbow_onbubblenamechanged
- * @fires Events#rainbow_onopeninvitationupdate
- * @fires Events#rainbow_ongroupcreated
- * @fires Events#rainbow_ongroupdeleted
- * @fires Events#rainbow_ongroupupdated
- * @fires Events#rainbow_onuseraddedingroup
- * @fires Events#rainbow_onuserremovedfromgroup
- * @fires Events#rainbow_onstarted
- * @fires Events#rainbow_onstopped
- * @fires Events#rainbow_onready
- * @fires Events#rainbow_onerror
- * @fires Events#rainbow_onconnected
- * @fires Events#rainbow_onconnectionerror
- * @fires Events#rainbow_ondisconnected
- * @fires Events#rainbow_onreconnecting
- * @fires Events#rainbow_onfailed
- * @fires Events#rainbow_oncallupdated
- * @fires Events#rainbow_onconferenced
- * @fires Events#rainbow_ontelephonystatuschanged
- * @fires Events#rainbow_onnomadicstatusevent
- * @fires Events#rainbow_onvoicemessageupdated
- * @fires Events#rainbow_oncallforwarded
- * @fires Events#rainbow_onchannelmessagereceived
- * @fires Events#rainbow_onchannelmyappreciationreceived
- * @fires Events#rainbow_onchannelmessagedeletedreceived
- * @fires Events#rainbow_onprofilefeatureupdated
- * @fires Events#rainbow_onfilecreated
- * @fires Events#rainbow_onfileupdated
- * @fires Events#rainbow_onfiledeleted
- * @fires Events#rainbow_onthumbnailcreated
- * @fires Events#rainbow_onwebinarupdated
- * @fires Events#rainbow_onchannelupdated
- * @fires Events#rainbow_onchannelusersubscription
- * @fires Events#rainbow_onmediapropose
- * @fires Events#rainbow_oncalllogupdated
- * @fires Events#rainbow_oncalllogackupdated
- * @fires Events#rainbow_onfavoritecreated
- * @fires Events#rainbow_onfavoritedeleted
- * @fires Events#rainbow_onxmpperror
- * @fires Events#rainbow_onalertmessagereceived
- * @fires Events#rainbow_onbubblescontainercreated
- * @fires Events#rainbow_onbubblescontainerupdated
- * @fires Events#rainbow_onbubblescontainerdeleted
- * @fires Events#rainbow_onusertokenrenewfailed
- * @fires Events#rainbow_onusertokenwillexpire
+ *      This module fires every events that come from Rainbow.<br>
+ *      To receive them, you need to subscribe individually to each of the following events<br>
+ * @fires Events#rainbow_onxmmpeventreceived <br>
+ * @fires Events#rainbow_onxmmprequestsent <br>
+ * @fires Events#rainbow_onrainbowversionwarning <br>
+ * @fires Events#rainbow_onmessageserverreceiptreceived <br>
+ * @fires Events#rainbow_onmessagereceiptreceived <br>
+ * @fires Events#rainbow_onmessagereceiptreadreceived <br>
+ * @fires Events#rainbow_onmessagereceived <br>
+ * @fires Events#rainbow_onsendmessagefailed <br>
+ * @fires Events#rainbow_oncontactpresencechanged <br>
+ * @fires Events#rainbow_onpresencechanged <br>
+ * @fires Events#rainbow_onconversationremoved <br>
+ * @fires Events#rainbow_onconversationchanged <br>
+ * @fires Events#rainbow_onallmessagedremovedfromconversationreceived <br>
+ * @fires Events#rainbow_onchatstate <br>
+ * @fires Events#rainbow_oncontactinformationchanged <br>
+ * @fires Events#rainbow_onuserinformationchanged <br>
+ * @fires Events#rainbow_onuserinvitereceived <br>
+ * @fires Events#rainbow_onuserinviteaccepted <br>
+ * @fires Events#rainbow_onuserinvitecanceled <br>
+ * @fires Events#rainbow_oncontactremovedfromnetwork <br>
+ * @fires Events#rainbow_onbubbleaffiliationchanged <br>
+ * @fires Events#rainbow_onbubblepresencechanged <br>
+ * @fires Events#rainbow_onbubbleownaffiliationchanged <br>
+ * @fires Events#rainbow_onbubbledeleted <br>
+ * @fires Events#rainbow_onbubbleinvitationreceived <br>
+ * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
+ * @fires Events#rainbow_onbubbleconferenceupdated <br>
+ * @fires Events#rainbow_onbubblecustomdatachanged <br>
+ * @fires Events#rainbow_onbubbletopicchanged <br>
+ * @fires Events#rainbow_onbubbleprivilegechanged <br>
+ * @fires Events#rainbow_onbubbleavatarchanged <br>
+ * @fires Events#rainbow_onbubblenamechanged <br>
+ * @fires Events#rainbow_onopeninvitationupdate <br>
+ * @fires Events#rainbow_ongroupcreated <br>
+ * @fires Events#rainbow_ongroupdeleted <br>
+ * @fires Events#rainbow_ongroupupdated <br>
+ * @fires Events#rainbow_onuseraddedingroup <br>
+ * @fires Events#rainbow_onuserremovedfromgroup <br>
+ * @fires Events#rainbow_onstarted <br>
+ * @fires Events#rainbow_onstopped <br>
+ * @fires Events#rainbow_onready <br>
+ * @fires Events#rainbow_onerror <br>
+ * @fires Events#rainbow_onconnected <br>
+ * @fires Events#rainbow_onconnectionerror <br>
+ * @fires Events#rainbow_ondisconnected <br>
+ * @fires Events#rainbow_onreconnecting <br>
+ * @fires Events#rainbow_onfailed <br>
+ * @fires Events#rainbow_oncallupdated <br>
+ * @fires Events#rainbow_onconferenced <br>
+ * @fires Events#rainbow_ontelephonystatuschanged <br>
+ * @fires Events#rainbow_onnomadicstatusevent <br>
+ * @fires Events#rainbow_onvoicemessageupdated <br>
+ * @fires Events#rainbow_oncallforwarded <br>
+ * @fires Events#rainbow_onchannelmessagereceived <br>
+ * @fires Events#rainbow_onchannelmyappreciationreceived <br>
+ * @fires Events#rainbow_onchannelmessagedeletedreceived <br>
+ * @fires Events#rainbow_onprofilefeatureupdated <br>
+ * @fires Events#rainbow_onfilecreated <br>
+ * @fires Events#rainbow_onfileupdated <br>
+ * @fires Events#rainbow_onfiledeleted <br>
+ * @fires Events#rainbow_onthumbnailcreated <br>
+ * @fires Events#rainbow_onwebinarupdated <br>
+ * @fires Events#rainbow_onchannelupdated <br>
+ * @fires Events#rainbow_onchannelusersubscription <br>
+ * @fires Events#rainbow_onmediapropose <br>
+ * @fires Events#rainbow_onmediaretract <br>
+ * @fires Events#rainbow_oncalllogupdated <br>
+ * @fires Events#rainbow_oncalllogackupdated <br>
+ * @fires Events#rainbow_onfavoritecreated <br>
+ * @fires Events#rainbow_onfavoritedeleted <br>
+ * @fires Events#rainbow_onxmpperror <br>
+ * @fires Events#rainbow_onalertmessagereceived <br>
+ * @fires Events#rainbow_onbubblescontainercreated <br>
+ * @fires Events#rainbow_onbubblescontainerupdated <br>
+ * @fires Events#rainbow_onbubblescontainerdeleted <br>
+ * @fires Events#rainbow_onusertokenrenewfailed <br>
+ * @fires Events#rainbow_onusertokenwillexpire <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -177,6 +182,8 @@ class Events {
     private _logEmitter: EventEmitter;
 
     public sdkPublicEventsName = [
+        "rainbow_onxmmpeventreceived",
+        "rainbow_onxmmprequestsent",
         "rainbow_onrainbowversionwarning",
         "rainbow_onmessageserverreceiptreceived",
         "rainbow_onmessagereceiptreceived",
@@ -202,6 +209,7 @@ class Events {
         "rainbow_onbubbleinvitationreceived",
         "rainbow_onbubbleconferencestartedreceived",
         "rainbow_onbubbleconferencestoppedreceived",
+        "rainbow_onbubbleconferenceupdated",
         "rainbow_onbubblecustomdatachanged",
         "rainbow_onbubbletopicchanged",
         "rainbow_onbubbleprivilegechanged",
@@ -240,6 +248,7 @@ class Events {
         "rainbow_onchannelupdated",
         "rainbow_onchannelusersubscription",
         "rainbow_onmediapropose",
+        "rainbow_onmediaretract",
         "rainbow_oncalllogupdated",
         "rainbow_oncalllogackupdated",
         "rainbow_onfavoritecreated",
@@ -252,6 +261,7 @@ class Events {
         "rainbow_onusertokenrenewfailed",
         "rainbow_onusertokenwillexpire"
     ];
+    public  waitBeforeBubblePresenceSend = false;
 
     constructor( _logger : Logger, _filterCallback : Function) {
         let that = this;
@@ -335,6 +345,28 @@ class Events {
             }
         });
 
+        this._evReceiver.on("evt_internal_xmmpeventreceived", function(...args) {
+
+            /**
+             * @event Events#rainbow_onxmmpeventreceived
+             * @public
+             * @description
+             *      Fired when a xmpp message is received.
+             */
+            that.publishEvent("xmmpeventreceived", ...args);
+        });
+
+        this._evReceiver.on("evt_internal_xmmprequestsent", function(...args) {
+
+            /**
+             * @event Events#rainbow_onxmmprequestsent
+             * @public
+             * @description
+             *      Fired when an xmpp request is sent.
+             */
+            that.publishEvent("xmmprequestsent", ...args);
+        });
+        
         this._evReceiver.on("evt_internal_onmessagereceived", function(message) {
             if (_filterCallback && _filterCallback(message.fromJid)) {
                 that._logger.log("warn", `${LOG_ID} filtering event rainbow_onmessagereceived for jid: ${message.fromJid}` );
@@ -361,7 +393,8 @@ class Events {
              */
             that.publishEvent("sendmessagefailed", message);
         });
-  this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
+        
+        this._evReceiver.on("evt_internal_onrainbowversionwarning", function(data) {
             /**
              * @event Events#rainbow_onrainbowversionwarning
              * @public
@@ -395,14 +428,14 @@ class Events {
              * @public
              * @param {Object} presence The presence object updated (jid, status, message, stamp)
              * @description
-             *      This event is fired when the presence of the connected user changes <br/>
-             *      presence may be <br/>
-             *          + "unknow",<br/>
-             *          + "online" (with status "" | "mode=auto"),<br/>
-             *          + "away" (with status "" | "away"),<br/>
-             *          + "offline" (with status ""),<br/>
-             *          + "invisible" (with status ""),<br/>
-             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br/>
+             *      This event is fired when the presence of the connected user changes <br>
+             *      presence may be <br>
+             *          + "unknow",<br>
+             *          + "online" (with status "" | "mode=auto"),<br>
+             *          + "away" (with status "" | "away"),<br>
+             *          + "offline" (with status ""),<br>
+             *          + "invisible" (with status ""),<br>
+             *          + "dnd" (with status "" | "audio" | "video" | "sharing" | "presentation")<br>
              *      This event is also a confirmation from the server that the new presence value has been set
              */
             that.publishEvent("presencechanged", presence);
@@ -469,14 +502,14 @@ class Events {
             that.publishEvent("contactinformationchanged", contact);
         });
 
-        this._evReceiver.on("evt_internalinformationchanged", function(contact) {
+        this._evReceiver.on("evt_internal_informationchanged", function(contact) {
 
             /**
              * @public
              * @event Events#rainbow_onuserinformationchanged
              * @param { Contact } contact The connected user
              * @description
-             *      This event is fired when a conversation has been removed
+             *      This event is fired when informations about the connected user changed.
              */
             that.publishEvent("userinformationchanged", contact);
         });
@@ -520,7 +553,7 @@ class Events {
             /**
              * @public
              * @event Events#rainbow_oncontactremovedfromnetwork
-             * @param { Contact } contact The contact removed from network.
+             * @param { Object } contact { jid , subscription, ask } The information of the subscrition of the contact removed from network.
              * @description
              *      Fired when a contact is removed from connected user's network.
              *      Note :
@@ -573,23 +606,80 @@ class Events {
             that.publishEvent("bubbledeleted", bubble);
         });
 
-        this._evReceiver.on("evt_internal_invitationdetailsreceived", function(bubble) {
+        this._evReceiver.on("evt_internal_invitationdetailsreceived", async function(bubble) {
             try {
                 if (bubble && bubble.users) {
+                    //bubble.users.forEach(async (user) => {
+                        for (const user of bubble.users) {
+                            if (that._core.options._imOptions.autoInitialBubblePresence) {
+                                if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
+                                    // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                    await that._core._presence.sendInitialBubblePresenceSync(bubble);
+                                }
+                            } else {
+                                that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                            }
+                        }
+                    //});
+                    
+                    /*
+                    bubble.users.forEach(async (user) => {
+                            if (that._core.options._imOptions.autoInitialBubblePresence) {
+                                if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
+                                    // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                    await that._core._presence.sendInitialBubblePresence(bubble);
+                                }
+                            } else {
+                                that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                            }
+                    });
+                    
+                    /*
                     bubble.users.forEach(async (user) => {
                         if (that._core.options._imOptions.autoInitialBubblePresence) {
-                            if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                            if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
                                 // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
                                 //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                if (that.waitBeforeBubblePresenceSend) {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) foreach send initial presence to room : ", bubble.jid, " in a timer of 15 seconds.");
+                                    await setTimeoutPromised(15000);
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) foreach send initial presence to room : ", bubble.jid, " without timer.");
+                                }
+
                                 await that._core._presence.sendInitialBubblePresence(bubble);
                             }
                         } else {
                             that._logger.log("internal", LOG_ID + "(publishEvent) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
                         }
-                    });
+                    }); // */
+                    
+                    /*
+                    for (const user of bubble.users) {
+                        if (that._core.options._imOptions.autoInitialBubblePresence) {
+                            if (user && user.jid_im === that._core._rest.loggedInUser.jid_im && user.status === "accepted") {
+                                // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
+                                //that._core.bubbles._sendInitialBubblePresence(bubble);
+                                if (that.waitBeforeBubblePresenceSend)
+                                {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) send initial presence to room : ", bubble.jid, " in a timer of 15 seconds.");
+                                    await setTimeoutPromised(15000);
+                                } else {
+                                    that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) send initial presence to room : ", bubble.jid , " without timer.");
+                                }
+                                await that._core._presence.sendInitialBubblePresence(bubble);
+                                that._logger.log("debug", LOG_ID + "(evt_internal_invitationdetailsreceived) initial bubble presence sent.");
+                            }
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(evt_internal_invitationdetailsreceived) autoInitialBubblePresence disabled, so do not send initial bubble presence.");
+                        }
+                    };
+                    // */
                 }
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(publishEvent) CATCH Error when evt_internal_invitationdetailsreceived received : ", err);
+                that._logger.log("internalerror", LOG_ID + "(evt_internal_invitationdetailsreceived) CATCH Error when evt_internal_invitationdetailsreceived received : ", err);
             }
             /**
              * @event Events#rainbow_onbubbleinvitationreceived
@@ -621,6 +711,40 @@ class Events {
              *      Fired when an event conference stop in a bubble is received
              */
             that.publishEvent("bubbleconferencestoppedreceived", bubble);
+        });
+
+        
+        // this._evReceiver.on("evt_internal_bubbleconferenceparticipantlistupdated", function(bubble) {
+        //     /**
+        //      * @event Events#rainbow_onbubbleconferenceparticipantlistupdated
+        //      * @public
+        //      * @param { WebConferenceSession } conference The conference with participant added.
+        //      * @description
+        //      *      Fired when an event conference stop in a bubble is received
+        //      */
+        //     that.publishEvent("bubbleconferenceparticipantlistupdated", bubble);
+        // });
+        //
+        // this._evReceiver.on("evt_internal_bubbleconferenceendinvitation", function(bubble) {
+        //     /**
+        //      * @event Events#rainbow_onbubbleconferenceendinvitation
+        //      * @public
+        //      * @param { Bubble } conference The conference with participant added.
+        //      * @description
+        //      *      Fired when an event conference leaved a bubble is received
+        //      */
+        //     that.publishEvent("bubbleconferenceendinvitation", bubble);
+        // });
+
+        this._evReceiver.on("evt_internal_bubbleconferenceupdated", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferenceupdated
+             * @public
+             * @param { Object } conference The conference is updated.
+             * @description
+             *      Fired when an event conference is updated.
+             */
+            that.publishEvent("bubbleconferenceupdated", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {
@@ -948,20 +1072,56 @@ class Events {
             that.publishEvent("channelusersubscription", data);
         });
 
-        // ****************** CALLLOGS *********************
-
+        // ****************** WEBRTC ***********************
+        
         this._evReceiver.on("evt_internal_propose", function (data) {
             /**
              * @event Events#rainbow_onmediapropose
              * @public
-             * @param { Object } infos about the proposed for media :
-             *  { Contact } infos about the contact who proposed for media
-             *  { media } infos about media for the proposed event.
+             * @param { Object } data infos about the proposed for media : <br>
+             *  { Contact } data.contact infos about the contact who proposed for media<br>
+             *  { string } data.xmlns namespace of the propose action<br>
+             *  { string } data.resource resource the resource that has sent the proposed event.<br>
+             *  { Object } data.description { media : string, xmlns :string } infos about media for the proposed event.<br>
+             *  { Object } data.unifiedplan { xmlns : string } information about the version stack proposed. <br>
+             *  { string } data.id id of the propose action, can be used to follow the call if retractected.<br>
              * @description
              *      Fired when received an event of propose for media.
              */
             that.publishEvent("mediapropose", data);
         });
+
+        this._evReceiver.on("evt_internal_retract", function (data) {
+            /**
+             * @event Events#rainbow_onmediaretract
+             * @public
+             * @param { Object } data infos about the proposed for media : <br>
+             *  { Contact } data.contact infos about the contact who proposed for media<br>
+             *  { resource } data.resource the resource that has sent the proposed event.<br>
+             *  { string } data.xmlns namespace of the propose action<br>
+             *  { string } data.id id of the retract action, it is the call propose id received before.<br>
+             * @description
+             *      Fired when received an event of propose for media.
+             */
+            that.publishEvent("mediaretract", data);
+        });
+        
+        this._evReceiver.on("evt_internal_accept", function (data) {
+            /**
+             * @event Events#rainbow_onmediaaccept
+             * @public
+             * @param { Object } data infos about the accept Webrtc call : <br>
+             *  { Contact } data.contact infos about the contact who accept for media<br>
+             *  { resource } data.resource the resource that has sent the accept event.<br>
+             *  { string } data.xmlns namespace of the accept action<br>
+             *  { string } data.id id of the accept action, it is the call propose id received before.<br>
+             * @description
+             *      Fired when received an event of accept for media.
+             */
+            that.publishEvent("mediaaccept", data);
+        });
+        
+        // ****************** CALLLOGS *********************
 
         this._evReceiver.on("evt_internal_calllogupdated", function (data) {
             /**

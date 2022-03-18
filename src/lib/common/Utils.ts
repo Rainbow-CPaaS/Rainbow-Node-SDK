@@ -222,7 +222,10 @@ function addDaysToDate(date, days) {
     return result;
 }
 
-function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : string) {
+function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : any) {
+    if (paramValue == undefined || paramValue == null) {
+        return;
+    } 
     if (paramValue && urlParams) {
         if (urlParams[0].includes("?") ) {
             urlParams[0] += "&" ;
@@ -230,7 +233,7 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
             urlParams[0] += "?";
         }
         //urlParams[0] += urlParams[0] ? "&" : "?";
-        urlParams[0] += paramName + "=" + paramValue;
+        urlParams[0] += paramName + "=" + encodeURIComponent(paramValue);
     }
 }
 
@@ -278,6 +281,11 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 } else {
                     let logger = this.logger ? this.logger : this._logger ? this._logger : {};
                     let start_up = isStart_upService(this.startConfig);
+                   /* if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
+                        //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
+                        logger.log("internal", "LOG_ID" + logger.colors.data("isStarted "  + this.getClassName() + "::" + propertyName) + ", start_up : ", start_up, ", ignoreTheStartedState : ", ignoreTheStartedState, ", this._started : ", this._started);
+                    } // */
+
                     if (ignoreTheStartedState) {
                         if (start_up) {
                             //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _entering_"));
@@ -317,10 +325,10 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
     }
 }
 
-function logEntryExit(LOG_ID) : any{
-    return function (target, key, descriptor) : any {
+function logEntryExit(LOG_ID) : any {
+    return function (target, key, descriptor): any {
         let keys = Object.getOwnPropertyNames(target.prototype);
-        keys.forEach((propertyName)=> {
+        keys.forEach((propertyName) => {
             const descriptor = Object.getOwnPropertyDescriptor(target.prototype, propertyName);
             const isMethod = descriptor.value instanceof Function;
             if (!isMethod)
@@ -333,21 +341,31 @@ function logEntryExit(LOG_ID) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                if (this == null || originalMethod.name === "getClassName" || propertyName === "getClassName") {
+                if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
-                   /* if (!this.getClassName) {
-                        this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
-                    } // */
-                    let logger = this.logger ? this.logger : this._logger ? this._logger : {};
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
-                    returnValue = originalMethod.apply(this, args);
-                    logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" +  propertyName + "(...) _exiting_"));
+                    let logger = this.logger ? this.logger:this._logger ? this._logger:{};
+                    try {
+
+                        /* if (!this.getClassName) {
+                             this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
+                         } // */
+                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
+                            //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
+                            logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
+                            //logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args, ", this ", this.constructor.name );
+                        } // */
+
+                        returnValue = originalMethod.apply(this, args);
+                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
+                    } catch (err) {
+                        logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
+                    }
                 }
                 // Return back the value to the execution stack
                 return returnValue;
             };
-
             Object.defineProperty(target.prototype, propertyName, descriptor);
         });
     }

@@ -6,6 +6,7 @@
 import {Call} from "./Call";
 //const uuid4 = require("uuid/v4");
 import { v4 as uuid4 } from 'uuid';
+import {Message} from "./Message";
 
 
 /**
@@ -436,12 +437,18 @@ class Conversation {
     }
 
     getlastEditableMsg() {
-        this.messages.sort((a, b) => {
+        let messgs = this.messages.filter((mess) => {
+            return (mess.side === Message.Side.RIGHT) ;
+        });
+        
+        messgs.sort((a, b) => {
             let dateElmt1 = new Date(a.date);
             let dateElmt2 = new Date(b.date);
-            return dateElmt1.getTime() - dateElmt2.getTime();
+            return dateElmt2.getTime() - dateElmt1.getTime();
         });
-        return this.messages.slice(-1)[0];
+        
+        return messgs[0];
+        // return this.messages.slice(-1)[0];
     }
 }
 
