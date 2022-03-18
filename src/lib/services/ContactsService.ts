@@ -605,7 +605,48 @@ class ContactsService extends GenericService {
                     });
         });
     }
-    
+
+    /**
+     * @public
+     * @method getCompanyInfos
+     * @instance
+     * @category Contacts INFORMATIONS
+     * @param {string} companyId The company id
+     * @param {string} format
+     * @param {boolean} selectedThemeObj
+     * @param {string} name
+     * @param {string} status
+     * @param {string} visibility
+     * @param {string} organisationId
+     * @param {boolean} isBP
+     * @param {boolean} hasBP
+     * @param {string} bpType
+     * @description
+     *  This API allows user to get a company data.<br> 
+     *     **Users can only retrieve their own company and companies they can see** (companies with `visibility`=`public`, companies having user's companyId in `visibleBy` field, companies being in user's company organization and having `visibility`=`organization`, BP company of user's company).<br> 
+     *     If user request his own company, `numberUsers` field is returned with the number of Rainbow users being in this company. <br>
+     * @return {string} Contact avatar URL or file
+     */
+    getCompanyInfos(companyId? : string, format : string = "small", selectedThemeObj : boolean = false, name? : string, status? : string, visibility? : string, organisationId? : string, isBP? : boolean, hasBP? : boolean, bpType? : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            if (!companyId) {
+                let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
+                companyId = connectedUser.companyId;
+            }
+
+            that._logger.log("debug", LOG_ID + "(getCompanyInfos) companyId : ", companyId);
+            
+            that._rest.getCompanyInfos(companyId, format, selectedThemeObj, name, status, visibility, organisationId, isBP, hasBP, bpType ).then((result: any) => {
+                that._logger.log("info", LOG_ID + "(getCompanyInfos) company informations found on server.");
+                that._logger.log("internal", LOG_ID + "(getCompanyInfos) company informations found on server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
     /**
      * @public
      * @method getAvatarByContactId

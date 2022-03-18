@@ -457,11 +457,16 @@ class RESTService extends GenericRESTService {
         }
         // If no token is provided, then signin with user/pwd credentials.
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(function (JSON) {
+            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(async function (JSON) {
                 that.account = JSON.loggedInUser;
                 that.account.jid = that.account.jid ? that.account.jid : that.account.jid_im;
                 that.app = JSON.loggedInApplication;
                 that.tokenRest = JSON.token;
+
+                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full",false,undefined,undefined,undefined,undefined,undefined, undefined,undefined);
+
+                that.account.company = companyInfo;
+                
                 that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
                 //that.logger.log("debug", LOG_ID + "(signin) user information ", that.account);
                 that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
@@ -3116,6 +3121,40 @@ Request Method: PUT
         });
     }
 
+    getCompanyInfos(companyId, format : string = "full", selectedThemeObj : boolean = false, name : string, status : string, visibility : string, organisationId : string, isBP : boolean, hasBP : boolean, bpType : string) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanyById
+        // URL get /api/rainbow/enduser/v1.0/companies/:companyId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/enduser/v1.0/companies/' + companyId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "visibility", visibility);
+            addParamToUrl(urlParamsTab, "organisationId", organisationId);
+            addParamToUrl(urlParamsTab, "isBP", isBP);
+            addParamToUrl(urlParamsTab, "hasBP", hasBP);
+            addParamToUrl(urlParamsTab, "bpType", bpType);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getCompanyInfos) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getCompanyInfos) successfull");
+                that.logger.log("internal", LOG_ID + "(getCompanyInfos) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCompanyInfos) error");
+                that.logger.log("internalerror", LOG_ID, "(getCompanyInfos) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     //region Company visibility
     
     setVisibilityForCompany(companyId, visibleByCompanyId) {

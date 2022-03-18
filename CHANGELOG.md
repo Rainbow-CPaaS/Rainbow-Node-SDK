@@ -25,6 +25,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
 -   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
 -   Add `InvitationsService::searchInvitationsSentFromServer` This API is to retrieve the invites sent to others Rainbow users from server.
+-   Add `ContactsService::getCompanyInfos` This API allows user to get a company data.
+-   Add an automatic start of monitoring on server when the company of the connected user has the `isMonitorable` property setted to true.
+-   Add `ContactsService::getCompanyInfos` This API allows user to get a company data.
 
 ## [2.8.2] - 2022-02-18
 -   Add documentation about telephony call : `Telephony_calls.md`.

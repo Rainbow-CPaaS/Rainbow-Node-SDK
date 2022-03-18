@@ -96,7 +96,8 @@ const NameSpacesLabels = {
     "MamNameSpace" : "urn:xmpp:mam:1",
     "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
     "AttentionNS" : "urn:xmpp:attention:0",
-    "IncidentCap" : "http://www.incident.com/cap/1.0"
+    "IncidentCap" : "http://www.incident.com/cap/1.0",
+    "MonitoringNS" : "urn:xmpp:monitoring:0"
 };
 
 @logEntryExit(LOG_ID)
@@ -141,6 +142,7 @@ class XMPPService extends GenericService {
     private messagesDataStore: DataStoreType;
     private raiseLowLevelXmppInEvent: boolean;
     private raiseLowLevelXmppOutReq: boolean;
+    private company: any;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
@@ -236,6 +238,8 @@ class XMPPService extends GenericService {
                 //that.resourceId =  "/node_" + that.generatedRandomId ;
                 that.resourceId =  "node_" + that.generatedRandomId ;
                 that.jid = account.jid_im;
+                
+                that.company = account.company;
 
                 that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
 
@@ -480,6 +484,26 @@ class XMPPService extends GenericService {
             that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
 
+            let forceMonitoring = true;
+            if (that.company && (that.company.isMonitorable == true || forceMonitoring)) {
+                // send monitoring iq.
+                /* 
+                <iq xmlns="jabber:client" from="romeo@montague.example/garden" id="123456" type="set" >
+  <enable xmlns="urn:xmpp:monitoring:0" companyId="60ae30f1334f9a0741e4102f"/>
+</iq>
+                 */
+                let companyId = that.company.id;
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) Send subscribe monitoring. companyId : ", companyId);
+                let stanza = xml("iq", {
+                    type: "set",                    
+                    xmlns: NameSpacesLabels.ClientNameSpace,
+                    "id": that.xmppUtils.getUniqueMessageId()
+                }, xml("enable", { "companyId" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
+
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send - 'iq set' : ", stanza.root().toString());
+                that.xmppClient.sendIq(stanza);
+            }
+            
             if (!that.isReconnecting) {
                 that.eventEmitter.emit("xmppconnected");
             }
