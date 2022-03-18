@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.9.0] - 2022-02-XX
+## [2.9.0] - 2022-03-18
 -   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
 -   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
 -   Add `ContactsService::searchInAlldirectories` This API allows to search for resources matching given keywords. 

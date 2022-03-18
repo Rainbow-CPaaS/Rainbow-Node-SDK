@@ -6,7 +6,46 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.8.0 - STS Version - LTS BETA - january 2022
+### SDK for Node.JS 2.9.0 - STS Version - LTS BETA - March 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+
+**Others Changes**
+
+-   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
+-   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
+-   Add `ContactsService::searchInAlldirectories` This API allows to search for resources matching given keywords. 
+-   Add `ContactsService::searchInPhonebook` This API allows to search for resources matching given keywords.The search is done on name and phone number.
+-   Add `ContactsService::searchUserByPhonenumber` This API allows to search user being associated to the requested number.
+-   Add `ContactsService::searchUsers` This API allows to search users.
+-   Add `AdminService::deleteLdapConnectorConfig` This API can be used to delete a ldap connector config.
+-   Add `ContactsService::createPersonalDirectoryEntry` This API allows connected user to Create a personal directory entry. 
+-   Add `ContactsService::getListPersonalDirectoryEntriesData` This API allows connected users to get an entry of his personal directory. 
+-   Add `ContactsService::updatePersonalDirectoryEntry` This API allows the connected user to update an entry of his personnal directory. 
+-   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
+-   Fix logs when a restart of the SDK is done.
+-   Fix default typescript export.
+-   Fix documentation of `InvitationsService::sendInvitationsByBulk` and `InvitationsService::sendInvitationByEmail`  
+-   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
+-   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
+-   Add `InvitationsService::searchInvitationsSentFromServer` This API is to retrieve the invites sent to others Rainbow users from server.
+-   Add `ContactsService::getCompanyInfos` This API allows user to get a company data.
+-   Add an automatic start of monitoring on server when the company of the connected user has the `isMonitorable` property setted to true.
+
 
 ---
 
