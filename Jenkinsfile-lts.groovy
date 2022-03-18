@@ -215,7 +215,7 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                        stage('Debian Build') {
+                        stage('Build Debian Folder') {
                             try {                         
                                 echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
                                 sh script: """
@@ -248,11 +248,38 @@ pipeline {
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
                                 
-                                echo FIND Documentation :  
-                                find Documentation/
-                                #cd "${workspace}/Documentation"
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                                
                                 """
+     
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+                        
+                         stage("Generate documentation search index") {
+                            try {
+                                echo "Build Hub V2 search index : "
+                                   // unstash 'DocumentationFolder'
+                                   sh script: """
+                                 # echo "folder where run the Build Hub V2 search index."
+                                 # pwd 
+                                 # ls 
+                                """
+                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                            } catch (Exception e) {
+                                echo "Failure: ${currentBuild.result}: ${e}"
+                            }
+                        }
+                          
+                         stage('Build Debian package') {
+                            try {
                                 echo "Build debian the package : "
+                                sh script: """
+                                    #find Documentation/
+                                    #cd "${workspace}/Documentation"
+                                """
+                                
                                 debianBuild(
                                     debianPath: 'Documentation',
                                     nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
@@ -261,8 +288,11 @@ pipeline {
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
+                            finally {
+                                //    notifyBuild(currentBuild.result)
+                            }
                         }
-                          
+                            
                         stage('Debian Publish') {
                             try {
                                 echo "Publish Debian package : "
