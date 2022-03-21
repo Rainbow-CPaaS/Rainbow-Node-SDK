@@ -1564,6 +1564,50 @@ class ContactsService extends GenericService {
         });
     }
 
+    /**
+     * @public
+     * @method getDirectoryEntryData
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category  Contacts Personnal Directory
+     * @param {string} entryId Id of the entry.
+     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+     * - small: id, firstName, lastName  <br>
+     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+     * - full: all fields. <br>
+     * default : small <br>
+     * Valid values : small, medium, full <br>
+     * @description
+     *      This API allows user to get data about an entry of his personnal directory.<br>
+     * @return {Promise<any>}
+     */
+    getDirectoryEntryData (entryId : string, format : string = "small") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!entryId) {
+                    this._logger.log("warn", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getDirectoryEntryData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
    
     /**
      * @public
