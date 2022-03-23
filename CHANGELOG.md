@@ -9,6 +9,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.10.0] - 2022-03-18
 -   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
 
+## [2.9.1] - 2022-03-23
+-   Fix RESTService at login to getCompanyInfos when it failed.
+
 ## [2.9.0] - 2022-03-18
 -   Add `ImsService::sendMessageToJidAcknowledged` method to Send an Acknowledged reply to an urgent message (one to one, or bubble)
 -   Add `ImsService::sendMessageToJidIgnored` method to Send an Ignored reply to an urgent message (one to one, or bubble)
