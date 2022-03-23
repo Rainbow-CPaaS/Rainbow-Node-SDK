@@ -4357,10 +4357,11 @@ let urlS2S;
             token = result.token;
             logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
             logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
-
+/*
             let companyInfo = await rainbowSDK.contacts.getCompanyInfos();
 
             logger.log("debug", "MAIN - company infos :" , companyInfo);
+// */
             /*
                     await rainbowSDK.stop().then((result)=>{
                         logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));

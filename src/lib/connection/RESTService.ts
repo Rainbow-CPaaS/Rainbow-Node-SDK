@@ -463,8 +463,10 @@ class RESTService extends GenericRESTService {
                 that.app = JSON.loggedInApplication;
                 that.tokenRest = JSON.token;
 
-                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full",false,undefined,undefined,undefined,undefined,undefined, undefined,undefined);
-
+                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full",false,undefined,undefined,undefined,undefined,undefined, undefined,undefined).catch((err) => {
+                            that.logger.log("warn", LOG_ID + "(signin) failed to get company information : ", err);
+                        }
+                );
                 that.account.company = companyInfo;
                 
                 that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
