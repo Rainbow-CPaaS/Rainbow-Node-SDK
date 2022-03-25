@@ -10,6 +10,7 @@ const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
 const stripAnsi = require('strip-ansi');
+const Cryptr = require('cryptr');
 //import stripAnsi from 'strip-ansi';
 /* let stripAnsi;
 (async () => {
@@ -56,9 +57,12 @@ class Logger {
 	public hideUuid: any;
 	private _logEventEmitter: EventEmitter;
     private emit: (event, info) => void;
+    private cryptr : any;
 
     constructor(config) {
 
+        const cryptr = new Cryptr('rainbow-node-sdk-1654341354345486797943542318461318730123013');
+        
         this.colors = colors;
 
         this.colors.setTheme({
@@ -235,6 +239,14 @@ class Logger {
 
         this._logger.warn = function () {
             that._logger.log.apply(that._logger, ["warn", ...arguments]);
+        };
+        
+        this._logger.encrypt = function (str) {
+            return cryptr.encrypt(str);            
+        };
+
+        this._logger.decrypt = function (str) {
+            return cryptr.decrypt(str);            
         };
 
         this.hideId = function (url) {
