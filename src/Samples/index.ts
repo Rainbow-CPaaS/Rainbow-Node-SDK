@@ -152,6 +152,7 @@ let urlS2S;
             "enableConsoleLogs": true,
             "enableFileLogs": false,
             "enableEventsLogs": false,
+            "enableEncryptedLogs": true,
             "color": true,
             //"level": "info",
             "level": "debug",
@@ -4349,6 +4350,8 @@ let urlS2S;
         await rainbowSDK.stop();
     }
 
+    logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
+    
     rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
         try {

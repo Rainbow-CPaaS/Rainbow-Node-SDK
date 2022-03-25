@@ -52,6 +52,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.logs.enableConsoleLogs false, Activate logs on the console.
  * @property {boolean} options.logs.enableFileLogs false, Activate the logs in a file.
  * @property {boolean} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+ * @property {boolean} options.logs.enableEncryptedLogs: true, Activate the logs of stanza exchange to be encrypted and loggued.
  * @property {boolean} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module, or notepad++ + python + error_list_lexer_support (https://github.com/Ekopalypse/NppPythonScripts/blob/master/npp/error_list_lexer_support.py) )).
  * @property {string} options.logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
  * @property {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
@@ -155,6 +156,7 @@ type OptionsType = {
         "enableConsoleLogs": boolean,
         "enableFileLogs": boolean,
         "enableEventsLogs": boolean,
+        "enableEncryptedLogs": boolean,
         "color": boolean,
         //"level": "info",
         "level": string,
@@ -291,6 +293,11 @@ function unhandledRejection(reason, p) {
  * NodeSDK Class
  */
 class NodeSDK {
+    private _option = {};
+    get option(): {} {
+        return this._option;
+    }
+
     public _core: Core;
     public startTime: Date;
     static NodeSDK: any;
@@ -326,6 +333,7 @@ class NodeSDK {
      * @param {string} options.logs.enableConsoleLogs false, Activate logs on the console.
      * @param {string} options.logs.enableFileLogs false, Activate the logs in a file.
      * @param {string} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+     * @param {string} options.logs.enableEncryptedLogs: true, Activate the encryption of stanza in logs.
      * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)). 
      * @param {string} options.logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
      * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
@@ -422,6 +430,7 @@ class NodeSDK {
         process.on("SIGTERM", this.stopProcess());
         //process.on("SIGUSR2", that.stopProcess());
 
+        this._option = options;
         this._core = new Core(options);
         this.logger = this._core.logger
     }
