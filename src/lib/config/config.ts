@@ -87,6 +87,7 @@ let conf =  {
         color: false,
         enableConsoleLog: true,
         enableEventsLogs: false,
+        enableEncryptedLogs: true,
         "system-dev": {
             internals: false,
             http: false

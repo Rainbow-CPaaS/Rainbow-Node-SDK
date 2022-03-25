@@ -43,6 +43,7 @@ const myFormatNoColors = winston.format.printf(info => {
 
 
 class Logger {
+    private enableEncryptedLogs: boolean = true;
     get logEventEmitter(): NodeJS.EventEmitter {
         return this._logEventEmitter;
     }
@@ -110,8 +111,9 @@ class Logger {
         let enableConsoleLog = true;
         let enableFileLog = false;
         let enableEventsLogs = false;
+        let enableEncryptedLogs = true;
         let customFileName = "";
-
+        
         // dev-code //
         this.argumentsToString = this.argumentsToStringReduced;
         // end-dev-code //
@@ -161,6 +163,14 @@ class Logger {
             enableEventsLogs = false;
         }
 
+        // Check for Encryption of stanza in log
+        if (("logs" in config) && ("enableEncryptedLogs" in config.logs) && config.logs.enableEncryptedLogs == false)  {
+            enableEncryptedLogs = false;
+        } else {
+            enableEncryptedLogs = true;
+        }
+        this.enableEncryptedLogs = enableEncryptedLogs;
+
         // Set Path for log file
         if (enableFileLog) {
             if (("logs" in config) && ("file" in config.logs) && ("path" in config.logs.file)) {
@@ -208,12 +218,13 @@ class Logger {
             }
         }
 
-        let that = this;
+        let that : any = this;
         this._winston = {};
         this._logger = {};
         this._logger.customLabel = "";
         this._logger.logHttp = logHttp;
         this._logger.argumentsToString = that.argumentsToString;
+        this._logger.enableEncryptedLogs = that.enableEncryptedLogs;
 
         if (("logs" in config) && ("customLabel" in config.logs))  {
             this._logger.customLabel = config.logs.customLabel + " - " ;
@@ -242,7 +253,11 @@ class Logger {
         };
         
         this._logger.encrypt = function (str) {
-            return cryptr.encrypt(str);            
+            if (enableEncryptedLogs == true) {
+                return cryptr.encrypt(str);
+            } else {
+                return ("");
+            }
         };
 
         this._logger.decrypt = function (str) {
