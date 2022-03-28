@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.10.0] - 2022-03-18
+-   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
+
 ## [2.9.1] - 2022-03-23
 -   Fix RESTService at login to getCompanyInfos when it failed.
 

@@ -231,7 +231,7 @@ pipeline {
                      
                                 echo "update files with doc/sdk/node path which should be doc/sdk/node/lts into the folder Documentation ."
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-lts/" debian/control |tee "${workspace}/Documentation/debian/control"      
-                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/lts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md
@@ -242,7 +242,7 @@ pipeline {
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/lts/guides/Getting_Started.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/lts/guides/Legals.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_conferences.md"
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/lts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
@@ -266,7 +266,7 @@ pipeline {
                                  # pwd 
                                  # ls 
                                 """
-                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
