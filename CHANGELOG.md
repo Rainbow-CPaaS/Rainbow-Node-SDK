@@ -8,6 +8,17 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.10.0] - 2022-03-18
 -   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
+-   Add `BubblesService::createBubblePoll` This API allow to create a Poll for a bubble.
+-   Add `BubblesService::deleteBubblePoll` This API allows user to delete a Poll for a bubble.
+-   Add `BubblesService::getBubblePoll` This API allows user to get data of a Poll for a bubble.
+-   Add `BubblesService::getBubblePollsByBubble` This API allows user to get polls for a room.
+-   Add `BubblesService::publishBubblePoll` This API allows user to publish a Poll for a bubble.
+-   Add `BubblesService::terminateBubblePoll` This API allows user to terminate a Poll for a bubble.
+-   Add `BubblesService::unpublishBubblePoll` This API allows user to unpublish a Poll for a bubble.
+-   Add `BubblesService::updateBubblePoll` This API allows user to update poll.
+-   Add `BubblesService::votesForBubblePoll` This API allows user to vote for a Poll for a bubble.
+-   Add events for the polls : `rainbow_onbubblepollcreated`, `rainbow_onbubblepolldeleted`, `rainbow_onbubblepollpublished`, `rainbow_onbubblepollunpublished`, `rainbow_onbubblepollterminated`, `rainbow_onbubblepollupdated`, `rainbow_onbubblepollvoted`
+-   Fix `AdminService::checkCSVforSynchronization` method.
 
 ## [2.9.1] - 2022-03-23
 -   Fix RESTService at login to getCompanyInfos when it failed.

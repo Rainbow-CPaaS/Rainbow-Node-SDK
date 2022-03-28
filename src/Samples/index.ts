@@ -150,7 +150,7 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": true,
             "color": true,
@@ -4242,6 +4242,85 @@ let urlS2S;
 
     //endregion Clients Versions
 
+    //region bubbles polls
+
+    async function testcreateBubblePollAndDelete() {
+        let that = this;
+
+        //let res = await rainbowSDK.bubbles.createBubblePoll();
+        //logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+
+        logger.log("debug", "MAIN - (testcreateBubblePollAndDelete). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let loginEmail = "vincent02@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
+            if (contact) {
+                logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.bubbles.createBubble("testcreateBubblePollAndDelete" + utc, "testcreateBubblePollAndDelete" + utc, true).then((bubble: any) => {
+                    logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubble request ok, bubble : ", bubble);
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
+
+                        let questions : Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }> = [
+                            {
+                                text : "Question 1",
+                                multipleChoice : true,
+                                answers : [{text : "oui"} , {text : "non"}]
+                            }
+                        ];
+                        rainbowSDK.bubbles.createBubblePoll(bubble.id, "My Poll", questions, false, 0).then(async (pollCreated: any) => {
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubblePoll request ok, pollCreated : ", pollCreated);
+
+                            await setTimeoutPromised(3000);
+
+                            let polls = await rainbowSDK.bubbles.getBubblePollsByBubble (bubble.id, "full", 100, 0) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble request ok, result : ", polls);
+
+                            let updatePollResult = await rainbowSDK.bubbles.updateBubblePoll(pollCreated.pollId, bubble.id, "My Poll updated", questions, false, 0);
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: updateBubblePoll request ok, result : ", updatePollResult);
+
+                            let pollsUpdated = await rainbowSDK.bubbles.getBubblePollsByBubble (bubble.id, "full", 100, 0) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble updated request ok, result : ", pollsUpdated);
+                            
+                            let pollPublishedResult = await rainbowSDK.bubbles.publishBubblePoll (pollCreated.pollId) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult);
+
+                            let votesPollResult = await rainbowSDK.bubbles.votesForBubblePoll (pollCreated.pollId, [{ "question" : 0, "answers" : [0]}]) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: votesForBubblePoll request ok, result : ", votesPollResult);
+
+                            let unpollPublishedResult = await rainbowSDK.bubbles.unpublishBubblePoll (pollCreated.pollId) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: unpublishBubblePoll request ok, result : ", unpollPublishedResult);
+
+                            let pollPublishedResult2 = await rainbowSDK.bubbles.publishBubblePoll (pollCreated.pollId) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult2);
+
+                            let terminatedBubblePollResult = await rainbowSDK.bubbles.terminateBubblePoll(pollCreated.pollId) ;
+                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: terminateBubblePoll request ok, result : ", terminatedBubblePollResult);
+                            
+                            
+
+                            rainbowSDK.bubbles.deleteBubblePoll(pollCreated.pollId).then(async (result) => {
+                                logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: deleteBubblePoll request ok, polls : ", result);
+    
+                                rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
+                                    logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: closeAndDeleteBubble request ok, result : ", result);
+                                });
+                            });
+
+                        });
+                    });
+                });
+            }
+        });
+    }
+
+    async function testdeleteBubblePoll() {
+        let that = this;
+        //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
+        let res = await rainbowSDK.bubbles.deleteBubblePoll(undefined);
+        logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
+    }
+
+    //endregion bubbles polls
 
     function testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;
@@ -4361,7 +4440,9 @@ let urlS2S;
             logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
             logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 /*
-            let companyInfo = await rainbowSDK.contacts.getCompanyInfos();
+            let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
+                logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
+            });
 
             logger.log("debug", "MAIN - company infos :" , companyInfo);
 // */

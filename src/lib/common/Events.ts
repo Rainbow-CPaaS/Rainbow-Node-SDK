@@ -165,6 +165,13 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubblescontainerdeleted <br>
  * @fires Events#rainbow_onusertokenrenewfailed <br>
  * @fires Events#rainbow_onusertokenwillexpire <br>
+ * @fires Events#rainbow_onbubblepollcreated <br>
+ * @fires Events#rainbow_onbubblepolldeleted <br>
+ * @fires Events#rainbow_onbubblepollpublished <br>
+ * @fires Events#rainbow_onbubblepollunpublished <br>
+ * @fires Events#rainbow_onbubblepollterminated <br>
+ * @fires Events#rainbow_onbubblepollupdated <br>
+ * @fires Events#rainbow_onbubblepollvoted <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -259,7 +266,14 @@ class Events {
         "rainbow_onbubblescontainerupdated",
         "rainbow_onbubblescontainerdeleted",
         "rainbow_onusertokenrenewfailed",
-        "rainbow_onusertokenwillexpire"
+        "rainbow_onusertokenwillexpire",
+        "rainbow_onbubblepollcreated",
+        "rainbow_onbubblepolldeleted",
+        "rainbow_onbubblepollpublished",
+        "rainbow_onbubblepollunpublished",
+        "rainbow_onbubblepollterminated",
+        "rainbow_onbubblepollupdated",
+        "rainbow_onbubblepollvoted"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1261,6 +1275,94 @@ class Events {
              *      It is recommended to renew the token upon the arrival of this event.
              */
             that.publishEvent("usertokenwillexpire", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_poll_create", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollcreated
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is created in bubble.
+             */
+            that.publishEvent("bubblepollcreated", data);
+        });
+
+        /*this._evReceiver.on("evt_internal_bubble_poll_delete", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepolldeleted
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is deleted in bubble.
+             */
+/*            that.publishEvent("bubblepolldeleted", data);
+        });
+// */
+
+        this._evReceiver.on("evt_internal_bubble_poll_pollPublish", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollpublished
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is Published in bubble.
+             */
+            that.publishEvent("bubblepollpublished", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_poll_pollUnpublish", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollunpublished
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is unpublished in bubble.
+             */
+            that.publishEvent("bubblepollunpublished", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_poll_pollTerminate", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollterminated
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is terminated in bubble.
+             */
+            that.publishEvent("bubblepollterminated", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_poll_pollDelete", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepolldeleted
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is deleted in bubble.
+             */
+            that.publishEvent("bubblepolldeleted", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_poll_update", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollupdated
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is updated in bubble.
+             */
+            that.publishEvent("bubblepollupdated", data);
+        });
+        this._evReceiver.on("evt_internal_bubble_poll_pollVote", function (data) {
+            /**
+             * @event Events#rainbow_onbubblepollvoted
+             * @public
+             * @param { Object } data informations about poll 
+             * @description
+             *      This event is fired when a poll is voted in bubble.
+             */
+            that.publishEvent("bubblepollvoted", data);
         });
 
     }

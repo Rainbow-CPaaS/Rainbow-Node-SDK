@@ -382,6 +382,9 @@ class AlertEventHandler extends GenericHandler {
                     case "webinar":
                         // treated in webinarEventHandler
                         break;
+                    case "poll":
+                        // treated in conversationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

@@ -392,7 +392,7 @@ class Core {
             if (!self._rest.p_decodedtokenRest || ( self._rest.p_decodedtokenRest && ! self._rest.p_decodedtokenRest.oauth)) {
                 self._eventEmitter.iee.emit("evt_internal_signinrequired");
             } else {
-                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. Extarnal renew required");
+                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
                 self._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
             }
         };

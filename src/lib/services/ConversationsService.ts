@@ -274,7 +274,8 @@ class ConversationsService extends GenericService {
             if (conversation.addMessage) {
                 conversation.addMessage(message);
             } else {
-                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
+                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ");
+                //that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
                 if (conversation && conversation.id) {
                     conversation = await that.getConversationById(conversation.id);
                     that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);

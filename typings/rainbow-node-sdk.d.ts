@@ -4088,7 +4088,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {number} subStreamLevel Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available at publisher side. <br>
 	     * Authorized values : 0, 1, 2 <br>
 	     * @param {boolean} dynamicFeed Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
-	     *     Valeur par défaut : false <br>
+	     *     Default value : false <br>
 	     * @async
 	     * @description
 	     *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>
@@ -4848,8 +4848,8 @@ declare module 'lib/services/ContactsService' {
 	     * @param {Object} dataToUpdate :
 	     * {
 	     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx) Ordre de grandeur : 1..32
-	     * {string} type 	String Phone number type Valeurs autorisées : home, work, other
-	     * {string} deviceType 	String Phone number device type Valeurs autorisées : landline, mobile, fax, other
+	     * {string} type 	String Phone number type Possible values : home, work, other
+	     * {string} deviceType 	String Phone number device type Possible values : landline, mobile, fax, other
 	     * {boolean} isVisibleByOthers optionnel 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
 	     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
 	     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
@@ -4862,7 +4862,7 @@ declare module 'lib/services/ContactsService' {
 	     * {string} nickName optionnel 	String User nickName Ordre de grandeur : 1..255
 	     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) Ordre de grandeur : 1..40
 	     * {string} jobTitle optionnel 	String User job title Ordre de grandeur : 1..255
-	     * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Valeur par défaut : same_than_company Valeurs autorisées : same_than_company, public, private, closed, isolated, none
+	     * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Default value : same_than_company Possible values : same_than_company, public, private, closed, isolated, none
 	     * {boolean} isInitialized optionnel 	Boolean Is user initialized
 	     * {string} timezone optionnel 	String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
 	     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. Ordre de grandeur : 2|5
@@ -4871,7 +4871,7 @@ declare module 'lib/services/ContactsService' {
 	     * {string} department optionnel 	String User department Ordre de grandeur : 1..255
 	     * {string} email 	String User email address Ordre de grandeur : 3..255
 	     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. Ordre de grandeur : 3
-	     * {string} type 	String User email type Valeurs autorisées : home, work, other
+	     * {string} type 	String User email type Possible values : home, work, other
 	     * {string} customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
 	     * }
 	     *
@@ -11525,7 +11525,7 @@ declare module 'lib/services/AdminService' {
 	     * - enabled: The user can transfer a file doesn't belong to him.<br>
 	     * - disabled: The user can't transfer a file doesn't belong to him.<br>
 	     * <br>
-	     * Valeur par défaut : enabled<br>
+	     * Default value : enabled<br>
 	     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
 	     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
 	     * <br>
@@ -11803,7 +11803,7 @@ declare module 'lib/services/AdminService' {
 	     * - enabled: The user can transfer a file doesn't belong to him.<br>
 	     * - disabled: The user can't transfer a file doesn't belong to him.<br>
 	     * <br>
-	     * Valeur par défaut : enabled<br>
+	     * Default value : enabled<br>
 	     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.<br>
 	     * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company<br>
 	     * <br>
@@ -12185,7 +12185,7 @@ declare module 'lib/services/AdminService' {
 	     *               delete optionnel {number} number of user remove actions <br>
 	     *               detach optionnel {number} number of device unpairing actions <br>
 	     *           reqId {string} check request identifier <br>
-	     *           mode {string} request csv mode Valeurs autorisées : user, device <br>
+	     *           mode {string} request csv mode Possible values : user, device <br>
 	     *           columns {number} number of columns in the CSV <br>
 	     *           delimiter {string} the CSV delimiter <br>
 	     *           profiles {Object} the managed profiles <br>
@@ -12471,7 +12471,7 @@ declare module 'lib/services/AdminService' {
 	     *            disabled: No user of the company can share his screen. <br>
 	     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
 	     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
-	     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Valeurs autorisées : done, in_progress <br>
+	     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Possible values : done, in_progress <br>
 	     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
 	     *         FileSharingCustomisation can be: <br>
 	     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
@@ -15263,11 +15263,11 @@ declare module 'lib/services/RBVoiceService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | data | Object | Detailed information about Calling Line Identification (CLI) |
-	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br><br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br><br>Valeurs autorisées : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
-	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br><br>Valeurs autorisées : `user_ddi_number`, `installation_ddi_number` |
+	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br><br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br><br>Possible values : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
+	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br><br>Possible values : `user_ddi_number`, `installation_ddi_number` |
 	     * | phoneNumberId | String | phoneNumber Unique identifier that is used for identifying selected CLI |
 	     * | number | String | phoneNumber value that is used as CLI |
-	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br><br>Valeurs autorisées : `Group`, `Other` |
+	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br><br>Possible values : `Group`, `Other` |
 	     * | name optionnel | String | Only when CLI policy is "other\_ddi\_number" and type is "Group". It is then the Group name |
 	     *
 	     */

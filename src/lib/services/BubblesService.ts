@@ -106,6 +106,8 @@ class Bubbles extends GenericService {
         this._eventEmitter.on("evt_internal_roomscontainer", this._onBubblesContainerReceived.bind(this));
         this._eventEmitter.on("evt_internal_bubbleconferencestoppedreceived", this._onBubbleConferenceStoppedReceived.bind(this));        
         this._eventEmitter.on("evt_internal_bubblepresencesent", this._onBubblePresenceSent.bind(this));
+        this._eventEmitter.on("evt_internal_bubblepollconfiguration", this._onBubblePollConfiguration.bind(this));
+        this._eventEmitter.on("evt_internal_bubblepollevent", this._onBubblePollEvent.bind(this));
     }
 
     /**
@@ -460,6 +462,57 @@ class Bubbles extends GenericService {
             } // */
 
             that._eventEmitter.emit("evt_internal_bubblenamechanged", bubble);
+        });
+    }
+
+    _onBubblePollConfiguration(data) {
+        let that = this;
+        /*
+        let pollObj = {
+                                "action": action,
+                                "roomid": msg.getChild("roomid").text(),
+                                "pollid": msg.getChild("pollid").text(),
+                            };
+         */
+
+        that.getBubbleById(data.roomid).then(async (bubble: Bubble) => {
+            that._logger.log("debug", LOG_ID + "(_onBubblePollConfiguration) poll in bubble : " + data.roomid);
+            //let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            let eventName = "evt_internal_bubble_poll_" + data.action;
+            let objPoll = {
+                pollId : data.pollid,
+                bubble
+            };
+            
+            that._eventEmitter.emit(eventName, objPoll);
+        });
+    }
+
+    _onBubblePollEvent(data) {
+        let that = this;
+        /*
+        let pollObj = {
+                                "action": action,
+                                "roomid": msg.getChild("roomid").text(),
+                                "pollid": msg.getChild("pollid").text(),
+                            };
+         */
+
+        that.getBubbleById(data.roomid).then(async (bubble: Bubble) => {
+            that._logger.log("debug", LOG_ID + "(_onBubblePollEvent) poll in bubble : " + data.roomid);
+            //let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            let eventName = "evt_internal_bubble_poll_" + data.event;
+            let objPoll = {
+                "pollId" : data.pollid,
+                bubble,
+                "questions" : data.questions
+            };
+            
+            that._eventEmitter.emit(eventName, objPoll);
+        }).catch ((err) => {
+            that._logger.log("warn", LOG_ID + "(_onBubblePollEvent) Failed to find the room : " + data.roomid + ", so no poll event raised.");
         });
     }
 
@@ -5139,7 +5192,395 @@ getAllActiveBubbles
     
     //endregion Bubbles PUBLIC URL
 
-//endregion Manage Bubbles
+    //region Bubbles Polls
+
+    /**
+     * @public
+     * @method createBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to create a Poll for a bubble. <br>
+     * @param {string} bubbleId bubble identifier.
+     * @param {string} title Poll title.
+     * @param {Object} questions
+     * [{<br>
+     *      text : string //Question text (up to 20 questions).<br>
+     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+     *      answers : [{<br>
+     *           text : string // Answer text (up to 20 answers).<br>
+     *           }]<br>
+     * }] The questions to ask.<br>
+     * @param {boolean} anonymous Is poll anonymous? Default value : false
+     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @return {Promise<any>} An object of the result
+     * {
+     *  pollId : string // Created poll identifier.
+     *  }
+     */
+    createBubblePoll(bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
+        let that = this;
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!title) {
+            this._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'title' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'title' parameter : ", title);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!questions) {
+            this._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter : ", questions);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(createBubblePoll) create poll.");
+            that._rest.createBubblePoll(bubbleId, title, questions, anonymous, duration).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(createBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(createBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to delete a Poll for a bubble. <br>
+     * @param {string} pollId poll identifier.
+     * @return {Promise<any>} An object of the result
+     */
+    deleteBubblePoll(pollId) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(deleteBubblePoll) delete pollId : ", pollId);
+            that._rest.deleteBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(deleteBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to get data of a Poll for a bubble. <br>
+     * @param {string} pollId poll identifier.
+     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @return {Promise<any>} An object of the result
+     */
+    getBubblePoll(pollId : string, format : string = "small") {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(getBubblePoll) delete pollId : ", pollId);
+            that._rest.getBubblePoll(pollId, format).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(getBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getBubblePollsByBubble
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    Get polls for a room. They are ordered by creation date (from newest to oldest). Only moderator can get unpublished polls. <br>
+     * @param {string} bubbleId Bubble identifier.
+     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @return {Promise<any>} An object of the result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] |     |
+     * | id  | String | Poll identifier. |
+     * | roomId | String | Room identifier. |
+     * | title optionnel | String | Poll title. |
+     * | questions | Object\[\] |     |
+     * | text | String | Question text. |
+     * | multipleChoice optionnel | Boolean | Is multiple choice allowed? |
+     * | answers | Object\[\] |     |
+     * | text | String | Answer text. |
+     * | votes optionnel | Number\[\] | Voter indexes in case of non-anonymous poll. |
+     * | voters optionnel | Number | Number of voters for this question in case of anonymous poll. |
+     * | voters optionnel | Object\[\] |     |
+     * | userId optionnel | String | Voter user identifier in case of non-anonymous poll. |
+     * | email optionnel | String | Voter login email in case of non-anonymous poll. |
+     * | firstName optionnel | String | Voter first name in case of non-anonymous poll. |
+     * | lastName optionnel | String | Voter last name in case of non-anonymous poll. |
+     * | anonymous optionnel | Boolean | Is poll anonymous? |
+     * | duration optionnel | Number | Poll duration (0 means no duration). |
+     * | creationDate | Date | Poll creation date. |
+     * | publishDate optionnel | Date | Poll publication date. |
+     * | state | String | Poll state.<br><br>Possible values : `unpublished`, `published`, `terminated` |
+     * | voted optionnel | Boolean | In case of published or terminated poll, did requester vote? |
+     * | limit | Number | Number of polls to retrieve. |
+     * | offset | Number | Position of first poll to retrieve. |
+     * | total | Number | Total number of polls. |
+     */
+    getBubblePollsByBubble (bubbleId : string, format : string = "small", limit : number = 100, offset : number) {
+        let that = this;
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(getBubblePollsByBubble) bubbleId : ", bubbleId);
+            that._rest.getBubblePollsByBubble(bubbleId, format, limit, offset).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getBubblePollsByBubble) error.");
+                that._logger.log("internalerror", LOG_ID + "(getBubblePollsByBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method publishBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to publish a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    publishBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(publishBubblePoll) pollId : ", pollId);
+            that._rest.publishBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(publishBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(publishBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method terminateBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to terminate a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    terminateBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(terminateBubblePoll) pollId : ", pollId);
+            that._rest.terminateBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(terminateBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(terminateBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method unpublishBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to unpublish a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    unpublishBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(unpublishBubblePoll) pollId : ", pollId);
+            that._rest.unpublishBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(unpublishBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(unpublishBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method updateBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to update poll. When updating a question or an answer, all questions and answers must be present in body. <br>
+     * @param {string} pollId poll identifier.
+     * @param {string} bubbleId bubble identifier.
+     * @param {string} title Poll title.
+     * @param {Object} questions
+     * [{<br>
+     *      text : string //Question text (up to 20 questions).<br>
+     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+     *      answers : [{<br>
+     *           text : string // Answer text (up to 20 answers).<br>
+     *           }]<br>
+     * }] The questions to ask.<br>
+     * @param {boolean} anonymous Is poll anonymous? Default value : false
+     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @return {Promise<any>} An object of the result
+     * 
+     */
+    updateBubblePoll(pollId : string, bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!title) {
+            this._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter : ", title);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!questions) {
+            this._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter : ", questions);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(updateBubblePoll) update poll.");
+            that._rest.updateBubblePoll(pollId, bubbleId, title, questions, anonymous, duration).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(updateBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method votesForBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to vote for a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @param {Array<Object>} votes Array< <br>
+     *  question : number // Question number (starts at 0). <br>
+     *  answers : number // Question answers (starts at 0). > <br>
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    votesForBubblePoll (pollId: string, votes : Array<{ question : number, answers : Array <number> }> ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!votes) {
+            that._logger.log("warn", LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter : ", votes);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(votesForBubblePoll) pollId : ", pollId);
+            that._rest.votesForBubblePoll(pollId, votes).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(votesForBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Bubbles Polls
+    
+    //endregion Manage Bubbles
 
     //region Conference V2
 
@@ -5725,7 +6166,7 @@ getAllActiveBubbles
      * @param {number} subStreamLevel Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available at publisher side. <br>
      * Authorized values : 0, 1, 2 <br>
      * @param {boolean} dynamicFeed Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
-     *     Valeur par défaut : false <br>
+     *     Default value : false <br>
      * @async
      * @description
      *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>
