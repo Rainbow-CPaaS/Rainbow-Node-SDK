@@ -506,7 +506,7 @@ class XMPPService extends GenericService {
                     type: "set",                    
                     xmlns: NameSpacesLabels.ClientNameSpace,
                     "id": that.xmppUtils.getUniqueMessageId()
-                }, xml("enable", { "companyId" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
+                }, xml("enable", { "companyid" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
 
                 that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send - 'iq set' : ", stanza.root().toString());
                 that.xmppClient.sendIq(stanza);
