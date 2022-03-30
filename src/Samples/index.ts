@@ -2899,7 +2899,7 @@ let urlS2S;
             rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
                 logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
                 getConversationHistoryMaxime(conversation).then(() => {
-                    logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation);
+                    logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                 });
             });
         }
@@ -3342,6 +3342,15 @@ let urlS2S;
         }
     }
 
+    async function testgetDevicesList() {
+        let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
+        logger.log("debug", "MAIN - testgetDevicesList getDevices - result : ", result);
+        let alertDevices = result.getAlertDevices().toArray();
+        for (let i = 0; i < alertDevices.length; i++) {
+            logger.log("debug", "MAIN - testgetDevicesList - alertDevices[" + i + "] : ", alertDevices[i].value);
+        }
+    }
+
     async function testcreateFilter() {
 
         let filter: AlertFilter = new AlertFilter();
@@ -3423,9 +3432,9 @@ let urlS2S;
         let alert: Alert = new Alert();
         alert.companyId = connectedUser.companyId;
         let resultTemplates: any = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0, 100);
-        logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates ? resultTemplates.length:0);
-        if (resultTemplates.length > 0) {
-            let template = resultTemplates[0];
+        logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates.alertTemplates ? resultTemplates.alertTemplates.length:0);
+        if (resultTemplates.alertTemplates.length > 0) {
+            let template = resultTemplates.alertTemplates.elementAt(0).value;
             alert.templateId = template.id;
             let result = await rainbowSDK.alerts.createAlert(alert);
             logger.log("debug", "MAIN - testcreateAlert - result : ", result);

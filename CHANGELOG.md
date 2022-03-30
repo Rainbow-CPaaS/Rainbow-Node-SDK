@@ -19,6 +19,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesService::votesForBubblePoll` This API allows user to vote for a Poll for a bubble.
 -   Add events for the polls : `rainbow_onbubblepollcreated`, `rainbow_onbubblepolldeleted`, `rainbow_onbubblepollpublished`, `rainbow_onbubblepollunpublished`, `rainbow_onbubblepollterminated`, `rainbow_onbubblepollupdated`, `rainbow_onbubblepollvoted`
 -   Fix `AdminService::checkCSVforSynchronization` method.
+-   Fix history return result when no queryid is available.
 
 ## [2.9.1] - 2022-03-23
 -   Fix RESTService at login to getCompanyInfos when it failed.

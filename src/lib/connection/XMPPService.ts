@@ -827,10 +827,15 @@ class XMPPService extends GenericService {
 
             if (this.initialPresence) {
                 this.initialPresence = false;
-                stanza.append(xml("application",
-                    {xmlns: NameSpacesLabels.ApplicationNameSpace},
-                    xml("appid", {}, this.applicationId),
-                    xml("userid", {}, this.userId)));
+                let applicationStanza = xml("application",
+                        {xmlns: NameSpacesLabels.ApplicationNameSpace},
+                        xml("appid", {}, this.applicationId),
+                        xml("userid", {}, this.userId));
+                if (this.company) {
+                    applicationStanza.append(xml("companyid", {}, this.company.id));
+                }
+
+                stanza.append(applicationStanza);
             }
 
             stanza.append(xml("priority", {}, "5"));
@@ -852,7 +857,7 @@ class XMPPService extends GenericService {
             return Promise.resolve(undefined);
         }
     }
-
+    
     //region Carbon
     
     //Message Carbon XEP-0280
@@ -2179,10 +2184,12 @@ class XMPPService extends GenericService {
         delete options.onMessage;
         let onComplete = options.onComplete;
         delete options.onComplete;
-
+        let uniqId = that.xmppUtils.getUniqueId(undefined);
+        
         let stanza = xml("iq", {
             "type": "set",
             id: jid,
+            //id: uniqId,
             to: to,
             xmlns: NameSpacesLabels.ClientNameSpace
         }, xml("query", mamAttr, xml("x", {
