@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-buster"
+                  label "docker-slave-cpaas-bullseye"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-LTS_delivery"
         }        
     }
@@ -248,10 +248,10 @@ pipeline {
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
                                 
-                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
                                                 
                                 """
-     
+                                
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'     
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
