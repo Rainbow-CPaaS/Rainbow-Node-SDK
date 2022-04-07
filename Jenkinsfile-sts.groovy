@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-buster"
+                  label "docker-slave-cpaas-bullseye"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
         }        
     }
@@ -352,7 +352,7 @@ pipeline {
                 }
                 steps { 
                     script   {
-                         // node('docker-slave-nodebackend-buster-12.x') {  
+                         // node('docker-slave-nodebackend-bullseye-12.x') {  
                         stage('Build Debian Folder') {
                             try {                         
                                 echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
@@ -437,7 +437,7 @@ pipeline {
                                 echo "Publish Debian package : "
                                 echo debianPublish.getDebianArtifacts().join('\n')
                                 debianPublish(
-                                    repository: 'nightly-non-free-buster',
+                                    repository: 'nightly-non-free-bullseye',
                                     stashName: "deb"
                                 )
                             } catch (Exception e) {
