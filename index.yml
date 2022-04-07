@@ -55,6 +55,7 @@
   - Favorites Service: 'ref:doc/sdk/node/api/favorites.md'
   - FileStorage Service: 'ref:doc/sdk/node/api/filestorage.md'
   - Groups Service: 'ref:doc/sdk/node/api/groups.md'
+  - HTTPoverXMPP Service: 'ref:doc/sdk/node/api/httpoverxmpp.md'
   - IM Service: 'ref:doc/sdk/node/api/im.md'
   - Invitations Service: 'ref:doc/sdk/node/api/invitations.md'
   - Presence Service: 'ref:doc/sdk/node/api/presence.md'

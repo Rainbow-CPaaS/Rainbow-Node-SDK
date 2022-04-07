@@ -30,6 +30,7 @@ import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
 import {inspect} from "util";
+import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -60,6 +61,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
  * @property {boolean} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
  * @property {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+ * @property {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
  * @property {number} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -175,6 +177,7 @@ type OptionsType = {
         }
     },
     "testOutdatedVersion": boolean,
+    "httpoverxmppserver": false,
     "requestsRate":{
         "maxReqByIntervalForRequestRate": number, // nb requests during the interval.
         "intervalForRequestRate": number, // nb of seconds used for the calcul of the rate limit.
@@ -341,6 +344,7 @@ class NodeSDK {
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
      * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
      * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -905,6 +909,17 @@ class NodeSDK {
         return this._core._webinars;
     }
 
+    /**
+     * @public
+     * @property {HTTPoverXMPP} httpoverxmpp
+     * @description
+     *    Get access to the httpoverxmpp module
+     * @return {HTTPoverXMPP}
+     */
+    get httpoverxmpp() : HTTPoverXMPP {
+        return this._core._httpoverxmpp;
+    }
+    
     /**
      * @public
      * @property {Object} DataStoreType

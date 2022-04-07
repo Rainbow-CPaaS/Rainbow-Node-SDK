@@ -6,6 +6,51 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.10.0 - LTS Version - April 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Put deprecated following methods in BubblesService :  askConferenceSnapshot, retrieveConferences, updateOrCreateWebConferenceEndpoint, getWebRtcConfEndpointId, getWebRtcSharingOnlyConfEndpointId, conferenceStart, conferenceStop, conferenceJoin, conferenceMuteOrUnmute, conferenceMuteOrUnmutParticipant, conferenceDropParticipant, personalConferenceAllowed, personalConferenceGetId, personalConferenceGetBubbleFromCache, personalConferenceGetBubbleIdFromCache, personalConferenceGetPhoneNumbers, personalConferenceGetPassCodes, personalConferenceResetPassCodes, personalConferenceGetPublicUrl, personalConferenceGenerateNewPublicUrl, personalConferenceStart, personalConferenceStop, personalConferenceJoin, personalConferenceMuteOrUnmute, personalConferenceLockOrUnlock, personalConferenceMuteOrUnmuteParticipant, personalConferenceDropParticipant.
+-   Put private following methods in BubblesService :  retrieveConferences, updateOrCreateWebConferenceEndpoint, getWebRtcConfEndpointId, getWebRtcSharingOnlyConfEndpointId, conferenceStart, conferenceStop, conferenceJoin, conferenceMuteOrUnmute, conferenceMuteOrUnmutParticipant, conferenceDropParticipant, personalConferenceGetId, personalConferenceGetBubbleFromCache, personalConferenceGetBubbleIdFromCache, personalConferenceGetPhoneNumbers, personalConferenceGetPassCodes, personalConferenceResetPassCodes, personalConferenceGetPublicUrl, personalConferenceGenerateNewPublicUrl, personalConferenceStart, personalConferenceStop, personalConferenceJoin, personalConferenceMuteOrUnmute, personalConferenceLockOrUnlock, personalConferenceMuteOrUnmuteParticipant, personalConferenceDropParticipant.
+
+**Others Changes**
+
+-   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
+-   Add `BubblesService::createBubblePoll` This API allows to create a Poll for a bubble.
+-   Add `BubblesService::deleteBubblePoll` This API allows user to delete a Poll for a bubble.
+-   Add `BubblesService::getBubblePoll` This API allows user to get data of a Poll for a bubble.
+-   Add `BubblesService::getBubblePollsByBubble` This API allows user to get polls for a room.
+-   Add `BubblesService::publishBubblePoll` This API allows user to publish a Poll for a bubble.
+-   Add `BubblesService::terminateBubblePoll` This API allows user to terminate a Poll for a bubble.
+-   Add `BubblesService::unpublishBubblePoll` This API allows user to unpublish a Poll for a bubble.
+-   Add `BubblesService::updateBubblePoll` This API allows user to update poll.
+-   Add `BubblesService::votesForBubblePoll` This API allows user to vote for a Poll for a bubble.
+-   Add events for the polls : `rainbow_onbubblepollcreated`, `rainbow_onbubblepolldeleted`, `rainbow_onbubblepollpublished`, `rainbow_onbubblepollunpublished`, `rainbow_onbubblepollterminated`, `rainbow_onbubblepollupdated`, `rainbow_onbubblepollvoted`
+-   Fix `AdminService::checkCSVforSynchronization` method.
+-   Fix history return result when no queryid is available.
+-   Add `HTTPoverXMPP` service to send HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::get` method to send a `GET` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::trace` method to send a `TRACE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::head` method to send a `HEAD` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::post` method to send a `POST` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::put` method to send a `PUT` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::delete` method to send a `DELETE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HttpoverxmppEventHandler` low layer class to treat HTTP over XMPP requests received from clients. SDK support `GET, TRACE,HEAD,POST,PUT,DELETE` requests.
+-   Add `httpoverxmppserver` SDK's option parameter to activate the treatment of requests in `HttpoverxmppEventHandler` class. By default this feature is setted to false.
+
+
 ### SDK for Node.JS 2.9.0 - STS Version - LTS BETA - March 2022
 
 ---

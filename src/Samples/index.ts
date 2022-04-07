@@ -72,7 +72,7 @@ import jwt from "jwt-decode";
     input: process.stdin,
     output: process.stdout
 }); // */
-// let rainbowMode = "s2s" ;
+//let rainbowMode = "s2s" ;
 let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
@@ -171,6 +171,7 @@ let urlS2S;
             }
         },
         "testOutdatedVersion": true,
+        "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
             "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
@@ -3975,7 +3976,7 @@ let urlS2S;
                 city = "Illkirch",
                 state = null,
                 postalCode = "67115",
-                country: "France",
+                country= "FRA",
                 workPhoneNumbers = ["0011223344"],
                 mobilePhoneNumbers = [],
                 otherPhoneNumbers = [],
@@ -4037,7 +4038,7 @@ let urlS2S;
 
         let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
         logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
-        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
+        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.data.total > 0) {
             let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
             logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
             let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
@@ -4331,6 +4332,304 @@ let urlS2S;
 
     //endregion bubbles polls
 
+    //region 
+    
+    async function testgetHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let res = await rainbowSDK.httpoverxmpp.get(urlToGet, headers);
+        logger.log("debug", "MAIN - testgetHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testtraceHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let res : any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers);
+        logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
+        let resp = res.iq.resp;
+        let bodyResult = decodeURIComponent(resp.data.text);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
+    }
+    
+    async function testheadHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/hello") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let res = await rainbowSDK.httpoverxmpp.head(urlToGet, headers);
+        logger.log("debug", "MAIN - testheadHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testpostHTTPoverXMPP(urlToPost :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
+        let res = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data);
+        logger.log("debug", "MAIN - testpostHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testputHTTPoverXMPP(urlToPut :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
+        let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
+        logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testdeleteHTTPoverXMPP(urlToPut :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        //let headers = {};
+        let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
+        let res = await rainbowSDK.httpoverxmpp.delete(urlToPut, headers, data);
+        logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testHTTPoverXMPP() {
+        let that = this;
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        let headersPost = {
+            "dateOfRequest": new Date().toLocaleDateString()
+        };
+        Object.assign(headersPost, rainbowSDK._core.rest.getRequestHeader());
+        headersPost['Content-Type'] = "application/json";
+        let headersGet = {
+            "dateOfRequest": new Date().toLocaleDateString()
+        };
+        Object.assign(headersGet, rainbowSDK._core.rest.getRequestHeader());
+        let headersPut = {
+            "dateOfRequest": new Date().toLocaleDateString()
+        };
+        Object.assign(headersPut, rainbowSDK._core.rest.getRequestHeader());
+        headersPut['Content-Type'] = "application/json";
+
+        // *** Get directory entry ***
+
+        let urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
+        //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
+        let res2: any = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+        let resp = res2.iq.resp;
+        let bodyResult = decodeURIComponent(resp.data.text);
+        let resultOfHttp : any = bodyResult;
+        if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
+            for (let i = 0; i < resp.headers.header.length; i++) {
+                if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
+                    resultOfHttp = JSON.parse(bodyResult);
+                }
+
+            }
+        } else {
+            logger.warn("internal", "MAIN - testHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+        }
+
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+
+        // *** Delete directory entry ***
+
+        let urlToDelete = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/"
+        for (let i = 0; i < resultOfHttp.data.length; i++) {
+            let resDelete: any = await rainbowSDK.httpoverxmpp.delete(urlToDelete + resultOfHttp.data[i].id, headersGet, undefined);
+            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
+            let respDelete = resDelete.iq.resp;
+            let bodyResultDelete = decodeURIComponent(respDelete.data.text);
+            let resultOfHttpDelete: any = bodyResultDelete;
+            if (respDelete.$attrs.statusCode >= 200 && respDelete.$attrs.statusCode <= 206) {
+                for (let i = 0; i < respDelete.headers.header.length; i++) {
+                    if (respDelete.headers.header[i].$attrs.name==="content-type" && (respDelete.headers.header[i]._.indexOf("json") > -1 || respDelete.headers.header[i]._.indexOf("csv") > -1)) {
+                        resultOfHttpDelete = JSON.parse(bodyResultDelete);
+                    }
+
+                }
+            } else {
+                logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
+            }
+
+            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
+            // */
+        }
+
+        // *** Create directory entry ***
+
+        let urlToPost = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries"; //  https://openrainbow.net:443/api/rainbow/directory/v1.0/entries
+        //headers["Content-Type"] = "application/json";
+        //let headers = {};
+        let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
+
+        let data : any = {
+            firstName: "testPersonalDirectory_firstname_" + utc,
+            lastName: "testPersonalDirectory_lastname_" + utc,
+            companyName: connectedUser.companyName,
+            department: "SBU",
+            street: "1 rte Albert Schweitzer",
+            city: "Illkirch",
+            state: null,
+            postalCode: "67115",
+            country: "FRA",
+            workPhoneNumbers: ["0011223344"],
+            mobilePhoneNumbers: [],
+            otherPhoneNumbers: [],
+            jobTitle: "Validation Engineer",
+            eMail: utcEmail + "_test@vbe.test.openrainbow.net",
+            tags: [],
+            custom1: "",
+            custom2: ""
+
+        };
+        let body = JSON.stringify(data);
+        let res : any = await rainbowSDK.httpoverxmpp.post(urlToPost, headersPost, body);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP res : ", res);
+        resp = res.iq.resp;
+        bodyResult = decodeURIComponent(resp.data.text);
+        resultOfHttp = bodyResult;
+        /*if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
+            for (let i = 0; i < resp.headers.header.length; i++) {
+                if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
+                    resultOfHttp = JSON.parse(bodyResult);
+                }
+
+            }
+        } else {
+            logger.warn("internal", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+        } // */
+
+        logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+
+        // *** Get directory entry ***
+
+        urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
+        //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
+        res2 = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+        resp = res2.iq.resp;
+        bodyResult = decodeURIComponent(resp.data.text);
+        resultOfHttp = bodyResult;
+        if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
+            for (let i = 0; i < resp.headers.header.length; i++) {
+                if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
+                    resultOfHttp = JSON.parse(bodyResult);                
+                }
+
+            }
+        } else {
+            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+        }
+
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+
+        // *** Update directory entry ***
+
+        data = {
+            lastName: "testPersonalDirectory_lastname_" + utc + "_updated",
+        };
+        body = JSON.stringify(data);
+
+        let urlToPut = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/" + resultOfHttp.data[0].id;
+        res = await rainbowSDK.httpoverxmpp.put(urlToPut, headersPut, body);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, putHTTPoverXMPP res : ", res);
+        resp = res.iq.resp;
+        bodyResult = decodeURIComponent(resp.data.text);
+        resultOfHttp = bodyResult;
+        if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
+            for (let i = 0; i < resp.headers.header.length; i++) {
+                if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
+                    resultOfHttp = JSON.parse(bodyResult);
+                }
+
+            }
+        } else {
+            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+        }
+
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
+        
+        // *** Get directory entry ***
+
+        urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
+        //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
+        res2 = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+        resp = res2.iq.resp;
+        bodyResult = decodeURIComponent(resp.data.text);
+        resultOfHttp = bodyResult;
+        if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
+            for (let i = 0; i < resp.headers.header.length; i++) {
+                if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
+                    resultOfHttp = JSON.parse(bodyResult);
+                }
+
+            }
+        } else {
+            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+        }
+
+        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
+
+        // *** Delete directory entry ***
+
+        urlToDelete = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/"
+        for (let i = 0; i < resultOfHttp.data.length; i++) {
+            let resDelete: any = await rainbowSDK.httpoverxmpp.delete(urlToDelete + resultOfHttp.data[i].id, headersGet, undefined);
+            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
+            let respDelete = resDelete.iq.resp;
+            let bodyResultDelete = decodeURIComponent(respDelete.data.text);
+            let resultOfHttpDelete: any = bodyResultDelete;
+            if (respDelete.$attrs.statusCode >= 200 && respDelete.$attrs.statusCode <= 206) {
+                for (let i = 0; i < respDelete.headers.header.length; i++) {
+                    if (respDelete.headers.header[i].$attrs.name==="content-type" && (respDelete.headers.header[i]._.indexOf("json") > -1 || respDelete.headers.header[i]._.indexOf("csv") > -1)) {
+                        resultOfHttpDelete = JSON.parse(bodyResultDelete);
+                    }
+
+                }
+            } else {
+                logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
+            }
+
+            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
+            // */
+        }
+
+
+
+        /*
+        let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
+                    let result = await rainbowSDK.contacts.updatePersonalDirectoryEntry(personalDirectoryList.data[0].id, personalDirectoryList.data[0].firstName + "_updated");
+
+            let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
+            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
+            let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+        }
+        // */
+
+    }
+    
+    async function testdiscover() {
+        let that = this;
+        let res = await rainbowSDK.httpoverxmpp.discover();
+        logger.log("debug", "MAIN - testdiscover, res : ", res);
+    }
+    
+    //endregion 
+    
     function testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;
         for (const event in eventsTab) {

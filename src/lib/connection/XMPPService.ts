@@ -11,6 +11,8 @@ import {XmppClient} from "../common/XmppQueue/XmppClient";
 import { AlertMessage } from "../common/models/AlertMessage";
 import {DataStoreType} from "../config/config";
 import {GenericService} from "../services/GenericService";
+import {domainToASCII} from "url";
+import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -97,7 +99,9 @@ const NameSpacesLabels = {
     "MamNameSpaceTmp" : "urn:xmpp:mam:tmp",
     "AttentionNS" : "urn:xmpp:attention:0",
     "IncidentCap" : "http://www.incident.com/cap/1.0",
-    "MonitoringNS" : "urn:xmpp:monitoring:0"
+    "MonitoringNS" : "urn:xmpp:monitoring:0",
+    "XmppHttpNS" : "urn:xmpp:http",
+    "protocolShimNS" : "http://jabber.org/protocol/shim"
 };
 
 @logEntryExit(LOG_ID)
@@ -133,6 +137,7 @@ class XMPPService extends GenericService {
 	public fibonacciStrategy: any;
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
+	public httpoverxmppEventHandler: HttpoverxmppEventHandler;
 	public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
@@ -148,7 +153,7 @@ class XMPPService extends GenericService {
     getClassName(){ return XMPPService.getClassName(); }
 
 
-    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy) {
+    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
         super(_logger, LOG_ID);
         this.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
         this.host = _xmpp.host;
@@ -163,6 +168,7 @@ class XMPPService extends GenericService {
         this.resourceId = "";
         this.initialPresence = true;
         this.xmppClient = null;
+        this._rest = _rest;
         this.logger = _logger;
         this.proxy = _proxy;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
@@ -193,7 +199,7 @@ class XMPPService extends GenericService {
         this.generatedRandomId = this.xmppUtils.generateRandomID();
 
         this.hash = makeId(8);
-
+        this._options = _options;
     }
 
     start(withXMPP) {
@@ -220,9 +226,9 @@ class XMPPService extends GenericService {
         });
     }
 
-    signin(account, headers) {
+    async signin(account, headers) {
         let that = this;
-        return new Promise(function (resolve) {
+        return new Promise(async function (resolve) {
             that.IQEventHandlerToken = [];
             that.eventEmitter.once("xmppconnected", function fn_xmppconnected(info) {
                 that.logger.log("info", LOG_ID + "(signin) (xmppconnected) received : ", info);
@@ -244,6 +250,7 @@ class XMPPService extends GenericService {
                 that.logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
 
                 that.IQEventHandler = new IQEventHandler(that);
+                that.httpoverxmppEventHandler = new HttpoverxmppEventHandler(that, that._rest, that._options);
 
                 that.IQEventHandlerToken = [
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
@@ -251,10 +258,15 @@ class XMPPService extends GenericService {
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler))
                 ];
 
-                that.handleXMPPConnection(headers);
+                await that.handleXMPPConnection(headers);
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
+                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
+                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
+                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler));
+                
+                
                 that.startOrResetIdleTimer();
                 //resolve(undefined);
             } else {
@@ -369,7 +381,7 @@ class XMPPService extends GenericService {
         }
     }
 
-    handleXMPPConnection (headers) {
+    async handleXMPPConnection (headers) {
 
         let that = this;
 
@@ -425,7 +437,7 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages);
+        await that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages);
 
         //this.reconnect = this.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = that.xmppClient.reconnect;
@@ -503,7 +515,8 @@ class XMPPService extends GenericService {
                 let companyId = that.company.id;
                 that.logger.log("debug", LOG_ID + "(handleXMPPConnection) Send subscribe monitoring. companyId : ", companyId);
                 let stanza = xml("iq", {
-                    type: "set",                    
+                    type: "set",
+                    //"to": domain,
                     xmlns: NameSpacesLabels.ClientNameSpace,
                     "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("enable", { "companyid" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
@@ -2297,6 +2310,439 @@ class XMPPService extends GenericService {
             });
         });
     }
+    
+    //region HTTPoverXMPP 
+    async getHTTPoverXMPP(urlToGet, to, headers = {}) {
+        let that = this;
+        /*
+    <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='2'>
+      <req xmlns='urn:xmpp:http' method='GET' resource='/rdf/xep' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+          </headers>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(getHTTPoverXMPP) opt : ", opt);
+        let method = "GET";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(getHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+    
+    async traceHTTPoverXMPP(urlToGet, to, headers = {}) {
+        let that = this;
+        /*
+    <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='7'>
+      <req xmlns='urn:xmpp:http' method='TRACE' resource='/rdf/ex1.turtle' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+          </headers>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) opt : ", opt);
+        let method = "TRACE";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+    
+    async headHTTPoverXMPP(urlToGet, to, headers = {}) {
+        let that = this;
+        /*
+    <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='3'>
+      <req xmlns='urn:xmpp:http' method='HEAD' resource='/video/video1.m4' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+          </headers>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(headHTTPoverXMPP) opt : ", opt);
+        let method = "HEAD";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(headHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+    
+    async postHTTPoverXMPP(urlToGet, to, headers = {}, data) {
+        let that = this;
+        /*
+     <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='4'>
+      <req xmlns='urn:xmpp:http' method='POST' resource='/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+              <header name='User-agent'>Clayster HTTP/XMPP Client</header>
+              <header name='Content-Type'>application/sparql-query</header>
+              <header name='Content-Length'>...</header>
+          </headers>
+          <data>
+              <text>PREFIX dc: &lt;http://purl.org/dc/elements/1.1/&gt;
+BASE &lt;http://example.org/&gt;
+
+SELECT ?title ?creator ?publisher
+WHERE  { ?x dc:title ?title .
+         OPTIONAL { ?x dc:creator ?creator } .
+       }</text>
+          </data>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(postHTTPoverXMPP) opt : ", opt);
+        let method = "POST";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        
+        let stanzaData = xml("data",{}, undefined);
+        let stanzaText = xml("text",{}, encodeURIComponent(data));
+
+        stanzaData.append(stanzaText, undefined);
+        stanzaReq.append(stanzaData, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(postHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+
+    async putHTTPoverXMPP(urlToGet, to, headers = {}, data) {
+        let that = this;
+        /*
+     <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='4'>
+      <req xmlns='urn:xmpp:http' method='POST' resource='/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+              <header name='User-agent'>Clayster HTTP/XMPP Client</header>
+              <header name='Content-Type'>application/sparql-query</header>
+              <header name='Content-Length'>...</header>
+          </headers>
+          <data>
+              <text>PREFIX dc: &lt;http://purl.org/dc/elements/1.1/&gt;
+BASE &lt;http://example.org/&gt;
+
+SELECT ?title ?creator ?publisher
+WHERE  { ?x dc:title ?title .
+         OPTIONAL { ?x dc:creator ?creator } .
+       }</text>
+          </data>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(putHTTPoverXMPP) opt : ", opt);
+        let method = "PUT";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        
+        let stanzaData = xml("data",{}, undefined);
+        let stanzaText = xml("text",{}, encodeURIComponent(data));
+
+        stanzaData.append(stanzaText, undefined);
+        stanzaReq.append(stanzaData, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(putHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+
+    async deleteHTTPoverXMPP(urlToGet, to, headers = {}, data) {
+        let that = this;
+        /*
+     <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='4'>
+      <req xmlns='urn:xmpp:http' method='POST' resource='/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+              <header name='User-agent'>Clayster HTTP/XMPP Client</header>
+              <header name='Content-Type'>application/sparql-query</header>
+              <header name='Content-Length'>...</header>
+          </headers>
+          <data>
+              <text>PREFIX dc: &lt;http://purl.org/dc/elements/1.1/&gt;
+BASE &lt;http://example.org/&gt;
+
+SELECT ?title ?creator ?publisher
+WHERE  { ?x dc:title ?title .
+         OPTIONAL { ?x dc:creator ?creator } .
+       }</text>
+          </data>
+      </req>
+   </iq>
+   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(deleteHTTPoverXMPP) opt : ", opt);
+        let method = "DELETE";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        
+        let stanzaData = xml("data",{}, undefined);
+        let stanzaText = xml("text",{}, encodeURIComponent(data));
+
+        stanzaData.append(stanzaText, undefined);
+        stanzaReq.append(stanzaData, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(deleteHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+    }
+
+    async discover() {
+        let that = this;
+        /*
+        <iq type='set'
+        from='httpclient@example.org/browser'
+        to='httpserver@example.org'
+        id='disco1'>
+        <query xmlns='http://jabber.org/protocol/disco#info'/>
+                </iq> 
+                // */
+        let uniqMessageId = that.xmppUtils.getUniqueMessageId();
+        let uniqId = that.xmppUtils.getUniqueId(undefined);
+
+        let to = that.jid_im;
+        //let to = that.xmppUtils.getDomainFromFullJID(this.fullJid);;
+        that.logger.log("internal", LOG_ID + "(discover) to : ", to);
+
+        let msg = xml("iq", {
+            "from": that.jid_im,
+            "to": to,
+            "type": "get",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaQuery = xml("query", {xmlns: "http://jabber.org/protocol/disco#info"});
+        msg.append(stanzaQuery, undefined);
+        that.logger.log("internal", LOG_ID + "(discover) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await this.xmppClient.sendIq(msg);
+
+    }
+    
+    //endregion HTTPoverXMPP
 
 }
 

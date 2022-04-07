@@ -202,16 +202,16 @@ safeJsonParse(str) {
         }
     }
 
-    getUrl(url, headers: any = {}, params): Promise<any> {
+    getUrlRaw(url, headers: any = {}, params): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
-        req.method = that._getUrl.bind(this);
+        req.method = that._getUrlRaw.bind(this);
         req.params = arguments;
-        req.label = "getUrl url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = "getUrlRaw url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         return that.httpManager.add(req);
     }
 
-    _getUrl(url, headers: any = {}, params): Promise<any> {
+    _getUrlRaw(url, headers: any = {}, params): Promise<any> {
 
         let that = this;
 
@@ -221,8 +221,8 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
 
-                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
-                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers, ", params : ", params);
+                that.logger.log("info", LOG_ID + "(_getUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("internal", LOG_ID + "(_getUrlRaw) url : ", url, ", headers : ", headers, ", params : ", params);
 
                 let request = Request({
                     url: urlEncoded,
@@ -242,9 +242,317 @@ safeJsonParse(str) {
                             details: error
                         });
                     } else {
+                        resolve (response);
+                    }
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(_getUrlRaw) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_getUrlRaw) HTTP ErrorManager : ", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: err
+                });
+            }
+        });
+    }
+
+    headUrlRaw(url, headers: any = {}): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._headUrlRaw.bind(this);
+        req.params = arguments;
+        req.label = "head url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _headUrlRaw(url, headers: any = {}): Promise<any> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = url;
+                headers["user-agent"] = USER_AGENT;
+
+                that.logger.log("internal", LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
+
+                Request({
+                    method: 'HEAD',
+                    preambleCRLF: true,
+                    postambleCRLF: true,
+                    url: urlEncoded,
+                    headers: headers,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    },
+                    body: undefined
+                }, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(_headUrlRaw) successfull");
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while requesting",
+                            details: error
+                        });
+                    } else {
+                        resolve(response);
+                    }
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(_headUrlRaw) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_headUrlRaw) HTTP ErrorManager : ", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: err
+                });
+            }
+        });
+    }
+    
+    postUrlRaw(url, headers: any = {}, data): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._postUrlRaw.bind(this);
+        req.params = arguments;
+        req.label = "postUrlRaw url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _postUrlRaw(url, headers: any = {}, data): Promise<any> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+            let urlEncoded = url;
+            headers["user-agent"] = USER_AGENT;
+            let body = data;
+            /*
+            if (contentType) {
+                //request.type(type);
+                headers["Content-Type"] = contentType;
+            } else {
+                //request.type("json");
+                if (!headers["Content-Type"]) {
+                    headers["Content-Type"] = "application/json";
+                    body = JSON.stringify(data);
+                }
+            } // */
+
+            that.logger.log("internal", LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
+            Request({
+                method: 'POST',
+                preambleCRLF: true,
+                postambleCRLF: true,
+                url: urlEncoded,
+                headers: headers,
+                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                agentOptions: {
+                    secureProtocol: that.proxy.secureProtocol
+                },
+                body: body
+            }, (error, response, body) => {
+                that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
+                if (error) {
+                    return reject({
+                        code: -1,
+                        msg: "ErrorManager while posting",
+                        details: error
+                    });
+                } else {
+                    resolve (response);
+                }
+            });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(_postUrlRaw) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_postUrlRaw) HTTP ErrorManager : ", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: err
+                });
+            }
+        });
+    }
+
+    putUrlRaw(url, headers: any = {}, data): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._putUrlRaw.bind(this);
+        req.params = arguments;
+        req.label = "putUrlRaw url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _putUrlRaw(url, headers: any = {}, data): Promise<any> {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = url;
+
+                headers["user-agent"] = USER_AGENT;
+                that.logger.log("internal", LOG_ID + "(_putUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
+
+                let body = data;
+                /*if (type) {
+                    //request.type(type);
+                    headers["Content-Type"] = type;
+                } else {
+                    //request.type("json");
+                    if (!headers["Content-Type"]) {
+                        headers["Content-Type"] = "application/json";
+                        body = JSON.stringify(data);
+                    }
+                } // */
+                Request({
+                    method: 'PUT',
+                    preambleCRLF: true,
+                    postambleCRLF: true,
+                    url: urlEncoded,
+                    headers: headers,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    },
+                    body: body
+                }, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(_putUrlRaw) successfull");
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while posting",
+                            details: error
+                        });
+                    } else {
+                        resolve(response);
+                    }
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(_putUrlRaw) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_putUrlRaw) HTTP ErrorManager : ", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: err
+                });
+            }
+        });
+    }
+
+    deleteUrlRaw(url, headers: any = {}, data : Object = undefined): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._deleteUrlRaw.bind(this);
+        req.params = arguments;
+        req.label = "deleteUrlRaw url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _deleteUrlRaw(url, headers: any = {}, data : Object = undefined): Promise<any> {
+
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = url;
+
+                let body = data;
+                headers["user-agent"] = USER_AGENT;
+
+                that.logger.log("internal", LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
+
+                let deleteOptions = {
+                    url: urlEncoded,
+                    headers: headers,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    },
+                    body: undefined
+                };
+
+                if (body) {
+                    deleteOptions.body = body;
+                }
+
+                let request = Request.delete(deleteOptions, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(_deleteUrlRaw) successfull");
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while posting",
+                            details: error
+                        });
+                    } else {
+                        resolve(response);
+                    }
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(_deleteUrlRaw) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_deleteUrlRaw) HTTP ErrorManager : ", err);
+                return reject({
+                    code: -1,
+                    msg: "Unknown error",
+                    details: err
+                });
+            }
+
+        });
+    }
+
+    getUrlJson(url, headers: any = {}, params): Promise<any> {
+        let that = this;
+        let req : RequestForQueue = new RequestForQueue();
+        req.method = that._getUrlJson.bind(this);
+        req.params = arguments;
+        req.label = "getUrl url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        return that.httpManager.add(req);
+    }
+
+    _getUrlJson(url, headers: any = {}, params): Promise<any> {
+
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+
+            try {
+                headers["user-agent"] = USER_AGENT;
+                let urlEncoded = url;
+
+                that.logger.log("info", LOG_ID + "(_getUrlJson) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("internal", LOG_ID + "(_getUrlJson) url : ", url, ", headers : ", headers, ", params : ", params);
+
+                let request = Request({
+                    url: urlEncoded,
+                    method: "GET",
+                    headers: headers,
+                    //params: params,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    }
+                }, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(_getUrlJson) successfull");
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while requesting",
+                            details: error
+                        });
+                    } else {
                         if (response) {
                             if (response.statusCode) {
-                                that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
+                                that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
@@ -262,8 +570,8 @@ safeJsonParse(str) {
                                         });
                                     }
                                 } else {
-                                    that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
-                                    that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
+                                    that.logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP response.code != 200");
+                                    that.logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP response.code != 200 , bodyjs : ", response.body);
                                     let bodyjs: any = {};
                                     if (that.hasJsonStructure(response.body)) {
                                         bodyjs = JSON.parse(response.body);
@@ -289,8 +597,8 @@ safeJsonParse(str) {
                     }
                 });
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager");
-                that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager", err);
+                that.logger.log("error", LOG_ID + "(_getUrlJson) HTTP ErrorManager");
+                that.logger.log("internalerror", LOG_ID + "(_getUrlJson) HTTP ErrorManager", err);
                 return reject({
                     code: -1,
                     msg: "Unknown error",

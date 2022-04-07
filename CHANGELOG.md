@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.10.0] - 2022-03-18
+## [2.10.0] - 2022-04-07
 -   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
 -   Add `BubblesService::createBubblePoll` This API allow to create a Poll for a bubble.
 -   Add `BubblesService::deleteBubblePoll` This API allows user to delete a Poll for a bubble.
@@ -20,6 +20,15 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add events for the polls : `rainbow_onbubblepollcreated`, `rainbow_onbubblepolldeleted`, `rainbow_onbubblepollpublished`, `rainbow_onbubblepollunpublished`, `rainbow_onbubblepollterminated`, `rainbow_onbubblepollupdated`, `rainbow_onbubblepollvoted`
 -   Fix `AdminService::checkCSVforSynchronization` method.
 -   Fix history return result when no queryid is available.
+-   Add `HTTPoverXMPP` service to send HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::get` method to send a `GET` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::trace` method to send a `TRACE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::head` method to send a `HEAD` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::post` method to send a `POST` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::put` method to send a `PUT` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::delete` method to send a `DELETE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HttpoverxmppEventHandler` low layer class to treat HTTP over XMPP requests received from clients. SDK support `GET, TRACE,HEAD,POST,PUT,DELETE` requests.
+-   Add `httpoverxmppserver` SDK's option parameter to activate the treatment of requests in `HttpoverxmppEventHandler` class. By default this feature is setted to false.
 
 ## [2.9.1] - 2022-03-23
 -   Fix RESTService at login to getCompanyInfos when it failed.

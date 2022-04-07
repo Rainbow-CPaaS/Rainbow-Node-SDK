@@ -4015,7 +4015,7 @@ Request Method: PUT
                 "Accept": "application/json"
             };
 
-            that.http.getUrl("https://api.npms.io/v2/search?q=" + packageName, headers, undefined).then(function (json) {
+            that.http.getUrlJson("https://api.npms.io/v2/search?q=" + packageName, headers, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
                 that.logger.log("internal", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) REST result : ", json);
                 resolve(json);

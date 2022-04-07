@@ -769,6 +769,7 @@ class Bubbles extends GenericService {
      * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
      * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
      * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
+     * @deprecated
      * @description
      * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
      * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
@@ -1089,11 +1090,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @Method retrieveConferences
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
      * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
      * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
@@ -1183,7 +1185,7 @@ getAllActiveBubbles
 
     /**
      * @Method updateOrCreateWebConferenceEndpoint
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
@@ -1265,10 +1267,11 @@ getAllActiveBubbles
 
     /**
      * @Method getWebRtcConfEndpointId
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @returns {string} the user unique webrtc conference enpoint id
      * @memberof BubblesService
      */
@@ -1284,10 +1287,11 @@ getAllActiveBubbles
 
     /**
      * @Method getWebRtcSharingOnlyConfEndpointId
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
      * @memberof BubblesService
      */
@@ -1302,11 +1306,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceStart
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      *     To start a conference. <br>
      *     Only a moderator can start a conference. It also need to be a premium account. <br>
@@ -1331,11 +1336,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceStop
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      *     To stop a conference. <br>
      *     Only a moderator can stop a conference. It also need to be a premium account. <br>
@@ -1357,7 +1363,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceJoin
      * @since 2.6.0
      * @instance
@@ -1367,6 +1373,7 @@ getAllActiveBubbles
      * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
      * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      * To join a conference.  <br>
      * NOTE: The conference must be first started before to join it.
@@ -1428,13 +1435,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceMuteOrUnmute
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
      * @instance
      * @param {string} conferenceId ID of the conference
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
      * Only the moderator of the conference can use this method
@@ -1447,7 +1455,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceMuteOrUnmutParticipant
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
@@ -1455,6 +1463,7 @@ getAllActiveBubbles
      * @param {string} conferenceId ID of the conference
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the specified participant in the conference.<br>
      * Only the moderator of the conference can use this method
@@ -1466,13 +1475,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceDropParticipant
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
      * @instance
      * @param {string} conferenceId ID of the conference
      * @param {string} participantId ID of the participant to drop
+     * @deprecated
      * @description
      * Drop the specified participant in the conference. <br>
      * Only the moderator of the conference can use this method
@@ -1504,6 +1514,7 @@ getAllActiveBubbles
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @return {boolean}
+     * @deprecated
      * @description
      * To know if the current user has the permission to start its own Personal Conference
      */
@@ -1515,11 +1526,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetId
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get teh Id of the Personal Conference
      * @return {string} Id of the Personal Conference or NULL
@@ -1530,11 +1542,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetBubbleFromCache
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
      * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
@@ -1550,11 +1563,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetBubbleIdFromCache
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
      * @return {string} The Bubble which contains the Personal Meeting or null
@@ -1572,11 +1586,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPhoneNumbers
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the list of phone numbers used to reach the Personal Meeting
      * @return {Promise<any>}
@@ -1634,11 +1649,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPassCodes
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To retrieve the pass codes of the Personal Meeting of the current user
      * @return {Promise<ConferencePassCodes>}
@@ -1706,11 +1722,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceResetPassCodes
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To reset and get new pass codes of the Personal Meeting of the current user
      * @return {Promise<any>}
@@ -1778,11 +1795,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPublicUrl
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
      * @return {Promise<any>}
@@ -1805,11 +1823,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGenerateNewPublicUrl
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). <br>
      * The previous URL is no more functional !
@@ -1821,11 +1840,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceStart
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To start a Personal Conference. <br>
      * Only a moderator can start a Personal Conference.
@@ -1837,11 +1857,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceStop
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To stop the Personal Conference.<br>
      * Only a moderator can stop a Personal Conference
@@ -1863,7 +1884,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceJoin
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
@@ -1872,6 +1893,7 @@ getAllActiveBubbles
      * @param {boolean} muted To join Personal Conference as muted or not
      * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
      * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+     * @deprecated
      * @description
      * To join the Personal Conference.
      * NOTE: The Personal Conference must be first started before to join it.
@@ -1893,12 +1915,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceMuteOrUnmute
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {boolean} mute
+     * @deprecated
      * @description
      * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
      * Only the moderator of the Personal Conference can use this method
@@ -1910,12 +1933,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceLockOrUnlock
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {boolean} toLock  True to lock, False to unlock
+     * @deprecated
      * @description
      * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
      * Lock / Unlock is only possible for PSTN Conference. <br>
@@ -1928,13 +1952,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceMuteOrUnmuteParticipant
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the specified participant in the Personal Conference.<br>
      * Only the moderator of the Personal Conference can use this method.
@@ -1946,12 +1971,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceDropParticipant
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {string} participantId ID of the participant to drop
+     * @deprecated
      * @description
      * Drop the specified participant in the Personal Conference. <br>
      * Only the moderator of the Personal Conference can use this method.

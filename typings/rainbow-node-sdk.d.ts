@@ -735,6 +735,7 @@ declare module 'lib/config/config' {
 	        color: boolean;
 	        enableConsoleLog: boolean;
 	        enableEventsLogs: boolean;
+	        enableEncryptedLogs: boolean;
 	        "system-dev": {
 	            internals: boolean;
 	            http: boolean;
@@ -771,6 +772,7 @@ declare module 'lib/config/config' {
 	    permitSearchFromPhoneBook: boolean;
 	    displayOrder: string;
 	    testOutdatedVersion: boolean;
+	    httpoverxmppserver: boolean;
 	    servicesToStart: {
 	        s2s: {
 	            start_up: boolean;
@@ -852,6 +854,10 @@ declare module 'lib/config/config' {
 	            start_up: boolean;
 	            optional: boolean;
 	        };
+	        httpoverxmpp: {
+	            start_up: boolean;
+	            optional: boolean;
+	        };
 	    };
 	};
 	export { conf as config, DataStoreType };
@@ -859,6 +865,7 @@ declare module 'lib/config/config' {
 }
 declare module 'lib/common/XmppQueue/XmppClient' {
 	import { DataStoreType } from 'lib/config/config';
+	import { Deferred } from 'lib/common/Utils';
 	export {}; class XmppClient {
 	    options: any;
 	    eventEmitter: any;
@@ -879,12 +886,19 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    lastTimeReset: Date;
 	    timeBetweenReset: number;
 	    messagesDataStore: DataStoreType;
-	    private iqSetEventRoster;
 	    socket: any;
+	    pendingRequests: Array<{
+	        id: string;
+	        prom: Deferred;
+	    }>;
 	    constructor(...args: any[]);
-	    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any): void;
+	    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any): Promise<void>;
 	    onIqErrorReceived(msg: any, stanza: any): void;
+	    iqGetEventPing(ctx: any): {};
+	    iqSetEventRoster(ctx: any): {};
+	    iqSetEventHttp(ctx: any): Promise<boolean>;
 	    onIqResultReceived(msg: any, stanza: any): void;
+	    resolvPendingRequest(id: any, stanza: any): Promise<boolean>;
 	    resetnbMessagesSentThisHour(): void;
 	    getJsonFromXML(xml: string): Promise<any>;
 	    send(...args: any[]): Promise<unknown>;
@@ -941,6 +955,7 @@ declare module 'lib/common/models/AlertMessage' {
 declare module 'lib/common/Logger' {
 	/// <reference types="node" />
 	export {}; class Logger {
+	    private enableEncryptedLogs;
 	    get logEventEmitter(): NodeJS.EventEmitter;
 	    set logEventEmitter(value: NodeJS.EventEmitter);
 	    colors: any;
@@ -950,6 +965,7 @@ declare module 'lib/common/Logger' {
 	    hideUuid: any;
 	    private _logEventEmitter;
 	    private emit;
+	    private cryptr;
 	    constructor(config: any);
 	    get log(): any;
 	    argumentsToStringReduced(v: any): any;
@@ -1963,6 +1979,7 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _moderator;
 	    private _muted;
 	    private _hold;
+	    private _talking;
 	    private _talkingTime;
 	    private _microphone;
 	    private _delegateCapability;
@@ -2001,6 +2018,8 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set contact(value: Contact);
 	    get talkingTime(): number;
 	    set talkingTime(value: number);
+	    get talking(): boolean;
+	    set talking(value: boolean);
 	    get microphone(): boolean;
 	    set microphone(value: boolean);
 	    get delegateCapability(): boolean;
@@ -2058,6 +2077,9 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _locked;
 	    private _talkerActive;
 	    private _recordStarted;
+	    private _recordingState;
+	    private _recordingUserId;
+	    private _participantCount;
 	    private _mediaType;
 	    private _reason;
 	    private _participants;
@@ -2077,6 +2099,12 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set locked(value: boolean);
 	    get recordStarted(): boolean;
 	    set recordStarted(value: boolean);
+	    get recordingState(): boolean;
+	    set recordingState(value: boolean);
+	    get recordingUserId(): boolean;
+	    set recordingUserId(value: boolean);
+	    get participantCount(): number;
+	    set participantCount(value: number);
 	    get mediaType(): string;
 	    set mediaType(value: string);
 	    get participants(): List<Participant>;
@@ -2355,6 +2383,8 @@ declare module 'lib/services/BubblesService' {
 	     *      Method called when the name has changed for a bubble <br>
 	     */
 	    _onNameChanged(data: any): void;
+	    _onBubblePollConfiguration(data: any): void;
+	    _onBubblePollEvent(data: any): void;
 	    /**
 	     * @private
 	     * @method _onBubblePresenceSent
@@ -3845,6 +3875,203 @@ declare module 'lib/services/BubblesService' {
 	    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method createBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to create a Poll for a bubble. <br>
+	     * @param {string} bubbleId bubble identifier.
+	     * @param {string} title Poll title.
+	     * @param {Object} questions
+	     * [{<br>
+	     *      text : string //Question text (up to 20 questions).<br>
+	     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+	     *      answers : [{<br>
+	     *           text : string // Answer text (up to 20 answers).<br>
+	     *           }]<br>
+	     * }] The questions to ask.<br>
+	     * @param {boolean} anonymous Is poll anonymous? Default value : false
+	     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+	     * @return {Promise<any>} An object of the result
+	     * {
+	     *  pollId : string // Created poll identifier.
+	     *  }
+	     */
+	    createBubblePoll(bubbleId: string, title: string, questions: Array<{
+	        text: string;
+	        multipleChoice: boolean;
+	        answers: Array<{
+	            text: string;
+	        }>;
+	    }>, anonymous?: boolean, duration?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to delete a Poll for a bubble. <br>
+	     * @param {string} pollId poll identifier.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    deleteBubblePoll(pollId: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to get data of a Poll for a bubble. <br>
+	     * @param {string} pollId poll identifier.
+	     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+	     * @return {Promise<any>} An object of the result
+	     */
+	    getBubblePoll(pollId: string, format?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getBubblePollsByBubble
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    Get polls for a room. They are ordered by creation date (from newest to oldest). Only moderator can get unpublished polls. <br>
+	     * @param {string} bubbleId Bubble identifier.
+	     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+	     * @return {Promise<any>} An object of the result
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] |     |
+	     * | id  | String | Poll identifier. |
+	     * | roomId | String | Room identifier. |
+	     * | title optionnel | String | Poll title. |
+	     * | questions | Object\[\] |     |
+	     * | text | String | Question text. |
+	     * | multipleChoice optionnel | Boolean | Is multiple choice allowed? |
+	     * | answers | Object\[\] |     |
+	     * | text | String | Answer text. |
+	     * | votes optionnel | Number\[\] | Voter indexes in case of non-anonymous poll. |
+	     * | voters optionnel | Number | Number of voters for this question in case of anonymous poll. |
+	     * | voters optionnel | Object\[\] |     |
+	     * | userId optionnel | String | Voter user identifier in case of non-anonymous poll. |
+	     * | email optionnel | String | Voter login email in case of non-anonymous poll. |
+	     * | firstName optionnel | String | Voter first name in case of non-anonymous poll. |
+	     * | lastName optionnel | String | Voter last name in case of non-anonymous poll. |
+	     * | anonymous optionnel | Boolean | Is poll anonymous? |
+	     * | duration optionnel | Number | Poll duration (0 means no duration). |
+	     * | creationDate | Date | Poll creation date. |
+	     * | publishDate optionnel | Date | Poll publication date. |
+	     * | state | String | Poll state.<br><br>Possible values : `unpublished`, `published`, `terminated` |
+	     * | voted optionnel | Boolean | In case of published or terminated poll, did requester vote? |
+	     * | limit | Number | Number of polls to retrieve. |
+	     * | offset | Number | Position of first poll to retrieve. |
+	     * | total | Number | Total number of polls. |
+	     */
+	    getBubblePollsByBubble(bubbleId: string, format: string, limit: number, offset: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method publishBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to publish a Poll for a bubble. <br>
+	     * @param {string} pollId poll bubble identifier.
+	     * @return {Promise<any>} An object of the result
+	     *
+	     */
+	    publishBubblePoll(pollId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method terminateBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to terminate a Poll for a bubble. <br>
+	     * @param {string} pollId poll bubble identifier.
+	     * @return {Promise<any>} An object of the result
+	     *
+	     */
+	    terminateBubblePoll(pollId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method unpublishBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to unpublish a Poll for a bubble. <br>
+	     * @param {string} pollId poll bubble identifier.
+	     * @return {Promise<any>} An object of the result
+	     *
+	     */
+	    unpublishBubblePoll(pollId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to update poll. When updating a question or an answer, all questions and answers must be present in body. <br>
+	     * @param {string} pollId poll identifier.
+	     * @param {string} bubbleId bubble identifier.
+	     * @param {string} title Poll title.
+	     * @param {Object} questions
+	     * [{<br>
+	     *      text : string //Question text (up to 20 questions).<br>
+	     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+	     *      answers : [{<br>
+	     *           text : string // Answer text (up to 20 answers).<br>
+	     *           }]<br>
+	     * }] The questions to ask.<br>
+	     * @param {boolean} anonymous Is poll anonymous? Default value : false
+	     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+	     * @return {Promise<any>} An object of the result
+	     *
+	     */
+	    updateBubblePoll(pollId: string, bubbleId: string, title: string, questions: Array<{
+	        text: string;
+	        multipleChoice: boolean;
+	        answers: Array<{
+	            text: string;
+	        }>;
+	    }>, anonymous?: boolean, duration?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method votesForBubblePoll
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Manage Bubbles - Bubbles Polls
+	     * @description
+	     *    This API allow to vote for a Poll for a bubble. <br>
+	     * @param {string} pollId poll bubble identifier.
+	     * @param {Array<Object>} votes Array< <br>
+	     *  question : number // Question number (starts at 0). <br>
+	     *  answers : number // Question answers (starts at 0). > <br>
+	     * @return {Promise<any>} An object of the result
+	     *
+	     */
+	    votesForBubblePoll(pollId: string, votes: Array<{
+	        question: number;
+	        answers: Array<number>;
+	    }>): Promise<unknown>;
+	    /**
+	     * @public
 	     * @method addPSTNParticipantToConference
 	     * @instance
 	     * @category Conference V2
@@ -4539,6 +4766,23 @@ declare module 'lib/services/InvitationsService' {
 	    getReceivedInvitations(): any[];
 	    /**
 	     * @public
+	     * @since 2.9.0
+	     * @method searchInvitationsReceivedFromServer
+	     * @instance
+	     * @category Invitations RECEIVED
+	     * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate.
+	     * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	     * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+	     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+	     * @description
+	     *    retrieve the invites received from others Rainbow users from server.<br>
+	     * @return {any} The list of invite received
+	     */
+	    searchInvitationsReceivedFromServer(sortField: string, status: string, format: string, limit: number, offset: number, sortOrder: number): Promise<unknown>;
+	    /**
+	     * @public
 	     * @since 1.65
 	     * @method 	getAcceptedInvitations
 	     * @instance
@@ -4634,18 +4878,107 @@ declare module 'lib/services/InvitationsService' {
 	    getSentInvitations(): any[];
 	    /**
 	     * @public
+	     * @since 2.9.0
+	     * @method searchInvitationsSentFromServer
+	     * @instance
+	     * @category Invitations SENT
+	     * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate
+	     * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	     * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+	     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+	     * @description
+	     *    retrieve the invites sent to others Rainbow users from server.<br>
+	     * @return {any} The list of invite sent
+	     */
+	    searchInvitationsSentFromServer(sortField: string, status: string, format: string, limit: number, offset: number, sortOrder: number): Promise<unknown>;
+	    /**
+	     * @public
 	     * @since 1.65
 	     * @method sendInvitationByEmail
 	     * @instance
 	     * @category Invitations SENT
 	     * @async
 	     * @description
-	     *    Send an invitation email as UCaaS <br>
-	     * @param {string} email The email
-	     * @param {string} [customMessage] The email text (optional)
+	     *    This API allows logged in user to invite another user by email. <br>
+	     *    At the end of the process, if invited user accepts the invitation, invited user and inviting user will be searchable mutually and will be in each other rosters.  <br>
+	     * @param {string} email The email.
+	     * @param {string} lang The lang of the message.
+	     * @param {string} customMessage The email text (optional).
 	     * @return {Object} A promise that contains the contact added or an object describing an error
 	     */
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    sendInvitationByEmail(email: string, lang: string, customMessage: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @since 2.9.0
+	     * @method sendInvitationByCriteria
+	     * @instance
+	     * @category Invitations SENT
+	     * @async
+	     * @description
+	     *    This API allows logged in user to invite another user by criteria. <br>
+	     *    At the end of the process, if invited user accepts the invitation, invited user and inviting user will be searchable mutually and will be in each other rosters.  <br>
+	     *
+	     *
+	     * **Notes**:
+	     *
+	     * * One of email, invitedPhoneNumber or invitedUserId is mandatory.
+	     * * It's not possible to invite users having only the role `guest`. (CPAAS user)
+	     * * Users with visibility `isolated` or being in a company with visibility `isolated` are not allowed to invite external users.
+	     * * Users with visibility `isolated` or being in a company with visibility `isolated` are not allowed to be invited by external users.
+	     *    From **1.53.0**, a user can be embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration.
+	     *    It is not a user with the role `guest`.
+	     *    This user gets the role `user` and the flag `guestMode` is set to true, waiting for the user finalizes his account. Besides, his `visibility` is 'none'.
+	     *    We can't invite this kind of user to join the logged in network. (HTTP error 403509)
+	     *
+	     *    Here are some details about this API and user invitation features.
+	     *    Users can be invited:
+	     *
+	     * * by `email`:
+	     *    * If the provided email corresponds to the loginEmail of a Rainbow user, a visibility request is sent (if this Rainbow user is not in logged in user roster).
+	     *        * An InviteUser entry is stored in database (with a generated invitationId).
+	     *        * The invited user receive an email with a validation link (containing the invitationId).
+	     *        * The invited user is notified with an XMPP message (containing the invitationId).
+	     *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite action="create" id='57cd5922d341df5812bbcb72' type='received' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	     *        * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device).
+	     *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite action="create" id='57cd5922d341df5812bbcb72' type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	     *        * The list of all visibility requests received by the logged in user (invited user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetReceivedInvites)
+	     *        * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	     *        * The inviting user can re-send a visibility request notification (only by email) using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite)
+	     *        * To accept the visibility request (invited user side), client has to call API [POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/accept](#api-enduser_invitations-enduser_users_AcceptInvites)
+	     *            Once accepted, invited and inviting user will be in each other roster and will be mutually visible (search API, GET users, GET users/:userId, ...)
+	     *        * To decline the visibility request (invited user side), client has to call API [POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/decline](#api-enduser_invitations-enduser_users_DeclineInvites)
+	     *    * If the provided email is not known in Rainbow, an invitation is sent to this email to invite the person to create a Rainbow account
+	     *        * An InviteUser entry is stored in database (with a generated invitationId).
+	     *        * The invited user receive an email with a creation link (containing the invitationId).
+	     *        * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device).
+	     *            <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite id='57cd5922d341df5812bbcb72' action="create" type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	     *        * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	     *        * The inviting user can re-send a visibility request notification (only by email) using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite)
+	     *        * To create his Rainbow account, the invited user has to use API "Self register a user" ([POST /api/rainbow/enduser/v1.0/users/self-register](#api-enduser_users-enduser_SelfRegisterUsers))
+	     * * by phoneNumber (`invitedPhoneNumber`):
+	     *    * No match is done on potential existing Rainbow users.
+	     *    * An InviteUser entry is stored in database (with a generated invitationId).
+	     *    * No email is sent to invited user. It is **up to clients calling this API to send an SMS to the invited user's phone** (with the invitationId).
+	     *    * The inviting user is notified with an XMPP message (containing the invitationId) (useful for multi-device).
+	     *        <message type='management' id='122'         from='jid_from@openrainbow.com'         to='jid_to@openrainbow.com'         xmlns='jabber:client'>     <userinvite id='57cd5922d341df5812bbcb72' action="create" type='sent' status='pending' xmlns='jabber:iq:configuration'/>  </message>
+	     *    * If the invitedPhoneNumber correspond to a user already existing in Rainbow, he **will not** be able to see the request using the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetReceivedInvites), as no match is done between the invitedPhoneNumber and a potential user existing in Rainbow
+	     *    * The list of all visibility requests sent by the logged in user (inviting user side) can be retrieved with the API [GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent(?status=pending|accepted|auto-accepted|declined)](#api-enduser_invitations-enduser_users_GetSentInvites)
+	     *    * The inviting user can re-send a visibility request notification done by phoneNumber using API [POST /api/rainbow/enduser/v1.0/notifications/emails/invite-by-end-user/:invitationId/re-send](#api-enduser_notifications_emails-enduser_ResendInvite), however it is still **up to client to send an SMS to the invited user's phone** (the API only updates the field lastNotificationDate). If needed, it is **up to clients to re-send the SMS to the invited user's phone**.
+	     *    * To create his Rainbow account, the invited user has to use API "Self register a user" using the associated invitationId ([POST /api/rainbow/enduser/v1.0/users/self-register](#api-enduser_users-enduser_SelfRegisterUsers))
+	     * * by Rainbow user id (`invitedUserId`):
+	     *    * if no user is found with the provided invitedUserId, an error 404 is returned
+	     *    * otherwise, a visibility request is sent (if this Rainbow user is not in logged in user roster).
+	     *        Same documentation than existing user invited by email apply (see above).
+	     * @param {string} email The email.
+	     * @param {string} invitedPhoneNumber Invited phone number.
+	     * @param {string} invitedUserId Invited Rainbow user unique ID
+	     * @param {string} lang The lang of the message.
+	     * @param {string} customMessage The email text (optional).
+	     * @return {Object} A promise that contains the contact added or an object describing an error
+	     */
+	    sendInvitationByCriteria(email: string, invitedPhoneNumber: string, invitedUserId: string, lang: string, customMessage: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.65
@@ -4675,7 +5008,7 @@ declare module 'lib/services/InvitationsService' {
 	    /**
 	     * @public
 	     * @since 1.65
-	     * @method sendInvitationByEmail
+	     * @method sendInvitationsByBulk
 	     * @instance
 	     * @category Invitations SENT
 	     * @async
@@ -4685,6 +5018,7 @@ declare module 'lib/services/InvitationsService' {
 	     * @param {Array} listOfMails The list of emails
 	     * @return {Object} A promise that the invite result or an object describing an error
 	     */
+	    sendInvitationsByBulk(listOfMails: any): Promise<unknown>;
 	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
 	    /**
 	     * @public
@@ -4806,6 +5140,28 @@ declare module 'lib/services/ContactsService' {
 
 	     */
 	    getMyInformations(): Promise<Contact>;
+	    /**
+	     * @public
+	     * @method getCompanyInfos
+	     * @instance
+	     * @category Contacts INFORMATIONS
+	     * @param {string} companyId The company id
+	     * @param {string} format
+	     * @param {boolean} selectedThemeObj
+	     * @param {string} name
+	     * @param {string} status
+	     * @param {string} visibility
+	     * @param {string} organisationId
+	     * @param {boolean} isBP
+	     * @param {boolean} hasBP
+	     * @param {string} bpType
+	     * @description
+	     *  This API allows user to get a company data.<br>
+	     *     **Users can only retrieve their own company and companies they can see** (companies with `visibility`=`public`, companies having user's companyId in `visibleBy` field, companies being in user's company organization and having `visibility`=`organization`, BP company of user's company).<br>
+	     *     If user request his own company, `numberUsers` field is returned with the number of Rainbow users being in this company. <br>
+	     * @return {string} Contact avatar URL or file
+	     */
+	    getCompanyInfos(companyId?: string, format?: string, selectedThemeObj?: boolean, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getAvatarByContactId
@@ -4997,6 +5353,430 @@ declare module 'lib/services/ContactsService' {
 	     * @fulfil {any} - Join result or an error object depending on the result
 	     */
 	    joinContacts(contact: Contact, contactIds: Array<string>): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method searchInAlldirectories
+	     * @since 2.8.9
+	     * @instance
+	     * @category Contacts Search
+	     * @description
+	     * This API allows to search for resources matching given keywords. <br>
+	     * Depending on the provided query parameters, search can be done: <br>
+	     *   * on shortNumber
+	     *   * on numberE164
+	     * <br>
+	     * <br>
+	     * For both cases, systemId or pbxId must be provided, corresponding to the identifier of the system for which the search is requested. <br>
+	     * <br>
+	     * This API tries to find a resource in the directories:
+	     *   * PBX devices of the system for which the search is requested, if associated to a Rainbow user (PBX devices of all systems belonging to the system's group if applicable),
+	     *   * phonebook of the system for which the search is requested (phonebooks of all systems belonging to the system's group if applicable),
+	     *   * Office365 database associated to the company(ies) to which is(are) linked the system for which the search is requested,
+	     *   * Business directory database associated to the company(ies) to which is(are) linked the system for which the search is requested.
+	     *    <br>
+	     * If several entries match in several directories, the order defined in searchResultOrder setting of the system is applied. <br>
+	     *    <br>
+	     * @return {Promise<any>} An object of the result
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | firstName | String | First name as it is present in one directory (either phonebbok,user or ActiveDirectory) |
+	     * | lastName | String | Last name as it is present in one directory (either phonebbok,user or ActiveDirectory) |
+	     * | id  | String | id of the user (if a user is found) |
+	     * | jid_im | String | jid_im of the user (if a user is found) |
+	     *
+	     * @param {string} pbxId pbxId of the system for which the search is requested. One of systemId or pbxId is mandatory.
+	     * @param {string} systemId identifier of the system for which the search is requested. One of systemId or pbxId is mandatory.
+	     * @param {string} numberE164 Allows to filter users list on the numberE164 provided in this option.
+	     * @param {string} shortnumber Allows to filter users list on the phone short number provided in this option.
+	     * @param {string} format Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
+	     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first entry if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort phone book list based on the given field. Default value : reverseDisplayName
+	     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
+	     */
+	    searchInAlldirectories(pbxId?: string, systemId?: string, numberE164?: string, shortnumber?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method searchInPhonebook
+	     * @since 2.8.9
+	     * @instance
+	     * @category Contacts Search
+	     * @description
+	     * This API allows to search for resources matching given keywords.The search is done on name and phone number. <br>
+	     * Search can be: <br>
+	     *   - on name: <br>
+	     *      * keywords exact match (ex: 'John Doe' find 'John Doe')
+	     *      * keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     *      * case insensitive (ex: 'john doe' find 'John Doe')
+	     *      * accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     *      * on only firstname or lastname (ex: 'john' find 'John Doe')
+	     *      * order firstname / lastname does not matter (ex: 'doe john' find 'John Doe')
+	     *   - on number: <br>
+	     *      * keywords exact match (ex: '0630594224' finds '0630594224' but NOT '+33630594224')
+	     * <br>
+	     * In case of user requesting the API, the search is done on user's system phonebook. <br>
+	     * In case of PCG requesting the API, pbxId parameter is mandatory and the search is done on related system phonebook. <br>
+	     *  <br>
+	     * **Specific feature:** Sharing a system between several companies <br>
+	     * Since 1.47.0 release, configuring companies sharing a multi-tenant system is possible. <br>
+	     * An OXE can be multi-company. <br>
+	     * A multi-tenant system, so called CENTREX, allows sharing a call-server between several entities. <br>
+	     * Each company in this multi-tenant system has his own range of phone number. Each company has a company prefix named 'tenantCallNumber' in the companies data model <br>
+	     *    <br>
+	     *   - Company A - 8210xxxx (82103000 Alice, 82103001 Bob)
+	     *   - Company B - 8211xxxx (82113001 Carol)
+	     *    <br>
+	     *   Carol can't search Alice by name because her phone number begins by a wrong company prefix.
+	     *   Carol can't search Bob by number because her phone number begins by a wrong company prefix.".
+	     *   In case of inconsistent configuration, an HTTP error 409210 is thrown.
+	     *    <br>
+	     * @return {Promise<any>} An object of the result
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id  | String | phone book id |
+	     * | firstName | String | First name as it is present in the phone book |
+	     * | lastName | String | Last name as it is present in the phone book |
+	     * | number | String | Phone number as it is present in the phone book |
+	     *
+	     * @param {string} pbxId Mandatory if role is pcg.
+	     * @param {string} name Allows to filter users list on the given keyword(s) provided in this option.
+	     * @param {string} number Allows to filter users list on the phone number provided in this option.
+	     * @param {string} format Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
+	     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first entry if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort phone book list based on the given field. Default value : reverseDisplayName
+	     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
+	     */
+	    searchInPhonebook(pbxId: string, name: string, number: string, format: string, limit: number, offset: number, sortField: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method searchUserByPhonenumber
+	     * @since 2.8.9
+	     * @instance
+	     * @category Contacts Search
+	     * @description
+	     * This API allows to search user being associated to the requested number. <br>
+	     * The algorithm of this API is the following: <br>
+	     *   * The API first search if the provided number matches one belonging to the pbx group of logged in user's pbx and being affected to a Rainbow user.
+	     *   * Otherwise, the API search for users having the provided E164 number filled in their profile (only if setting isVisibleByOthers related to this number is not set to false). The API returns the result only if found user is in the same company or organisation than the logged in user's.
+	     * If several numbers match, the first one found is returned. <br>
+	     *    <br>
+	     * @return {Promise<any>} An object of the result
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id  | String | User unique identifier |
+	     * | firstName | String | User first name |
+	     * | lastName | String | User last name |
+	     * | jid_im | String | User Jabber IM identifier |
+	     * | companyId | String | User company unique identifier |
+	     * | companyName | String | User company name |
+	     * | organisationId | String | User organisation unique identifier |
+	     * | lastAvatarUpdate | Date-Time | Date Date of last user avatar create/update, null if no avatar |
+	     * | lastUpdateDate | Date-Time | Date of last user create/update |
+	     * | guestMode | Boolean | Indicates a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
+	     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: The user can use the file sharing service.<br>* `disabled`: The user can't use the file sharing service. |
+	     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
+	     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
+	     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
+	     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: The user can use some channels.<br>* `disabled`: The user can't use some channel. |
+	     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+	     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: The user can switch to a Web RTC video conversation.<br>* `disabled`: The user can't switch to a Web RTC video conversation. |
+	     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `enabled`: The user can switch to a Web RTC audio conversation.<br>* `disabled`: The user can't switch to a Web RTC audio conversation. |
+	     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
+	     * | isTerminated | Boolean | Indicates if the user account has been deleted. |
+	     *
+	     * @param {number} number number to search. The number can be: <br>
+	     *      - a system phone number being in the pbx group of logged in user's pbx <br>
+	     *      - a phone number entered manually by a user in his profile and being in the same organisation than logged in user's (in that case, provided number must be in E164 format) <br>
+	     *
+	     */
+	    searchUserByPhonenumber(number: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method searchUsers
+	     * @since 2.8.9
+	     * @instance
+	     * @category Contacts Search
+	     * @description
+	     *
+	     * This API allows to search users.
+	     * Two type of searches are available:
+	     * * Search on displayName (query parameter `displayName`):
+	     *      - The search is done on users' `firstName` and `lastName`, and search is done in all Rainbow public users and users being in companies visible by logged in user's company.
+	     *      - If logged in user's has visibility `closed` or `isolated`, or `same_than_company` and logged in user's company has visibility `closed` or `isolated`, search is done only on users being in companies visible by logged in user's company.
+	     *      - Search on display name can be:
+	     *          * firstName and lastName exact match (ex: 'John Doe' find 'John Doe')
+	     *          * partial match (ex: 'Jo Do' find 'John Doe')
+	     *          * case insensitive (ex: 'john doe' find 'John Doe')
+	     *          * accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     *          * on only firstname or lastname (ex: 'john' find 'John Doe')
+	     *          * order firstname / lastname does not matter (ex: 'doe john' find 'John Doe')
+	     *      - It is possible to specify on which company(ies) users are searched (using `companyId` query parameter)
+	     *      - It is possible to exclude users from some company(ies) in the search (using `excludeCompanyId` query parameter)
+	     * * Multi-criterion search (query parameter `search`):
+	     *      - Multi criterion search is only available to users having feature `SEARCH_BY_TAGS` in their profiles,
+	     *      - Multi criterion allows to search users based on their fields `firstName`, `lastName`, `jobTitle`, `department`, `companyName` and `tags`.
+	     *          * Multi criterion search is limited to users belonging to logged in user's company or users being in a company that belongs to the same organization.
+	     *          * For other users which does not belong to the same company or organisation (Rainbow public users and users being in companies visible by logged in user's company outside the organisation), the search is only done on users' `firstName` and `lastName`. If logged in user's has visibility `closed` or `isolated` (or `same_than_company` and logged in user's company has visibility `closed` or `isolated`), search on `firstName`/`lastName` is done only on users being in companies visible by logged in user's company (similar behavior than search with query parameter displayName).
+	     *      - Provided search tags can be a single word or composed of several words separated by spaces.
+	     *      - Only users matching all provided search tags in their fields `firstName`, `lastName`, `jobTitle`,`department`, `companyName` and/or `tags` (or `firstName` and/or `lastName` for users outside the logged in user company/organisation) will be returned in the results.
+	     *      - Matching of the search tags is done from the start of the word, case is insensitive and special characters are ignored.
+	     *      - Example, consider a user as follow:
+	     *    <br>
+	     *  { <br>
+	     * firstName: 'John', <br>
+	     * lastName: 'Doe', <br>
+	     * companyName: 'Alcatel-Lucent International', <br>
+	     * jobTitle: 'Sales Representative', <br>
+	     * department: 'Sales', <br>
+	     * tags: \['Healthcare', 'Hospitality'\] <br>
+	     * } <br>
+	     *    <br>
+	     *  - This user can be found with the following search tags:
+	     *      * exact match (ex: 'John Doe', 'John Sales Representative', 'John Healthcare', ...)
+	     *      * partial match (ex: 'Jo Do', 'Jo Sales', 'Jo Health', 'Do Alcatel', ...)
+	     *      * case insensitive (ex: 'john doe', 'john sales', 'john hospitality', 'doe alcatel', ...)
+	     *      * on only one field (ex: 'doe', 'sales', 'healthcare')
+	     *      * order does not matter (ex: 'doe john', 'sales alcatel', 'healthcare sales john', ...)
+	     *  - It is possible to specify on which company(ies) users are searched (using companyId query parameter)
+	     *  - It is possible to exclude users from some company(ies) in the search (using excludeCompanyId query parameter)
+	     *    <br>
+	     * One of `displayName` or `search` parameters must be provided to execute the search request.
+	     *    <br>
+	     * @return {Promise<any>} An object of the result
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | limit | Number | Number of requested items |
+	     * | offset | Number | Requested position of the first item to retrieve |
+	     * | total | Number | Total number of items |
+	     * | data | Object\[\] | List of user Objects. |
+	     * | id  | String | User unique identifier |
+	     * | loginEmail | String | User email address (used for login)  <br>`loginEmail` field is only returned for users being in the same company than logged in user and not being in the default Rainbow company. |
+	     * | firstName | String | User first name |
+	     * | lastName | String | User last name |
+	     * | jid_im | String | User Jabber IM identifier |
+	     * | companyId | String | User company unique identifier |
+	     * | companyName | String | User company name |
+	     * | jobTitle optionnel | String | User job title.  <br>Only returned if search is requested using `search` parameter and found user is in the same company or organisation than logged in user. |
+	     * | tags optionnel | String\[\] | Tags associated to the user by an administrator.  <br>Only returned if search is requested using `search` parameter and found user is in the same company or organisation than logged in user. |
+	     * | lastAvatarUpdate | Date-Time | Date Date of last user avatar create/update, null if no avatar |
+	     * | lastUpdateDate | Date-Time | Date of last user create/update |
+	     * | guestMode | Boolean | Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
+	     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: The user can use the file sharing service.<br>* `disabled`: The user can't use the file sharing service. |
+	     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
+	     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
+	     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
+	     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: The user can use some channels.<br>* `disabled`: The user can't use some channel. |
+	     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+	     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: The user can switch to a Web RTC video conversation.<br>* `disabled`: The user can't switch to a Web RTC video conversation. |
+	     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `enabled`: The user can switch to a Web RTC audio conversation.<br>* `disabled`: The user can't switch to a Web RTC audio conversation. |
+	     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
+	     * | isTv | Boolean | True if it is a TV user |
+	     * | isAlertNotificationEnabled | Boolean | True if user is to subscribed to Alert Offer |
+	     * | phoneNumbers | Object\[\] | Array of user phone numbers objects.  <br>Phone number objects can:<br><br>* be created by user (information filled by user),<br>* come from association with a system (pbx) device (association is done by admin). |
+	     * | phoneNumberId | String | Phone number unique id in phone-numbers directory collection. |
+	     * | number optionnel | String | User phone number (as entered by user) |
+	     * | numberE164 optionnel | String | User E.164 phone number, computed by server from `number` and `country` fields |
+	     * | country | String | Phone number country (ISO 3166-1 alpha3 format)  <br>`country` field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:<br><br>* If `number` is provided and is in E164 format, `country` is computed from E164 number<br>* Else if `country` field is provided in the phoneNumber entry, this one is used<br>* Else user `country` field is used |
+	     * | isFromSystem optionnel | Boolean | Boolean indicating if phone is linked to a system (pbx). |
+	     * | shortNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>Only PCG can set this field. |
+	     * | internalNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), internal phone number.  <br>Usable within a PBX group.  <br>Admins and users can modify this internalNumber field. |
+	     * | systemId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. |
+	     * | pbxId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that pbx. |
+	     * | type | String | Phone number type, one of `home`, `work`, `other`. |
+	     * | deviceType | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
+	     * | isVisibleByOthers | Boolean | Allow user to choose if the phone number is visible by other users or not.  <br>Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false.  <br>Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. |
+	     *
+	     * @param {number} limit Allow to specify the number of users to retrieve. Default value : 20
+	     * @param {string} displayName earch users on the given displayName. displayName and search parameters are exclusives, displayName parameter can only be set if search parameter is not provided.
+	     * @param {string} search Search users belonging to the same company/organisation than logged in user on the given search tags on fields firstName, lastName, companyName, jobTitle, department,tags. Other public users/users in companies visible by logged in user's company are searched only on fields firstName and lastName (except if logged in user has visibility closed or isolated). displayName and search parameters are exclusives, search parameter can only be set if displayName parameter is not provided.
+	     * @param {string} companyId Search users being in the requested company(ies). companyId and excludeCompanyId parameters are exclusives, companyId parameter can only be set if excludeCompanyId parameter is not provided.
+	     * @param {string} excludeCompanyId Exclude users being in the requested company(ies) from the search results. companyId and excludeCompanyId parameters are exclusives, excludeCompanyId parameter can only be set if companyId parameter is not provided.
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort items list based on the given field.
+	     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1
+	     */
+	    searchUsers(limit?: number, displayName?: string, search?: string, companyId?: string, excludeCompanyId?: string, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createPersonalDirectoryEntry
+	     * @since 2.9.0
+	     * @instance
+	     * @async
+	     * @category Contacts Personal Directory
+	     * @param {string} firstName Contact first Name
+	     * @param {string} lastName Contact last Name
+	     * @param {string} companyName Company Name of the contact
+	     * @param {string} department Contact address: Department
+	     * @param {string} street Contact address: Street
+	     * @param {string} city Contact address: City
+	     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+	     * @param {string} postalCode Contact address: postal code / ZIP
+	     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+	     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {string} jobTitle Contact Job title
+	     * @param {string} eMail Contact Email address
+	     * @param {Array<string>} tags An Array of free tags <br>
+	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+	     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case). <br>
+	     * @param {string} custom1 Custom field 1
+	     * @param {string} custom2 Custom field 2
+	     * @description
+	     *      This API allows connected user to Create a personal directory entry.  <br>
+	     */
+	    createPersonalDirectoryEntry(firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getDirectoryEntryData
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category  Contacts Personnal Directory
+	     * @param {string} entryId Id of the entry.
+	     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+	     * - small: id, firstName, lastName  <br>
+	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+	     * - full: all fields. <br>
+	     * default : small <br>
+	     * Valid values : small, medium, full <br>
+	     * @description
+	     *      This API allows user to get data about an entry of his personnal directory.<br>
+	     * @return {Promise<any>}
+	     */
+	    getDirectoryEntryData(entryId: string, format?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getListPersonalDirectoryEntriesData
+	     * @since 2.9.0
+	     * @instance
+	     * @async
+	     * @category Contacts Personnal Directory
+	     * @param {string} name Allows to filter the list of directory entries of user type on the name provided in this option. <br>
+	     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - on only firstname or lastname (ex: 'john' find 'John Doe')
+	     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+	     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. <br>
+	     * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
+	     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+	     * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)<br>
+	     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Default value : user. Possible values : user, company
+	     * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. <br>
+	     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - on only companyName (ex: 'john' find 'John Doe')
+	     * @param {string} phoneNumbers Allows to filter the list of directory entries on the number provided in this option. (users and companies type) <br>
+	     *     Note the numbers must be in E164 format separated by a space and the character "+" replaced by "%2B". ex. "phoneNumbers=%2B33390676790 %2B33611223344"
+	     * @param {Date} fromUpdateDate Allows to filter the list of directory entries from provided date (ISO 8601 format eg: '2019-04-11 16:06:47').
+	     * @param {Date} toUpdateDate Allows to filter the list of directory entries until provided date (ISO 8601 format).
+	     * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. <br>
+	     *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). <br>
+	     *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
+	     * @param {string} format Allows to retrieve more or less entry details in response. <br>
+	     * - small: id, firstName, lastName  <br>
+	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
+	     * - full: all fields. <br>
+	     * default : small <br>
+	     * Valid values : small, medium, full <br>
+	     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort directory list based on the given field. Default value : lastName
+	     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+	     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
+	     * @description
+	     *   This API allows connected users to get an entry of his personal directory.<br>
+	     *   <br>
+	     *   name, phoneNumbers, search and tags parameters are exclusives.
+	     * @return {Promise<any>}
+	     * <br>
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | Data objects |
+	     * | id  | String | Directory entry identifier |
+	     * | companyId optionnel | String | Id of the company |
+	     * | userId optionnel | String | Id of the user |
+	     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
+	     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
+	     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
+	     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+	     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
+	     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
+	     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
+	     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+	     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+	     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
+	     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
+	     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
+	     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+	     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
+	     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+	     *
+	     *
+	     */
+	    getListPersonalDirectoryEntriesData(name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, view?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updatePersonalDirectoryEntry
+	     * @since 2.2.0
+	     * @instance
+	     * @async
+	     * @category Contacts Personnal Directory
+	     * @param {string} entryId Id of the entry.
+	     * @param {string} firstName Contact first Name
+	     * @param {string} lastName Contact last Name
+	     * @param {string} companyName Company Name of the contact
+	     * @param {string} department Contact address: Department
+	     * @param {string} street Contact address: Street
+	     * @param {string} city Contact address: City
+	     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+	     * @param {string} postalCode Contact address: postal code / ZIP
+	     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
+	     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+	     * @param {string} jobTitle Contact Job title
+	     * @param {string} eMail Contact Email address
+	     * @param {Array<string>} tags An Array of free tags <br>
+	     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
+	     * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
+	     * @param {string} custom1 Custom field 1
+	     * @param {string} custom2 Custom field 2
+	     * @description
+	     *      This API allows the connected user to update an entry of his personnal directory.<br>
+	     * @return {Promise<any>}
+	     */
+	    updatePersonalDirectoryEntry(entryId: string, firstName?: string, lastName?: string, companyName?: string, department?: string, street?: string, city?: string, state?: string, postalCode?: string, country?: string, workPhoneNumbers?: string[], mobilePhoneNumbers?: string[], otherPhoneNumbers?: string[], jobTitle?: string, eMail?: string, tags?: string[], custom1?: string, custom2?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deletePersonalDirectoryEntry
+	     * @since 2.9.0
+	     * @instance
+	     * @async
+	     * @category Contacts Personnal Directory
+	     * @param {string} entryId Id of the entry.
+	     * @description
+	     *      This API allows connected user to delete an entry from his personal directory.<br>
+	     * @return {Promise<any>}
+	     */
+	    deletePersonalDirectoryEntry(entryId: string): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method _onPresenceChanged
@@ -5738,8 +6518,18 @@ declare module 'lib/connection/HttpService' {
 	        errorCode: number;
 	        errorDetails: string;
 	    }): void;
-	    getUrl(url: any, headers: any, params: any): Promise<any>;
-	    _getUrl(url: any, headers: any, params: any): Promise<any>;
+	    getUrlRaw(url: any, headers: any, params: any): Promise<any>;
+	    _getUrlRaw(url: any, headers: any, params: any): Promise<any>;
+	    headUrlRaw(url: any, headers?: any): Promise<any>;
+	    _headUrlRaw(url: any, headers?: any): Promise<any>;
+	    postUrlRaw(url: any, headers: any, data: any): Promise<any>;
+	    _postUrlRaw(url: any, headers: any, data: any): Promise<any>;
+	    putUrlRaw(url: any, headers: any, data: any): Promise<any>;
+	    _putUrlRaw(url: any, headers: any, data: any): Promise<any>;
+	    deleteUrlRaw(url: any, headers?: any, data?: Object): Promise<any>;
+	    _deleteUrlRaw(url: any, headers?: any, data?: Object): Promise<any>;
+	    getUrlJson(url: any, headers: any, params: any): Promise<any>;
+	    _getUrlJson(url: any, headers: any, params: any): Promise<any>;
 	    get(url: any, headers: any, params: any, responseType?: string): Promise<any>;
 	    _get(url: any, headers: any, params: any, responseType?: string): Promise<any>;
 	    post(url: any, headers: any, data: any, contentType: any): Promise<any>;
@@ -5983,6 +6773,10 @@ declare module 'lib/connection/RESTService' {
 	    signout(): Promise<unknown>;
 	    startTokenSurvey(): Promise<void>;
 	    _renewAuthToken(): void;
+	    searchInAlldirectories(pbxId?: string, systemId?: string, numberE164?: string, shortnumber?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    searchInPhonebook(pbxId: string, name: string, number: string, format: string, limit: number, offset: number, sortField: string, sortOrder: number): Promise<unknown>;
+	    searchUserByPhonenumber(number: any): Promise<unknown>;
+	    searchUsers(limit?: number, displayName?: string, search?: string, companyId?: string, excludeCompanyId?: string, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string, companyId?: string, searchEmail?: string): Promise<unknown>;
 	    getContactInfos(userId: any): Promise<unknown>;
 	    putContactInfos(userId: any, infos: any): Promise<unknown>;
@@ -6007,12 +6801,14 @@ declare module 'lib/connection/RESTService' {
 	    addServerFavorite(peerId: string, type: string): Promise<unknown>;
 	    removeServerFavorite(favoriteId: string): Promise<unknown>;
 	    getAllSentInvitations(): Promise<unknown>;
+	    getInvitationsSent(sortField: string, status: string, format: string, limit: number, offset: number, sortOrder?: number): Promise<unknown>;
+	    getAllReceivedInvitations(): Promise<unknown>;
+	    getInvitationsReceived(sortField: string, status: string, format: string, limit: number, offset: number, sortOrder?: number): Promise<unknown>;
 	    getServerInvitation(invitationId: any): Promise<unknown>;
-	    sendInvitationByEmail(email: any, lang: any, customMessage: any): Promise<unknown>;
+	    sendInvitationByCriteria(email: string, lang: string, customMessage: string, invitedPhoneNumber: string, invitedUserId: string): Promise<unknown>;
 	    cancelOneSendInvitation(invitation: any): Promise<unknown>;
 	    reSendInvitation(invitationId: any): Promise<unknown>;
 	    sendInvitationsParBulk(listOfMails: any): Promise<unknown>;
-	    getAllReceivedInvitations(): Promise<unknown>;
 	    /**
 	     * ACCEPT INVITATION
 	     */
@@ -6109,6 +6905,7 @@ declare module 'lib/connection/RESTService' {
 	    createCompany(name: any, country: any, state: any, offerType: any): Promise<unknown>;
 	    getCompany(companyId: any): Promise<unknown>;
 	    deleteCompany(companyId: any): Promise<unknown>;
+	    getCompanyInfos(companyId: any, format: string, selectedThemeObj: boolean, name: string, status: string, visibility: string, organisationId: string, isBP: boolean, hasBP: boolean, bpType: string): Promise<unknown>;
 	    setVisibilityForCompany(companyId: any, visibleByCompanyId: any): Promise<unknown>;
 	    applyCustomisationTemplates(name: string, companyId: string, userId: string): Promise<unknown>;
 	    createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string): Promise<unknown>;
@@ -6336,14 +7133,17 @@ declare module 'lib/connection/RESTService' {
 	        loginEmail: string;
 	        password: string;
 	    }>;
-	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    deleteLdapConnector(ldapId: string): Promise<{
 	        status: string;
 	    }>;
-	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
+	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    createConfigurationForLdapConnector(companyId: string, settings: any): Promise<unknown>;
-	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean): Promise<unknown>;
+	    deleteLdapConnectorConfig(ldapConfigId: string): Promise<{
+	        status: string;
+	    }>;
 	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
+	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
+	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean): Promise<unknown>;
 	    getCloudPbxById(systemId: any): Promise<unknown>;
 	    updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
 	    deleteCloudPBX(systemId: string): Promise<{
@@ -6387,7 +7187,7 @@ declare module 'lib/connection/RESTService' {
 	    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
 	    retrieveAllAvailableCallLineIdentifications(): Promise<unknown>;
 	    retrieveCurrentCallLineIdentification(): Promise<unknown>;
-	    setCurrentActiveCallLineIdentification(policy: string, phoneNumberId: string): Promise<unknown>;
+	    setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string): Promise<unknown>;
 	    addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string): Promise<unknown>;
 	    deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string): Promise<unknown>;
 	    getVoiceMessagesAssociatedToGroup(groupId: string, limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
@@ -6398,16 +7198,33 @@ declare module 'lib/connection/RESTService' {
 	    leaveAGroup(groupId: string): Promise<unknown>;
 	    leaveAllGroups(): Promise<unknown>;
 	    removeMemberFromGroup(groupId: string, memberId: string): Promise<unknown>;
+	    retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser(): Promise<unknown>;
+	    updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean): Promise<unknown>;
 	    updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean): Promise<unknown>;
 	    updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string): Promise<unknown>;
 	    updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string): Promise<unknown>;
+	    activateDeactivateDND(activate: boolean): Promise<unknown>;
+	    configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number, activated: boolean): Promise<unknown>;
+	    retrieveActiveForwards(): Promise<unknown>;
+	    retrieveDNDState(): Promise<unknown>;
+	    searchUsersGroupsContactsByName(displayName: string, limit: number): Promise<unknown>;
 	    activatePersonalRoutine(routineId: string): Promise<unknown>;
+	    createCustomPersonalRoutine(name: string): Promise<unknown>;
+	    deleteCustomPersonalRoutine(routineId: string): Promise<unknown>;
 	    getPersonalRoutineData(routineId: string): Promise<unknown>;
-	    getAllPersonalRoutines(): Promise<unknown>;
-	    updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, deviceMode: {
+	    getAllPersonalRoutines(userId: any): Promise<unknown>;
+	    updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, presence: {
+	        manage: boolean;
+	        value: string;
+	    }, deviceMode: {
 	        manage: boolean;
 	        mode: string;
 	    }, immediateCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	    }, busyCallForward: {
 	        manage: boolean;
 	        activate: boolean;
 	        number: string;
@@ -6424,6 +7241,7 @@ declare module 'lib/connection/RESTService' {
 	    manageUserRoutingData(destinations: Array<string>, currentDeviceId: string): Promise<unknown>;
 	    retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string): Promise<unknown>;
 	    retrieveUserRoutingData(): Promise<unknown>;
+	    retrieveVoiceUserSettings(): Promise<unknown>;
 	    addParticipant3PCC(callId: string, callData: {
 	        callee: string;
 	    }): Promise<unknown>;
@@ -6502,13 +7320,37 @@ declare module 'lib/connection/RESTService' {
 	    deleteCompanyDirectoryAllEntry(companyId: string): Promise<unknown>;
 	    deleteDirectoryEntry(entryId: string): Promise<unknown>;
 	    getDirectoryEntryData(entryId: string, format: string): Promise<unknown>;
-	    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format: string, limit: number, offset: number, sortField: string, sortOrder: number): Promise<unknown>;
+	    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format: string, limit: number, offset: number, sortField: string, sortOrder: number, view: string): Promise<unknown>;
 	    updateDirectoryEntry(entryId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
 	    ImportDirectoryCsvFile: (companyId: any, csvContent: any, label: any) => Promise<unknown>;
 	    getAllTagsAssignedToDirectoryEntries(companyId: string): Promise<unknown>;
 	    removeTagFromAllDirectoryEntries(companyId: string, tag: string): Promise<unknown>;
 	    renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string): Promise<unknown>;
 	    getStatsRegardingTagsOfDirectoryEntries(companyId: string): Promise<unknown>;
+	    createBubblePoll(roomId: string, title: string, questions: Array<{
+	        text: string;
+	        multipleChoice: boolean;
+	        answers: Array<{
+	            text: string;
+	        }>;
+	    }>, anonymous?: boolean, duration?: number): Promise<unknown>;
+	    deleteBubblePoll(pollId: any): Promise<unknown>;
+	    getBubblePoll(pollId: string, format?: string): Promise<unknown>;
+	    getBubblePollsByBubble(roomId: string, format: string, limit: number, offset: number): Promise<unknown>;
+	    publishBubblePoll(pollId: string): Promise<unknown>;
+	    terminateBubblePoll(pollId: string): Promise<unknown>;
+	    unpublishBubblePoll(pollId: string): Promise<unknown>;
+	    updateBubblePoll(pollId: string, roomId: string, title: string, questions: Array<{
+	        text: string;
+	        multipleChoice: boolean;
+	        answers: Array<{
+	            text: string;
+	        }>;
+	    }>, anonymous: boolean, duration: number): Promise<unknown>;
+	    votesForBubblePoll(pollId: string, votes: Array<{
+	        question: number;
+	        answers: Array<number>;
+	    }>): Promise<unknown>;
 	    addPSTNParticipantToConference(roomId: string, participantPhoneNumber: string, country: string): Promise<unknown>;
 	    snapshotConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
 	    delegateConference(roomId: string, userId: string): Promise<unknown>;
@@ -7845,7 +8687,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    getClassName(): string;
 	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
 	    private createSessionParticipantFromElem;
-	    onConferenceMessageV2(): void;
+	    parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
 	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
 	    parseParticipantsFromConferenceUpdatedEvent(conference: ConferenceSession, addedParticipants: any): Promise<void>;
 	    parseParticipantsIdFromConferenceUpdatedEvent(participants: any): List<string>;
@@ -8753,11 +9595,33 @@ declare module 'lib/services/GenericService' {
 	export { GenericService as GenericService };
 
 }
+declare module 'lib/connection/XMPPServiceHandler/httpoverxmppEventHandler' {
+	import { XMPPService } from 'lib/connection/XMPPService';
+	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler';
+	import { RESTService } from 'lib/connection/RESTService'; class HttpoverxmppEventHandler extends GenericHandler {
+	    IQ_GET: any;
+	    IQ_SET: any;
+	    IQ_RESULT: any;
+	    IQ_ERROR: any;
+	    private _rest;
+	    options: any;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(xmppService: XMPPService, restService: RESTService, options: any);
+	    onIqGetSetReceived(msg: any, stanza: any): void;
+	    onIqResultReceived(msg: any, stanza: any): void;
+	    _onIqGetSetReqReceived(stanza: any, node: any): Promise<number>;
+	    _onIqRespResultReceived(stanza: any, node: any): Promise<void>;
+	}
+	export { HttpoverxmppEventHandler };
+
+}
 declare module 'lib/connection/XMPPService' {
 	import { XMPPUTils } from 'lib/common/XMPPUtils';
 	import { XmppClient } from 'lib/common/XmppQueue/XmppClient';
 	import { AlertMessage } from 'lib/common/models/AlertMessage';
-	import { GenericService } from 'lib/services/GenericService'; const NameSpacesLabels: {
+	import { GenericService } from 'lib/services/GenericService';
+	import { HttpoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/httpoverxmppEventHandler'; const NameSpacesLabels: {
 	    ChatstatesNS: string;
 	    ReceiptNS: string;
 	    CallLogNamespace: string;
@@ -8783,6 +9647,9 @@ declare module 'lib/connection/XMPPService' {
 	    MamNameSpaceTmp: string;
 	    AttentionNS: string;
 	    IncidentCap: string;
+	    MonitoringNS: string;
+	    XmppHttpNS: string;
+	    protocolShimNS: string;
 	}; class XMPPService extends GenericService {
 	    serverURL: any;
 	    host: any;
@@ -8814,6 +9681,7 @@ declare module 'lib/connection/XMPPService' {
 	    fibonacciStrategy: any;
 	    IQEventHandlerToken: any;
 	    IQEventHandler: any;
+	    httpoverxmppEventHandler: HttpoverxmppEventHandler;
 	    xmppUtils: XMPPUTils;
 	    private shouldSendMessageToConnectedUser;
 	    private storeMessages;
@@ -8823,15 +9691,16 @@ declare module 'lib/connection/XMPPService' {
 	    private messagesDataStore;
 	    private raiseLowLevelXmppInEvent;
 	    private raiseLowLevelXmppOutReq;
+	    private company;
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any);
+	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _rest: any, _options: any);
 	    start(withXMPP: any): Promise<unknown>;
 	    signin(account: any, headers: any): Promise<unknown>;
 	    stop(forceStop: any): Promise<unknown>;
 	    startOrResetIdleTimer(incomingStanza?: boolean): void;
 	    stopIdleTimer(): void;
-	    handleXMPPConnection(headers: any): void;
+	    handleXMPPConnection(headers: any): Promise<void>;
 	    setPresence(show: any, status: any): Promise<unknown>;
 	    enableCarbon(): Promise<unknown>;
 	    disableCarbon(): Promise<unknown>;
@@ -8872,6 +9741,13 @@ declare module 'lib/connection/XMPPService' {
 	    mamQueryMuc(jid: any, to: any, options: any): void;
 	    mamDelete(options: any): void;
 	    voiceMessageQuery(jid: any): Promise<unknown>;
+	    getHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
+	    traceHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
+	    headHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
+	    postHTTPoverXMPP(urlToGet: any, to: any, headers: {}, data: any): Promise<unknown>;
+	    putHTTPoverXMPP(urlToGet: any, to: any, headers: {}, data: any): Promise<unknown>;
+	    deleteHTTPoverXMPP(urlToGet: any, to: any, headers: {}, data: any): Promise<unknown>;
+	    discover(): Promise<unknown>;
 	}
 	export { XMPPService, NameSpacesLabels };
 
@@ -8882,7 +9758,8 @@ declare module 'lib/services/ImsService' {
 	import { Logger } from 'lib/common/Logger';
 	import { EventEmitter } from 'events';
 	import { Core } from 'lib/Core';
-	import { GenericService } from 'lib/services/GenericService'; class ImsService extends GenericService {
+	import { GenericService } from 'lib/services/GenericService';
+	import { Message } from 'lib/common/models/Message'; class ImsService extends GenericService {
 	    private _conversations;
 	    private _pendingMessages;
 	    private _bulles;
@@ -9085,6 +9962,36 @@ declare module 'lib/services/ImsService' {
 
 	     */
 	    sendMessageToJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method sendMessageToJidAcknowledged
+	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
+	     * @description
+	     *  Send an Acknowledged reply to an urgent message (one to one, or bubble) <br>
+	     * @param {Message} message The message to acknoledge
+	     * @param {string} lang the lang used to acknowledged the message.
+	     * @param {string} ackLabel the label used to acknowledged the message.
+	     * @return {Promise<Message, ErrorManager>}
+	     * @fulfil {Message} - the message
+	     */
+	    sendMessageToJidAcknowledged(message: Message, lang?: string, ackLabel?: string): Promise<void>;
+	    /**
+	     * @public
+	     * @method sendMessageToJidIgnored
+	     * @instance
+	     * @async
+	     * @category Ims MESSAGES
+	     * @description
+	     *  Send an Ignored reply to an urgent message (one to one, or bubble) <br>
+	     * @param {Message} message The message to Ignored
+	     * @param {string} lang the lang used to ignore the message.
+	     * @param {string} ignLabel the label used to ignore the message.
+	     * @return {Promise<Message, ErrorManager>}
+	     * @fulfil {Message} - the message
+	     */
+	    sendMessageToJidIgnored(message: Message, lang?: string, ignLabel?: string): Promise<void>;
 	    /**
 	     * @public
 	     * @method sendMessageToBubble
@@ -12359,6 +13266,26 @@ declare module 'lib/services/AdminService' {
 	    }>;
 	    /**
 	     * @public
+	     * @method deleteLdapConnector
+	     * @since 1.86.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} ldapId the Id of the ldap connector to delete.
+	     * @description
+	     *      This API is to delete the connector <br>
+	     *     **BP Admin** and **BP Finance** users can only delete users being in a company linked to their BP company.<br>
+	     *     **Admin** users can only delete users being in their own company. (superadmin, organization\_admin, company\_admin)
+	     *      return { <br>
+	     *          status {string} Delete operation status message. <br>
+	     *          } <br>
+	     * @return {Promise<{ status : string}>}
+	     */
+	    deleteLdapConnector(ldapId: string): Promise<{
+	        status: string;
+	    }>;
+	    /**
+	     * @public
 	     * @method retrieveAllLdapConnectorUsersData
 	     * @since 1.86.0
 	     * @instance
@@ -12579,22 +13506,103 @@ declare module 'lib/services/AdminService' {
 	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<any>;
 	    /**
 	     * @public
-	     * @method deleteLdapConnector
+	     * @method createConfigurationForLdapConnector
 	     * @since 1.86.0
 	     * @instance
 	     * @async
 	     * @category AD/LDAP - LDAP APIs to use
-	     * @param {string} ldapId the Id of the ldap connector to delete.
+	     * @param {string} companyId the id of the company.
+	     * @param {Object} settings config settings.
+	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
+	     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
+	     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
+	     * @param {string} settings.company.login login for the ldap server.
+	     * @param {string} settings.company.password password for the ldap server.
+	     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
+	     * @param {string} settings.company.url url of the ldap server.
+	     * @param {string} settings.company.domain domain of the ldap server.
+	     * @param {string} settings.company.baseDN base DN for the ldap server.
+	     * @param {boolean} settings.company.activeFlag defines if the synchronization is active, or not.
+	     * @param {string} settings.company.nextSynchronization date (ISO 8601 format) which defines when the next synchronization will be performed.
+	     * @param {string} settings.company.search_rule filters to use when requesting the ldap server.
 	     * @description
-	     *      This API is to delete the connector (the connector cannot be modified by the others admin APIs) <br>
-	     *      return { <br>
-	     *          status {string} Delete operation status message. <br>
-	     *          } <br>
+	     *      This API allows create configuration for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can create the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
+	     *      * an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId)
+	     *      * a company_admin can only create the connectors configuration in his company.
+	     *      return an Object with
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id | String | Config unique identifier. |
+	     * | type | String | Config type |
+	     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
+	     * | settings | Object | config settings |
+	     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+	     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+	     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
+	     * | settings.company.login | String | login for the ldap server. |
+	     * | settings.company.password | String | password for the ldap server. |
+	     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
+	     * | settings.company.url | String | url of the ldap server. |
+	     * | settings.company.domain | String | domain of the ldap server. |
+	     *
+	     * @return {Promise<{Object}>}
+	     */
+	    createConfigurationForLdapConnector(companyId: any, settings: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteLdapConnectorConfig
+	     * @since 2.9.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} ldapConfigId the Id of the ldap connector to delete.
+	     * @description
+	     *      This API can be used to delete a ldap connector config. <br>
+	     *      <br>
+	     *      **BP Admin** and **BP Finance** users can only delete a ldap config being in a company linked to their BP company. <br>
+	     *      **Admin** users can only delete ldap config being in their own company. (superadmin, organization_admin, company_admin)  <br>
 	     * @return {Promise<{ status : string}>}
 	     */
-	    deleteLdapConnector(ldapId: string): Promise<{
+	    deleteLdapConnectorConfig(ldapConfigId: string): Promise<{
 	        status: string;
 	    }>;
+	    /**
+	     * @public
+	     * @method retrieveLdapConnectorConfig
+	     * @since 1.86.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+	     * @description
+	     *      This API allows to retrieve the configuration for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	String Config unique identifier. <br>
+	     *         type 	String Config type  <br>
+	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	String login for the ldap server. <br>
+	     *                 password 	String password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
+	     *                 url 	String url of the ldap server. <br>
+	     *          } <br>
+	     * @return {Promise<{Object}>}
+	     */
+	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method retrieveLdapConnectorConfigTemplate
@@ -12620,51 +13628,6 @@ declare module 'lib/services/AdminService' {
 	     * @return {Promise<{Object}>}
 	     */
 	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method createConfigurationForLdapConnector
-	     * @since 1.86.0
-	     * @instance
-	     * @async
-	     * @category AD/LDAP - LDAP APIs to use
-	     * @param {string} companyId the id of the company.
-	     * @param {Object} settings config settings.
-	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
-	     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
-	     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
-	     * @param {string} settings.company.login login for the ldap server.
-	     * @param {string} settings.company.password password for the ldap server.
-	     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
-	     * @param {string} settings.company.url url of the ldap server.
-	     * @param {string} settings.company.domain domain of the ldap server.
-	     * @description
-	     *      This API allows create configuration for the connector. <br>
-	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
-	     *      Users with superadmin, support role can create the connectors configuration from any company. <br>
-	     *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
-	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
-	     *      an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
-	     *      a company_admin can only create the connectors configuration in his company. <br>
-	     *      return an Object with
-	     *
-	     * | Champ | Type | Description |
-	     * | --- | --- | --- |
-	     * | id | String | Config unique identifier. |
-	     * | type | String | Config type |
-	     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
-	     * | settings | Object | config settings |
-	     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
-	     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
-	     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
-	     * | settings.company.login | String | login for the ldap server. |
-	     * | settings.company.password | String | password for the ldap server. |
-	     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
-	     * | settings.company.url | String | url of the ldap server. |
-	     * | settings.company.domain | String | domain of the ldap server. |
-	     *
-	     * @return {Promise<{Object}>}
-	     */
-	    createConfigurationForLdapConnector(companyId: any, settings: any): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateConfigurationForLdapConnector
@@ -12706,38 +13669,6 @@ declare module 'lib/services/AdminService' {
 	     * @return {Promise<{Object}>}
 	     */
 	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict?: boolean): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method retrieveLdapConnectorConfig
-	     * @since 1.86.0
-	     * @instance
-	     * @async
-	     * @category AD/LDAP - LDAP APIs to use
-	     * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
-	     * @description
-	     *      This API allows to retrieve the configuration for the connector. <br>
-	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
-	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
-	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
-	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
-	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
-	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
-	     *      return { <br>
-	     *         id 	String Config unique identifier. <br>
-	     *         type 	String Config type  <br>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
-	     *         settings 	Object config settings <br>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-	     *                 login 	String login for the ldap server. <br>
-	     *                 password 	String password for the ldap server. <br>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-	     *                 url 	String url of the ldap server. <br>
-	     *          } <br>
-	     * @return {Promise<{Object}>}
-	     */
-	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getCloudPbxById
@@ -13531,31 +14462,87 @@ declare module 'lib/services/AdminService' {
 	     * @instance
 	     * @async
 	     * @category Rainbow Company Directory portal - directory
-	     * @param companyId
-	     * @param organisationIds
-	     * @param name
-	     * @param search
-	     * @param type
-	     * @param companyName
-	     * @param phoneNumbers
-	     * @param fromUpdateDate
-	     * @param toUpdateDate
-	     * @param tags
+	     * @param {string} companyId Allows to filter the list of directory entries on the companyIds provided in this option
+	     * @param {string} organisationIds Allows to filter the list of directory entries on the organisationIds provided in this option
+	     * @param {string} name Allows to filter the list of directory entries of user type on the name provided in this option. <br>
+	     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - on only firstname or lastname (ex: 'john' find 'John Doe')
+	     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+	     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. <br>
+	     * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
+	     * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
+	     * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)<br>
+	     * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Default value : user. Possible values : user, company
+	     * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. <br>
+	     * - keywords exact match (ex: 'John Doe' find 'John Doe')
+	     * - keywords partial match (ex: 'Jo Do' find 'John Doe')
+	     * - case insensitive (ex: 'john doe' find 'John Doe')
+	     * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     * - on only companyName (ex: 'john' find 'John Doe')
+	     * @param {string} phoneNumbers Allows to filter the list of directory entries on the number provided in this option. (users and companies type) <br>
+	     *     Note the numbers must be in E164 format separated by a space and the character "+" replaced by "%2B". ex. "phoneNumbers=%2B33390676790 %2B33611223344"
+	     * @param {Date} fromUpdateDate Allows to filter the list of directory entries from provided date (ISO 8601 format eg: '2019-04-11 16:06:47').
+	     * @param {Date} toUpdateDate Allows to filter the list of directory entries until provided date (ISO 8601 format).
+	     * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. <br>
+	     *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). <br>
+	     *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
 	     * @param {string} format Allows to retrieve more or less entry details in response. <br>
 	     * - small: id, firstName, lastName  <br>
 	     * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
 	     * - full: all fields. <br>
 	     * default : small <br>
 	     * Valid values : small, medium, full <br>
-	     * @param limit
-	     * @param offset
-	     * @param sortField
-	     * @param sortOrder
+	     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort directory list based on the given field. Default value : lastName
+	     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+	     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
 	     * @description
-	     *      This API allows administrators to get a list of directory entries data of a company they administrate.<br>
+	     *   This API allows users to get an entry of the directory of a company they administrate.<br>
+	     *   superadmin and support can get a directory entry of all companies.<br>
+	     *   bp_admin can only get a directory entry of their own companies or their End Customer companies.<br>
+	     *   organization_admin can only get a directory entry of the companies under their organization.<br>
+	     *   other users can only get a directory entry of their onw companies (and companies visible in their organisation if any). users can get the entries of their own directory too.<br>
+	     *   <br>
+	     *   name, phoneNumbers, search and tags parameters are exclusives.
 	     * @return {Promise<any>}
+	     * <br>
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | Data objects |
+	     * | id  | String | Directory entry identifier |
+	     * | companyId optionnel | String | Id of the company |
+	     * | userId optionnel | String | Id of the user |
+	     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
+	     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
+	     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
+	     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+	     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
+	     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
+	     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
+	     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+	     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+	     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
+	     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
+	     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
+	     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+	     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
+	     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+	     *
+	     *
 	     */
-	    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+	    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, view?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateDirectoryEntry
@@ -13584,7 +14571,7 @@ declare module 'lib/services/AdminService' {
 	     * @param {string} custom1 Custom field 1
 	     * @param {string} custom2 Custom field 2
 	     * @description
-	     *      This API allows administrators to get an entry of the directory of a company they administrate.<br>
+	     *      This API allows administrators to update an entry of the directory of a company they administrate.<br>
 	     * @return {Promise<any>}
 	     */
 	    updateDirectoryEntry(entryId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
@@ -14102,6 +15089,7 @@ declare module 'lib/config/Options' {
 	    _CLIMode: any;
 	    _servicesToStart: any;
 	    private _testOutdatedVersion;
+	    private _httpoverxmppserver;
 	    private _concurrentRequests;
 	    private _intervalBetweenCleanMemoryCache;
 	    private _requestsRate;
@@ -14109,6 +15097,8 @@ declare module 'lib/config/Options' {
 	    parse(): void;
 	    get testOutdatedVersion(): boolean;
 	    set testOutdatedVersion(value: boolean);
+	    get testhttpoverxmppserver(): boolean;
+	    set testhttpoverxmppserver(value: boolean);
 	    get intervalBetweenCleanMemoryCache(): number;
 	    set intervalBetweenCleanMemoryCache(value: number);
 	    get servicesToStart(): any;
@@ -14131,6 +15121,7 @@ declare module 'lib/config/Options' {
 	        "timeoutRequestForRequestRate": number;
 	    };
 	    _gettestOutdatedVersion(): any;
+	    _gethttpoverxmppserver(): any;
 	    _getintervalBetweenCleanMemoryCache(): any;
 	    _getservicesToStart(): {};
 	    _isOfficialRainbow(): boolean;
@@ -15247,14 +16238,6 @@ declare module 'lib/services/RBVoiceService' {
 	     * @async
 	     * @category Rainbow Voice CLI Options
 	     * @instance
-	     * @mermaid
-	     * sequenceDiagram
-	     * participant App
-	     * participant Jira
-	     * App->>Jira:project({projectId})
-	     * Jira->>App:ProjectObject
-	     * App->>Jira:search()
-	     * Jira->>App:IssueObject[]
 	     * @description
 	     * This api returns all CLI options available.
 	     * @fulfil {Promise<any>} return result.
@@ -15263,11 +16246,11 @@ declare module 'lib/services/RBVoiceService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | data | Object | Detailed information about Calling Line Identification (CLI) |
-	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br><br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br><br>Possible values : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
-	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br><br>Possible values : `user_ddi_number`, `installation_ddi_number` |
+	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br>Possible values : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
+	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br>Possible values : `user_ddi_number`, `installation_ddi_number` |
 	     * | phoneNumberId | String | phoneNumber Unique identifier that is used for identifying selected CLI |
 	     * | number | String | phoneNumber value that is used as CLI |
-	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br><br>Possible values : `Group`, `Other` |
+	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br>Possible values : `Group`, `Other` |
 	     * | name optionnel | String | Only when CLI policy is "other\_ddi\_number" and type is "Group". It is then the Group name |
 	     *
 	     */
@@ -15282,8 +16265,1455 @@ declare module 'lib/services/RBVoiceService' {
 	     * @return {Promise<any>}
 	     */
 	    retrieveCurrentCallLineIdentification(): Promise<unknown>;
+	    /**
+	     * @method setCurrentActiveCallLineIdentification
+	     * @async
+	     * @category Rainbow Voice CLI Options
+	     * @param {string} policy CLI policy to apply.Possible values : "company_policy", "user_ddi_number", "installation_ddi_number", "other_ddi_number"
+	     * @param {string} phoneNumberId  phoneNumber Unique Identifier of the ddi we want to apply (parameter only mandatory when selected CLI policy is "other_ddi_number"
+	     * @instance
+	     * @description
+	     *  This api allows user to set the current CLI. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Calling Line Identification (CLI) |
+	     * | policy | String | CLI **policy** applied.  <br>It indicates which kind of number is used as CLI  <br>Detailed description of **policy** meanings:<br>* **company_policy** : CLI will be the **Default identifier** as defined at company level (as a result it can be either the Company Number or the Work phone of the user ; according the chosen CLI company policy)<br>* **user\_ddi\_number** : CLI will be the **Work phone** of the user<br>* **installation\_ddi\_number** : CLI will be the **Company number**<br>* **other\_ddi\_number** : CLI will be a **Hunting Group number** the user belongs to. Can be also **another number authorized** by Admin<br>Posible values : `company_policy`, `user_ddi_number`, `installation_ddi_number`, `other_ddi_number` |
+	     * | companyPolicy optionnel | String | Only when policy is "company_policy" ; it indicates what is the CLI policy defined at company level<br>Possible values : `user_ddi_number`, `installation_ddi_number` |
+	     * | phoneNumberId | String | phoneNumber Unique identifier that is used for identifying selected CLI |
+	     * | number | String | phoneNumber value that is used as CLI |
+	     * | type optionnel | String | Only when CLI policy is "other\_ddi\_number" ; allows to differentiate Hunting Groups with another number<br>Possible values : `Group`, `Other` |
+	     * | name optionnel | String | Only when CLI policy is "other\_ddi\_number" and type is "Group". It is then the Group name |
+	     *
+	     */
+	    setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string): Promise<unknown>;
+	    /**
+	     * @method addMemberToGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} memberId Unique identifier (userId) of the user to add
+	     * @param {number} position Position of the user inside the group, from 1 to last.
+	     * @param {Array<string>} roles Member roles inside the group. Default value : agent.Possible value : agent, manager, assistant
+	     * @param {string} status Member status inside the group. Default : active. Possible value : active, idle
+	     * @instance
+	     * @description
+	     *  This part of the API allows a user having manager role on a group to add another user. <br>
+	     *  The added user can be any user belonging to the same company. <br>
+	     *  The position of the inserted member is important in case of a hunting group with serial or circular policy, and also in case of a manager_assistant group with several assistants. <br>
+	     *  The position is meaningless in case of parallel hunting group. <br>
+	     *  Manager can choose to set the default status of the added user to 'idle' or 'active' (default value, user will be involved in call distribution for hunting group). <br>
+	     *  In case of a manager_assistant group the status can be: <br>
+	     *  <br>
+	     *   - 'idle': the newly inserted member is just 'declared', and not provisioned on cloud PBX side <br>
+	     *   - 'active': the newly inserted manager or assistant is configured and ready <br>
+	     *  <br>
+	     *  Manager can also set the added user role, defining if this user is an agent and/or manager in a hunting group (assistant or manager in case of manager_assistant group). <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string): Promise<unknown>;
+	    /**
+	     * @method deleteVoiceMessageAssociatedToAGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} messageId Message identifier (userId) of the user to add
+	     * @instance
+	     * @description
+	     *  Deletion of the given voice message. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string): Promise<unknown>;
+	    /**
+	     * @method getVoiceMessagesAssociatedToGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {number} limit Allow to specify the number of voice messages to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first voice messages to retrieve. Default value : 0
+	     * @param {string} sortField Sort voice messages list based on the given field. Default value : date
+	     * @param {number} sortOrder Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1
+	     * @param {string} fromDate List voice messages created after the given date.
+	     * @param {string} toDate List voice messages created before the given date.
+	     * @param {string} callerName List voice messages with caller party name containing the given value.
+	     * @param {string} callerNumber List voice messages with caller party number containing the given value.
+	     * @instance
+	     * @description
+	     *      Returns the list of voice messages associated to a group. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | id  | String | voice message identifier |
+	     *  | fileName | String | File name of the voice message - composed of the voice message date |
+	     *  | mime | String | MIME type of the voice message file<br>Possible values : `audio/mpeg` |
+	     *  | size | Number | Size of the voice message file (in bytes). |
+	     *  | duration | Number | Duration of the voice message (in seconds) |
+	     *  | date | Date | Date of the voice message |
+	     *  | callerInfo | Object | Caller party info |
+	     *  | data | Object\[\] | Voice messages |
+	     *  | number | String | Caller number |
+	     *  | name optionnel | String | Caller name, if available |
+	     *  | firstName optionnel | String | Caller firstName, if available |
+	     *  | lastName optionnel | String | Caller lastName, if available |
+	     *  | userId optionnel | String | Caller user identifier if it can be resolved. |
+	     *  | jid optionnel | String | Caller Jid if it can be resolved. |
+	     *
+	     */
+	    getVoiceMessagesAssociatedToGroup(groupId: string, limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
+	    /**
+	     * @method getGroupForwards
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @instance
+	     * @description
+	     *  This API allows to get all cloud PBX group forwards. <br>
+	     *  The cloud PBX group forwards can be of two different types: <br>
+	     *   - groupForwards: applies to hunting group - supported forward types for this kind of group are all listed in the response (immediate, overflow (reprensents busy/unavailable for non parallel and busy/unavailable/noReply for parallel))
+	     *   - members: applies to manager_assistant group - list the individual forwards of every managers of the group. These individual forwards are filtered to the only immediate forward, with a destinationType of 'managersecretary' (a.k.a. 'Do Not Disturb forward to assistants')
+	     *  <br>
+	     *  Inside a manager_assistant group, both manager and assistant can retrieve the group forwards. Inside a hunting group, only the manager can see it (i.e. users with role only set to 'agent' are not allowed to consult the group forwards). <br>
+	     *  <br>
+	     *  For hunting_group on return data "name" or concerned "id" with value "null" if the user/rvcpGroup/rvcpAutoAttendant is deleted, please remove the forward. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    getGroupForwards(groupId: string): Promise<unknown>;
+	    /**
+	     * @method getTheUserGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} type Filter only groups of the given type. Possible values : hunting_group, manager_assistant
+	     * @description
+	     *  This API allows to retrieve the groups where the logged user is member. <br>
+	     *  For a hunting group, a user can have two roles inside the group: manager and/or agent. <br>
+	     *  For a manager_assistant group, a user can be manager OR assistant, not both. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | skippedGroups optionnel | String\[\] | List of group Identifier from which user has not been able to leave due to restrictions |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    getTheUserGroup(type: string): Promise<unknown>;
+	    /**
+	     * @method joinAGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId The group identifier to join.
+	     * @description
+	     *  This part of the API allows a user to join a group. <br>
+	     *  To be able to join in a group, the member must have been already declared inside the group, by a manager or an administrator. <br>
+	     *  Only the status of the member will be altered (idle to active). His roles will remain untouched (assistant, agent and/or manager). <br>
+	     *  Only users with role 'agent' or 'assistant' can join or leave a group. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    joinAGroup(groupId: string): Promise<unknown>;
+	    /**
+	     * @method joinAllGroups
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @description
+	     *  Allow a user to join all the groups he belongs to. <br>
+	     *  Only users of hunting groups with role 'agent' can leave all their groups in one go. <br>
+	     *  If user if already logged out of a given group, logout action for this group will be skipped. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    joinAllGroups(): Promise<unknown>;
+	    /**
+	     * @method leaveAGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @param {string} groupId The group identifier to leave.
+	     * @instance
+	     * @description
+	     *  This part of the API allows a user to leave a group. <br>
+	     *  To be able to leave in a group, a member must have been already declared inside the group, by a manager or an administrator. <br>
+	     *  Only the status of the member will be altered (active to idle). His roles will remain untouched (assistant, agent and/or manager). <br>
+	     *  Only users with role 'agent' or 'assistant' can join or leave a group. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    leaveAGroup(groupId: string): Promise<unknown>;
+	    /**
+	     * @method leaveAllGroups
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @description
+	     *  Allow a user to leave all the groups he belongs to. <br>
+	     *  Only users of hunting groups with role 'agent' can leave all their groups in one go. <br>
+	     *  If user if already logged out of a given group, logout action for this group will be skipped. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    leaveAllGroups(): Promise<unknown>;
+	    /**
+	     * @method removeMemberFromGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} memberId Unique identifier of the member to remove
+	     * @description
+	     *  This part of the API allows a manager to remove a member from a group. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    removeMemberFromGroup(groupId: string, memberId: string): Promise<unknown>;
+	    /**
+	     * @method retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @description
+	     *  Returns the number of read/unread messages for each hunting group where logged in user is a member. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | Messages summary for each hunting group where logged in user is a member |
+	     * | groupId | String | Group identifier |
+	     * | groupName | String | Group name |
+	     * | messages | Object\[\] | List of read/unread messages per type |
+	     * | type | String | Messages type<br>Possible values : `voicemail`, `email`, `fax`, `video` |
+	     * | new | Number | Number of unread voice messages |
+	     * | old | Number | Number of read voice messages |
+	     * | totalByType | Object\[\] | Total of messages grouped by their type |
+	     * | type | String | Messages type<br>Possible values : `voicemail`, `email`, `fax`, `video` |
+	     * | new | Number | Unread messages sum for all group messages where logged in user is a member. |
+	     * | old | Number | Read messages sum for all group messages where logged in user is a member. |
+	     *
+	     */
+	    retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser(): Promise<unknown>;
+	    /**
+	     * @method updateAVoiceMessageAssociatedToAGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} messageId Message Identifier
+	     * @param {string} read Mark the message as read or unread
+	     * @description
+	     *  Update the given voice message - mark it as read or unread When a message is 'unread', it is considered as a new message. On the opposite, a 'read' message is considered as an old message. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean): Promise<unknown>;
+	    /**
+	     * @method updateAGroup
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} externalNumberId Identifier of the public phone number assigned to the group - applicable to hunting group type only
+	     * @param {boolean} isEmptyAllowed Indicates if the last active member can leave the group or not - applicable to hunting group only.
+	     * @description
+	     *  This API allows a manager of to group to modify some settings of a Cloud PBX hunting group. <br>
+	     *  Modification can be done on the following settings of a group: <br>
+	     *  * Assign a public phone number to the group
+	     *  * Allow or not empty group
+	     *  <br>
+	     *  To assign a public number, the following steps should be performed: <br>
+	     *  * Retrieve the list of available phone numbers: (list DDI numbers from RVCP Provisioning portal)
+	     *  * Provide the externalNumberId of the selected phone number in the body of this update request
+	     *
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean): Promise<unknown>;
+	    /**
+	     * @method updateGroupForward
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} callForwardType The forward type to update. Only 'immediate' supported in case of manager_assistant group. Possible values : immediate, overflow
+	     * @param {string} destinationType The destination type. Mandatory for activation. 'managersecretary' only for manager_assistant. 'internalNumber', 'externalNumber', 'autoAttendant' only for hunting group. Possible values : internalnumber, externalnumber, autoattendant, managersecretary
+	     * @param {number} numberToForward The number to forward. Mandatory for destinationType = internalnumber or externalnumber.
+	     * @param {boolean} activate Activate or cancel a forward.
+	     * @param {number} noReplyDelay in case of 'overflow' forward type on parallel hunting group, timeout in seconds after which the call will be forwarded. Default value : 20. Possible values : {10-60}.
+	     * @param {Array<string>} managerIds List of manager ids to set forward on (Manager_assistant group type with destination type 'managersecretary' only. <br>
+	     *     For assistant(s) only).<br>
+	     *     If not provided, all active managers of the group will be concerned by this forward.
+	     * @param {string} rvcpAutoAttendantId Unique identifier of the auto attendant, only for hunting_group for autoAttendant destinationType
+	     * @description
+	     *  This API allows to update the forwards of a cloud PBX group. <br>
+	     *  Setting a forward on a group has different implications depending on the type of group. <br>
+	     *  For a **_hunting group_**, it implies setting a forward on the dedicated subscriber of the cloud PBX associated with the group. The supported forward types in this case are: 'immediate', 'overflow'. Overflow is: <br>
+	     *  <br>
+	     *  * for parallel: 'busy', 'noreply' and 'unavailable'
+	     *  * for others: 'busy', unavailable'
+	     *    Only user with manager role inside the hunting group can set up a forward for the group. <br>
+	     *  Forward destinations are limited to externalNumber, autoAttendant and internalNumber for hunting group. <br>
+	     *  <br>
+	     *  For a **_manager_assistant group_**, only 'immediate' forward type to 'managersecretary' destination is allowed in this API. <br>
+	     *  When requested by an assistant, update of the forward will be sent to every active managers of the group, unless filtered by the 'managerIds' parameter. <br>
+	     *  When requested by a manager, only its own forward is concerned ('managerIds' parameter is not used). <br>
+	     *  <br>
+	     *  Additional remarks on group forward: <br>
+	     *  <br>
+	     *  * Users can access their forwards from the dedicated forward API ([Voice Forward](#api-Voice_Forward))
+	     *  * ...but only this API allows to deal with the 'managersecretary' for destination type (as an assistant to set or cancel the DND of its manager(s), or as the manager itself)
+	     *  * Setting DND on a manager will then override its previous immediate forward (if set). After cancelling the DND, the previous forward will NOT be restored.
+	     *  * When setting a noreply forward, providing a noReplyDelay timeout, pay attention that this timeout can be later changed if hunting group changes (add / remove member).
+	     *  * In manager_assistant groups, if forward is activated and the group is then modified, the forward will be cancelled if there are no longer any active assistants after the modification.
+	     *  * A forward can be indirectly cancelled after a group modification (case of manager_assistant group, with assistant(s) no longer active).
+	     *
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string): Promise<unknown>;
+	    /**
+	     * @method updateGroupMember
+	     * @async
+	     * @category Rainbow Voice Cloud PBX group
+	     * @instance
+	     * @param {string} groupId Unique identifier of the Cloud PBX group to update
+	     * @param {string} memberId Unique identifier of the group member
+	     * @param {number} position Position of the user inside a serial group, from 1 to last. Meaningless in case of parallel hunting group
+	     * @param {Array<string>} roles Member roles inside the group. Default value : agent. Possible values : agent, manager, assistant
+	     * @param {string} status Member status inside the group. Default value : active. Possible values : active, idle
+	     * @description
+	     *  This part of the API allows a manager to update a member inside a group. <br>
+	     *  Update consists in changing the status of the member, or its roles, or its position inside the group. <br>
+	     *  Some updates are specific to the type of group: <br>
+	     *  * Hunting group only can support several roles for a member (e.g. manager and agent)
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Group Object |
+	     * | id  | String | Group unique identifier |
+	     * | type optionnel | String | Group type<br>Default value : `hunting_group`<br>Possible values : `hunting_group`, `manager_assistant` |
+	     * | name | String | Group name - displayed on the caller phone set for hunting group type |
+	     * | policy optionnel | String | Group policy - applicable to hunting group type only<br>Default value : `parallel`<br>Possible values : `serial`, `parallel`, `circular` |
+	     * | members | Object\[\] | List of group members. |
+	     * | memberId | String | Member (user) unique identifier |
+	     * | displayName | String | Member display name |
+	     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+	     * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
+	     *
+	     */
+	    updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string): Promise<unknown>;
+	    /**
+	     * @method activateDeactivateDND
+	     * @async
+	     * @category Rainbow Voice Deskphones
+	     * @instance
+	     * @param {string} activate Set to "true" to activate or "false' to deactivate user DND.
+	     * @description
+	     *  This API allows logged in user to activate or deactivate his DND state. <br>
+	     * @return {Promise<any>} the result.
+	     */
+	    activateDeactivateDND(activate: boolean): Promise<unknown>;
+	    /**
+	     * @method configureAndActivateDeactivateForward
+	     * @async
+	     * @category Rainbow Voice Deskphones
+	     * @instance
+	     * @param {string} callForwardType The forward type to update. Possible values : immediate, busy, noreply .
+	     * @param {string} type The destination type (Optional in case of deactivation)). Possible values : number, voicemail .
+	     * @param {string} number Forward destination number (Optional if forward destination type is voicemail).
+	     * @param {number} timeout In case of noreply forward type, timeout in seconds after which the call will be forwarded. Default value : 20 . Possible values : {10-60} .
+	     * @param {boolean} activated Activate or deactivate current forward.
+	     * @description
+	     *  This API allows logged in user to activate or deactivate a forward. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | type optionnel | String | The destination type (Optional in case of deactivation)).<br>Possible values : `number`, `voicemail` |
+	     * | number optionnel | String | Forward destination number (Optional if forward destination type is `voicemail`). |
+	     * | timeout optionnel | Number | In case of `noreply` forward type, timeout in seconds after which the call will be forwarded.<br>Default value : `20`<br>Possible values : `{10-60}` |
+	     * | activated | Boolean | Activate or deactivate current forward. |
+	     *
+	     */
+	    configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number, activated: boolean): Promise<unknown>;
+	    /**
+	     * @method retrieveActiveForwards
+	     * @async
+	     * @category Rainbow Voice Deskphones
+	     * @instance
+	     * @description
+	     *  This API allows logged in user to retrieve his active forwards. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    retrieveActiveForwards(): Promise<unknown>;
+	    /**
+	     * @method retrieveDNDState
+	     * @async
+	     * @category Rainbow Voice Deskphones
+	     * @instance
+	     * @description
+	     *  This API allows logged in user to retrieve his DND state. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    retrieveDNDState(): Promise<unknown>;
+	    /**
+	     * @method searchUsersGroupsContactsByName
+	     * @async
+	     * @category Rainbow Voice Deskphones
+	     * @param {string} displayName Search users, groups, contacts on the given name.
+	     * @param {number} limit Allow to specify the number of users, groups or contacts to retrieve (Max: 50). Default value : 20
+	     * @instance
+	     * @description
+	     * This API allows to retrieve phone numbers associated to Rainbow users, groups, Office365 contacts and external directories contacts. <br>
+	     * <br>
+	     * Search by displayName (query parameter `displayName`):<br>
+	     *  * The search is done on users/contacts' \`firstName\` and \`lastName\`, and search is done in
+	     *    * all Rainbow public users and users being in companies visible by logged in user's company,
+	     *    * external directories (like Office365) linked to logged in user's company.
+	     *  <br>
+	     *  * If logged in user's has visibility \`closed\` or \`isolated\`, or \`same\_than\_company\` and logged in user's company has visibility \`closed\` or \`isolated\`, search is done only on users being in companies visible by logged in user's company.<br>
+	     *  * Search on display name can be:<br>
+	     *    * firstName and lastName exact match (ex: 'John Doe' find 'John Doe')
+	     *    * partial match (ex: 'Jo Do' find 'John Doe')
+	     *    * case insensitive (ex: 'john doe' find 'John Doe')
+	     *    * accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
+	     *    * on only firstname or lastname (ex: 'john' find 'John Doe')
+	     *    * order firstname / lastname does not matter (ex: 'doe john' find 'John Doe').
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | List of user, group, contact Objects. |
+	     * | firstName optionnel | String | User, contact first name |
+	     * | lastName optionnel | String | User, contact last name |
+	     * | companyName optionnel | String | User company name if known and different of logged in user company |
+	     * | displayName | String | User, group, contact display name |
+	     * | category | String | Specify where user, group or contact has been found<br>Possible values : `my_company`, `other_company`, `other_directory` |
+	     * | phonenumbers | Object\[\] | List of phone numbers linked to user, group or contact |
+	     * | number | String | User, group or contact phone number |
+	     * | type | String | Phone number type<br>Possible values : `home`, `work`, `other` |
+	     * | deviceType optionnel | String | Device type<br>Possible values : `landline`, `mobile`, `fax`, `other` |
+	     *
+	     */
+	    searchUsersGroupsContactsByName(displayName: string, limit: number): Promise<unknown>;
+	    /**
+	     * @method activatePersonalRoutine
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @param {string} routineId A user routine unique identifier.
+	     * @description
+	     *  This api activate a user's personal routine. <br>
+	     *  A supervisor can request to activate the personal routine of a user by providing its identifier as a parameter. <br>
+	     *  The requesting user must be supervisor of the given supervised user.
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Rvcp Personal Routines |
+	     * | routines | Object\[\] | Routines data array of routine objects |
+	     * | id  | String | Routine unique identifier |
+	     * | name | String | Name of the routine |
+	     * | type optionnel | String | Type of routine<br>Possible values : `At`, `work`, `Out`, `of`, `office`, `On`, `break`, `Custom` |
+	     * | active | Boolean | Is the routine activated<br>Default value : `false` |
+	     * | inSync | Boolean | Boolean to know if last activation or active routine update is done |
+	     * | issuesLastSync | Object | Indications about issues last activation or active routine update |
+	     * | dndPresence | Boolean |     |
+	     * | presence | Boolean |     |
+	     * | cliOptions | Boolean |     |
+	     * | deviceMode | Boolean |     |
+	     * | immediateCallForward | Boolean |     |
+	     * | busyCallForward | Boolean |     |
+	     * | noreplyCallForward | Boolean |     |
+	     * | huntingGroups | Boolean |     |
+	     *
+	     */
+	    activatePersonalRoutine(routineId: string): Promise<unknown>;
+	    /**
+	     * @method createCustomPersonalRoutine
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @param {string} name Name of the new routine between 1 and 255 characters.
+	     * @description
+	     *  This api create a user's custom personal routine. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Rvcp Personal Routines |
+	     * | type optionnel | String | Type of routine<br>Possible values : `At`, `work`, `Out`, `of`, `office`, `On`, `break`, `Custom` |
+	     * | id  | String | Routine unique identifier |
+	     * | active | Boolean | Is the routine activated<br>Default value : `false` |
+	     * | name | String | Name of the routine |
+	     * | dndPresence | Boolean | If set to true, on routine activation the presence will be set to "dnd", if false "online", soon deprecated with presence object<br>Default value : `true` |
+	     * | deviceMode | Object | Device mode data |
+	     * | manage | Boolean | Is device mode managed on routine activation<br>Default value : `false` |
+	     * | mode | String | Device mode value, same choice(s) as in Rainbow GUI<br>Default value : `computer`<br>Possible values : `computer`, `office_phone` |
+	     * | immediateCallForward | Object | Immediate call forward data |
+	     * | manage | Boolean | Is immediate call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `immediate` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber` |
+	     * | busyCallForward | Object | Busy call forward data |
+	     * | manage | Boolean | Is busy call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `busy` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noreplyCallForward | Object | No reply call forward data |
+	     * | manage | Boolean | Is noreply call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `noreply` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noReplyDelay | Number |     |
+	     * | huntingGroups | Object |     |
+	     * | manage | Boolean | Default value : `false` |
+	     * | withdrawAll optionnel | Boolean | Not for work routine<br>Default value : `true` |
+	     * | huntingGroupsWithdraw optionnel | Object\[\] | Array of objects on user status in each hunting groups, only for work routine |
+	     * | rvcpGroupId | String | Hunting group unique identifier |
+	     * | presence | Object | Presence configuration, value can be overwritten by user |
+	     * | status | String | User's status in the hunting group<br>Possible values : `active`, `idle` |
+	     * | manage | Boolean | Manage presence on routine activation |
+	     * | value | String | Same choices as in Rainbow GUI<br>Possible values : `dnd`, `online`, `invisible`, `away` |
+	     * | cliOptions | Object | Cli options configuration |
+	     * | manage | Boolean | Manage cli options on routine activation |
+	     * | policy | String | Cli options policy<br>Possible values : `company_policy`, `installation_number`, `user_ddi_number`, `other_ddi_number` |
+	     * | phoneNumberId | String | Phone number id in "other\_ddi\_number" policy |
+	     *
+	     */
+	    createCustomPersonalRoutine(name: string): Promise<unknown>;
+	    /**
+	     * @method deleteCustomPersonalRoutine
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @param {string} routineId A user routine unique identifier.
+	     * @description
+	     *  This api delete a user's custom personal routine. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    deleteCustomPersonalRoutine(routineId: string): Promise<unknown>;
+	    /**
+	     * @method getPersonalRoutineData
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @param {string} routineId A user routine unique identifier.
+	     * @description
+	     *  This api returns a user's personal routine data. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Rvcp Personal Routines |
+	     * | type optionnel | String | Type of routine<br>Possible values : `At`, `work`, `Out`, `of`, `office`, `On`, `break`, `Custom` |
+	     * | id  | String | Routine unique identifier |
+	     * | active | Boolean | Is the routine activated<br>Default value : `false` |
+	     * | name | String | Name of the routine |
+	     * | dndPresence | Boolean | If set to true, on routine activation the presence will be set to "dnd", if false "online", soon deprecated with presence object<br>Default value : `true` |
+	     * | deviceMode | Object | Device mode data |
+	     * | manage | Boolean | Is device mode managed on routine activation<br>Default value : `false` |
+	     * | mode | String | Device mode value, same choice(s) as in Rainbow GUI<br>Default value : `computer`<br>Possible values : `computer`, `office_phone` |
+	     * | immediateCallForward | Object | Immediate call forward data |
+	     * | manage | Boolean | Is immediate call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `immediate` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber` |
+	     * | busyCallForward | Object | Busy call forward data |
+	     * | manage | Boolean | Is busy call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `busy` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noreplyCallForward | Object | No reply call forward data |
+	     * | manage | Boolean | Is noreply call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `noreply` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noReplyDelay | Number |     |
+	     * | huntingGroups | Object |     |
+	     * | manage | Boolean | Default value : `false` |
+	     * | withdrawAll optionnel | Boolean | Not for work routine<br>Default value : `true` |
+	     * | huntingGroupsWithdraw optionnel | Object\[\] | Array of objects on user status in each hunting groups, only for work routine |
+	     * | rvcpGroupId | String | Hunting group unique identifier |
+	     * | presence | Object | Presence configuration, value can be overwritten by user |
+	     * | status | String | User's status in the hunting group<br>Possible values : `active`, `idle` |
+	     * | manage | Boolean | Manage presence on routine activation |
+	     * | value | String | Same choices as in Rainbow GUI<br>Possible values : `dnd`, `online`, `invisible`, `away` |
+	     * | cliOptions | Object | Cli options configuration |
+	     * | manage | Boolean | Manage cli options on routine activation |
+	     * | policy | String | Cli options policy<br>Possible values : `company_policy`, `installation_number`, `user_ddi_number`, `other_ddi_number` |
+	     * | phoneNumberId | String | Phone number id in "other\_ddi\_number" policy |
+	     *
+	     */
+	    getPersonalRoutineData(routineId: string): Promise<unknown>;
+	    /**
+	     * @method getAllPersonalRoutines
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @param {string} userId Identifier of the user for which we want to get the personal routines. Requesting user must be a supervisor.
+	     * @description
+	     *  This api returns all user's personal routines data <br>
+	     *  <br>
+	     *  A supervisor can request the personal routines of a user by providing its identifier as a parameter. <br>
+	     *  The requesting user must be supervisor of the given supervised user. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Detailed information about Rvcp Personal Routines |
+	     * | routines | Object\[\] | Routines data array of routine objects |
+	     * | id  | String | Routine unique identifier |
+	     * | name | String | Name of the routine |
+	     * | type optionnel | String | Type of routine<br>Possible values : `At`, `work`, `Out`, `of`, `office`, `On`, `break`, `Custom` |
+	     * | active | Boolean | Is the routine activated<br>Default value : `false` |
+	     * | inSync | Boolean | Boolean to know if last activation or active routine update is done |
+	     * | issuesLastSync | Object | Indications about issues last activation or active routine update |
+	     * | dndPresence | Boolean |     |
+	     * | presence | Boolean |     |
+	     * | cliOptions | Boolean |     |
+	     * | deviceMode | Boolean |     |
+	     * | immediateCallForward | Boolean |     |
+	     * | busyCallForward | Boolean |     |
+	     * | noreplyCallForward | Boolean |     |
+	     * | huntingGroups | Boolean |     |
+	     *
+	     */
+	    getAllPersonalRoutines(userId: any): Promise<unknown>;
+	    /**
+	     * @method updatePersonalRoutineData
+	     * @async
+	     * @category Rainbow Voice Personal Routines
+	     * @instance
+	     * @description
+	     *  This api updates a user's personal routine data, it's not possible to update the work routine, it contains memorized data before the activation of another routine. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | cliOptions optionnel | Object | Cli options configuration |
+	     * | manage | Boolean | Manage cli options on routine activation |
+	     * | policy | String | Cli options policy<br>Possible values : `company_policy`, `installation_number`, `user_ddi_number`, `other_ddi_number` |
+	     * | phoneNumberId | String | Phone number id in "other\_ddi\_number" policy |
+	     * | data | Object | Detailed information about Rvcp Personal Routines |
+	     * | name | String | name of the routine |
+	     * | dndPresence | Boolean | If set to true, on routine activation the presence will be set to "dnd", if false "online", soon deprecated with presence object<br>Default value : `true` |
+	     * | deviceMode | Object | Device mode data |
+	     * | manage | Boolean | Is device mode managed on routine activation<br>Default value : `false` |
+	     * | mode | String | Device mode value, same choice(s) as in Rainbow GUI<br>Default value : `computer`<br>Possible values : `computer`, `office_phone` |
+	     * | immediateCallForward | Object | Immediate call forward data |
+	     * | manage | Boolean | Is immediate call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `immediate` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber` |
+	     * | busyCallForward | Object | Busy call forward data |
+	     * | manage | Boolean | Is busy call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `busy` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noreplyCallForward | Object | No reply call forward data |
+	     * | manage | Boolean | Is noreply call forward managed on routine activation<br>Default value : `false` |
+	     * | callForwardType | String | Default value : `noreply` |
+	     * | activate | Boolean | Default value : `false` |
+	     * | number | String | Default value : `null` |
+	     * | destinationType | String | Default value : `null`<br>Possible values : `voicemail`, `internalnumber`, `externalnumber`, `overflowvoicemail` |
+	     * | noReplyDelay | Number |     |
+	     * | huntingGroups | Object |     |
+	     * | manage | Boolean | Default value : `false` |
+	     * | type optionnel | String | Type of routine<br>Possible values : `At`, `work`, `Out`, `of`, `office`, `On`, `break`, `Custom` |
+	     * | withdrawAll optionnel | Boolean | Default value : `true` |
+	     * | active | Boolean | Is the routine activated<br>Default value : `false` |
+	     * | issuesLastSync optionnel | Object | Indications about issues if the routine was active |
+	     * | dndPresence | Boolean |     |
+	     * | presence | Boolean |     |
+	     * | cliOptions | Boolean |     |
+	     * | deviceMode | Boolean |     |
+	     * | immediateCallForward | Boolean |     |
+	     * | busyCallForward | Boolean |     |
+	     * | noreplyCallForward | Boolean |     |
+	     * | presence | Object | Presence configuration, value can be overwritten by user |
+	     * | huntingGroups | Boolean |     |
+	     * | manage | Boolean | Manage presence on routine activation |
+	     * | value | String | Same choices as in Rainbow GUI<br>Possible values : `dnd`, `online`, `invisible`, `away` |
+	     *
+	     * @param {string} routineId A user routine unique identifier.
+	     * @param {boolean} dndPresence Configure dndPresence on routine activation, or online on fallback to work routine, soon deprecated with presence object
+	     * @param {string} name New routine name, not for default routine.
+	     * @param {Object} deviceMode Device mode configuration <BR>
+	     *     - deviceMode.manage : boolean Manage device mode on routine activation <BR>
+	     *     - deviceMode.mode : string Same choices as in Rainbow GUI. Possible values : computer, office_phone <BR>
+	     * @param {Object} presence Presence configuration, value can be overwritten by user<BR>
+	     *     - presence.manage : boolean Manage presence on routine activation<BR>
+	     *     - presence.value : string Same choices as in Rainbow GUI. Possible values : dnd, online, invisible, away<BR>
+	     * @param {Object} immediateCallForward immediate call forward configuration <BR>
+	     *     - immediateCallForward.manage : boolean Manage immediate call forward <BR>
+	     *     - immediateCallForward.activate : boolean <BR>
+	     *     - immediateCallForward.number optionnel : string Mandatory on destinationType internalnumber or externalnumber <BR>
+	     *     - immediateCallForward.destinationType optionnel : string Possible values : voicemail, internalnumber, externalnumber <BR>
+	     * @param {Object} busyCallForward Busy call forward configuration <BR>
+	     *     - busyCallForward.manage : boolean Manage busy call forward <BR>
+	     *     - busyCallForward.activate : boolean <BR>
+	     *     - busyCallForward.number optionnel : string Mandatory on destinationType internalnumber or externalnumber <BR>
+	     *     - busyCallForward.destinationType optionnel : string Possible values : voicemail, internalnumber, externalnumber <BR>
+	     * @param {Object} noreplyCallForward Noreply call forward configuration <BR>
+	     *     - noreplyCallForward.manage : boolean Manage noreply call forward <BR>
+	     *     - noreplyCallForward.activate : boolean <BR>
+	     *     - noreplyCallForward.number optionnel : string Mandatory on destinationType internalnumber or externalnumber <BR>
+	     *     - noreplyCallForward.destinationType optionnel : string Possible values : voicemail, internalnumber, externalnumber <BR>
+	     *     - noreplyCallForward.noReplyDelay : number timeout in seconds after which the call will be forwarded Default value : 20 Ordre de grandeur : 10-60 <BR>
+	     * @param {Object} huntingGroups Hunting groups configuration <BR>
+	     *     - huntingGroups.withdrawAll    Boolean Withdraw from all hunting groups or keep the work data <BR>
+	     *     - huntingGroups.manage    Boolean Manage hunting groups configuration <BR>
+	     *
+	     */
+	    updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, presence: {
+	        manage: boolean;
+	        value: string;
+	    }, deviceMode: {
+	        manage: boolean;
+	        mode: string;
+	    }, immediateCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	    }, busyCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	    }, noreplyCallForward: {
+	        manage: boolean;
+	        activate: boolean;
+	        number: string;
+	        destinationType: string;
+	        noReplyDelay: number;
+	    }, huntingGroups: {
+	        withdrawAll: boolean;
+	    }): Promise<unknown>;
+	    /**
+	     * @method manageUserRoutingData
+	     * @async
+	     * @category Rainbow Voice Routing
+	     * @instance
+	     * @param {string} destinations List of device's identifiers indicating which devices will receive incoming calls.
+	     * @param {string} currentDeviceId Device's identifier to use for 3Pcc initial requests like "Make Call".
+	     * @description
+	     *  This api allows user routing management <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | destinations | Object\[\] | Which devices will be ringing when an incoming call is received |
+	     * | deviceId | String | Destination identifier |
+	     * | type | String | Destination type (`webrtc` : destination is a softphone ; `sip` : destination is a SIP deskphone)<br>Possible values : `sip`, `webrtc` |
+	     * | currentDeviceId | String | Which device is used for handling 3PCC initial requests (like "Make Call") |
+	     * | current | String | (Deprecated) Which device is used for handling 3PCC initial requests (like "Make Call") |
+	     *
+	     */
+	    manageUserRoutingData(destinations: Array<string>, currentDeviceId: string): Promise<unknown>;
+	    /**
+	     * @method retrievetransferRoutingData
+	     * @async
+	     * @category Rainbow Voice Routing
+	     * @instance
+	     * @param {string} calleeId Callee user identifier.
+	     * @param {string} addresseeId Addressee user identifier (in case of Rainbow user).
+	     * @param {string} addresseePhoneNumber Addressee phone number (short or external number).
+	     * @description
+	     *  For transfer, get addressee routing data. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | jid_im | String | Addressee Jabber identifier (WebRTC). |
+	     * | phoneNumber | String | Addressee phone number (deskphone or external number). |
+	     *
+	     */
+	    retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string): Promise<unknown>;
+	    /**
+	     * @method retrieveUserRoutingData
+	     * @async
+	     * @category Rainbow Voice Routing
+	     * @instance
+	     * @description
+	     *  This api returns user routing information. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | destinations | Object\[\] | Which devices will be ringing when an incoming call is received |
+	     * | deviceId | String | Destination identifier |
+	     * | type | String | Destination type (`webrtc` : destination is a softphone ; `sip` : destination is a SIP deskphone)<br>Possible values : `sip`, `webrtc` |
+	     * | currentDeviceId | String | Which device is used for handling 3PCC initial requests (like "Make Call") |
+	     * | current | String | (Deprecated) Which device is used for handling 3PCC initial requests (like "Make Call") |
+	     *
+	     */
+	    retrieveUserRoutingData(): Promise<unknown>;
+	    /**
+	     * @method retrieveVoiceUserSettings
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @description
+	     *  Allows logged in user to retrieve his voice settings. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Response data |
+	     * | emulatedRingBackTone | Boolean | Indicate that emulated ringback tone is active |
+	     *
+	     */
+	    retrieveVoiceUserSettings(): Promise<unknown>;
+	    /**
+	     * @method addParticipant3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.callee : string Contains the callee number. <br>
+	     * @description
+	     *  Adds a participant in a call, as a one step conference. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    addParticipant3PCC(callId: string, callData: {
+	        callee: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method answerCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.legId : string Leg identifier, on which the call will be answered.<br>
+	     * @description
+	     *  This is a 3PCC answer call. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    answerCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method blindTransferCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.destination : Object if destination type is a `String`, its content is treated as the phone number to call, if destination type is an `Object` with following attributes is expected:<br>
+	     *     callData.destination.userId : string Identifier of the user to call.<br>
+	     *     callData.destination.resource : string Specific user resource to call.<br>
+	     * @description
+	     *  This is a 3PCC blind transfer call. Immediate transfer of an active call to a new destination. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    blindTransferCall3PCC(callId: string, callData: {
+	        destination: {
+	            userId: string;
+	            resource: string;
+	        };
+	    }): Promise<unknown>;
+	    /**
+	     * @method deflectCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.destination : string The number to deflect to.<br>
+	     * @description
+	     *  This is a 3PCC deflect call. During ringing state, user transfer the call to another destination. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    deflectCall3PCC(callId: string, callData: {
+	        destination: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method holdCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.legId : string Leg identifier, from which the call will be held.<br>
+	     * @description
+	     *  This is a 3PCC hold call. <br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    holdCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method makeCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {Object} callData Object with : <br>
+	     * callData.deviceId : string Identifier of the device from which the call should be initiated.<br>
+	     * callData.callerAutoAnswer : boolean Indicates if the call should be automatically answered by the caller (if true). Default value : false.<br>
+	     * callData.anonymous : boolean If true, the caller identity will not be presented to the other call parties. Default value : false.<br>
+	     * callData.calleeExtNumber : string The format could be anything the user can type, it will be transformed in E164 format.<br>
+	     * callData.calleePbxId : string PBX identifier on which the callee is attached.<br>
+	     * callData.calleeShortNumber : string Callee short number. CalleePbxId must be provided with calleeShortNumber, as it is used to check that caller and callee are on the same pbx.<br>
+	     * callData.calleeCountry : string Callee country code. If not specified, the logged user country code will be used.<br>
+	     * callData.dialPadCalleeNumber : string Callee number ; with the same format as if number was dialed By EndUser using a deskphone :<br>
+	     * That means that inside this parameter, we can have internal number ; or external number (for national and international calls) but in that case the outgoing prefix must be present.<br>
+	     * This parameter support also the E.164 format.<br>
+	     * Examples of accepted number into this parameter:<br>
+	     *  - +33299151617 : national or international call to France<br>
+	     *  - 0 00 XXXXXXXXX : for international calls where 0 is PBX outbound prefix and 00 the international prefix (spaces are not mandatory, it is for better understanding)<br>
+	     *  - 0 0 XXXXXXXXX : for national calls where 0 is PBX outbound prefix and 0 the national prefix (spaces are not mandatory, it is for better understanding)<br>
+	     *  - 0 XXXX : for services where 0 is PBX outbound prefix (space is not mandatory, it is for better understanding)<br>
+	     *  - XXXXX : for internal calls<br>
+	     *  <br>
+	     *  This parameter is used only if other "callee" parameters are not set.<br>
+	     * @description
+	     *  This api makes a 3PCC call between 2 users.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    makeCall3PCC(callData: {
+	        deviceId: string;
+	        callerAutoAnswer: boolean;
+	        anonymous: boolean;
+	        calleeExtNumber: string;
+	        calleePbxId: string;
+	        calleeShortNumber: string;
+	        calleeCountry: string;
+	        dialPadCalleeNumber: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method mergeCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} activeCallId Active call identifier. <br>
+	     * @param {Object} callData Object with : <br>
+	     * callData.heldCallId : string Held call identifier.<br>
+	     * @description
+	     *  This is a 3PCC merge call. Merge an held call into the active call (single call or conference call).<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    mergeCall3PCC(activeCallId: string, callData: {
+	        heldCallId: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method pickupCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {Object} callData Object with : <br>
+	     * callData.deviceId : string Identifier of the device from which the call should be initiated.<br>
+	     * callData.callerAutoAnswer : string Indicates if the call should be automatically answered by the caller (if true). Default value : false.<br>
+	     * callData.calleeShortNumber : string Callee short number.<br>
+	     * @description
+	     *  3PCC pickup call can be used in case of manager/assistant context, when an assistant wants to pickup a call on a manager.
+	     *  To allow such pickup, the following checks must be fulfilled:
+	     *  * The user initiating the pickup must be an active assistant in the same group as the manager .<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    pickupCall3PCC(callData: {
+	        deviceId: string;
+	        callerAutoAnswer: boolean;
+	        calleeShortNumber: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method releaseCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {string} legId Leg identifier, from which the call will be released.<br>
+	     * @description
+	     *  This is a 3PCC release call.<br>
+	     *  If the legId is not specified, the resulting operation will be considered as a 'clearCall'.<br>
+	     *  If specified, a 'clearConnection' will be invoked.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    releaseCall3PCC(callId: string, legId: string): Promise<unknown>;
+	    /**
+	     * @method retrieveCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.legId : string Leg identifier, from which the call will be retrieved.<br>
+	     * @description
+	     *  This is a 3PCC retrieve call.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    retrieveCall3PCC(callId: string, callData: {
+	        legId: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method sendDTMF3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.legId : string Leg identifier, on which the DTMF will be sent.<br>
+	     *     callData.digits : string Digits to send.<br>
+	     * @description
+	     *  This is a 3PCC send DTMF.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    sendDTMF3PCC(callId: string, callData: {
+	        legId: string;
+	        digits: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method snapshot3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} callId Snapshot will be filtered with the given callId.
+	     * @param {string} deviceId Snapshot will be filtered with the given deviceId.
+	     * @param {string} seqNum If provided and different from the server's sequence number, full snapshot will be returned. If provided seqNum is the same as the one on the server, no snapshot returned (client and server are sync).
+	     * @description
+	     *  This is a 3PCC Snapshot of the user's calls and devices.<br>
+	     *  Providing a callId will restrict the snapshot to the given call. The same principle applies to the deviceId for the user's devices states.<br>
+	     *  A synchronisation check can also be used by the client to see if any changes have been correctly notified by the server.<br>
+	     *  To use this mechanism, the client will send the last sequence number received, either from events, or when requesting the last snapshot.<br>
+	     *  The main advantage of using this sequence number is to minimize the data flow between the client and the server.<br>
+	     *  Returning the complete snapshot result is only necessary when sequence numbers are different between the server and the client.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     *  data : Object snapshot Calls and/or devices snapshot
+	     *
+	     */
+	    snapshot3PCC(callId: string, deviceId: string, seqNum: number): Promise<unknown>;
+	    /**
+	     * @method transferCall3PCC
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} activeCallId Active call identifier.
+	     * @param {Object} callData : <br>
+	     *     callData.heldCallId : string Held call identifier.<br>
+	     * @description
+	     *  This is a 3PCC transfer call. Transfer the active call to the given held call.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    transferCall3PCC(activeCallId: string, callData: {
+	        heldCallId: string;
+	    }): Promise<unknown>;
+	    /**
+	     * @method deleteAVoiceMessage
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} messageId Message identifier.
+	     * @description
+	     *  Deletion of the given voice message.<br>
+	     *  When deleted, the user will receive a MWI XMPP notification.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    deleteAVoiceMessage(messageId: string): Promise<unknown>;
+	    /**
+	     * @method deleteAllVoiceMessages
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {string} messageId Message identifier.
+	     * @description
+	     *  Deletion of all user's voice messages.<br>
+	     *  When updated, the user will receive a MWI XMPP notification.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    deleteAllVoiceMessages(messageId: string): Promise<unknown>;
+	    /**
+	     * @method getEmergencyNumbersAndEmergencyOptions
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @description
+	     *  This api returns emergency numbers the user can use (+ emergency options).<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | emergencyNumbers | Object\[\] | Array of emergency numbers |
+	     * | outgoingPrefix | String | Reminder of what is the outgoing prefix for the Cloud PBX |
+	     * | emergencyOptions | Object | Emergency options |
+	     * | callAuthorizationWithSoftPhone | Boolean | Indicates if SoftPhone can perform an emergency call over voip |
+	     * | number | String | emergency number |
+	     * | description | String | description of the emergency number |
+	     *
+	     */
+	    getEmergencyNumbersAndEmergencyOptions(): Promise<unknown>;
+	    /**
+	     * @method getVoiceMessages
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @param {number} limit Allow to specify the number of voice messages to retrieve. Default value : 100.
+	     * @param {number} offset Allow to specify the position of first voice messages to retrieve. Default value : 0.
+	     * @param {string} sortField Sort voice messages list based on the given field. Default value : date.
+	     * @param {number} sortOrder Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1 .
+	     * @param {string} fromDate List voice messages created after the given date.
+	     * @param {string} toDate List voice messages created before the given date.
+	     * @param {string} callerName List voice messages with caller party name containing the given value.
+	     * @param {string} callerNumber List voice messages with caller party number containing the given value.
+	     * @description
+	     *  Returns the list of voice messages.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id  | String | voice message identifier |
+	     * | fileName | String | File name of the voice message - composed of the voice message date |
+	     * | mime | String | MIME type of the voice message file<br>Possible values : `audio/mpeg` |
+	     * | size | Number | Size of the voice message file (in bytes). |
+	     * | duration | Number | Duration of the voice message (in seconds) |
+	     * | date | Date | Date of the voice message |
+	     * | callerInfo | Object | Caller party info |
+	     * | data | Object\[\] | Voice messages |
+	     * | number | String | Caller number |
+	     * | name optionnel | String | Caller name, if available |
+	     * | firstName optionnel | String | Caller firstName, if available |
+	     * | lastName optionnel | String | Caller lastName, if available |
+	     * | userId optionnel | String | Caller user identifier if it can be resolved. |
+	     * | jid optionnel | String | Caller Jid if it can be resolved. |
+	     *
+	     */
+	    getVoiceMessages(limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
+	    /**
+	     * @method getUserDevices
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @instance
+	     * @description
+	     *  This api returns user devices information.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id  | String | Device Unique Identifier |
+	     * | deviceId | String | Device identifier to use for 3PCC requests (like MakeCall) |
+	     * | type | String | Device type (enumeration ; values are : "sip" ; "webrtc") |
+	     * | jid_wrg | String | Jabber identifier of the associated Web Rtc Gateway (only set when type is "webrtc") |
+	     *
+	     */
+	    getUserDevices(): Promise<unknown>;
+	    /**
+	     * @method updateVoiceMessage
+	     * @async
+	     * @category Rainbow Voice Voice
+	     * @param {string} messageId Message Identifier.
+	     * @param {Object} urlData : <br>
+	     *     urlData.read : boolean Mark the message as read or unread.<br>
+	     * @instance
+	     * @description
+	     *  Update the given voice message - mark it as read or unread.<br>
+	     *  When a message is 'unread', it is considered as a new message. On the opposite, a 'read' message is considered as an old message.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | messageUpdateResult | Object | message Updated message |
+	     *
+	     */
+	    updateVoiceMessage(messageId: string, urlData: {
+	        read: boolean;
+	    }): Promise<unknown>;
+	    /**
+	     * @method forwardCall
+	     * @async
+	     * @category Rainbow Voice Voice Forward
+	     * @param {string} callForwardType The forward type to update. Possible values : immediate, busy, noreply
+	     * @param {string} userId Identifier of the user for which we want to set the forwards. Requesting user must be a supervisor.
+	     * @param {Object} urlData : <br>
+	     *     urlData.destinationType : string The destination type. Possible values : internalNumber, externalNumber, voicemail .<br>
+	     *     urlData.number : string The number to forward.<br>
+	     *     urlData.activate : boolean Activate or cancel a forward.<br>
+	     *     urlData.noReplyDelay : number in case of 'noreply' forward type, timeout in seconds after which the call will be forwarded. Default value : 20. Possible values : {10-60} .<br>
+	     * @instance
+	     * @description
+	     *  This api activates/deactivates a forward.<br>
+	     *  Group forward (immediate/managersecretary) is not supported here. There is a dedicated API for group forward management (Cloud PBX group forwards)<br>
+	     *  If the destinationType is "voicemail" and overflow is enabled on the Cloud PBX or/and forced on the subscriber, the overflow configuration (noReplyDelay) will be use.<br>
+	     *  <br>
+	     *  A supervisor can also set the forward of a user by providing its identifier as a parameter, as well as the supervision group identifier.<br>
+	     *  In such case, the requesting user must be supervisor of the given supervision group, and the requested user must 'supervised' in the given group.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    forwardCall(callForwardType: string, userId: string, urlData: {
+	        destinationType: string;
+	        number: string;
+	        activate: boolean;
+	        noReplyDelay: number;
+	    }): Promise<unknown>;
+	    /**
+	     * @method getASubscriberForwards
+	     * @async
+	     * @category Rainbow Voice Voice Forward
+	     * @param {string} userId Identifier of the user for which we want to get the forwards. Requesting user must be a supervisor.
+	     * @instance
+	     * @description
+	     *  This api gets the user forwards.<br>
+	     *  For internalnumber forward, on return data you will see the userId/rvcpGroupId/rvcpAutoAttendantId with the associated name.<br>
+	     *  If name equals "null" or the id equals "null", the concerned user/rvcpGroup/rvcpAutoAttendantId is deleted, please remove the associated forward.<br>
+	     *  <br>
+	     *  A supervisor can request the forwards of a user by providing its identifier as a parameter.<br>
+	     *  The requesting user must be supervisor of the given supervised user.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    getASubscriberForwards(userId: string): Promise<unknown>;
+	    /**
+	     * @method searchCloudPBXhuntingGroups
+	     * @async
+	     * @category Rainbow Voice Voice Search Hunting Groups
+	     * @param {string} name Search hunting groups on the given name
+	     * @instance
+	     * @description
+	     *  This API allows to retrieve Cloud PBX Hunting Groups.<br>
+	     * @return {Promise<any>} the result.
+	     *
+	     */
+	    searchCloudPBXhuntingGroups(name: string): Promise<unknown>;
 	}
 	export { RBVoiceService as RBVoiceService };
+
+}
+declare module 'lib/services/HTTPoverXMPPService' {
+	/// <reference types="node" />
+	import { EventEmitter } from 'events';
+	import { Logger } from 'lib/common/Logger';
+	import { Core } from 'lib/Core';
+	import { GenericService } from 'lib/services/GenericService';
+	export {}; class HTTPoverXMPP extends GenericService {
+	    private avatarDomain;
+	    private readonly _protocol;
+	    private readonly _host;
+	    private readonly _port;
+	    private hTTPoverXMPPHandlerToken;
+	    static getClassName(): string;
+	    getClassName(): string;
+	    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+	        start_up: boolean;
+	        optional: boolean;
+	    });
+	    start(_options: any, _core: Core): Promise<unknown>;
+	    stop(): Promise<unknown>;
+	    init(): Promise<void>;
+	    attachHandlers(): void;
+	    /**
+	     * @public
+	     * @method getHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a get http request to an XMPP server supporting Xep0332. <br>
+	     * @param {string} urlToGet The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    getHTTPoverXMPP(urlToGet: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method traceHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a trace http request to an XMPP server supporting Xep0332. TRACE is only used for debugging <br>
+	     * @param {string} urlToTrace The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    traceHTTPoverXMPP(urlToTrace: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method headHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a head http request to an XMPP server supporting Xep0332. <br>
+	     * @param {string} urlToHead The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    headHTTPoverXMPP(urlToHead: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method postHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a post http request to an XMPP server supporting Xep0332. <br>
+	     * @param {string} urlToPost The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} data The body data of the http request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    postHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method putHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a put http request to an XMPP server supporting Xep0332. <br>
+	     * @param {string} urlToPost The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} data The body data of the http request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    putHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteHTTPoverXMPP
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a delete http request to an XMPP server supporting Xep0332. <br>
+	     * @param {string} urlToPost The url to request
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} data The body data of the http request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    deleteHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method discover
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to get the supported XMPP services. <br>
+	     * @return {Promise<any>} An object of the result
+	     */
+	    discover(): Promise<unknown>;
+	}
+	export { HTTPoverXMPP as HTTPoverXMPP };
 
 }
 declare module 'lib/Core' {
@@ -15314,7 +17744,8 @@ declare module 'lib/Core' {
 	import { AlertsService } from 'lib/services/AlertsService';
 	import { S2SService } from 'lib/services/S2SService';
 	import { WebinarsService } from 'lib/services/WebinarsService';
-	import { RBVoiceService } from 'lib/services/RBVoiceService'; class Core {
+	import { RBVoiceService } from 'lib/services/RBVoiceService';
+	import { HTTPoverXMPP } from 'lib/services/HTTPoverXMPPService'; class Core {
 	    _signin: any;
 	    _retrieveInformation: any;
 	    setRenewedToken: any;
@@ -15348,6 +17779,7 @@ declare module 'lib/Core' {
 	    _webinars: WebinarsService;
 	    _rbvoice: RBVoiceService;
 	    _invitations: InvitationsService;
+	    _httpoverxmpp: HTTPoverXMPP;
 	    _botsjid: any;
 	    _s2s: S2SService;
 	    cleanningClassIntervalID: NodeJS.Timeout;
@@ -15418,7 +17850,10 @@ declare module 'lib/NodeSDK' {
 	import { ProfilesService } from 'lib/services/ProfilesService';
 	import { DataStoreType } from 'lib/config/config';
 	import { WebinarsService } from 'lib/services/WebinarsService';
-	import { RBVoiceService } from 'lib/services/RBVoiceService'; class NodeSDK {
+	import { RBVoiceService } from 'lib/services/RBVoiceService';
+	import { HTTPoverXMPP } from 'lib/services/HTTPoverXMPPService'; class NodeSDK {
+	    private _option;
+	    get option(): {};
 	    _core: Core;
 	    startTime: Date;
 	    static NodeSDK: any;
@@ -15445,6 +17880,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.logs.enableConsoleLogs false, Activate logs on the console.
 	     * @param {string} options.logs.enableFileLogs false, Activate the logs in a file.
 	     * @param {string} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
+	     * @param {string} options.logs.enableEncryptedLogs: true, Activate the encryption of stanza in logs.
 	     * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
 	     * @param {string} options.logs.level "info", The level of logs. The value can be "info", "debug", "warn", "error".
 	     * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
@@ -15452,6 +17888,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
 	     * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
 	     * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+	     * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
 	     * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
 	     * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
 	     * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -15783,6 +18220,14 @@ declare module 'lib/NodeSDK' {
 	    get webinars(): WebinarsService;
 	    /**
 	     * @public
+	     * @property {WebinarsService} alerts
+	     * @description
+	     *    Get access to the webinar module
+	     * @return {WebinarsService}
+	     */
+	    get httpoverxmpp(): HTTPoverXMPP;
+	    /**
+	     * @public
 	     * @property {Object} DataStoreType
 	     * @description
 	     *    Get access to the DataStoreType type
@@ -15830,11 +18275,13 @@ declare module 'lib/NodeSDK' {
 	     */
 	    static get Appreciation(): typeof Appreciation;
 	}
+	export default NodeSDK;
 	export { NodeSDK as NodeSDK };
 
 }
 declare module 'index' {
 	import { NodeSDK } from 'lib/NodeSDK';
+	export default NodeSDK;
 	export { NodeSDK as NodeSDK };
 
 }

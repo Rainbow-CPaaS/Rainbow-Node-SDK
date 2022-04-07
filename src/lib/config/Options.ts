@@ -24,6 +24,7 @@ class Options {
 	public _CLIMode: any;
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
+	private _httpoverxmppserver: boolean;
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
     private _requestsRate: any;
@@ -37,6 +38,7 @@ class Options {
         this._withS2S = false;
         this._CLIMode = true;
         this._testOutdatedVersion = true;
+        this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
     }
 
@@ -85,6 +87,7 @@ class Options {
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
+        this._httpoverxmppserver = this._gethttpoverxmppserver();
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
         this._requestsRate = this._getRequestsRateOption();
@@ -96,6 +99,14 @@ class Options {
 
     set testOutdatedVersion(value: boolean) {
         this._testOutdatedVersion = value;
+    }
+
+    get testhttpoverxmppserver(): boolean {
+        return this._httpoverxmppserver;
+    }
+
+    set testhttpoverxmppserver(value: boolean) {
+        this._httpoverxmppserver = value;
     }
 
     get intervalBetweenCleanMemoryCache(): number {
@@ -174,6 +185,14 @@ class Options {
             return this._options.testOutdatedVersion;
         } else {
             return config.testOutdatedVersion;
+        }
+    }
+
+    _gethttpoverxmppserver() {
+        if ( this._options["httpoverxmppserver"] !== undefined ) {
+            return this._options.httpoverxmppserver;
+        } else {
+            return config.httpoverxmppserver;
         }
     }
 
