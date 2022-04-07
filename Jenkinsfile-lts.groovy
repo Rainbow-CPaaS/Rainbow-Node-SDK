@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-bullseye"
+                  label "docker-slave-cpaas-buster"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-LTS_delivery"
         }        
     }
@@ -214,7 +214,7 @@ pipeline {
                 }
                 steps { 
                     script   {
-                         // node('docker-slave-nodebackend-bullseye-12.x') {  
+                         // node('docker-slave-nodebackend-buster-12.x') {  
                         stage('Build Debian Folder') {
                             try {                         
                                 echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
