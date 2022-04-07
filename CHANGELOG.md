@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.10.0] - 2022-04-07
+## [2.10.0-lts.0] - 2022-04-07
 -   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
 -   Add `BubblesService::createBubblePoll` This API allow to create a Poll for a bubble.
 -   Add `BubblesService::deleteBubblePoll` This API allows user to delete a Poll for a bubble.
