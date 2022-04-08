@@ -1,6 +1,6 @@
 // Jenkinsfile-lts file for the production of lts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-lts"
 
-@Library('rainbow-shared-library') _
+@Library('rainbow-shared-library@hubSearchIndex') _
 import groovy.transform.Field
 
 // Map with the default values
@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-buster"
+                  label "docker-slave-cpaas-bullseye"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-lts_delivery"
         }        
     }
@@ -408,7 +408,7 @@ pipeline {
                                 echo "Publish Debian package : "
                                 echo debianPublish.getDebianArtifacts().join('\n')
                                 debianPublish(
-                                    repository: 'nightly-non-free-buster',
+                                    repository: 'nightly-non-free-bullseye',
                                     stashName: "deb"
                                 )
                             } catch (Exception e) {
