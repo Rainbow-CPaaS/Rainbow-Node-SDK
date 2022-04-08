@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-buster"
+                  label "docker-slave-cpaas-bullseye"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
         }        
     }
