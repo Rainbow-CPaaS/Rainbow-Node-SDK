@@ -4346,7 +4346,7 @@ let urlS2S;
 
     //endregion bubbles polls
 
-    //region 
+    //region Rainbow HTTPoverXMPP
     
     async function testgetHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
         let that = this;
@@ -4642,7 +4642,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testdiscover, res : ", res);
     }
     
-    //endregion 
+    //endregion Rainbow HTTPoverXMPP 
     
     function testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;
