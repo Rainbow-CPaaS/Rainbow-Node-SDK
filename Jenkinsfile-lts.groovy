@@ -17,7 +17,7 @@ pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-buster"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-LTS_delivery"
+                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-lts_delivery"
         }        
     }
     options {
@@ -84,6 +84,116 @@ pipeline {
                     //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"                 
                 }
             }
+/*
+ stage('Check Build Cause'){
+  when {
+                     allOf {
+                         branch "LTSDelivery"; 
+                        triggeredBy 'user'
+                     }
+                 }
+      steps{
+        script{
+          // get Build Causes
+          // https://stackoverflow.com/questions/43597803/how-to-differentiate-build-triggers-in-jenkins-pipeline
+          
+          echo "full cause : ${currentBuild.getBuildCauses()}" //Always returns full Cause
+          echo "branch events : ${currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')}" // Only returns for branch events
+          echo "SCM trigger : ${currentBuild.getBuildCauses('hudson.triggers.SCMTrigger$SCMTriggerCause')}" // Only returns SCM Trigger
+          echo "User initiate : ${currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')}"  // Only returns if user initiates via Jenkins GUI
+          
+          def GitPushCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
+          def IndexingCause = currentBuild.getBuildCauses('jenkins.branch.BranchIndexingCause')
+          def UserCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+          
+          // If a cause was populated do... 
+          if (GitPushCause) {
+            
+              println "********* Git Push *********"
+              println GitPushCause.getShortDescription()
+              stage ('Stage 1') {
+                  sh 'echo Stage 1'
+              }
+            
+          }  else if (UserCause) {
+
+              println "******* Manual Build Detected *******"
+              println "UserCause : " + UserCause.getShortDescription()
+              stage ('Stage 2') {
+                  sh 'echo Stage 2'
+              }
+          } else if (IndexingCause) {
+
+              println "******* IndexingCause Build Detected *******"
+              println "IndexingCause : " + IndexingCause
+              stage ('Stage 3') {
+                  sh 'echo Stage 3'
+              }
+          }else {
+              println "unknown cause"
+          }
+        }
+      }
+    }
+
+// */
+            stage('WhenJenkinsfileChanged') {
+                when {
+                    allOf {
+                        branch "LTSDelivery"; 
+                        //triggeredBy 'UpstreamCause'
+                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                    }
+                }
+                steps{
+                    echo "WhenJenkinsfileChanged build"
+                    
+                    /*
+                    echo "Clean ${env.workspace} customWorkspace before build"
+                    cleanWs()
+                    echo "Branch is ${env.BRANCH_NAME}..."
+                    checkout scm
+                    // */
+                                        
+                    // Get all Causes for the current build
+                    //causes = currentBuild.getBuildCauses()
+                    //def causes = currentBuild.getBuildCauses()
+                    
+                    // Get a specific Cause type (in this case the user who kicked off the build),
+                    // if present.
+                    //specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    //def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+
+                    //echo "WhenJenkinsfileChanged causes : ${causes}, specificCause : ${specificCause}"
+
+                sh script: """
+                                    #echo "registry=https://10.10.13.10:4873/
+                                    #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
+                                        
+                                    echo ---------- Set the NPM config and install node stable version :
+                                    
+                                    #mkdir ${WORKSPACE}/.npm-packages
+                                    #npm config set prefix "${WORKSPACE}/.npm-packages"
+                                    #export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                
+                                    #more ~/.npmrc > ~/.npmrc.sav 
+                                    #echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                    #echo "registry=https://registry.npmjs.org/
+                                    #//registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
+                                        
+                                    ##sudo npm install npm -g
+                                    #sudo npm install n -g
+                                    #sudo n stable
+
+                                    ##npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                    #npm install https://tls-test.npmjs.com/tls-test-1.0.0.tgz
+                                                                                
+                                    #more ~/.npmrc.sav > ~/.npmrc
+                                """
+                }
+            }
 
             stage('Build') {
                 when {
@@ -143,9 +253,9 @@ pipeline {
                         
                     echo ---------- STEP grunt : 
                     echo Sub Step 1 : To compil the sources
-                    grunt 
+                    grunt --verbose
                     echo Sub Step 2 : To pepare the sources + doc for package
-                    grunt delivery 
+                    grunt delivery --verbose 
                         
                     #echo ---------- STEP commit : 
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
@@ -251,7 +361,7 @@ pipeline {
                                                 
                                 """
                                 
-                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'     
+                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
@@ -298,7 +408,7 @@ pipeline {
                                 echo "Publish Debian package : "
                                 echo debianPublish.getDebianArtifacts().join('\n')
                                 debianPublish(
-                                    repository: 'nightly-non-free-bullseye',
+                                    repository: 'nightly-non-free-buster',
                                     stashName: "deb"
                                 )
                             } catch (Exception e) {
