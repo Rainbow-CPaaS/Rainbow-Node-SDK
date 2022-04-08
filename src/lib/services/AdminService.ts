@@ -2497,12 +2497,72 @@ class AdminService extends GenericService {
                 }
                 
                 let result = await that._rest.getAUserProfiles(userId);
-                that._logger.log("debug", "(getAUserProfiles) - request sent.");
-                that._logger.log("internal", "(getAUserProfiles) - request result : ", result);
+                that._logger.log("debug", "(getAUserProfilesByUserId) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesByUserId) - request result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAUserProfiles) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAUserProfiles) Error : ", err);
+                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method getAUserProfilesByUserEmail
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} email the email of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the profiles of a user by his email. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | subscriptionId | String | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | String | Id of the offer to which company subscription is attached |
+     * | offerName | String | Name of the offer to which company subscription is attached |
+     * | offerDescription | String | Description of the offer to which company subscription is attached |
+     * | offerTechnicalDescription | String | Technical description of the subscribed offer |
+     * | offerReference | string | Key used for referencing the subscribed offer. Well know offer References are: RB-Essential, RB-Business, RB-Enterprise, RB-Conference. |
+     * | profileId | String | Id of the profile to which company subscription is attached |
+     * | profileName | String | Name of the profile to which company subscription is attached |
+     * | status | String | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+     * | canBeSold | Boolean | Indicates if this profile is linked a subscription for a paid offer.  <br>Some offers are not be sold (Essential, Beta, Demo, ...).  <br>If canBeSold is true, the subscription is billed. |
+     * | businessModel | string | Indicates the business model associated to the subscribed offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Offers having this business model are billed according to the number of users bought for it. This should be the business model for Business and Enterprise offers.<br>* `usage`: Offers having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer). This should be the business model for Conference offer.<br>* `none`: no business model. Used for offers which are not sold (like Essential, Beta, ...).<br><br>Possible values : `nb_users`, `usage`, `none` |
+     * | isExclusive | Boolean | Indicates if this profile is relative to a subscription for an exclusive offer (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer).  <br>Used on GUI side to know if the subscription to assign to a user profile has to be displayed as a radio button or as a check box. |
+     * | isPrepaid | Boolean | Indicates if this profile is relative to a subscription for a prepaid offer |
+     * | expirationDate | Date-Time | Expiration date of the subscription to the prepaid offer (creationDate + prepaidDuration) |
+     * | provisioningNeeded | Object\[\] | Indicates if provisioning is needed on other component when assigning the user profile to this subscription (depends of thus subscribed offer) |
+     * | providerType | String | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when Business Store confirms through the callback that the subscription is created).<br><br>Possible values : `PGI`, `JANUS` |
+     * | mediaType optionnel | String | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on JANUS component.<br><br>Possible values : `webrtc` |
+     * | provisioningOngoing | Boolean | Boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
+     * | provisioningStartDate | String | Provisioning starting date |
+     * | assignationDate | String | Date when the subscription was attached to user profile |
+     * 
+     */
+    getAUserProfilesByUserEmail(email? : string){
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let userId = that._rest.account.id;
+                
+                if (email) {
+                    userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
+                }
+                
+                let result = await that._rest.getAUserProfiles(userId);
+                that._logger.log("debug", "(getAUserProfilesByUserEmail) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesByUserEmail) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserEmail) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserEmail) Error : ", err);
                 return reject(err);
             }
         });
@@ -2551,6 +2611,56 @@ class AdminService extends GenericService {
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error.");
                 that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+
+    /**
+     * @public
+     * @method getAUserProfilesFeaturesByUserEmail
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} email the email of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the features profiles of a user by his email. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of feature Objects. |
+     * | featureId | String | Feature unique identifier |
+     * | featureUniqueRef | String | Feature unique reference (to be used for controls on limitations linked to this feature in server/client code) |
+     * | featureName | String | Feature name |
+     * | featureType | String | Feature limitation type (`boolean`, `number`, `string`, `undefined`) |
+     * | isEnabled | Boolean | In case feature has type boolean (on/off), is the feature enabled |
+     * | limitMin | Number | In case feature has type number, limit min of the feature (if applicable) |
+     * | limitMax | String | In case feature has type number, limit max of the feature (if applicable) |
+     * | addedDate | Date-Time | Date when the feature was updated for the profile |
+     * | lastUpdateDate | Date-Time | Date when the feature was updated for the profile |
+     *
+     */
+     getAUserProfilesFeaturesByUserEmail(email? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let userId = that._rest.account.id;
+
+                if (email) {
+                    userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
+                }
+                
+                let result = await that._rest.getAUserProfilesFeaturesByUserId(userId);
+                that._logger.log("debug", "(getAUserProfilesFeaturesByUserEmail) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesFeaturesByUserEmail) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error : ", err);
                 return reject(err);
             }
         });

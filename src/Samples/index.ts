@@ -3244,11 +3244,15 @@ let urlS2S;
     async function testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
+        let result = await rainbowSDK.admin.getAUserProfilesByUserEmail(connectedUser.loginEmail);
+        logger.log("debug", "MAIN - testgetAUserProfilesByUserId by email - profiles : ", result);
     }
 
     async function testgetAUserProfilesFeaturesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesFeaturesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId - profiles : ", Offers);
+        let result = await rainbowSDK.admin.getAUserProfilesFeaturesByUserEmail(connectedUser.loginEmail);
+        logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId by email - profiles : ", result);
     }
 
     //endregion Offers
