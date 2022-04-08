@@ -5281,7 +5281,49 @@ Request Method: PUT
         });
     }
 
-    //endregion
+    getAUserProfiles( userId: string) {
+        // API https://api.openrainbow.org/admin/#api-users_profiles-admin_users_GetUserProfiles 
+        // GET /api/rainbow/admin/v1.0/users/:userId/profiles
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAUserProfiles) successfull");
+                that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAUserProfiles) error");
+                that.logger.log("internalerror", LOG_ID, "(getAUserProfiles) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAUserProfilesFeaturesByUserId(userId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + userId + "/profiles/features", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAUserProfilesFeaturesByUserId) successfull");
+                that.logger.log("internal", LOG_ID + "(getAUserProfilesFeaturesByUserId) REST result : " + JSON.stringify(json) + " profiles features");
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAUserProfilesFeaturesByUserId) error");
+                that.logger.log("internalerror", LOG_ID, "(getAUserProfilesFeaturesByUserId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Offers and subscriptions
 
     //region Bubbles Tags
     retrieveAllBubblesByTags(tags: Array<string>, format : string = "small", nbUsersToKeep : number = 100) {

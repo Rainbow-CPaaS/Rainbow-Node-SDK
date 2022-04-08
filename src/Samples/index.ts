@@ -3240,7 +3240,17 @@ let urlS2S;
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
 
     }
-    
+
+    async function testgetAUserProfilesByUserId() {
+        let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
+        logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
+    }
+
+    async function testgetAUserProfilesFeaturesByUserId() {
+        let Offers = await rainbowSDK.admin.getAUserProfilesFeaturesByUserId(connectedUser.id);
+        logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId - profiles : ", Offers);
+    }
+
     //endregion Offers
 
     //region Connections

@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.11.0] - 2022-04-XX
+-   Add `AdminService::getAUserProfilesByUserId` method to retrieve the profiles of a user by his id.
+-   Add `AdminService::getAUserProfilesFeaturesByUserId` method to retrieve the features profiles of a user by his id.
+
 ## [2.10.0-lts.5] - 2022-04-08
 -   Fix for jenkins generation of docs.
 
