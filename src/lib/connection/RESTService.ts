@@ -6496,7 +6496,7 @@ Request Method: PUT
         });
     }
 
-    createConfigurationForLdapConnector (companyId : string, settings : any) {
+    createConfigurationForLdapConnector (companyId : string, settings : any, name : string) {
         // API https://api.openrainbow.org/admin/#api-connectors-PostLdapConfig
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/config
         
@@ -6504,7 +6504,11 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
             that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
-            let param = {companyId, settings};
+            let param : any = {companyId, settings};
+            
+            if (name) {
+                param.name = name;
+            }
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(createConfigurationForLdapConnector) successfull");
@@ -6590,7 +6594,7 @@ Request Method: PUT
         });
     }
 
-    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean) {
+    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean, name : string) {
         // API https://api.openrainbow.org/admin/#api-connectors-PutLdapConfig
         // PUT /api/rainbow/admin/v1.0/connectors/ldaps/config/:ldapConfigId
         
@@ -6598,7 +6602,10 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/" + ldapConfigId;
             that.logger.log("internal", LOG_ID + "(updateConfigurationForLdapConnector) REST url : ", url);
-            let params = {strict, settings};
+            let params : any = {strict, settings};
+            if (name) {
+                params.name = name;
+            }
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(updateConfigurationForLdapConnector) successfull");

@@ -10,6 +10,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.
 -   Add `AdminService::getAUserProfilesFeaturesByUserId` and `AdminService::getAUserProfilesFeaturesByUserEmail` method to retrieve the features profiles of a user by his id or email.
 -   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   Update `AdminService::createConfigurationForLdapConnector` with 'name' parameter, and update doc.
+-   Update `AdminService::updateConfigurationForLdapConnector` with 'name' parameter, and update doc.
 
 ## [2.10.0-lts.5] - 2022-04-08
 -   Fix for jenkins generation of docs.
