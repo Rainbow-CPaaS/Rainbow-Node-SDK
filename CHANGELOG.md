@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.11.0] - 2022-04-XX
 -   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.
 -   Add `AdminService::getAUserProfilesFeaturesByUserId` and `AdminService::getAUserProfilesFeaturesByUserEmail` method to retrieve the features profiles of a user by his id or email.
+-   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
 
 ## [2.10.0-lts.5] - 2022-04-08
 -   Fix for jenkins generation of docs.
