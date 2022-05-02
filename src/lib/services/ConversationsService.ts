@@ -52,7 +52,7 @@ class ConversationsService extends GenericService {
     private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
-    private _presence: PresenceService;
+    private _presenceService: PresenceService;
     private pendingMessages: any;
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
@@ -125,7 +125,7 @@ class ConversationsService extends GenericService {
                 that._bubblesService = _core.bubbles;
                 that._fileStorageService = _core.fileStorage;
                 that._fileServerService = _core.fileServer;
-                that._presence = _core.presence;
+                that._presenceService = _core.presence;
 
                 that.activeConversation = null;
                 that.conversations = [];
@@ -188,7 +188,7 @@ class ConversationsService extends GenericService {
     
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
@@ -1601,7 +1601,7 @@ class ConversationsService extends GenericService {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                             if (bubble) {
-                                that._presence.sendInitialBubblePresenceSync(bubble);
+                                that._presenceService.sendInitialBubblePresenceSync(bubble);
                             }
                             // Send conversations update event
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);

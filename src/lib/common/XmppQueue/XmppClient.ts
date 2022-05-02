@@ -155,6 +155,9 @@ class XmppClient  {
     };
     
     iqGetEventPing (ctx) {
+        let that = this;
+        //that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
+        that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
         return {}
     }
 

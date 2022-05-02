@@ -16,6 +16,7 @@ import {Contact} from "../../common/models/Contact";
 import {ConferenceSession, Participant, Publisher, Silent, Talker} from "../../common/models/ConferenceSession";
 import {List} from "ts-generic-collections-linq";
 import {MEDIATYPE} from "../RESTService";
+import {PresenceService} from "../../services/PresenceService";
 
 export {};
 
@@ -49,6 +50,7 @@ class ConversationEventHandler extends GenericHandler {
     private _fileServerService: FileServerService;
     private _bubbleService: BubblesService;
     private _contactsService: ContactsService;
+    private _presenceService: PresenceService;
 
     static getClassName() {
         return 'ConversationEventHandler';
@@ -58,7 +60,7 @@ class ConversationEventHandler extends GenericHandler {
         return ConversationEventHandler.getClassName();
     }
 
-    constructor(xmppService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService) {
+    constructor(xmppService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
         super(xmppService);
 
         this.MESSAGE_CHAT = "jabber:client.message.chat";
@@ -74,6 +76,7 @@ class ConversationEventHandler extends GenericHandler {
         this._fileServerService = fileServerService;
         this._bubbleService = bubbleService;
         this._contactsService = contactsService;
+        this._presenceService = presenceService;
 
         let that = this;
 
@@ -3108,11 +3111,11 @@ class ConversationEventHandler extends GenericHandler {
     onReceiptMessageReceived (msg, stanza){
     }
 
-    onErrorMessageReceived (msg, stanza) {
+    async onErrorMessageReceived(msg, stanza) {
         let that = this;
         try {
 
-            if (stanza.getChild('no-store') != undefined){
+            if (stanza.getChild('no-store')!=undefined) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 let err = {
                     "id": stanza.attrs.id,
@@ -3124,12 +3127,38 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
                 let errorObject = {
-                    message : msg,
-                    stanza : stanza.root ? prettydata.xml(stanza.root().toString()) : stanza
+                    message: msg,
+                    stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza
                 };
                 that.eventEmitter.emit("evt_internal_xmpperror", errorObject);
+            }
+
+            try {
+                let textElement = stanza.find("text");
+                let text = (textElement && textElement.length) ? textElement.text():"";
+                if (text==="Only occupants are allowed to send messages to the conference") {
+                    this.logger.info("[roomService] onRoomErrorMessage error -- missing presence in the bubble, resend it");
+                    const fromJid = stanza.attrs.from;
+                    let bubble = await that._bubbleService.getBubbleByJid(fromJid);
+                    if (bubble) {
+                        await that._presenceService.sendInitialBubblePresenceSync(bubble);
+                    }
+                    /*const room = this.getRoomByJid(fromJid);
+                    if (room) {
+                        room.initPresenceAck = false;
+                        this.sendInitialRoomPresenceSync(room);
+                        room.isActive = true;
+                        this.eventService.publish(this.ROOM_UPDATE_EVENT, room);
+                        this.sendEvent(this.ROOM_UPDATE_EVENT, room);
+                    } // */
+                }
+                //return true;
+            } catch (_err) {
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence.");
+                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence : ", _err);
+                //return true;
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");

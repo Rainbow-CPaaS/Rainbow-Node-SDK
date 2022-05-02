@@ -6,6 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+
+
+## [2.10.0-lts.6] - 2022-05-02
+-   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+
 ## [2.10.0-lts.5] - 2022-04-08
 -   Fix for jenkins generation of docs.
 
