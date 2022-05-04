@@ -15,6 +15,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
 -   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
 
+## [2.10.0-lts.6] - 2022-05-03
+-   Fix with Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   Fix In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+
 ## [2.10.0-lts.5] - 2022-04-08
 -   Fix for jenkins generation of docs.
 
