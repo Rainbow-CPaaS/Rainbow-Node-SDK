@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.11.0] - 2022-04-XX
+## [2.11.0] - 2022-04-05
 -   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.
 -   Add `AdminService::getAUserProfilesFeaturesByUserId` and `AdminService::getAUserProfilesFeaturesByUserEmail` method to retrieve the features profiles of a user by his id or email.
 -   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
@@ -14,6 +14,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `AdminService::updateConfigurationForLdapConnector` with 'name' parameter, and update doc.
 -   In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
 -   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+-   Start of the update of the treatment of event conference V2.
 
 ## [2.10.0-lts.6] - 2022-05-03
 -   Fix with Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.

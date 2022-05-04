@@ -211,9 +211,9 @@ class ConversationEventHandler extends GenericHandler {
 
                 try {
                     let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf.confEndpoints);
+                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints : "");
                     let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated.confEndpoints);
+                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints : "");
 
                     await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
                     let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
@@ -226,7 +226,7 @@ class ConversationEventHandler extends GenericHandler {
                         // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
                     } // */
                     newConference.replaceConference = conference;
-                    await this._bubbleService.addOrUpdateConferenceToCache(newConference);
+                    await this._bubbleService.addOrUpdateConferenceToCache(newConference, true);
                 } catch (err) {
                     that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
                 }
@@ -364,7 +364,7 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             // Finally add conference to the cache
-            await this._bubbleService.addOrUpdateConferenceToCache(conference);
+            await this._bubbleService.addOrUpdateConferenceToCache(conference, true);
 
             // */
         } else {
@@ -1223,9 +1223,9 @@ class ConversationEventHandler extends GenericHandler {
 
                                 try {
                                     let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf.confEndpoints);
+                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints : "");
                                     let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated.confEndpoints);
+                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints : "");
 
                                     await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
                                     let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);

@@ -875,7 +875,7 @@ class Bubbles extends GenericService {
         that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
 
         // Finally add conference to the cache
-        that.addOrUpdateConferenceToCache(conference);
+        await that.addOrUpdateConferenceToCache(conference);
         return conference;
     }
 
@@ -2018,7 +2018,7 @@ getAllActiveBubbles
                 //conference.id = confEndpoint.ConfEndpointId;
                 conference.active = false;
                 that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
-                that.addOrUpdateConferenceToCache(conference);
+                await that.addOrUpdateConferenceToCache(conference);
                 //});
             }
         }
@@ -2147,14 +2147,20 @@ getAllActiveBubbles
      * @private
      * @instance
      * @param {ConferenceSession} conference
+     * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
      */
-    addOrUpdateConferenceToCache(conference: ConferenceSession) {
+    async addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2: boolean = false) {
         let that = this;
         if (conference!=null) {
             let needToRaiseEvent: boolean = false;
             // Does this conference is linked to a known bubble ?
             let linkedWithBubble: boolean;
             linkedWithBubble = that._linkConferenceAndBubble.containsKey(conference.id);
+
+            if (useConferenceV2) {
+                let bubble = await that.getBubbleById(conference.id);
+                linkedWithBubble = bubble.id == conference.id;
+            }
 
             // Remove conference from cache
             that.removeConferenceFromCache(conference.id, !conference.active);
