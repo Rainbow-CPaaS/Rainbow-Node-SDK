@@ -35,6 +35,7 @@ import {lt} from "semver";
 import {S2SService} from "./services/S2SService";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
+import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
 
 const packageVersion = require("../package.json");
 
@@ -78,6 +79,7 @@ class Core {
     public _webinars: WebinarsService;
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
+    public _httpoverxmpp: HTTPoverXMPP;
 	public _botsjid: any;
     public _s2s: S2SService;
     cleanningClassIntervalID: NodeJS.Timeout;
@@ -173,7 +175,7 @@ class Core {
             //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
             return new Promise(async (resolve, reject) => {
 
-                if (that.options.testOutdatedVersion) {
+                if (that.options.testOutdatedVersion) { 
                     await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
                         // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
                         infos.results.forEach((packagePublished: any) => {
@@ -270,7 +272,9 @@ class Core {
                         }).then(() => {
                             return that._rbvoice.init();
                         }).then(() => {
-                            return that._webinars.init();
+                            return that._webinars.init(); 
+                        }).then(() => {
+                            return that._httpoverxmpp.init();
                         }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
@@ -357,6 +361,8 @@ class Core {
                         }).then(() => {
                             return that._webinars.init();
                         }).then(() => {
+                            return that._httpoverxmpp.init();
+                        }).then(() => {
                             return that._invitations.init();
                         }).then(() => {
                             resolve(undefined);
@@ -392,7 +398,7 @@ class Core {
             if (!self._rest.p_decodedtokenRest || ( self._rest.p_decodedtokenRest && ! self._rest.p_decodedtokenRest.oauth)) {
                 self._eventEmitter.iee.emit("evt_internal_signinrequired");
             } else {
-                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. Extarnal renew required");
+                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
                 self._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
             }
         };
@@ -454,8 +460,8 @@ class Core {
         });
 
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
-            console.log("Error XMPP, Stop le SDK : ", err);
-            self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
+            console.log("Error XMPP, Stop the SDK : ", err);
+            self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
             await self._stateManager.transitTo(self._stateManager.ERROR, err);
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
@@ -538,7 +544,7 @@ class Core {
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
         self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
         self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy);
+        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options);
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
@@ -562,6 +568,7 @@ class Core {
         self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
+        self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
         self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
@@ -586,6 +593,7 @@ class Core {
             that._admin.cleanMemoryCache();
             that._alerts.cleanMemoryCache();
             that._rbvoice.cleanMemoryCache();
+            that._httpoverxmpp.cleanMemoryCache();
             that._webinars.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
@@ -680,6 +688,8 @@ class Core {
                         return that._rbvoice.start(that.options, that) ;
                     }).then(() => {
                         return that._webinars.start(that.options, that) ;
+                    }).then(() => {
+                        return that._httpoverxmpp.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -809,6 +819,9 @@ class Core {
                 return that._webinars.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped webinar");
+                return that._httpoverxmpp.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped httpoverxmpp");
                 return that._invitations.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped invitations");

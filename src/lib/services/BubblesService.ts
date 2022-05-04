@@ -106,6 +106,8 @@ class Bubbles extends GenericService {
         this._eventEmitter.on("evt_internal_roomscontainer", this._onBubblesContainerReceived.bind(this));
         this._eventEmitter.on("evt_internal_bubbleconferencestoppedreceived", this._onBubbleConferenceStoppedReceived.bind(this));        
         this._eventEmitter.on("evt_internal_bubblepresencesent", this._onBubblePresenceSent.bind(this));
+        this._eventEmitter.on("evt_internal_bubblepollconfiguration", this._onBubblePollConfiguration.bind(this));
+        this._eventEmitter.on("evt_internal_bubblepollevent", this._onBubblePollEvent.bind(this));
     }
 
     /**
@@ -463,6 +465,57 @@ class Bubbles extends GenericService {
         });
     }
 
+    _onBubblePollConfiguration(data) {
+        let that = this;
+        /*
+        let pollObj = {
+                                "action": action,
+                                "roomid": msg.getChild("roomid").text(),
+                                "pollid": msg.getChild("pollid").text(),
+                            };
+         */
+
+        that.getBubbleById(data.roomid).then(async (bubble: Bubble) => {
+            that._logger.log("debug", LOG_ID + "(_onBubblePollConfiguration) poll in bubble : " + data.roomid);
+            //let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            let eventName = "evt_internal_bubble_poll_" + data.action;
+            let objPoll = {
+                pollId : data.pollid,
+                bubble
+            };
+            
+            that._eventEmitter.emit(eventName, objPoll);
+        });
+    }
+
+    _onBubblePollEvent(data) {
+        let that = this;
+        /*
+        let pollObj = {
+                                "action": action,
+                                "roomid": msg.getChild("roomid").text(),
+                                "pollid": msg.getChild("pollid").text(),
+                            };
+         */
+
+        that.getBubbleById(data.roomid).then(async (bubble: Bubble) => {
+            that._logger.log("debug", LOG_ID + "(_onBubblePollEvent) poll in bubble : " + data.roomid);
+            //let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+            let eventName = "evt_internal_bubble_poll_" + data.event;
+            let objPoll = {
+                "pollId" : data.pollid,
+                bubble,
+                "questions" : data.questions
+            };
+            
+            that._eventEmitter.emit(eventName, objPoll);
+        }).catch ((err) => {
+            that._logger.log("warn", LOG_ID + "(_onBubblePollEvent) Failed to find the room : " + data.roomid + ", so no poll event raised.");
+        });
+    }
+
     /**
      * @private
      * @method _onBubblePresenceSent
@@ -716,6 +769,7 @@ class Bubbles extends GenericService {
      * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
      * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
      * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
+     * @deprecated
      * @description
      * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
      * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
@@ -821,7 +875,7 @@ class Bubbles extends GenericService {
         that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
 
         // Finally add conference to the cache
-        that.addOrUpdateConferenceToCache(conference);
+        await that.addOrUpdateConferenceToCache(conference);
         return conference;
     }
 
@@ -1036,11 +1090,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @Method retrieveConferences
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
      * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
      * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
@@ -1130,7 +1185,7 @@ getAllActiveBubbles
 
     /**
      * @Method updateOrCreateWebConferenceEndpoint
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
@@ -1212,10 +1267,11 @@ getAllActiveBubbles
 
     /**
      * @Method getWebRtcConfEndpointId
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @returns {string} the user unique webrtc conference enpoint id
      * @memberof BubblesService
      */
@@ -1231,10 +1287,11 @@ getAllActiveBubbles
 
     /**
      * @Method getWebRtcSharingOnlyConfEndpointId
-     * @public
+     * @private
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
      * @memberof BubblesService
      */
@@ -1249,11 +1306,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceStart
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      *     To start a conference. <br>
      *     Only a moderator can start a conference. It also need to be a premium account. <br>
@@ -1278,11 +1336,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceStop
      * @since 2.6.0
      * @instance
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      *     To stop a conference. <br>
      *     Only a moderator can stop a conference. It also need to be a premium account. <br>
@@ -1304,7 +1363,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceJoin
      * @since 2.6.0
      * @instance
@@ -1314,6 +1373,7 @@ getAllActiveBubbles
      * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
      * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
      * @category CONFERENCE SPECIFIC
+     * @deprecated
      * @description
      * To join a conference.  <br>
      * NOTE: The conference must be first started before to join it.
@@ -1375,13 +1435,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceMuteOrUnmute
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
      * @instance
      * @param {string} conferenceId ID of the conference
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
      * Only the moderator of the conference can use this method
@@ -1394,7 +1455,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceMuteOrUnmutParticipant
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
@@ -1402,6 +1463,7 @@ getAllActiveBubbles
      * @param {string} conferenceId ID of the conference
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the specified participant in the conference.<br>
      * Only the moderator of the conference can use this method
@@ -1413,13 +1475,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method conferenceDropParticipant
      * @since 2.6.0
      * @category CONFERENCE SPECIFIC
      * @instance
      * @param {string} conferenceId ID of the conference
      * @param {string} participantId ID of the participant to drop
+     * @deprecated
      * @description
      * Drop the specified participant in the conference. <br>
      * Only the moderator of the conference can use this method
@@ -1451,6 +1514,7 @@ getAllActiveBubbles
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @return {boolean}
+     * @deprecated
      * @description
      * To know if the current user has the permission to start its own Personal Conference
      */
@@ -1462,11 +1526,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetId
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get teh Id of the Personal Conference
      * @return {string} Id of the Personal Conference or NULL
@@ -1477,11 +1542,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetBubbleFromCache
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
      * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
@@ -1497,11 +1563,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetBubbleIdFromCache
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
      * @return {string} The Bubble which contains the Personal Meeting or null
@@ -1519,11 +1586,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPhoneNumbers
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To get the list of phone numbers used to reach the Personal Meeting
      * @return {Promise<any>}
@@ -1581,11 +1649,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPassCodes
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To retrieve the pass codes of the Personal Meeting of the current user
      * @return {Promise<ConferencePassCodes>}
@@ -1653,11 +1722,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceResetPassCodes
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To reset and get new pass codes of the Personal Meeting of the current user
      * @return {Promise<any>}
@@ -1725,11 +1795,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGetPublicUrl
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
      * @return {Promise<any>}
@@ -1752,11 +1823,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceGenerateNewPublicUrl
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). <br>
      * The previous URL is no more functional !
@@ -1768,11 +1840,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceStart
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To start a Personal Conference. <br>
      * Only a moderator can start a Personal Conference.
@@ -1784,11 +1857,12 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceStop
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
+     * @deprecated
      * @description
      * To stop the Personal Conference.<br>
      * Only a moderator can stop a Personal Conference
@@ -1810,7 +1884,7 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceJoin
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
@@ -1819,6 +1893,7 @@ getAllActiveBubbles
      * @param {boolean} muted To join Personal Conference as muted or not
      * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
      * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+     * @deprecated
      * @description
      * To join the Personal Conference.
      * NOTE: The Personal Conference must be first started before to join it.
@@ -1840,12 +1915,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceMuteOrUnmute
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {boolean} mute
+     * @deprecated
      * @description
      * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
      * Only the moderator of the Personal Conference can use this method
@@ -1857,12 +1933,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceLockOrUnlock
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {boolean} toLock  True to lock, False to unlock
+     * @deprecated
      * @description
      * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
      * Lock / Unlock is only possible for PSTN Conference. <br>
@@ -1875,13 +1952,14 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceMuteOrUnmuteParticipant
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {string} participantId ID of the participant to mute/unmute
      * @param {boolean} mute True to mute, False to unmute
+     * @deprecated
      * @description
      * Mute or Unmute the specified participant in the Personal Conference.<br>
      * Only the moderator of the Personal Conference can use this method.
@@ -1893,12 +1971,13 @@ getAllActiveBubbles
     }
 
     /**
-     * @public
+     * @private
      * @method personalConferenceDropParticipant
      * @since 2.6.0
      * @category PERSONAL CONFERENCE SPECIFIC
      * @instance
      * @param {string} participantId ID of the participant to drop
+     * @deprecated
      * @description
      * Drop the specified participant in the Personal Conference. <br>
      * Only the moderator of the Personal Conference can use this method.
@@ -1939,7 +2018,7 @@ getAllActiveBubbles
                 //conference.id = confEndpoint.ConfEndpointId;
                 conference.active = false;
                 that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
-                that.addOrUpdateConferenceToCache(conference);
+                await that.addOrUpdateConferenceToCache(conference);
                 //});
             }
         }
@@ -2068,14 +2147,20 @@ getAllActiveBubbles
      * @private
      * @instance
      * @param {ConferenceSession} conference
+     * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
      */
-    addOrUpdateConferenceToCache(conference: ConferenceSession) {
+    async addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2: boolean = false) {
         let that = this;
         if (conference!=null) {
             let needToRaiseEvent: boolean = false;
             // Does this conference is linked to a known bubble ?
             let linkedWithBubble: boolean;
             linkedWithBubble = that._linkConferenceAndBubble.containsKey(conference.id);
+
+            if (useConferenceV2) {
+                let bubble = await that.getBubbleById(conference.id);
+                linkedWithBubble = bubble.id == conference.id;
+            }
 
             // Remove conference from cache
             that.removeConferenceFromCache(conference.id, !conference.active);
@@ -5139,7 +5224,395 @@ getAllActiveBubbles
     
     //endregion Bubbles PUBLIC URL
 
-//endregion Manage Bubbles
+    //region Bubbles Polls
+
+    /**
+     * @public
+     * @method createBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to create a Poll for a bubble. <br>
+     * @param {string} bubbleId bubble identifier.
+     * @param {string} title Poll title.
+     * @param {Object} questions
+     * [{<br>
+     *      text : string //Question text (up to 20 questions).<br>
+     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+     *      answers : [{<br>
+     *           text : string // Answer text (up to 20 answers).<br>
+     *           }]<br>
+     * }] The questions to ask.<br>
+     * @param {boolean} anonymous Is poll anonymous? Default value : false
+     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @return {Promise<any>} An object of the result
+     * {
+     *  pollId : string // Created poll identifier.
+     *  }
+     */
+    createBubblePoll(bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
+        let that = this;
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!title) {
+            this._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'title' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'title' parameter : ", title);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!questions) {
+            this._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter : ", questions);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(createBubblePoll) create poll.");
+            that._rest.createBubblePoll(bubbleId, title, questions, anonymous, duration).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(createBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(createBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to delete a Poll for a bubble. <br>
+     * @param {string} pollId poll identifier.
+     * @return {Promise<any>} An object of the result
+     */
+    deleteBubblePoll(pollId) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(deleteBubblePoll) delete pollId : ", pollId);
+            that._rest.deleteBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(deleteBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to get data of a Poll for a bubble. <br>
+     * @param {string} pollId poll identifier.
+     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @return {Promise<any>} An object of the result
+     */
+    getBubblePoll(pollId : string, format : string = "small") {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(getBubblePoll) delete pollId : ", pollId);
+            that._rest.getBubblePoll(pollId, format).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(getBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getBubblePollsByBubble
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    Get polls for a room. They are ordered by creation date (from newest to oldest). Only moderator can get unpublished polls. <br>
+     * @param {string} bubbleId Bubble identifier.
+     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @return {Promise<any>} An object of the result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] |     |
+     * | id  | String | Poll identifier. |
+     * | roomId | String | Room identifier. |
+     * | title optionnel | String | Poll title. |
+     * | questions | Object\[\] |     |
+     * | text | String | Question text. |
+     * | multipleChoice optionnel | Boolean | Is multiple choice allowed? |
+     * | answers | Object\[\] |     |
+     * | text | String | Answer text. |
+     * | votes optionnel | Number\[\] | Voter indexes in case of non-anonymous poll. |
+     * | voters optionnel | Number | Number of voters for this question in case of anonymous poll. |
+     * | voters optionnel | Object\[\] |     |
+     * | userId optionnel | String | Voter user identifier in case of non-anonymous poll. |
+     * | email optionnel | String | Voter login email in case of non-anonymous poll. |
+     * | firstName optionnel | String | Voter first name in case of non-anonymous poll. |
+     * | lastName optionnel | String | Voter last name in case of non-anonymous poll. |
+     * | anonymous optionnel | Boolean | Is poll anonymous? |
+     * | duration optionnel | Number | Poll duration (0 means no duration). |
+     * | creationDate | Date | Poll creation date. |
+     * | publishDate optionnel | Date | Poll publication date. |
+     * | state | String | Poll state.<br><br>Possible values : `unpublished`, `published`, `terminated` |
+     * | voted optionnel | Boolean | In case of published or terminated poll, did requester vote? |
+     * | limit | Number | Number of polls to retrieve. |
+     * | offset | Number | Position of first poll to retrieve. |
+     * | total | Number | Total number of polls. |
+     */
+    getBubblePollsByBubble (bubbleId : string, format : string = "small", limit : number = 100, offset : number) {
+        let that = this;
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(getBubblePollsByBubble) bubbleId : ", bubbleId);
+            that._rest.getBubblePollsByBubble(bubbleId, format, limit, offset).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(getBubblePollsByBubble) error.");
+                that._logger.log("internalerror", LOG_ID + "(getBubblePollsByBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method publishBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to publish a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    publishBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(publishBubblePoll) pollId : ", pollId);
+            that._rest.publishBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(publishBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(publishBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method terminateBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to terminate a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    terminateBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(terminateBubblePoll) pollId : ", pollId);
+            that._rest.terminateBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(terminateBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(terminateBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method unpublishBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to unpublish a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    unpublishBubblePoll (pollId: string ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(unpublishBubblePoll) pollId : ", pollId);
+            that._rest.unpublishBubblePoll(pollId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(unpublishBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(unpublishBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method updateBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to update poll. When updating a question or an answer, all questions and answers must be present in body. <br>
+     * @param {string} pollId poll identifier.
+     * @param {string} bubbleId bubble identifier.
+     * @param {string} title Poll title.
+     * @param {Object} questions
+     * [{<br>
+     *      text : string //Question text (up to 20 questions).<br>
+     *      multipleChoice : boolean //Is multiple choice allowed?<br>
+     *      answers : [{<br>
+     *           text : string // Answer text (up to 20 answers).<br>
+     *           }]<br>
+     * }] The questions to ask.<br>
+     * @param {boolean} anonymous Is poll anonymous? Default value : false
+     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @return {Promise<any>} An object of the result
+     * 
+     */
+    updateBubblePoll(pollId : string, bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!bubbleId) {
+            that._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!title) {
+            this._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter : ", title);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!questions) {
+            this._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter : ", questions);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(updateBubblePoll) update poll.");
+            that._rest.updateBubblePoll(pollId, bubbleId, title, questions, anonymous, duration).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(updateBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method votesForBubblePoll
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Manage Bubbles - Bubbles Polls
+     * @description
+     *    This API allow to vote for a Poll for a bubble. <br>
+     * @param {string} pollId poll bubble identifier.
+     * @param {Array<Object>} votes Array< <br>
+     *  question : number // Question number (starts at 0). <br>
+     *  answers : number // Question answers (starts at 0). > <br>
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    votesForBubblePoll (pollId: string, votes : Array<{ question : number, answers : Array <number> }> ) {
+        let that = this;
+        if (!pollId) {
+            that._logger.log("warn", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter : ", pollId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!votes) {
+            that._logger.log("warn", LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter : ", votes);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(votesForBubblePoll) pollId : ", pollId);
+            that._rest.votesForBubblePoll(pollId, votes).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(votesForBubblePoll) error.");
+                that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Bubbles Polls
+    
+    //endregion Manage Bubbles
 
     //region Conference V2
 
@@ -5725,7 +6198,7 @@ getAllActiveBubbles
      * @param {number} subStreamLevel Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available at publisher side. <br>
      * Authorized values : 0, 1, 2 <br>
      * @param {boolean} dynamicFeed Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
-     *     Valeur par défaut : false <br>
+     *     Default value : false <br>
      * @async
      * @description
      *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>

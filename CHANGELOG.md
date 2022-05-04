@@ -6,8 +6,59 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.10.0] - 2022-03-18
+## [2.11.0] - 2022-04-05
+-   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.
+-   Add `AdminService::getAUserProfilesFeaturesByUserId` and `AdminService::getAUserProfilesFeaturesByUserEmail` method to retrieve the features profiles of a user by his id or email.
+-   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   Update `AdminService::createConfigurationForLdapConnector` with 'name' parameter, and update doc.
+-   Update `AdminService::updateConfigurationForLdapConnector` with 'name' parameter, and update doc.
+-   In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+-   Start of the update of the treatment of event conference V2.
+
+## [2.10.0-lts.6] - 2022-05-03
+-   Fix with Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   Fix In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+
+## [2.10.0-lts.5] - 2022-04-08
+-   Fix for jenkins generation of docs.
+
+## [2.10.0-lts.4] - 2022-04-08
+-   Fix for jenkins generation of docs.
+
+## [2.10.0-lts.3] - 2022-04-07
+-   Fix for jenkins generation of docs.
+
+## [2.10.0-lts.2] - 2022-04-07
+-   Fix for jenkins generation of docs.
+
+## [2.10.0-lts.1] - 2022-04-07
+-   Fix for jenkins generation of docs.
+
+## [2.10.0-lts.0] - 2022-04-07
 -   Add `ContactsService::getDirectoryEntryData` This API allows user to get data about an entry of his personnal directory.
+-   Add `BubblesService::createBubblePoll` This API allow to create a Poll for a bubble.
+-   Add `BubblesService::deleteBubblePoll` This API allows user to delete a Poll for a bubble.
+-   Add `BubblesService::getBubblePoll` This API allows user to get data of a Poll for a bubble.
+-   Add `BubblesService::getBubblePollsByBubble` This API allows user to get polls for a room.
+-   Add `BubblesService::publishBubblePoll` This API allows user to publish a Poll for a bubble.
+-   Add `BubblesService::terminateBubblePoll` This API allows user to terminate a Poll for a bubble.
+-   Add `BubblesService::unpublishBubblePoll` This API allows user to unpublish a Poll for a bubble.
+-   Add `BubblesService::updateBubblePoll` This API allows user to update poll.
+-   Add `BubblesService::votesForBubblePoll` This API allows user to vote for a Poll for a bubble.
+-   Add events for the polls : `rainbow_onbubblepollcreated`, `rainbow_onbubblepolldeleted`, `rainbow_onbubblepollpublished`, `rainbow_onbubblepollunpublished`, `rainbow_onbubblepollterminated`, `rainbow_onbubblepollupdated`, `rainbow_onbubblepollvoted`
+-   Fix `AdminService::checkCSVforSynchronization` method.
+-   Fix history return result when no queryid is available.
+-   Add `HTTPoverXMPP` service to send HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::get` method to send a `GET` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::trace` method to send a `TRACE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::head` method to send a `HEAD` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::post` method to send a `POST` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::put` method to send a `PUT` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HTTPoverXMPP::delete` method to send a `DELETE` HTTP over XMPP requests to a server supporting the XEP0332.
+-   Add `HttpoverxmppEventHandler` low layer class to treat HTTP over XMPP requests received from clients. SDK support `GET, TRACE,HEAD,POST,PUT,DELETE` requests.
+-   Add `httpoverxmppserver` SDK's option parameter to activate the treatment of requests in `HttpoverxmppEventHandler` class. By default this feature is setted to false.
 
 ## [2.9.1] - 2022-03-23
 -   Fix RESTService at login to getCompanyInfos when it failed.

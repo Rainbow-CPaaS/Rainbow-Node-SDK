@@ -147,7 +147,10 @@ class WebinarEventHandler extends GenericHandler {
                         break;
                     case "webinar":
                         that.onWebinarManagementMessageReceived(stanza) ;
-                        break;    
+                        break;
+                    case "poll":
+                        // treated in conversationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

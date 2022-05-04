@@ -59,10 +59,16 @@ class ConversationHistoryHandler  extends GenericHandler {
     onMamMessageReceived (msg, stanza) {
         let that = this;
         try {
+            that.logger.log("internal", LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             // Get queryId and deleteId
             let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (!queryId) {
-                queryId = stanza.getChild("fin") ? stanza.getChild("fin").getAttr("queryid") : null;
+                if ( stanza.getChild("fin")) {
+                    that.logger.log("internal", LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
+                    queryId = stanza.getAttr("id");
+                } else {
+                    queryId = null;
+                }
             }
 
             // jidTel are used for callLog
@@ -507,7 +513,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 if (conversation) {
 
                     if ( conversation.pendingPromise ) {
-                        Promise.all( conversation.pendingPromise ).then( () => {
+                        Promise.all( conversation.pendingPromise ).then(async () => {
 
                             // Extract info
                             conversation.historyComplete = stanza.getChild("fin").getAttr("complete") === "true";
@@ -546,14 +552,16 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 conversation.lastMessageText = "";
                             }
 
-                            conversation.messages.forEach(async (message)=> {
+                            //conversation.messages.forEach(async (message)=> {
+                            for (const message of conversation.messages) {
                                 if (message.answeredMsgId) {
                                     //let conversation = that._conversationService.getConversationById(conversation.id);
                                     that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
                                     //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
                                     message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
                                 }
-                            });
+                            };
+                            //});
 
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;

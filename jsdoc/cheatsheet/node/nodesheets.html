@@ -29,6 +29,7 @@ class s2s
 class PresenceService
 class InvitationsService
 class ImsService
+class HTTPoverXMPP
 class GroupsService
 class FileStorage
 class FavoritesService
@@ -78,12 +79,13 @@ AdminService : Promise.any : checkCSVforSynchronization(string, string, string, 
 AdminService : Promise.any : retrieveRainbowUserList(string, string, boolean, boolean, string, string, string)
 AdminService : Promise.any : retrieveRainbowUserList(string, string, boolean)
 AdminService : Promise.{id: string, companyId: string, loginEmail: string, password: string} : ActivateALdapConnectorUser()
-AdminService : Promise.any : retrieveAllLdapConnectorUsersData(string, string, number, number, string, number)
 AdminService : Promise.{status: string} : deleteLdapConnector(string)
-AdminService : Promise.{Object} : retrieveLdapConnectorConfigTemplate()
-AdminService : Promise.{Object} : createConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, string)
-AdminService : Promise.{Object} : updateConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, boolean)
+AdminService : Promise.any : retrieveAllLdapConnectorUsersData(string, string, number, number, string, number)
+AdminService : Promise.{Object} : createConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, string, string, boolean, string, string)
+AdminService : Promise.{status: string} : deleteLdapConnectorConfig(string)
 AdminService : Promise.{Object} : retrieveLdapConnectorConfig(string)
+AdminService : Promise.{Object} : retrieveLdapConnectorConfigTemplate()
+AdminService : Promise.{Object} : updateConfigurationForLdapConnector(string, Object, Object, string, Object, string, string, number, string, boolean)
 AdminService : Promise.any : getCloudPbxById(string)
 AdminService : Promise.any : updateCloudPBX(string, string, string, string, string, string, boolean, boolean, string, string, string, number, number, number, boolean)
 AdminService : Promise.any : deleteCloudPBX(string)
@@ -132,7 +134,7 @@ AdminService : void : createDirectoryEntry(string, string, string, string, strin
 AdminService : Promise.any : deleteCompanyDirectoryAllEntry(string)
 AdminService : Promise.any : deleteDirectoryEntry(string)
 AdminService : Promise.any : getDirectoryEntryData(string, string)
-AdminService : Promise.any : getListDirectoryEntriesData(, , , , , , , , , , string, , , , )
+AdminService : Promise.any : getListDirectoryEntriesData(string, string, string, string, string, string, string, Date, Date, string, string, number, number, string, number, string)
 AdminService : Promise.any : updateDirectoryEntry(string, string, string, string, string, string, string, string, string, string, string[], string[], string[], string, string, string[], string, string)
 AdminService : Promise.any : exportDirectoryCsvFile(string, string)
 AdminService : Promise.any : ImportDirectoryCsvFile(string, string, string)
@@ -266,6 +268,15 @@ Bubbles : Promise.string : generateNewPublicUrl(Bubble)
 Bubbles : Promise.any : removePublicUrl(Bubble)
 Bubbles : Promise.Bubble : setBubbleAutoRegister(Bubble, string)
 Bubbles : Promise.any : registerGuestForAPublicURL(string, string, string, string, string, string, string, string, string)
+Bubbles : Promise.any : createBubblePoll(string, string, Object, boolean, number)
+Bubbles : Promise.any : deleteBubblePoll(string)
+Bubbles : Promise.any : getBubblePoll(string, string)
+Bubbles : Promise.any : getBubblePollsByBubble(string, string)
+Bubbles : Promise.any : publishBubblePoll(string)
+Bubbles : Promise.any : terminateBubblePoll(string)
+Bubbles : Promise.any : unpublishBubblePoll(string)
+Bubbles : Promise.any : updateBubblePoll(string, string, string, Object, boolean, number)
+Bubbles : Promise.any : votesForBubblePoll(string, Object[])
 Bubbles : Promise.any : addPSTNParticipantToConference(string, string, string)
 Bubbles : Promise.any : snapshotConference(string, string, string)
 Bubbles : Promise.any : delegateConference(string, string)
@@ -345,6 +356,7 @@ ContactsService : Promise.Contact, ErrorManager : getContactByJid(string, boolea
 ContactsService : Promise.Contact, ErrorManager : getContactById(string, boolean)
 ContactsService : Promise.Contact, ErrorManager : getContactByLoginEmail(string, boolean)
 ContactsService : Promise.Object, ErrorManager : getMyInformations()
+ContactsService : string : getCompanyInfos(string, string, boolean, string, string, string, string, boolean, boolean, string)
 ContactsService : string : getAvatarByContactId(string, string)
 ContactsService : Contact : getConnectedUser()
 ContactsService : string : getDisplayName(Contact)
@@ -357,6 +369,15 @@ ContactsService : Invitation : getInvitationById(string)
 ContactsService : Object : acceptInvitation(Invitation)
 ContactsService : Object : declineInvitation(Invitation)
 ContactsService : Promise.Object, ErrorManager : joinContacts(Contact, string[])
+ContactsService : Promise.any : searchInAlldirectories(string, string, string, string, string, number, number, string, number)
+ContactsService : Promise.any : searchInPhonebook(string, string, string, string, number, number, string, number)
+ContactsService : Promise.any : searchUserByPhonenumber(number)
+ContactsService : Promise.any : searchUsers(number, string, string, string, string, number, string, number)
+ContactsService : void : createPersonalDirectoryEntry(string, string, string, string, string, string, string, string, string, string[], string[], string[], string, string, string[], string, string)
+ContactsService : Promise.any : getDirectoryEntryData(string, string)
+ContactsService : Promise.any : getListPersonalDirectoryEntriesData(string, string, string, string, string, Date, Date, string, string, number, number, string, number, string)
+ContactsService : Promise.any : updatePersonalDirectoryEntry(string, string, string, string, string, string, string, string, string, string, string[], string[], string[], string, string, string[], string, string)
+ContactsService : Promise.any : deletePersonalDirectoryEntry(string)
 ConversationsService : Promise.Conversation[] : ackAllMessages(string)
 ConversationsService : Promise.Conversation[] : getHistoryPage(Conversation, number)
 ConversationsService : Promise.any : getOneMessageFromConversationId(string, string, string)
@@ -417,6 +438,12 @@ GroupsService : Promise.any : getGroupById(String)
 GroupsService : Promise.any : getGroupByName(String, boolean)
 GroupsService : Promise.Object, ErrorManager : addUserInGroup(Contact, Object)
 GroupsService : Promise.Object, ErrorManager : removeUserFromGroup(Contact, Object)
+HTTPoverXMPP : Promise.any : getHTTPoverXMPP(string, Object, string)
+HTTPoverXMPP : Promise.any : traceHTTPoverXMPP(string, Object, string)
+HTTPoverXMPP : Promise.any : headHTTPoverXMPP(string, Object, string)
+HTTPoverXMPP : Promise.any : postHTTPoverXMPP(string, Object, string, string)
+HTTPoverXMPP : Promise.any : putHTTPoverXMPP(string, Object, string, string)
+HTTPoverXMPP : Promise.any : deleteHTTPoverXMPP(string, Object, string, string)
 ImsService : Promise.Conversation, ErrorManager : getMessagesFromConversation(Conversation, Number)
 ImsService : Message : getMessageFromConversationById(Conversation, String)
 ImsService : Message : getMessageFromBubbleById(Bubble, String)
@@ -425,6 +452,8 @@ ImsService : Promise.Message, ErrorManager : sendMessageToConversation(Conversat
 ImsService : Promise.Message, ErrorManager : sendMessageToContact(String, Contact, String, Object, String, String, String, string)
 ImsService : Promise.Message, ErrorManager : sendMessageToJid(String, String, String, Object, String, String, String, string)
 ImsService : Promise.Message, ErrorManager : sendMessageToJidAnswer(String, String, String, Object, String, String, String, String, string)
+ImsService : Promise.Message, ErrorManager : sendMessageToJidAcknowledged(Message, string, string)
+ImsService : Promise.Message, ErrorManager : sendMessageToJidIgnored(Message, string, string)
 ImsService : Promise.Message, ErrorManager : sendMessageToBubble(String, Bubble, String, Object, String, String, String, array, string)
 ImsService : Promise.Message, ErrorManager : sendMessageToBubbleJid(String, String, String, Object, String, String, String, array, string)
 ImsService : Promise.Message, ErrorManager : sendMessageToBubbleJidAnswer(String, String, String, Object, String, String, String, String, array, string)
@@ -432,6 +461,7 @@ ImsService : Object : sendIsTypingStateInBubble(Bubble, boolean)
 ImsService : void : sendIsTypingStateInConversation(Conversation, boolean)
 InvitationsService : Invitation[] : getAllInvitationsNumber()
 InvitationsService : Invitation[] : getReceivedInvitations()
+InvitationsService : any : searchInvitationsReceivedFromServer(string, string, string, number, number, number)
 InvitationsService : Invitation[] : getAcceptedInvitations()
 InvitationsService : Invitation[] : getInvitationsNumberForCounter()
 InvitationsService : Invitation : getInvitation(String)
@@ -439,10 +469,12 @@ InvitationsService : Promise.Object : joinContactInvitation(Contact)
 InvitationsService : Promise.Object : acceptInvitation(Invitation)
 InvitationsService : Promise.Object : declineInvitation(Invitation)
 InvitationsService : Invitation[] : getSentInvitations()
-InvitationsService : Object : sendInvitationByEmail(string, string)
+InvitationsService : any : searchInvitationsSentFromServer(string, string, string, number, number, number)
+InvitationsService : Object : sendInvitationByEmail(string, string, string)
+InvitationsService : Object : sendInvitationByCriteria(string, string, string, string, string)
 InvitationsService : Object : cancelOneSendInvitation(Invitation)
 InvitationsService : Object : reSendInvitation(Number)
-InvitationsService : Object : sendInvitationByEmail(Array)
+InvitationsService : Object : sendInvitationsByBulk(Array)
 PresenceService : Promise.any, ErrorManager : setPresenceTo(String)
 PresenceService : void : getUserConnectedPresence()
 PresenceService : Promise.{busy: boolean, status: string, subject: string, since: string, until: string}, ErrorManager : getCalendarState()
@@ -488,7 +520,7 @@ TelephonyService : Promise : logoff(String, String, String, String)
 TelephonyService : Promise : withdrawal(String, String, String)
 TelephonyService : Promise : wrapup(String, String, String, String)
 TelephonyService : Promise : getNomadicStatus()
-SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
+SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
 NodeSDK : void : start(String)
 NodeSDK : void : setRenewedToken()
 NodeSDK : void : stop()
@@ -515,6 +547,7 @@ NodeSDK [1] --> [1] AlertsService
 NodeSDK : AlertsService : alerts
 NodeSDK : RBVoiceService : rbvoice
 NodeSDK : WebinarsService : webinars
+NodeSDK : WebinarsService : httpoverxmpp
 NodeSDK : Object : DataStoreType
 SDK : Promise.{restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number} : getConnectionStatus()
 SDK : Appreciation : Appreciation()
@@ -588,6 +621,13 @@ Events ::event : rainbow_onbubblescontainerupdated
 Events ::event : rainbow_onbubblescontainerdeleted
 Events ::event : rainbow_onusertokenrenewfailed
 Events ::event : rainbow_onusertokenwillexpire
+Events ::event : rainbow_onbubblepollcreated
+Events ::event : rainbow_onbubblepollpublished
+Events ::event : rainbow_onbubblepollunpublished
+Events ::event : rainbow_onbubblepollterminated
+Events ::event : rainbow_onbubblepolldeleted
+Events ::event : rainbow_onbubblepollupdated
+Events ::event : rainbow_onbubblepollvoted
 Events : Object : onLog(string, function)
 Events : Object : removeLogListener(string, function)
 Events : Object : on(string, function)
@@ -789,6 +829,7 @@ Message : object : attention
 Message : any[] : mentions
 Message : any : voiceMessage
 Message : string : urgency
+Message : boolean : urgencyAck
 Message : any[] : historyIndex
 Message : string : attachedMsgId
 Message : string : attachIndex

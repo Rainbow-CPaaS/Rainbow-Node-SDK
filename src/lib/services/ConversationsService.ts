@@ -52,7 +52,7 @@ class ConversationsService extends GenericService {
     private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
-    private _presence: PresenceService;
+    private _presenceService: PresenceService;
     private pendingMessages: any;
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
@@ -125,7 +125,7 @@ class ConversationsService extends GenericService {
                 that._bubblesService = _core.bubbles;
                 that._fileStorageService = _core.fileStorage;
                 that._fileServerService = _core.fileServer;
-                that._presence = _core.presence;
+                that._presenceService = _core.presence;
 
                 that.activeConversation = null;
                 that.conversations = [];
@@ -188,7 +188,7 @@ class ConversationsService extends GenericService {
     
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
@@ -274,7 +274,8 @@ class ConversationsService extends GenericService {
             if (conversation.addMessage) {
                 conversation.addMessage(message);
             } else {
-                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
+                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ");
+                //that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
                 if (conversation && conversation.id) {
                     conversation = await that.getConversationById(conversation.id);
                     that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
@@ -1600,7 +1601,7 @@ class ConversationsService extends GenericService {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                             if (bubble) {
-                                that._presence.sendInitialBubblePresenceSync(bubble);
+                                that._presenceService.sendInitialBubblePresenceSync(bubble);
                             }
                             // Send conversations update event
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);

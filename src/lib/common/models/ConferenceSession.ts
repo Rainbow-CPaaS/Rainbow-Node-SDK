@@ -51,6 +51,7 @@ class Participant {
     /// </summary>
     private _hold: boolean; // { get; set; }
 
+    private _talking : boolean;
     private _talkingTime : number;
     private _microphone : boolean;
     private _delegateCapability : boolean;
@@ -150,6 +151,14 @@ class Participant {
 
     set talkingTime(value: number) {
         this._talkingTime = value;
+    }
+
+    get talking(): boolean {
+        return this._talking;
+    }
+
+    set talking(value: boolean) {
+        this._talking = value;
     }
 
     get microphone(): boolean {
@@ -411,7 +420,13 @@ class ConferenceSession {
     /// <see cref="Boolean"/> - To know if the conference is recorded
     /// </summary>
     private _recordStarted: boolean; // { get; set; }
+    
+    private _recordingState: boolean; // { get; set; }
+    
+    private _recordingUserId: boolean; // { get; set; }
 
+    private _participantCount: number;
+    
     /// <summary>
     /// <see cref="String"/> - Media type used in this conference. See <see cref="Bubble.MediaType"/> for possible values.
     /// </summary>
@@ -488,6 +503,30 @@ class ConferenceSession {
 
     set recordStarted(value: boolean) {
         this._recordStarted = value;
+    }
+
+    get recordingState(): boolean {
+        return this._recordingState; 
+    }
+
+    set recordingState(value: boolean) {
+        this._recordingState = value;
+    }
+
+    get recordingUserId(): boolean {
+        return this._recordingUserId;
+    }
+
+    set recordingUserId(value: boolean) {
+        this._recordingUserId = value;
+    }
+
+    get participantCount(): number {
+        return this._participantCount;
+    }
+
+    set participantCount(value: number) {
+        this._participantCount = value;
     }
 
     get mediaType(): string {

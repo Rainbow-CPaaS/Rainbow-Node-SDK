@@ -465,12 +465,12 @@ class InvitationsService extends GenericService {
 	 * @method searchInvitationsReceivedFromServer
 	 * @instance
 	 * @category Invitations RECEIVED
-	 * @param {string} sortField Sort items list based on the given field. Valeur par défaut : lastNotificationDate.
-	 * @param {string} status List all invitations having the provided status(es). Valeurs autorisées : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
-	 * @param {string} format Allows to retrieve more or less invitation details in response. Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
-	 * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 500
+	 * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate.
+	 * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	 * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+	 * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
 	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
-	 * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+	 * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
 	 * @description
 	 *    retrieve the invites received from others Rainbow users from server.<br>
 	 * @return {any} The list of invite received
@@ -751,12 +751,12 @@ class InvitationsService extends GenericService {
 	 * @method searchInvitationsSentFromServer
 	 * @instance
 	 * @category Invitations SENT
-	 * @param {string} sortField Sort items list based on the given field. Valeur par défaut : lastNotificationDate
-	 * @param {string} status List all invitations having the provided status(es). Valeurs autorisées : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
-	 * @param {string} format Allows to retrieve more or less invitation details in response. Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
-	 * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 500
+	 * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate
+	 * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+	 * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+	 * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
 	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
-	 * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+	 * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
 	 * @description
 	 *    retrieve the invites sent to others Rainbow users from server.<br>
 	 * @return {any} The list of invite sent

@@ -1088,8 +1088,8 @@ class AdminService extends GenericService {
      * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br>
      * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br>
      * <br> companyName field is automatically filled on server side based on companyId. <br>
-     * {Boolean} [infos.isActive=true]         Is user active <br>
-     * {Boolean} [infos.isInitialized=false]   Is user initialized <br>
+     * {boolean} [infos.isActive=true]         Is user active <br>
+     * {boolean} [infos.isInitialized=false]   Is user initialized <br>
      * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br>
      * <br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br>
      * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
@@ -1981,6 +1981,7 @@ class AdminService extends GenericService {
     //endregion Users at running 
     
     //region Offers and Subscriptions.
+    
     /**
      * @public
      * @method retrieveAllOffersOfCompanyById
@@ -2447,7 +2448,225 @@ class AdminService extends GenericService {
             }
         });
     }
-    //endregion
+
+    /**
+     * @public
+     * @method getAUserProfilesByUserId
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} userId the id of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the profiles of a user by his id. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | string | Id of the offer to which company subscription is attached |
+     * | offerName | string | Name of the offer to which company subscription is attached |
+     * | offerDescription | string | Description of the offer to which company subscription is attached |
+     * | offerTechnicalDescription | string | Technical description of the subscribed offer |
+     * | offerReference | string | Key used for referencing the subscribed offer. Well know offer References are: RB-Essential, RB-Business, RB-Enterprise, RB-Conference. |
+     * | profileId | string | Id of the profile to which company subscription is attached |
+     * | profileName | string | Name of the profile to which company subscription is attached |
+     * | status | string | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | isDefault | boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+     * | canBeSold | boolean | Indicates if this profile is linked a subscription for a paid offer.  <br>Some offers are not be sold (Essential, Beta, Demo, ...).  <br>If canBeSold is true, the subscription is billed. |
+     * | businessModel | string | Indicates the business model associated to the subscribed offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Offers having this business model are billed according to the number of users bought for it. This should be the business model for Business and Enterprise offers.<br>* `usage`: Offers having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer). This should be the business model for Conference offer.<br>* `none`: no business model. Used for offers which are not sold (like Essential, Beta, ...).<br><br>Possible values : `nb_users`, `usage`, `none` |
+     * | isExclusive | boolean | Indicates if this profile is relative to a subscription for an exclusive offer (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer).  <br>Used on GUI side to know if the subscription to assign to a user profile has to be displayed as a radio button or as a check box. |
+     * | isPrepaid | boolean | Indicates if this profile is relative to a subscription for a prepaid offer |
+     * | expirationDate | Date-Time | Expiration date of the subscription to the prepaid offer (creationDate + prepaidDuration) |
+     * | provisioningNeeded | Object\[\] | Indicates if provisioning is needed on other component when assigning the user profile to this subscription (depends of thus subscribed offer) |
+     * | providerType | string | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when Business Store confirms through the callback that the subscription is created).<br><br>Possible values : `PGI`, `JANUS` |
+     * | mediaType optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on JANUS component.<br><br>Possible values : `webrtc` |
+     * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
+     * | provisioningStartDate | string | Provisioning starting date |
+     * | assignationDate | string | Date when the subscription was attached to user profile |
+     * 
+     */
+    getAUserProfilesByUserId(userId? : string){
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                
+                if (!userId) {
+                    userId = that._rest.account.id;
+                }
+                
+                let result = await that._rest.getAUserProfiles(userId);
+                that._logger.log("debug", "(getAUserProfilesByUserId) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesByUserId) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method getAUserProfilesByUserEmail
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} email the email of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the profiles of a user by his email. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | string | Id of the offer to which company subscription is attached |
+     * | offerName | string | Name of the offer to which company subscription is attached |
+     * | offerDescription | string | Description of the offer to which company subscription is attached |
+     * | offerTechnicalDescription | string | Technical description of the subscribed offer |
+     * | offerReference | string | Key used for referencing the subscribed offer. Well know offer References are: RB-Essential, RB-Business, RB-Enterprise, RB-Conference. |
+     * | profileId | string | Id of the profile to which company subscription is attached |
+     * | profileName | string | Name of the profile to which company subscription is attached |
+     * | status | string | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | isDefault | boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+     * | canBeSold | boolean | Indicates if this profile is linked a subscription for a paid offer.  <br>Some offers are not be sold (Essential, Beta, Demo, ...).  <br>If canBeSold is true, the subscription is billed. |
+     * | businessModel | string | Indicates the business model associated to the subscribed offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Offers having this business model are billed according to the number of users bought for it. This should be the business model for Business and Enterprise offers.<br>* `usage`: Offers having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer). This should be the business model for Conference offer.<br>* `none`: no business model. Used for offers which are not sold (like Essential, Beta, ...).<br><br>Possible values : `nb_users`, `usage`, `none` |
+     * | isExclusive | boolean | Indicates if this profile is relative to a subscription for an exclusive offer (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer).  <br>Used on GUI side to know if the subscription to assign to a user profile has to be displayed as a radio button or as a check box. |
+     * | isPrepaid | boolean | Indicates if this profile is relative to a subscription for a prepaid offer |
+     * | expirationDate | Date-Time | Expiration date of the subscription to the prepaid offer (creationDate + prepaidDuration) |
+     * | provisioningNeeded | Object\[\] | Indicates if provisioning is needed on other component when assigning the user profile to this subscription (depends of thus subscribed offer) |
+     * | providerType | string | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when Business Store confirms through the callback that the subscription is created).<br><br>Possible values : `PGI`, `JANUS` |
+     * | mediaType optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on JANUS component.<br><br>Possible values : `webrtc` |
+     * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
+     * | provisioningStartDate | string | Provisioning starting date |
+     * | assignationDate | string | Date when the subscription was attached to user profile |
+     * 
+     */
+    getAUserProfilesByUserEmail(email? : string){
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let userId = that._rest.account.id;
+                
+                if (email) {
+                    userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
+                }
+                
+                let result = await that._rest.getAUserProfiles(userId);
+                that._logger.log("debug", "(getAUserProfilesByUserEmail) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesByUserEmail) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserEmail) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserEmail) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAUserProfilesFeaturesByUserId
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} userId the id of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the features profiles of a user by his id. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of feature Objects. |
+     * | featureId | string | Feature unique identifier |
+     * | featureUniqueRef | string | Feature unique reference (to be used for controls on limitations linked to this feature in server/client code) |
+     * | featureName | string | Feature name |
+     * | featureType | string | Feature limitation type (`boolean`, `number`, `string`, `undefined`) |
+     * | isEnabled | boolean | In case feature has type boolean (on/off), is the feature enabled |
+     * | limitMin | Number | In case feature has type number, limit min of the feature (if applicable) |
+     * | limitMax | string | In case feature has type number, limit max of the feature (if applicable) |
+     * | addedDate | Date-Time | Date when the feature was updated for the profile |
+     * | lastUpdateDate | Date-Time | Date when the feature was updated for the profile |
+     *
+     */
+     getAUserProfilesFeaturesByUserId(userId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+
+                if (!userId) {
+                    userId = that._rest.account.id;
+                }
+
+                let result = await that._rest.getAUserProfilesFeaturesByUserId(userId);
+                that._logger.log("debug", "(getAUserProfilesFeaturesByUserId) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesFeaturesByUserId) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+
+    /**
+     * @public
+     * @method getAUserProfilesFeaturesByUserEmail
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} email the email of the user. If not provided, the connected user is used.
+     * @description
+     *      Method to retrieve the features profiles of a user by his email. <br>
+     * @return {Promise<any>} result.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of feature Objects. |
+     * | featureId | string | Feature unique identifier |
+     * | featureUniqueRef | string | Feature unique reference (to be used for controls on limitations linked to this feature in server/client code) |
+     * | featureName | string | Feature name |
+     * | featureType | string | Feature limitation type (`boolean`, `number`, `string`, `undefined`) |
+     * | isEnabled | boolean | In case feature has type boolean (on/off), is the feature enabled |
+     * | limitMin | Number | In case feature has type number, limit min of the feature (if applicable) |
+     * | limitMax | string | In case feature has type number, limit max of the feature (if applicable) |
+     * | addedDate | Date-Time | Date when the feature was updated for the profile |
+     * | lastUpdateDate | Date-Time | Date when the feature was updated for the profile |
+     *
+     */
+     getAUserProfilesFeaturesByUserEmail(email? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let userId = that._rest.account.id;
+
+                if (email) {
+                    userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
+                }
+                
+                let result = await that._rest.getAUserProfilesFeaturesByUserId(userId);
+                that._logger.log("debug", "(getAUserProfilesFeaturesByUserEmail) - request sent.");
+                that._logger.log("internal", "(getAUserProfilesFeaturesByUserEmail) - request result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion Offers and Subscriptions.
 
     //region AD/LDAP
     //region AD/LDAP masspro
@@ -2840,13 +3059,16 @@ class AdminService extends GenericService {
      *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br>
      *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br>
      *       <br>
-     *      return { <br>
-     *          id {string} ldap connector unique identifier. <br>
-     *          companyId {string} Company linked to the Ldap connector. <br>
-     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br>
-     *          password {string} Generated Ldap connector user password. <br>
-     *          } <br>
-     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>}
+     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>} - 
+     * <br>
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | string | Ldap connector unique identifier. |
+     * | companyId | string | Company linked to the Ldap connector. |
+     * | loginEmail | string | Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). |
+     * | password | string | Generated Ldap connector user password. |
+     * 
      */
     ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
         let that = this;
@@ -2956,27 +3178,27 @@ class AdminService extends GenericService {
      *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br>
      *              number optionnel string User phone number (as entered by user) <br>
      *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br>
-     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br>
-     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
-     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
-     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
-     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
-     *              type 	String Phone number type, one of home, work, other. <br>
-     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br>
-     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
-     *         country 	String User country (ISO 3166-1 alpha3 format) <br>
-     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
-     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
-     *         timezone optionnel 	String User timezone name <br>
-     *         jid_im 	String User Jabber IM identifier <br>
-     *         jid_tel 	String User Jabber TEL identifier <br>
-     *         jid_password 	String User Jabber IM and TEL password <br>
-     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
-     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
-     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
-     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
-     *         companyName 	String User company name <br>
-     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
+     *              country 	string Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem boolean boolean indicating if phone is linked to a system (pbx). <br>
+     *              shortNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
+     *              internalNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
+     *              systemId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
+     *              pbxId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
+     *              type 	string Phone number type, one of home, work, other. <br>
+     *              deviceType 	string Phone number device type, one of landline, mobile, fax, other. <br>
+     *              isVisibleByOthers 	boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
+     *         country 	string User country (ISO 3166-1 alpha3 format) <br>
+     *         state optionnel 	string When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
+     *         language optionnel 	string User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
+     *         timezone optionnel 	string User timezone name <br>
+     *         jid_im 	string User Jabber IM identifier <br>
+     *         jid_tel 	string User Jabber TEL identifier <br>
+     *         jid_password 	string User Jabber IM and TEL password <br>
+     *         roles 	string[] List of user roles (Array of string) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
+     *         adminType 	string In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
+     *         organisationId 	string In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
+     *         siteId 	string In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
+     *         companyName 	string User company name <br>
+     *         visibility 	string User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
      *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br>
      *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
      *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
@@ -2984,139 +3206,139 @@ class AdminService extends GenericService {
      *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br>
      *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
      *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br>
-     *         isActive 	Boolean Is user active  <br>
-     *         isInitialized 	Boolean Is user initialized <br>
+     *         isActive 	boolean Is user active  <br>
+     *         isInitialized 	boolean Is user initialized <br>
      *         initializationDate 	Date-Time User initialization date <br>
      *         activationDate 	Date-Time User activation date <br>
      *         creationDate 	Date-Time User creation date <br>
      *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br>
      *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br>
-     *         createdBySelfRegister 	Boolean true if user has been created using self register <br>
+     *         createdBySelfRegister 	boolean true if user has been created using self register <br>
      *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br>
-     *         userId 	String userId of the admin who created this user <br>
-     *         loginEmail 	String loginEmail of the admin who created this user <br>
+     *         userId 	string userId of the admin who created this user <br>
+     *         loginEmail 	string loginEmail of the admin who created this user <br>
      *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br>
-     *         userId 	String userId of the user who invited this user <br>
-     *         loginEmail 	String loginEmail of the user who invited this user <br>
-     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
-     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
+     *         userId 	string userId of the user who invited this user <br>
+     *         loginEmail 	string loginEmail of the user who invited this user <br>
+     *         authenticationType optionnel 	string User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
+     *         authenticationExternalUid optionnel 	string User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
      *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br>
      *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br>
      *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br>
-     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br>
-     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
+     *         isTerminated 	boolean Indicates if the Rainbow account of this user has been deleted <br>
+     *         guestMode 	boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
      *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
-     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
-     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
-     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
+     *         userInfo1 optionnel 	string Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     *         userInfo2 optionnel 	string 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+     *         useScreenSharingCustomisation 	string Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
      *         useScreenSharingCustomisation can be: <br>
      *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br>
      *            enabled: Each user of the company can share his screen. <br>
      *            disabled: No user of the company can share his screen. <br>
      *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
-     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
+     *         activationCodeGenerationStatus 	string Status the activation code generation done if the activation code generation is successful <br>
      *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Possible values : done, in_progress <br>
-     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
+     *         fileSharingCustomisation 	string Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
      *         FileSharingCustomisation can be: <br>
      *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
      *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br>
      *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br>
-     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
+     *         userTitleNameCustomisation 	string Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
      *         userTitleNameCustomisation can be: <br>
      *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br>
      *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br>
      *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br>
-     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
+     *         softphoneOnlyCustomisation 	string Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
      *         softphoneOnlyCustomisation can be: <br>
      *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br>
      *            enabled: The user switch to a softphone mode only. <br>
      *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br>
-     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
+     *         useRoomCustomisation 	string Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
      *         useRoomCustomisation can be: <br>
      *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br>
      *            enabled: The user can use bubbles. <br>
      *            disabled: The user can't use bubbles. <br>
-     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
+     *         phoneMeetingCustomisation 	string Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
      *         phoneMeetingCustomisation can be: <br>
      *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br>
      *            enabled: The user can join phone meetings. <br>
      *            disabled: The user can't join phone meetings. <br>
-     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
+     *         useChannelCustomisation 	string Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
      *         useChannelCustomisation can be: <br>
      *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br>
      *            enabled: The user can use some channels. <br>
      *            disabled: The user can't use some channel. <br>
-     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
+     *         useWebRTCVideoCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
      *         useWebRTCVideoCustomisation can be: <br>
      *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br>
      *            enabled: The user can switch to a Web RTC video conversation. <br>
      *            disabled: The user can't switch to a Web RTC video conversation. <br>
-     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
+     *         useWebRTCAudioCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
      *         useWebRTCAudioCustomisation can be: <br>
      *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br>
      *            enabled: The user can switch to a Web RTC audio conversation. <br>
      *            disabled: The user can't switch to a Web RTC audio conversation. <br>
-     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
+     *         instantMessagesCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
      *         instantMessagesCustomisation can be: <br>
      *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br>
      *            enabled: The user can use instant messages. <br>
      *            disabled: The user can't use instant messages. <br>
-     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
+     *         userProfileCustomisation 	string Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
      *         userProfileCustomisation can be: <br>
      *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br>
      *            enabled: The user can modify his profile. <br>
      *            disabled: The user can't modify his profile. <br>
-     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
+     *         fileStorageCustomisation 	string Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
      *         fileStorageCustomisation can be: <br>
      *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br>
      *            enabled: The user can manage and share files. <br>
      *            disabled: The user can't manage and share files. <br>
-     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
+     *         overridePresenceCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
      *         overridePresenceCustomisation can be: <br>
      *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br>
      *            enabled: The user can change his presence. <br>
      *            disabled: The user can't change his presence. <br>
-     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
+     *         changeTelephonyCustomisation 	string Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
      *         changeTelephonyCustomisation can be: <br>
      *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br>
      *            enabled: The user can modify telephony settings. <br>
      *            disabled: The user can't modify telephony settings. <br>
-     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br>
+     *         changeSettingsCustomisation 	string Activate/Deactivate the ability for a user to change all client general settings. <br>
      *         changeSettingsCustomisation can be: <br>
      *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br>
      *            enabled: The user can change all client general settings. <br>
      *            disabled: The user can't change any client general setting. <br>
-     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
+     *         recordingConversationCustomisation 	string Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
      *         recordingConversationCustomisation can be: <br>
      *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br>
      *            enabled: The user can record a peer to peer or a multi-party call. <br>
      *            disabled: The user can't record a peer to peer or a multi-party call. <br>
-     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
+     *         useGifCustomisation 	string Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
      *         useGifCustomisation can be: <br>
      *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br>
      *            enabled: The user can send animated GIFs in conversations. <br>
      *            disabled: The user can't send animated GIFs in conversations. <br>
-     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
+     *         fileCopyCustomisation 	string Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
      *         fileCopyCustomisation can be: <br>
      *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br>
      *            enabled: The user can make a copy of a file to his personal cloud space. <br>
      *            disabled: The user can't make a copy of a file to his personal cloud space. <br>
-     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
+     *         fileTransferCustomisation 	string Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
      *         fileTransferCustomisation can be: <br>
      *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br>
      *            enabled: The user can transfer a file doesn't belong to him. <br>
      *            disabled: The user can't transfer a file doesn't belong to him. <br>
-     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
+     *         forbidFileOwnerChangeCustomisation 	string Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
      *         forbidFileOwnerChangeCustomisation can be: <br>
      *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br>
      *            enabled: The user can't give the ownership of his file. <br>
      *            disabled: The user can give the ownership of his file. <br>
-     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
+     *         useDialOutCustomisation 	string Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
      *         useDialOutCustomisation can be: <br>
      *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br>
      *            enabled: The user can be called by the Rainbow conference bridge. <br>
      *            disabled: The user can't be called by the Rainbow conference bridge. <br>
-     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br>
+     *         selectedAppCustomisationTemplate 	string To log the last template applied to the user. <br>
      *      } <br>
      * @return {Promise<any>}
      */
@@ -3146,6 +3368,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId the id of the company.
+     * @param {string} name name of this configuration.
      * @param {Object} settings config settings.
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
@@ -3166,27 +3389,36 @@ class AdminService extends GenericService {
      *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
      *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
      *      * an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId)
-     *      * a company_admin can only create the connectors configuration in his company.
-     *      return an Object with
-     *      
+     *      * a company_admin can only create the connectors configuration in his company.    
+     * 
+     * @return {Promise<{Object}>} return - 
+     * <br>
+     * 
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id | String | Config unique identifier. |
+     * | data | Object | Config Object. |
+     * | id  | String | Config unique identifier. |
      * | type | String | Config type |
-     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
+     * | companyId | String | Allows to specify for which company the connectors configuration is done.. |
      * | settings | Object | config settings |
-     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
-     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
-     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
-     * | settings.company.login | String | login for the ldap server. |
-     * | settings.company.password | String | password for the ldap server. |
-     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
-     * | settings.company.url | String | url of the ldap server. |
-     * | settings.company.domain | String | domain of the ldap server. |
+     * | massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+     * | headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+     * | company | Object | specific settings for the company. Each key represent a setting. |
+     * | login | String | login for the ldap server. |
+     * | password | String | password for the ldap server. |
+     * | synchronizationTimeInterval | Number | time interval between synchronization in hours. |
+     * | url | String | url of the ldap server. |
+     * | baseDN | String | base DN for the ldap server. |
+     * | activeFlag | Boolean | defines if the synchronization is active, or not. |
+     * | nextSynchronization | Date-Time | date (ISO 8601 format) which defines when the next synchronization will be performed. |
+     * | enrollmentEmailEnable | Boolean | defines if an enrollment email is sent to new users |
+     * | synchronisationDiffMode | Boolean | defines if synching only users changed since last sync date |
+     * | search_rule | String | filters to use when requesting the ldap server. |
+     * | lastSynchronization | Date-Time | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
+     * | softwareVersion | String | software Version of the ldap connector (filled by the ldap connector). |
      * 
-     * @return {Promise<{Object}>}
      */
-    createConfigurationForLdapConnector (companyId, settings) {
+    createConfigurationForLdapConnector (companyId, settings, name : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -3199,7 +3431,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 
-                let result = await that._rest.createConfigurationForLdapConnector(companyId, settings);
+                let result = await that._rest.createConfigurationForLdapConnector(companyId, settings, name);
                 that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
                 that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
 
@@ -3262,17 +3494,17 @@ class AdminService extends GenericService {
      *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
      *      a company_admin can only retrieve the connectors configuration in his company. <br>
      *      return { <br>
-     *         id 	String Config unique identifier. <br>
-     *         type 	String Config type  <br>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         id 	string Config unique identifier. <br>
+     *         type 	string Config type  <br>
+     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
      *         settings 	Object config settings <br>
      *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
      *             company 	Object specific settings for the company. Each key represent a setting. <br>
-     *                 login 	String login for the ldap server. <br>
-     *                 password 	String password for the ldap server. <br>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-     *                 url 	String url of the ldap server. <br>
+     *                 login 	string login for the ldap server. <br>
+     *                 password 	string password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+     *                 url 	string url of the ldap server. <br>
      *          } <br>
      * @return {Promise<{Object}>}
      */
@@ -3312,17 +3544,17 @@ class AdminService extends GenericService {
      * @description
      *      This API allows to retrieve the configuration template for the connector. <br>
      *      return { <br>
-     *         id 	String Config unique identifier. <br>
-     *         type 	String Config type  <br>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+     *         id 	string Config unique identifier. <br>
+     *         type 	string Config type  <br>
+     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
      *         settings 	Object config settings <br>
      *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
      *             company 	Object specific settings for the company. Each key represent a setting. <br>
-     *                 login 	String login for the ldap server. <br>
-     *                 password 	String password for the ldap server. <br>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-     *                 url 	String url of the ldap server. <br>
+     *                 login 	string login for the ldap server. <br>
+     *                 password 	string password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+     *                 url 	string url of the ldap server. <br>
      *          } <br>
      * @return {Promise<{Object}>}
      */
@@ -3343,15 +3575,9 @@ class AdminService extends GenericService {
             }
         });
     }
-
-    /**
-     * @public
-     * @method updateConfigurationForLdapConnector
-     * @since 1.86.0
-     * @instance
-     * @async
-     * @category AD/LDAP - LDAP APIs to use
-     * @param {string} ldapConfigId ldap connector unique identifier
+    
+    /*
+    
      * @param {Object} settings config settings
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
@@ -3361,6 +3587,36 @@ class AdminService extends GenericService {
      * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
      * @param {string} settings.company.url url of the ldap server.
      * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
+
+     */
+    
+
+    /**
+     * @public
+     * @method updateConfigurationForLdapConnector
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {string} ldapConfigId ldap connector unique identifier
+     * @param {boolean}   [strict=false]      Allows to specify if all the previous fields must be erased or just update/push new fields.
+     * @param {string}    name name of this configuration
+     * @param {Object}    settings      config settings
+     * @param {Object}    settings.massproFromLdap      list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
+     * @param {string}    settings.massproFromLdap.headerName      headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
+     * @param {Object}    settings.company      specific settings for the company. Each key represent a setting.
+     * @param {string}    settings.company.login      login for the ldap server.
+     * @param {string}    settings.company.password      password for the ldap server.
+     * @param {Number}     settings.company.synchronizationTimeInterval      time interval between synchronization in hours.
+     * @param {string}    settings.company.url      url of the ldap server.
+     * @param {string}    settings.company.baseDN      base DN for the ldap server.
+     * @param {boolean}     settings.company.activeFlag      defines if the synchronization is active, or not.
+     * @param {boolean}      settings.company.enrollmentEmailEnable   defines if an enrollment email is sent to new users
+     * @param {boolean}      settings.company.synchronisationDiffMode     defines if  synching only users changed since last sync date
+     * @param {string}    settings.company.nextSynchronization      date (ISO 8601 format) which defines when the next synchronization will be performed.
+     * @param {string}    settings.company.search_rule      filters to use when requesting the ldap server.
+     * @param {string}    settings.company.lastSynchronization      date (ISO 8601 format) of the last performed synchronization, usually set by the AD connector .
+     * @param {string}    settings.company.softwareVersion     Software Version of the AD connector, provisioned by the AD connector
      * @description
      *      This API allows update configuration for the connector. <br>
      *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
@@ -3369,22 +3625,36 @@ class AdminService extends GenericService {
      *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br>
      *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
      *      a company_admin can only update the connectors configuration in his company. <br>
-     *      return { <br>
-     *         id 	String Config unique identifier. <br>
-     *         type 	String Config type  <br>
-     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
-     *         settings 	Object config settings <br>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
-     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-     *                 login 	String login for the ldap server. <br>
-     *                 password 	String password for the ldap server. <br>
-     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-     *                 url 	String url of the ldap server. <br>
-     *          } <br>
-     * @return {Promise<{Object}>}
+     *     
+     * @return {Promise<{Object}>} -
+     * <br>
+     *     
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Config Object. |
+     * | id  | string | Config unique identifier. |
+     * | type | string | Config type |
+     * | companyId | string | Allows to specify for which company the connectors configuration is done.. |
+     * | settings | Object | config settings |
+     * | massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+     * | headerName | string | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+     * | company | Object | specific settings for the company. Each key represent a setting. |
+     * | login | string | login for the ldap server. |
+     * | password | string | password for the ldap server. |
+     * | synchronizationTimeInterval | Number | time interval between synchronization in hours. |
+     * | url | string | url of the ldap server. |
+     * | baseDN | string | base DN for the ldap server. |
+     * | activeFlag | boolean | defines if the synchronization is active, or not. |
+     * | nextSynchronization | string | date (ISO 8601 format) which defines when the next synchronization will be performed. |
+     * | enrollmentEmailEnable | boolean | defines if an enrollment email is sent to new users |
+     * | synchronisationDiffMode | boolean | defines if synching only users changed since last sync date |
+     * | search_rule | string | filters to use when requesting the ldap server. |
+     * | lastSynchronization | string | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
+     * | softwareVersion | string | software Version of the ldap connector (filled by the ldap connector). |
+     * 
      */
-    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false) {
+    updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false, name : string) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -3401,7 +3671,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
-                let result = await that._rest.updateConfigurationForLdapConnector(ldapConfigId, settings, strict);
+                let result = await that._rest.updateConfigurationForLdapConnector(ldapConfigId, settings, strict, name);
                 that._logger.log("debug", "(updateConfigurationForLdapConnector) - sent.");
                 that._logger.log("internal", "(updateConfigurationForLdapConnector) - result : ", result);
 
@@ -5724,27 +5994,27 @@ class AdminService extends GenericService {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | Data objects |
-     * | id  | String | Directory entry identifier |
-     * | companyId optionnel | String | Id of the company |
-     * | userId optionnel | String | Id of the user |
-     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
-     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
-     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
-     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
-     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
-     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
-     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
-     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
-     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
-     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
-     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
-     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
-     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
-     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
-     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+     * | id  | string | Directory entry identifier |
+     * | companyId optionnel | string | Id of the company |
+     * | userId optionnel | string | Id of the user |
+     * | type | string | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
+     * | firstName optionnel | string | Contact First name<br>Ordre de grandeur : `0..255` |
+     * | lastName optionnel | string | Contact Last name<br>Ordre de grandeur : `0..255` |
+     * | companyName optionnel | string | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+     * | department optionnel | string | Contact address: Department<br>Ordre de grandeur : `0..255` |
+     * | street optionnel | string | Contact address: Street<br>Ordre de grandeur : `0..255` |
+     * | city optionnel | string | Contact address: City<br>Ordre de grandeur : `0..255` |
+     * | state optionnel | string | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+     * | postalCode optionnel | string | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+     * | country optionnel | string | Contact address: country (ISO 3166-1 alpha3 format) |
+     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+     * | jobTitle optionnel | string | Contact Job title<br>Ordre de grandeur : `0..255` |
+     * | eMail optionnel | string | Contact Email address<br>Ordre de grandeur : `0..255` |
+     * | tags optionnel | string\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+     * | custom1 optionnel | string | Custom field 1<br>Ordre de grandeur : `0..255` |
+     * | custom2 optionnel | string | Custom field 2<br>Ordre de grandeur : `0..255` |
      * 
      * 
      */

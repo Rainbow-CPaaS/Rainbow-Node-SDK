@@ -2,6 +2,7 @@
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
+import {Deferred} from "../Utils";
 
 export {};
 
@@ -55,8 +56,10 @@ class XmppClient  {
     lastTimeReset: Date;
     timeBetweenReset: number;
     messagesDataStore: DataStoreType;
-    private iqSetEventRoster: any;
+    //private iqSetEventRoster: any;
+    //private iqSetEventHttp: any;
     public socket = undefined;
+    public pendingRequests : Array<{id : string, prom : Deferred}> = [];
 
     constructor(...args) {
         //super(...args);
@@ -65,32 +68,27 @@ class XmppClient  {
         this.options = [...args];
         this.restartConnectEnabled = true;
         this.iqGetEventWaiting = {};
-        this.iqSetEventRoster = ctx => {
-            that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRoster set iq receiv - :", ctx);
-            return {};
-        };
         this.client = client(...args);
         //debug(this.client, true);
         this.socket = client.socket;
-        this.client.getQuery('urn:xmpp:ping', 'ping', ctx => { return {} });
-        this.client.setQuery('jabber:iq:roster', 'query', this.iqSetEventRoster);
-
+        
         this.nbMessagesSentThisHour = 0;
-        this.timeBetweenReset = 1000 * 60 * 60 ; // */
-
-
+        this.timeBetweenReset = 1000 * 60 * 60; // */
     }
 
-    init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
+    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
         let that = this;
+        that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
+        that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
+        that.client.setQuery('urn:xmpp:http', 'req', that.iqSetEventHttp.bind(that));
         that.logger = _logger;
-        this.eventEmitter = _eventemitter;
+        that.eventEmitter = _eventemitter;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger);
-        that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests : 20 ;
+        that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
-        that.lastTimeReset = new Date ();
+        that.lastTimeReset = new Date();
         that.copyMessage = _copyMessage;
         that.enablesendurgentpushmessages = _enablesendurgentpushmessages;
 
@@ -155,6 +153,41 @@ class XmppClient  {
             delete that.iqGetEventWaiting[iqId];
         }
     };
+    
+    iqGetEventPing (ctx) {
+        let that = this;
+        //that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
+        that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
+        return {}
+    }
+
+    iqSetEventRoster (ctx ) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRoster set iq receiv - :", ctx);
+        return {};
+    };
+    
+    async  iqSetEventHttp (ctx) {
+        let that = this;
+        let result = true;
+        //that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventHttp set iq receiv - :", ctx);
+        // return {};
+        try {
+            let stanza = ctx.stanza;
+            //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
+            //let reqObj = await that.getJsonFromXML(xmlstanzaStr);
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp ctx.stanza : ", ctx.stanza);
+            //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
+            let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
+            that.pendingRequests.push(eventWaited);
+            result = await eventWaited.prom.promise;
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp prom result : ", result);
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventHttp CATCH Error !!! error : ", e);
+        }
+        
+        return result;
+    };
 
     onIqResultReceived (msg, stanza) {
         let that = this;
@@ -193,7 +226,18 @@ class XmppClient  {
                     } */
     };
 
-
+    async resolvPendingRequest (id, stanza) {
+        let that = this;
+        let found = false;
+        for (const pendingRequest of that.pendingRequests) {            
+            if (pendingRequest && pendingRequest.id === id) {
+                pendingRequest.prom.resolve(stanza);
+                found = true;
+            }            
+        }        
+        return found;
+    }
+    
     resetnbMessagesSentThisHour(){
         let that = this;
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _entering_");

@@ -20,7 +20,7 @@ import {Channel} from "../common/models/Channel";
 
 export {};
 
-const LOG_ID = "WEBINAR/SVCE - ";
+const LOG_ID = "RBVOICE/SVCE - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])

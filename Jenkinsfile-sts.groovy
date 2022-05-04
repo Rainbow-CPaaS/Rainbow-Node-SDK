@@ -16,7 +16,7 @@ def DOC_PATH = ''
 pipeline {
     agent {
         label {
-                  label "docker-slave-cpaas-buster"
+                  label "docker-slave-cpaas-bullseye"
                   customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
         }        
     }
@@ -437,7 +437,7 @@ pipeline {
                                 echo "Publish Debian package : "
                                 echo debianPublish.getDebianArtifacts().join('\n')
                                 debianPublish(
-                                    repository: 'nightly-non-free-buster',
+                                    repository: 'nightly-non-free-bullseye',
                                     stashName: "deb"
                                 )
                             } catch (Exception e) {

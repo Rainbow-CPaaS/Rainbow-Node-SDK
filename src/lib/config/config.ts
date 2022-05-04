@@ -87,7 +87,7 @@ let conf =  {
         color: false,
         enableConsoleLog: true,
         enableEventsLogs: false,
-        enableEncryptedLogs: true,
+        enableEncryptedLogs: false,
         "system-dev": {
             internals: false,
             http: false
@@ -135,6 +135,7 @@ let conf =  {
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
     testOutdatedVersion: true,
+    httpoverxmppserver: false,
     servicesToStart : {
             s2s: {
                 start_up:true,
@@ -214,6 +215,10 @@ let conf =  {
                 optional:true
             }, //need services : ( )
             rbvoice:  {
+                start_up:true,
+                optional:true
+            }, //need services : ( )
+        httpoverxmpp:  {
                 start_up:true,
                 optional:true
             } //need services : ( )

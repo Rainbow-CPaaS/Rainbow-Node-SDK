@@ -55,6 +55,12 @@ class IQEventHandler extends GenericHandler {
                     case "ping":
                         that._onIqGetPingReceived(stanza, node);
                         break;
+                    case "req":
+                        // The treatment is in HttpoverxmppEventHandler
+                        break;
+                    case "resp":
+                        // The treatment is in HttpoverxmppEventHandler
+                        break;
                     case "default":
                         that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                         that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
@@ -82,6 +88,9 @@ class IQEventHandler extends GenericHandler {
                 switch (node.getName()) {
                     case "query":
                         that._onIqGetQueryReceived(stanza, node);
+                        break;
+                    case "resp":
+                        // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "bind":
                         that.logger.log("info", LOG_ID + "(onIqResultReceived)  - 'stanza'", node.getName());
