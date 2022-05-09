@@ -117,9 +117,11 @@ class FavoritesService extends GenericService{
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
-    public async init () {
+    public async init (useRestAtStartup : boolean) {
         let that = this;
-        await that.getServerFavorites().catch();
+        if (useRestAtStartup) {
+            await that.getServerFavorites().catch();
+        }
         that.setInitialized();
 
         /*await setTimeoutPromised(3000).then(() => {

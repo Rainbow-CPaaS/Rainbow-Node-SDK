@@ -105,7 +105,7 @@ class ImsService extends GenericService{
         });
     }
 
-    async init (enableCarbonBool) {
+    async init (enableCarbonBool : boolean, useRestAtStartup : boolean) {
         let that = this;
         if (enableCarbonBool) {
             that.enableCarbon().then((result) => {

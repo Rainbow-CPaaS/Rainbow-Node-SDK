@@ -115,6 +115,9 @@ let urlS2S;
             //"hostCallback": "http://70a0ee9d.ngrok.io",
             "locallistenningport": "4000"
         },
+        "rest":{
+            "useRestAtStartup" : false
+        },
         "credentials": {
             "login": "",  // The Rainbow email account to use
             "password": "",

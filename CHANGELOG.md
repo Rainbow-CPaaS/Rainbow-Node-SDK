@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.12.0] - 2022-05-XX
+-   Add option `options.rest.useRestAtStartup`, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
+
 ## [2.11.1] - 2022-05-09
 -   Add startWSOnly API method to SDK to Start the SDK with only XMPP link.
 -   Add `AdminService::sendCommandToLdapConnectorUser` API can be used to send a command to a ldap connector user. And add the event `rainbow_onconnectorcommand` raised when a command is received.

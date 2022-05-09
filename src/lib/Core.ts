@@ -181,8 +181,11 @@ class Core {
                 if (that.options.useXMPP) {
                     return that._xmpp.stop(forceStopXMPP).then(() => {
                         that._rest.account = userInfos;
-
-                        return  that._rest.signin(token);
+                        if (token) {
+                            return that._rest.signin(token);
+                        } else {
+                            return Promise.resolve();
+                        }
                     }).then((_json) => {
                         json = _json;
                         let headers = {
@@ -253,37 +256,33 @@ class Core {
                     }
                     return result
                             .then(() => {
-                                return that._s2s.init();
+                                return that._s2s.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                            return that._profiles.init();
+                            return that._profiles.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._telephony.init();
+                            return that._telephony.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._contacts.init();
+                            return that._contacts.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._fileStorage.init();
+                            return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._fileServer.init();
+                            return that._fileServer.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that.presence._sendPresenceFromConfiguration();
-                        }).then(() => {
-                            return that._bubbles.getBubbles();
-                        }).then(() => {
-                            return that._channels.fetchMyChannels();
+                            return that.presence._sendPresenceFromConfiguration();                       
                             }).then(() => {
-                                return that._admin.init();
+                                return that._admin.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._bubbles.init();
+                                return that._bubbles.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._channels.init();
+                                return that._channels.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._conversations.init();
+                                return that._conversations.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._groups.init();
+                                return that._groups.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._presence.init();
+                                return that._presence.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
-                                return that._settings.init();
+                                return that._settings.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
@@ -291,35 +290,39 @@ class Core {
                             //return that.im.enableCarbon();
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            return that._rest.getBots();
+                            if (that.options._restOptions.useRestAtStartup) {
+                                return that._rest.getBots();
+                            } 
                         }).then((bots : any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            if (that.options.imOptions.autoLoadConversations) {
+                            if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                                 return that._conversations.getServerConversations();
                             } else {
                                 that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                                 return;
                             }
                         }).then(() => {
-                            return that._calllog.init();
+                            return that._calllog.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._favorites.init();
+                            return that._favorites.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._alerts.init();
+                            return that._alerts.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._rbvoice.init();
+                            return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._webinars.init(); 
+                            return that._webinars.init(that.options._restOptions.useRestAtStartup); 
                         }).then(() => {
-                            return that._httpoverxmpp.init();
+                            return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._invitations.init();
+                            return that._invitations.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._s2s.listConnectionsS2S();
+                            if (that.options._restOptions.useRestAtStartup) {
+                                return that._s2s.listConnectionsS2S();
+                            }
                         }).then(() => {
                             resolve(undefined);
                         }).catch((err) => {
@@ -341,70 +344,72 @@ class Core {
                     }
                     return result
                         .then(() => {
-                            return that._s2s.init();
+                            return that._s2s.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._profiles.init();
+                            return that._profiles.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._telephony.init();
+                            return that._telephony.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._contacts.init();
+                            return that._contacts.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._fileStorage.init();
+                            return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._fileServer.init();
+                            return that._fileServer.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             return that.presence._sendPresenceFromConfiguration();
                         }).then(() => {
-                            return that._bubbles.getBubbles();
+                           // return that._bubbles.getBubbles(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._channels.fetchMyChannels();
+                            return that._channels.fetchMyChannels(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._admin.init();
+                            return that._admin.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._bubbles.init();
+                            return that._bubbles.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._channels.init();
+                            return that._channels.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._conversations.init();
+                            return that._conversations.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._groups.init();
+                            return that._groups.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._presence.init();
+                            return that._presence.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._settings.init();
+                            return that._settings.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             //return that.presence.sendInitialPresence();
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            return that.im.init(that.options._imOptions.enableCarbon);
+                            return that.im.init(that.options._imOptions.enableCarbon, that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._rest.getBots();
+                            if (that.options._restOptions.useRestAtStartup) {
+                                return that._rest.getBots();
+                            }
                         }).then((bots: any) => {
                             that._botsjid = bots ? bots.map((bot) => {
                                 return bot.jid;
                             }) : [];
                             return Promise.resolve(undefined);
                         }).then(() => {
-                            if (that.options.imOptions.autoLoadConversations) {
+                            if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                                 return that._conversations.getServerConversations();
                             } else {
                                 that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                                 return;
                             }
                         }).then(() => {
-                            return that._calllog.init();
+                            return that._calllog.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._favorites.init();
+                            return that._favorites.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._alerts.init();
+                            return that._alerts.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._rbvoice.init();
+                            return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._webinars.init();
+                            return that._webinars.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._httpoverxmpp.init();
+                            return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._invitations.init();
+                            return that._invitations.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             resolve(undefined);
                         }).catch((err) => {
@@ -794,6 +799,7 @@ class Core {
                 json = _json;
                 //that._tokenSurvey();
                 return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                    
                     return that._retrieveInformation().catch((err) => {
                         that.logger.log("internal", LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
                     });

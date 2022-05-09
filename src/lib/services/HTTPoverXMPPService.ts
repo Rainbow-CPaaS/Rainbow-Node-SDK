@@ -119,7 +119,7 @@ class HTTPoverXMPP extends GenericService {
         });
     }
 
-    async init() {
+    async init(useRestAtStartup : boolean) {
         let that = this;
         that.setInitialized();
     }

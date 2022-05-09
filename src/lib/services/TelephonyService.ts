@@ -184,7 +184,7 @@ class TelephonyService extends GenericService {
         ];
     }
 
-    init() {
+    init(useRestAtStartup : boolean) {
         return new Promise((resolve, reject) => {
             let that = this;
             that._calls = [];
@@ -201,28 +201,33 @@ class TelephonyService extends GenericService {
             that.nomadicObject = {};
             that.nomadicAnswerNotTakedIntoAccount = false;
 
+            if (useRestAtStartup) {
 
-            that.isBasicCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_BASIC_CALL);
-            that.isSecondCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_SECOND_CALL);
-            that.isTransferAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_TRANSFER_CALL);
-            that.isConferenceAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_CONFERENCE_CALL);
-            that.isVMDeflectCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_DEFLECT_CALL);
-            that.voiceMailFeatureEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_VOICE_MAIL);
-            that.isForwardEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_CALL_FORWARD);
-            that.isNomadicEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_NOMADIC);
+                that.isBasicCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_BASIC_CALL);
+                that.isSecondCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_SECOND_CALL);
+                that.isTransferAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_TRANSFER_CALL);
+                that.isConferenceAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_CONFERENCE_CALL);
+                that.isVMDeflectCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_DEFLECT_CALL);
+                that.voiceMailFeatureEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_VOICE_MAIL);
+                that.isForwardEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_CALL_FORWARD);
+                that.isNomadicEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_NOMADIC);
 
-            // Store the user jid tel
-            //that.userJidTel = authService.jidTel;
-            that.userJidTel = that._rest.loggedInUser ? that._rest.loggedInUser.jid_tel : "";
+                // Store the user jid tel
+                //that.userJidTel = authService.jidTel;
+                that.userJidTel = that._rest.loggedInUser ? that._rest.loggedInUser.jid_tel:"";
 
-            try {
-                that._xmpp.getAgentStatus().then((data) => {
-                    that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+                try {
+                    that._xmpp.getAgentStatus().then((data) => {
+                        that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
+                        that.setInitialized();
+                        resolve(undefined);
+                    });
+                } catch (err) {
+                    that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
                     that.setInitialized();
                     resolve(undefined);
-                });
-            } catch (err) {
-                that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
+                }
+            } else {
                 that.setInitialized();
                 resolve(undefined);
             }

@@ -41,6 +41,9 @@ let conf =  {
         s2s: {
             hostCallback: "nrock",
             locallistenningport: "4000"
+        },
+        rest:{
+            useRestAtStartup : true
         }
     },
     official: {
@@ -60,6 +63,9 @@ let conf =  {
         s2s: {
             hostCallback: "nrock",
             locallistenningport: "4000"
+        },
+        rest:{
+            useRestAtStartup : true
         }
     },
     any: {
@@ -79,6 +85,10 @@ let conf =  {
         s2s: {
             hostCallback: "nrock",
             locallistenningport: "4000"
+        }
+        ,
+        rest:{
+            useRestAtStartup : true
         }
     },
     logs: {

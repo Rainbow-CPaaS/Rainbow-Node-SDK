@@ -120,7 +120,7 @@ class AlertsService extends GenericService{
         that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
-    public async init() {
+    public async init(useRestAtStartup : boolean) {
         let that = this;
         //await this.getServerAlerts();
         that.setInitialized();

@@ -41,6 +41,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
  * @property {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
  * @property {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
+ * @property {string} options.rest.useRestAtStartup, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
  * @property {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
  * @property {string} options.credentials.password "XXXXX", The password.
  * @property {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -132,6 +133,10 @@ type OptionsType = {
         //"hostCallback": "http://70a0ee9d.ngrok.io",
         "locallistenningport": string
     },
+    rest:{
+        useRestAtStartup : true
+    }
+    ,
     "credentials": {
         "login": string,  // The Rainbow email account to use
         "password": string,
@@ -324,6 +329,7 @@ class NodeSDK {
      * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
+     * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
      * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
      * @param {string} options.credentials.password "XXXXX", The password.
      * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -457,7 +463,7 @@ class NodeSDK {
      *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
      * @memberof NodeSDK
      */
-    start(token) {
+    start(token ? : string) {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {

@@ -141,20 +141,25 @@ class ContactsService extends GenericService {
         });
     }
 
-    init() {
+    init(useRestAtStartup : boolean) {
         return new Promise((resolve, reject) => {
             let that = this;
-            let userInfo = that.getContactById(that._rest.account.id, true).then((contact: Contact) => {
-                //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
-                that.userContact.updateFromUserData(contact);
-            });
-            Promise.all([userInfo]).then(() => {
+            if (that._rest.account && that._rest.account.id) {
+                let userInfo = that.getContactById(that._rest.account.id, true).then((contact: Contact) => {
+                    //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
+                    that.userContact.updateFromUserData(contact);
+                });
+                Promise.all([userInfo]).then(() => {
+                    that.setInitialized();
+                    resolve(undefined);
+                }).catch(() => {
+                    resolve(undefined);
+                    //return reject();
+                });
+            } else {
                 that.setInitialized();
-                resolve(undefined);
-            }).catch(() => {
-                resolve(undefined);
-                //return reject();
-            });
+                resolve (undefined);
+            }
         });
     }
 

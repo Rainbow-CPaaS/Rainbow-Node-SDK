@@ -111,10 +111,12 @@ class InvitationsService extends GenericService {
 		that.setStarted ();
 	};
 
-	public async init () {
+	public async init (useRestAtStartup : boolean) {
 		let that = this;
-		await that.getAllSentInvitations();
-		await that.getAllReceivedInvitations();
+		if (useRestAtStartup) {
+			await that.getAllSentInvitations();
+			await that.getAllReceivedInvitations();
+		}
 		that.setInitialized();
 	}
 

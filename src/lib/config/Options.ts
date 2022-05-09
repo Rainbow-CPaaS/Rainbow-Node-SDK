@@ -16,6 +16,7 @@ class Options {
 	public _httpOptions: any;
 	public _xmppOptions: any;
 	public _s2sOptions: any;
+	public _restOptions: any;
 	public _proxyoptions: any;
 	public _imOptions: any;
 	public _applicationOptions: any;
@@ -77,6 +78,7 @@ class Options {
         this._httpOptions = this._getHTTPOptions();
         this._xmppOptions = this._getXMPPOptions();
         this._s2sOptions = this._getS2SOptions();
+        this._restOptions = this._getRESTOptions();
         this._proxyoptions = this._getProxyOptions();
         this._imOptions = this._getIMOptions();
         this._applicationOptions = this._getApplicationsOptions();
@@ -131,6 +133,10 @@ class Options {
 
     get s2sOptions() {
         return this._s2sOptions;
+    }
+
+    get restOptions() {
+        return this._restOptions;
     }
 
     get proxyOptions() {
@@ -306,6 +312,15 @@ class Options {
                 break;
         }
         return s2sOptions;
+    }
+
+    _getRESTOptions() {
+        let restOptions = config.any.rest;
+
+        if ("rest" in this._options) {
+            restOptions = this._options.rest;
+        }
+        return restOptions;
     }
 
     _getModeOption() {

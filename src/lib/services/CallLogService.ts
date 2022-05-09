@@ -195,22 +195,25 @@ function CallLogsBean() : ICallLogsBean {
        that._logger.log("info", LOG_ID + "[stop] Stopped");
     }
 
-    async init() {
+    async init(useRestAtStartup : boolean) {
         let that = this;
 
-        //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
-        await setTimeoutPromised(3000).then(() => {
-            let startDate = new Date();
-            that.getCallLogHistoryPage()
-                .then(() => {
-                    that.setInitialized();
-                })
-                .catch((error) => {
-                   that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
-                   that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
-                });
-        });
-
+        if (useRestAtStartup) {
+            //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
+            await setTimeoutPromised(3000).then(() => {
+                let startDate = new Date();
+                that.getCallLogHistoryPage()
+                        .then(() => {
+                            that.setInitialized();
+                        })
+                        .catch((error) => {
+                            that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                            that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
+                        });
+            });
+        } else {
+            that.setInitialized();
+        }
     }
 
     attachHandlers() {

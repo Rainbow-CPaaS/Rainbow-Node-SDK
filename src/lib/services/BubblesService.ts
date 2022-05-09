@@ -183,8 +183,11 @@ class Bubbles extends GenericService {
      * @private
      * @return {Promise<void>}
      */
-    async init() {
+    async init(useRestAtStartup : boolean) {
         let that = this;
+        if (useRestAtStartup) {
+            await that.getBubbles();
+        }
         that.setInitialized();
     }
 

@@ -167,33 +167,38 @@ class ProfilesService extends GenericService {
         this.onUserUpdateNeeded();
     }
 
-    init () {
+    init (useRest: boolean) {
         let that = this;
         return new Promise((resolve, reject) => {
-            // Fetch profile from server
-            that.getServerProfile()
-                .then(function () {
-                    // Consider service as started
-                    that.setInitialized();
-                    //that.stats.push({service: "profileService", startDuration: startDuration});
+            if (useRest) {
+                // Fetch profile from server
+                that.getServerProfile().then(function () {
+                            // Consider service as started
+                            that.setInitialized();
+                            //that.stats.push({service: "profileService", startDuration: startDuration});
 
-                    //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                    that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
-                    that._eventEmitter.emit("evt_internal_profilefeatureupdated");
+                            //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
+                            that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                            that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
-                    // NED TO BE PORTED !!!!!!!
-                    // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
-                    
-                    that.setInitialized();
-                    resolve(undefined);
-                })
-                .catch(function (error) {
-                    that._logger.log("warn", LOG_ID + "([profileService] === STARTING FAILURE === " );
-                    that._logger.log("internalerror", LOG_ID + "([profileService] === STARTING FAILURE === : " + error.message);
-                    resolve(undefined);
-                    //return reject(error);
-                });
+                            // NED TO BE PORTED !!!!!!!
+                            // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
+
+                            that.setInitialized();
+                            resolve(undefined);
+                        })
+                        .catch(function (error) {
+                            that._logger.log("warn", LOG_ID + "([profileService] === getServerProfile FAILURE === ");
+                            that._logger.log("internalerror", LOG_ID + "([profileService] === getServerProfile FAILURE === : " + error.message);
+                            resolve(undefined);
+                            //return reject(error);
+                        });
+            } else {
+                that.setInitialized();
+                resolve(undefined);
+            }
         });
+    
     }
 
     onUserUpdateNeeded ()

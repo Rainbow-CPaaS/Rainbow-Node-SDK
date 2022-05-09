@@ -123,17 +123,21 @@ class FileServer extends GenericService{
         });
     }
 
-    init () {
+    init (useRestAtStartup : boolean) {
         let that = this;
 
         return new Promise(async (resolve, reject)=> {
-            
-            let capa = await that.capabilities.catch(()=>{
+            if (useRestAtStartup ) {
+                let capa = await that.capabilities.catch(() => {
+                    that.setInitialized();
+                    resolve(null);
+                });
                 that.setInitialized();
-                resolve(null);
-            });
-            that.setInitialized();
-            resolve(capa);
+                resolve(capa);
+            } else {
+                that.setInitialized();
+                resolve (undefined) ;
+            }
         });
     }
 

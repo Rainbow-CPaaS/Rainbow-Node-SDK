@@ -114,14 +114,18 @@ const LOG_ID = "GROUPS/SVCE - ";
          });
      }
 
-    async init () {
+    async init (useRestAtStartup : boolean) {
         let that = this;
-        return that.getGroups().then((result) => {
+        if (useRestAtStartup) {
+            return that.getGroups().then((result) => {
+                that.setInitialized();
+                return result;
+            }).catch(() => {
+                //that.setInitialized();
+            });
+        } else {
             that.setInitialized();
-            return result;
-        }).catch(()=> {
-            //that.setInitialized();
-        });
+        } 
     }
 
     //region Groups MANAGEMENT

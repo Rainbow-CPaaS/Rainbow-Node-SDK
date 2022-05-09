@@ -137,28 +137,33 @@ class FileStorage extends GenericService{
         });
     }
 
-    init() {
+    init(useRestAtStartup : boolean) {
         let that = this;
 
         return new Promise((resolve, reject)=> {
-            // No blocking service
-            that.retrieveFileDescriptorsListPerOwner()
-                .then(() => {
-                    return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/);
-                })
-                .then(() => {
-                    that.orderDocuments();
-                    return that.retrieveUserConsumption();
-                })
-                .then(() => {
-                    that.setInitialized();
-                    resolve(undefined);
-                })
-                .catch((error) => {
-                    that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                    resolve(undefined);
-                    //reject(error);
-                });
+            if (useRestAtStartup ) {
+                // No blocking service
+                that.retrieveFileDescriptorsListPerOwner()
+                        .then(() => {
+                            return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/);
+                        })
+                        .then(() => {
+                            that.orderDocuments();
+                            return that.retrieveUserConsumption();
+                        })
+                        .then(() => {
+                            that.setInitialized();
+                            resolve(undefined);
+                        })
+                        .catch((error) => {
+                            that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
+                            resolve(undefined);
+                            //reject(error);
+                        });
+            } else {
+                that.setInitialized();
+                resolve (undefined);
+            }
         });
     }
 
