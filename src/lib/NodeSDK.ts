@@ -496,6 +496,53 @@ class NodeSDK {
     }
 
     /**
+     * @public
+     * @method start
+     * @instance
+     * @description
+     *    Start the SDK with only XMPP link<br>
+     *    Note :<br>
+     * @memberof NodeSDK
+     */
+    startWSOnly(token, userInfos) {
+        let that = this;
+        that.startTime = new Date();
+        return new Promise(function(resolve, reject) {
+            return that._core.start( token).then(function() {
+                return that._core.signinWSOnly(false, token, userInfos);
+            }).then(function(result : any) {
+                let startDuration: number;
+                // @ts-ignore
+                startDuration = Math.round(new Date() - that.startTime);
+                if (!result) {result = {};}
+                result.startDuration = startDuration;
+                resolve(result);
+                //reject ({message : "Error !!!"});
+            }).catch(async function(err) {
+                try {
+                    await that.stop();
+                } catch (e) {
+                    
+                }
+                
+                if (err) {
+                    console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
+                    // It looks that winston is close before this line :(, so console is used. 
+                    // that.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop le SDK : ", err);
+                    that.events.publish("connectionerror", err);
+                    reject(err);
+                } else {
+                    let error = ErrorManager.getErrorManager().UNAUTHORIZED;
+                    error.details = err;
+                    console.log("[index ] : rainbow_onconnectionerror : ", inspect(error));
+                    that.events.publish("connectionerror", error);
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    /**
      * @private
      * @method startCLI
      * @instance

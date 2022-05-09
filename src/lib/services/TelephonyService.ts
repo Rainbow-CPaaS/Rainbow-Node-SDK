@@ -213,7 +213,7 @@ class TelephonyService extends GenericService {
 
             // Store the user jid tel
             //that.userJidTel = authService.jidTel;
-            that.userJidTel = that._rest.loggedInUser.jid_tel;
+            that.userJidTel = that._rest.loggedInUser ? that._rest.loggedInUser.jid_tel : "";
 
             try {
                 that._xmpp.getAgentStatus().then((data) => {

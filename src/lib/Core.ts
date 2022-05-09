@@ -47,6 +47,7 @@ const LOG_ID = "CORE - ";
 @logEntryExit(LOG_ID)
 class Core {
 	public _signin: any;
+	public _signinWSOnly: any;
 	public _retrieveInformation: any;
 	public setRenewedToken: any;
 	public onTokenRenewed: any;
@@ -165,6 +166,46 @@ class Core {
                         that.logger.log("debug", LOG_ID + "(signin) _exiting_");
                         return reject(err);
                     });
+                }
+            });
+        };
+
+        self._signinWSOnly = (forceStopXMPP, token, userInfos) => {
+            let that = self;
+            that.logger.log("debug", LOG_ID + "(_signinWSOnly) _entering_");
+
+            let json = null;
+
+            return new Promise(function (resolve, reject) {
+
+                if (that.options.useXMPP) {
+                    return that._xmpp.stop(forceStopXMPP).then(() => {
+                        that._rest.account = userInfos;
+
+                        return  that._rest.signin(token);
+                    }).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                // "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        return that._xmpp.signin(userInfos, headers);
+                    }).then(function () {
+                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                        return resolve(json);
+                    }).catch(function (err) {
+                        that.logger.log("error", LOG_ID + "(_signinWSOnly) can't signed-in.");
+                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                        return reject(err);
+                    });
+                } else {
+                    return reject({"error":"Error, can not login WS Only without useXMPP option setted to true."}); 
                 }
             });
         };
@@ -729,6 +770,33 @@ class Core {
                 that._tokenSurvey();
                 return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
                     return that._retrieveInformation();
+                });
+            }).then(() => {
+                that._stateManager.transitTo(that._stateManager.READY).then(() => {
+                    resolve(json);
+                }).catch((err)=> { 
+                    reject(err); 
+                });
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    signinWSOnly(forceStopXMPP, token, userInfos) {
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+
+            let json = null;
+
+            return that._signinWSOnly(forceStopXMPP, token, userInfos).then(function (_json) {
+                json = _json;
+                //that._tokenSurvey();
+                return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                    return that._retrieveInformation().catch((err) => {
+                        that.logger.log("internal", LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
+                    });
                 });
             }).then(() => {
                 that._stateManager.transitTo(that._stateManager.READY).then(() => {
