@@ -3362,6 +3362,60 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @method sendCommandToLdapConnectorUser
+     * @since 2.11.0
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {string} ldapId ldap connector unique identifier.
+     * @param {string} command Allows to specify a command to be performed by the ldap connector. Allowed commands are: "manual_synchro", "manual_dry_run".
+     * @description
+     *      This API can be used to send a command to a ldap connector user. <br>
+     *      BP Admin and BP Finance users can only control users being in a company linked to their BP company. <br>
+     *      Admin users can only control users being in their own company. (superadmin, organization_admin, company_admin). <br>
+     *
+     * @return {Promise<{Object}>} return -
+     * <br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | response Object. |
+     * | status | String | Command operation status message. |
+     * | commandId optionnel | String | Command identifier to retrieve the report (only for "manual\_dry\_run" command). |
+     *
+     */
+    sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            if (!ldapId) {
+                this._logger.log("warn", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter");
+                this._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter : ", ldapId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!command) {
+                this._logger.log("warn", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter");
+                this._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter : ", command);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            try {
+                let result = await that._rest.sendCommandToLdapConnectorUser (ldapId, command);
+                that._logger.log("debug", "(sendCommandToLdapConnectorUser) - sent.");
+                that._logger.log("internal", "(sendCommandToLdapConnectorUser) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(sendCommandToLdapConnectorUser) Error.");
+                that._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
      * @method createConfigurationForLdapConnector
      * @since 1.86.0
      * @instance

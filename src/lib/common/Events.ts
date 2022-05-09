@@ -172,6 +172,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubblepollterminated <br>
  * @fires Events#rainbow_onbubblepollupdated <br>
  * @fires Events#rainbow_onbubblepollvoted <br>
+ * @fires Events#rainbow_onconnectorcommand <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -273,7 +274,8 @@ class Events {
         "rainbow_onbubblepollunpublished",
         "rainbow_onbubblepollterminated",
         "rainbow_onbubblepollupdated",
-        "rainbow_onbubblepollvoted"
+        "rainbow_onbubblepollvoted",
+        "rainbow_onconnectorcommand"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1354,6 +1356,7 @@ class Events {
              */
             that.publishEvent("bubblepollupdated", data);
         });
+
         this._evReceiver.on("evt_internal_bubble_poll_pollVote", function (data) {
             /**
              * @event Events#rainbow_onbubblepollvoted
@@ -1363,6 +1366,17 @@ class Events {
              *      This event is fired when a poll is voted in bubble.
              */
             that.publishEvent("bubblepollvoted", data);
+        });
+
+        this._evReceiver.on("evt_internal_connectorcommand", function (data) {
+            /**
+             * @event Events#rainbow_onconnectorcommand
+             * @public
+             * @param { Object } data informations about connector command 
+             * @description
+             *      This event is fired when a command is sent to connector's jid_im.
+             */
+            that.publishEvent("connectorcommand", data);
         });
 
     }

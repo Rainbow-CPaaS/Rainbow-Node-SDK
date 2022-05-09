@@ -6,8 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.12.0] - 2022-05-XX
+## [2.11.1] - 2022-05-09
 -   Add startWSOnly API method to SDK to Start the SDK with only XMPP link.
+-   Add `AdminService::sendCommandToLdapConnectorUser` API can be used to send a command to a ldap connector user. And add the event `rainbow_onconnectorcommand` raised when a command is received.
 
 ## [2.11.0] - 2022-04-05
 -   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.

@@ -6496,6 +6496,28 @@ Request Method: PUT
         });
     }
 
+    sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
+        // API https://api.openrainbow.org/admin/#api-users-GetUsers
+        // POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/" + ldapId + "/command";
+            that.logger.log("internal", LOG_ID + "(sendCommandToLdapConnectorUser) REST url : ", url);
+            let data = {command};
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendCommandToLdapConnectorUser) successfull");
+                that.logger.log("internal", LOG_ID + "(sendCommandToLdapConnectorUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(sendCommandToLdapConnectorUser) error");
+                that.logger.log("internalerror", LOG_ID, "(sendCommandToLdapConnectorUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     createConfigurationForLdapConnector (companyId : string, settings : any, name : string) {
         // API https://api.openrainbow.org/admin/#api-connectors-PostLdapConfig
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/config

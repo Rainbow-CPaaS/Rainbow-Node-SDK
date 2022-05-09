@@ -2545,6 +2545,9 @@ class ConversationEventHandler extends GenericHandler {
                             that.eventEmitter.emit("evt_internal_bubblepollconfiguration", pollObj);
                         }
                         break;
+                    case "connectorcommand":
+                        that.onConnectorCommandManagementMessageReceived(node);
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -3107,7 +3110,29 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("internalerror", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
+    
+    async onConnectorCommandManagementMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorCommandManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
+            let connectorcommand = jsonNode["connectorcommand"];
+            that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand : ", connectorcommand);
+            let command = connectorcommand["$attrs"]["command"];
+            let commandId = connectorcommand.$attrs.commandId;
 
+            if (connectorcommand.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand.");
+                that.eventEmitter.emit("evt_internal_connectorcommand", {command, commandId});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
     onReceiptMessageReceived (msg, stanza){
     }
 
