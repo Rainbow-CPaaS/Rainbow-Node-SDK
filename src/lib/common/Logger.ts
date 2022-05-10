@@ -43,7 +43,7 @@ const myFormatNoColors = winston.format.printf(info => {
 
 
 class Logger {
-    private enableEncryptedLogs: boolean = true;
+    private enableEncryptedLogs: boolean = false;
     get logEventEmitter(): NodeJS.EventEmitter {
         return this._logEventEmitter;
     }
@@ -111,7 +111,7 @@ class Logger {
         let enableConsoleLog = true;
         let enableFileLog = false;
         let enableEventsLogs = false;
-        let enableEncryptedLogs = true;
+        let enableEncryptedLogs = false;
         let customFileName = "";
         
         // dev-code //
@@ -164,12 +164,14 @@ class Logger {
         }
 
         // Check for Encryption of stanza in log
-        if (("logs" in config) && ("enableEncryptedLogs" in config.logs) && config.logs.enableEncryptedLogs == false)  {
-            enableEncryptedLogs = false;
-        } else {
-            enableEncryptedLogs = true;
+        if (("logs" in config) && ("enableEncryptedLogs" in config.logs)) {
+            if (config.logs.enableEncryptedLogs==false) {
+                enableEncryptedLogs = false;
+            } else {
+                enableEncryptedLogs = true;
+            }
+            this.enableEncryptedLogs = enableEncryptedLogs;
         }
-        this.enableEncryptedLogs = enableEncryptedLogs;
 
         // Set Path for log file
         if (enableFileLog) {
