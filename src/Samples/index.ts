@@ -152,7 +152,7 @@ let urlS2S;
             "enableConsoleLogs": true,
             "enableFileLogs": true,
             "enableEventsLogs": false,
-            "enableEncryptedLogs": true,
+            //"enableEncryptedLogs": false,
             "color": true,
             //"level": "info",
             "level": "debug",
