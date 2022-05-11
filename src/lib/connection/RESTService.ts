@@ -808,6 +808,89 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    //async getAllUsersByFilter(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
+    async getAllUsersByFilter(searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string, 
+                              useRoomCustomisation : string,  phoneMeetingCustomisation : string,
+                              useChannelCustomisation : string, useScreenSharingCustomisation : string, useWebRTCVideoCustomisation : string, useWebRTCAudioCustomisation : string, instantMessagesCustomisation : string, userProfileCustomisation : string, fileStorageCustomisation : string, 
+                              overridePresenceCustomisation : string, alert : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, recordingConversationCustomisation : string,
+                              useGifCustomisation : string, useDialOutCustomisation : string, fileCopyCustomisation : string, fileTransferCustomisation : string, forbidFileOwnerChangeCustomisation : string, readReceiptsCustomisation : string, useSpeakingTimeStatistics : string, 
+                              selectedAppCustomisationTemplate : string, format : string, limit : string,
+                              offset : string, sortField : string, sortOrder : string, displayName : string, useEmails : boolean, companyName : string, loginEmail : string, email : string, visibility : string, organisationId : string, siteId : string, jid_im : string, jid_tel : string ) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(getAllUsersByFilter) that.account.roles : ", that.account.roles);
+            let url = "/api/rainbow/admin/v1.0/users"; // ?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1" + "&companyId=" + encodeURIComponent(companyId);
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            /*if (!companyId) {
+                companyId = that.account.companyId;
+            } // */           
+
+            addParamToUrl(urlParamsTab, "searchEmail", searchEmail);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "roles", roles);
+            addParamToUrl(urlParamsTab, "excludeRoles", excludeRoles);
+            addParamToUrl(urlParamsTab, "tags", tags );
+            addParamToUrl(urlParamsTab, "departments", departments );
+            addParamToUrl(urlParamsTab, "isTerminated", isTerminated );
+            addParamToUrl(urlParamsTab, "isActivated", isActivated );
+            addParamToUrl(urlParamsTab, "fileSharingCustomisation", fileSharingCustomisation );
+            addParamToUrl(urlParamsTab, "userTitleNameCustomisation", userTitleNameCustomisation );
+            addParamToUrl(urlParamsTab, "softphoneOnlyCustomisation", softphoneOnlyCustomisation );
+            addParamToUrl(urlParamsTab, "useRoomCustomisation", useRoomCustomisation );
+            addParamToUrl(urlParamsTab, "phoneMeetingCustomisation", phoneMeetingCustomisation );
+            addParamToUrl(urlParamsTab, "useChannelCustomisation", useChannelCustomisation );
+            addParamToUrl(urlParamsTab, "useScreenSharingCustomisation", useScreenSharingCustomisation );
+            addParamToUrl(urlParamsTab, "useWebRTCVideoCustomisation", useWebRTCVideoCustomisation );
+            addParamToUrl(urlParamsTab, "useWebRTCAudioCustomisation", useWebRTCAudioCustomisation );
+            addParamToUrl(urlParamsTab, "instantMessagesCustomisation", instantMessagesCustomisation );
+            addParamToUrl(urlParamsTab, "userProfileCustomisation", userProfileCustomisation );
+            addParamToUrl(urlParamsTab, "fileStorageCustomisation", fileStorageCustomisation );
+            addParamToUrl(urlParamsTab, "overridePresenceCustomisation", overridePresenceCustomisation );
+            addParamToUrl(urlParamsTab, "alert", alert );
+            addParamToUrl(urlParamsTab, "changeTelephonyCustomisation", changeTelephonyCustomisation );
+            addParamToUrl(urlParamsTab, "changeSettingsCustomisation", changeSettingsCustomisation );
+            addParamToUrl(urlParamsTab, "recordingConversationCustomisation", recordingConversationCustomisation );
+            addParamToUrl(urlParamsTab, "useGifCustomisation", useGifCustomisation );
+            addParamToUrl(urlParamsTab, "useDialOutCustomisation", useDialOutCustomisation );
+            addParamToUrl(urlParamsTab, "fileCopyCustomisation", fileCopyCustomisation );
+            addParamToUrl(urlParamsTab, "fileTransferCustomisation", fileTransferCustomisation );
+            addParamToUrl(urlParamsTab, "forbidFileOwnerChangeCustomisation", forbidFileOwnerChangeCustomisation );
+            addParamToUrl(urlParamsTab, "readReceiptsCustomisation", readReceiptsCustomisation );
+            addParamToUrl(urlParamsTab, "useSpeakingTimeStatistics", useSpeakingTimeStatistics );
+            addParamToUrl(urlParamsTab, "selectedAppCustomisationTemplate", selectedAppCustomisationTemplate );
+            addParamToUrl(urlParamsTab, "format", format );
+            addParamToUrl(urlParamsTab, "limit", limit );
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortField", sortField );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );
+            addParamToUrl(urlParamsTab, "displayName", displayName );
+            addParamToUrl(urlParamsTab, "useEmails", useEmails );
+            addParamToUrl(urlParamsTab, "companyName", companyName );
+            addParamToUrl(urlParamsTab, "loginEmail", loginEmail );
+            addParamToUrl(urlParamsTab, "email", email );
+            addParamToUrl(urlParamsTab, "visibility", visibility );
+            addParamToUrl(urlParamsTab, "organisationId", organisationId );
+            addParamToUrl(urlParamsTab, "siteId", siteId );
+            addParamToUrl(urlParamsTab, "jid_im", jid_im );
+            addParamToUrl(urlParamsTab, "jid_tel", jid_tel );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllUsersByFilter) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllUsersByFilter) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllUsersByFilter) error : ", err);
+                return reject(err);
+            });
+            that.logger.log("info", LOG_ID + "(getAllUsersByFilter) after sending the request");
+        });
+    }
+
     async getContactInfos(userId) {
         let that = this;
         return new Promise(function (resolve, reject) {

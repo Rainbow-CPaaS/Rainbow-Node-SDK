@@ -144,7 +144,8 @@ class ContactsService extends GenericService {
     init(useRestAtStartup : boolean) {
         return new Promise((resolve, reject) => {
             let that = this;
-            if (that._rest.account && that._rest.account.id) {
+            if (that._rest.account ) {
+            if (that._rest.account.id) {
                 let userInfo = that.getContactById(that._rest.account.id, true).then((contact: Contact) => {
                     //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                     that.userContact.updateFromUserData(contact);
@@ -156,7 +157,31 @@ class ContactsService extends GenericService {
                     resolve(undefined);
                     //return reject();
                 });
+            }
+            if (that._rest.account.jid_im) {
+                let userInfo = that._rest.getAllUsersByFilter(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, that._rest.account.jid_im,undefined )
+                .then((result ) => {
+                    that._logger.log("internal", LOG_ID + "(init) search by jid_im result : ", result);
+                });
+                /* .then((contact: Contact) => {
+                    //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
+                    that.userContact.updateFromUserData(contact);
+                }); 
+                // */
+                Promise.all([userInfo]).then(() => {
+                    that.setInitialized();
+                    resolve(undefined);
+                }).catch(() => {
+                    resolve(undefined);
+                    //return reject();
+                });
+            }
             } else {
+                that._logger.log("internal", LOG_ID + "(init) else from contact : ", that._rest.account);
                 that.setInitialized();
                 resolve (undefined);
             }

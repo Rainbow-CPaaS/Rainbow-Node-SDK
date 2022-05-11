@@ -824,6 +824,97 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @method getAllUsersByFilter
+     * @instance
+     * @category Companies and users management
+     * @description
+     *  Get a list of users by filters <br>
+     * @async
+     * @return {Promise<any, ErrorManager>}
+     * @fulfil {any} - Found users or null or an error object depending on the result
+     * @param {string} searchEmail Allows to filter users list on the loginEmail field using the word provided in this option.
+     * @param {string} companyId Allows to filter users list on the companyIds provided in this option.
+     * @param {string} roles Allows to filter users list on the role(s) provided in this option. Default value is "user".
+     * @param {string} excludeRoles Allows to exclude users having the role(s) provided in this option.
+     * @param {string} tags Allows to filter users list on the tag(s) provided in this option.
+     * @param {string} departments Allows to filter users list on the department(s) provided in this option.
+     * @param {string} isTerminated Allows to filter users list on the status 'isTerminated'. Default value is "false"
+     * @param {string} isActivated Allows to filter users list for users which have logged in at least once ("true") or never ("false").
+     * @param {string} fileSharingCustomisation Allows to filter users list on fileSharing feature restriction (enabled, disabled, same_than_company)
+     * @param {string} userTitleNameCustomisation Allows to filter users list on user's profile update restriction (enabled, disabled, same_than_company)
+     * @param {string} softphoneOnlyCustomisation Allows to filter users list on use softphone part of the UCaas application restriction (enabled, disabled, same_than_company)
+     * @param {string} useRoomCustomisation Allows to filter users list on use room (bubble) restriction (enabled, disabled, same_than_company)
+     * @param {string} phoneMeetingCustomisation Allows to filter users list on can join a PSTN conference restriction (enabled, disabled, same_than_company)
+     * @param {string} useChannelCustomisation Allows to filter users list on use channels restriction (enabled, disabled, same_than_company)
+     * @param {string} useScreenSharingCustomisation Allows to filter users list on sharing screen restriction (enabled, disabled, same_than_company)
+     * @param {string} useWebRTCVideoCustomisation Allows to filter users list on use screen sharing restriction (enabled, disabled, same_than_company)
+     * @param {string} useWebRTCAudioCustomisation Allows to filter users list on use Web RTC audio restriction (enabled, disabled, same_than_company)
+     * @param {string} instantMessagesCustomisation Allows to filter users list on use Instant Messages restriction (enabled, disabled, same_than_company)
+     * @param {string} userProfileCustomisation Allows to filter users list on modify a profile restriction (enabled, disabled, same_than_company)
+     * @param {string} fileStorageCustomisation Allows to filter users list on use Rainbow file storage restriction (enabled, disabled, same_than_company)
+     * @param {string} overridePresenceCustomisation Allows to filter users by the ability to modify manually presence state (enabled, disabled, same_than_company)
+     * @param {string} alert notification] Allows to filter users by the ability to receive alert notification(enabled, disabled, same_than_company)
+     * @param {string} changeTelephonyCustomisation Allows to filter users by the ability to modify telephony settings (enabled, disabled, same_than_company)
+     * @param {string} changeSettingsCustomisation Allows to filter users by the ability to change client general setting (enabled, disabled, same_than_company)
+     * @param {string} recordingConversationCustomisation Allows to filter users by the ability to record conversation (enabled, disabled, same_than_company)
+     * @param {string} useGifCustomisation Allows to filter users by the ability to use GIFs in conversations (enabled, disabled, same_than_company)
+     * @param {string} useDialOutCustomisation Allows to filter users by the ability to be called by the Rainbow conference bridge. (enabled, disabled, same_than_company)
+     * @param {string} fileCopyCustomisation Allows to filter users by the ability to copy any file he receives in his personal cloud space.
+     * @param {string} fileTransferCustomisation Allows to filter users by the ability to copy a file from a conversation then share it inside another conversation.
+     * @param {string} forbidFileOwnerChangeCustomisation Allows to filter users by the ability to loose the ownership on one file.
+     * @param {string} readReceiptsCustomisation Allows to filter users by the ability to authorize a sender to check if a chat message is read.
+     * @param {string} useSpeakingTimeStatistics Allows to filter users by the ability to see speaking time statistics about a WebRTC meeting.
+     * @param {string} selectedAppCustomisationTemplate Allows to filter users by the last application customisation template applied.
+     * @param {string} format Allows to retrieve more or less user details in response. </br>
+     * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+     * medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </br>
+     * full: all user fields </br>
+     * Default value : small
+     * Possible values : small, medium, full
+     * @param {string} limit Allow to specify the number of users to retrieve. Default value 100.
+     * @param {string} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort user list based on the given field. Default value : displayName
+     * @param {string} sortOrder Specify order when sorting user list. Default value : 1. Possible values : -1, 1
+     * @param {string} displayName Allows to filter users list on the given keyword(s) on field displayName.
+     * @param {boolean} useEmails used with displayName, allows to filter users list on the given keyword(s) on field displayName for loginEmails too.
+     * @param {string} companyName Allows to filter users list on the given keyword(s) on field companyName.
+     * @param {string} loginEmail Allows to filter users list on the loginEmails provided in this option.
+     * @param {string} email Allows to filter users list on the emails provided in this option.
+     * @param {string} visibility Allows to filter users list on the visibility(ies) provided in this option. Possible values : same_than_company, public, private, closed, isolated, none
+     * @param {string} organisationId Allows to filter users list on the organisationIds provided in this option. Option is reserved for superAdmin or admin allowed to manage the given organisationId.
+     * @param {string} siteId Allows to filter users list on the siteIds provided in this option. Option is reserved for superAdmin or admin allowed to manage the given siteIds.
+     * @param {string} jid_im Allows to filter users list on the jid_ims provided in this option.
+     * @param {string} jid_tel Allows to filter users list on the jid_tels provided in this option.
+     */
+    getAllUsersByFilter(searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string,
+                        useRoomCustomisation : string,  phoneMeetingCustomisation : string,
+                        useChannelCustomisation : string, useScreenSharingCustomisation : string, useWebRTCVideoCustomisation : string, useWebRTCAudioCustomisation : string, instantMessagesCustomisation : string, userProfileCustomisation : string, fileStorageCustomisation : string,
+                        overridePresenceCustomisation : string, alert : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, recordingConversationCustomisation : string,
+                        useGifCustomisation : string, useDialOutCustomisation : string, fileCopyCustomisation : string, fileTransferCustomisation : string, forbidFileOwnerChangeCustomisation : string, readReceiptsCustomisation : string, useSpeakingTimeStatistics : string,
+                        selectedAppCustomisationTemplate : string, format : string = "small", limit : string = "100",
+                        offset : string, sortField : string = "displayName", sortOrder : string, displayName : string, useEmails : boolean, companyName : string, loginEmail : string, email : string, visibility : string, organisationId : string, siteId : string, jid_im : string, jid_tel : string ): Promise<any> {
+
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getAllUsersByFilter) contact, Ask the server...");
+            that._rest.getAllUsersByFilter(searchEmail , companyId , roles , excludeRoles , tags , departments , isTerminated  , isActivated , fileSharingCustomisation , userTitleNameCustomisation , softphoneOnlyCustomisation ,
+                    useRoomCustomisation ,  phoneMeetingCustomisation ,
+                    useChannelCustomisation , useScreenSharingCustomisation , useWebRTCVideoCustomisation , useWebRTCAudioCustomisation , instantMessagesCustomisation , userProfileCustomisation , fileStorageCustomisation ,
+                    overridePresenceCustomisation , alert , changeTelephonyCustomisation , changeSettingsCustomisation , recordingConversationCustomisation ,
+                    useGifCustomisation , useDialOutCustomisation , fileCopyCustomisation , fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics ,
+                    selectedAppCustomisationTemplate , format , limit ,
+                    offset , sortField , sortOrder , displayName , useEmails , companyName , loginEmail , email , visibility , organisationId , siteId , jid_im , jid_tel ).then((result: any) => {
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+
+        });
+    }
+
+    /**
+     * @public
      * @method getAllUsersByCompanyId
      * @instance
      * @description

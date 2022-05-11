@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.12.0] - 2022-05-XX
 -   Add option `options.rest.useRestAtStartup`, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
+-   Add API method `AdminService::getAllUsersByFilter` to get a list of users by filters.
 
 ## [2.11.1] - 2022-05-09
 -   Add startWSOnly API method to SDK to Start the SDK with only XMPP link.

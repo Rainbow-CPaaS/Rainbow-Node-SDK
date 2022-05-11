@@ -155,7 +155,7 @@ let urlS2S;
             "enableConsoleLogs": true,
             "enableFileLogs": true,
             "enableEventsLogs": false,
-            //"enableEncryptedLogs": false,
+            "enableEncryptedLogs": false,
             "color": true,
             //"level": "info",
             "level": "debug",
@@ -857,6 +857,15 @@ let urlS2S;
             //let tab = [];
             //tab.push(contactVincent01.id);
             //await rainbowSDK.contacts.addToNetwork(contactVincent00);
+    }
+
+    async function testgetAllUsersByFilter() {
+            // let utc = new Date().toJSON().replace(/-/g, '_');
+            let users = await rainbowSDK.admin.getAllUsersByFilter("vincent02@vbe.test.openrainbow.net", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            logger.log("debug", "MAIN - [testgetAllUsersByFilter] after getAllUsersByFilter : ", users);
     }
 
     async function testgetAllUsersByCompanyId() {
