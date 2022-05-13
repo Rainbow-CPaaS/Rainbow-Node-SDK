@@ -13,7 +13,14 @@ import {GenericHandler} from "./GenericHandler";
 import {WebConferenceSession} from "../../common/models/webConferenceSession";
 import {WebConferenceParticipant} from "../../common/models/webConferenceParticipant";
 import {Contact} from "../../common/models/Contact";
-import {ConferenceSession, Participant, Publisher, Silent, Talker} from "../../common/models/ConferenceSession";
+import {
+    ConferenceSession,
+    Participant,
+    Publisher,
+    Service,
+    Silent,
+    Talker
+} from "../../common/models/ConferenceSession";
 import {List} from "ts-generic-collections-linq";
 import {MEDIATYPE} from "../RESTService";
 import {PresenceService} from "../../services/PresenceService";
@@ -210,23 +217,30 @@ class ConversationEventHandler extends GenericHandler {
                 } // */
 
                 try {
-                    let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints : "");
-                    let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                    that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints : "");
+                    
+                    if (conferenceId !== newConferenceId) {
+                        let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
+                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints:"");
+                        let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
+                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints:"");
 
-                    await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
-                    let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
-                    if (newConference==null) {
-                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
-                        newConference = new ConferenceSession(newConferenceId);
-                        // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                        await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
+                        let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
+                        if (newConference==null) {
+                            that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
+                            newConference = new ConferenceSession(newConferenceId);
+                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                        } else {
+                            that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
+                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                        } // */
+                        newConference.replaceConference = conference;
+                        await this._bubbleService.addOrUpdateConferenceToCache(newConference, true);
                     } else {
-                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
-                        // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
-                    } // */
-                    newConference.replaceConference = conference;
-                    await this._bubbleService.addOrUpdateConferenceToCache(newConference, true);
+                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " egals to conferenceId : ", conferenceId, ", so no new conference need to be created.");
+                        let newOwnerJidIm = conferenceInfo["new-owner-jid-im"];
+                        conference.ownerJidIm = newOwnerJidIm;
+                    }
                 } catch (err) {
                     that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
                 }
@@ -354,6 +368,12 @@ class ConversationEventHandler extends GenericHandler {
             if (conferenceInfo.hasOwnProperty("removed-publishers")) {
                 let removedPublishers = conferenceInfo["removed-publishers"];
                 await that.parsePublishersFromConferenceUpdatedEvent(conference, removedPublishers, false);
+            }
+
+            // services
+            if (conferenceInfo.hasOwnProperty("services")) {
+                let services = conferenceInfo["services"];
+                await that.parseServicesFromConferenceUpdatedEvent(conference, services, false);
             }
 
             that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conference : ", conference);
@@ -1222,23 +1242,32 @@ class ConversationEventHandler extends GenericHandler {
                                 } // */
 
                                 try {
-                                    let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints : "");
-                                    let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints : "");
+                                    if (newConferenceId !== conferenceId) {
+                                        let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints:"");
+                                        let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints:"");
 
-                                    await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
-                                    let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
-                                    if (newConference==null) {
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
-                                        newConference = new ConferenceSession(newConferenceId);
-                                        // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                                        await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
+                                        let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
+                                        if (newConference==null) {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
+                                            newConference = new ConferenceSession(newConferenceId);
+                                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                                        } else {
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
+                                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
+                                        } // */
+                                        newConference.replaceConference = conference;
+                                        await this._bubbleService.addOrUpdateConferenceToCache(newConference);
                                     } else {
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
-                                        // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
-                                    } // */
-                                    newConference.replaceConference = conference;
-                                    await this._bubbleService.addOrUpdateConferenceToCache(newConference);
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " egals to conferenceId : ", conferenceId, ", so no new conference need to be created, but reset the existing one.");
+                                        conference = new ConferenceSession(conferenceId);
+                                        // We consider always conference as active expect if we receive the opposite information
+                                        conference.active = true;
+                                        let newOwnerJidIm = conferenceInfo["new-owner-jid-im"];
+                                        conference.ownerJidIm = newOwnerJidIm;
+                                    }
                                 } catch (err) {
                                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
                                 }
@@ -2201,6 +2230,9 @@ class ConversationEventHandler extends GenericHandler {
                                         publisher.media.add(media);
                                 }
 
+                                if (publisherElem.hasOwnProperty("simulcast"))
+                                    publisher.simulcast = publisherElem["simulcast"];
+                                
                                 // Finally add the publisher only if a Media is specified
                                 if (publisher.media.count() > 0)
                                     publishers.add(publisher);
@@ -2287,6 +2319,9 @@ class ConversationEventHandler extends GenericHandler {
                                     publisher.media.add(media);
                             }
 
+                            if (publisherElem.hasOwnProperty("simulcast"))
+                                publisher.simulcast = publisherElem["simulcast"];
+
                             // Finally add the publisher only if a Media is specified
                             if (publisher.media.count() > 0)
                                 publishers.add(publisher);
@@ -2318,109 +2353,51 @@ class ConversationEventHandler extends GenericHandler {
             let publishers = new List<Publisher>();
             conference.publishers = publishers;
         }
+    }
 
-        /*            if (xmlElementList != null)
-        {
-            XmlNodeList list = xmlElementList.GetElementsByTagName("publisher");
-            if (list != null)
-        {
-            let publishers  : List<Publisher> = conference.publishers;
-            if (publishers == null)
-            publishers = new List<Publisher>();
-        
-            let publisher : Publisher;
-            let publisherId : string = null;
-        
-            XmlElement element;
-            foreach (XmlNode node in list)
-        {
-            element = node as XmlElement;
-            if (element == null)
-            continue;
-        
-            // get publisherId
-            if (element["publisher-id"] != null)
-            publisherId = element["publisher-id"].InnerText;
-        
-            if (String.IsNullOrEmpty(publisherId) && element["participant-id"] != null)
-            publisherId = element["participant-id"].InnerText;
-        
-            if (!String.IsNullOrEmpty(publisherId))
-        {
-            // Get publisher (if any)
-            publisher = null;
-            foreach (Conference.Publisher p in publishers)
-        {
-            if (p.Id == publisherId)
-        {
-            // Store it
-            publisher = p;
-        
-            // Remove from the list
-            publishers.Remove(p);
-        
-            break;
-        }
-        }
-        
-        // Get more info and add publisher in list only if asked
-        if (add)
-        {
-            // Create new one if not found
-            if (publisher == null)
-            {
-                publisher = new Conference.Publisher
-                {
-                    Id = publisherId
-                };
-            }
-        
-            if (element["jid-im"] != null)
-                publisher.Jid_im = element["jid-im"].InnerText;
-        
-            // Create an empty MEdia list if null
-            if (publisher.Media == null)
-                publisher.Media = new List<string>();
-        
-            if (element["media-type"] != null)
-            {
-                String media = element["media-type"].InnerText;
-        
-                if (!publisher.Media.Contains(media))
-                    publisher.Media.Add(media);
-            }
-        
-            // Finally add the publisher only if a Media is specified
-            if(publisher.Media.Count > 0)
-                publishers.Add(publisher);
-        }
-        else
-        {
-            if (publisher != null)
-            {
-                if (publisher.Media != null)
-                {
-                    if (element["media-type"] != null)
-                    {
-                        String media = element["media-type"].InnerText;
-                        publisher.Media.Remove(media);
-                        if (publisher.Media.Count > 0)
-                        {
-                            // A media is still used by this publisher - so we add it to the list
-                            publishers.Add(publisher);
+    async parseServicesFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList, add: boolean) {
+        let that = this;
+        if (xmlElementList!=null) {
+            let services: List<Service> = conference.services;
+            services = new List<Service>();
+
+            if (Array.isArray(xmlElementList.service)) {
+                for (let i = 0; i < xmlElementList.service.length; i++) {
+                    that.logger.log("internal", LOG_ID + "(parseServicesFromConferenceUpdatedEvent) xmlElementList iter index : ", i);
+                    for (const [key, value] of Object.entries(xmlElementList.service[i])) {
+                        that.logger.log("internal", LOG_ID + "(parseServicesFromConferenceUpdatedEvent) property of Objects : key : ", key, ", value :", value);
+                        let serviceElem = value;
+                        if (serviceElem!=null) {
+                            let serviceId = serviceElem["service-id"];
+                            let serviceType = serviceElem["service-type"];
+                            let service = new Service();
+                            service.serviceId = serviceId;
+                            service.serviceType = serviceType;
+                            services.add(service);
                         }
                     }
+                    conference.services = services;
                 }
+            } else {
+                for (const [key, value] of Object.entries(xmlElementList)) {
+                    that.logger.log("internal", LOG_ID + "(parseServicesFromConferenceUpdatedEvent) property of Objects : key : ", key, ", value :", value);
+                    let serviceElem = value;
+                    if (serviceElem!=null) {
+                        let serviceId = serviceElem["service-id"];
+                        let serviceType = serviceElem["service-type"];
+                        let service = new Service();
+                        service.serviceId = serviceId;
+                        service.serviceType = serviceType;
+                        services.add(service);
+                    }
+                }
+                conference.services = services;
             }
+
+        } else {
+            let services = new List<Service>();
+            conference.services = services;
         }
-        }
-        }
-        
-        // Finally update Publishers list from conference object
-        conference.Publishers = publishers;
-        }
-        }
-        // */
     }
 
     async _onMessageReceived (conversationId, data) {

@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+-   Update of conference's events when V2
+-   Fix init of ChannelsService.
+
 ## [2.11.2] - 2022-05-11
 -   Add option `options.rest.useRestAtStartup`, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
 -   Add API method `AdminService::getAllUsersByFilter` to get a list of users by filters.

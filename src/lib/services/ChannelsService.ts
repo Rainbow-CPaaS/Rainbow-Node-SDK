@@ -153,7 +153,7 @@ class ChannelsService extends GenericService {
     async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that._channels.fetchMyChannels();
+            await that.fetchMyChannels();
         }
         that.setInitialized();
     }

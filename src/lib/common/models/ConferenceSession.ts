@@ -311,6 +311,13 @@ class Silent {
 /// The Jid_im of the participant can be compared to the Jid_im of a <see cref="Contact"/>
 /// </summary>
 class Publisher {
+    get simulcast(): boolean {
+        return this._simulcast;
+    }
+
+    set simulcast(value: boolean) {
+        this._simulcast = value;
+    }
     /// <summary>
     /// <see cref="String"/> - Id of the publisher. CANNNOT BE COMPARED to Id of a <see cref="Contact"/>
     /// </summary>
@@ -327,6 +334,7 @@ class Publisher {
     private _media: List<string> = new List<string>(); // { get; set; }
 
     private _participant : Participant;
+    private _simulcast: boolean;
 
     get participant(): Participant {
         return this._participant;
@@ -388,12 +396,50 @@ class Publisher {
     }
 }
 
+
+class Service {
+    private _serviceId: string;
+    private _serviceType: string;
+
+    get serviceId(): string {
+        return this._serviceId;
+    }
+
+    set serviceId(value: string) {
+        this._serviceId = value;
+    }
+
+    get serviceType(): string {
+        return this._serviceType;
+    }
+
+    set serviceType(value: string) {
+        this._serviceType = value;
+    }
+
+    constructor () {}
+}
+
 /// <summary>
 /// To describe a Conference in progress in a Bubble
 ///
 /// Id of the Conference is related to a Bubble using Bubble.ConfEndpoints.ConfEndpointId
 /// </summary>
 class ConferenceSession {
+    get ownerJidIm(): string {
+        return this._ownerJidIm;
+    }
+
+    set ownerJidIm(value: string) {
+        this._ownerJidIm = value;
+    }
+    get services(): List<Service> {
+        return this._services;
+    }
+
+    set services(value: List<Service>) {
+        this._services = value;
+    }
     /// <summary>
     /// <see cref="string"/> - Id of the conference - it's equal to Bubble.ConfEndpoints.ConfEndpointId
     /// </summary>
@@ -458,6 +504,9 @@ class ConferenceSession {
     private _replacedByConference: ConferenceSession;
     private _replaceConference: ConferenceSession;
 
+    private _services: List<Service> = new List<Service>();
+    private _ownerJidIm : string ;
+    
     constructor(id: string, participants: List<Participant> = new List (), mediaType: MEDIATYPE = MEDIATYPE.WEBRTC) {
         let that = this;
         that._id = id;
@@ -701,5 +750,6 @@ module.exports.Talker = Talker;
 module.exports.Silent = Silent;
 module.exports.Publisher = Publisher;
 module.exports.Participant = Participant;
+module.exports.Service = Service;
 module.exports.ConferenceSession = ConferenceSession;
-export {Publisher, Participant, ConferenceSession, Talker, Silent};
+export {Publisher, Participant, ConferenceSession, Talker, Silent, Service};
