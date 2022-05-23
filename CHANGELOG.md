@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.12.0] - 2022-05-XX
+-   Add event `rainbow_onconnectorconfig` fired when a config is sent to connector's jid_im.
+
 ## [2.10.0-lts.8] - 2022-05-13
 -   Update of conference's events when V2
 -   Fix init of ChannelsService.

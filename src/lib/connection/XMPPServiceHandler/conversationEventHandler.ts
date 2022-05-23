@@ -2525,6 +2525,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "connectorcommand":
                         that.onConnectorCommandManagementMessageReceived(node);
                         break;
+                    case "connectorconfig":
+                        that.onConnectorConfigManagementMessageReceived(node);
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -3107,6 +3110,27 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onConnectorConfigManagementMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorConfigManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
+            let connectorconfig = jsonNode["connectorconfig"];
+            that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig : ", connectorconfig);
+            let action = connectorconfig["$attrs"]["action"];
+
+            if (connectorconfig.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig with action : ", action);
+                that.eventEmitter.emit("evt_internal_connectorconfig", {action});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
