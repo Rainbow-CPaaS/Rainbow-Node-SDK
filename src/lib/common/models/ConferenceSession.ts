@@ -3,6 +3,7 @@
 import {List} from "ts-generic-collections-linq";
 import {MEDIATYPE} from "../../connection/RESTService";
 import {Contact} from "./Contact";
+import {Bubble} from "./Bubble";
 
 export {};
 
@@ -426,6 +427,15 @@ class Service {
 /// Id of the Conference is related to a Bubble using Bubble.ConfEndpoints.ConfEndpointId
 /// </summary>
 class ConferenceSession {
+    
+    get bubble(): Bubble {
+        return this._bubble;
+    }
+    
+    set bubble(value:Bubble) {
+        this._bubble = value;
+    }
+
     get ownerJidIm(): string {
         return this._ownerJidIm;
     }
@@ -506,7 +516,8 @@ class ConferenceSession {
 
     private _services: List<Service> = new List<Service>();
     private _ownerJidIm : string ;
-    
+    private _bubble: Bubble;
+
     constructor(id: string, participants: List<Participant> = new List (), mediaType: MEDIATYPE = MEDIATYPE.WEBRTC) {
         let that = this;
         that._id = id;

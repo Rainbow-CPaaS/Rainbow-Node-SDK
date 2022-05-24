@@ -2163,6 +2163,7 @@ getAllActiveBubbles
             if (useConferenceV2) {
                 let bubble = await that.getBubbleById(conference.id);
                 linkedWithBubble = bubble.id == conference.id;
+                conference.bubble = bubble;
             }
 
             // Remove conference from cache
