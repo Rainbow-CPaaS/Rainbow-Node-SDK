@@ -6,9 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.12.0] - 2022-05-XX
+## [2.10.0-lts.9] - 2022-05-25
 -   Add event `rainbow_onconnectorconfig` fired when a config is sent to connector's jid_im.
 -   Add Bubble property in data of the 'rainbow_onbubbleconferenceupdated' event.
+-   Fix lts_version.json file used to generate the image tab with the support's dates.
 
 ## [2.10.0-lts.8] - 2022-05-13
 -   Update of conference's events when V2
