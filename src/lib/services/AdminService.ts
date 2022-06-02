@@ -2776,6 +2776,7 @@ class AdminService extends GenericService {
      * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {string} commandId Command identifier. When runing the manual synchro, the commandId must be added as query parameter.
      * @description
      *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br>
      *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br>
@@ -2822,7 +2823,7 @@ class AdminService extends GenericService {
      * <br>
      * @return {Promise<any>} import summary result.
      */
-    synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") : Promise<{
+    synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%", commandId? : string) : Promise<{
         reqId : string,
         mode : string,
         status : string,

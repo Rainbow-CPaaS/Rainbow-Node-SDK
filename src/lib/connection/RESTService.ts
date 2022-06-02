@@ -6342,7 +6342,7 @@ Request Method: PUT
     A hidden field "ldap_id" corresponding to the AD objectGUID should be filled
     Mandatory field is loginEmail, isInitialized=true
     // */
-    synchronizeUsersAndDeviceswithCSV(CSVTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") : Promise<{
+    synchronizeUsersAndDeviceswithCSV(CSVTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%", commandId? : string) : Promise<{
         reqId : string,
         mode : string,
         status : string,
@@ -6355,6 +6355,7 @@ Request Method: PUT
         let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize";
         let urlParamsTab : string[]= [];
         urlParamsTab.push(urlParams);
+        addParamToUrl(urlParamsTab, "commandId", commandId);
         addParamToUrl(urlParamsTab, "companyId", companyId);
         addParamToUrl(urlParamsTab, "label", label);
         addParamToUrl(urlParamsTab, "noemails", String(noemails));
