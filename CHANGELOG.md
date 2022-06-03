@@ -9,7 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.12.0] - 2022-06-03
 -   Same content as version 2.10.0-lts.10 
 
-## [2.10.0-lts.10] - 2022-05-25
+## [2.10.0-lts.10] - 2022-06-03
 -   Add parameter "commandId" in `AdminService::synchronizeUsersAndDeviceswithCSV` API when runing the manual synchro, the commandId must be added as query parameter.
 -   Fix `ContactsService::init`. 
 
