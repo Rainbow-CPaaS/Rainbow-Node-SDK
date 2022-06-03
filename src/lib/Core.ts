@@ -326,7 +326,7 @@ class Core {
                         }).then(() => {
                             resolve(undefined);
                         }).catch((err) => {
-                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
+                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
@@ -413,7 +413,7 @@ class Core {
                         }).then(() => {
                             resolve(undefined);
                         }).catch((err) => {
-                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services.");
+                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
                             that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                             reject(err);
                         });
@@ -747,7 +747,7 @@ class Core {
                             reject(err);
                         });
                     }).catch((err) => {
-                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances.");
+                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances. Error : ", err);
                         that.logger.log("internalerror", LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
                         that.logger.log("debug", LOG_ID + "(start) _exiting_");
                         reject(err);
