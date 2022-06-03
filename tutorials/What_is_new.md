@@ -6,6 +6,53 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.10.0-lts.10 - LTS Version - June 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Add parameter "commandId" in `AdminService::synchronizeUsersAndDeviceswithCSV` API when runing the manual synchro, the commandId must be added as query parameter.
+-   Add Bubble property in data of the 'rainbow_onbubbleconferenceupdated' event.
+-   Update of conference's events when V2
+-   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+-   Update `AdminService::createConfigurationForLdapConnector` with 'name' parameter, and update doc.
+-   Update `AdminService::updateConfigurationForLdapConnector` with 'name' parameter, and update doc.
+
+**Others Changes**
+
+-   Fix `ContactsService::init`. 
+-   Add event `rainbow_onconnectorconfig` fired when a config is sent to connector's jid_im.
+-   Fix lts_version.json file used to generate the image tab with the support's dates.
+-   Fix init of ChannelsService.
+-   Add option `options.rest.useRestAtStartup`, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
+-   Add API method `AdminService::getAllUsersByFilter` to get a list of users by filters.
+-   Add startWSOnly API method to SDK to Start the SDK with only XMPP link.
+-   Add `AdminService::sendCommandToLdapConnectorUser` API can be used to send a command to a ldap connector user. And add the event `rainbow_onconnectorcommand` raised when a command is received.
+-   Add `AdminService::getAUserProfilesByUserId` and `AdminService::getAUserProfilesByUserEmail` method to retrieve the profiles of a user by his id or email.
+-   Add `AdminService::getAUserProfilesFeaturesByUserId` and `AdminService::getAUserProfilesFeaturesByUserEmail` method to retrieve the features profiles of a user by his id or email.
+-   In `conversationEventHandler::onErrorMessageReceived` callback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+
+## [2.10.0-lts.7] - 2022-05-10
+-   Fix with Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
+
+-   Fix In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
+
+-   Fix for jenkins generation of docs.
+
+
 ### SDK for Node.JS 2.10.0-lts.0 - LTS Version - April 2022
 
 ---

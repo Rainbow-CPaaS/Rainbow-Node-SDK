@@ -115,9 +115,9 @@ let urlS2S;
             //"hostCallback": "http://70a0ee9d.ngrok.io",
             "locallistenningport": "4000"
         },
-        "rest":{
-            "useRestAtStartup" : false
-        },
+        /*"rest":{
+            "useRestAtStartup" : true
+        }, // */
         "credentials": {
             "login": "",  // The Rainbow email account to use
             "password": "",
@@ -153,7 +153,7 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": true,
+            "enableFileLogs": false,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
