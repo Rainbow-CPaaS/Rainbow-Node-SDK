@@ -748,13 +748,14 @@ class Events {
         //      * @event Events#rainbow_onbubbleconferenceendinvitation
         //      * @public
         //      * @param { Bubble } conference The conference with participant added.
+        //      * @param { } updatedDatasForEvent participants added or removed
         //      * @description
         //      *      Fired when an event conference leaved a bubble is received
         //      */
         //     that.publishEvent("bubbleconferenceendinvitation", bubble);
         // });
 
-        this._evReceiver.on("evt_internal_bubbleconferenceupdated", function(bubble) {
+        this._evReceiver.on("evt_internal_bubbleconferenceupdated", function(bubble, updatedDatasForEvent) {
             /**
              * @event Events#rainbow_onbubbleconferenceupdated
              * @public
@@ -762,7 +763,7 @@ class Events {
              * @description
              *      Fired when an event conference is updated.
              */
-            that.publishEvent("bubbleconferenceupdated", bubble);
+            that.publishEvent("bubbleconferenceupdated", bubble, updatedDatasForEvent);
         });
 
         this._evReceiver.on("evt_internal_bubblecustomDatachanged", function(bubble) {

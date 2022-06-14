@@ -753,7 +753,7 @@ class Bubbles extends GenericService {
                 let conference = that.getConferenceByIdFromCache(conferenceId);
                 that.removeConferenceFromCache(conferenceId, true);
                 conference.active = false;
-                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference);
+                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference, {});
             }
         }
     }
@@ -2151,8 +2151,9 @@ getAllActiveBubbles
      * @instance
      * @param {ConferenceSession} conference
      * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
+     * @param {Object} updatedDatasForEvent participants added or removed
      */
-    async addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2: boolean = false) {
+    async addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2: boolean = false, updatedDatasForEvent: any = {}) {
         let that = this;
         if (conference!=null) {
             let needToRaiseEvent: boolean = false;
@@ -2195,7 +2196,7 @@ getAllActiveBubbles
                 that._logger.log("debug", LOG_ID + "(addOrUpdateConferenceToCache) ConferenceUpdated event raised.");
                 // log.DebugFormat("[addOrUpdateConferenceToCache] ConferenceUpdated event raised");
                 // TODO: ConferenceUpdated.Raise(this, new ConferenceEventArgs(conference));
-                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference);
+                that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference, updatedDatasForEvent);
             }
         }
     }

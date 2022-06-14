@@ -174,6 +174,7 @@ class ConversationEventHandler extends GenericHandler {
         let xmlnsNode = conferenceInfo["$attrs"]["xmlns"];
         if (xmlnsNode=="jabber:iq:conference:2" /* && !ignoreConferenceInfo*/ ) {
             let conferenceId = undefined;
+            let updatedDatasForEvent = {};
             if (conferenceInfo.hasOwnProperty("conference-id")) {
                 conferenceId = conferenceInfo["conference-id"];
                 //                              bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
@@ -289,12 +290,16 @@ class ConversationEventHandler extends GenericHandler {
             // added-participants
             if (conferenceInfo.hasOwnProperty("added-participants")) {
                 let addedParticipants = conferenceInfo["added-participants"];
+                let addedParticipantsIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(addedParticipants, "participant");
+                updatedDatasForEvent["added-participants"] = addedParticipantsIdList;
                 await that.parseParticipantsFromConferenceUpdatedEvent(conference, addedParticipants);
             }
 
             // updated-participants
             if (conferenceInfo.hasOwnProperty("updated-participants")) {
                 let updatedParticipants = conferenceInfo["updated-participants"];
+                let updatedParticipantsIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(updatedParticipants, "participant");
+                updatedDatasForEvent["updated-participants"] = updatedParticipantsIdList;
                 await that.parseParticipantsFromConferenceUpdatedEvent(conference, updatedParticipants);
             }
 
@@ -309,8 +314,9 @@ class ConversationEventHandler extends GenericHandler {
             // removed-participants
             if (conferenceInfo.hasOwnProperty("removed-participants")) {
                 let removedParticipants = conferenceInfo["removed-participants"];
-                let removedIdList: List<string> = that.parseParticipantsIdFromConferenceUpdatedEvent(removedParticipants);
-                if (conference.participants!=null) {
+                let removedIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(removedParticipants, "participant");
+                updatedDatasForEvent["removed-participants"] = removedIdList;
+               if (conference.participants!=null) {
                     let list: List<Participant> = conference.participants;
                     let myParticipant = conference.participants.where((item: Participant) => {
                         return item.jid_im===that.jid_im
@@ -361,12 +367,16 @@ class ConversationEventHandler extends GenericHandler {
             // added-publishers
             if (conferenceInfo.hasOwnProperty("added-publishers")) {
                 let addedPublishers = conferenceInfo["added-publishers"];
+                let addedPublishersIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(addedPublishers, "publisher");
+                updatedDatasForEvent["added-publishers"] = addedPublishersIdList;
                 await that.parsePublishersFromConferenceUpdatedEvent(conference, addedPublishers, true);
             }
 
             // removed-publishers
             if (conferenceInfo.hasOwnProperty("removed-publishers")) {
                 let removedPublishers = conferenceInfo["removed-publishers"];
+                let removedPublishersIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(removedPublishers, "publisher");
+                updatedDatasForEvent["removed-publishers"] = removedPublishersIdList;
                 await that.parsePublishersFromConferenceUpdatedEvent(conference, removedPublishers, false);
             }
 
@@ -384,7 +394,7 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             // Finally add conference to the cache
-            await this._bubbleService.addOrUpdateConferenceToCache(conference, true);
+            await this._bubbleService.addOrUpdateConferenceToCache(conference, true, updatedDatasForEvent);
 
             // */
         } else {
@@ -1336,7 +1346,7 @@ class ConversationEventHandler extends GenericHandler {
                             // removed-participants
                             if (conferenceInfo.hasOwnProperty("removed-participants")) {
                                 let removedParticipants = conferenceInfo["removed-participants"];
-                                let removedIdList : List <string> = that.parseParticipantsIdFromConferenceUpdatedEvent(removedParticipants);
+                                let removedIdList : List <string> = that.parseIdFromConferenceUpdatedEvent(removedParticipants, "participant");
                                 if (conference.participants != null)
                                 {
                                     let list : List<Participant> = conference.participants;
@@ -1866,10 +1876,11 @@ class ConversationEventHandler extends GenericHandler {
         }
     }
 
-    parseParticipantsIdFromConferenceUpdatedEvent(participants): List<string> {
+    parseIdFromConferenceUpdatedEvent(participants, propertyToGet: string): List<string> {
         let that = this;
         let result: List<string> = new List<string>();
         if (participants!=null) {
+            /*        
             if (Array.isArray(participants.participant)) {
                 for (let i = 0; i < participants.participant.length; i++) {
                     for (const [key1, value1] of Object.entries(participants.participant[i])) {
@@ -1881,12 +1892,24 @@ class ConversationEventHandler extends GenericHandler {
                         }
                     }
                 }
-            } else {
-                    for (const [key1, value1] of Object.entries(participants)) {
-                        that.logger.log("internal", LOG_ID + "(parseParticipantsIdFromConferenceUpdatedEvent) Iter of Properties : key : ", key1 ,", value :", value1);
+            } else { // */
+            if (participants[propertyToGet]) {
+                //for (let i = 0; i < participants.participant.length; i++) {
+                    for (const [key1, value1] of Object.entries(participants[propertyToGet])) {
+                        that.logger.log("internal", LOG_ID + "(parseIdFromConferenceUpdatedEvent) propertyToGet : ", propertyToGet, ", Iter of Properties : ", key1 ,":", value1);
                         if (key1==="participant-id" || key1==="user-id") {
                             let participantId: any = value1;
-                            that.logger.log("internal", LOG_ID + "(parseParticipantsIdFromConferenceUpdatedEvent) : add participant-id", participantId);
+                            that.logger.log("internal", LOG_ID + "(parseIdFromConferenceUpdatedEvent) : add participant-id", participantId);
+                            result.add(participantId);
+                        }
+                    }
+                //}
+            } else {
+                    for (const [key1, value1] of Object.entries(participants)) {
+                        that.logger.log("internal", LOG_ID + "(parseIdFromConferenceUpdatedEvent) Iter of Properties : key : ", key1 ,", value :", value1);
+                        if (key1==="participant-id" || key1==="user-id") {
+                            let participantId: any = value1;
+                            that.logger.log("internal", LOG_ID + "(parseIdFromConferenceUpdatedEvent) : add participant-id", participantId);
                             result.add(participantId);
                         }
                     }
