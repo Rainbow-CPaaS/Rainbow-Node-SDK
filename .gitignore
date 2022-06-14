@@ -277,3 +277,4 @@ fabric.properties
 /tasks/generateFoss.js
 /tasks/generateFoss.js.map
 /runcpdoc.bat
+/yarn.lock
