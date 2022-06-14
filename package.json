@@ -117,7 +117,6 @@
     "semver": "^7.3.5",
     "stream-buffers": "^3.0.2",
     "strip-ansi": "6.0.0",
-    "strophe": "^1.2.4",
     "ts-generic-collections-linq": "1.0.7",
     "uuid": "^8.3.2",
     "uuid4": "2.0.2",
