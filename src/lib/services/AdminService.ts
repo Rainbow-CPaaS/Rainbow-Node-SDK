@@ -2928,6 +2928,7 @@ class AdminService extends GenericService {
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
+     * @param {string} commandId if the check csv request comes from connector on behalf of admin command, it will generates a report.
      * @description
      *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br>
      *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
@@ -2950,12 +2951,12 @@ class AdminService extends GenericService {
      *      } <br>
      * @return {Promise<any>}
      */
-    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string  = "%") : any {
+    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string  = "%", commandId? : string) : any {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
             try {
-                let CSVResult = await that._rest.checkCSVforSynchronization(CSVTxt, companyId, delimiter, comment);
+                let CSVResult = await that._rest.checkCSVforSynchronization(CSVTxt, companyId, delimiter, comment, commandId);
                 that._logger.log("debug", "(checkCSVforSynchronization) - sent.");
                 that._logger.log("internal", "(checkCSVforSynchronization) - result : ", CSVResult);
 
@@ -2970,7 +2971,36 @@ class AdminService extends GenericService {
 
     /**
      * @public
-     * @method retrieveRainbowUserList
+     * @method getCheckCSVReport
+     * @since 2.5.1
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} commandId 
+     * @description
+     *      This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId). <br>
+     */          
+    getCheckCSVReport(commandId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let CSVResult = await that._rest.getCheckCSVReport(commandId);
+                that._logger.log("debug", "(getCheckCSVReport) - sent.");
+                that._logger.log("internal", "(getCheckCSVReport) - result : ", CSVResult);
+
+                resolve (CSVResult);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCheckCSVReport) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCheckCSVReport) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method importRainbowVoiceUsersWithCSVdata
      * @since 2.5.1
      * @instance
      * @async

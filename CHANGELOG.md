@@ -8,6 +8,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.12.1] - 2022-06-XX
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.
+-   Add parameter commandId to the method `AdminService::checkCSVforSynchronization`.
+-   Add `AdminService::getCheckCSVReport`, This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId).
 
 ## [2.12.0] - 2022-06-03
 -   Same content as version 2.10.0-lts.10 

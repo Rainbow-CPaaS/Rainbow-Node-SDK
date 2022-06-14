@@ -6405,7 +6405,9 @@ Request Method: PUT
     }
     
     // A file can be checked with POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check
-    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string = "%") : any {
+    checkCSVforSynchronization(CSVTxt, companyId? : string, delimiter?  : string, comment : string = "%", commandId? : string) : any {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-CheckSynchronizeCSV
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check";
@@ -6415,6 +6417,7 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             addParamToUrl(urlParamsTab, "delimiter", delimiter);
             addParamToUrl(urlParamsTab, "comment", comment);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
             url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST url : ", url);
@@ -6426,6 +6429,32 @@ Request Method: PUT
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(checkCSVforSynchronization) error");
                 that.logger.log("internalerror", LOG_ID, "(checkCSVforSynchronization) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCheckCSVReport(commandId : string) {
+        // GET /api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check/:commandId/report
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-GetCheckSynchronizeCSV
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize/check/" + commandId + "/report";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            //addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getCheckCSVReport) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCheckCSVReport) successfull");
+                that.logger.log("internal", LOG_ID + "(getCheckCSVReport) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCheckCSVReport) error");
+                that.logger.log("internalerror", LOG_ID, "(getCheckCSVReport) error : ", err);
                 return reject(err);
             });
         });
