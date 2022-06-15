@@ -1920,7 +1920,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(createBubble) error", err);
+                that.logger.log("internalerror", LOG_ID, "(createBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3505,7 +3505,7 @@ Request Method: PUT
                  that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
                  resolve(json.data);
              }).catch(function(err) {
-                 that.logger.log("error", LOG_ID, "(getChannel) error", err);
+                 that.logger.log("error", LOG_ID, "(getChannel) error : ", err);
                  that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
                  reject(err);
              });
@@ -5520,7 +5520,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(createDevice) error", err);
+                that.logger.log("internalerror", LOG_ID, "(createDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -5538,7 +5538,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(updateDevice) error", err);
+                that.logger.log("internalerror", LOG_ID, "(updateDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -5695,7 +5695,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(renameDevicesTags) error");
-                that.logger.log("internalerror", LOG_ID, "(renameDevicesTags) error", err);
+                that.logger.log("internalerror", LOG_ID, "(renameDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -5785,7 +5785,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(createTemplate) error", err);
+                that.logger.log("internalerror", LOG_ID, "(createTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -5803,7 +5803,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(updateTemplate) error", err);
+                that.logger.log("internalerror", LOG_ID, "(updateTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -5891,7 +5891,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(createFilter) error", err);
+                that.logger.log("internalerror", LOG_ID, "(createFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -5909,7 +5909,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(updateFilter) error", err);
+                that.logger.log("internalerror", LOG_ID, "(updateFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -5993,7 +5993,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(createAlert) error", err);
+                that.logger.log("internalerror", LOG_ID, "(createAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -6011,7 +6011,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(updateAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(updateAlert) error", err);
+                that.logger.log("internalerror", LOG_ID, "(updateAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -6095,7 +6095,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(sendAlertFeedback) error");
-                that.logger.log("internalerror", LOG_ID, "(sendAlertFeedback) error", err);
+                that.logger.log("internalerror", LOG_ID, "(sendAlertFeedback) error : ", err);
                 return reject(err);
             });
         });
@@ -6258,7 +6258,7 @@ Request Method: PUT
                 resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(getCalendarStates) error");
-                that.logger.log("internalerror", LOG_ID, "(getCalendarStates) error", err);
+                that.logger.log("internalerror", LOG_ID, "(getCalendarStates) error : ", err);
                 return reject(err);
             });
         });
@@ -6282,7 +6282,7 @@ Request Method: PUT
                 resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(setCalendarRegister) error");
-                that.logger.log("internalerror", LOG_ID, "(setCalendarRegister) error", err);
+                that.logger.log("internalerror", LOG_ID, "(setCalendarRegister) error : ", err);
                 return reject(err);
             });
         });
@@ -6336,6 +6336,257 @@ Request Method: PUT
     
     //region AD/LDAP
     //region AD/LDAP masspro
+
+    checkCSVdata(data? : any, companyId? : string, delimiter? : string, comment : string = "%") {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/check
+        // API : https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-CheckCSV
+        let that = this;
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/check";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        addParamToUrl(urlParamsTab, "companyId", companyId);
+        addParamToUrl(urlParamsTab, "delimiter", delimiter);
+        addParamToUrl(urlParamsTab, "comment", comment);
+        urlParams = urlParamsTab[0];
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
+                that.logger.log("info", LOG_ID + "(checkCSVdata) successfull");
+                that.logger.log("internal", LOG_ID + "(checkCSVdata) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkCSVdata) error");
+                that.logger.log("internalerror", LOG_ID, "(checkCSVdata) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteAnImportStatusReport(reqId: string) {
+        // DELETE /api/rainbow/massprovisioning/v1.0/users/imports/:reqId/details
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-DeleteReport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST reqId : ", reqId);
+
+            that.http.delete("/api/rainbow/massprovisioning/v1.0/users/imports/" + reqId + "/details"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAnImportStatusReport) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAnImportStatusReport) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAnImportStatusReport) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAnImportStatusReport(reqId? : string, format : string = "full") : any {
+        // GET /api/rainbow/massprovisioning/v1.0/users/imports/:reqId/details
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-GetReport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports/" + reqId + "/details";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAnImportStatusReport) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAnImportStatusReport) successfull");
+                that.logger.log("internal", LOG_ID + "(getAnImportStatusReport) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAnImportStatusReport) error");
+                that.logger.log("internalerror", LOG_ID, "(getAnImportStatusReport) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getInformationOnImports(companyId? : string) : any {
+        // GET /api/rainbow/massprovisioning/v1.0/users/imports
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-GetImports
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/imports";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getInformationOnImports) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getInformationOnImports) successfull");
+                that.logger.log("internal", LOG_ID + "(getInformationOnImports) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getInformationOnImports) error");
+                that.logger.log("internalerror", LOG_ID, "(getInformationOnImports) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getResultOfStartedOffice365TenantSynchronizationTask(tenant? : string, format : string = "json") : any {
+        // GET /api/rainbow/massprovisioning/v1.0/users/synchronizeTask/:tenant
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-SynchronizeTenantTaskGet
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/synchronizeTask/" + tenant;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) successfull");
+                that.logger.log("internal", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error");
+                that.logger.log("internalerror", LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    importCSVData(data? : any, companyId? : string, label : string = "none", noemails : boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports
+        // API : https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-ImportCSV
+        let that = this;
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        addParamToUrl(urlParamsTab, "companyId", companyId);
+        addParamToUrl(urlParamsTab, "label", label);
+        addParamToUrl(urlParamsTab, "noemails", noemails);
+        addParamToUrl(urlParamsTab, "nostrict", nostrict);
+        addParamToUrl(urlParamsTab, "delimiter", delimiter);
+        addParamToUrl(urlParamsTab, "comment", comment);
+        urlParams = urlParamsTab[0];
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
+                that.logger.log("info", LOG_ID + "(importCSVData) successfull");
+                that.logger.log("internal", LOG_ID + "(importCSVData) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(importCSVData) error");
+                that.logger.log("internalerror", LOG_ID, "(importCSVData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant? : string) {
+        // POST /api/rainbow/massprovisioning/v1.0/users/synchronizeTask/:tenant
+        // API : https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-SynchronizeTenantTaskStart
+        let that = this;
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/synchronizeTask/" + tenant;
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        // addParamToUrl(urlParamsTab, "comment", comment);
+        urlParams = urlParamsTab[0];
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), {}, 'text/csv; charset=utf-8').then(function (json) {
+                that.logger.log("info", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) successfull");
+                that.logger.log("internal", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error");
+                that.logger.log("internalerror", LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    synchronizeOffice365TenantUserList(tenant? : string, format : string = "json") : any {
+        // GET /api/rainbow/massprovisioning/v1.0/users/synchronize/:tenant
+        // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-SynchronizeTenant
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/users/synchronize/" + tenant;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(synchronizeOffice365TenantUserList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(synchronizeOffice365TenantUserList) successfull");
+                that.logger.log("internal", LOG_ID + "(synchronizeOffice365TenantUserList) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(synchronizeOffice365TenantUserList) error");
+                that.logger.log("internalerror", LOG_ID, "(synchronizeOffice365TenantUserList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data? : any, companyId? : string, delimiter? : string, comment : string = "%") {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice/check
+        // API : https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-CheckRainbowVoiceCSV
+        let that = this;
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice/check";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        addParamToUrl(urlParamsTab, "companyId", companyId);
+        addParamToUrl(urlParamsTab, "delimiter", delimiter);
+        addParamToUrl(urlParamsTab, "comment", comment);
+        urlParams = urlParamsTab[0];
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
+                that.logger.log("info", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) successfull");
+                that.logger.log("internal", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error");
+                that.logger.log("internalerror", LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateCommandIdStatus(data? : any, commandId? : string) {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize/:commandId/report
+        // API : 
+        let that = this;
+        let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize/" + commandId + "/report";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        // addParamToUrl(urlParamsTab, "companyId", companyId);
+        urlParams = urlParamsTab[0];
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateCommandIdStatus) successfull");
+                that.logger.log("internal", LOG_ID + "(updateCommandIdStatus) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateCommandIdStatus) error");
+                that.logger.log("internalerror", LOG_ID, "(updateCommandIdStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     /*
     POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize?noemails=true with a file containing users and devices
     Remark: "sync" (and/or "delete") action(s) should be used and all the relevant fields from AD should be systematically provided
@@ -6372,7 +6623,7 @@ Request Method: PUT
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error");
-                that.logger.log("internalerror", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error", err);
+                that.logger.log("internalerror", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error : ", err);
                 return reject(err);
             });
         });

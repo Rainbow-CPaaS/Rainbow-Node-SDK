@@ -2764,6 +2764,472 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @method checkCSVdata
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {any} data body of the POST.
+     * @description
+     *     This API checks a CSV UTF-8 content for mass-provisioning. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | * check results summary |
+     * | reqId | String | * check request identifier |
+     * | mode | String | * request csv mode<br><br>Possible values : `user`, `device` |
+     * | actions | Object | * actions information |
+     * | add optionnel | Number | * number of user add actions |
+     * | update optionnel | Number | * number of user update actions |
+     * | remove optionnel | Number | * number of user remove actions |
+     * | attach optionnel | Number | * number of device pairing actions |
+     * | force_attach optionnel | Number | * number of device forced pairing actions |
+     * | columns | Number | * number of columns in the CSV |
+     * | detach optionnel | Number | * number of device unpairing actions |
+     * | delimiter | String | * the CSV delimiter |
+     * | profiles | Object | * the managed profiles |
+     * | name | String | * the managed profiles name |
+     * | valid | Boolean | * the managed profiles validity |
+     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+     * | max | Number | * the maximum number of managed profiles available |
+     * 
+     */
+    checkCSVdata( data?: any, companyId? : string, delimiter? : string, comment : string = "%") {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let checkCSVRestResult = await that._rest.checkCSVdata(data, companyId , delimiter, comment);
+                that._logger.log("debug", "(checkCSVdata) - sent.");
+                that._logger.log("internal", "(checkCSVdata) - checkCSVRestResult : ", checkCSVRestResult);               
+                resolve (checkCSVRestResult);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(checkCSVdata) Error.");
+                that._logger.log("internalerror", LOG_ID + "(checkCSVdata) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method deleteAnImportStatusReport
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} reqId the import request id
+     * @description
+     *     This API allows to delete the report of an import identified by its reqId. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | * delete status |
+     * | reqId | String | * deleted reqId |
+     * | status | String | * delete status |
+     * 
+     */
+    deleteAnImportStatusReport(reqId? : string, delimiter? : string, comment : string = "%") {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.deleteAnImportStatusReport(reqId);
+                that._logger.log("debug", "(deleteAnImportStatusReport) - sent.");
+                that._logger.log("internal", "(deleteAnImportStatusReport) - result : ", result);               
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAnImportStatusReport) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAnImportStatusReport) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAnImportStatusReport
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} reqId the import request id
+     * @param {string} format Allows to retrieve more or less report details.
+     * - small: reporting without operation details
+     * - full: reporting with operation details
+     * Default value : full
+     * Possible values : small, full
+     * @description
+     *     This API allows to access the report of an import identified by its reqId. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | * import report |
+     * | reqId | String | * import request identifier |
+     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device`, `rainbowvoice` |
+     * | status | String | * request status |
+     * | report | Object | * request report |
+     * | status | String | * action status |
+     * | action | String | * the fulfilled action |
+     * | userId | String | * Rainbow user Id |
+     * | failingLines | String\[\] | * CSV lines that failed |
+     * | line optionnel | String | * associated CSV line in an error case |
+     * | counters | Object | * request counters |
+     * | succeeded | Integer | * '#' of succeeded action |
+     * | failed | Integer | * '#' of failed action |
+     * | label | String | * description of the import |
+     * | total | Integer | * total '#' of actions |
+     * | userId | String | * id of the requesting user |
+     * | displayName | String | * the requesting user displayname |
+     * | companyId | String | * the default company Id |
+     * | startTime | String | * the import processing start time |
+     * | profiles | Object | * provides info about licences used |
+     * | subscriberReport optionnel | Object | * provides details about subscriber action (attach, update or detach action) - only in case of rainbowvoice mode |
+     * | sipDeviceReport optionnel | Object | * provides details about sip Device action (attach or detach action) - only in case of rainbowvoice mode |
+     * | ddiReport optionnel | Object | * provides details about ddi action (attach or detach action) - only in case of rainbowvoice mode |
+     * | endTime | String | * the import processing end time |
+     *
+     */
+    getAnImportStatusReport(reqId? : string, format : string= "full") {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.deleteAnImportStatusReport(reqId);
+                that._logger.log("debug", "(deleteAnImportStatusReport) - sent.");
+                that._logger.log("internal", "(deleteAnImportStatusReport) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAnImportStatusReport) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAnImportStatusReport) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getInformationOnImports
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} companyId the companyId to list imports of
+     * @description
+     *     This API provides information on all imports of the administrator's company. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | reqId | String | * import request identifier |
+     * | status | String | * import status |
+     * | userId | String | * id of the requesting user |
+     * | displayName | String | * display name of the requesting user |
+     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device`, `rainbowvoice` |
+     * | label | String | * description of the import |
+     * | startTime | String | * the import processing start time |
+     * | endTime | String | * the import processing end time |
+     * | counters | Object | * the import processing operation status counters |
+     * | data | Object\[\] | * list of company imports |
+     * | succeeded | Integer | * '#' of succeeded actions |
+     * | failed | Integer | * '#' of failed actions |
+     * | warnings | Integer | * '#' actions with warnings |
+     * | total | Integer | * total '#' of actions |
+     *
+     */
+    getInformationOnImports(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.getInformationOnImports(companyId);
+                that._logger.log("debug", "(getInformationOnImports) - sent.");
+                that._logger.log("internal", "(getInformationOnImports) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getInformationOnImports) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getInformationOnImports) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getResultOfStartedOffice365TenantSynchronizationTask
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} tenant Office365 tenant
+     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+     * - json: answer follows the pattern { "data" : { ... JSON ... }}
+     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
+     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
+     * Default value : json
+     * Possible values : csv, json, all
+     * @description
+     *     This API retrieves data describing all operations required to synchronize an Office365 tenant (csv or json format). 
+     *     This API returns the result of a prior SynchronizeTenantTaskStart that triggers an asynchronous processing for a given tenant. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status optionnel | String | Asynchronous operation status<br><br>Possible values : `pending` |
+     * | data optionnel | Object | synchronization data |
+     *
+     */
+    getResultOfStartedOffice365TenantSynchronizationTask(tenant? : string, format : string = "json") : any {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.getResultOfStartedOffice365TenantSynchronizationTask(tenant, format);
+                that._logger.log("debug", "(getResultOfStartedOffice365TenantSynchronizationTask) - sent.");
+                that._logger.log("internal", "(getResultOfStartedOffice365TenantSynchronizationTask) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method importCSVData
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+     * @param {string} label a text description of this import. Default value : none
+     * @param {string} noemails disable email sending. Default value : true
+     * @param {string} nostrict create of an existing user and delete of an unexisting user are not errors. Default value : false
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {any} data The body of the POST.
+     * @description
+     *     This API allows to manage Rainbow users or devices through a CSV UTF-8 encoded file. </br>
+     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. </br>
+     *     Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. </br>
+     *     If you really need to apply same CSV data again, you will have to delete its associated import report first. </br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | * import summary |
+     * | reqId | String | * import request identifier |
+     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device` |
+     * | status | String | * Current import state, should be 'Pending' |
+     * | userId | String | * id of the requesting user |
+     * | displayName | String | * display name of the requesting user |
+     * | label | String | * description of the import |
+     * | startTime | String | * the import processing start time |
+     *
+     */
+    importCSVData(data?: any, companyId? : string, label : string = "none", noemails : boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%") {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.importCSVData(data, companyId, label, noemails, nostrict, delimiter, comment );
+                that._logger.log("debug", "(importCSVData) - sent.");
+                that._logger.log("internal", "(importCSVData) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(importCSVData) Error.");
+                that._logger.log("internalerror", LOG_ID + "(importCSVData) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method startsAsynchronousGenerationOfOffice365TenantUserListSynchronization
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} tenant Office365 tenant
+     * @description
+     *     This API generates data describing all operations required to synchronize an Office365 tenant (csv or json format). </br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Asynchronous operation status<br><br>Possible values : `pending` |
+     *
+     */
+    startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant);
+                that._logger.log("debug", "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - sent.");
+                that._logger.log("internal", "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error.");
+                that._logger.log("internalerror", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method synchronizeOffice365TenantUserList
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} tenant Office365 tenant
+     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+     * - json: answer follows the pattern { "data" : { ... JSON ... }}
+     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
+     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
+     * Default value : json
+     * Possible values : csv, json, all
+     * @description
+     *     This API generates a file describing all operations required to synchronize an Office365 tenant (csv or json format). </br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | String | synchronization data. |
+     *
+     */
+    synchronizeOffice365TenantUserList(tenant? : string, format  : string = "json") : any {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.synchronizeOffice365TenantUserList(tenant, format );
+                that._logger.log("debug", "(synchronizeOffice365TenantUserList) - sent.");
+                that._logger.log("internal", "(synchronizeOffice365TenantUserList) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(synchronizeOffice365TenantUserList) Error.");
+                that._logger.log("internalerror", LOG_ID + "(synchronizeOffice365TenantUserList) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method checkCSVDataOfSynchronizationUsingRainbowvoiceMode
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} companyId companyId of the users in the CSV file, default to admin's companyId
+     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. Default value : %
+     * @param {any} data The body of the POST.
+     * @description
+     *    This API checks a CSV UTF-8 content for mass-provisioning for rainbowvoice mode. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. </br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | * check results summary |
+     * | reqId | String | * check request identifier |
+     * | mode | String | * request csv mode<br><br>Possible values : `rainbowvoide` |
+     * | actions | Object | * actions information |
+     * | upsert optionnel | Number | * number of user create/update actions |
+     * | delete optionnel | Number | * number of user remove actions |
+     * | columns | Number | * number of columns in the CSV |
+     * | detach optionnel | Number | * number of device unpairing actions |
+     * | delimiter | String | * the CSV delimiter |
+     * | profiles | Object | * the managed profiles |
+     * | name | String | * the managed profiles name |
+     * | valid | Boolean | * the managed profiles validity |
+     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+     * | max | Number | * the maximum number of managed profiles available |
+     *
+     */
+    checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data?: any, companyId? : string, delimiter? : string, comment : string = "%") {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data, companyId , delimiter, comment);
+                that._logger.log("debug", "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - sent.");
+                that._logger.log("internal", "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error.");
+                that._logger.log("internalerror", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateCommandIdStatus
+     * @since 2.12.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP masspro
+     * @param {string} data body of the POST.
+     * @param {string} commandId commandId which came from connector on behalf of admin command
+     * @description
+     *    This API is used to update the status of the commandId. </br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     */
+    updateCommandIdStatus(data? : any, commandId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.updateCommandIdStatus(data, commandId);
+                that._logger.log("debug", "(updateCommandIdStatus) - sent.");
+                that._logger.log("internal", "(updateCommandIdStatus) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateCommandIdStatus) Error.");
+                that._logger.log("internalerror", LOG_ID + "(updateCommandIdStatus) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+        /**
+     * @public
      * @method synchronizeUsersAndDeviceswithCSV
      * @since 1.86.0
      * @instance
@@ -2976,9 +3442,32 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category AD/LDAP - AD/LDAP masspro
-     * @param {string} commandId 
+     * @param {string} commandId used in the check csv request whicj came from connector on behalf of admin command
      * @description
      *      This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId). <br>
+     * @return {Promise<any>}
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | report | Object | * check results summary |
+     * | status | String | * status of the check csv<br><br>Valeurs autorisées : `success`, `failure`, `pending` |
+     * | reqId | String | * check request identifier |
+     * | mode | String | * request csv mode<br><br>Valeurs autorisées : `user`, `device` |
+     * | actions | Object | * actions information |
+     * | sync optionnel | Number | * number of user synchronization actions |
+     * | upsert optionnel | Number | * number of user create/update actions |
+     * | delete optionnel | Number | * number of user remove actions |
+     * | columns | Number | * number of columns in the CSV |
+     * | detach optionnel | Number | * number of device unpairing actions |
+     * | delimiter | String | * the CSV delimiter |
+     * | profiles | Object | * the managed profiles |
+     * | name | String | * the managed profiles name |
+     * | valid | Boolean | * the managed profiles validity |
+     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+     * | max | Number | * the maximum number of managed profiles available |
+     * 
      */          
     getCheckCSVReport(commandId : string) {
         let that = this;

@@ -10,6 +10,16 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.
 -   Add parameter commandId to the method `AdminService::checkCSVforSynchronization`.
 -   Add `AdminService::getCheckCSVReport`, This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId).
+-   Add `AdminService::checkCSVdata`, This API checks a CSV UTF-8 content for mass-provisioning.
+-   Add `AdminService::deleteAnImportStatusReport`, This API allows to delete the report of an import identified by its reqId. 
+-   Add `AdminService::getAnImportStatusReport`, This API allows to access the report of an import identified by its reqId.
+-   Add `AdminService::getInformationOnImports`, This API provides information on all imports of the administrator's company.
+-   Add `AdminService::getResultOfStartedOffice365TenantSynchronizationTask`, This API retrieves data describing all operations required to synchronize an Office365 tenant (csv or json format).
+-   Add `AdminService::importCSVData`, This API allows to manage Rainbow users or devices through a CSV UTF-8 encoded file.
+-   Add `AdminService::startsAsynchronousGenerationOfOffice365TenantUserListSynchronization`, This API generates data describing all operations required to synchronize an Office365 tenant (csv or json format).
+-   Add `AdminService::synchronizeOffice365TenantUserList`, This API generates a file describing all operations required to synchronize an Office365 tenant (csv or json format).
+-   Add `AdminService::checkCSVDataOfSynchronizationUsingRainbowvoiceMode`, This API checks a CSV UTF-8 content for mass-provisioning for rainbowvoice mode.
+-   Add `AdminService::updateCommandIdStatus`, This API is used to update the status of the commandId.
 
 ## [2.12.0] - 2022-06-03
 -   Same content as version 2.10.0-lts.10 
