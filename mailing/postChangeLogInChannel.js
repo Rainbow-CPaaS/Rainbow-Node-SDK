@@ -58,7 +58,18 @@ let options = {
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,
-        "copyMessage": true
+        "copyMessage": true,
+        "nbMaxConversations": 15,
+        "rateLimitPerHour": 100000,
+//        "messagesDataStore": DataStoreType.NoStore,
+        "messagesDataStore": "storetwinside",
+        "autoInitialBubblePresence": false,
+        "autoLoadConversations": false,
+        // "autoInitialBubblePresence": false,
+        // "autoLoadConversations": false,
+        "autoLoadContacts": false,
+        "enableCarbon": false,
+        "enablesendurgentpushmessages": false
     },
     // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
     // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -156,7 +167,7 @@ rainbowSDK.start(undefined).then(async(result) => {
         //let currentVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts")) : packageJSON.version;
 
 
-        let channelName = channelNameParam ? channelNameParam : "Rainbow API Hub Information Channel";
+        let channelName = channelNameParam ? channelNameParam : "Rainbow for Developers Information Channel";
 
         let mychannels = await rainbowSDK.channels.findChannelsByName(channelName);
         let mychannel = mychannels ? mychannels[0] : null;
@@ -253,7 +264,7 @@ rainbowSDK.start(undefined).then(async(result) => {
     rainbowSDK.stop().then(() => {
         process.exit(0);
     });
-}).catch(() => {
-    logger.log("error", "failed to start the  SDK.");
+}).catch((err) => {
+    logger.log("error", "failed to start the  SDK. Error : ", err);
     process.exit(0);
 });
