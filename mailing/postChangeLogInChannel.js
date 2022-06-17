@@ -173,10 +173,12 @@ rainbowSDK.start(undefined).then(async(result) => {
         // Do something when the SDK is started
         logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
         let pathPackageJson = null;
-        if (packageJson) {
+        if (!packageJson) {
             pathPackageJson = path.join(__dirname, "../package.json");
+            logger.log("debug", "Set pathPackageJson file path to default one : ", pathPackageJson);
         } else {
             pathPackageJson = path.join("", packageJson);
+            logger.log("debug", "CHANGELOG file path is externaly setted : ", pathPackageJson);
         }    
         let content = fs.readFileSync(pathPackageJson);
         let packageJSON = JSON.parse(content);
@@ -196,10 +198,16 @@ rainbowSDK.start(undefined).then(async(result) => {
             let product = {};
             if (!changeLog) {
                 changeLog = "./CHANGELOG.md";
+                logger.log("debug", "Set CHANGELOG file path to default one : ", changeLog);
+            } else {
+                logger.log("debug", "CHANGELOG file path is externaly setted : ", changeLog);
             }
 
             if (!changeLogTitle) {
                 changeLogTitle = "Rainbow Node SDK ChangeLog : " + minVersion;
+                logger.log("debug", "Set changeLogTitle file path to default one : ", changeLogTitle);
+            } else {
+                logger.log("debug", "changeLogTitle file path externaly setted : ", changeLogTitle);
             }
 
             let item = {
