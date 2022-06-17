@@ -104,7 +104,14 @@ function extractReleaseNotes(releaseNotes, config) {
 }
 
 function generateNunjucksVariables(config) {
-    let releaseNoteDefinition = YAML.load(path.join(__dirname, "./changelog.yaml"));
+    let changelogyamlpath = null;
+    if (config.pathToChangelogYaml) {        
+        changelogyamlpath = path.join("", config.pathToChangelogYaml);
+    }  else {
+        changelogyamlpath = path.join(__dirname, "./changelog.yaml");
+    }
+    
+    let releaseNoteDefinition = YAML.load(changelogyamlpath);
 
     return new Promise((resolve, reject) => {
         extractReleaseNotes(releaseNoteDefinition, config)
@@ -246,6 +253,7 @@ program
         "preproduction"
     )
 .option("-t, --test [email]", "Test the email by sending him to a test email")
+.option("-f, --file [pathToChangelogYaml]", "the path to the yaml changelog file.", null)
 .action((env, options) => {
 
         let apiKey = process.env.MJ_APIKEY_PUBLIC;
