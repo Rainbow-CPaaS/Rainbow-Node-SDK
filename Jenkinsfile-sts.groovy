@@ -315,6 +315,7 @@ pipeline {
 
                     # To send the mailing only to vincent.berder@al-enterprise.com . 
                     ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                    ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog 
                         
                     more ~/.npmrc.sav > ~/.npmrc
                 """
