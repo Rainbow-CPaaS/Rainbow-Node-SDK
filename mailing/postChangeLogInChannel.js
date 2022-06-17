@@ -109,6 +109,9 @@ let options = {
 
 let channelNameParam = null;
 let logsActivated = false;
+let packageJson = null;
+let changeLog = null;
+let changeLogTitle = null;
 
 process.argv.forEach((val, index) => {
     //console.log(`${index}: ${val}`);
@@ -132,6 +135,15 @@ process.argv.forEach((val, index) => {
     }
     if (`${val}`.startsWith("logs=") ) {
         logsActivated = `${val}`.substring(5);
+    }
+    if (`${val}`.startsWith("packageJson=") ) {
+        packageJson = `${val}`.substring(12);
+    }
+    if (`${val}`.startsWith("changeLog=") ) {
+        changeLog = `${val}`.substring(10);
+    }
+    if (`${val}`.startsWith("changeLogTitle=") ) {
+        changeLogTitle = `${val}`.substring(15);
     }
 });
 
@@ -160,7 +172,13 @@ rainbowSDK.start(undefined).then(async(result) => {
     try {
         // Do something when the SDK is started
         logger.log("debug", "MAIN - rainbow SDK started result 1 : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
-        let content = fs.readFileSync(path.join(__dirname, "../package.json"));
+        let pathPackageJson = null;
+        if (packageJson) {
+            pathPackageJson = path.join(__dirname, "../package.json");
+        } else {
+            pathPackageJson = path.join("", packageJson);
+        }    
+        let content = fs.readFileSync(pathPackageJson);
         let packageJSON = JSON.parse(content);
         let minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
         //let fullVersion = packageJSON.version;
@@ -176,10 +194,17 @@ rainbowSDK.start(undefined).then(async(result) => {
             //let now = new Date().getTime();
 
             let product = {};
+            if (!changeLog) {
+                changeLog = "./CHANGELOG.md";
+            }
+
+            if (!changeLogTitle) {
+                changeLogTitle = "Rainbow Node SDK ChangeLog : " + minVersion;
+            }
 
             let item = {
-                "title": "Rainbow Node SDK ChangeLog : " + minVersion,
-                "path": "./CHANGELOG.md"
+                "title": changeLogTitle,
+                "path": changeLog
             };
 
             product.title = item.title;
