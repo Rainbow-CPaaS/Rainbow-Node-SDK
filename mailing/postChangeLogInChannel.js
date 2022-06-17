@@ -253,7 +253,7 @@ rainbowSDK.start(undefined).then(async(result) => {
                     return false;
                 });
 
-               let html = "<h1>Rainbow Node SDK - News</h1><hr />" + md.renderJsonML(md.toHTMLTree(filteredTree));
+               let html = "<h1>" + changeLogTitle + " - News</h1><hr />" + md.renderJsonML(md.toHTMLTree(filteredTree));
 
                 logger.log("debug", "html : ", html);
 
