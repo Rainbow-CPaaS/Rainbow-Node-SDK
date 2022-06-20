@@ -24,6 +24,7 @@ import {
 import {List} from "ts-generic-collections-linq";
 import {MEDIATYPE} from "../RESTService";
 import {PresenceService} from "../../services/PresenceService";
+import {url} from "inspector";
 
 export {};
 
@@ -1058,11 +1059,14 @@ class ConversationEventHandler extends GenericHandler {
                             case "jabber:x:oob" : {
                                 attachIndex = node.attrs.index;
                                 attachNumber = node.attrs.count;
+                                let  urlFile = node.getChild("url").getText();
+                                let fileId = urlFile ? urlFile.split(/[/ ]+/).pop() : "";
                                 oob = {
-                                    url: node.getChild("url").getText(),
+                                    url: urlFile,
                                     mime: node.getChild("mime").getText(),
                                     filename: node.getChild("filename").getText(),
-                                    filesize: node.getChild("size").getText()
+                                    filesize: node.getChild("size").getText(),
+                                    fileId: fileId
                                 };
                                 that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
                                 break;

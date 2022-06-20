@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.14.0] - 2022-06-XX
+-   Add fileId when a file is attached in 'oob' property of data of a "rainbow_onmessagereceived".
+
 ## [2.13.0] - 2022-06-16
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.
 -   Add parameter commandId to the method `AdminService::checkCSVforSynchronization`.
