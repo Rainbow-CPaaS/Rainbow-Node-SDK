@@ -22,21 +22,10 @@ const program = new commander.Command();
 
 global.window = {};
 
-// Extract version
-let content = fs.readFileSync(path.join(__dirname, "../package.json"));
-let packageJSON = JSON.parse(content);
+let minVersion = null;
+let fullVersion = null;
+let currentVersion = null;
 
-program.version(packageJSON.version);
-
-let minVersion =
-    packageJSON.version.indexOf("-lts") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2)
-        : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
-let fullVersion = packageJSON.version;
-let currentVersion =
-    packageJSON.version.indexOf("-lts") > -1
-        ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts"))
-        : packageJSON.version;
 
 function loadSingleReleaseNotes(item, config) {
     return new Promise((resolve, reject) => {
@@ -90,6 +79,15 @@ function loadSingleReleaseNotes(item, config) {
 function extractReleaseNotes(releaseNotes, config) {
     return new Promise((resolve, reject) => {
         let productPromises = [];
+        
+        if (config.changeLogPath) {
+            releaseNotes.deliveries = [];
+            releaseNotes.deliveries.push({
+                title: config.headerMail,
+                path: config.changeLogPath 
+            });
+        } 
+        
         releaseNotes.deliveries.forEach(item => {
             productPromises.push(loadSingleReleaseNotes(item, config));
         });
@@ -106,11 +104,35 @@ function extractReleaseNotes(releaseNotes, config) {
 function generateNunjucksVariables(config) {
     let changelogyamlpath = null;
     if (config.pathToChangelogYaml) {        
-        changelogyamlpath = path.join("", config.pathToChangelogYaml);
+        changelogyamlpath =  config.pathToChangelogYaml;
+        console.log("set to external changelogyamlpath :" + changelogyamlpath);
+
     }  else {
         changelogyamlpath = path.join(__dirname, "./changelog.yaml");
+        console.log("set to default changelogyamlpath :" + changelogyamlpath);
     }
-    
+
+    let packageJsonPath = null;
+    if (config.packageJsonPath) {
+        packageJsonPath =  config.packageJsonPath;
+        console.log("set to external packageJsonPath :" + packageJsonPath);
+
+    }  else {
+        packageJsonPath = path.join(__dirname, "../package.json");
+        console.log("set to default packageJsonPath :" + packageJsonPath);
+    }
+
+    //let content = fs.readFileSync(path.join(__dirname, "../package.json"));
+    let content = fs.readFileSync(packageJsonPath);
+    let packageJSON = JSON.parse(content);
+
+    program.version(packageJSON.version);
+
+    minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2) : packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
+    fullVersion = packageJSON.version;
+    currentVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts")) : packageJSON.version;
+
+
     let releaseNoteDefinition = YAML.load(changelogyamlpath);
 
     return new Promise((resolve, reject) => {
@@ -152,7 +174,7 @@ function generateNunjucksVariables(config) {
     });
 }
 
-function sendMail(vars, mailjet) {
+function sendMail(config, vars, mailjet) {
     let to = [];
     let cc = [];
 
@@ -174,18 +196,23 @@ function sendMail(vars, mailjet) {
         });
     }
 
-    let message =
-        "Note: <BR>* An early STS version <b>" +
-        fullVersion +
-        "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag.<br>" +
-        "* To use the STS version in an other NodeJs project : <br> " +
-        "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
+    let message = undefined;
 
-    if (vars.environment !== "STS-PRODUCTION" || fullVersion.includes("lts")) {
-        message =
-            "Note: <BR>A new LTS version <b>" +
-            fullVersion +
-            "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and is now the <i>latest</i> tag";
+    if ( config.messageFoot) {
+        message = config.messageFoot;
+    } else {
+        if (vars.environment !== "STS-PRODUCTION" || fullVersion.includes("lts")) {
+            message =
+                "Note: <BR>A new LTS version <b>" +
+                fullVersion +
+                "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and is now the <i>latest</i> tag";
+        } else {
+            message = "Note: <BR>* An early STS version <b>" +
+                fullVersion +
+                "</b> has been published to NPM (https://www.npmjs.com/package/rainbow-node-sdk?activeTab=versions) and has not replaced the <i>latest</i> tag.<br>" +
+                "* To use the STS version in an other NodeJs project : <br> " +
+                "<i>npm install rainbow-node-sdk@" + fullVersion + " --save </i>";
+        }
     }
 
     console.log("message :" + message);
@@ -253,7 +280,11 @@ program
         "preproduction"
     )
 .option("-t, --test [email]", "Test the email by sending him to a test email")
-.option("-f, --file [pathToChangelogYaml]", "the path to the yaml changelog file.", null)
+.option("-f, --pathToChangelogYaml [pathToChangelogYaml]", "The path to the yaml changelog file.", null)
+.option("-p, --packageJsonPath [packageJsonPath]", "The path to the package.json file.", null)
+.option("-c, --changeLogPath [changeLogPath]", "The path to the CHANGELOG.md file.", null)
+.option("-m, --messageFoot [messageFoot]", "The foot message of the sent mail.", null)
+.option("-h, --headerMail [headerMail]", "The title message of the sent mail.", null)
 .action((env, options) => {
 
         let apiKey = process.env.MJ_APIKEY_PUBLIC;
@@ -263,7 +294,7 @@ program
 
         generateNunjucksVariables(env).then(vars => {
             //console.log ("sendMail(vars, mailjet);");
-            sendMail(vars, mailjet);
+            sendMail(env, vars, mailjet);
         });
     });
 
