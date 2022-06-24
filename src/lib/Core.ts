@@ -933,22 +933,22 @@ class Core {
 
         return new Promise(async(resolve, reject) => {
            // Test REST connection
-            restStatus = await that._rest.checkRESTAuthentication();
+            restStatus = that._rest ? await that._rest.checkRESTAuthentication() : false;
            // Test XMPP connection
-            xmppStatus = await this._xmpp.sendPing().then((result) => {
+            xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
                 that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
                 if (result && result.code === 1) {
                     return true;
                 } else {
                     return false;
                 }
-            });
+            }) : false;
 
             // */
            // Test S2S connection
-            s2sStatus  = await that._rest.checkS2SAuthentication();
+            s2sStatus  = that._rest ? await that._rest.checkS2SAuthentication() : false;
 
-            let httpStatus = await that._http.checkHTTPStatus();
+            let httpStatus : any = that._http ? await that._http.checkHTTPStatus():{nbHttpAdded:0, httpQueueSize:0, nbRunningReq:0, maxSimultaneousRequests:0, nbReqInQueue:0};
 
             return resolve({
                 restStatus,

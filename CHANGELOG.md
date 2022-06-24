@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.14.0] - 2022-06-XX
 -   Add fileId when a file is attached in 'oob' property of data of a "rainbow_onmessagereceived".
+-   Fix `NodeSDK::getConnectionStatus` api when the rest/xmpp/s2S/http law layer is not initialized. 
 
 ## [2.13.0] - 2022-06-16
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.
