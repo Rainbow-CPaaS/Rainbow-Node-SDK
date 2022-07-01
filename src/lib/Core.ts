@@ -248,14 +248,15 @@ class Core {
                 }
 
                 if (that.options.useS2S) {
-                    let result: Promise<any> = Promise.resolve(undefined);
-                    if (that.options.imOptions.autoLoadContacts) {
-                        result = that._contacts.getRosters();
-                    } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
-                    }
-                    return result
-                            .then(() => {
+                    return that.presence._sendPresenceFromConfiguration().then(() => {
+                        let result: Promise<any> = Promise.resolve(undefined);
+                        if (that.options.imOptions.autoLoadContacts) {
+                            result = that._contacts.getRosters();
+                        } else {
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        }
+                        return result
+                    }).then(() => {
                                 return that._s2s.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
                             return that._profiles.init(that.options._restOptions.useRestAtStartup);
@@ -268,7 +269,7 @@ class Core {
                         }).then(() => {
                             return that._fileServer.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that.presence._sendPresenceFromConfiguration();                       
+                            //return that.presence._sendPresenceFromConfiguration();                       
                             }).then(() => {
                                 return that._admin.init(that.options._restOptions.useRestAtStartup);
                             }).then(() => {
@@ -336,14 +337,15 @@ class Core {
                     return resolve(undefined);
                 }
                 if (that.options.useXMPP) {
-                    let result: Promise<any> = Promise.resolve(undefined);
-                    if (that.options.imOptions.autoLoadContacts) {
-                        result = that._contacts.getRosters();
-                    } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
-                    }
-                    return result
-                        .then(() => {
+                    return that.presence._sendPresenceFromConfiguration().then(() => {
+                        let result: Promise<any> = Promise.resolve(undefined);
+                        if (that.options.imOptions.autoLoadContacts) {
+                            result = that._contacts.getRosters();
+                        } else {
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        }
+                        return result
+                    }).then(() => {
                             return that._s2s.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             return that._profiles.init(that.options._restOptions.useRestAtStartup);
@@ -356,7 +358,7 @@ class Core {
                         }).then(() => {
                             return that._fileServer.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that.presence._sendPresenceFromConfiguration();
+                            //return that.presence._sendPresenceFromConfiguration();
                         }).then(() => {
                            // return that._bubbles.getBubbles(that.options._restOptions.useRestAtStartup);
                         }).then(() => {

@@ -3302,7 +3302,7 @@ class AdminService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             try {
-                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment);                
+                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment, commandId);                
                 that._logger.log("debug", "(synchronizeUsersAndDeviceswithCSV) - sent.");
                 that._logger.log("internal", "(synchronizeUsersAndDeviceswithCSV) - synchronizeRestResult : ", synchronizeRestResult);
                 let synchronizeResult : {

@@ -360,8 +360,25 @@ class PresenceService extends GenericService{
             }
         });
     }
-    
+
     /**
+     * @private
+     * @method sendInitialBubblePresenceById
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {string} id The Bubble id.
+     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    async sendInitialBubblePresenceById(id: string,  attempt : number = 0) {
+        let bubble:any = {id};
+        return this.sendInitialBubblePresence(bubble,attempt);
+    }
+    
+
+        /**
      * @private
      * @method sendInitialBubblePresence
      * @instance
