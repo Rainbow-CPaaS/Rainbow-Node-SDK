@@ -11,7 +11,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `NodeSDK::getConnectionStatus` api when the rest/xmpp/s2S/http law layer is not initialized.
 -   Fix : Move the call at startup `_sendPresenceFromConfiguration` to avoid the missing when the "getContacts" method failed.
 -   Add `PresenceService::sendInitialBubblePresenceById` private method. 
--   Fix ignored commandId in `AdminService::synchronizeUsersAndDeviceswithCSV` 
+-   Fix ignored commandId in `AdminService::synchronizeUsersAndDeviceswithCSV`. 
+-   Add to SDK initialisation a `testDNSentry` option to verify at startup/reconnection that the rainbow server DNS entry name is available.
 
 ## [2.13.0] - 2022-06-16
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.

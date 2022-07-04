@@ -62,6 +62,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
  * @property {boolean} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
  * @property {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+ * @property {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
  * @property {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
  * @property {number} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
@@ -182,6 +183,7 @@ type OptionsType = {
         }
     },
     "testOutdatedVersion": boolean,
+    "testDNSEntry": boolean, 
     "httpoverxmppserver": false,
     "requestsRate":{
         "maxReqByIntervalForRequestRate": number, // nb requests during the interval.
@@ -350,6 +352,7 @@ class NodeSDK {
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
      * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
      * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
      * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.

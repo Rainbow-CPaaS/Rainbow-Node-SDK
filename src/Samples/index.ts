@@ -22,6 +22,7 @@ import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
 
+
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) {
@@ -60,7 +61,7 @@ Object.defineProperty(exports, "__esModule", {value: true});
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 import Bubble_1 from "../lib/common/models/Bubble";
 import {NodeSDK as RainbowSDK} from "../index";
-import Utils from "../lib/common/Utils";
+import * as Utils from "../lib/common/Utils";
 import fs = require("fs");
 //import fileapi from "file-api";
 let fileapi = require('file-api');
@@ -174,6 +175,7 @@ let urlS2S;
             }
         },
         "testOutdatedVersion": true,
+        "testDNSentry": true,
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
@@ -593,9 +595,9 @@ let urlS2S;
         }, "Waiting for the stop event after the rainbow_onerror event.", 10000).then(() => {
             rainbowSDK = undefined;
             stopped = false;
+            /*
             rainbowSDK = new RainbowSDK(options);
             logger = rainbowSDK._core.logger;
-            /*
             rainbowSDK.start().then(async(result) => {
                 try {
                     // Do something when the SDK is started
@@ -679,6 +681,23 @@ let urlS2S;
             logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
         }).catch((err) => {
             logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+        });
+    }
+
+    function testgetContactByLoginEmail_david() {
+        let usershouldbeUnkown = "pbx191b-32a3-d759-4d7e-90a3-215b-f2ff-f499-vna@david-all-in-one-rd-dev-1.opentouch.cloud";
+        rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
+            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+        });
+        rainbowSDK.admin.getAllUsersByFilter(usershouldbeUnkown, undefined, "vna_location", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined ).then(contact => {
+            logger.log("debug", "MAIN - [getAllUsersByFilter    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [getAllUsersByFilter    ] :: catch reject contact : ", err);
         });
     }
 
@@ -4655,6 +4674,14 @@ let urlS2S;
     }
     
     //endregion Rainbow HTTPoverXMPP 
+    
+    function testresolveDns(url : string = 'www.amagicshop.com.tw') {
+        Utils.resolveDns(url).then((result)=>{
+            logger.log("debug", "MAIN - testresolveDns, result : ", result);
+        }).catch((err)=>{
+            logger.log("debug", "MAIN - testresolveDns, error : ", err);
+        })
+    }
     
     function testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;

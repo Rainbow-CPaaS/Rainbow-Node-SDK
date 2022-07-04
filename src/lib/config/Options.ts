@@ -25,6 +25,7 @@ class Options {
 	public _CLIMode: any;
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
+	private _testDNSentry: boolean;
 	private _httpoverxmppserver: boolean;
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
@@ -39,6 +40,7 @@ class Options {
         this._withS2S = false;
         this._CLIMode = true;
         this._testOutdatedVersion = true;
+        this._testDNSentry = true;
         this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
     }
@@ -89,6 +91,7 @@ class Options {
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
+        this._testDNSentry = this._gettestDNSentry();
         this._httpoverxmppserver = this._gethttpoverxmppserver();
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
@@ -101,6 +104,14 @@ class Options {
 
     set testOutdatedVersion(value: boolean) {
         this._testOutdatedVersion = value;
+    }
+
+    get testDNSentry(): boolean {
+        return this._testDNSentry;
+    }
+
+    set testDNSentry(value: boolean) {
+        this._testDNSentry = value;
     }
 
     get testhttpoverxmppserver(): boolean {
@@ -191,6 +202,14 @@ class Options {
             return this._options.testOutdatedVersion;
         } else {
             return config.testOutdatedVersion;
+        }
+    }
+
+    _gettestDNSentry() {
+        if ( this._options["testDNSentry"] !== undefined ) {
+            return this._options.testDNSentry;
+        } else {
+            return config.testDNSentry;
         }
     }
 

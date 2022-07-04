@@ -145,6 +145,7 @@ let conf =  {
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
     testOutdatedVersion: true,
+    testDNSentry: true,
     httpoverxmppserver: false,
     servicesToStart : {
             s2s: {

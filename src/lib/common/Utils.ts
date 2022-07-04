@@ -4,6 +4,7 @@
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
+const dns = require('dns')
 
 let makeId = (n) => {
   let text = "";
@@ -478,6 +479,42 @@ function stackTrace() {
     return err.stack;
 }
 
+
+const resolveDns = (cname) => {
+    return new Promise(function (resolve, reject ) {
+        const getIp = (accum) => {
+
+           // console.log("(resolve) (getIp) param : ", accum);
+            dns.resolve(cname, (err, result) => {
+                if (err) {
+                    //console.error(`error: ${err}`)
+                    reject();
+                } else {
+                    result.push.apply(result, accum)
+                    //console.log("(resolve) (getIp) result : ", result)
+                    resolve (result);
+                }
+            })
+        }
+
+        let accum = []
+        const getCnames = (err, result) => {
+            if (err) {
+                //console.log("(resolve) (getIp) error : ", err)
+                // no more records
+                getIp(accum)
+            } else {
+                //console.log("(resolve) (getIp) result : ", result)
+                const cname = result[0]
+                accum.push(cname)
+                dns.resolveCname(cname, getCnames)
+            }
+        }
+
+        dns.resolveCname(cname, getCnames)
+    });
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -500,7 +537,8 @@ export let objToExport = {
     stackTrace,
     addDaysToDate,
     addParamToUrl,
-    cleanEmptyMembersFromObject
+    cleanEmptyMembersFromObject,
+    resolveDns
 };
 
 module.exports = objToExport;
@@ -526,7 +564,8 @@ export {
     stackTrace,
     addDaysToDate,
     addParamToUrl,
-    cleanEmptyMembersFromObject
+    cleanEmptyMembersFromObject,
+    resolveDns
 };
 
 export default {
@@ -551,5 +590,6 @@ export default {
     stackTrace,
     addDaysToDate,
     addParamToUrl,
-    cleanEmptyMembersFromObject
+    cleanEmptyMembersFromObject,
+    resolveDns
 };

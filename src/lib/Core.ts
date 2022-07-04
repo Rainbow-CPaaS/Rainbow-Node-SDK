@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit, stackTrace} from "./common/Utils";
+import {logEntryExit, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
 
 export {};
 
@@ -36,6 +36,7 @@ import {S2SService} from "./services/S2SService";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
+import * as Utils from "./common/Utils";
 
 const packageVersion = require("../package.json");
 
@@ -245,6 +246,51 @@ class Core {
                         self.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
                         // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                     });
+                }
+
+                if (that.options.testDNSentry) {
+                    let findingDns = true;
+                    let resolvedHostnames: any = [];
+                    let dnsFound = false;
+
+                    async function fn_resolveDns() {
+                        while (findingDns) {
+                            try {
+                                resolvedHostnames = await resolveDns(that._http.host);
+                                that.logger.log("debug", "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
+                                if ((resolvedHostnames!=[]) && (resolvedHostnames.length > 0)) {
+                                    findingDns = false;
+                                    dnsFound = true;
+                                } else {
+                                    that.logger.log("debug", "(_retrieveInformation), resolveDns host not found, continue to search.");
+                                    //if ((resolvedHostnames == undefined) || (resolvedHostnames.length == 0) ) {
+                                    await setTimeoutPromised(3000);
+                                }
+                            } catch (err) {
+                                that.logger.log("error", "(_retrieveInformation), failed to resolveDns : ", that._http.host, ", error : ", err);
+                            }
+                        }
+                    }
+
+                    setTimeout(fn_resolveDns, 100);
+                    await until(() => {
+                        // Test if resolvedHostnames is undefined and if the Array is filled (so the dns entry was found)
+                        let result = dnsFound;
+                        result ?
+                                that.logger.log("debug", "(_retrieveInformation), resolvedHostnames found, so stop the search."):
+                                that.logger.log("warn", "(_retrieveInformation), resolvedHostnames not found, continue search");
+
+
+                        return result
+                    }, "Waiting for DNS resolve the hostname : " + that._http.host, 25000);
+
+                    findingDns = false;
+
+                    if (dnsFound) {
+                        that.logger.log("info", "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
+                    } else {
+                        that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK wont working with full features.");
+                    }
                 }
 
                 if (that.options.useS2S) {
