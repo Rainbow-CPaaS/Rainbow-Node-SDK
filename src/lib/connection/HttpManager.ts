@@ -37,7 +37,6 @@ class RequestForQueue {
 //    reject : Function; // Internal for the queue engine, Pointer to the function which reject the promise waited by the caller when the treatment failed ended.
     label: string; // A label to give a human readable log about the request.
     constructor(){
-
     }
 }
 
@@ -63,7 +62,7 @@ class MyRequestHandler {
         }).catch((err) => {
             this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call FAILED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             throw err;
-        })        
+        })
         // */
 
         if (response.statusCode === 429) throw new BackoffError(`Need to nack off guys!`);

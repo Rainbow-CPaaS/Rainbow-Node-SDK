@@ -39,6 +39,11 @@ let LOG_ID = "NodeSDK/IDX";
  * {Object} OptionsType 
  * @property {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
  * @property {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
+ * @property {string} options.xmpp.timeBetweenXmppRequests the time between two xmpp request (avoid burst)
+ * @property {string} options.xmpp.raiseLowLevelXmppInEvent enable the raise of event "rainbow_onxmmpeventreceived" when a data is received in xmpp pipe.
+ * @property {string} options.xmpp.raiseLowLevelXmppOutReq enable the raise of event "rainbow_onxmmprequestsent" when a data is sent in xmpp pipe.
+ * @property {string} options.xmpp.maxIdleTimer to define the delay without xmpp exchange after which a ping is sent to server.
+ * @property {string} options.xmpp.maxPingAnswerTimer to define the time to wait the xmpp ping response.
  * @property {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
  * @property {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
  * @property {string} options.rest.useRestAtStartup, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
@@ -127,7 +132,9 @@ type OptionsType = {
         protocol: string,
         timeBetweenXmppRequests: string,
         "raiseLowLevelXmppInEvent": false,
-        "raiseLowLevelXmppOutReq": false
+        "raiseLowLevelXmppOutReq": false,
+        "maxIdleTimer": 15000,
+        "maxPingAnswerTimer": 10000
     }
     "s2s": {
         "hostCallback": string,
@@ -329,6 +336,11 @@ class NodeSDK {
      * @param {Object} options SDK Startup options of constructor.
      * @param {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
      * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
+     * @param {string} options.xmpp.timeBetweenXmppRequests the time between two xmpp request (avoid burst)
+     * @param {string} options.xmpp.raiseLowLevelXmppInEvent enable the raise of event "rainbow_onxmmpeventreceived" when a data is received in xmpp pipe.
+     * @param {string} options.xmpp.raiseLowLevelXmppOutReq enable the raise of event "rainbow_onxmmprequestsent" when a data is sent in xmpp pipe.
+     * @param {string} options.xmpp.maxIdleTimer to define the delay without xmpp exchange after which a ping is sent to server.
+     * @param {string} options.xmpp.maxPingAnswerTimer to define the time to wait the xmpp ping response.
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.

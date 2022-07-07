@@ -289,7 +289,7 @@ class Core {
                     if (dnsFound) {
                         that.logger.log("info", "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
                     } else {
-                        that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK wont working with full features.");
+                        that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
                     }
                 }
 
@@ -303,85 +303,89 @@ class Core {
                         }
                         return result
                     }).then(() => {
-                                return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                            return that._profiles.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._telephony.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._contacts.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._fileServer.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            //return that.presence._sendPresenceFromConfiguration();                       
-                            }).then(() => {
-                                return that._admin.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._bubbles.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._channels.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._conversations.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._groups.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._presence.init(that.options._restOptions.useRestAtStartup);
-                            }).then(() => {
-                                return that._settings.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            //return that.presence.sendInitialPresence();
-                            return Promise.resolve(undefined);
-                        }).then(() => {
-                            //return that.im.enableCarbon();
-                            return Promise.resolve(undefined);
-                        }).then(() => {
-                            if (that.options._restOptions.useRestAtStartup) {
-                                return that._rest.getBots();
-                            } 
-                        }).then((bots : any) => {
-                            that._botsjid = bots ? bots.map((bot) => {
-                                return bot.jid;
-                            }) : [];
-                            return Promise.resolve(undefined);
-                        }).then(() => {
-                            if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                                return that._conversations.getServerConversations();
-                            } else {
-                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
-                                return;
-                            }
-                        }).then(() => {
-                            return that._calllog.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._favorites.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._alerts.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._webinars.init(that.options._restOptions.useRestAtStartup); 
-                        }).then(() => {
-                            return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._invitations.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            if (that.options._restOptions.useRestAtStartup) {
-                                return that._s2s.listConnectionsS2S();
-                            }
-                        }).then(() => {
-                            resolve(undefined);
-                        }).catch((err) => {
-                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
-                            that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
-                            reject(err);
-                        });
+                        return that._s2s.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._profiles.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._contacts.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._fileServer.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        //return that.presence._sendPresenceFromConfiguration();                       
+                    }).then(() => {
+                        return that._channels.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._admin.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._bubbles.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._channels.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._conversations.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._groups.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._presence.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._settings.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        //return that.presence.sendInitialPresence();
+                        return Promise.resolve(undefined);
+                    }).then(() => {
+                        //return that.im.enableCarbon();
+                        return Promise.resolve(undefined);
+                    }).then(() => {
+                        if (that.options._restOptions.useRestAtStartup) {
+                            return that._rest.getBots();
+                        }
+                    }).then((bots: any) => {
+                        that._botsjid = bots ? bots.map((bot) => {
+                            return bot.jid;
+                        }):[];
+                        return Promise.resolve(undefined);
+                    }).then(() => {
+                        if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
+                            return that._conversations.getServerConversations();
+                        } else {
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                            return;
+                        }
+                    }).then(() => {
+                        return that._calllog.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._favorites.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._alerts.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._webinars.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        return that._invitations.init(that.options._restOptions.useRestAtStartup);
+                    }).then(() => {
+                        if (that.options._restOptions.useRestAtStartup) {
+                            return that._s2s.listConnectionsS2S();
+                        }
+                    }).then(() => {
+                        resolve(undefined);
+                    }).catch((err) => {
+                        that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
+                        that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                        reject(err);
+                    });
                     //return resolve(undefined);
                 }
+                
                 if (that.options.useCLIMode) {
                     return resolve(undefined);
                 }
+                
                 if (that.options.useXMPP) {
                     return that.presence._sendPresenceFromConfiguration().then(() => {
                         let result: Promise<any> = Promise.resolve(undefined);
@@ -408,13 +412,12 @@ class Core {
                         }).then(() => {
                            // return that._bubbles.getBubbles(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
-                            return that._channels.fetchMyChannels(that.options._restOptions.useRestAtStartup);
+                            return that._channels.init(that.options._restOptions.useRestAtStartup);
+                            //return that._channels.fetchMyChannels(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             return that._admin.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             return that._bubbles.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._channels.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {
                             return that._conversations.init(that.options._restOptions.useRestAtStartup);
                         }).then(() => {

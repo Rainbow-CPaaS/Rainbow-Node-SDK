@@ -6,13 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.14.0] - 2022-06-XX
+## [2.14.0] - 2022-07-07
 -   Add fileId when a file is attached in 'oob' property of data of a "rainbow_onmessagereceived".
 -   Fix `NodeSDK::getConnectionStatus` api when the rest/xmpp/s2S/http law layer is not initialized.
 -   Fix : Move the call at startup `_sendPresenceFromConfiguration` to avoid the missing when the "getContacts" method failed.
 -   Add `PresenceService::sendInitialBubblePresenceById` private method. 
 -   Fix ignored commandId in `AdminService::synchronizeUsersAndDeviceswithCSV`. 
 -   Add to SDK initialisation a `testDNSentry` option to verify at startup/reconnection that the rainbow server DNS entry name is available.
+-   Add parameter `maxIdleTimer` in xmpp section to define the delay without xmpp exchange after which a ping is sent to server. 
+-   Add parameters `maxPingAnswerTimer` in xmpp section to define the time to wait the xmpp ping response. 
+-   Add retry ability in `HttpService::_get` method. It is used to retry get data of GET request at startup when failed.
+-   Use retry of _get in methods RESTService::getAllUsersByFilter RESTService::getContacts RESTService::getServerFavorites RESTService::getAllSentInvitations RESTService::getAllReceivedInvitations RESTService::getGroups RESTService::getBots RESTService::getBubbles RESTService::fetchMyChannels RESTService::getServerProfiles RESTService::getServerProfilesFeatures RESTService::getServerConversations 
+-   Fix double fetch channels at startup in xmpp mode.
+
 
 ## [2.13.0] - 2022-06-16
 -   Updated the event `rainbow_onbubbleconferenceupdated` with a parameter updatedDatasForEvent telling the data updated.

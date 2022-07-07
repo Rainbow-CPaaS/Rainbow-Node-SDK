@@ -36,7 +36,9 @@ let conf =  {
             protocol: "wss",
             timeBetweenXmppRequests: "20",
             "raiseLowLevelXmppInEvent": false,
-            "raiseLowLevelXmppOutReq": false
+            "raiseLowLevelXmppOutReq": false,
+            "maxIdleTimer": 15000,
+            "maxPingAnswerTimer": 10000
         },
         s2s: {
             hostCallback: "nrock",
@@ -58,7 +60,9 @@ let conf =  {
             protocol: "wss",
             timeBetweenXmppRequests: "20",
             "raiseLowLevelXmppInEvent": false,
-            "raiseLowLevelXmppOutReq": false
+            "raiseLowLevelXmppOutReq": false,
+            "maxIdleTimer": 15000,
+            "maxPingAnswerTimer": 10000
         },
         s2s: {
             hostCallback: "nrock",
@@ -80,7 +84,9 @@ let conf =  {
             protocol: "wss",
             timeBetweenXmppRequests: "20",
             "raiseLowLevelXmppInEvent": false,
-            "raiseLowLevelXmppOutReq": false
+            "raiseLowLevelXmppOutReq": false,
+            "maxIdleTimer": 15000,
+            "maxPingAnswerTimer": 10000
         },
         s2s: {
             hostCallback: "nrock",

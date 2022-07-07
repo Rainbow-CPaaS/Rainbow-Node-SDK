@@ -302,6 +302,8 @@ class Options {
         }
         if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppInEvent) { xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent; }
         if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppOutReq) { xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq; }
+        if ( this._options.xmpp && this._options.xmpp.maxIdleTimer) { xmppOptions.maxIdleTimer = this._options.xmpp.maxIdleTimer; }
+        if ( this._options.xmpp && this._options.xmpp.maxPingAnswerTimer) { xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer; }
         return xmppOptions;
     }
 

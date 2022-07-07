@@ -1,7 +1,7 @@
 "use strict";
 
 //let unirest = require("unirest");
-import {logEntryExit} from "../common/Utils";
+import {logEntryExit, pause} from "../common/Utils";
 import {HttpManager, RequestForQueue} from "./HttpManager";
 import * as util from "util";
 
@@ -608,7 +608,7 @@ safeJsonParse(str) {
         });
     }
 
-    get(url, headers: any = {}, params, responseType = ""): Promise<any> {
+    get(url, headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 1, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._get.bind(this);
@@ -617,11 +617,11 @@ safeJsonParse(str) {
         return that.httpManager.add(req);
     }
 
-    _get(url, headers: any = {}, params, responseType = ""): Promise<any> {
+    _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 1, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(async function (resolve, reject) {
 
             try {
                 headers["user-agent"] = USER_AGENT;
@@ -645,94 +645,127 @@ safeJsonParse(str) {
                     if (responseType != "") {
                         req["responseType"] = responseType; // 'arraybuffer'
                     }
-                    let request = Request(req, (error, response, body) => {
-                        that.logger.log("info", LOG_ID + "(get) successfull");
-                        if (error) {
-                            return reject({
-                                code: -1,
-                                url: urlEncoded,
-                                msg: "ErrorManager while requesting",
-                                details: error
-                            });
-                        } else {
-                            if (response) {
-                                if (response.statusCode) {
-                                    /*response.statusCode = 504;
-                                    response.body = "<html><body><h1>504 Gateway Time-out</h1>\n" +
-                                        "The server didn't respond in time.\n" +
-                                        "</body></html>\n";
-                                        // */
-                                    that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
-                                    if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            let json = {};
-                                            if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                json = JSON.parse(response.body);
-                                                resolve(json);
+
+                    let responseRequest :any = {statusCode: -100};
+
+                    for (let i = 0; i < nbTryBeforeFailed ; i++) {
+                        let responsePromRequest : any = await new Promise(function(resolve2, reject2) {
+                            let request = Request(req, (error, response, body) => {
+                                that.logger.log("info", LOG_ID + "(get) successfull");
+                                if (error) {
+                                    responseRequest = Promise.reject({
+                                        code: -1,
+                                        url: urlEncoded,
+                                        msg: "ErrorManager while requesting",
+                                        details: error
+                                    });
+                                    resolve2({statusCode: -1});
+                                } else {
+                                    if (response) {
+                                        if (response.statusCode) {
+                                            /*response.statusCode = 504;
+                                            response.body = "<html><body><h1>504 Gateway Time-out</h1>\n" +
+                                                "The server didn't respond in time.\n" +
+                                                "</body></html>\n";
+                                                // */
+                                            that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                    let json = {};
+                                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                                        json = JSON.parse(response.body);
+                                                        responseRequest = Promise.resolve(json);
+                                                        resolve2({statusCode: response.statusCode});
+                                                    } else {
+                                                        responseRequest = Promise.resolve(response.body);
+                                                        resolve2({statusCode: response.statusCode});
+                                                    }
+                                                } else {
+                                                    responseRequest = Promise.reject({
+                                                        code: -1,
+                                                        url: urlEncoded,
+                                                        msg: "Bad content, please check your host",
+                                                        details: ""
+                                                    });
+                                                    resolve2({statusCode: response.statusCode});
+                                                }
                                             } else {
-                                                resolve(response.body);
+                                                that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
+                                                that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
+                                                let bodyjs: any = {};
+                                                if (that.hasJsonStructure(response.body)) {
+                                                    bodyjs = JSON.parse(response.body);
+                                                } else {
+                                                    bodyjs.errorMsg = response.body;
+                                                }
+                                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+                                                that.tokenExpirationControl(bodyjs);
+                                                responseRequest = Promise.reject({
+                                                    code: response.statusCode,
+                                                    url: urlEncoded,
+                                                    msg: msg,
+                                                    details: errorMsgDetail,
+                                                    error: bodyjs
+                                                });
+                                                resolve2({statusCode: response.statusCode});
                                             }
                                         } else {
-                                            return reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: ""
-                                            });
+                                            if (response.error && response.error.reason) {
+                                                that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
+                                                responseRequest = Promise.reject({
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: response.error.reason,
+                                                    details: ""
+                                                });
+                                                resolve2({statusCode: -1});
+                                            } else {
+                                                that.logger.warn("warn", LOG_ID + "(get) HTTP other issue");
+                                                that.logger.warn("internal", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                                that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
+                                                responseRequest = Promise.reject({
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Unknown error",
+                                                    details: response
+                                                });
+                                                resolve2({statusCode: -1});
+                                            }
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
-                                        } else {
-                                            bodyjs.errorMsg = response.body;
-                                        }
-                                        let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                        let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
-                                        that.tokenExpirationControl(bodyjs);
-                                        return reject({
-                                            code: response.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs
-                                        });
-
-                                    }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(get) HTTP security issue", response.error.reason);
-                                        return reject({
+                                        responseRequest = Promise.reject({
                                             code: -1,
                                             url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: ""
+                                            msg: "ErrorManager while requesting",
+                                            details: "error"
                                         });
-                                    } else {
-                                        that.logger.warn("warn", LOG_ID + "(get) HTTP other issue");
-                                        that.logger.warn("internal", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(get) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response
-                                        });
+                                        resolve2({statusCode: -1});
                                     }
                                 }
+                            });
+                        });
+                        
+                        let statusCodeHttpType = Math.floor((responsePromRequest).statusCode/100);
+
+                        if (statusCodeHttpType > 0 && statusCodeHttpType < 4) {
+                            return resolve (await responseRequest);
+                        } else {
+                            let errorResponse = responseRequest;
+                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, ", errorResponse : ", errorResponse);
+                            if ( (i + 1) < nbTryBeforeFailed) {
+                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
+                                await pause(timeBetweenRetry);
                             } else {
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: "ErrorManager while requesting",
-                                    details: "error"
-                                });
+                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
+                                return reject (errorResponse);                                
                             }
                         }
-                    });
+                        
+                    } 
+                    
+                    
                 } else {
                     let buff = [];
                     let err = {

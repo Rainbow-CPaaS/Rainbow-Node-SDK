@@ -147,6 +147,8 @@ class XMPPService extends GenericService {
     private messagesDataStore: DataStoreType;
     private raiseLowLevelXmppInEvent: boolean;
     private raiseLowLevelXmppOutReq: boolean;
+    private maxIdleTimer: number;
+    private maxPingAnswerTimer: number;
     private company: any;
 
     static getClassName(){ return 'XMPPService'; }
@@ -189,6 +191,8 @@ class XMPPService extends GenericService {
         that.applicationId = _application.appID;
         that.raiseLowLevelXmppInEvent = _xmpp.raiseLowLevelXmppInEvent;
         that.raiseLowLevelXmppOutReq = _xmpp.raiseLowLevelXmppOutReq;
+        that.maxIdleTimer = ( _xmpp.maxIdleTimer && (_xmpp.maxIdleTimer > 10000) )? _xmpp.maxIdleTimer: MAX_IDLE_TIMER;
+        that.maxPingAnswerTimer = ( _xmpp.maxPingAnswerTimer && (_xmpp.maxPingAnswerTimer > 5000) ) ? _xmpp.maxPingAnswerTimer : MAX_PING_ANSWER_TIMER;
 
         that._startConfig =  {
             start_up: true,
@@ -357,19 +361,24 @@ class XMPPService extends GenericService {
         if (!that.forceClose) {
             that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of idle Timer for ping.");
             that.idleTimer = setTimeout(() => {
-                that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + MAX_IDLE_TIMER / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
+                that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + that.maxIdleTimer / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
                 // Start waiting an answer from server else reset the connection
                 that.pingTimer = setTimeout(() => {
                     that.pingTimer = null;
-                    that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after MAX_PING_ANSWER_TIMER (", MAX_PING_ANSWER_TIMER, " seconds). retry a ping iq request before decide it is a fatal error!");
+                    that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
                     that.pingTimer = setTimeout(() => {
-                        let err = {
-                            "condition": "No data received from server since " + ((MAX_IDLE_TIMER + MAX_PING_ANSWER_TIMER * 2) / 1000) + " secondes. The XMPP link is badly broken, so the application needs to destroy and recreate the SDK, with fresh start(...)."
+                        /*let err = {
+                            "condition": "No data received from server since " + ((that.maxIdleTimer + that.maxPingAnswerTimer * 2) / 1000) + " secondes. The XMPP link is badly broken, so the application needs to destroy and recreate the SDK, with fresh start(...)."
                         };
-                        that.logger.log("error", LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after MAX_PING_ANSWER_TIMER (", MAX_PING_ANSWER_TIMER, " seconds). forceClose not setted, FATAL no reconnection for condition : ", err.condition, ", error : ", err);
-                        that.xmppClient.socket && that.xmppClient.socket.end();
+                        that.logger.log("error", LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). forceClose not setted, FATAL no reconnection for condition : ", err.condition, ", error : ", err);
+                        // */
+                        that.logger.log("error", LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
+                        if (that.xmppClient.socket != null) {
+                            that.xmppClient.socket.end();
+                        }
                         that.stopIdleTimer();
 
+                        /*
                         // Disconnect the auto-reconnect mode
                         if (that.reconnect) {
                             that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) stop XMPP auto-reconnect mode");
@@ -378,11 +387,12 @@ class XMPPService extends GenericService {
                         }
 
                         that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                    }, MAX_PING_ANSWER_TIMER);
+                        // */
+                    }, that.maxPingAnswerTimer);
                     that.sendPing();
-                }, MAX_PING_ANSWER_TIMER);
+                }, that.maxPingAnswerTimer);
                 that.sendPing();
-            }, MAX_IDLE_TIMER);
+            }, that.maxIdleTimer);
         } else {
             that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose setted so do not send ping.");
         }
@@ -622,6 +632,7 @@ class XMPPService extends GenericService {
                     }
                     break;
                 case "presence":
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
                     break;

@@ -109,7 +109,9 @@ let urlS2S;
             "protocol": "wss",
             "timeBetweenXmppRequests": "20",
             "raiseLowLevelXmppInEvent": false,
-            "raiseLowLevelXmppOutReq": false
+            "raiseLowLevelXmppOutReq": false,
+            "maxIdleTimer": 16000,
+            "maxPingAnswerTimer": 11000
         },
         "s2s": {
             "hostCallback": urlS2S,

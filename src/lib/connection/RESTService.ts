@@ -878,7 +878,7 @@ class RESTService extends GenericRESTService {
 
             that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST url : ", url);
 
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getAllUsersByFilter) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST result : ", json.data);
                 resolve(json);
@@ -928,7 +928,7 @@ class RESTService extends GenericRESTService {
     async getContacts() {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined,"", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getContacts) successfull");
                 that.logger.log("internal", LOG_ID + "(getContacts) REST result : " + json.total + " contacts");
                 resolve(json.data);
@@ -1292,7 +1292,7 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerFavorites) REST result : ", json.data);
                 resolve(json.data);
@@ -1376,7 +1376,7 @@ class RESTService extends GenericRESTService {
     getAllSentInvitations() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getAllSentInvitations) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllSentInvitations) REST result : ", json);
                 resolve(json);
@@ -1421,7 +1421,7 @@ class RESTService extends GenericRESTService {
     getAllReceivedInvitations() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
                 that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
                 resolve(json);
@@ -1663,7 +1663,7 @@ class RESTService extends GenericRESTService {
         let that = this;
         let getSetOfGroups = function (page, max, groups) {
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page + "&limit=" + max, that.getRequestHeader(), undefined).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page + "&limit=" + max, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                     groups = groups.concat(json.data);
                     that.logger.log("internal", LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
                     resolve({groups: groups, finished: groups.length === json.total});
@@ -1838,7 +1838,7 @@ Request Method: PUT
     getBots() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/bots", that.getRequestHeader(), undefined).then((json) => {
+            that.http.get("/api/rainbow/enduser/v1.0/bots", that.getRequestHeader(), undefined, "", 5, 10000).then((json) => {
                 that.logger.log("info", LOG_ID + "(getBots) successfull");
                 that.logger.log("internal", LOG_ID + "(getBots) REST result : " + json.total + " bots");
                 resolve(json.data);
@@ -2002,7 +2002,7 @@ Request Method: PUT
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&unsubscribed=true&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&unsubscribed=true&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 //that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
                     bubbles = bubbles.concat(json.data);
                     that.logger.log("info", LOG_ID + "(getBubbles) getSetOfBubbles successfull");
@@ -3573,7 +3573,7 @@ Request Method: PUT
     getChannels() {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(fetchMyChannels) successfull");
                 that.logger.log("internal", LOG_ID + "(fetchMyChannels) REST result : ", json);
                 resolve(json.data);
@@ -3930,7 +3930,7 @@ Request Method: PUT
     async getServerProfiles() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerProfiles) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerProfiles) REST result : ", json, " profiles");
                 resolve(json.data);
@@ -3946,7 +3946,7 @@ Request Method: PUT
     getServerProfilesFeatures() {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) REST result : " + JSON.stringify(json) + " profiles features");
                 resolve(json.data);
@@ -4117,7 +4117,7 @@ Request Method: PUT
     getServerConversations(format: string = "small") {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined).then(function (json) {
+            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerConversations) REST result : " + JSON.stringify(json) + " conversations");
                 resolve(json.data);
