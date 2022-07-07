@@ -646,7 +646,7 @@ safeJsonParse(str) {
                         req["responseType"] = responseType; // 'arraybuffer'
                     }
 
-                    let responseRequest :any = {statusCode: -100};
+                    let responseRequest :any =  Promise.reject({statusCode: -100});
 
                     for (let i = 0; i < nbTryBeforeFailed ; i++) {
                         let responsePromRequest : any = await new Promise(function(resolve2, reject2) {
@@ -752,20 +752,17 @@ safeJsonParse(str) {
                         if (statusCodeHttpType > 0 && statusCodeHttpType < 4) {
                             return resolve (await responseRequest);
                         } else {
-                            let errorResponse = responseRequest;
-                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, ", errorResponse : ", errorResponse);
+                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, ", responseRequest : ", responseRequest);
                             if ( (i + 1) < nbTryBeforeFailed) {
                                 that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
                                 await pause(timeBetweenRetry);
                             } else {
                                 that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
-                                return reject (errorResponse);                                
+                                let res = await responseRequest.catch((res) => {return res; });
+                                return reject (res);                                
                             }
                         }
-                        
                     } 
-                    
-                    
                 } else {
                     let buff = [];
                     let err = {
@@ -822,7 +819,7 @@ safeJsonParse(str) {
                 }
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(get) HTTP ErrorManager");
-                that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager", err);
+                that.logger.log("internalerror", LOG_ID + "(get) HTTP ErrorManager : ", err);
                 return reject({
                     code: -1,
                     msg: "Unknown error",

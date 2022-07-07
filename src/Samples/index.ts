@@ -2378,6 +2378,15 @@ let urlS2S;
         });
     }
 
+    function testgetBubbleUnknown() {
+        let bubbleTestestsed = "room_e290bece54c34d69aef68f831be0d309@muc.vberder-all-in-one-dev-1.opentouch.cloud";
+        rainbowSDK.bubbles.getBubbleByJid(bubbleTestestsed).then((bubbleFound) => {
+            logger.log("debug", "MAIN - [testgetBubbleUnknown    ] :: bubbleFound : ", bubbleFound);
+        }).catch((err) => {
+            logger.log("error", "MAIN - testgetBubbleUnknown error while getBubbleByJid result : ", err); //logger.colors.green(JSON.stringify(result)));
+        });
+    }
+
     async function testSetBubbleCustomData() {
             let that = this;
             let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();

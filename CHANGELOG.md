@@ -16,7 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add parameter `maxIdleTimer` in xmpp section to define the delay without xmpp exchange after which a ping is sent to server. 
 -   Add parameters `maxPingAnswerTimer` in xmpp section to define the time to wait the xmpp ping response. 
 -   Add retry ability in `HttpService::_get` method. It is used to retry get data of GET request at startup when failed.
--   Use retry of _get in methods RESTService::getAllUsersByFilter RESTService::getContacts RESTService::getServerFavorites RESTService::getAllSentInvitations RESTService::getAllReceivedInvitations RESTService::getGroups RESTService::getBots RESTService::getBubbles RESTService::fetchMyChannels RESTService::getServerProfiles RESTService::getServerProfilesFeatures RESTService::getServerConversations 
+-   Use retry of _get in methods `RESTService::getAllUsersByFilter` `RESTService::getContacts` `RESTService::getServerFavorites` `RESTService::getAllSentInvitations` `RESTService::getAllReceivedInvitations` `RESTService::getGroups` `RESTService::getBots` `RESTService::getBubbles` `RESTService::fetchMyChannels` `RESTService::getServerProfiles` `RESTService::getServerProfilesFeatures` `RESTService::getServerConversations` 
 -   Fix double fetch channels at startup in xmpp mode.
 
 
