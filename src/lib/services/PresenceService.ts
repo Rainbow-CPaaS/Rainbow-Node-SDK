@@ -280,8 +280,8 @@ class PresenceService extends GenericService{
                  until(() => { return (presenceChangedReceived === true); }, "Wait for presencechanged after set presence S2S.", 10000).then((untilResult)=>{
                      that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged received, can continue : ", untilResult);
                      resolve(undefined);
-                 }).catch((untilResult)=>{
-                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", untilResult);
+                 }).catch((err)=>{
+                     that._logger.log("warn", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", err);
                      resolve(undefined);
                  })
              }

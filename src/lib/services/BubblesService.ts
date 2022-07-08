@@ -752,6 +752,7 @@ class Bubbles extends GenericService {
             for (let conferenceId of that.getConferencesIdByBubbleIdFromCache(bubble.id)) {
                 let conference = that.getConferenceByIdFromCache(conferenceId);
                 that.removeConferenceFromCache(conferenceId, true);
+                //conference.
                 conference.active = false;
                 that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference, {});
             }
@@ -3749,7 +3750,9 @@ getAllActiveBubbles
                             } else {
                                 return false;
                             }
-                        }, "wait in setBubbleCustomData for the customData to be updated by the event rainbow_onbubblecustomdatachanged", 8000);
+                        }, "wait in setBubbleCustomData for the customData to be updated by the event rainbow_onbubblecustomdatachanged", 8000).catch((err) => {
+                            this._logger.log("warn", LOG_ID + "(setBubbleCustomData) Error while waiting custom data. Error : ", err);
+                        });
                         this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData updated in bubble stored in BubblesService.");
                     } catch (err) {
                         this._logger.log("debug", LOG_ID + "(setBubbleCustomData) customData not updated in bubble stored in BubblesService. Get infos about bubble from server.");

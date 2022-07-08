@@ -262,7 +262,7 @@ class Core {
                                     findingDns = false;
                                     dnsFound = true;
                                 } else {
-                                    that.logger.log("debug", "(_retrieveInformation), resolveDns host not found, continue to search.");
+                                    that.logger.log("debug", "(_retrieveInformation), resolveDns DNS entry not found for HOST : ", that._http.host," continue to search.");
                                     //if ((resolvedHostnames == undefined) || (resolvedHostnames.length == 0) ) {
                                     await setTimeoutPromised(3000);
                                 }
@@ -282,7 +282,9 @@ class Core {
 
 
                         return result
-                    }, "Waiting for DNS resolve the hostname : " + that._http.host, 25000);
+                    }, "Waiting for DNS resolve the hostname : " + that._http.host, 5*60000).catch((err)=> {
+                        that.logger.log("warn", "(_retrieveInformation), resolvedHostnames FAILED for , ", that._http.host, " error : ", err, ", so continue initialize the SDK, but it will probably failed.");
+                    });
 
                     findingDns = false;
 
