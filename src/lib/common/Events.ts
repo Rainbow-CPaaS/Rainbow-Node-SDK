@@ -1449,6 +1449,21 @@ class Events {
     }
 
     /**
+     * @method removeListener
+     * @public
+     * @memberof Events
+     * @instance
+     * @param {string} eventName The event name to unsubscribe
+     * @param {function} listener The listener called when the even is fired
+     * @return {Object} The events instance to be able to remove a subscription from chain.
+     * @description
+     *      Unsubscribe to an event
+     */
+    removeListener(eventName: string | symbol, listener: (...args: any[]) => void): EventEmitter {
+        return this._evPublisher.removeListener(eventName, listener);
+    }
+
+    /**
      * @method once
      * @public
      * @memberof Events

@@ -345,7 +345,7 @@ function logEntryExit(LOG_ID) : any {
                 if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
-                    let logger = this.logger ? this.logger:this._logger ? this._logger:{};
+                    let logger = this.logger ? this.logger:this._logger ? this._logger:{log : ()=> {console.log( arguments);}, colors:{data : function (param) {return param} }};
                     try {
 
                         /* if (!this.getClassName) {

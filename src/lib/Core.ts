@@ -718,11 +718,13 @@ class Core {
         let that = this;
 
         // Initialize the logger
-        let loggerModule = new Logger(that.options._options);
-        this.logger = loggerModule.log;
+        //if (! that.logger) {
+            let loggerModule = new Logger(that.options._options);
+            that.logger = loggerModule.log;
+        //}
         
-        this.logger.log("debug", LOG_ID + "(start) _entering_");
-        this.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
+        that.logger.log("debug", LOG_ID + "(start) _entering_");
+        that.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 
         return new Promise(function (resolve, reject) {
 
@@ -962,6 +964,7 @@ class Core {
             });
             // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
             that.logger.stop();
+            //that.logger = null;
         });
         // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 2 !");
     }

@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.14.1] - 2022-07-07
+-   Add events::removeListener method to call events.eee.removeListener
+-   Fix Unhandle Promise when a GET HTTP response is received.
+ 
 ## [2.14.0] - 2022-07-07
 -   Add fileId when a file is attached in 'oob' property of data of a "rainbow_onmessagereceived".
 -   Fix `NodeSDK::getConnectionStatus` api when the rest/xmpp/s2S/http law layer is not initialized.
