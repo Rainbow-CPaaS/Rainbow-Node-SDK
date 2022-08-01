@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.14.1] - 2022-08-XX
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
+-   Update `ChannelsService::fetchChannelItems` to return the timestamp property in the Items.
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener

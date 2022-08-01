@@ -1320,14 +1320,16 @@ class ChannelsService extends GenericService {
             }
 
             that._rest.getChannelMessages(channel.id, maxMessages, beforeDate, afterDate).then((res : any) => {
-                that._logger.log("info", LOG_ID + "(fetchChannelItems) messages retrieved", res);
+                that._logger.log("info", LOG_ID + "(fetchChannelItems) messages retrieved : ", res);
 
                 let messages = res.items;
 
                 let listOfMessages = [];
                 messages.forEach((item) => {
+                    that._logger.log("internal", LOG_ID + "(fetchChannelItems) messages retrieved item : ", item);
                     let message = {
                         id: item.item.$.id ? item.item.$.id : "",
+                        timestamp: item.item.entry.$.timestamp ? new Date(item.item.entry.$.timestamp) : "",
                         title: item.item.entry.title ? item.item.entry.title : "",
                         message: item.item.entry.message ? item.item.entry.message : "",
                         url: item.item.entry.url ? item.item.entry.url : "",
