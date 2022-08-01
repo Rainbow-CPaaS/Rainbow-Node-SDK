@@ -2852,7 +2852,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
 
-            that.http.post("/api/rainbow/filestorage/v1.0/files/ " + fileId + "/copy", that.getRequestHeader(), undefined, undefined).then(function (json) {
+            that.http.post("/api/rainbow/filestorage/v1.0/files/" + fileId + "/copy", that.getRequestHeader(), undefined, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(copyFileInPersonalCloudSpace) successfull");
                 that.logger.log("internal", LOG_ID + "(copyFileInPersonalCloudSpace) REST result : ", json);
                 if (json && json.data) {
