@@ -1217,12 +1217,13 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>}
      *
      */
-    retrieveFileDescriptorsListPerOwner() : Promise<[any]> {
+    retrieveFileDescriptorsListPerOwner(fileName : string = undefined, extension : string = undefined, typeMIME : string = undefined, purpose : string = undefined, isUploaded : boolean = undefined, viewerId : string = undefined, path : string = undefined, limit : number = 1000, offset : number = undefined, sortField : string = undefined, sortOrder : number = undefined, format : string = "full") : Promise<[any]> {
         let that = this;
         that.fileDescriptors = [];
         return new Promise((resolve, reject) => {
             //that._rest.receivedFileDescriptors("full", 1000)
-            that._rest.retrieveFileDescriptors("full", 1000, undefined, undefined)
+            that._rest.retrieveFileDescriptors( fileName, extension, typeMIME, purpose, isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
+            //that._rest.retrieveFileDescriptors("full", limit, offset, viewerId)
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
@@ -1242,7 +1243,7 @@ class FileStorage extends GenericService{
                         let requestCount = total / limit;
                         let requestArray = [];
                         for (let index = 1; index < requestCount; index++) {
-                            requestArray.push(that.retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit));
+                            requestArray.push(that.retrieveFileDescriptorsListPerOwnerwithOffset( fileName, extension, typeMIME, purpose, isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)); //(offset, limit));
                             offset += limit;
                         }
                         getAllFileDescriptorPromise = Promise.all(requestArray);
@@ -1288,8 +1289,10 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>}
      *
      */
-    retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
-        return this._rest.retrieveFileDescriptors("full", limit, offset, undefined);
+    retrieveFileDescriptorsListPerOwnerwithOffset(fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, viewerId : string, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
+    //retrieveFileDescriptorsListPerOwnerwithOffset(offset, limit) {
+        return this._rest.retrieveFileDescriptors( fileName, extension, typeMIME, purpose, isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format);
+        //return this._rest.retrieveFileDescriptors("full", limit, offset, undefined);
         //return this._rest.receivedFileDescriptors( "full", limit, offset);
     }
 
@@ -1343,10 +1346,11 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
      */
-    retrieveSentFiles(peerId) {
+    retrieveSentFiles(peerId : string, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._rest.retrieveFileDescriptors("full", null, null, peerId)
+            //that._rest.retrieveFileDescriptors("full", null, null, peerId)
+            that._rest.retrieveFileDescriptors(fileName, extension, typeMIME, purpose, isUploaded, peerId, path, limit, offset, sortField, sortOrder, format)
                 .then((response : any) => {
                     let sentFilesDescriptors = [];
                     let fileDescriptorsData = response.data;
@@ -1499,7 +1503,7 @@ class FileStorage extends GenericService{
                 }); */
             } else {
                 that._logger.log("info", LOG_ID + "[getFilesSnd] ::  get files sent in conversation " + conversation.id + "...");
-                that.retrieveSentFiles(conversation.contact.id).then(function(files : any) {
+                that.retrieveSentFiles(conversation.contact.id, undefined , undefined, undefined, undefined, undefined, undefined, 1000, undefined, undefined, undefined, "full").then(function(files : any) {
                     that._logger.log("info", LOG_ID + "[getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
@@ -1538,7 +1542,7 @@ class FileStorage extends GenericService{
 
                 that._logger.log("info", LOG_ID + "[getFilesRcv] ::  get files received in bubble " + bubble.dbId + "...");
 
-                that.retrieveSentFiles(bubble.id).then(function(files : any) {
+                that.retrieveSentFiles(bubble.id, undefined , undefined, undefined, undefined, undefined, undefined, 1000, undefined, undefined, undefined, "full").then(function(files : any) {
                     that._logger.log("info", LOG_ID + "([getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {

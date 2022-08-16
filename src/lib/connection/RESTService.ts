@@ -2665,12 +2665,13 @@ Request Method: PUT
         });
     }
 
-    retrieveFileDescriptors(format, limit, offset, viewerId) {
+    retrieveFileDescriptors( fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, viewerId : string, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
+    //retrieveFileDescriptors(format, limit, offset, viewerId) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAll
         // URL GET /api/rainbow/filestorage/v1.0/files
         let that = this;
         return new Promise(function (resolve, reject) {
-            let queries = [];
+            /*let queries = [];
             if (format) {
                 queries.push("format=" + format);
             }
@@ -2685,6 +2686,42 @@ Request Method: PUT
             }
 
             that.http.get("/api/rainbow/filestorage/v1.0/files" + (queries.length ? "?" + queries.join("&") : ""), that.getRequestHeader(), undefined).then(function (json) {
+            // */
+            that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST fileName : ", fileName);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/files";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (fileName!=undefined) {
+                addParamToUrl(urlParamsTab, "fileName", fileName ? "true":"false");
+            }
+            if (extension!=undefined) {
+                addParamToUrl(urlParamsTab, "extension", extension);
+            }
+            if (typeMIME!=undefined) {
+                addParamToUrl(urlParamsTab, "typeMIME", typeMIME);
+            }
+            if (purpose!=undefined) {
+                addParamToUrl(urlParamsTab, "purpose", purpose);
+            }
+            if (isUploaded!=undefined) {
+                addParamToUrl(urlParamsTab, "isUploaded", isUploaded ? "true":"false");
+            }
+            if (viewerId!=undefined) {
+                addParamToUrl(urlParamsTab, "viewerId", viewerId);
+            }
+            if (path!=undefined) {
+                addParamToUrl(urlParamsTab, "path", path);
+            }
+            addParamToUrl(urlParamsTab, "limit", limit );
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) successfull");
                 that.logger.log("info", LOG_ID + "(retrieveFileDescriptors) REST get file descriptors");
                 that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST result : ", json);
@@ -2813,23 +2850,23 @@ Request Method: PUT
             if (fileName!=undefined) {
                 addParamToUrl(urlParamsTab, "fileName", fileName ? "true":"false");
             }
-            if (fileName!=undefined) {
+            if (extension!=undefined) {
                 addParamToUrl(urlParamsTab, "extension", extension);
             }
-            if (fileName!=undefined) {
+            if (typeMIME!=undefined) {
                 addParamToUrl(urlParamsTab, "typeMIME", typeMIME);
             }
-            if (fileName!=undefined) {
+            if (purpose!=undefined) {
                 addParamToUrl(urlParamsTab, "purpose", purpose);
             }
-            if (fileName!=undefined) {
+            if (isUploaded!=undefined) {
                 addParamToUrl(urlParamsTab, "isUploaded", isUploaded ? "true":"false");
             }
             addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
+            addParamToUrl(urlParamsTab, "limit", limit );
+            addParamToUrl(urlParamsTab, "offset", offset );
             addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder );
             url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(getFileDescriptorsByCompanyId) REST url : ", url);
