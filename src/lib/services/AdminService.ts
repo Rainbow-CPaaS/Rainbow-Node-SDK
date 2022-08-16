@@ -3199,11 +3199,15 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method updateCommandIdStatus
-     * @since 2.12.0
+     * @since 2.14.0
      * @instance
      * @async
      * @category AD/LDAP - AD/LDAP masspro
-     * @param {string} data body of the POST.
+     * @param {string} data body of the POST. Body : {
+     * status : `success` or `failure`, // status for the execution of the command
+     * details : string // details that can be provided about the command execution
+     * } 
+     * 
      * @param {string} commandId commandId which came from connector on behalf of admin command
      * @description
      *    This API is used to update the status of the commandId. </br>

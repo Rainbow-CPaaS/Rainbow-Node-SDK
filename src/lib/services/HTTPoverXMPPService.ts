@@ -181,6 +181,44 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @method discoverHTTPoverXMPP
+     * @since 2.10.0
+     * @instance
+     * @async
+     * @category Rainbow HTTPoverXMPP
+     * @description
+     *    This API allows to send a discover presence to a bare jid to find the resources availables. <br>
+     * @param {Object} headers The Http Headers used to web request.
+     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+     * @return {Promise<any>} An object of the result
+     */
+    discoverHTTPoverXMPP(headers: any = {}, httpoverxmppserver_jid? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            if (!httpoverxmppserver_jid) {
+                httpoverxmppserver_jid = that._rest.account.jid;
+            }
+
+            try {
+                
+                let node = await that._xmpp.discoverHTTPoverXMPP(httpoverxmppserver_jid, headers);
+                that._logger.log("debug", "(discoverHTTPoverXMPP) - sent.");
+                that._logger.log("internal", "(discoverHTTPoverXMPP) - result : ", node);
+                let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+
+                resolve(reqObj);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(discoverHTTPoverXMPP) Error.");
+                that._logger.log("internalerror", LOG_ID + "(discoverHTTPoverXMPP) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
      * @method trace
      * @since 2.10.0
      * @instance

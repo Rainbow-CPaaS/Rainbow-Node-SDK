@@ -903,6 +903,27 @@ class XMPPService extends GenericService {
             return Promise.resolve(undefined);
         }
     }
+
+    subscribePresence(to) {
+        let that = this;
+        /*
+  <presence to="user@otherhost.com" type="subscribe" />
+   */
+
+        if (that.useXMPP) {
+            //let stanza = xml("presence", {"id": that.xmppUtils.getUniqueMessageId(), 
+            let stanza = xml("presence", {
+                to,
+            "type":"subscribe"});
+
+            that.logger.log("info", LOG_ID + "(subscribePresence) send - 'stanza'");
+            that.logger.log("internal", LOG_ID + "(subscribePresence) send - 'stanza'", stanza.toString());
+            return that.xmppClient.send(stanza);
+        } else {
+            that.logger.log("warn", LOG_ID + "(subscribePresence) No XMPP connection...");
+            return Promise.resolve(undefined);
+        }
+    }
     
     //region Carbon
     
@@ -2346,6 +2367,65 @@ class XMPPService extends GenericService {
     }
     
     //region HTTPoverXMPP 
+    async discoverHTTPoverXMPP( to, headers = {}) {
+        let that = this;
+        /*
+    <presence from="1120c47bda4444f39a5921b2230fe4f9@david-all-in-one-rd-dev-1.opentouch.cloud/node_tkggU3Oa" to="fbf55de84bcb4476a49d16191cf12a4b@david-all-in-one-rd-dev-1.opentouch.cloud" id="node_3d4bcddc-e6d3-4ddf-becc-0303fdce88cf9" 
+  xmlns="jabber:client">
+  <discover 
+    xmlns="urn:xmpp:http" version="1.1"/>
+  </presence>   
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) to : ", to);
+
+        let msg = xml("presence", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("discover", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"});
+        msg.append(stanzaReq, undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
+    async answerDiscoverHTTPoverXMPP( to) {
+        let that = this;
+        /*
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) to : ", to);
+
+        let msg = xml("presence", {
+            "from": that.fullJid,
+            //"from": to,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("resource", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"}, that.resourceId);
+        msg.append(stanzaReq, undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
     async getHTTPoverXMPP(urlToGet, to, headers = {}) {
         let that = this;
         /*
@@ -2374,11 +2454,13 @@ class XMPPService extends GenericService {
         let method = "GET";
         let host = opt.protocol + "//" + opt.host;
         let resource = opt.path;
+        
+        
 
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to": to ? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"
@@ -2435,7 +2517,7 @@ class XMPPService extends GenericService {
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to":  to? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"
@@ -2492,7 +2574,7 @@ class XMPPService extends GenericService {
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to":  to? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"
@@ -2561,7 +2643,7 @@ WHERE  { ?x dc:title ?title .
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to": to ? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"
@@ -2636,7 +2718,7 @@ WHERE  { ?x dc:title ?title .
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to":  to? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"
@@ -2711,7 +2793,7 @@ WHERE  { ?x dc:title ?title .
         let msg = xml("iq", {
             "from": that.fullJid,
             //"from": to,
-            "to": that.fullJid,
+            "to": to? to : that.fullJid,
             "type": "set",
             "id": uniqMessageId
             //"xmlns" : "jabber:iq:http"

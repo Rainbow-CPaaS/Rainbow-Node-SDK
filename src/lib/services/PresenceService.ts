@@ -779,6 +779,41 @@ class PresenceService extends GenericService{
     }
     
     // endregion Presence CALENDAR
+    // region Presence Contact
+
+    /**
+     * @private
+     * @method subscribePresence
+     * @instance
+     * @category Presence Contact
+     * @description
+     *    Allows to subscribe presence to a contact. <br>
+     * @async
+     * @return {Promise< any, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     */
+    async subscribePresence(to) {
+        /*
+        <presence to="user@otherhost.com" type="subscribe" />
+         */
+        let that = this ;
+        
+        if (that._useXMPP) {
+            let result = that._xmpp.subscribePresence(to);
+            that._logger.log("info", LOG_ID + "(subscribePresence) begin wait for the bubble to be active : ", to);
+/*
+            // Wait for the bubble to be active
+            await until(() => {
+                return bubble.isActive === true;
+            }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
+                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
+            });
+*/
+            that._logger.log("info", LOG_ID + "(subscribePresence) end wait for the bubble to be active : ", to);
+            return (result);
+        }
+    }
+    // endregion Presence Contact
 }
 
 module.exports.PresenceService = PresenceService;

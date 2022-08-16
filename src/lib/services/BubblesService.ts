@@ -186,6 +186,7 @@ class Bubbles extends GenericService {
     async init(useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
+            await that.bubblesManager.reset();
             await that.getBubbles();
         }
         that.setInitialized();

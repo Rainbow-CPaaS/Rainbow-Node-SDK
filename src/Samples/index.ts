@@ -4390,6 +4390,13 @@ let urlS2S;
 
     //region Rainbow HTTPoverXMPP
     
+    async function testsubscribePresence() {
+        let to = "29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net"; // "vincent11@vbe.test.openrainbow.net";
+        let res = await rainbowSDK.presence.subscribePresence(to);
+        logger.log("debug", "MAIN - testsubscribePresence, res : ", res);
+        
+    }
+    
     async function testgetHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
@@ -4398,6 +4405,129 @@ let urlS2S;
         //let headers = {};
         let res = await rainbowSDK.httpoverxmpp.get(urlToGet, headers);
         logger.log("debug", "MAIN - testgetHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testgetHTTPoverXMPPVNA(urlToGet :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {
+            "dateOfRequest" : new Date().toLocaleDateString(),
+            "user-Id": "ignoredWithPhone",
+            "user-Pin": "ignoredWithPhone",
+            "user-Phone": "31000"
+        };
+        //let headers = {};
+        let res : any = await rainbowSDK.httpoverxmpp.get(urlToGet, headers, jidServer);
+        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            let isJson = false;
+            for (const header of res.iq.resp.headers.header) {
+                if (header["$attrs"].name == "content-type" && header["$attrs"]._ == "application/json") {
+                    isJson = true;
+                }
+            }
+            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+            if (isJson) {
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+            }
+        }
+    }
+
+    async function testpostHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {
+            "dateOfRequest": new Date().toLocaleDateString(),
+            "user-Id": "ignoredWithPhone",
+            "user-Pin": "ignoredWithPhone",
+            "user-Phone": "31000",
+            "Content-Type": "application/json"
+        };
+        //let headers = {};
+        let data = "{\n" +
+                "\"did\":\"8188784500\",\n" +
+                "\"city\": \"Agoura Hills\",\n" +
+                "\"country\": \"US\",\n" +
+                "\"name\": \"MyHouse\",\n" +
+                "\"nomadic\": false,\n" +
+                "\"psap\": \"911\",\n" +
+                "\"state\": \"CA\",\n" +
+                "\"streetName\": \"Helmond Drive\",\n" +
+                "\"streetNumber\": \"27000\",\n" +
+                "\"zipcode\": \"91301\"\n" +
+                "}";
+        let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidServer);
+        logger.log("debug", "MAIN - testpostHTTPoverXMPPVNA, res : ", res);
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode==200 && res.iq.resp.data) {
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            let isJson = false;
+            for (const header of res.iq.resp.headers.header) {
+                if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
+                    isJson = true;
+                }
+            }
+            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+            if (isJson) {
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+            }
+        }
+    }
+
+    async function testdeleteHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {"dateOfRequest" : new Date().toLocaleDateString(),
+            "user-Id": "ignoredWithPhone",
+            "user-Pin": "ignoredWithPhone",
+            "user-Phone": "31000"
+        };
+        //let headers = {};
+        let data = "";
+        let res = await rainbowSDK.httpoverxmpp.delete(urlToPost, headers, data, jidServer);
+        logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
+    }
+    
+    async function testdiscoverHTTPoverXMPP(jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {
+            "dateOfRequest" : new Date().toLocaleDateString(),
+            "user-Id": "ignoredWithPhone",
+            "user-Pin": "ignoredWithPhone",
+            "user-Phone": "31000"
+        };
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+        
+        //let headers = {};
+        //let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidServer);
+        let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, contact.jid);
+        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
+/*
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+            let isJson = false;
+            for (const header of res.iq.resp.headers.header) {
+                if (header["$attrs"].name == "content-type" && header["$attrs"]._ == "application/json") {
+                    isJson = true;
+                }
+            }
+            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+            if (isJson) {
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+            }
+        }
+*/
     }
     
     async function testtraceHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {

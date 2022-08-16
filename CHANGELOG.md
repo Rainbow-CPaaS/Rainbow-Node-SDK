@@ -9,6 +9,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.14.1] - 2022-08-XX
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
 -   Update `ChannelsService::fetchChannelItems` to return the timestamp property in the Items.
+-   Fix Content-Type of `AdminService::updateCommandIdStatus` method.
+-   Add low layer methods discoverHTTPoverXMPP and answerDiscoverHTTPoverXMPP to allow the discover of the rainbow-vna-gw (specific project). 
+-   Fix of `HTTPoverXMPP::get`, Add `HTTPoverXMPP::trace`, Add `HTTPoverXMPP::head`, Add `HTTPoverXMPP::post`, Add `HTTPoverXMPP::put`, `HTTPoverXMPP::delete` methods to set the dest `httpoverxmppserver_jid` of the request.
+-   Fix of send/receive messages in bubbles after a reconnection with reset of sending initial bubble presence in `BubblesManager`.   
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener
