@@ -2628,14 +2628,19 @@ Request Method: PUT
 
     //region FileStorage
     
-    createFileDescriptor(name, extension, size, viewers) {
+    createFileDescriptor(name, extension, size, viewers, voicemessage : boolean, duration : number, encoding : boolean, ccarelogs : boolean, ccareclientlogs : boolean) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let data = {
                 fileName: name,
                 extension: extension,
                 size: size,
-                viewers: viewers
+                viewers: viewers, 
+                voicemessage, 
+                duration, 
+                encoding, 
+                ccarelogs, 
+                ccareclientlogs 
             };
 
             that.http.post("/api/rainbow/filestorage/v1.0/files", that.getRequestHeader(), data, undefined).then(function (json) {
@@ -2751,19 +2756,57 @@ Request Method: PUT
         });
     }
 
-    retrieveReceivedFilesForRoomOrViewer(roomId) {
+    retrieveReceivedFilesForRoomOrViewer(viewerId, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string, sortOrder : number ) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
         // URL GET /api/rainbow/filestorage/v1.0/files/viewers/:viewerId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/filestorage/v1.0/files/viewers/" + roomId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
-                that.logger.log("info", LOG_ID + "(retrieveFilesReceivedFromPeer) REST get file descriptors");
-                that.logger.log("internal", LOG_ID + "(retrieveFilesReceivedFromPeer) REST result : ", json);
+            that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST fileName : ", fileName);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/files/viewers/" + viewerId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (ownerId!=undefined) {
+                addParamToUrl(urlParamsTab, "ownerId", ownerId);
+            }
+            if (fileName!=undefined) {
+                addParamToUrl(urlParamsTab, "fileName", fileName ? "true":"false");
+            }
+            if (extension!=undefined) {
+                addParamToUrl(urlParamsTab, "extension", extension);
+            }
+            if (typeMIME!=undefined) {
+                addParamToUrl(urlParamsTab, "typeMIME", typeMIME);
+            }
+            if (purpose!=undefined) {
+                addParamToUrl(urlParamsTab, "purpose", purpose);
+            }
+            if (isUploaded!=undefined) {
+                addParamToUrl(urlParamsTab, "isUploaded", isUploaded ? "true":"false");
+            }
+            if (roomName!=undefined) {
+                addParamToUrl(urlParamsTab, "roomName", roomName);
+            }
+            if (overall!=undefined) {
+                addParamToUrl(urlParamsTab, "overall", overall);
+            }
+            addParamToUrl(urlParamsTab, "limit", limit );
+            addParamToUrl(urlParamsTab, "offset", offset );
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST url : ", url);
+            
+            that.http.get("/api/rainbow/filestorage/v1.0/files/viewers/" + viewerId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) successfull");
+                that.logger.log("info", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST get file descriptors");
+                that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveFilesReceivedFromPeer) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveFilesReceivedFromPeer) error : ", err);
+                that.logger.log("error", LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error : ", err);
                 return reject(err);
             });
         });

@@ -143,9 +143,25 @@ class FileStorage extends GenericService{
         return new Promise((resolve, reject)=> {
             if (useRestAtStartup ) {
                 // No blocking service
-                that.retrieveFileDescriptorsListPerOwner()
+                let fileName : boolean = undefined; 
+                let fileNameStr : string = undefined; 
+                let ownerId : string = undefined; 
+                let extension : string = undefined; 
+                let typeMIME : string = undefined;
+                let purpose : string = undefined;
+                let isUploaded : boolean = undefined;
+                let viewerId : string = undefined;
+                let path : string = undefined;
+                let limit : number = 1000;
+                let offset : number = undefined;
+                let roomName : string = undefined;
+                let overall : boolean = undefined;
+                let sortField : string = undefined;
+                let sortOrder : number = undefined; 
+                let format : string = "full";
+                that.retrieveFileDescriptorsListPerOwner(fileNameStr , extension, typeMIME, purpose , isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
                         .then(() => {
-                            return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/);
+                            return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder );
                         })
                         .then(() => {
                             that.orderDocuments();
@@ -845,7 +861,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
-    getFilesReceivedInBubble(bubble) {
+    getFilesReceivedInBubble(bubble, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string, sortOrder : number ) {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -862,7 +878,7 @@ class FileStorage extends GenericService{
 
                 that._logger.log("debug", LOG_ID + "[getFilesRcv] ::  get files received in bubble " + bubble.id + "...");
 
-                that.retrieveReceivedFilesForRoom(bubble.id).then(function(files: any) {
+                that.retrieveReceivedFilesForRoom(bubble.id, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder).then(function(files: any) {
                     if (files) {
                         that._logger.log("debug", LOG_ID + "[getFilesRcv] :: " + files.length + " files received in bubble " + bubble.id);
                     } else {
@@ -1079,13 +1095,18 @@ class FileStorage extends GenericService{
      * @param {string} extension [required] extension of file
      * @param {number} size [required] size of  file
      * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
+     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
      * @return {Promise<FileDescriptor>} file descriptor created by server or error
      *
      */
-    createFileDescriptor(name, extension, size, viewers) {
+    createFileDescriptor(name, extension, size, viewers, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._rest.createFileDescriptor(name, extension, size, viewers)
+            that._rest.createFileDescriptor(name, extension, size, viewers, voicemessage , duration , encoding , ccarelogs , ccareclientlogs )
                 .then((response ) => {
                     const fileDescriptor = that.createFileDescriptorFromData(response);
                     that._logger.log("debug", LOG_ID + "(createFileDescriptor) -- " + fileDescriptor.id + " -- success");
@@ -1211,13 +1232,33 @@ class FileStorage extends GenericService{
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
      * @instance
+     * @param {string} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+     * typeMIME='image/jpeg' allows to get all jpeg file
+     * typeMime='image' allows to get all image files whatever the extension
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} viewerId Among all files shared by the user, allow to specify a viewer.
+     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {string} sortOrder Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
+     * @param {string} format Allows to retrieve more or less file descriptors details in response.
+     * small: _id, fileName, extension, isClean
+     * medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h
+     * full: all descriptors fields except storageURL
+     * Default value : full Possibles values : "small", "medium", "full"
      * @description
      * Method retrieve full list of files belonging to user making the request <br>
      *
      * @return {Promise<FileDescriptor[]>}
      *
      */
-    retrieveFileDescriptorsListPerOwner(fileName : string = undefined, extension : string = undefined, typeMIME : string = undefined, purpose : string = undefined, isUploaded : boolean = undefined, viewerId : string = undefined, path : string = undefined, limit : number = 1000, offset : number = undefined, sortField : string = undefined, sortOrder : number = undefined, format : string = "full") : Promise<[any]> {
+    retrieveFileDescriptorsListPerOwner(fileName : string = undefined, extension : string = undefined, typeMIME : string = undefined, purpose : string = undefined, isUploaded : boolean = undefined, viewerId : string = undefined, path : string = undefined, limit : number = 1000, offset : number = 0, sortField : string = undefined, sortOrder : number = 1, format : string = "full") : Promise<[any]> {
         let that = this;
         that.fileDescriptors = [];
         return new Promise((resolve, reject) => {
@@ -1343,10 +1384,29 @@ class FileStorage extends GenericService{
      * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br>
      *
      * @param {string} peerId [required] id of peer user in the conversation
+     * @param {string} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+     * typeMIME='image/jpeg' allows to get all jpeg file
+     * typeMime='image' allows to get all image files whatever the extension
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {string} sortOrder Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
+     * @param {string} format Allows to retrieve more or less file descriptors details in response.
+     * small: _id, fileName, extension, isClean
+     * medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h
+     * full: all descriptors fields except storageURL
+     * Default value : full Possibles values : "small", "medium", "full"
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
      */
-    retrieveSentFiles(peerId : string, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
+    retrieveSentFiles(peerId : string, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number = 0, sortField : string, sortOrder : number = 1, format : string = "full") {
         let that = this;
         return new Promise((resolve, reject) => {
             //that._rest.retrieveFileDescriptors("full", null, null, peerId)
@@ -1382,13 +1442,34 @@ class FileStorage extends GenericService{
      *
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {string} bubbleId [required] Id of the room
+     * @param {string} ownerId Among all files shared with the user, allow to precify a provider.
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+     * typeMIME='image/jpeg' allows to get all jpeg file
+     * typeMime='image' allows to get all image files whatever the extension
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 1000
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
      */
-    retrieveReceivedFilesForRoom(bubbleId) {
+    retrieveReceivedFilesForRoom(bubbleId, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 1000, offset : number = 0, sortField : string = "fileName", sortOrder : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._rest.retrieveReceivedFilesForRoomOrViewer(bubbleId)
+            that._rest.retrieveReceivedFilesForRoomOrViewer(bubbleId, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder  )
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
@@ -1427,13 +1508,34 @@ class FileStorage extends GenericService{
      * Method request for the list of files received by a user <br>
      *
      * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
+     * @param {string} ownerId Among all files shared with the user, allow to precify a provider. Example a peerId in a face to face conversation.
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+     * typeMime='image' allows to get all image files whatever the extension </br>
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full. Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
      *
      */
-    async retrieveReceivedFiles(viewerId) {
+    async retrieveReceivedFiles(viewerId : string, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string = "fileName", sortOrder : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._rest.retrieveReceivedFilesForRoomOrViewer(viewerId)
+            that._rest.retrieveReceivedFilesForRoomOrViewer(viewerId, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder)
                 .then((response : any) => {
                     let fileDescriptorsData = response.data;
                     if (!fileDescriptorsData) {
@@ -1474,12 +1576,30 @@ class FileStorage extends GenericService{
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Conversation} conversation   The conversation where to get the files
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+     * typeMime='image' allows to get all image files whatever the extension </br>
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full. Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
      * @description
      *    Get the list of all files sent in a conversation with a contact <br>
      *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
-    getFilesSentInConversation(conversation) {
+    getFilesSentInConversation(conversation, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
         let that = this;
         return new Promise(function(resolve, reject) {
             if (!conversation) {
@@ -1503,7 +1623,7 @@ class FileStorage extends GenericService{
                 }); */
             } else {
                 that._logger.log("info", LOG_ID + "[getFilesSnd] ::  get files sent in conversation " + conversation.id + "...");
-                that.retrieveSentFiles(conversation.contact.id, undefined , undefined, undefined, undefined, undefined, undefined, 1000, undefined, undefined, undefined, "full").then(function(files : any) {
+                that.retrieveSentFiles(conversation.contact.id, fileName , extension , typeMIME , purpose , isUploaded , path , limit , offset , sortField , sortOrder , format ).then(function(files : any) {
                     that._logger.log("info", LOG_ID + "[getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {
@@ -1519,13 +1639,32 @@ class FileStorage extends GenericService{
      * @method getFilesSentInBubble
      * @instance
      * @param {Bubble} bubble   The bubble where to get the files
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+     * typeMime='image' allows to get all image files whatever the extension </br>
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full. Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @description
      *    Get the list of all files sent in a bubble <br>
      *    Return a promise <br>
      * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
      */
-    getFilesSentInBubble(bubble) {
+    getFilesSentInBubble(bubble, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
         let that = this;
         return new Promise(function(resolve, reject) {
 
@@ -1542,7 +1681,7 @@ class FileStorage extends GenericService{
 
                 that._logger.log("info", LOG_ID + "[getFilesRcv] ::  get files received in bubble " + bubble.dbId + "...");
 
-                that.retrieveSentFiles(bubble.id, undefined , undefined, undefined, undefined, undefined, undefined, 1000, undefined, undefined, undefined, "full").then(function(files : any) {
+                that.retrieveSentFiles(bubble.id, fileName , extension , typeMIME , purpose , isUploaded , path , limit , offset , sortField , sortOrder , format ).then(function(files : any) {
                     that._logger.log("info", LOG_ID + "([getFilesSnd] ::  shared " + files.length);
                     resolve(files);
                 }).catch(function(err) {

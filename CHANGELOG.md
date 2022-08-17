@@ -6,13 +6,14 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.14.1] - 2022-08-XX
+## [2.15.0] - 2022-08-XX
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
 -   Update `ChannelsService::fetchChannelItems` to return the timestamp property in the Items.
 -   Fix Content-Type of `AdminService::updateCommandIdStatus` method.
 -   Add low layer methods discoverHTTPoverXMPP and answerDiscoverHTTPoverXMPP to allow the discover of the rainbow-vna-gw (specific project). 
 -   Fix of `HTTPoverXMPP::get`, Add `HTTPoverXMPP::trace`, Add `HTTPoverXMPP::head`, Add `HTTPoverXMPP::post`, Add `HTTPoverXMPP::put`, `HTTPoverXMPP::delete` methods to set the dest `httpoverxmppserver_jid` of the request.
--   Fix of send/receive messages in bubbles after a reconnection with reset of sending initial bubble presence in `BubblesManager`.   
+-   Fix of send/receive messages in bubbles after a reconnection with reset of sending initial bubble presence in `BubblesManager`.
+-   Add parameters to filter request for methods `FileStorageService::getFilesReceivedInBubble` `FileStorageService::createFileDescriptor` `FileStorageService::retrieveFileDescriptorsListPerOwner` `FileStorageService::retrieveSentFiles` `FileStorageService::retrieveReceivedFilesForRoom` `FileStorageService::retrieveReceivedFiles` `FileStorageService::getFilesSentInConversation` `FileStorageService::getFilesSentInBubble`
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener
