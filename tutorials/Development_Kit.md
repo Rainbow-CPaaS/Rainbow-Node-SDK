@@ -16,7 +16,7 @@ The Rainbow SDK for Node.JS contains:
 
 ---
 
-The Node.JS SDK is available either from [npm](https://www.npmjs.com/package/rainbow-node-sdk) or via [Github](https://github.com/Rainbow-CPaaS/StarterKit-SDKNodeJS). See the [Getting Started](/#/documentation/doc/sdk/node/guides/Getting_Started) guide to understand how to load it. 
+The Node.JS SDK is available either from [npm](https://www.npmjs.com/package/rainbow-node-sdk) or via [Github](https://github.com/Rainbow-CPaaS/StarterKit-SDKNodeJS). See the [Getting Started](/doc/sdk/node/guides/Getting_Started) guide to understand how to load it. 
 
 
 ### Starter kits

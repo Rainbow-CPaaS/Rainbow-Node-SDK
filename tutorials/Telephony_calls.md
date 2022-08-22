@@ -84,7 +84,7 @@ Bob uses `releaseCall()`;
 ## Conference calls
 ---
 
-The conferences are described in the following guide [Conferences](/#/documentation/doc/sdk/node/guides/Managing_conferences) .
+The conferences are described in the following guide [Conferences](/doc/sdk/node/guides/Managing_conferences) .
 The events call about conferences are : 
 - `rainbow_onbubbleconferencestartedreceived` - Fired when a webrtc conference is started. 
 - `rainbow_onbubbleconferenceupdated` - Fired when a webrtc conference is updated. 

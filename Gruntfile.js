@@ -350,7 +350,10 @@ module.exports = function(grunt) {
     
     });
 
-  grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
+    grunt.registerTask("testsitemapGeneration", ["exec:sitemapGeneration"]);
+
+
+    grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
   grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
   //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
     grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package

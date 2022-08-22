@@ -21,6 +21,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Updated the documentation of `AdminService::sendCommandToLdapConnectorUser` API of `command` parameter possible values :  "manual_synchro_directories", "manual_dry_run_directories".
 -   Update `AdminService::retrieveLdapConnectorConfigTemplate` method with parameter "type" that allows to filter connectors config list on the type provided in this option.
 -   Add `AdminService::retrieveLdapConnectorAllConfigTemplate` API allows to retrieve all the configuration templates for the connector.
+-   Fix sitemap génération for developpers Web site.
+-   Replace path `/#/documentation` with `/` in documentation for developpers Web site.
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener
@@ -807,7 +809,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
--   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+-   Changelog is removed from https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.
 -   Fix the retrieve of `csv` file in HttpService. => Fix failure of command in rainbow Cli `rbw masspro template user` .
 -   Fix S2SService::stop method.
 -   Add properties `_options, _useXMPP, _useS2S, _s2s` in all SDK's services to select S2S or XMPP behaviour of API.
@@ -851,7 +853,7 @@ ParseRoomInviteCallback, ParseRoomMemberCallback, ParseRoomStateCallback, ParseA
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
--   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS)
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS)
 -   Add automatic version of the SDK in jsdoc of service's classes.
 -   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 -   Typescript improvement.

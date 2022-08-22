@@ -35,7 +35,7 @@ rainbowSDK.events.on('rainbow_onmessagereceived', (message) => {
 
 ```
 
-You can have more details about the `message` structure by looking to the [Message API documentation](/#/documentation/doc/sdk/node/guides/api/message).
+You can have more details about the `message` structure by looking to the [Message API documentation](/doc/sdk/node/guides/api/message).
 
 
 #### Listening to incoming messages sending to a bubble

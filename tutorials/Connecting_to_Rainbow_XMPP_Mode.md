@@ -13,7 +13,7 @@ This tutorial will explain in details what you have to do and how it works.
 ### Configuration
 ---
 
-As explained in the guide [Getting Started](/#/documentation/doc/sdk/node/guides/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
+As explained in the guide [Getting Started](/doc/sdk/node/guides/Getting_Started), you have to setup the SDK for Node.JS in order to connect to Rainbow.
 
 Here is a complete sample for connecting to Rainbow. Adapt it with your credentials:
 

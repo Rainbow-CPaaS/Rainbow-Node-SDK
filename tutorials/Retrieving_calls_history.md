@@ -169,7 +169,7 @@ You can use the `rainbowSDK.calllog.deleteCallLogsForContact()` API to delete al
 
 ### Limits
 
-To consult the exact limits concerning Rainbow Web SDK, visit [this link](/#/documentation/doc/hub/features-limits)
+To consult the exact limits concerning Rainbow Web SDK, visit [this link](/doc/hub/features-limits)
 
 ---
 

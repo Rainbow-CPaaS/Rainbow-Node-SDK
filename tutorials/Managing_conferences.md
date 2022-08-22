@@ -4,7 +4,7 @@
 ### Preamble
 ---
 
-Using the Rainbow SDK for Node.JS, you have the possibility to create and administrate Bubbles as well as to participate to the discussion. This guide is focussed on the management of the Bubbles. If you need to know how to send and receive messages in Bubbles, have a look to the guide [Answering to Chat Messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message).
+Using the Rainbow SDK for Node.JS, you have the possibility to create and administrate Bubbles as well as to participate to the discussion. This guide is focussed on the management of the Bubbles. If you need to know how to send and receive messages in Bubbles, have a look to the guide [Answering to Chat Messages](/doc/sdk/node/guides/Answering_chat_message).
 
 ### Managing conferences - PSTN or WebRTC
 
@@ -250,7 +250,7 @@ await rainbowSDK.bubbles.personalConferenceDropParticipant(participantID);
 ### Limits
 ---
 
-To consult the exact limits concerning the Rainbow Bubbles, visit [this link](/#/documentation/doc/hub/features-limits)
+To consult the exact limits concerning the Rainbow Bubbles, visit [this link](/doc/hub/features-limits)
 
 ---
 

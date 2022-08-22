@@ -222,8 +222,8 @@ Here is list of some events that you can subscribe on:
 | **rainbow_onbubbleownaffiliationchanged** | Fired when a user changes the user connected affiliation with a bubble |
 | **rainbow_onbubbleinvitationreceived** | Fired when an invitation to join a bubble is received |
 
-Full list for STS Version is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/sts/api/events)
-Full list for LTS Version is available at [here](https://hub.openrainbow.com/#/documentation/doc/sdk/node/lts/api/events)
+Full list for STS Version is available at [here](https://hub.openrainbow.com/doc/sdk/node/sts/api/events)
+Full list for LTS Version is available at [here](https://hub.openrainbow.com/doc/sdk/node/lts/api/events)
 
 ## Instant Messaging
 

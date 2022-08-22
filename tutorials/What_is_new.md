@@ -1142,7 +1142,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Add `Events::Emitter` class extending `EventEmitter` to log the events names and parameters. This class is removed while delivery process, so it is only available for SDK Dev.
 -   RQRAINB-2721 Start to code s2s connection mode for methods (`listConnectionsS2S, sendS2SPresence, deleteConnectionsS2S, deleteAllConnectionsS2S, loginS2S, infoS2S`) and events (`S2SServiceEventHandler::handleS2SEvent` method). (Note that it is not finished, and it does not yet work).
 -   RQRAINB-3022 Add a SDK parameter `messagesDataStore` to override the `storeMessages` parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value `DataStoreType.UsestoreMessagesField` so it follows the storeMessages behaviour).
--   Changelog is removed from https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS.
+-   Changelog is removed from https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS.
 -   Fix the retrieve of `csv` file in HttpService. => Fix failure of command in rainbow Cli `rbw masspro template user` .
 -   Fix S2SService::stop method.
 -   Refactor for private members of services.
@@ -1213,7 +1213,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 -   Retrieve less information about conversation at startup to increase it. The behavior is manage by the `conversationsRetrievedFormat` option in `im` section provided to NodeSdk intance.
 -   Add the `storeMessage` parameter : message hint should not be stored by a server either permanently (as above) or temporarily. E.g. for later delivery to an offline client, or to users not currently present in a chatroom.
 -   Add a new event `rainbow_onsendmessagefailed` fired when a chat message with no-store attribut sent has failed (ex: remote party offline).
--   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/#/documentation/doc/sdk/node/api/ChangeLogRSS)
+-   Add a build of RSS fill of the changelog (available on https://hub.openrainbow.com/doc/sdk/node/api/ChangeLogRSS)
 -   Add BubblesService::archiveBubble method to  close the room in one step. The other alternative is to change the status for each room users not deactivated yet. All users currently having the status 'invited' or 'accepted' will receive a message/stanza .
 -   Typescript improvement.
 -   Add CDD methods in TelephonyService : logon, logoff, withdrawal, wrapup.
@@ -1869,7 +1869,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Logs printed to the console are now displayed in white color only. To activate colors, you have to manually add the parameter `color: true` to the `logs` section of your configuration parameter.
 
--   In order to save free disk space, logs files can be archived by adding the parameter `zippedArchive: true` to the `file` section of your configuration parameter. Adding parameters `maxSize: '10m'` and `maxFiles: 10` allow to limit disk usage used. See guide [Debugging](/#/documentation/doc/sdk/node/guides/Debugging) to have more information on how to configure these parametes.
+-   In order to save free disk space, logs files can be archived by adding the parameter `zippedArchive: true` to the `file` section of your configuration parameter. Adding parameters `maxSize: '10m'` and `maxFiles: 10` allow to limit disk usage used. See guide [Debugging](/doc/sdk/node/guides/Debugging) to have more information on how to configure these parametes.
 
 -   Enhance authentication and reconnection mechanisms to set the `connected` state only when Rainbow connection is fully established.
 
@@ -2063,13 +2063,13 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Replaced the `Jid` by the `Jid/resource` when sending a P2P message to avoid crash when connected twice with the same account.
 
--   Fix typo in guide [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
+-   Fix typo in guide [Managing Contacts](/doc/sdk/node/guides/Managing_contacts) with API `getContactByLoginEmail()` that returns an array and not the contact directly. API documentation has been updated too.
 
 -   Update FOSS `ws` in order to avoid a DOS attack and FOSS `request` to be aligned with the latest available version.
 
--   Add better explanation in guides [Getting started](/#/documentation/doc/sdk/node/guides/Getting_Started) and [Connecting to Rainbow](/#/documentation/doc/sdk/node/guides/Connecting_to_Rainbow) on configuration parameters.
+-   Add better explanation in guides [Getting started](/doc/sdk/node/guides/Getting_Started) and [Connecting to Rainbow](/doc/sdk/node/guides/Connecting_to_Rainbow) on configuration parameters.
 
--   Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message).
+-   Describe APIs `sendMessageToJid()` and `sendMessageToBubbleJid()` on how to send messages in guide [Answering chat messages](/doc/sdk/node/guides/Answering_chat_message).
 
 ### SDK for Node.JS 1.34 - December 2017
 
@@ -2083,7 +2083,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **Bugs**
 
--   Some minor typos corrections have been done on the guide [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts).
+-   Some minor typos corrections have been done on the guide [Managing Contacts](/doc/sdk/node/guides/Managing_contacts).
 
 -   A fix has been done on the token renewal mechanism to manage the new token duration and renew process.
 
@@ -2095,7 +2095,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   New service `Channels` to send messages to a large number of users.
 
--   New guide [Managing Channels](/#/documentation/doc/sdk/node/guides/Managing_channels) has been added to explain how to create channels and publish messages.
+-   New guide [Managing Channels](/doc/sdk/node/guides/Managing_channels) has been added to explain how to create channels and publish messages.
 
 **API**
 
@@ -2125,9 +2125,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   New service `Groups` to organize contacts has been added.
 
--   New guide [Managing Groups](/#/documentation/doc/sdk/node/guides/Managing_groups) has been added to explain how to have create groups and add users in.
+-   New guide [Managing Groups](/doc/sdk/node/guides/Managing_groups) has been added to explain how to have create groups and add users in.
 
--   Updating guide [Answering Chat Messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message) to list the Markdown tags unofficially supported by the Rainbow Web client.
+-   Updating guide [Answering Chat Messages](/doc/sdk/node/guides/Answering_chat_message) to list the Markdown tags unofficially supported by the Rainbow Web client.
 
 **API**
 
@@ -2153,9 +2153,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Date and timestamp have been added to console and file loggers.
 
--   New tutorial [Managing Contacts](/#/documentation/doc/sdk/node/guides/Managing_contacts) has been added to explain how to have retrieve the user's network or find for Rainbow contacts.
+-   New tutorial [Managing Contacts](/doc/sdk/node/guides/Managing_contacts) has been added to explain how to have retrieve the user's network or find for Rainbow contacts.
 
--   Guide [Answering to Chat Messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
+-   Guide [Answering to Chat Messages](/doc/sdk/node/guides/Answering_chat_message) has been updated to explain the specific messages that can be received by members when the affiliation of a specific member changes.
 
 **API**
 
@@ -2181,7 +2181,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 **SDK**
 
--   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/#/documentation/doc/sdk/node/guides/Managing_bubbles)
+-   New tutorial has been added to explain how to manage Bubbles: [Managing Bubbles](/doc/sdk/node/guides/Managing_bubbles)
 
 **API**
 
@@ -2209,9 +2209,9 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Data models used by the SDK (Contact, Bubble and Message) as well as events parameters have been documented.
 
--   New tutorials have been added to explain some of key concepts: [Answering chat messages](/#/documentation/doc/sdk/node/guides/Answering_chat_message), [Debugging](/#/documentation/doc/sdk/node/guides/Debugging) and [Managing Proxy](/#/documentation/doc/sdk/node/guides/Proxy)
+-   New tutorials have been added to explain some of key concepts: [Answering chat messages](/doc/sdk/node/guides/Answering_chat_message), [Debugging](/doc/sdk/node/guides/Debugging) and [Managing Proxy](/doc/sdk/node/guides/Proxy)
 
--   New tutorials has been added to explain how to manage and create users and guests: [Managing Users and Guests](/#/documentation/doc/sdk/node/guides/Managing_users)
+-   New tutorials has been added to explain how to manage and create users and guests: [Managing Users and Guests](/doc/sdk/node/guides/Managing_users)
 
 -   The number of log files is now limited to 10 files (one file per day) then the oldest one is overwritten.
 
@@ -2245,7 +2245,7 @@ Consequently, you need to update your Node.js version to 10.x in order to use th
 
 -   Version of the SDK for Node.JS, version of Node.JS and version from other Node.JS components have been added to the log file to help debugging Node.JS application.
 
--   New tutorial [`Connecting to Rainbow`](/#/documentation/doc/sdk/node/guides/Connecting_to_Rainbow) has been written to help understanding the SDK for Node.JS lifecycle.
+-   New tutorial [`Connecting to Rainbow`](/doc/sdk/node/guides/Connecting_to_Rainbow) has been written to help understanding the SDK for Node.JS lifecycle.
 
 **API**
 

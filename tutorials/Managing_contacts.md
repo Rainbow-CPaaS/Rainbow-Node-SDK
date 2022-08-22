@@ -252,7 +252,7 @@ rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
 
 Any Rainbow user can be searched by his `id` to get his associated vcard.
 
-_Note_: Depending the visibility of this user, the vcard can be reduced to a minimal set of information. See the guide [Users visibility and privacy](/#/documentation/doc/hub/users-visibility-and-privacy) to have more information on that topic.
+_Note_: Depending the visibility of this user, the vcard can be reduced to a minimal set of information. See the guide [Users visibility and privacy](/doc/hub/users-visibility-and-privacy) to have more information on that topic.
 
 Use the API `getContactById()` like in the following:
 
@@ -312,7 +312,7 @@ Any Rainbow user can be searched by his `loginEmail` to get his associated vcard
 
 But as the `loginEmail` is a private information only accessible for public contact (which means contacts in the same company, same organisation or in a public company), you may have no result if the contact is private.
 
-So take care using this API because you can have no result even is a contact with this `loginEmail` exists. See the guide [Users visibility and privacy](/#/documentation/doc/hub/users-visibility-and-privacy) to have more information on that topic.
+So take care using this API because you can have no result even is a contact with this `loginEmail` exists. See the guide [Users visibility and privacy](/doc/hub/users-visibility-and-privacy) to have more information on that topic.
 
 Use the API `getContactByLoginEmail()` like in the following:
 

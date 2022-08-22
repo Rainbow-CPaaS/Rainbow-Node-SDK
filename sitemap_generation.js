@@ -15,7 +15,8 @@ const hostnameHashValue = "#";
 const reghostnameHashTag = /\/#/g;
 const hostnameValue = "@hub_fqdn@";
 const hostname = "https://" + hostnameTag;
-const pathPrefix = "#/documentation/";
+//const pathPrefix = "#/documentation/";
+const pathPrefix = "/";
 
 let appendUrl = function (obj, stack, cb) {
     for (var property in obj) {
