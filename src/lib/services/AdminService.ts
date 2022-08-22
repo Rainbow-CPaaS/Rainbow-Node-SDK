@@ -3983,7 +3983,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapId ldap connector unique identifier.
-     * @param {string} command Allows to specify a command to be performed by the ldap connector. Allowed commands are: "manual_synchro", "manual_dry_run".
+     * @param {string} command Allows to specify a command to be performed by the ldap connector. Allowed commands are: "manual_synchro", "manual_dry_run", "manual_synchro_directories", "manual_dry_run_directories".
      * @description
      *      This API can be used to send a command to a ldap connector user. <br>
      *      BP Admin and BP Finance users can only control users being in a company linked to their BP company. <br>
@@ -4039,13 +4039,14 @@ class AdminService extends GenericService {
      * @param {string} companyId the id of the company.
      * @param {string} name name of this configuration.
      * @param {Object} settings config settings.
+     * @param {string} type specify for which type of synchronisation this config is . Allowed types are: "ldap_config", "ldap_config_directories". Default value : ldap_config
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
-     * @param {Object} settings.company specific settings for the company. Each key represent a setting. 
-     * @param {string} settings.company.login login for the ldap server. 
-     * @param {string} settings.company.password password for the ldap server. 
-     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours. 
-     * @param {string} settings.company.url url of the ldap server. 
+     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
+     * @param {string} settings.company.login login for the ldap server.
+     * @param {string} settings.company.password password for the ldap server.
+     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
+     * @param {string} settings.company.url url of the ldap server.
      * @param {string} settings.company.domain domain of the ldap server.
      * @param {string} settings.company.baseDN base DN for the ldap server.
      * @param {boolean} settings.company.activeFlag defines if the synchronization is active, or not.
@@ -4058,11 +4059,11 @@ class AdminService extends GenericService {
      *      Users with bp_admin or bp_finance role can only create the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
      *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
      *      * an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId)
-     *      * a company_admin can only create the connectors configuration in his company.    
-     * 
-     * @return {Promise<{Object}>} return - 
+     *      * a company_admin can only create the connectors configuration in his company.
+     *
+     * @return {Promise<{Object}>} return -
      * <br>
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Config Object. |
@@ -4085,9 +4086,9 @@ class AdminService extends GenericService {
      * | search_rule | String | filters to use when requesting the ldap server. |
      * | lastSynchronization | Date-Time | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
      * | softwareVersion | String | software Version of the ldap connector (filled by the ldap connector). |
-     * 
+     *
      */
-    createConfigurationForLdapConnector (companyId, settings, name : string) {
+    createConfigurationForLdapConnector (companyId, settings, name : string, type : string = "ldap_config") {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -4100,7 +4101,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 
-                let result = await that._rest.createConfigurationForLdapConnector(companyId, settings, name);
+                let result = await that._rest.createConfigurationForLdapConnector(companyId, settings, name, type);
                 that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
                 that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
 
@@ -4209,6 +4210,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
+     * @param {string} type Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_template", "ldap_template_directories". Default value : ldap_template
      * @category AD/LDAP - LDAP APIs to use
      * @description
      *      This API allows to retrieve the configuration template for the connector. <br>
@@ -4227,12 +4229,12 @@ class AdminService extends GenericService {
      *          } <br>
      * @return {Promise<{Object}>}
      */
-    retrieveLdapConnectorConfigTemplate() {
+    retrieveLdapConnectorConfigTemplate(type="ldap_template") {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
             try {
-                let result = await that._rest.retrieveLdapConnectorConfigTemplate();
+                let result = await that._rest.retrieveLdapConnectorConfigTemplate(type);
                 that._logger.log("debug", "(retrieveLdapConnectorConfigTemplate) - sent.");
                 that._logger.log("internal", "(retrieveLdapConnectorConfigTemplate) - result : ", result);
 
@@ -4244,7 +4246,177 @@ class AdminService extends GenericService {
             }
         });
     }
-    
+
+    /**
+     * @public
+     * @method retrieveLdapConnectorAllConfigTemplate
+     * @since 1.86.0
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @description
+     *      This API allows to retrieve all the configuration templates for the connector. <br>
+     *      return { <br>
+     *         id 	string Config unique identifier. <br>
+     *         type 	string Config type  <br>
+     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 default 	String default field name in ldap. <br>
+     *                 mandatory optionnel 	Boolean specify if field is mandatory. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                  headerName 	Object headerName as specified in the csv templates for the massprovisioning portal. <br>
+     *                  settingName Object name of the setting. Each key represent a setting. As of now list of setting is "login", "password", "synchronizationTimeInterval", "url". This list can evolve. <br>
+     *                  default optionnel 	String 	 <br>
+     *                  default value of the setting.  <br>
+     *                  mandatory optionnel 	String specify if field is mandatory. <br>
+     *          } <br>
+     * @return {Promise<{Object}>}
+     */
+    retrieveLdapConnectorAllConfigTemplates() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.retrieveLdapConnectorAllConfigTemplates();
+                that._logger.log("debug", "(retrieveLdapConnectorAllConfigTemplates) - sent.");
+                that._logger.log("internal", "(retrieveLdapConnectorAllConfigTemplates) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveLdapConnectorAllConfigs
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {string} companyId Allows to filter connectors config list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+     * @description
+     *      This API allows to retrieve the configurations list for the connector. <br>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+     *      return { <br>
+     *         id 	string Config unique identifier. <br>
+     *         type 	string Config type  <br>
+     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	string login for the ldap server. <br>
+     *                 password 	string password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+     *                 url 	string url of the ldap server. <br>
+     *                 connectorStatus 	string status of the connector (set by the connector itself). <br>
+     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. <br>
+     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users <br>
+     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date <br>
+     *                 search_rule 	string filters to use when requesting the ldap server. <br>
+     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). <br>
+     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). <br>
+     *          } <br>
+     * @return {Promise<{Object}>}
+     */
+    retrieveLdapConnectorAllConfigs (companyId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+
+                if (!companyId) {
+                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter : ", companyId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.retrieveLdapConnectorAllConfigs(companyId);
+                that._logger.log("debug", "(retrieveLdapConnectorAllConfigs) - sent.");
+                that._logger.log("internal", "(retrieveLdapConnectorAllConfigs) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorAllConfigs) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method retrieveLDAPConnectorConfigByLdapConfigId
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {string} ldapConfigId Ldap connector unique identifier
+     * @description
+     *      This API allows to retrieve the configuration for the connector with the ldapConfigId. <br>
+     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+     *      return { <br>
+     *         id 	string Config unique identifier. <br>
+     *         type 	string Config type  <br>
+     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+     *         settings 	Object config settings <br>
+     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+     *                 login 	string login for the ldap server. <br>
+     *                 password 	string password for the ldap server. <br>
+     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+     *                 url 	string url of the ldap server. <br>
+     *                 connectorStatus 	string status of the connector (set by the connector itself). <br>
+     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. <br>
+     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users <br>
+     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date <br>
+     *                 search_rule 	string filters to use when requesting the ldap server. <br>
+     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). <br>
+     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). <br>
+     *          } <br>
+     * @return {Promise<{Object}>}
+     */
+    retrieveLDAPConnectorConfigByLdapConfigId (ldapConfigId : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!ldapConfigId) {
+                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter : ", ldapConfigId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId);
+                that._logger.log("debug", "(retrieveLDAPConnectorConfigByLdapConfigId) - sent.");
+                that._logger.log("internal", "(retrieveLDAPConnectorConfigByLdapConfigId) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     /*
     
      * @param {Object} settings config settings
@@ -4294,6 +4466,8 @@ class AdminService extends GenericService {
      *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br>
      *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
      *      a company_admin can only update the connectors configuration in his company. <br>
+     *          
+     *      a 'rainbow_onconnectorconfig' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
      *     
      * @return {Promise<{Object}>} -
      * <br>

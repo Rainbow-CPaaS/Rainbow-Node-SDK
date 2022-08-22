@@ -6941,7 +6941,7 @@ Request Method: PUT
     }
 
     sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
-        // API https://api.openrainbow.org/admin/#api-users-GetUsers
+        // API https://api.openrainbow.org/admin/#api-connectors-CommandLdap
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command
 
         let that = this;
@@ -6962,7 +6962,7 @@ Request Method: PUT
         });
     }
 
-    createConfigurationForLdapConnector (companyId : string, settings : any, name : string) {
+    createConfigurationForLdapConnector (companyId : string, settings : any, name : string, type : string = "ldap_config") {
         // API https://api.openrainbow.org/admin/#api-connectors-PostLdapConfig
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/config
         
@@ -6970,13 +6970,13 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
             that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
-            let param : any = {companyId, settings};
+            let data : any = {companyId, settings, type};
             
             if (name) {
-                param.name = name;
+                data.name = name;
             }
 
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
+            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(createConfigurationForLdapConnector) successfull");
                 that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST result : ", json);
                 resolve(json.data);
@@ -7038,13 +7038,17 @@ Request Method: PUT
         });
     }
 
-    retrieveLdapConnectorConfigTemplate () {
+    retrieveLdapConnectorConfigTemplate (type : string = "ldap_template") {
         // API https://api.openrainbow.org/admin/#api-connectors-GetLdapTemplate
         // GET /api/rainbow/admin/v1.0/connectors/ldaps/config/template
         
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/template";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "type", type);
+            url = urlParamsTab[0];
 
             that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
 
@@ -7059,6 +7063,89 @@ Request Method: PUT
             });
         });
     }
+
+    retrieveLdapConnectorAllConfigTemplates () {
+        // API https://api.openrainbow.org/admin/#api-connectors-GetAllLdapTemplate
+        // GET /api/rainbow/admin/v1.0/connectors/ldaps/config/templates
+        
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/templates";
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "type", type);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveLdapConnectorAllConfigs (companyId : string) {
+        // API https://api.openrainbow.org/admin/#api-connectors-GetAllLdapConfigs
+        // GET /api/rainbow/admin/v1.0/connectors/ldaps/configs 
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/configs";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigs) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveLdapConnectorAllConfigs) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigs) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorAllConfigs) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorAllConfigs) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveLDAPConnectorConfigByLdapConfigId (ldapConfigId : string) {
+        // API https://api.openrainbow.org/admin/#api-connectors-GetLdapConfigById
+        // GET /api/rainbow/admin/v1.0/connectors/ldaps/config/:ldapConfigId 
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/" + ldapConfigId;
+            /*
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
 
     updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean, name : string) {
         // API https://api.openrainbow.org/admin/#api-connectors-PutLdapConfig

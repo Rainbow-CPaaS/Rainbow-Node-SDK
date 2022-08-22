@@ -3150,10 +3150,11 @@ class ConversationEventHandler extends GenericHandler {
             let connectorconfig = jsonNode["connectorconfig"];
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig : ", connectorconfig);
             let action = connectorconfig["$attrs"]["action"];
+            let configId = connectorconfig["$attrs"]["configId"];
 
             if (connectorconfig.$attrs.xmlns==="jabber:iq:configuration") {
-                that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig with action : ", action);
-                that.eventEmitter.emit("evt_internal_connectorconfig", {action});
+                that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig with action : ", action, ", configId : ", configId);
+                that.eventEmitter.emit("evt_internal_connectorconfig", {action, configId});
             } // */
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");

@@ -14,6 +14,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix of `HTTPoverXMPP::get`, Add `HTTPoverXMPP::trace`, Add `HTTPoverXMPP::head`, Add `HTTPoverXMPP::post`, Add `HTTPoverXMPP::put`, `HTTPoverXMPP::delete` methods to set the dest `httpoverxmppserver_jid` of the request.
 -   Fix of send/receive messages in bubbles after a reconnection with reset of sending initial bubble presence in `BubblesManager`.
 -   Add parameters to filter request for methods `FileStorageService::getFilesReceivedInBubble` `FileStorageService::createFileDescriptor` `FileStorageService::retrieveFileDescriptorsListPerOwner` `FileStorageService::retrieveSentFiles` `FileStorageService::retrieveReceivedFilesForRoom` `FileStorageService::retrieveReceivedFiles` `FileStorageService::getFilesSentInConversation` `FileStorageService::getFilesSentInBubble`
+-   Add parameter `type` to specify for which type of synchronisation the config is in `AdminService::createConfigurationForLdapConnector` .
+-   Add API method `AdminService::retrieveLdapConnectorAllConfigs` This API allows to retrieve the configurations list for the connector.
+-   Add API method `AdminService::retrieveLDAPConnectorConfigByLdapConfigId` This API allows to retrieve the configuration for the connector with the ldapConfigId.
+-   Updated the `rainbow_onconnectorconfig` event with configId property in data parameter.
+-   Updated the documentation of `AdminService::sendCommandToLdapConnectorUser` API of `command` parameter possible values :  "manual_synchro_directories", "manual_dry_run_directories".
+-   Update `AdminService::retrieveLdapConnectorConfigTemplate` method with parameter "type" that allows to filter connectors config list on the type provided in this option.
+-   Add `AdminService::retrieveLdapConnectorAllConfigTemplate` API allows to retrieve all the configuration templates for the connector.
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener
