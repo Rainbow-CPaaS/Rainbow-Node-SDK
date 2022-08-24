@@ -21,8 +21,15 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Updated the documentation of `AdminService::sendCommandToLdapConnectorUser` API of `command` parameter possible values :  "manual_synchro_directories", "manual_dry_run_directories".
 -   Update `AdminService::retrieveLdapConnectorConfigTemplate` method with parameter "type" that allows to filter connectors config list on the type provided in this option.
 -   Add `AdminService::retrieveLdapConnectorAllConfigTemplate` API allows to retrieve all the configuration templates for the connector.
+-   Add `rainbow_onconnectorcommandended` event received in case a query parameter commandId is added to the `AdminService::checkCSVdataForSynchronizeDirectory`, `AdminService::importCSVdataForSynchronizeDirectory` methods.
+-   Add `AdminService::checkCSVdataForSynchronizeDirectory` API allows to checks a CSV UTF-8 content for mass-provisioning for directory mode.
+-   Add `AdminService::importCSVdataForSynchronizeDirectory` API allows to import the entries of a company directory with CSV UTF-8 encoded data.
+-   Add `AdminService::getCSVReportByCommandId` API allows to retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId).
+-   Add `AdminService::createCSVReportByCommandId` API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...).
+-   Add `AdminService::retrieveRainbowEntriesList` API allows to generates a file describing all companies entries (csv or json format).
 -   Fix sitemap génération for developpers Web site.
 -   Replace path `/#/documentation` with `/` in documentation for developpers Web site.
+-   Add the "conversation" property in `answeredMsg` property of a instant message received.
 
 ## [2.14.1] - 2022-07-07
 -   Add events::removeListener method to call events.eee.removeListener
@@ -31,7 +38,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.14.0] - 2022-07-07
 -   Add fileId when a file is attached in 'oob' property of data of a "rainbow_onmessagereceived".
 -   Fix `NodeSDK::getConnectionStatus` api when the rest/xmpp/s2S/http law layer is not initialized.
--   Fix : Move the call at startup `_sendPresenceFromConfiguration` to avoid the missing when the "getContacts" method failed.
+-   Fix : Move the call at startup `_sendPresenceFromConfiguration` to avoid the missed messages when the "getContacts" method failed.
 -   Add `PresenceService::sendInitialBubblePresenceById` private method. 
 -   Fix ignored commandId in `AdminService::synchronizeUsersAndDeviceswithCSV`. 
 -   Add to SDK initialisation a `testDNSentry` option to verify at startup/reconnection that the rainbow server DNS entry name is available.
@@ -87,7 +94,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `enableEncryptedLogs` SDK's parameter to false because of perf issue.
 -   Update `AdminService::createConfigurationForLdapConnector` with 'name' parameter, and update doc.
 -   Update `AdminService::updateConfigurationForLdapConnector` with 'name' parameter, and update doc.
--   In `conversationEventHandler::onErrorMessageReceived` calback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
+-   In `conversationEventHandler::onErrorMessageReceived` callback send the bubble presence when an error occured when a message is sent to a bubble with error "Only occupants are allowed to send messages to the conference".
 -   Fix when No data received from server since 80 secondes. The XMPP link is badly broken, so Application needs to destroy and recreate the SDK, with fresh start(...).  
 -   Start of the update of the treatment of event conference V2.
 

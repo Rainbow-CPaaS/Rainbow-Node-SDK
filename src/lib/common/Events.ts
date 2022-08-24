@@ -174,6 +174,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubblepollvoted <br>
  * @fires Events#rainbow_onconnectorcommand <br>
  * @fires Events#rainbow_onconnectorconfig <br>
+ * @fires Events#rainbow_onconnectorcommandended <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -277,7 +278,8 @@ class Events {
         "rainbow_onbubblepollupdated",
         "rainbow_onbubblepollvoted",
         "rainbow_onconnectorcommand",
-        "rainbow_onconnectorconfig"
+        "rainbow_onconnectorconfig",
+        "rainbow_onconnectorcommandended"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1391,6 +1393,17 @@ class Events {
              *      This event is fired when a config is sent to connector's jid_im.
              */
             that.publishEvent("connectorconfig", data);
+        });
+
+        this._evReceiver.on("evt_internal_connectorcommand_ended", function (data) {
+            /**
+             * @event Events#rainbow_onconnectorcommandended
+             * @public
+             * @param { Object } data informations about connector command
+             * @description
+             *      This event is fired in case a query parameter commandId is added to the AdminService::checkCSVdataForSynchronizeDirectory method.
+             */
+            that.publishEvent("connectorcommand_ended", data);
         });
 
     }

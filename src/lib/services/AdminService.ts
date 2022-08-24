@@ -2760,7 +2760,7 @@ class AdminService extends GenericService {
     //endregion Offers and Subscriptions.
 
     //region AD/LDAP
-    //region AD/LDAP masspro
+    //region AD/LDAP Massprovisioning
 
     /**
      * @public
@@ -2768,7 +2768,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
@@ -2824,7 +2824,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} reqId the import request id
      * @description
      *     This API allows to delete the report of an import identified by its reqId. <br>
@@ -2862,7 +2862,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} reqId the import request id
      * @param {string} format Allows to retrieve more or less report details.
      * - small: reporting without operation details
@@ -2926,7 +2926,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId the companyId to list imports of
      * @description
      *     This API provides information on all imports of the administrator's company. <br>
@@ -2975,7 +2975,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} tenant Office365 tenant
      * @param {string} format Allows to retrieve more or less phone numbers details in response.
      * - json: answer follows the pattern { "data" : { ... JSON ... }}
@@ -3019,7 +3019,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import. Default value : none
      * @param {string} noemails disable email sending. Default value : true
@@ -3071,7 +3071,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} tenant Office365 tenant
      * @description
      *     This API generates data describing all operations required to synchronize an Office365 tenant (csv or json format). </br>
@@ -3107,7 +3107,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} tenant Office365 tenant
      * @param {string} format Allows to retrieve more or less phone numbers details in response.
      * - json: answer follows the pattern { "data" : { ... JSON ... }}
@@ -3149,7 +3149,7 @@ class AdminService extends GenericService {
      * @since 2.12.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId companyId of the users in the CSV file, default to admin's companyId
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. Default value : %
@@ -3202,7 +3202,7 @@ class AdminService extends GenericService {
      * @since 2.14.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} data body of the POST. Body : {
      * status : `success` or `failure`, // status for the execution of the command
      * details : string // details that can be provided about the command execution
@@ -3238,7 +3238,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} csvTxt the csv of the user and device to synchronize.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import
@@ -3334,7 +3334,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} mode Select template to return.
      * - user: provider the user management template
@@ -3393,7 +3393,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} CSVTxt CSV File content to be checked.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
@@ -3445,7 +3445,7 @@ class AdminService extends GenericService {
      * @since 2.5.1
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} commandId used in the check csv request whicj came from connector on behalf of admin command
      * @description
      *      This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId). <br>
@@ -3497,7 +3497,7 @@ class AdminService extends GenericService {
      * @since 2.5.1
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import. default undefined.
      * @param {boolean} noemails disable email sending. default true.
@@ -3628,7 +3628,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
-     * @category AD/LDAP - AD/LDAP masspro
+     * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
@@ -3654,8 +3654,294 @@ class AdminService extends GenericService {
             }
         });
     }
+
+    /**
+     * @public
+     * @method checkCSVdataForSynchronizeDirectory
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @description
+     *      This API checks a CSV UTF-8 content for mass-provisioning for directory mode.</br>
+     *      All the entries defined in the CSV data are relative to the same company directory. <br>
+     *      In case a query parameter commandId is added, the following event is sent to the initiator of the command: "rainbow_onconnectorcommandended"<br>
+     *          <br>
+     *      The first line of the CSV file describes the content format. Most of the field names are the same than the field names of the company directory API - Create a directory entry.<br>
+     *      Supported fields are:<br>
+     *      __action__ : delete, upsert or sync<br>
+     *      ldap_id : (mandatory)<br>
+     *      *<br>
+     *      firstName<br>
+     *      lastName<br>
+     *      companyName<br>
+     *      workPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      mobilePhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      otherPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      tag{n} : (n is a number starting from 0 to 4)<br>
+     *      department<br>
+     *      street<br>
+     *      city<br>
+     *      postalCode<br>
+     *      state<br>
+     *      country<br>
+     *      jobTitle<br>
+     *      eMail<br>
+     *      custom1<br>
+     *      custom2<br>
+     *      <br>
+     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.<br> 
+     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.<br> 
+     *      Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value).<br>
+     *      <br>
+     *      return an {Object}  of synchronization data. <br>
+     * @return {Promise<any>}
+     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment CSV comment start character. Default value : %
+     * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
+     * @param {string} csvData string with the body of the CSV data.
+     */
+    checkCSVdataForSynchronizeDirectory (delimiter : string = "%", comment : string, commandId : string, csvData: string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!csvData) {
+                    that._logger.log("warn", LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let result = await that._rest.checkCSVdataForSynchronizeDirectory(delimiter, comment, commandId, csvData);
+                that._logger.log("debug", "(checkCSVdataForSynchronizeDirectory) - sent.");
+                that._logger.log("internal", "(checkCSVdataForSynchronizeDirectory) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error.");
+                that._logger.log("internalerror", LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
     
-    //endregion AD/LDAP masspro
+    /**
+     * @public
+     * @method importCSVdataForSynchronizeDirectory
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @description
+     *      This API allows to import the entries of a company directory with CSV UTF-8 encoded data. <br>
+     *      All the entries defined in the CSV data are relative to the same company directory. <br>
+     *      In case a query parameter commandId is added, the following event is sent to the initiator of the command: "rainbow_onconnectorcommandended"<br>
+     *          <br>
+     *      The first line of the CSV file describes the content format. Most of the field names are the same than the field names of the company directory API - Create a directory entry.<br>
+     *      Supported fields are:<br>
+     *      __action__ : delete, upsert or sync<br>
+     *      ldap_id : (mandatory)<br>
+     *      *<br>
+     *      firstName<br>
+     *      lastName<br>
+     *      companyName<br>
+     *      workPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      mobilePhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      otherPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+     *      tag{n} : (n is a number starting from 0 to 4)<br>
+     *      department<br>
+     *      street<br>
+     *      city<br>
+     *      postalCode<br>
+     *      state<br>
+     *      country<br>
+     *      jobTitle<br>
+     *      eMail<br>
+     *      custom1<br>
+     *      custom2<br>
+     *      <br>
+     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+     *      Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value).<br>
+     *      <br>
+     *      return an {Object}  of synchronization data. <br>
+     * @return {Promise<any>}
+     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} comment CSV comment start character. Default value : %
+     * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
+     * @param {string} label A text description of this import. Default value : none
+     * @param {string} csvData string with the body of the CSV data.
+     */
+    importCSVdataForSynchronizeDirectory(delimiter : string = "%", comment : string, commandId : string, label : string = "none", csvData: string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!csvData) {
+                    that._logger.log("warn", LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let result = await that._rest.importCSVdataForSynchronizeDirectory(delimiter, comment, commandId, label, csvData);
+                that._logger.log("debug", "(importCSVdataForSynchronizeDirectory) - sent.");
+                that._logger.log("internal", "(importCSVdataForSynchronizeDirectory) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(importCSVdataForSynchronizeDirectory) Error.");
+                that._logger.log("internalerror", LOG_ID + "(importCSVdataForSynchronizeDirectory) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+       
+    /**
+     * @public
+     * @method getCSVReportByCommandId
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @description
+     *      This API retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId). <br>
+     *           <br>
+     *      return { <br> 
+     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+     *          report : Object,  // check results summary <br>
+     *              companyId : string, // Id of the company of the directory <br>
+     *              userId : string, Id of the requesting user <br>
+     *              displayName : string Display name of the requesting user <br>
+     *              label : string Description of the import <br>
+     *              csvHeaders : string CSV header line (Fields names) <br>
+     *              startTime : string Import processing start time <br>
+     *              created : number Count of created entries <br>
+     *              updated : number Count of updated entries <br>
+     *              deleted : number Count of deleted entries <br>
+     *              failed : 	Integer Count of failed entries <br>
+     *        } <br>
+     *                          
+     *      return an {Object}  of synchronization data. <br>
+     * @return {Promise<any>}
+     * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
+     */
+    getCSVReportByCommandId(commandId : string ) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!commandId) {
+                    that._logger.log("warn", LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let result = await that._rest.getCSVReportByCommandId(commandId);
+                that._logger.log("debug", "(getCSVReportByCommandId) - sent.");
+                that._logger.log("internal", "(getCSVReportByCommandId) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCSVReportByCommandId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getCSVReportByCommandId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method createCSVReportByCommandId
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @description
+     *      This API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...). <br>
+     *           <br>
+     *      return { <br> 
+     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+     *          report : Object,  // check results summary <br>
+     *              details : string details for for report <br>
+     *        } <br>
+     *
+     *      return an {Object}  of synchronization data. <br>
+     * @return {Promise<any>}
+     * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
+     * @param {Object} data The body of the request : {
+     *     status : string, // status for the execution of the command Valeurs autorisées : success, failure
+     *     details : string, // details that can be provided about the command execution
+     * }
+     */
+    createCSVReportByCommandId(commandId : string, data : any) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!commandId) {
+                    that._logger.log("warn", LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let result = await that._rest.createCSVReportByCommandId(commandId, data);
+                that._logger.log("debug", "(createCSVReportByCommandId) - sent.");
+                that._logger.log("internal", "(createCSVReportByCommandId) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createCSVReportByCommandId) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createCSVReportByCommandId) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method retrieveRainbowEntriesList
+     * @since 2.15.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @description
+     *      This API generates a file describing all companies entries (csv or json format). <br>
+     *           <br>
+     *
+     *      return an {Object}  of result data. <br>
+     * @return {Promise<any>}
+     * @param companyId companyId from which to retrieve entries, default to admin's companyId
+     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Valeurs autorisées : csv, json, all
+     * @param ldap_id Allows to filter entries containing a ldap_id. </br>
+     * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
+     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>
+     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }} </br>
+     * </br>
+     *  Default value : true </br>
+     */
+    retrieveRainbowEntriesList(companyId? : string, format : string = "json", ldap_id : boolean = true) : any {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.retrieveRainbowEntriesList(companyId, format, ldap_id);
+                that._logger.log("debug", "(retrieveRainbowEntriesList) - sent.");
+                that._logger.log("internal", "(retrieveRainbowEntriesList) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(retrieveRainbowEntriesList) Error.");
+                that._logger.log("internalerror", LOG_ID + "(retrieveRainbowEntriesList) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion AD/LDAP Massprovisioning
     
     //region LDAP APIs to use
 

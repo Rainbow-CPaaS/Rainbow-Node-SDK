@@ -767,6 +767,9 @@ class ConversationEventHandler extends GenericHandler {
                                                     //that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
                                                     if (conversationId) {
                                                         data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversationId, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
+                                                        if (data.answeredMsg) {
+                                                            data.answeredMsg.conversation = await that._conversationService.getConversationById(conversationId);
+                                                        }
                                                     }
                                                 }
 
@@ -891,6 +894,9 @@ class ConversationEventHandler extends GenericHandler {
                                                     //that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
                                                     if (conversationId) {
                                                         data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversationId, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
+                                                        if (data.answeredMsg) {
+                                                            data.answeredMsg.conversation = await that._conversationService.getConversationById(conversationId);
+                                                        }
                                                     }
                                                 }
 
@@ -1614,6 +1620,9 @@ class ConversationEventHandler extends GenericHandler {
                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
                     if (conversation) {
                         data.answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //conversation.getMessageById(answeredMsgId);
+                        if (data.answeredMsg) {
+                            data.answeredMsg.conversation = conversation;
+                        }
                     }
                 }
 
@@ -2555,6 +2564,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "connectorconfig":
                         that.onConnectorConfigManagementMessageReceived(node);
                         break;
+                    case "command_ended":
+                        that.onConnectorCommandEndedMessageReceived(node);
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -3137,6 +3149,27 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onConnectorCommandEndedMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorCommandEndedMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
+            let command_ended  = jsonNode["command_ended"];
+            that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) command_ended : ", command_ended );
+            let commandId = command_ended.$attrs.commandId;
+
+            if (command_ended.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) connectorcommand.");
+                that.eventEmitter.emit("evt_internal_connectorcommand_ended", {commandId});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! : ", err);
         }
     };
     

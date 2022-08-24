@@ -6415,7 +6415,7 @@ Request Method: PUT
     //endregion
     
     //region AD/LDAP
-    //region AD/LDAP masspro
+    //region AD/LDAP Massprovisioning
 
     checkCSVdata(data? : any, companyId? : string, delimiter? : string, comment : string = "%") {
         // POST /api/rainbow/massprovisioning/v1.0/users/imports/check
@@ -6857,9 +6857,168 @@ Request Method: PUT
                 return reject(err);
             });
         });
-    }    
-    
-    //endregion
+    }
+
+    checkCSVdataForSynchronizeDirectory(delimiter : string, comment : string, commandId : string, csvData: string) {
+        // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/check     
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-CheckSynchronizeCSV
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            // content-type : text/csv; charset=utf-8
+            that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId);
+            let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/check";
+
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "delimiter", delimiter);
+            addParamToUrl(urlParamsTab, "comment", comment);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST url : ", url);
+
+            /*let data = {
+            }; */
+            that.http.post(url, that.getRequestHeader(""), csvData, 'text/csv; charset=utf-8').then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
+                that.logger.log("info", LOG_ID + "(checkCSVdataForSynchronizeDirectory) successfull");
+                that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkCSVdataForSynchronizeDirectory) error.");
+                that.logger.log("internalerror", LOG_ID, "(checkCSVdataForSynchronizeDirectory) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    importCSVdataForSynchronizeDirectory(delimiter : string, comment : string, commandId : string, label : string, csvData: string) {
+        // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize     
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeData
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            // content-type : text/csv; charset=utf-8
+            that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId, ", label : ", label);
+            let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize";
+
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "delimiter", delimiter);
+            addParamToUrl(urlParamsTab, "comment", comment);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            addParamToUrl(urlParamsTab, "label", label);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) REST url : ", url);
+
+            /*let data = {
+            }; */
+            that.http.post(url, that.getRequestHeader(""), csvData, 'text/csv; charset=utf-8').then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
+                that.logger.log("info", LOG_ID + "(importCSVdataForSynchronizeDirectory) successfull");
+                that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(importCSVdataForSynchronizeDirectory) error.");
+                that.logger.log("internalerror", LOG_ID, "(importCSVdataForSynchronizeDirectory) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCSVReportByCommandId(commandId : string) : any {
+        // GET /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/:commandId/report
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeCSVCommandReport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/" + commandId + "/report";
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getCSVReportByCommandId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getCSVReportByCommandId) successfull");
+                that.logger.log("internal", LOG_ID + "(getCSVReportByCommandId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCSVReportByCommandId) error");
+                that.logger.log("internalerror", LOG_ID, "(getCSVReportByCommandId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    createCSVReportByCommandId(commandId : string, data : any) {
+        // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/:commandId/report     
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeCSVCommandReport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            // content-type : text/csv; charset=utf-8
+            that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) commandId : ", commandId);
+            let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/" + commandId + "/report";
+
+            /*
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "delimiter", delimiter);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) REST url : ", url);
+
+            /*let data = {
+            }; */
+            that.http.post(url, that.getRequestHeader(""), data, undefined).then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
+                //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
+                that.logger.log("info", LOG_ID + "(createCSVReportByCommandId) successfull");
+                that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createCSVReportByCommandId) error.");
+                that.logger.log("internalerror", LOG_ID, "(createCSVReportByCommandId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    retrieveRainbowEntriesList(companyId : string, format : string, ldap_id : boolean) : any {
+        // GET /api/rainbow/massprovisioning/v1.0/directories/synchronize/
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-SynchronizeDirectories
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/directories/synchronize/";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "ldap_id", ldap_id);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveRainbowEntriesList) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveRainbowEntriesList) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveRainbowEntriesList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Massprovisioning
 
     //region LDAP APIs to use:
 
