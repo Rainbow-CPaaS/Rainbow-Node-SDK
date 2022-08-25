@@ -6,6 +6,49 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.15 - STS Version - August 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   Add the "conversation" property in `answeredMsg` property of a instant message received.
+-   Fix of `HTTPoverXMPP::get`, Add `HTTPoverXMPP::trace`, Add `HTTPoverXMPP::head`, Add `HTTPoverXMPP::post`, Add `HTTPoverXMPP::put`, `HTTPoverXMPP::delete` methods to set the dest `httpoverxmppserver_jid` of the request.
+-   Add parameters to filter request for methods `FileStorageService::getFilesReceivedInBubble` `FileStorageService::createFileDescriptor` `FileStorageService::retrieveFileDescriptorsListPerOwner` `FileStorageService::retrieveSentFiles` `FileStorageService::retrieveReceivedFilesForRoom` `FileStorageService::retrieveReceivedFiles` `FileStorageService::getFilesSentInConversation` `FileStorageService::getFilesSentInBubble`
+-   Add parameter `type` to specify for which type of synchronisation the config is in `AdminService::createConfigurationForLdapConnector` .
+-   Updated the `rainbow_onconnectorconfig` event with configId property in data parameter.
+-   Updated the documentation of `AdminService::sendCommandToLdapConnectorUser` API of `command` parameter possible values :  "manual_synchro_directories", "manual_dry_run_directories".
+-   Update `AdminService::retrieveLdapConnectorConfigTemplate` method with parameter "type" that allows to filter connectors config list on the type provided in this option.
+
+**Others Changes**
+
+-   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
+-   Update `ChannelsService::fetchChannelItems` to return the timestamp property in the Items.
+-   Fix Content-Type of `AdminService::updateCommandIdStatus` method.
+-   Add low layer methods discoverHTTPoverXMPP and answerDiscoverHTTPoverXMPP to allow the discover of the rainbow-vna-gw (specific project). 
+-   Fix of send/receive messages in bubbles after a reconnection with reset of sending initial bubble presence in `BubblesManager`.
+-   Add API method `AdminService::retrieveLdapConnectorAllConfigs` This API allows to retrieve the configurations list for the connector.
+-   Add API method `AdminService::retrieveLDAPConnectorConfigByLdapConfigId` This API allows to retrieve the configuration for the connector with the ldapConfigId.
+-   Add `AdminService::retrieveLdapConnectorAllConfigTemplate` API allows to retrieve all the configuration templates for the connector.
+-   Add `rainbow_onconnectorcommandended` event received in case a query parameter commandId is added to the `AdminService::checkCSVdataForSynchronizeDirectory`, `AdminService::importCSVdataForSynchronizeDirectory` methods.
+-   Add `AdminService::checkCSVdataForSynchronizeDirectory` API allows to checks a CSV UTF-8 content for mass-provisioning for directory mode.
+-   Add `AdminService::importCSVdataForSynchronizeDirectory` API allows to import the entries of a company directory with CSV UTF-8 encoded data.
+-   Add `AdminService::getCSVReportByCommandId` API allows to retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId).
+-   Add `AdminService::createCSVReportByCommandId` API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...).
+-   Add `AdminService::retrieveRainbowEntriesList` API allows to generates a file describing all companies entries (csv or json format).
+-   Fix sitemap génération for developpers Web site.
+-   Replace path `/#/documentation` with `/` in documentation for developpers Web site.
+
 ### SDK for Node.JS 2.10.0-lts.10 - LTS Version - June 2022
 
 ---
