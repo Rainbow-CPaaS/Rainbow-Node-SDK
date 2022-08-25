@@ -7,7 +7,7 @@ declare module 'lib/common/Utils' {
 	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: any): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
 	    type: any;
 	    data: Uint8Array;
-	}; function getRandomInt(max: any): number; function stackTrace(): string;
+	}; function getRandomInt(max: any): number; function stackTrace(): string; const resolveDns: (cname: any) => Promise<unknown>;
 	export let objToExport: {
 	    makeId: (n: any) => string;
 	    createPassword: (size: any) => string;
@@ -31,8 +31,9 @@ declare module 'lib/common/Utils' {
 	    addDaysToDate: typeof addDaysToDate;
 	    addParamToUrl: typeof addParamToUrl;
 	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
+	    resolveDns: (cname: any) => Promise<unknown>;
 	};
-	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject }; const _default: {
+	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns }; const _default: {
 	    makeId: (n: any) => string;
 	    createPassword: (size: any) => string;
 	    isAdmin: (roles: any) => boolean;
@@ -55,6 +56,7 @@ declare module 'lib/common/Utils' {
 	    addDaysToDate: typeof addDaysToDate;
 	    addParamToUrl: typeof addParamToUrl;
 	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
+	    resolveDns: (cname: any) => Promise<unknown>;
 	};
 	export default _default;
 
@@ -685,10 +687,15 @@ declare module 'lib/config/config' {
 	            timeBetweenXmppRequests: string;
 	            raiseLowLevelXmppInEvent: boolean;
 	            raiseLowLevelXmppOutReq: boolean;
+	            maxIdleTimer: number;
+	            maxPingAnswerTimer: number;
 	        };
 	        s2s: {
 	            hostCallback: string;
 	            locallistenningport: string;
+	        };
+	        rest: {
+	            useRestAtStartup: boolean;
 	        };
 	    };
 	    official: {
@@ -704,10 +711,15 @@ declare module 'lib/config/config' {
 	            timeBetweenXmppRequests: string;
 	            raiseLowLevelXmppInEvent: boolean;
 	            raiseLowLevelXmppOutReq: boolean;
+	            maxIdleTimer: number;
+	            maxPingAnswerTimer: number;
 	        };
 	        s2s: {
 	            hostCallback: string;
 	            locallistenningport: string;
+	        };
+	        rest: {
+	            useRestAtStartup: boolean;
 	        };
 	    };
 	    any: {
@@ -723,10 +735,15 @@ declare module 'lib/config/config' {
 	            timeBetweenXmppRequests: string;
 	            raiseLowLevelXmppInEvent: boolean;
 	            raiseLowLevelXmppOutReq: boolean;
+	            maxIdleTimer: number;
+	            maxPingAnswerTimer: number;
 	        };
 	        s2s: {
 	            hostCallback: string;
 	            locallistenningport: string;
+	        };
+	        rest: {
+	            useRestAtStartup: boolean;
 	        };
 	    };
 	    logs: {
@@ -772,6 +789,7 @@ declare module 'lib/config/config' {
 	    permitSearchFromPhoneBook: boolean;
 	    displayOrder: string;
 	    testOutdatedVersion: boolean;
+	    testDNSentry: boolean;
 	    httpoverxmppserver: boolean;
 	    servicesToStart: {
 	        s2s: {
@@ -1470,7 +1488,7 @@ declare module 'lib/services/FavoritesService' {
 	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    private attachHandlers;
 	    reconnect(): Promise<void>;
 	    private getServerFavorites;
@@ -1794,7 +1812,7 @@ declare module 'lib/services/ProfilesService' {
 	    start(_options: any, _core: any, stats: any): void;
 	    stop(): Promise<any>;
 	    restart(): void;
-	    init(): Promise<unknown>;
+	    init(useRest: boolean): Promise<unknown>;
 	    onUserUpdateNeeded(): void;
 	    /*********************************************************************/
 	    /** PROFILE API STUFF                                          **/
@@ -1972,6 +1990,7 @@ declare module 'lib/common/models/ConferenceSession' {
 	import { List } from 'ts-generic-collections-linq';
 	import { MEDIATYPE } from 'lib/connection/RESTService';
 	import { Contact } from 'lib/common/models/Contact';
+	import { Bubble } from 'lib/common/models/Bubble';
 	export {}; class Participant {
 	    private _id;
 	    private _jid_im;
@@ -2056,10 +2075,13 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set simulcast(value: boolean);
 	    ToString(): string;
 	} class Publisher {
+	    get simulcast(): boolean;
+	    set simulcast(value: boolean);
 	    private _id;
 	    private _jid_im;
 	    private _media;
 	    private _participant;
+	    private _simulcast;
 	    get participant(): Participant;
 	    set participant(value: Participant);
 	    constructor(id: any);
@@ -2070,7 +2092,21 @@ declare module 'lib/common/models/ConferenceSession' {
 	    get media(): List<string>;
 	    set media(value: List<string>);
 	    ToString(): string;
+	} class Service {
+	    private _serviceId;
+	    private _serviceType;
+	    get serviceId(): string;
+	    set serviceId(value: string);
+	    get serviceType(): string;
+	    set serviceType(value: string);
+	    constructor();
 	} class ConferenceSession {
+	    get bubble(): Bubble;
+	    set bubble(value: Bubble);
+	    get ownerJidIm(): string;
+	    set ownerJidIm(value: string);
+	    get services(): List<Service>;
+	    set services(value: List<Service>);
 	    private _id;
 	    private _active;
 	    private _muted;
@@ -2088,6 +2124,9 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _silents;
 	    private _replacedByConference;
 	    private _replaceConference;
+	    private _services;
+	    private _ownerJidIm;
+	    private _bubble;
 	    constructor(id: string, participants?: List<Participant>, mediaType?: MEDIATYPE);
 	    get id(): string;
 	    set id(value: string);
@@ -2126,7 +2165,7 @@ declare module 'lib/common/models/ConferenceSession' {
 	    ToString(): string;
 	    reset(): void;
 	}
-	export { Publisher, Participant, ConferenceSession, Talker, Silent };
+	export { Publisher, Participant, ConferenceSession, Talker, Silent, Service };
 
 }
 declare module 'lib/common/models/ConferencePassCodes' {
@@ -2319,7 +2358,7 @@ declare module 'lib/services/BubblesService' {
 	     * @private
 	     * @return {Promise<void>}
 	     */
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @private
 	     * @method _onInvitationReceived
@@ -2429,6 +2468,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
 	     * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
 	     * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
+	     * @deprecated
 	     * @description
 	     * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
 	     * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
@@ -2521,11 +2561,12 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceGetListFromCache(): List<ConferenceSession>;
 	    /**
-	     * @public
+	     * @private
 	     * @Method retrieveConferences
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
 	     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
 	     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
@@ -2535,7 +2576,7 @@ declare module 'lib/services/BubblesService' {
 	    retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any>;
 	    /**
 	     * @Method updateOrCreateWebConferenceEndpoint
-	     * @public
+	     * @private
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
@@ -2554,30 +2595,33 @@ declare module 'lib/services/BubblesService' {
 	    updateWebConferenceInfos(endpoints: any[]): void;
 	    /**
 	     * @Method getWebRtcConfEndpointId
-	     * @public
+	     * @private
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @returns {string} the user unique webrtc conference enpoint id
 	     * @memberof BubblesService
 	     */
 	    getWebRtcConfEndpointId(): string;
 	    /**
 	     * @Method getWebRtcSharingOnlyConfEndpointId
-	     * @public
+	     * @private
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
 	     * @memberof BubblesService
 	     */
 	    getWebRtcSharingOnlyConfEndpointId(): string;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceStart
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @description
 	     *     To start a conference. <br>
 	     *     Only a moderator can start a conference. It also need to be a premium account. <br>
@@ -2587,11 +2631,12 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceStart(bubble: any, conferenceId?: string): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceStop
 	     * @since 2.6.0
 	     * @instance
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @description
 	     *     To stop a conference. <br>
 	     *     Only a moderator can stop a conference. It also need to be a premium account. <br>
@@ -2600,7 +2645,7 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceStop(conferenceId?: string): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceJoin
 	     * @since 2.6.0
 	     * @instance
@@ -2610,6 +2655,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
 	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
 	     * @category CONFERENCE SPECIFIC
+	     * @deprecated
 	     * @description
 	     * To join a conference.  <br>
 	     * NOTE: The conference must be first started before to join it.
@@ -2617,13 +2663,14 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceMuteOrUnmute
 	     * @since 2.6.0
 	     * @category CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {string} conferenceId ID of the conference
 	     * @param {boolean} mute True to mute, False to unmute
+	     * @deprecated
 	     * @description
 	     * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
 	     * Only the moderator of the conference can use this method
@@ -2631,7 +2678,7 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceMuteOrUnmutParticipant
 	     * @since 2.6.0
 	     * @category CONFERENCE SPECIFIC
@@ -2639,6 +2686,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {string} conferenceId ID of the conference
 	     * @param {string} participantId ID of the participant to mute/unmute
 	     * @param {boolean} mute True to mute, False to unmute
+	     * @deprecated
 	     * @description
 	     * Mute or Unmute the specified participant in the conference.<br>
 	     * Only the moderator of the conference can use this method
@@ -2646,13 +2694,14 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method conferenceDropParticipant
 	     * @since 2.6.0
 	     * @category CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {string} conferenceId ID of the conference
 	     * @param {string} participantId ID of the participant to drop
+	     * @deprecated
 	     * @description
 	     * Drop the specified participant in the conference. <br>
 	     * Only the moderator of the conference can use this method
@@ -2666,93 +2715,102 @@ declare module 'lib/services/BubblesService' {
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
 	     * @return {boolean}
+	     * @deprecated
 	     * @description
 	     * To know if the current user has the permission to start its own Personal Conference
 	     */
 	    personalConferenceAllowed(): boolean;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetId
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To get teh Id of the Personal Conference
 	     * @return {string} Id of the Personal Conference or NULL
 	     */
 	    personalConferenceGetId(): string;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetBubbleFromCache
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
 	     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
 	     */
 	    personalConferenceGetBubbleFromCache(): Promise<Bubble>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetBubbleIdFromCache
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
 	     * @return {string} The Bubble which contains the Personal Meeting or null
 	     */
 	    personalConferenceGetBubbleIdFromCache(): string;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetPhoneNumbers
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To get the list of phone numbers used to reach the Personal Meeting
 	     * @return {Promise<any>}
 	     */
 	    personalConferenceGetPhoneNumbers(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetPassCodes
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To retrieve the pass codes of the Personal Meeting of the current user
 	     * @return {Promise<ConferencePassCodes>}
 	     */
 	    personalConferenceGetPassCodes(): Promise<ConferencePassCodes>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceResetPassCodes
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To reset and get new pass codes of the Personal Meeting of the current user
 	     * @return {Promise<any>}
 	     */
 	    personalConferenceResetPassCodes(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGetPublicUrl
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
 	     * @return {Promise<any>}
 	     */
 	    personalConferenceGetPublicUrl(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceGenerateNewPublicUrl
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * Generate a new public URL to access the Personal Meeting (So a Guest or a Rainbow user can access to it just using a URL). <br>
 	     * The previous URL is no more functional !
@@ -2760,11 +2818,12 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceGenerateNewPublicUrl(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceStart
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To start a Personal Conference. <br>
 	     * Only a moderator can start a Personal Conference.
@@ -2772,11 +2831,12 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceStart(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceStop
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
+	     * @deprecated
 	     * @description
 	     * To stop the Personal Conference.<br>
 	     * Only a moderator can stop a Personal Conference
@@ -2784,7 +2844,7 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceStop(): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceJoin
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
@@ -2793,6 +2853,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {boolean} muted To join Personal Conference as muted or not
 	     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
 	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
+	     * @deprecated
 	     * @description
 	     * To join the Personal Conference.
 	     * NOTE: The Personal Conference must be first started before to join it.
@@ -2800,12 +2861,13 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceMuteOrUnmute
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {boolean} mute
+	     * @deprecated
 	     * @description
 	     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
 	     * Only the moderator of the Personal Conference can use this method
@@ -2813,12 +2875,13 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceMuteOrUnmute(mute: boolean): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceLockOrUnlock
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {boolean} toLock  True to lock, False to unlock
+	     * @deprecated
 	     * @description
 	     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
 	     * Lock / Unlock is only possible for PSTN Conference. <br>
@@ -2827,13 +2890,14 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceMuteOrUnmuteParticipant
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {string} participantId ID of the participant to mute/unmute
 	     * @param {boolean} mute True to mute, False to unmute
+	     * @deprecated
 	     * @description
 	     * Mute or Unmute the specified participant in the Personal Conference.<br>
 	     * Only the moderator of the Personal Conference can use this method.
@@ -2841,12 +2905,13 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any>;
 	    /**
-	     * @public
+	     * @private
 	     * @method personalConferenceDropParticipant
 	     * @since 2.6.0
 	     * @category PERSONAL CONFERENCE SPECIFIC
 	     * @instance
 	     * @param {string} participantId ID of the participant to drop
+	     * @deprecated
 	     * @description
 	     * Drop the specified participant in the Personal Conference. <br>
 	     * Only the moderator of the Personal Conference can use this method.
@@ -2908,8 +2973,10 @@ declare module 'lib/services/BubblesService' {
 	     * @private
 	     * @instance
 	     * @param {ConferenceSession} conference
+	     * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
+	     * @param {Object} updatedDatasForEvent participants added or removed
 	     */
-	    addOrUpdateConferenceToCache(conference: ConferenceSession): void;
+	    addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2?: boolean, updatedDatasForEvent?: any): Promise<void>;
 	    /**
 	     * @public
 	     * @method getBubblesConsumption
@@ -4485,7 +4552,7 @@ declare module 'lib/services/GroupsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
+	    init(useRestAtStartup: boolean): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method createGroup
@@ -4736,7 +4803,7 @@ declare module 'lib/services/InvitationsService' {
 	    /** LIFECYCLE STUFF                                        **/
 	    /************************************************************/
 	    start(_options: any, _core: Core, stats: any): Promise<void>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    stop(): Promise<void>;
 	    /************************************************************/
 	    /** EVENT HANDLING STUFF                                   **/
@@ -5066,7 +5133,7 @@ declare module 'lib/services/ContactsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
+	    init(useRestAtStartup: boolean): Promise<unknown>;
 	    cleanMemoryCache(): void;
 	    createEmptyContactContact(jid: any): Contact;
 	    getContact(jid: any, phoneNumber: any): any;
@@ -5881,7 +5948,7 @@ declare module 'lib/services/SettingsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @private
 	     * @method getUserSettings
@@ -5931,7 +5998,7 @@ declare module 'lib/services/PresenceService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @private
 	     * @method sendInitialPresence
@@ -6001,15 +6068,27 @@ declare module 'lib/services/PresenceService' {
 	    sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay?: number): Promise<any>;
 	    /**
 	     * @private
-	     * @method sendInitialBubblePresence
+	     * @method sendInitialBubblePresenceById
 	     * @instance
 	     * @async
 	     * @category Presence Bubbles
-	     * @param {Bubble} bubble The Bubble
+	     * @param {string} id The Bubble id.
 	     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
 	     * @description
 	     *      Method called when receiving an invitation to join a bubble <br>
 	     */
+	    sendInitialBubblePresenceById(id: string, attempt?: number): Promise<unknown>;
+	    /**
+	 * @private
+	 * @method sendInitialBubblePresence
+	 * @instance
+	 * @async
+	 * @category Presence Bubbles
+	 * @param {Bubble} bubble The Bubble
+	 * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+	 * @description
+	 *      Method called when receiving an invitation to join a bubble <br>
+	 */
 	    sendInitialBubblePresence(bubble: Bubble, attempt?: number): Promise<unknown>;
 	    /**
 	     * @private
@@ -6181,6 +6260,18 @@ declare module 'lib/services/PresenceService' {
 	     
 	     */
 	    disableCalendar(): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method subscribePresence
+	     * @instance
+	     * @category Presence Contact
+	     * @description
+	     *    Allows to subscribe presence to a contact. <br>
+	     * @async
+	     * @return {Promise< any, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+	     */
+	    subscribePresence(to: any): Promise<unknown>;
 	}
 	export { PresenceService };
 
@@ -6530,8 +6621,8 @@ declare module 'lib/connection/HttpService' {
 	    _deleteUrlRaw(url: any, headers?: any, data?: Object): Promise<any>;
 	    getUrlJson(url: any, headers: any, params: any): Promise<any>;
 	    _getUrlJson(url: any, headers: any, params: any): Promise<any>;
-	    get(url: any, headers: any, params: any, responseType?: string): Promise<any>;
-	    _get(url: any, headers: any, params: any, responseType?: string): Promise<any>;
+	    get(url: any, headers: any, params: any, responseType?: string, nbTryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+	    _get(url: any, headers: any, params: any, responseType?: string, nbTryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
 	    post(url: any, headers: any, data: any, contentType: any): Promise<any>;
 	    _post(url: any, headers: any, data: any, contentType: any): Promise<any>;
 	    head(url: any, headers?: any): Promise<any>;
@@ -6778,6 +6869,7 @@ declare module 'lib/connection/RESTService' {
 	    searchUserByPhonenumber(number: any): Promise<unknown>;
 	    searchUsers(limit?: number, displayName?: string, search?: string, companyId?: string, excludeCompanyId?: string, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string, companyId?: string, searchEmail?: string): Promise<unknown>;
+	    getAllUsersByFilter(searchEmail: string, companyId: string, roles: string, excludeRoles: string, tags: string, departments: string, isTerminated: string, isActivated: string, fileSharingCustomisation: string, userTitleNameCustomisation: string, softphoneOnlyCustomisation: string, useRoomCustomisation: string, phoneMeetingCustomisation: string, useChannelCustomisation: string, useScreenSharingCustomisation: string, useWebRTCVideoCustomisation: string, useWebRTCAudioCustomisation: string, instantMessagesCustomisation: string, userProfileCustomisation: string, fileStorageCustomisation: string, overridePresenceCustomisation: string, alert: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, recordingConversationCustomisation: string, useGifCustomisation: string, useDialOutCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string, selectedAppCustomisationTemplate: string, format: string, limit: string, offset: string, sortField: string, sortOrder: string, displayName: string, useEmails: boolean, companyName: string, loginEmail: string, email: string, visibility: string, organisationId: string, siteId: string, jid_im: string, jid_tel: string): Promise<unknown>;
 	    getContactInfos(userId: any): Promise<unknown>;
 	    putContactInfos(userId: any, infos: any): Promise<unknown>;
 	    getContacts(): Promise<unknown>;
@@ -6878,11 +6970,11 @@ declare module 'lib/connection/RESTService' {
 	    createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
 	    deleteBubbleContainer(containerId: any): Promise<unknown>;
 	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
-	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
+	    createFileDescriptor(name: any, extension: any, size: any, viewers: any, voicemessage: boolean, duration: number, encoding: boolean, ccarelogs: boolean, ccareclientlogs: boolean): Promise<unknown>;
 	    deleteFileDescriptor(fileId: any): Promise<unknown>;
-	    retrieveFileDescriptors(format: any, limit: any, offset: any, viewerId: any): Promise<unknown>;
+	    retrieveFileDescriptors(fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, viewerId: string, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
 	    retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
-	    retrieveReceivedFilesForRoomOrViewer(roomId: any): Promise<unknown>;
+	    retrieveReceivedFilesForRoomOrViewer(viewerId: any, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string, limit: number, offset: number, sortField: string, sortOrder: number): Promise<unknown>;
 	    retrieveOneFileDescriptor(fileId: any): Promise<unknown>;
 	    retrieveUserConsumption(): Promise<unknown>;
 	    deleteFileViewer(viewerId: any, fileId: any): Promise<unknown>;
@@ -7041,6 +7133,8 @@ declare module 'lib/connection/RESTService' {
 	    unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string): Promise<unknown>;
 	    subscribeUserToSubscription(userId: string, subscriptionId: string): Promise<unknown>;
 	    unSubscribeUserToSubscription(userId: string, subscriptionId: string): Promise<unknown>;
+	    getAUserProfiles(userId: string): Promise<unknown>;
+	    getAUserProfilesFeaturesByUserId(userId: string): Promise<unknown>;
 	    retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<unknown>;
 	    /**
 	     *
@@ -7114,7 +7208,17 @@ declare module 'lib/connection/RESTService' {
 	    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
 	    getCalendarAutomaticReplyStatus(userid?: string): Promise<unknown>;
 	    enableOrNotCalendar(disable: boolean): Promise<unknown>;
-	    synchronizeUsersAndDeviceswithCSV(CSVTxt?: string, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<{
+	    checkCSVdata(data?: any, companyId?: string, delimiter?: string, comment?: string): Promise<unknown>;
+	    deleteAnImportStatusReport(reqId: string): Promise<unknown>;
+	    getAnImportStatusReport(reqId?: string, format?: string): any;
+	    getInformationOnImports(companyId?: string): any;
+	    getResultOfStartedOffice365TenantSynchronizationTask(tenant?: string, format?: string): any;
+	    importCSVData(data?: any, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<unknown>;
+	    startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant?: string): Promise<unknown>;
+	    synchronizeOffice365TenantUserList(tenant?: string, format?: string): any;
+	    checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data?: any, companyId?: string, delimiter?: string, comment?: string): Promise<unknown>;
+	    updateCommandIdStatus(data?: any, commandId?: string): Promise<unknown>;
+	    synchronizeUsersAndDeviceswithCSV(CSVTxt?: string, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string, commandId?: string): Promise<{
 	        reqId: string;
 	        mode: string;
 	        status: string;
@@ -7124,9 +7228,15 @@ declare module 'lib/connection/RESTService' {
 	        startTime: string;
 	    }>;
 	    getCSVTemplate(companyId?: string, mode?: string, comment?: string): any;
-	    checkCSVforSynchronization(CSVTxt: any, companyId?: string, delimiter?: string, comment?: string): any;
+	    checkCSVforSynchronization(CSVTxt: any, companyId?: string, delimiter?: string, comment?: string, commandId?: string): any;
+	    getCheckCSVReport(commandId: string): Promise<unknown>;
 	    importRainbowVoiceUsersWithCSVdata(companyId: string, label: string, noemails: boolean, nostrict: boolean, delimiter: string, comment: string, csvData: string): Promise<unknown>;
 	    retrieveRainbowUserList(companyId?: string, format?: string, ldap_id?: boolean): Promise<unknown>;
+	    checkCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, csvData: string): Promise<unknown>;
+	    importCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, label: string, csvData: string): Promise<unknown>;
+	    getCSVReportByCommandId(commandId: string): any;
+	    createCSVReportByCommandId(commandId: string, data: any): Promise<unknown>;
+	    retrieveRainbowEntriesList(companyId: string, format: string, ldap_id: boolean): any;
 	    ActivateALdapConnectorUser(): Promise<{
 	        id: string;
 	        companyId: string;
@@ -7137,13 +7247,17 @@ declare module 'lib/connection/RESTService' {
 	        status: string;
 	    }>;
 	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
-	    createConfigurationForLdapConnector(companyId: string, settings: any): Promise<unknown>;
+	    sendCommandToLdapConnectorUser(ldapId: string, command: string): Promise<any>;
+	    createConfigurationForLdapConnector(companyId: string, settings: any, name: string, type?: string): Promise<unknown>;
 	    deleteLdapConnectorConfig(ldapConfigId: string): Promise<{
 	        status: string;
 	    }>;
 	    retrieveLdapConnectorConfig(companyId: string): Promise<unknown>;
-	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
-	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean): Promise<unknown>;
+	    retrieveLdapConnectorConfigTemplate(type?: string): Promise<unknown>;
+	    retrieveLdapConnectorAllConfigTemplates(): Promise<unknown>;
+	    retrieveLdapConnectorAllConfigs(companyId: string): Promise<unknown>;
+	    retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId: string): Promise<unknown>;
+	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
 	    getCloudPbxById(systemId: any): Promise<unknown>;
 	    updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
 	    deleteCloudPBX(systemId: string): Promise<{
@@ -7512,7 +7626,7 @@ declare module 'lib/services/FileServerService' {
 	    get capabilities(): Promise<any>;
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
+	    init(useRestAtStartup: boolean): Promise<unknown>;
 	    /**
 	     *
 	     * @private
@@ -7694,7 +7808,7 @@ declare module 'lib/services/FileStorageService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<unknown>;
+	    init(useRestAtStartup: boolean): Promise<unknown>;
 	    /**************** API ***************/
 	    /**
 	     * @public
@@ -7851,7 +7965,7 @@ declare module 'lib/services/FileStorageService' {
 	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
-	    getFilesReceivedInBubble(bubble: any): Promise<unknown>;
+	    getFilesReceivedInBubble(bubble: any, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string, limit: number, offset: number, sortField: string, sortOrder: number): Promise<unknown>;
 	    /**
 	     * @private
 	     * @description
@@ -7958,10 +8072,15 @@ declare module 'lib/services/FileStorageService' {
 	     * @param {string} extension [required] extension of file
 	     * @param {number} size [required] size of  file
 	     * @param {FileViewer[]} viewers [required] list of viewers having access to the file (a viewer could be either be a user or a room)
+	     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+	     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+	     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+	     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+	     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
 	     * @return {Promise<FileDescriptor>} file descriptor created by server or error
 	     *
 	     */
-	    createFileDescriptor(name: any, extension: any, size: any, viewers: any): Promise<unknown>;
+	    createFileDescriptor(name: any, extension: any, size: any, viewers: any, voicemessage?: boolean, duration?: number, encoding?: boolean, ccarelogs?: boolean, ccareclientlogs?: boolean): Promise<unknown>;
 	    /**
 	     *
 	     * @private
@@ -7996,13 +8115,33 @@ declare module 'lib/services/FileStorageService' {
 	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @async
 	     * @instance
+	     * @param {string} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+	     * typeMIME='image/jpeg' allows to get all jpeg file
+	     * typeMime='image' allows to get all image files whatever the extension
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} viewerId Among all files shared by the user, allow to specify a viewer.
+	     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+	     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+	     * @param {string} sortField Sort items list based on the given field.
+	     * @param {string} sortOrder Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
+	     * @param {string} format Allows to retrieve more or less file descriptors details in response.
+	     * small: _id, fileName, extension, isClean
+	     * medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h
+	     * full: all descriptors fields except storageURL
+	     * Default value : full Possibles values : "small", "medium", "full"
 	     * @description
 	     * Method retrieve full list of files belonging to user making the request <br>
 	     *
 	     * @return {Promise<FileDescriptor[]>}
 	     *
 	     */
-	    retrieveFileDescriptorsListPerOwner(): Promise<[any]>;
+	    retrieveFileDescriptorsListPerOwner(fileName?: string, extension?: string, typeMIME?: string, purpose?: string, isUploaded?: boolean, viewerId?: string, path?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, format?: string): Promise<[any]>;
 	    /**
 	     * @private
 	     *
@@ -8013,7 +8152,7 @@ declare module 'lib/services/FileStorageService' {
 	     * @return {Promise<FileDescriptor[]>}
 	     *
 	     */
-	    retrieveFileDescriptorsListPerOwnerwithOffset(offset: any, limit: any): Promise<unknown>;
+	    retrieveFileDescriptorsListPerOwnerwithOffset(fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, viewerId: string, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
 	    /**
 	     * @private
 	     *
@@ -8037,10 +8176,29 @@ declare module 'lib/services/FileStorageService' {
 	     * Method request for the list of files sent to a given peer (i.e. inside a given conversation) <br>
 	     *
 	     * @param {string} peerId [required] id of peer user in the conversation
+	     * @param {string} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+	     * typeMIME='image/jpeg' allows to get all jpeg file
+	     * typeMime='image' allows to get all image files whatever the extension
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+	     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
+	     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+	     * @param {string} sortField Sort items list based on the given field.
+	     * @param {string} sortOrder Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
+	     * @param {string} format Allows to retrieve more or less file descriptors details in response.
+	     * small: _id, fileName, extension, isClean
+	     * medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h
+	     * full: all descriptors fields except storageURL
+	     * Default value : full Possibles values : "small", "medium", "full"
 	     * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
 	     *
 	     */
-	    retrieveSentFiles(peerId: any): Promise<unknown>;
+	    retrieveSentFiles(peerId: string, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder?: number, format?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     *
@@ -8051,10 +8209,31 @@ declare module 'lib/services/FileStorageService' {
 	     *
 	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {string} bubbleId [required] Id of the room
+	     * @param {string} ownerId Among all files shared with the user, allow to precify a provider.
+	     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+	     * typeMIME='image/jpeg' allows to get all jpeg file
+	     * typeMime='image' allows to get all image files whatever the extension
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+	     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+	     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+	     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+	     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+	     * Default value : full Possibles values : small, medium, full
+	     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 1000
+	     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+	     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
 	     */
-	    retrieveReceivedFilesForRoom(bubbleId: any): Promise<unknown>;
+	    retrieveReceivedFilesForRoom(bubbleId: any, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    /**
 	     *
 	     * @public
@@ -8066,10 +8245,31 @@ declare module 'lib/services/FileStorageService' {
 	     * Method request for the list of files received by a user <br>
 	     *
 	     * @param {string} viewerId [required] Id of the viewer, could be either an userId or a bubbleId
+	     * @param {string} ownerId Among all files shared with the user, allow to precify a provider. Example a peerId in a face to face conversation.
+	     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+	     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+	     * typeMime='image' allows to get all image files whatever the extension </br>
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+	     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+	     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+	     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+	     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+	     * Default value : full. Possibles values : small, medium, full
+	     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+	     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
 	     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
 	     *
 	     */
-	    retrieveReceivedFiles(viewerId: any): Promise<unknown>;
+	    retrieveReceivedFiles(viewerId: string, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string, limit: number, offset: number, sortField?: string, sortOrder?: number): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1
@@ -8077,25 +8277,62 @@ declare module 'lib/services/FileStorageService' {
 	     * @instance
 	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @param {Conversation} conversation   The conversation where to get the files
+	     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+	     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+	     * typeMime='image' allows to get all image files whatever the extension </br>
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+	     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+	     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+	     * Default value : full. Possibles values : small, medium, full
+	     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+	     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
 	     * @description
 	     *    Get the list of all files sent in a conversation with a contact <br>
 	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
-	    getFilesSentInConversation(conversation: any): Promise<unknown>;
+	    getFilesSentInConversation(conversation: any, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1
 	     * @method getFilesSentInBubble
 	     * @instance
 	     * @param {Bubble} bubble   The bubble where to get the files
+	     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+	     * @param {string} extension Allows to filter file descriptors by extension criterion.
+	     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion. </br>
+	     * typeMIME='image/jpeg' allows to get all jpeg file </br>
+	     * typeMime='image' allows to get all image files whatever the extension </br>
+	     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files </br>
+	     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension </br>
+	     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+	     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). </br> purpose=conference_record allows to get all records of conference
+	     * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
+	     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+	     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+	     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+	     * Default value : full. Possibles values : small, medium, full
+	     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 100
+	     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+	     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1. Possibles values : -1, 1
 	     * @category Files FILE MANAGEMENT / PROPERTIES
 	     * @description
 	     *    Get the list of all files sent in a bubble <br>
 	     *    Return a promise <br>
 	     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
 	     */
-	    getFilesSentInBubble(bubble: any): Promise<unknown>;
+	    getFilesSentInBubble(bubble: any, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @since 1.47.1
@@ -8683,17 +8920,19 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    private _fileServerService;
 	    private _bubbleService;
 	    private _contactsService;
+	    private _presenceService;
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any);
+	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
 	    private createSessionParticipantFromElem;
 	    parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
 	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
 	    parseParticipantsFromConferenceUpdatedEvent(conference: ConferenceSession, addedParticipants: any): Promise<void>;
-	    parseParticipantsIdFromConferenceUpdatedEvent(participants: any): List<string>;
+	    parseIdFromConferenceUpdatedEvent(participants: any, propertyToGet: string): List<string>;
 	    parseTalkersFromConferenceUpdatedEvent(conference: ConferenceSession, talkersElmt: any): void;
 	    parsSilentsFromConferenceUpdatedEvent(conference: ConferenceSession, silentsElmt: any): void;
 	    parsePublishersFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList: any, add: boolean): Promise<void>;
+	    parseServicesFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList: any, add: boolean): Promise<void>;
 	    _onMessageReceived(conversationId: any, data: any): Promise<void>;
 	    onRoomAdminMessageReceived(msg: any, stanza: any): void;
 	    onFileMessageReceived(msg: any, stanza: any): void;
@@ -8709,8 +8948,11 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    onFileManagementMessageReceived(node: any): Promise<void>;
 	    onThumbnailManagementMessageReceived(node: any): void;
 	    onRoomsContainerManagementMessageReceived(node: any): Promise<void>;
+	    onConnectorCommandManagementMessageReceived(node: any): Promise<void>;
+	    onConnectorCommandEndedMessageReceived(node: any): Promise<void>;
+	    onConnectorConfigManagementMessageReceived(node: any): Promise<void>;
 	    onReceiptMessageReceived(msg: any, stanza: any): void;
-	    onErrorMessageReceived(msg: any, stanza: any): void;
+	    onErrorMessageReceived(msg: any, stanza: any): Promise<void>;
 	    onCloseMessageReceived(msg: any, stanza: any): void;
 	}
 	export { ConversationEventHandler };
@@ -8755,7 +8997,7 @@ declare module 'lib/services/ConversationsService' {
 	    private _contactsService;
 	    private _fileStorageService;
 	    private _fileServerService;
-	    private _presence;
+	    private _presenceService;
 	    private pendingMessages;
 	    private _conversationEventHandler;
 	    private _conversationHandlerToken;
@@ -8787,7 +9029,7 @@ declare module 'lib/services/ConversationsService' {
 	    }, _conversationsRetrievedFormat: string, _nbMaxConversations: number, _autoLoadConversations: boolean);
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    _onReceipt(receipt: any): Promise<void>;
 	    sortFunction(aa: any, bb: any): number;
@@ -9397,7 +9639,7 @@ declare module 'lib/services/S2SService' {
 	     * @param forceStop
 	     */
 	    stop(forceStop?: boolean): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @public
 	     * @method listConnectionsS2S
@@ -9691,6 +9933,8 @@ declare module 'lib/connection/XMPPService' {
 	    private messagesDataStore;
 	    private raiseLowLevelXmppInEvent;
 	    private raiseLowLevelXmppOutReq;
+	    private maxIdleTimer;
+	    private maxPingAnswerTimer;
 	    private company;
 	    static getClassName(): string;
 	    getClassName(): string;
@@ -9702,6 +9946,7 @@ declare module 'lib/connection/XMPPService' {
 	    stopIdleTimer(): void;
 	    handleXMPPConnection(headers: any): Promise<void>;
 	    setPresence(show: any, status: any): Promise<unknown>;
+	    subscribePresence(to: any): Promise<unknown>;
 	    enableCarbon(): Promise<unknown>;
 	    disableCarbon(): Promise<unknown>;
 	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
@@ -9741,6 +9986,8 @@ declare module 'lib/connection/XMPPService' {
 	    mamQueryMuc(jid: any, to: any, options: any): void;
 	    mamDelete(options: any): void;
 	    voiceMessageQuery(jid: any): Promise<unknown>;
+	    discoverHTTPoverXMPP(to: any, headers?: {}): Promise<unknown>;
+	    answerDiscoverHTTPoverXMPP(to: any): Promise<unknown>;
 	    getHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
 	    traceHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
 	    headHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
@@ -9774,7 +10021,7 @@ declare module 'lib/services/ImsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(enableCarbonBool: any): Promise<void>;
+	    init(enableCarbonBool: boolean, useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @private
 	     * @method enableCarbon
@@ -10178,7 +10425,7 @@ declare module 'lib/services/ChannelsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    /**
 	     * @public
@@ -11123,7 +11370,7 @@ declare module 'lib/services/TelephonyService' {
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    attachHandlers(): void;
-	    init(): Promise<unknown>;
+	    init(useRestAtStartup: boolean): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method onTelPresenceChange
@@ -11691,7 +11938,7 @@ declare module 'lib/services/AdminService' {
 	    });
 	    start(_options: any, _core: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    /**
 	     * @public
 	     * @method createCompany
@@ -11963,6 +12210,71 @@ declare module 'lib/services/AdminService' {
 	    getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method getAllUsersByFilter
+	     * @instance
+	     * @category Companies and users management
+	     * @description
+	     *  Get a list of users by filters <br>
+	     * @async
+	     * @return {Promise<any, ErrorManager>}
+	     * @fulfil {any} - Found users or null or an error object depending on the result
+	     * @param {string} searchEmail Allows to filter users list on the loginEmail field using the word provided in this option.
+	     * @param {string} companyId Allows to filter users list on the companyIds provided in this option.
+	     * @param {string} roles Allows to filter users list on the role(s) provided in this option. Default value is "user".
+	     * @param {string} excludeRoles Allows to exclude users having the role(s) provided in this option.
+	     * @param {string} tags Allows to filter users list on the tag(s) provided in this option.
+	     * @param {string} departments Allows to filter users list on the department(s) provided in this option.
+	     * @param {string} isTerminated Allows to filter users list on the status 'isTerminated'. Default value is "false"
+	     * @param {string} isActivated Allows to filter users list for users which have logged in at least once ("true") or never ("false").
+	     * @param {string} fileSharingCustomisation Allows to filter users list on fileSharing feature restriction (enabled, disabled, same_than_company)
+	     * @param {string} userTitleNameCustomisation Allows to filter users list on user's profile update restriction (enabled, disabled, same_than_company)
+	     * @param {string} softphoneOnlyCustomisation Allows to filter users list on use softphone part of the UCaas application restriction (enabled, disabled, same_than_company)
+	     * @param {string} useRoomCustomisation Allows to filter users list on use room (bubble) restriction (enabled, disabled, same_than_company)
+	     * @param {string} phoneMeetingCustomisation Allows to filter users list on can join a PSTN conference restriction (enabled, disabled, same_than_company)
+	     * @param {string} useChannelCustomisation Allows to filter users list on use channels restriction (enabled, disabled, same_than_company)
+	     * @param {string} useScreenSharingCustomisation Allows to filter users list on sharing screen restriction (enabled, disabled, same_than_company)
+	     * @param {string} useWebRTCVideoCustomisation Allows to filter users list on use screen sharing restriction (enabled, disabled, same_than_company)
+	     * @param {string} useWebRTCAudioCustomisation Allows to filter users list on use Web RTC audio restriction (enabled, disabled, same_than_company)
+	     * @param {string} instantMessagesCustomisation Allows to filter users list on use Instant Messages restriction (enabled, disabled, same_than_company)
+	     * @param {string} userProfileCustomisation Allows to filter users list on modify a profile restriction (enabled, disabled, same_than_company)
+	     * @param {string} fileStorageCustomisation Allows to filter users list on use Rainbow file storage restriction (enabled, disabled, same_than_company)
+	     * @param {string} overridePresenceCustomisation Allows to filter users by the ability to modify manually presence state (enabled, disabled, same_than_company)
+	     * @param {string} alert notification] Allows to filter users by the ability to receive alert notification(enabled, disabled, same_than_company)
+	     * @param {string} changeTelephonyCustomisation Allows to filter users by the ability to modify telephony settings (enabled, disabled, same_than_company)
+	     * @param {string} changeSettingsCustomisation Allows to filter users by the ability to change client general setting (enabled, disabled, same_than_company)
+	     * @param {string} recordingConversationCustomisation Allows to filter users by the ability to record conversation (enabled, disabled, same_than_company)
+	     * @param {string} useGifCustomisation Allows to filter users by the ability to use GIFs in conversations (enabled, disabled, same_than_company)
+	     * @param {string} useDialOutCustomisation Allows to filter users by the ability to be called by the Rainbow conference bridge. (enabled, disabled, same_than_company)
+	     * @param {string} fileCopyCustomisation Allows to filter users by the ability to copy any file he receives in his personal cloud space.
+	     * @param {string} fileTransferCustomisation Allows to filter users by the ability to copy a file from a conversation then share it inside another conversation.
+	     * @param {string} forbidFileOwnerChangeCustomisation Allows to filter users by the ability to loose the ownership on one file.
+	     * @param {string} readReceiptsCustomisation Allows to filter users by the ability to authorize a sender to check if a chat message is read.
+	     * @param {string} useSpeakingTimeStatistics Allows to filter users by the ability to see speaking time statistics about a WebRTC meeting.
+	     * @param {string} selectedAppCustomisationTemplate Allows to filter users by the last application customisation template applied.
+	     * @param {string} format Allows to retrieve more or less user details in response. </br>
+	     * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+	     * medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </br>
+	     * full: all user fields </br>
+	     * Default value : small
+	     * Possible values : small, medium, full
+	     * @param {string} limit Allow to specify the number of users to retrieve. Default value 100.
+	     * @param {string} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+	     * @param {string} sortField Sort user list based on the given field. Default value : displayName
+	     * @param {string} sortOrder Specify order when sorting user list. Default value : 1. Possible values : -1, 1
+	     * @param {string} displayName Allows to filter users list on the given keyword(s) on field displayName.
+	     * @param {boolean} useEmails used with displayName, allows to filter users list on the given keyword(s) on field displayName for loginEmails too.
+	     * @param {string} companyName Allows to filter users list on the given keyword(s) on field companyName.
+	     * @param {string} loginEmail Allows to filter users list on the loginEmails provided in this option.
+	     * @param {string} email Allows to filter users list on the emails provided in this option.
+	     * @param {string} visibility Allows to filter users list on the visibility(ies) provided in this option. Possible values : same_than_company, public, private, closed, isolated, none
+	     * @param {string} organisationId Allows to filter users list on the organisationIds provided in this option. Option is reserved for superAdmin or admin allowed to manage the given organisationId.
+	     * @param {string} siteId Allows to filter users list on the siteIds provided in this option. Option is reserved for superAdmin or admin allowed to manage the given siteIds.
+	     * @param {string} jid_im Allows to filter users list on the jid_ims provided in this option.
+	     * @param {string} jid_tel Allows to filter users list on the jid_tels provided in this option.
+	     */
+	    getAllUsersByFilter(searchEmail: string, companyId: string, roles: string, excludeRoles: string, tags: string, departments: string, isTerminated: string, isActivated: string, fileSharingCustomisation: string, userTitleNameCustomisation: string, softphoneOnlyCustomisation: string, useRoomCustomisation: string, phoneMeetingCustomisation: string, useChannelCustomisation: string, useScreenSharingCustomisation: string, useWebRTCVideoCustomisation: string, useWebRTCAudioCustomisation: string, instantMessagesCustomisation: string, userProfileCustomisation: string, fileStorageCustomisation: string, overridePresenceCustomisation: string, alert: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, recordingConversationCustomisation: string, useGifCustomisation: string, useDialOutCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string, selectedAppCustomisationTemplate: string, format: string, limit: string, offset: string, sortField: string, sortOrder: string, displayName: string, useEmails: boolean, companyName: string, loginEmail: string, email: string, visibility: string, organisationId: string, siteId: string, jid_im: string, jid_tel: string): Promise<any>;
+	    /**
+	     * @public
 	     * @method getAllUsersByCompanyId
 	     * @instance
 	     * @description
@@ -12158,8 +12470,8 @@ declare module 'lib/services/AdminService' {
 	     * {string=organization_admin,company_admin,site_admin} [infos.adminType]  Mandatory if roles array contains <code>admin</code> role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS <br>
 	     * {string}  [infos.companyId]             User company unique identifier (like 569ce8c8f9336c471b98eda1) <br>
 	     * <br> companyName field is automatically filled on server side based on companyId. <br>
-	     * {Boolean} [infos.isActive=true]         Is user active <br>
-	     * {Boolean} [infos.isInitialized=false]   Is user initialized <br>
+	     * {boolean} [infos.isActive=true]         Is user active <br>
+	     * {boolean} [infos.isInitialized=false]   Is user initialized <br>
 	     * {string=private,public,closed,isolated,none} [infos.visibility]  User visibility <br>
 	     * <br> Define if the user can be searched by users being in other company and if the user can search users being in other companies. <br>
 	     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
@@ -12962,65 +13274,506 @@ declare module 'lib/services/AdminService' {
 	    unSubscribeUserToSubscription(userId?: string, subscriptionId?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method synchronizeUsersAndDeviceswithCSV
-	     * @since 1.86.0
+	     * @method getAUserProfilesByUserId
+	     * @since 2.11.0
 	     * @instance
 	     * @async
-	     * @category AD/LDAP - AD/LDAP masspro
-	     * @param {string} csvTxt the csv of the user and device to synchronize.
+	     * @category Offers and Subscriptions.
+	     * @param {string} userId the id of the user. If not provided, the connected user is used.
+	     * @description
+	     *      Method to retrieve the profiles of a user by his id. <br>
+	     * @return {Promise<any>} result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+	     * | offerId | string | Id of the offer to which company subscription is attached |
+	     * | offerName | string | Name of the offer to which company subscription is attached |
+	     * | offerDescription | string | Description of the offer to which company subscription is attached |
+	     * | offerTechnicalDescription | string | Technical description of the subscribed offer |
+	     * | offerReference | string | Key used for referencing the subscribed offer. Well know offer References are: RB-Essential, RB-Business, RB-Enterprise, RB-Conference. |
+	     * | profileId | string | Id of the profile to which company subscription is attached |
+	     * | profileName | string | Name of the profile to which company subscription is attached |
+	     * | status | string | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+	     * | isDefault | boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+	     * | canBeSold | boolean | Indicates if this profile is linked a subscription for a paid offer.  <br>Some offers are not be sold (Essential, Beta, Demo, ...).  <br>If canBeSold is true, the subscription is billed. |
+	     * | businessModel | string | Indicates the business model associated to the subscribed offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Offers having this business model are billed according to the number of users bought for it. This should be the business model for Business and Enterprise offers.<br>* `usage`: Offers having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer). This should be the business model for Conference offer.<br>* `none`: no business model. Used for offers which are not sold (like Essential, Beta, ...).<br><br>Possible values : `nb_users`, `usage`, `none` |
+	     * | isExclusive | boolean | Indicates if this profile is relative to a subscription for an exclusive offer (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer).  <br>Used on GUI side to know if the subscription to assign to a user profile has to be displayed as a radio button or as a check box. |
+	     * | isPrepaid | boolean | Indicates if this profile is relative to a subscription for a prepaid offer |
+	     * | expirationDate | Date-Time | Expiration date of the subscription to the prepaid offer (creationDate + prepaidDuration) |
+	     * | provisioningNeeded | Object\[\] | Indicates if provisioning is needed on other component when assigning the user profile to this subscription (depends of thus subscribed offer) |
+	     * | providerType | string | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when Business Store confirms through the callback that the subscription is created).<br><br>Possible values : `PGI`, `JANUS` |
+	     * | mediaType optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on JANUS component.<br><br>Possible values : `webrtc` |
+	     * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
+	     * | provisioningStartDate | string | Provisioning starting date |
+	     * | assignationDate | string | Date when the subscription was attached to user profile |
+	     *
+	     */
+	    getAUserProfilesByUserId(userId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAUserProfilesByUserEmail
+	     * @since 2.11.0
+	     * @instance
+	     * @async
+	     * @category Offers and Subscriptions.
+	     * @param {string} email the email of the user. If not provided, the connected user is used.
+	     * @description
+	     *      Method to retrieve the profiles of a user by his email. <br>
+	     * @return {Promise<any>} result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+	     * | offerId | string | Id of the offer to which company subscription is attached |
+	     * | offerName | string | Name of the offer to which company subscription is attached |
+	     * | offerDescription | string | Description of the offer to which company subscription is attached |
+	     * | offerTechnicalDescription | string | Technical description of the subscribed offer |
+	     * | offerReference | string | Key used for referencing the subscribed offer. Well know offer References are: RB-Essential, RB-Business, RB-Enterprise, RB-Conference. |
+	     * | profileId | string | Id of the profile to which company subscription is attached |
+	     * | profileName | string | Name of the profile to which company subscription is attached |
+	     * | status | string | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+	     * | isDefault | boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+	     * | canBeSold | boolean | Indicates if this profile is linked a subscription for a paid offer.  <br>Some offers are not be sold (Essential, Beta, Demo, ...).  <br>If canBeSold is true, the subscription is billed. |
+	     * | businessModel | string | Indicates the business model associated to the subscribed offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Offers having this business model are billed according to the number of users bought for it. This should be the business model for Business and Enterprise offers.<br>* `usage`: Offers having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer). This should be the business model for Conference offer.<br>* `none`: no business model. Used for offers which are not sold (like Essential, Beta, ...).<br><br>Possible values : `nb_users`, `usage`, `none` |
+	     * | isExclusive | boolean | Indicates if this profile is relative to a subscription for an exclusive offer (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer).  <br>Used on GUI side to know if the subscription to assign to a user profile has to be displayed as a radio button or as a check box. |
+	     * | isPrepaid | boolean | Indicates if this profile is relative to a subscription for a prepaid offer |
+	     * | expirationDate | Date-Time | Expiration date of the subscription to the prepaid offer (creationDate + prepaidDuration) |
+	     * | provisioningNeeded | Object\[\] | Indicates if provisioning is needed on other component when assigning the user profile to this subscription (depends of thus subscribed offer) |
+	     * | providerType | string | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when Business Store confirms through the callback that the subscription is created).<br><br>Possible values : `PGI`, `JANUS` |
+	     * | mediaType optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on JANUS component.<br><br>Possible values : `webrtc` |
+	     * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
+	     * | provisioningStartDate | string | Provisioning starting date |
+	     * | assignationDate | string | Date when the subscription was attached to user profile |
+	     *
+	     */
+	    getAUserProfilesByUserEmail(email?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAUserProfilesFeaturesByUserId
+	     * @since 2.11.0
+	     * @instance
+	     * @async
+	     * @category Offers and Subscriptions.
+	     * @param {string} userId the id of the user. If not provided, the connected user is used.
+	     * @description
+	     *      Method to retrieve the features profiles of a user by his id. <br>
+	     * @return {Promise<any>} result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | List of feature Objects. |
+	     * | featureId | string | Feature unique identifier |
+	     * | featureUniqueRef | string | Feature unique reference (to be used for controls on limitations linked to this feature in server/client code) |
+	     * | featureName | string | Feature name |
+	     * | featureType | string | Feature limitation type (`boolean`, `number`, `string`, `undefined`) |
+	     * | isEnabled | boolean | In case feature has type boolean (on/off), is the feature enabled |
+	     * | limitMin | Number | In case feature has type number, limit min of the feature (if applicable) |
+	     * | limitMax | string | In case feature has type number, limit max of the feature (if applicable) |
+	     * | addedDate | Date-Time | Date when the feature was updated for the profile |
+	     * | lastUpdateDate | Date-Time | Date when the feature was updated for the profile |
+	     *
+	     */
+	    getAUserProfilesFeaturesByUserId(userId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAUserProfilesFeaturesByUserEmail
+	     * @since 2.11.0
+	     * @instance
+	     * @async
+	     * @category Offers and Subscriptions.
+	     * @param {string} email the email of the user. If not provided, the connected user is used.
+	     * @description
+	     *      Method to retrieve the features profiles of a user by his email. <br>
+	     * @return {Promise<any>} result.
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object\[\] | List of feature Objects. |
+	     * | featureId | string | Feature unique identifier |
+	     * | featureUniqueRef | string | Feature unique reference (to be used for controls on limitations linked to this feature in server/client code) |
+	     * | featureName | string | Feature name |
+	     * | featureType | string | Feature limitation type (`boolean`, `number`, `string`, `undefined`) |
+	     * | isEnabled | boolean | In case feature has type boolean (on/off), is the feature enabled |
+	     * | limitMin | Number | In case feature has type number, limit min of the feature (if applicable) |
+	     * | limitMax | string | In case feature has type number, limit max of the feature (if applicable) |
+	     * | addedDate | Date-Time | Date when the feature was updated for the profile |
+	     * | lastUpdateDate | Date-Time | Date when the feature was updated for the profile |
+	     *
+	     */
+	    getAUserProfilesFeaturesByUserEmail(email?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method checkCSVdata
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
-	     * @param {string} label a text description of this import
-	     * @param {boolean} noemails disable email sending
-	     * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
 	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+	     * @param {any} data body of the POST.
 	     * @description
-	     *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br>
-	     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br>
+	     *     This API checks a CSV UTF-8 content for mass-provisioning. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
 	     * <br>
-	     * Supported fields for "user" management are: <br>
-	     * __action__  delete, upsert, sync or detach <br>
-	     * loginEmail  (mandatory) <br>
-	     * password  (mandatory) <br>
-	     * title <br>
-	     * firstName <br>
-	     * lastName <br>
-	     * nickName <br>
-	     * businessPhone{n}  (n is a number starting from 0 or 1) <br>
-	     * mobilePhone{n}  (n is a number starting from 0 or 1) <br>
-	     * email{n}  (n is a number starting from 0 or 1) <br>
-	     * tags{n}  (n is a number starting from 0 to 4) <br>
-	     * jobTitle <br>
-	     * department <br>
-	     * userInfo1 <br>
-	     * userInfo2 <br>
-	     * country <br>
-	     * language <br>
-	     * timezone <br>
-	     * visibility <br>
-	     * isInitialized <br>
-	     * authenticationType <br>
-	     * service{n} <br>
-	     * accountType <br>
-	     * photoUrl <br>
-	     * <br>
-	     * Supported fields for "device" management are: <br>
-	     * loginEmail (mandatory) <br>
-	     * pbxId <br>
-	     * pbxShortNumber <br>
-	     * pbxInternalNumber <br>
-	     * number <br>
-	     * <br>
-	     * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br>
-	     * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br>
-	     * <br>
-	     * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br>
-	     * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br>
-	     * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br>
-	     * <br>
-	     * @return {Promise<any>} import summary result.
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | * check results summary |
+	     * | reqId | String | * check request identifier |
+	     * | mode | String | * request csv mode<br><br>Possible values : `user`, `device` |
+	     * | actions | Object | * actions information |
+	     * | add optionnel | Number | * number of user add actions |
+	     * | update optionnel | Number | * number of user update actions |
+	     * | remove optionnel | Number | * number of user remove actions |
+	     * | attach optionnel | Number | * number of device pairing actions |
+	     * | force_attach optionnel | Number | * number of device forced pairing actions |
+	     * | columns | Number | * number of columns in the CSV |
+	     * | detach optionnel | Number | * number of device unpairing actions |
+	     * | delimiter | String | * the CSV delimiter |
+	     * | profiles | Object | * the managed profiles |
+	     * | name | String | * the managed profiles name |
+	     * | valid | Boolean | * the managed profiles validity |
+	     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+	     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+	     * | max | Number | * the maximum number of managed profiles available |
+	     *
 	     */
-	    synchronizeUsersAndDeviceswithCSV(csvTxt?: string, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<{
+	    checkCSVdata(data?: any, companyId?: string, delimiter?: string, comment?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteAnImportStatusReport
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} reqId the import request id
+	     * @description
+	     *     This API allows to delete the report of an import identified by its reqId. <br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | * delete status |
+	     * | reqId | String | * deleted reqId |
+	     * | status | String | * delete status |
+	     *
+	     */
+	    deleteAnImportStatusReport(reqId?: string, delimiter?: string, comment?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAnImportStatusReport
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} reqId the import request id
+	     * @param {string} format Allows to retrieve more or less report details.
+	     * - small: reporting without operation details
+	     * - full: reporting with operation details
+	     * Default value : full
+	     * Possible values : small, full
+	     * @description
+	     *     This API allows to access the report of an import identified by its reqId. <br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | * import report |
+	     * | reqId | String | * import request identifier |
+	     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device`, `rainbowvoice` |
+	     * | status | String | * request status |
+	     * | report | Object | * request report |
+	     * | status | String | * action status |
+	     * | action | String | * the fulfilled action |
+	     * | userId | String | * Rainbow user Id |
+	     * | failingLines | String\[\] | * CSV lines that failed |
+	     * | line optionnel | String | * associated CSV line in an error case |
+	     * | counters | Object | * request counters |
+	     * | succeeded | Integer | * '#' of succeeded action |
+	     * | failed | Integer | * '#' of failed action |
+	     * | label | String | * description of the import |
+	     * | total | Integer | * total '#' of actions |
+	     * | userId | String | * id of the requesting user |
+	     * | displayName | String | * the requesting user displayname |
+	     * | companyId | String | * the default company Id |
+	     * | startTime | String | * the import processing start time |
+	     * | profiles | Object | * provides info about licences used |
+	     * | subscriberReport optionnel | Object | * provides details about subscriber action (attach, update or detach action) - only in case of rainbowvoice mode |
+	     * | sipDeviceReport optionnel | Object | * provides details about sip Device action (attach or detach action) - only in case of rainbowvoice mode |
+	     * | ddiReport optionnel | Object | * provides details about ddi action (attach or detach action) - only in case of rainbowvoice mode |
+	     * | endTime | String | * the import processing end time |
+	     *
+	     */
+	    getAnImportStatusReport(reqId?: string, format?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getInformationOnImports
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} companyId the companyId to list imports of
+	     * @description
+	     *     This API provides information on all imports of the administrator's company. <br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | reqId | String | * import request identifier |
+	     * | status | String | * import status |
+	     * | userId | String | * id of the requesting user |
+	     * | displayName | String | * display name of the requesting user |
+	     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device`, `rainbowvoice` |
+	     * | label | String | * description of the import |
+	     * | startTime | String | * the import processing start time |
+	     * | endTime | String | * the import processing end time |
+	     * | counters | Object | * the import processing operation status counters |
+	     * | data | Object\[\] | * list of company imports |
+	     * | succeeded | Integer | * '#' of succeeded actions |
+	     * | failed | Integer | * '#' of failed actions |
+	     * | warnings | Integer | * '#' actions with warnings |
+	     * | total | Integer | * total '#' of actions |
+	     *
+	     */
+	    getInformationOnImports(companyId?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getResultOfStartedOffice365TenantSynchronizationTask
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} tenant Office365 tenant
+	     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+	     * - json: answer follows the pattern { "data" : { ... JSON ... }}
+	     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
+	     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
+	     * Default value : json
+	     * Possible values : csv, json, all
+	     * @description
+	     *     This API retrieves data describing all operations required to synchronize an Office365 tenant (csv or json format).
+	     *     This API returns the result of a prior SynchronizeTenantTaskStart that triggers an asynchronous processing for a given tenant. <br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | status optionnel | String | Asynchronous operation status<br><br>Possible values : `pending` |
+	     * | data optionnel | Object | synchronization data |
+	     *
+	     */
+	    getResultOfStartedOffice365TenantSynchronizationTask(tenant?: string, format?: string): any;
+	    /**
+	     * @public
+	     * @method importCSVData
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+	     * @param {string} label a text description of this import. Default value : none
+	     * @param {string} noemails disable email sending. Default value : true
+	     * @param {string} nostrict create of an existing user and delete of an unexisting user are not errors. Default value : false
+	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+	     * @param {any} data The body of the POST.
+	     * @description
+	     *     This API allows to manage Rainbow users or devices through a CSV UTF-8 encoded file. </br>
+	     *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. </br>
+	     *     Caution: To avoid multiple imports of same CSV data, the reqId returned to access the import status is a hash of the CSV data. </br>
+	     *     If you really need to apply same CSV data again, you will have to delete its associated import report first. </br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | * import summary |
+	     * | reqId | String | * import request identifier |
+	     * | mode | String | * provisioning mode<br><br>Possible values : `user`, `device` |
+	     * | status | String | * Current import state, should be 'Pending' |
+	     * | userId | String | * id of the requesting user |
+	     * | displayName | String | * display name of the requesting user |
+	     * | label | String | * description of the import |
+	     * | startTime | String | * the import processing start time |
+	     *
+	     */
+	    importCSVData(data?: any, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method startsAsynchronousGenerationOfOffice365TenantUserListSynchronization
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} tenant Office365 tenant
+	     * @description
+	     *     This API generates data describing all operations required to synchronize an Office365 tenant (csv or json format). </br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | status | String | Asynchronous operation status<br><br>Possible values : `pending` |
+	     *
+	     */
+	    startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method synchronizeOffice365TenantUserList
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} tenant Office365 tenant
+	     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+	     * - json: answer follows the pattern { "data" : { ... JSON ... }}
+	     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
+	     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
+	     * Default value : json
+	     * Possible values : csv, json, all
+	     * @description
+	     *     This API generates a file describing all operations required to synchronize an Office365 tenant (csv or json format). </br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | String | synchronization data. |
+	     *
+	     */
+	    synchronizeOffice365TenantUserList(tenant?: string, format?: string): any;
+	    /**
+	     * @public
+	     * @method checkCSVDataOfSynchronizationUsingRainbowvoiceMode
+	     * @since 2.12.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} companyId companyId of the users in the CSV file, default to admin's companyId
+	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. Default value : %
+	     * @param {any} data The body of the POST.
+	     * @description
+	     *    This API checks a CSV UTF-8 content for mass-provisioning for rainbowvoice mode. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. </br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | * check results summary |
+	     * | reqId | String | * check request identifier |
+	     * | mode | String | * request csv mode<br><br>Possible values : `rainbowvoide` |
+	     * | actions | Object | * actions information |
+	     * | upsert optionnel | Number | * number of user create/update actions |
+	     * | delete optionnel | Number | * number of user remove actions |
+	     * | columns | Number | * number of columns in the CSV |
+	     * | detach optionnel | Number | * number of device unpairing actions |
+	     * | delimiter | String | * the CSV delimiter |
+	     * | profiles | Object | * the managed profiles |
+	     * | name | String | * the managed profiles name |
+	     * | valid | Boolean | * the managed profiles validity |
+	     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+	     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+	     * | max | Number | * the maximum number of managed profiles available |
+	     *
+	     */
+	    checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data?: any, companyId?: string, delimiter?: string, comment?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateCommandIdStatus
+	     * @since 2.14.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} data body of the POST. Body : {
+	     * status : `success` or `failure`, // status for the execution of the command
+	     * details : string // details that can be provided about the command execution
+	     * }
+	     *
+	     * @param {string} commandId commandId which came from connector on behalf of admin command
+	     * @description
+	     *    This API is used to update the status of the commandId. </br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     */
+	    updateCommandIdStatus(data?: any, commandId?: string): Promise<unknown>;
+	    /**
+	 * @public
+	 * @method synchronizeUsersAndDeviceswithCSV
+	 * @since 1.86.0
+	 * @instance
+	 * @async
+	 * @category AD/LDAP - AD/LDAP Massprovisioning
+	 * @param {string} csvTxt the csv of the user and device to synchronize.
+	 * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+	 * @param {string} label a text description of this import
+	 * @param {boolean} noemails disable email sending
+	 * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
+	 * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+	 * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+	 * @param {string} commandId Command identifier. When runing the manual synchro, the commandId must be added as query parameter.
+	 * @description
+	 *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode <br>
+	 *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. <br>
+	 * <br>
+	 * Supported fields for "user" management are: <br>
+	 * __action__  delete, upsert, sync or detach <br>
+	 * loginEmail  (mandatory) <br>
+	 * password  (mandatory) <br>
+	 * title <br>
+	 * firstName <br>
+	 * lastName <br>
+	 * nickName <br>
+	 * businessPhone{n}  (n is a number starting from 0 or 1) <br>
+	 * mobilePhone{n}  (n is a number starting from 0 or 1) <br>
+	 * email{n}  (n is a number starting from 0 or 1) <br>
+	 * tags{n}  (n is a number starting from 0 to 4) <br>
+	 * jobTitle <br>
+	 * department <br>
+	 * userInfo1 <br>
+	 * userInfo2 <br>
+	 * country <br>
+	 * language <br>
+	 * timezone <br>
+	 * visibility <br>
+	 * isInitialized <br>
+	 * authenticationType <br>
+	 * service{n} <br>
+	 * accountType <br>
+	 * photoUrl <br>
+	 * <br>
+	 * Supported fields for "device" management are: <br>
+	 * loginEmail (mandatory) <br>
+	 * pbxId <br>
+	 * pbxShortNumber <br>
+	 * pbxInternalNumber <br>
+	 * number <br>
+	 * <br>
+	 * detach: allows to detach an PBX extension from a user. delete: allows to delete a user. upsert: allows to modify user (update or create if doesn't exists) and device (force attach if filled) with filled fields. Remark: empty fields are not taken into account. sync: allows to modify user (update or create if doesn't exists) and device (force attach if filled, detach if empty) with filled fields. <br>
+	 * Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value). <br>
+	 * <br>
+	 * Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. Caution: for sync action: <br>
+	 * As empty fields are taken into account, all fields must be filled to avoid a reset of these values <br>
+	 * As empty fields are taken into account, it is better to avoid mixing sync __action__ with others actions <br>
+	 * <br>
+	 * @return {Promise<any>} import summary result.
+	 */
+	    synchronizeUsersAndDeviceswithCSV(csvTxt?: string, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string, commandId?: string): Promise<{
 	        reqId: string;
 	        mode: string;
 	        status: string;
@@ -13035,7 +13788,7 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
-	     * @category AD/LDAP - AD/LDAP masspro
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
 	     * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	     * @param {string} mode Select template to return.
 	     * - user: provider the user management template
@@ -13077,11 +13830,12 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
-	     * @category AD/LDAP - AD/LDAP masspro
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
 	     * @param {string} CSVTxt CSV File content to be checked.
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	     * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
 	     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
+	     * @param {string} commandId if the check csv request comes from connector on behalf of admin command, it will generates a report.
 	     * @description
 	     *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.<br>
 	     *      Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. <br>
@@ -13104,14 +13858,49 @@ declare module 'lib/services/AdminService' {
 	     *      } <br>
 	     * @return {Promise<any>}
 	     */
-	    checkCSVforSynchronization(CSVTxt: any, companyId?: string, delimiter?: string, comment?: string): any;
+	    checkCSVforSynchronization(CSVTxt: any, companyId?: string, delimiter?: string, comment?: string, commandId?: string): any;
 	    /**
 	     * @public
-	     * @method retrieveRainbowUserList
+	     * @method getCheckCSVReport
 	     * @since 2.5.1
 	     * @instance
 	     * @async
-	     * @category AD/LDAP - AD/LDAP masspro
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} commandId used in the check csv request whicj came from connector on behalf of admin command
+	     * @description
+	     *      This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId). <br>
+	     * @return {Promise<any>}
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | report | Object | * check results summary |
+	     * | status | String | * status of the check csv<br><br>Valeurs autorisées : `success`, `failure`, `pending` |
+	     * | reqId | String | * check request identifier |
+	     * | mode | String | * request csv mode<br><br>Valeurs autorisées : `user`, `device` |
+	     * | actions | Object | * actions information |
+	     * | sync optionnel | Number | * number of user synchronization actions |
+	     * | upsert optionnel | Number | * number of user create/update actions |
+	     * | delete optionnel | Number | * number of user remove actions |
+	     * | columns | Number | * number of columns in the CSV |
+	     * | detach optionnel | Number | * number of device unpairing actions |
+	     * | delimiter | String | * the CSV delimiter |
+	     * | profiles | Object | * the managed profiles |
+	     * | name | String | * the managed profiles name |
+	     * | valid | Boolean | * the managed profiles validity |
+	     * | assignedBefore | Number | * the assigned number of managed profiles before this import |
+	     * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
+	     * | max | Number | * the maximum number of managed profiles available |
+	     *
+	     */
+	    getCheckCSVReport(commandId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method importRainbowVoiceUsersWithCSVdata
+	     * @since 2.5.1
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
 	     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
 	     * @param {string} label a text description of this import. default undefined.
 	     * @param {boolean} noemails disable email sending. default true.
@@ -13225,7 +14014,7 @@ declare module 'lib/services/AdminService' {
 	    * @since 1.86.0
 	    * @instance
 	    * @async
-	    * @category AD/LDAP - AD/LDAP masspro
+	    * @category AD/LDAP - AD/LDAP Massprovisioning
 	    * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
 	    * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
 	    * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
@@ -13235,6 +14024,179 @@ declare module 'lib/services/AdminService' {
 	    * @return {Promise<any>}
 	    */
 	    retrieveRainbowUserList(companyId?: string, format?: string, ldap_id?: boolean): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method checkCSVdataForSynchronizeDirectory
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @description
+	     *      This API checks a CSV UTF-8 content for mass-provisioning for directory mode.</br>
+	     *      All the entries defined in the CSV data are relative to the same company directory. <br>
+	     *      In case a query parameter commandId is added, the following event is sent to the initiator of the command: "rainbow_onconnectorcommandended"<br>
+	     *          <br>
+	     *      The first line of the CSV file describes the content format. Most of the field names are the same than the field names of the company directory API - Create a directory entry.<br>
+	     *      Supported fields are:<br>
+	     *      __action__ : delete, upsert or sync<br>
+	     *      ldap_id : (mandatory)<br>
+	     *      *<br>
+	     *      firstName<br>
+	     *      lastName<br>
+	     *      companyName<br>
+	     *      workPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      mobilePhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      otherPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      tag{n} : (n is a number starting from 0 to 4)<br>
+	     *      department<br>
+	     *      street<br>
+	     *      city<br>
+	     *      postalCode<br>
+	     *      state<br>
+	     *      country<br>
+	     *      jobTitle<br>
+	     *      eMail<br>
+	     *      custom1<br>
+	     *      custom2<br>
+	     *      <br>
+	     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+	     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+	     *      Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value).<br>
+	     *      <br>
+	     *      return an {Object}  of synchronization data. <br>
+	     * @return {Promise<any>}
+	     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+	     * @param {string} comment CSV comment start character. Default value : %
+	     * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
+	     * @param {string} csvData string with the body of the CSV data.
+	     */
+	    checkCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, csvData: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method importCSVdataForSynchronizeDirectory
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @description
+	     *      This API allows to import the entries of a company directory with CSV UTF-8 encoded data. <br>
+	     *      All the entries defined in the CSV data are relative to the same company directory. <br>
+	     *      In case a query parameter commandId is added, the following event is sent to the initiator of the command: "rainbow_onconnectorcommandended"<br>
+	     *          <br>
+	     *      The first line of the CSV file describes the content format. Most of the field names are the same than the field names of the company directory API - Create a directory entry.<br>
+	     *      Supported fields are:<br>
+	     *      __action__ : delete, upsert or sync<br>
+	     *      ldap_id : (mandatory)<br>
+	     *      *<br>
+	     *      firstName<br>
+	     *      lastName<br>
+	     *      companyName<br>
+	     *      workPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      mobilePhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      otherPhoneNumber{n} : (n is a number starting from 0 or 9)<br>
+	     *      tag{n} : (n is a number starting from 0 to 4)<br>
+	     *      department<br>
+	     *      street<br>
+	     *      city<br>
+	     *      postalCode<br>
+	     *      state<br>
+	     *      country<br>
+	     *      jobTitle<br>
+	     *      eMail<br>
+	     *      custom1<br>
+	     *      custom2<br>
+	     *      <br>
+	     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+	     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.<br>
+	     *      Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value).<br>
+	     *      <br>
+	     *      return an {Object}  of synchronization data. <br>
+	     * @return {Promise<any>}
+	     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+	     * @param {string} comment CSV comment start character. Default value : %
+	     * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
+	     * @param {string} label A text description of this import. Default value : none
+	     * @param {string} csvData string with the body of the CSV data.
+	     */
+	    importCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, label: string, csvData: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getCSVReportByCommandId
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @description
+	     *      This API retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId). <br>
+	     *           <br>
+	     *      return { <br>
+	     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+	     *          report : Object,  // check results summary <br>
+	     *              companyId : string, // Id of the company of the directory <br>
+	     *              userId : string, Id of the requesting user <br>
+	     *              displayName : string Display name of the requesting user <br>
+	     *              label : string Description of the import <br>
+	     *              csvHeaders : string CSV header line (Fields names) <br>
+	     *              startTime : string Import processing start time <br>
+	     *              created : number Count of created entries <br>
+	     *              updated : number Count of updated entries <br>
+	     *              deleted : number Count of deleted entries <br>
+	     *              failed : 	Integer Count of failed entries <br>
+	     *        } <br>
+	     *
+	     *      return an {Object}  of synchronization data. <br>
+	     * @return {Promise<any>}
+	     * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
+	     */
+	    getCSVReportByCommandId(commandId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method createCSVReportByCommandId
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @description
+	     *      This API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...). <br>
+	     *           <br>
+	     *      return { <br>
+	     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+	     *          report : Object,  // check results summary <br>
+	     *              details : string details for for report <br>
+	     *        } <br>
+	     *
+	     *      return an {Object}  of synchronization data. <br>
+	     * @return {Promise<any>}
+	     * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
+	     * @param {Object} data The body of the request : {
+	     *     status : string, // status for the execution of the command Valeurs autorisées : success, failure
+	     *     details : string, // details that can be provided about the command execution
+	     * }
+	     */
+	    createCSVReportByCommandId(commandId: string, data: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrieveRainbowEntriesList
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @description
+	     *      This API generates a file describing all companies entries (csv or json format). <br>
+	     *           <br>
+	     *
+	     *      return an {Object}  of result data. <br>
+	     * @return {Promise<any>}
+	     * @param companyId companyId from which to retrieve entries, default to admin's companyId
+	     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Valeurs autorisées : csv, json, all
+	     * @param ldap_id Allows to filter entries containing a ldap_id. </br>
+	     * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
+	     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>
+	     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }} </br>
+	     * </br>
+	     *  Default value : true </br>
+	     */
+	    retrieveRainbowEntriesList(companyId?: string, format?: string, ldap_id?: boolean): any;
 	    /**
 	     * @public
 	     * @method ActivateALdapConnectorUser
@@ -13250,13 +14212,16 @@ declare module 'lib/services/AdminService' {
 	     *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown <br>
 	     *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown <br>
 	     *       <br>
-	     *      return { <br>
-	     *          id {string} ldap connector unique identifier. <br>
-	     *          companyId {string} Company linked to the Ldap connector. <br>
-	     *          loginEmail {string} Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). <br>
-	     *          password {string} Generated Ldap connector user password. <br>
-	     *          } <br>
-	     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>}
+	     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>} -
+	     * <br>
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | id  | string | Ldap connector unique identifier. |
+	     * | companyId | string | Company linked to the Ldap connector. |
+	     * | loginEmail | string | Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). |
+	     * | password | string | Generated Ldap connector user password. |
+	     *
 	     */
 	    ActivateALdapConnectorUser(): Promise<{
 	        id: string;
@@ -13339,27 +14304,27 @@ declare module 'lib/services/AdminService' {
 	     *              phoneNumberId string Phone number unique id in phone-numbers directory collection. <br>
 	     *              number optionnel string User phone number (as entered by user) <br>
 	     *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields <br>
-	     *              country 	String Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem Boolean Boolean indicating if phone is linked to a system (pbx). <br>
-	     *              shortNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
-	     *              internalNumber optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
-	     *              systemId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
-	     *              pbxId optionnel 	String [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
-	     *              type 	String Phone number type, one of home, work, other. <br>
-	     *              deviceType 	String Phone number device type, one of landline, mobile, fax, other. <br>
-	     *              isVisibleByOthers 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
-	     *         country 	String User country (ISO 3166-1 alpha3 format) <br>
-	     *         state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
-	     *         language optionnel 	String User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
-	     *         timezone optionnel 	String User timezone name <br>
-	     *         jid_im 	String User Jabber IM identifier <br>
-	     *         jid_tel 	String User Jabber TEL identifier <br>
-	     *         jid_password 	String User Jabber IM and TEL password <br>
-	     *         roles 	String[] List of user roles (Array of String) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
-	     *         adminType 	String In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
-	     *         organisationId 	String In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
-	     *         siteId 	String In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
-	     *         companyName 	String User company name <br>
-	     *         visibility 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
+	     *              country 	string Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem boolean boolean indicating if phone is linked to a system (pbx). <br>
+	     *              shortNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. <br>
+	     *              internalNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. <br>
+	     *              systemId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. <br>
+	     *              pbxId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. <br>
+	     *              type 	string Phone number type, one of home, work, other. <br>
+	     *              deviceType 	string Phone number device type, one of landline, mobile, fax, other. <br>
+	     *              isVisibleByOthers 	boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. <br>
+	     *         country 	string User country (ISO 3166-1 alpha3 format) <br>
+	     *         state optionnel 	string When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). <br>
+	     *         language optionnel 	string User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) <br>
+	     *         timezone optionnel 	string User timezone name <br>
+	     *         jid_im 	string User Jabber IM identifier <br>
+	     *         jid_tel 	string User Jabber TEL identifier <br>
+	     *         jid_password 	string User Jabber IM and TEL password <br>
+	     *         roles 	string[] List of user roles (Array of string) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). <br>
+	     *         adminType 	string In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) <br>
+	     *         organisationId 	string In addition to User companyId, optional identifier to indicate the user belongs also to an organization <br>
+	     *         siteId 	string In addition to User companyId, optional identifier to indicate the user belongs also to a site <br>
+	     *         companyName 	string User company name <br>
+	     *         visibility 	string User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: <br>
 	     *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. <br>
 	     *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
 	     *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users <br>
@@ -13367,143 +14332,168 @@ declare module 'lib/services/AdminService' {
 	     *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users <br>
 	     *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users <br>
 	     *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) <br>
-	     *         isActive 	Boolean Is user active  <br>
-	     *         isInitialized 	Boolean Is user initialized <br>
+	     *         isActive 	boolean Is user active  <br>
+	     *         isInitialized 	boolean Is user initialized <br>
 	     *         initializationDate 	Date-Time User initialization date <br>
 	     *         activationDate 	Date-Time User activation date <br>
 	     *         creationDate 	Date-Time User creation date <br>
 	     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) <br>
 	     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar <br>
-	     *         createdBySelfRegister 	Boolean true if user has been created using self register <br>
+	     *         createdBySelfRegister 	boolean true if user has been created using self register <br>
 	     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user <br>
-	     *         userId 	String userId of the admin who created this user <br>
-	     *         loginEmail 	String loginEmail of the admin who created this user <br>
+	     *         userId 	string userId of the admin who created this user <br>
+	     *         loginEmail 	string loginEmail of the admin who created this user <br>
 	     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user <br>
-	     *         userId 	String userId of the user who invited this user <br>
-	     *         loginEmail 	String loginEmail of the user who invited this user <br>
-	     *         authenticationType optionnel 	String User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
-	     *         authenticationExternalUid optionnel 	String User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
+	     *         userId 	string userId of the user who invited this user <br>
+	     *         loginEmail 	string loginEmail of the user who invited this user <br>
+	     *         authenticationType optionnel 	string User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) <br>
+	     *         authenticationExternalUid optionnel 	string User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) <br>
 	     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) <br>
 	     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) <br>
 	     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) <br>
-	     *         isTerminated 	Boolean Indicates if the Rainbow account of this user has been deleted <br>
-	     *         guestMode 	Boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
+	     *         isTerminated 	boolean Indicates if the Rainbow account of this user has been deleted <br>
+	     *         guestMode 	boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. <br>
 	     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). <br>
-	     *         userInfo1 optionnel 	String Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
-	     *         userInfo2 optionnel 	String 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
-	     *         useScreenSharingCustomisation 	String Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
+	     *         userInfo1 optionnel 	string Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     *         userInfo2 optionnel 	string 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) <br>
+	     *         useScreenSharingCustomisation 	string Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. <br>
 	     *         useScreenSharingCustomisation can be: <br>
 	     *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. <br>
 	     *            enabled: Each user of the company can share his screen. <br>
 	     *            disabled: No user of the company can share his screen. <br>
 	     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. <br>
-	     *         activationCodeGenerationStatus 	String Status the activation code generation done if the activation code generation is successful <br>
+	     *         activationCodeGenerationStatus 	string Status the activation code generation done if the activation code generation is successful <br>
 	     *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Possible values : done, in_progress <br>
-	     *         fileSharingCustomisation 	String Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
+	     *         fileSharingCustomisation 	string Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. <br>
 	     *         FileSharingCustomisation can be: <br>
 	     *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. <br>
 	     *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. <br>
 	     *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. <br>
-	     *         userTitleNameCustomisation 	String Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
+	     *         userTitleNameCustomisation 	string Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. <br>
 	     *         userTitleNameCustomisation can be: <br>
 	     *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. <br>
 	     *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. <br>
 	     *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. <br>
-	     *         softphoneOnlyCustomisation 	String Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
+	     *         softphoneOnlyCustomisation 	string Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. <br>
 	     *         softphoneOnlyCustomisation can be: <br>
 	     *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. <br>
 	     *            enabled: The user switch to a softphone mode only. <br>
 	     *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. <br>
-	     *         useRoomCustomisation 	String Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
+	     *         useRoomCustomisation 	string Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). <br>
 	     *         useRoomCustomisation can be: <br>
 	     *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. <br>
 	     *            enabled: The user can use bubbles. <br>
 	     *            disabled: The user can't use bubbles. <br>
-	     *         phoneMeetingCustomisation 	String Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
+	     *         phoneMeetingCustomisation 	string Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. <br>
 	     *         phoneMeetingCustomisation can be: <br>
 	     *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. <br>
 	     *            enabled: The user can join phone meetings. <br>
 	     *            disabled: The user can't join phone meetings. <br>
-	     *         useChannelCustomisation 	String Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
+	     *         useChannelCustomisation 	string Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. <br>
 	     *         useChannelCustomisation can be: <br>
 	     *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. <br>
 	     *            enabled: The user can use some channels. <br>
 	     *            disabled: The user can't use some channel. <br>
-	     *         useWebRTCVideoCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
+	     *         useWebRTCVideoCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). <br>
 	     *         useWebRTCVideoCustomisation can be: <br>
 	     *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. <br>
 	     *            enabled: The user can switch to a Web RTC video conversation. <br>
 	     *            disabled: The user can't switch to a Web RTC video conversation. <br>
-	     *         useWebRTCAudioCustomisation 	String Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
+	     *         useWebRTCAudioCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). <br>
 	     *         useWebRTCAudioCustomisation can be: <br>
 	     *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. <br>
 	     *            enabled: The user can switch to a Web RTC audio conversation. <br>
 	     *            disabled: The user can't switch to a Web RTC audio conversation. <br>
-	     *         instantMessagesCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
+	     *         instantMessagesCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. <br>
 	     *         instantMessagesCustomisation can be: <br>
 	     *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. <br>
 	     *            enabled: The user can use instant messages. <br>
 	     *            disabled: The user can't use instant messages. <br>
-	     *         userProfileCustomisation 	String Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
+	     *         userProfileCustomisation 	string Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). <br>
 	     *         userProfileCustomisation can be: <br>
 	     *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. <br>
 	     *            enabled: The user can modify his profile. <br>
 	     *            disabled: The user can't modify his profile. <br>
-	     *         fileStorageCustomisation 	String Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
+	     *         fileStorageCustomisation 	string Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. <br>
 	     *         fileStorageCustomisation can be: <br>
 	     *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. <br>
 	     *            enabled: The user can manage and share files. <br>
 	     *            disabled: The user can't manage and share files. <br>
-	     *         overridePresenceCustomisation 	String Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
+	     *         overridePresenceCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. <br>
 	     *         overridePresenceCustomisation can be: <br>
 	     *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. <br>
 	     *            enabled: The user can change his presence. <br>
 	     *            disabled: The user can't change his presence. <br>
-	     *         changeTelephonyCustomisation 	String Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
+	     *         changeTelephonyCustomisation 	string Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... <br>
 	     *         changeTelephonyCustomisation can be: <br>
 	     *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. <br>
 	     *            enabled: The user can modify telephony settings. <br>
 	     *            disabled: The user can't modify telephony settings. <br>
-	     *         changeSettingsCustomisation 	String Activate/Deactivate the ability for a user to change all client general settings. <br>
+	     *         changeSettingsCustomisation 	string Activate/Deactivate the ability for a user to change all client general settings. <br>
 	     *         changeSettingsCustomisation can be: <br>
 	     *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. <br>
 	     *            enabled: The user can change all client general settings. <br>
 	     *            disabled: The user can't change any client general setting. <br>
-	     *         recordingConversationCustomisation 	String Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
+	     *         recordingConversationCustomisation 	string Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). <br>
 	     *         recordingConversationCustomisation can be: <br>
 	     *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. <br>
 	     *            enabled: The user can record a peer to peer or a multi-party call. <br>
 	     *            disabled: The user can't record a peer to peer or a multi-party call. <br>
-	     *         useGifCustomisation 	String Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
+	     *         useGifCustomisation 	string Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations <br>
 	     *         useGifCustomisation can be: <br>
 	     *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. <br>
 	     *            enabled: The user can send animated GIFs in conversations. <br>
 	     *            disabled: The user can't send animated GIFs in conversations. <br>
-	     *         fileCopyCustomisation 	String Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
+	     *         fileCopyCustomisation 	string Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space <br>
 	     *         fileCopyCustomisation can be: <br>
 	     *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. <br>
 	     *            enabled: The user can make a copy of a file to his personal cloud space. <br>
 	     *            disabled: The user can't make a copy of a file to his personal cloud space. <br>
-	     *         fileTransferCustomisation 	String Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
+	     *         fileTransferCustomisation 	string Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. <br>
 	     *         fileTransferCustomisation can be: <br>
 	     *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. <br>
 	     *            enabled: The user can transfer a file doesn't belong to him. <br>
 	     *            disabled: The user can't transfer a file doesn't belong to him. <br>
-	     *         forbidFileOwnerChangeCustomisation 	String Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
+	     *         forbidFileOwnerChangeCustomisation 	string Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. <br>
 	     *         forbidFileOwnerChangeCustomisation can be: <br>
 	     *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. <br>
 	     *            enabled: The user can't give the ownership of his file. <br>
 	     *            disabled: The user can give the ownership of his file. <br>
-	     *         useDialOutCustomisation 	String Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
+	     *         useDialOutCustomisation 	string Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. <br>
 	     *         useDialOutCustomisation can be: <br>
 	     *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. <br>
 	     *            enabled: The user can be called by the Rainbow conference bridge. <br>
 	     *            disabled: The user can't be called by the Rainbow conference bridge. <br>
-	     *         selectedAppCustomisationTemplate 	String To log the last template applied to the user. <br>
+	     *         selectedAppCustomisationTemplate 	string To log the last template applied to the user. <br>
 	     *      } <br>
 	     * @return {Promise<any>}
 	     */
 	    retrieveAllLdapConnectorUsersData(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<any>;
+	    /**
+	     * @public
+	     * @method sendCommandToLdapConnectorUser
+	     * @since 2.11.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} ldapId ldap connector unique identifier.
+	     * @param {string} command Allows to specify a command to be performed by the ldap connector. Allowed commands are: "manual_synchro", "manual_dry_run", "manual_synchro_directories", "manual_dry_run_directories".
+	     * @description
+	     *      This API can be used to send a command to a ldap connector user. <br>
+	     *      BP Admin and BP Finance users can only control users being in a company linked to their BP company. <br>
+	     *      Admin users can only control users being in their own company. (superadmin, organization_admin, company_admin). <br>
+	     *
+	     * @return {Promise<{Object}>} return -
+	     * <br>
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | response Object. |
+	     * | status | String | Command operation status message. |
+	     * | commandId optionnel | String | Command identifier to retrieve the report (only for "manual\_dry\_run" command). |
+	     *
+	     */
+	    sendCommandToLdapConnectorUser(ldapId: string, command: string): Promise<any>;
 	    /**
 	     * @public
 	     * @method createConfigurationForLdapConnector
@@ -13512,7 +14502,9 @@ declare module 'lib/services/AdminService' {
 	     * @async
 	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} companyId the id of the company.
+	     * @param {string} name name of this configuration.
 	     * @param {Object} settings config settings.
+	     * @param {string} type specify for which type of synchronisation this config is . Allowed types are: "ldap_config", "ldap_config_directories". Default value : ldap_config
 	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
 	     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
 	     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
@@ -13533,26 +14525,35 @@ declare module 'lib/services/AdminService' {
 	     *      Users with admin role can only create the connectors configuration in companies they can manage. That is to say: <br>
 	     *      * an organization_admin can create the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId)
 	     *      * a company_admin can only create the connectors configuration in his company.
-	     *      return an Object with
+	     *
+	     * @return {Promise<{Object}>} return -
+	     * <br>
 	     *
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
-	     * | id | String | Config unique identifier. |
+	     * | data | Object | Config Object. |
+	     * | id  | String | Config unique identifier. |
 	     * | type | String | Config type |
-	     * | companyId | String | Allows to specify for which company the connectors configuration is done. |
+	     * | companyId | String | Allows to specify for which company the connectors configuration is done.. |
 	     * | settings | Object | config settings |
-	     * | settings.massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
-	     * | settings.massproFromLdap.headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
-	     * | settings.company | Object | specific settings for the company. Each key represent a setting. |
-	     * | settings.company.login | String | login for the ldap server. |
-	     * | settings.company.password | String | password for the ldap server. |
-	     * | settings.company.synchronizationTimeInterval | String | time interval between synchronization in hours. |
-	     * | settings.company.url | String | url of the ldap server. |
-	     * | settings.company.domain | String | domain of the ldap server. |
+	     * | massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+	     * | headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+	     * | company | Object | specific settings for the company. Each key represent a setting. |
+	     * | login | String | login for the ldap server. |
+	     * | password | String | password for the ldap server. |
+	     * | synchronizationTimeInterval | Number | time interval between synchronization in hours. |
+	     * | url | String | url of the ldap server. |
+	     * | baseDN | String | base DN for the ldap server. |
+	     * | activeFlag | Boolean | defines if the synchronization is active, or not. |
+	     * | nextSynchronization | Date-Time | date (ISO 8601 format) which defines when the next synchronization will be performed. |
+	     * | enrollmentEmailEnable | Boolean | defines if an enrollment email is sent to new users |
+	     * | synchronisationDiffMode | Boolean | defines if synching only users changed since last sync date |
+	     * | search_rule | String | filters to use when requesting the ldap server. |
+	     * | lastSynchronization | Date-Time | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
+	     * | softwareVersion | String | software Version of the ldap connector (filled by the ldap connector). |
 	     *
-	     * @return {Promise<{Object}>}
 	     */
-	    createConfigurationForLdapConnector(companyId: any, settings: any): Promise<unknown>;
+	    createConfigurationForLdapConnector(companyId: any, settings: any, name: string, type?: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method deleteLdapConnectorConfig
@@ -13588,17 +14589,17 @@ declare module 'lib/services/AdminService' {
 	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
 	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
 	     *      return { <br>
-	     *         id 	String Config unique identifier. <br>
-	     *         type 	String Config type  <br>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         id 	string Config unique identifier. <br>
+	     *         type 	string Config type  <br>
+	     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
 	     *         settings 	Object config settings <br>
 	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
 	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-	     *                 login 	String login for the ldap server. <br>
-	     *                 password 	String password for the ldap server. <br>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-	     *                 url 	String url of the ldap server. <br>
+	     *                 login 	string login for the ldap server. <br>
+	     *                 password 	string password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+	     *                 url 	string url of the ldap server. <br>
 	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
@@ -13609,25 +14610,131 @@ declare module 'lib/services/AdminService' {
 	     * @since 1.86.0
 	     * @instance
 	     * @async
+	     * @param {string} type Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_template", "ldap_template_directories". Default value : ldap_template
 	     * @category AD/LDAP - LDAP APIs to use
 	     * @description
 	     *      This API allows to retrieve the configuration template for the connector. <br>
 	     *      return { <br>
-	     *         id 	String Config unique identifier. <br>
-	     *         type 	String Config type  <br>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
+	     *         id 	string Config unique identifier. <br>
+	     *         type 	string Config type  <br>
+	     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
 	     *         settings 	Object config settings <br>
 	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
 	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-	     *                 login 	String login for the ldap server. <br>
-	     *                 password 	String password for the ldap server. <br>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-	     *                 url 	String url of the ldap server. <br>
+	     *                 login 	string login for the ldap server. <br>
+	     *                 password 	string password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+	     *                 url 	string url of the ldap server. <br>
 	     *          } <br>
 	     * @return {Promise<{Object}>}
 	     */
-	    retrieveLdapConnectorConfigTemplate(): Promise<unknown>;
+	    retrieveLdapConnectorConfigTemplate(type?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrieveLdapConnectorAllConfigTemplate
+	     * @since 1.86.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @description
+	     *      This API allows to retrieve all the configuration templates for the connector. <br>
+	     *      return { <br>
+	     *         id 	string Config unique identifier. <br>
+	     *         type 	string Config type  <br>
+	     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 default 	String default field name in ldap. <br>
+	     *                 mandatory optionnel 	Boolean specify if field is mandatory. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                  headerName 	Object headerName as specified in the csv templates for the massprovisioning portal. <br>
+	     *                  settingName Object name of the setting. Each key represent a setting. As of now list of setting is "login", "password", "synchronizationTimeInterval", "url". This list can evolve. <br>
+	     *                  default optionnel 	String 	 <br>
+	     *                  default value of the setting.  <br>
+	     *                  mandatory optionnel 	String specify if field is mandatory. <br>
+	     *          } <br>
+	     * @return {Promise<{Object}>}
+	     */
+	    retrieveLdapConnectorAllConfigTemplates(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrieveLdapConnectorAllConfigs
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} companyId Allows to filter connectors config list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+	     * @description
+	     *      This API allows to retrieve the configurations list for the connector. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	string Config unique identifier. <br>
+	     *         type 	string Config type  <br>
+	     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	string login for the ldap server. <br>
+	     *                 password 	string password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+	     *                 url 	string url of the ldap server. <br>
+	     *                 connectorStatus 	string status of the connector (set by the connector itself). <br>
+	     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. <br>
+	     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users <br>
+	     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date <br>
+	     *                 search_rule 	string filters to use when requesting the ldap server. <br>
+	     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). <br>
+	     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). <br>
+	     *          } <br>
+	     * @return {Promise<{Object}>}
+	     */
+	    retrieveLdapConnectorAllConfigs(companyId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method retrieveLDAPConnectorConfigByLdapConfigId
+	     * @since 2.15.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - LDAP APIs to use
+	     * @param {string} ldapConfigId Ldap connector unique identifier
+	     * @description
+	     *      This API allows to retrieve the configuration for the connector with the ldapConfigId. <br>
+	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
+	     *      Users with superadmin, support role can retrieve the connectors configuration from any company. <br>
+	     *      Users with bp_admin or bp_finance role can only retrieve the connectors configurationin companies being End Customers of their BP company (i.e. all the companies having bpId equal to their companyId). <br>
+	     *      Users with admin role can only retrieve the connectors configuration in companies they can manage. That is to say: <br>
+	     *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
+	     *      a company_admin can only retrieve the connectors configuration in his company. <br>
+	     *      return { <br>
+	     *         id 	string Config unique identifier. <br>
+	     *         type 	string Config type  <br>
+	     *         companyId 	string Allows to specify for which company the connectors configuration is done.. <br>
+	     *         settings 	Object config settings <br>
+	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
+	     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
+	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
+	     *                 login 	string login for the ldap server. <br>
+	     *                 password 	string password for the ldap server. <br>
+	     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. <br>
+	     *                 url 	string url of the ldap server. <br>
+	     *                 connectorStatus 	string status of the connector (set by the connector itself). <br>
+	     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. <br>
+	     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users <br>
+	     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date <br>
+	     *                 search_rule 	string filters to use when requesting the ldap server. <br>
+	     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). <br>
+	     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). <br>
+	     *          } <br>
+	     * @return {Promise<{Object}>}
+	     */
+	    retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method updateConfigurationForLdapConnector
@@ -13636,15 +14743,24 @@ declare module 'lib/services/AdminService' {
 	     * @async
 	     * @category AD/LDAP - LDAP APIs to use
 	     * @param {string} ldapConfigId ldap connector unique identifier
-	     * @param {Object} settings config settings
-	     * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
-	     * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
-	     * @param {Object} settings.company specific settings for the company. Each key represent a setting.
-	     * @param {string} settings.company.login login for the ldap server.
-	     * @param {string} settings.company.password password for the ldap server.
-	     * @param {number} settings.company.synchronizationTimeInterval time interval between synchronization in hours.
-	     * @param {string} settings.company.url url of the ldap server.
-	     * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
+	     * @param {boolean}   [strict=false]      Allows to specify if all the previous fields must be erased or just update/push new fields.
+	     * @param {string}    name name of this configuration
+	     * @param {Object}    settings      config settings
+	     * @param {Object}    settings.massproFromLdap      list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
+	     * @param {string}    settings.massproFromLdap.headerName      headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
+	     * @param {Object}    settings.company      specific settings for the company. Each key represent a setting.
+	     * @param {string}    settings.company.login      login for the ldap server.
+	     * @param {string}    settings.company.password      password for the ldap server.
+	     * @param {Number}     settings.company.synchronizationTimeInterval      time interval between synchronization in hours.
+	     * @param {string}    settings.company.url      url of the ldap server.
+	     * @param {string}    settings.company.baseDN      base DN for the ldap server.
+	     * @param {boolean}     settings.company.activeFlag      defines if the synchronization is active, or not.
+	     * @param {boolean}      settings.company.enrollmentEmailEnable   defines if an enrollment email is sent to new users
+	     * @param {boolean}      settings.company.synchronisationDiffMode     defines if  synching only users changed since last sync date
+	     * @param {string}    settings.company.nextSynchronization      date (ISO 8601 format) which defines when the next synchronization will be performed.
+	     * @param {string}    settings.company.search_rule      filters to use when requesting the ldap server.
+	     * @param {string}    settings.company.lastSynchronization      date (ISO 8601 format) of the last performed synchronization, usually set by the AD connector .
+	     * @param {string}    settings.company.softwareVersion     Software Version of the AD connector, provisioned by the AD connector
 	     * @description
 	     *      This API allows update configuration for the connector. <br>
 	     *      A template is available : use retrieveLdapConnectorConfigTemplate API. <br>
@@ -13653,22 +14769,38 @@ declare module 'lib/services/AdminService' {
 	     *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: <br>
 	     *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) <br>
 	     *      a company_admin can only update the connectors configuration in his company. <br>
-	     *      return { <br>
-	     *         id 	String Config unique identifier. <br>
-	     *         type 	String Config type  <br>
-	     *         companyId 	String Allows to specify for which company the connectors configuration is done.. <br>
-	     *         settings 	Object config settings <br>
-	     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. <br>
-	     *                 headerName 	String headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. <br>
-	     *             company 	Object specific settings for the company. Each key represent a setting. <br>
-	     *                 login 	String login for the ldap server. <br>
-	     *                 password 	String password for the ldap server. <br>
-	     *                 synchronizationTimeInterval 	String time interval between synchronization in hours. <br>
-	     *                 url 	String url of the ldap server. <br>
-	     *          } <br>
-	     * @return {Promise<{Object}>}
+	     *
+	     *      a 'rainbow_onconnectorconfig' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+	     *
+	     * @return {Promise<{Object}>} -
+	     * <br>
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object | Config Object. |
+	     * | id  | string | Config unique identifier. |
+	     * | type | string | Config type |
+	     * | companyId | string | Allows to specify for which company the connectors configuration is done.. |
+	     * | settings | Object | config settings |
+	     * | massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
+	     * | headerName | string | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+	     * | company | Object | specific settings for the company. Each key represent a setting. |
+	     * | login | string | login for the ldap server. |
+	     * | password | string | password for the ldap server. |
+	     * | synchronizationTimeInterval | Number | time interval between synchronization in hours. |
+	     * | url | string | url of the ldap server. |
+	     * | baseDN | string | base DN for the ldap server. |
+	     * | activeFlag | boolean | defines if the synchronization is active, or not. |
+	     * | nextSynchronization | string | date (ISO 8601 format) which defines when the next synchronization will be performed. |
+	     * | enrollmentEmailEnable | boolean | defines if an enrollment email is sent to new users |
+	     * | synchronisationDiffMode | boolean | defines if synching only users changed since last sync date |
+	     * | search_rule | string | filters to use when requesting the ldap server. |
+	     * | lastSynchronization | string | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
+	     * | softwareVersion | string | software Version of the ldap connector (filled by the ldap connector). |
+	     *
 	     */
-	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict?: boolean): Promise<unknown>;
+	    updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method getCloudPbxById
@@ -14518,27 +15650,27 @@ declare module 'lib/services/AdminService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | data | Object\[\] | Data objects |
-	     * | id  | String | Directory entry identifier |
-	     * | companyId optionnel | String | Id of the company |
-	     * | userId optionnel | String | Id of the user |
-	     * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
-	     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
-	     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
-	     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
-	     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
-	     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
-	     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
-	     * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
-	     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
-	     * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
-	     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-	     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-	     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-	     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
-	     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
-	     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
-	     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
-	     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+	     * | id  | string | Directory entry identifier |
+	     * | companyId optionnel | string | Id of the company |
+	     * | userId optionnel | string | Id of the user |
+	     * | type | string | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
+	     * | firstName optionnel | string | Contact First name<br>Ordre de grandeur : `0..255` |
+	     * | lastName optionnel | string | Contact Last name<br>Ordre de grandeur : `0..255` |
+	     * | companyName optionnel | string | Company Name of the contact<br>Ordre de grandeur : `0..255` |
+	     * | department optionnel | string | Contact address: Department<br>Ordre de grandeur : `0..255` |
+	     * | street optionnel | string | Contact address: Street<br>Ordre de grandeur : `0..255` |
+	     * | city optionnel | string | Contact address: City<br>Ordre de grandeur : `0..255` |
+	     * | state optionnel | string | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
+	     * | postalCode optionnel | string | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+	     * | country optionnel | string | Contact address: country (ISO 3166-1 alpha3 format) |
+	     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
+	     * | jobTitle optionnel | string | Contact Job title<br>Ordre de grandeur : `0..255` |
+	     * | eMail optionnel | string | Contact Email address<br>Ordre de grandeur : `0..255` |
+	     * | tags optionnel | string\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
+	     * | custom1 optionnel | string | Custom field 1<br>Ordre de grandeur : `0..255` |
+	     * | custom2 optionnel | string | Custom field 2<br>Ordre de grandeur : `0..255` |
 	     *
 	     *
 	     */
@@ -14869,7 +16001,7 @@ declare module 'lib/services/CallLogService' {
 	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    /*********************************************************/
 	    /**       MAM REQUESTS                                  **/
@@ -15042,6 +16174,18 @@ declare module 'lib/common/Events' {
 	     */
 	    on(event: any, callback: any): EventEmitter;
 	    /**
+	     * @method removeListener
+	     * @public
+	     * @memberof Events
+	     * @instance
+	     * @param {string} eventName The event name to unsubscribe
+	     * @param {function} listener The listener called when the even is fired
+	     * @return {Object} The events instance to be able to remove a subscription from chain.
+	     * @description
+	     *      Unsubscribe to an event
+	     */
+	    removeListener(eventName: string | symbol, listener: (...args: any[]) => void): EventEmitter;
+	    /**
 	     * @method once
 	     * @public
 	     * @memberof Events
@@ -15081,6 +16225,7 @@ declare module 'lib/config/Options' {
 	    _httpOptions: any;
 	    _xmppOptions: any;
 	    _s2sOptions: any;
+	    _restOptions: any;
 	    _proxyoptions: any;
 	    _imOptions: any;
 	    _applicationOptions: any;
@@ -15089,6 +16234,7 @@ declare module 'lib/config/Options' {
 	    _CLIMode: any;
 	    _servicesToStart: any;
 	    private _testOutdatedVersion;
+	    private _testDNSentry;
 	    private _httpoverxmppserver;
 	    private _concurrentRequests;
 	    private _intervalBetweenCleanMemoryCache;
@@ -15097,6 +16243,8 @@ declare module 'lib/config/Options' {
 	    parse(): void;
 	    get testOutdatedVersion(): boolean;
 	    set testOutdatedVersion(value: boolean);
+	    get testDNSentry(): boolean;
+	    set testDNSentry(value: boolean);
 	    get testhttpoverxmppserver(): boolean;
 	    set testhttpoverxmppserver(value: boolean);
 	    get intervalBetweenCleanMemoryCache(): number;
@@ -15105,6 +16253,7 @@ declare module 'lib/config/Options' {
 	    get httpOptions(): any;
 	    get xmppOptions(): any;
 	    get s2sOptions(): any;
+	    get restOptions(): any;
 	    get proxyOptions(): any;
 	    get imOptions(): any;
 	    get applicationOptions(): any;
@@ -15121,6 +16270,7 @@ declare module 'lib/config/Options' {
 	        "timeoutRequestForRequestRate": number;
 	    };
 	    _gettestOutdatedVersion(): any;
+	    _gettestDNSentry(): any;
 	    _gethttpoverxmppserver(): any;
 	    _getintervalBetweenCleanMemoryCache(): any;
 	    _getservicesToStart(): {};
@@ -15137,10 +16287,15 @@ declare module 'lib/config/Options' {
 	        timeBetweenXmppRequests: string;
 	        raiseLowLevelXmppInEvent: boolean;
 	        raiseLowLevelXmppOutReq: boolean;
+	        maxIdleTimer: number;
+	        maxPingAnswerTimer: number;
 	    };
 	    _getS2SOptions(): {
 	        hostCallback: string;
 	        locallistenningport: string;
+	    };
+	    _getRESTOptions(): {
+	        useRestAtStartup: boolean;
 	    };
 	    _getModeOption(): string;
 	    _getRequestsRateOption(): {
@@ -15347,7 +16502,7 @@ declare module 'lib/services/AlertsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<void>;
 	    stop(): Promise<void>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    private attachHandlers;
 	    reconnect(): Promise<void>;
 	    /**
@@ -16015,7 +17170,7 @@ declare module 'lib/services/WebinarsService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    LIST_EVENT_TYPE: {
 	        ADD: {
@@ -16231,7 +17386,7 @@ declare module 'lib/services/RBVoiceService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    /**
 	     * @method retrieveAllAvailableCallLineIdentifications
@@ -17605,101 +18760,115 @@ declare module 'lib/services/HTTPoverXMPPService' {
 	    });
 	    start(_options: any, _core: Core): Promise<unknown>;
 	    stop(): Promise<unknown>;
-	    init(): Promise<void>;
+	    init(useRestAtStartup: boolean): Promise<void>;
 	    attachHandlers(): void;
 	    /**
 	     * @public
-	     * @method getHTTPoverXMPP
+	     * @method get
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a get http request to an XMPP server supporting Xep0332. <br>
+	     *    This API allows to send a GET http request to an XMPP server supporting Xep0332. <br>
 	     * @param {string} urlToGet The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    getHTTPoverXMPP(urlToGet: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    get(urlToGet: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method traceHTTPoverXMPP
+	     * @method discoverHTTPoverXMPP
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a trace http request to an XMPP server supporting Xep0332. TRACE is only used for debugging <br>
+	     *    This API allows to send a discover presence to a bare jid to find the resources availables. <br>
+	     * @param {Object} headers The Http Headers used to web request.
+	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+	     * @return {Promise<any>} An object of the result
+	     */
+	    discoverHTTPoverXMPP(headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method trace
+	     * @since 2.10.0
+	     * @instance
+	     * @async
+	     * @category Rainbow HTTPoverXMPP
+	     * @description
+	     *    This API allows to send a TRACE http request to an XMPP server supporting Xep0332. TRACE is only used for debugging <br>
 	     * @param {string} urlToTrace The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    traceHTTPoverXMPP(urlToTrace: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    trace(urlToTrace: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method headHTTPoverXMPP
+	     * @method head
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a head http request to an XMPP server supporting Xep0332. <br>
+	     *    This API allows to send a HEAD http request to an XMPP server supporting Xep0332. <br>
 	     * @param {string} urlToHead The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    headHTTPoverXMPP(urlToHead: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    head(urlToHead: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method postHTTPoverXMPP
+	     * @method post
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a post http request to an XMPP server supporting Xep0332. <br>
+	     *    This API allows to send a POST http request to an XMPP server supporting Xep0332. <br>
 	     * @param {string} urlToPost The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} data The body data of the http request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    postHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    post(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method putHTTPoverXMPP
+	     * @method put
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a put http request to an XMPP server supporting Xep0332. <br>
+	     *    This API allows to send a PUT http request to an XMPP server supporting Xep0332. <br>
 	     * @param {string} urlToPost The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} data The body data of the http request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    putHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    put(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @public
-	     * @method deleteHTTPoverXMPP
+	     * @method delete
 	     * @since 2.10.0
 	     * @instance
 	     * @async
 	     * @category Rainbow HTTPoverXMPP
 	     * @description
-	     *    This API allows to send a delete http request to an XMPP server supporting Xep0332. <br>
+	     *    This API allows to send a DELETE http request to an XMPP server supporting Xep0332. <br>
 	     * @param {string} urlToPost The url to request
 	     * @param {Object} headers The Http Headers used to web request.
 	     * @param {string} data The body data of the http request.
 	     * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
 	     * @return {Promise<any>} An object of the result
 	     */
-	    deleteHTTPoverXMPP(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
+	    delete(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method discover
@@ -17747,6 +18916,7 @@ declare module 'lib/Core' {
 	import { RBVoiceService } from 'lib/services/RBVoiceService';
 	import { HTTPoverXMPP } from 'lib/services/HTTPoverXMPPService'; class Core {
 	    _signin: any;
+	    _signinWSOnly: any;
 	    _retrieveInformation: any;
 	    setRenewedToken: any;
 	    onTokenRenewed: any;
@@ -17789,6 +18959,7 @@ declare module 'lib/Core' {
 	    startCleanningInterval(): void;
 	    start(token: any): Promise<unknown>;
 	    signin(forceStopXMPP: any, token: any): Promise<unknown>;
+	    signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    getConnectionStatus(): Promise<{
 	        restStatus: boolean;
@@ -17866,8 +19037,14 @@ declare module 'lib/NodeSDK' {
 	     * @param {Object} options SDK Startup options of constructor.
 	     * @param {string} options.rainbow.host "official", Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO.
 	     * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
+	     * @param {string} options.xmpp.timeBetweenXmppRequests the time between two xmpp request (avoid burst)
+	     * @param {string} options.xmpp.raiseLowLevelXmppInEvent enable the raise of event "rainbow_onxmmpeventreceived" when a data is received in xmpp pipe.
+	     * @param {string} options.xmpp.raiseLowLevelXmppOutReq enable the raise of event "rainbow_onxmmprequestsent" when a data is sent in xmpp pipe.
+	     * @param {string} options.xmpp.maxIdleTimer to define the delay without xmpp exchange after which a ping is sent to server.
+	     * @param {string} options.xmpp.maxPingAnswerTimer to define the time to wait the xmpp ping response.
 	     * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
 	     * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
+	     * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
 	     * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
 	     * @param {string} options.credentials.password "XXXXX", The password.
 	     * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -17888,6 +19065,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
 	     * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
 	     * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+	     * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
 	     * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
 	     * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
 	     * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
@@ -17958,7 +19136,17 @@ declare module 'lib/NodeSDK' {
 	     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
 	     * @memberof NodeSDK
 	     */
-	    start(token: any): Promise<unknown>;
+	    start(token?: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method start
+	     * @instance
+	     * @description
+	     *    Start the SDK with only XMPP link<br>
+	     *    Note :<br>
+	     * @memberof NodeSDK
+	     */
+	    startWSOnly(token: any, userInfos: any): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method startCLI
@@ -18220,10 +19408,10 @@ declare module 'lib/NodeSDK' {
 	    get webinars(): WebinarsService;
 	    /**
 	     * @public
-	     * @property {WebinarsService} alerts
+	     * @property {HTTPoverXMPP} httpoverxmpp
 	     * @description
-	     *    Get access to the webinar module
-	     * @return {WebinarsService}
+	     *    Get access to the httpoverxmpp module
+	     * @return {HTTPoverXMPP}
 	     */
 	    get httpoverxmpp(): HTTPoverXMPP;
 	    /**

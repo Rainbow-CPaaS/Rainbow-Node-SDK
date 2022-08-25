@@ -3914,9 +3914,9 @@ class AdminService extends GenericService {
      *
      *      return an {Object}  of result data. <br>
      * @return {Promise<any>}
-     * @param companyId companyId from which to retrieve entries, default to admin's companyId
-     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Valeurs autorisées : csv, json, all
-     * @param ldap_id Allows to filter entries containing a ldap_id. </br>
+     * @param {string} companyId companyId from which to retrieve entries, default to admin's companyId
+     * @param {string} format Allows to retrieve more or less phone numbers details in response. Default value : json. Valeurs autorisées : csv, json, all
+     * @param {boolean} ldap_id Allows to filter entries containing a ldap_id. </br>
      * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
      * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>
      * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }} </br>
