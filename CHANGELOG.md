@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.16.0] - 2022-09-XX
+-   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 
+-   Remove `answerDiscoverHTTPoverXMPP` low layer method, and put the code in treatment of the request discover event.   
+
 ## [2.15.0] - 2022-08-25
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
 -   Update `ChannelsService::fetchChannelItems` to return the timestamp property in the Items.

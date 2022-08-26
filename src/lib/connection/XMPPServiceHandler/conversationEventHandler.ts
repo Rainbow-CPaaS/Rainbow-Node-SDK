@@ -25,6 +25,7 @@ import {List} from "ts-generic-collections-linq";
 import {MEDIATYPE} from "../RESTService";
 import {PresenceService} from "../../services/PresenceService";
 import {url} from "inspector";
+import {NameSpacesLabels, XMPPService} from "../XMPPService";
 
 export {};
 
@@ -44,13 +45,14 @@ const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
 class ConversationEventHandler extends GenericHandler {
-    public MESSAGE_CHAT: any;
-    public MESSAGE_GROUPCHAT: any;
-    public MESSAGE_WEBRTC: any;
-    public MESSAGE_MANAGEMENT: any;
-    public MESSAGE_ERROR: any;
-    public MESSAGE_HEADLINE: any;
-    public MESSAGE_CLOSE: any;
+    public MESSAGE: string;
+    public MESSAGE_CHAT: string;
+    public MESSAGE_GROUPCHAT: string;
+    public MESSAGE_WEBRTC: string;
+    public MESSAGE_MANAGEMENT: string;
+    public MESSAGE_ERROR: string;
+    public MESSAGE_HEADLINE: string;
+    public MESSAGE_CLOSE: string;
     private _conversationService: ConversationsService;
     public findAttrs: any;
     public findChildren: any;
@@ -68,9 +70,10 @@ class ConversationEventHandler extends GenericHandler {
         return ConversationEventHandler.getClassName();
     }
 
-    constructor(xmppService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
+    constructor(xmppService : XMPPService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
         super(xmppService);
 
+        this.MESSAGE = "jabber:client.message";
         this.MESSAGE_CHAT = "jabber:client.message.chat";
         this.MESSAGE_GROUPCHAT = "jabber:client.message.groupchat";
         this.MESSAGE_WEBRTC = "jabber:client.message.webrtc";
@@ -660,6 +663,95 @@ class ConversationEventHandler extends GenericHandler {
         // */
     }
 
+    async onMessageReceived(msg, stanza: Element) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+            let content = "";
+            let lang = "";
+            let alternativeContent: Array<{ "message": string, "type": string }> = [];
+            let subject = "";
+            let eventName = undefined;
+            let roomid = "";
+            let pollid = "";
+            let questions = undefined;
+            let eventJid = "";
+            let hasATextMessage = false;
+            let oob = null;
+            let geoloc = null;
+            let messageType = stanza.attrs.type;
+            let timestamp = new Date();
+            let replaceMessageId = null;
+            let attention = false;
+            let confOwnerId = null;
+            let confOwnerDisplayName = null;
+            let confOwnerJid = null;
+            let conference = false;
+            let conferencebubbleId = undefined;
+            let conferencebubbleJid = undefined;
+            let answeredMsgId = undefined;
+            let answeredMsgStamp = undefined;
+            let answeredMsgDate = undefined;
+            let urgency = "std";
+            let urgencyAck: boolean = false;
+            let urgencyHandler: any = undefined;
+            let voiceMessage = undefined;
+            let isForwarded: boolean = false;
+            let forwardedMsg: any = undefined;
+            let historyIndex: string;
+            let attachedMsgId: string;
+            let attachIndex: number;
+            let attachNumber: number;
+
+            let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
+            let resource = xu.getResourceFromFullJID(stanza.attrs.from);
+            let toJid = stanza.attrs.to;
+            let id = stanza.attrs.id;
+            let children = stanza.children;
+
+            let mentions = [];
+
+            voiceMessage = stanza.find("voicemessage").text();
+            historyIndex = id;
+            for (const node of children) {
+                switch (node.getName()) {
+                    case "discover": {
+                        that.logger.log("internal", LOG_ID + "(onMessageReceived) discover to : ", fromJid);
+
+                        let msg = xml("message", {
+                            "from": that.fullJid,
+                            //"from": to,
+                            "to": fromJid ? fromJid : that.jid_im,
+                            "id": stanza.attrs.id
+                            //"xmlns" : "jabber:iq:http"
+                        });
+
+                        let stanzaReq = xml("resource", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"}, that.resourceId);
+                        msg.append(stanzaReq, undefined);
+
+                        //that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", discover - msg : ", msg);
+
+                        that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", discover - send result : ", stanzaReq.root().toString());
+                        await that.xmppClient.send(msg);
+
+                        break;
+                    }
+                    case "nac": 
+                        that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", ignore nac tag.");
+                        break;
+                    default:
+                        that.logger.log("error", LOG_ID + "(onMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
+                        that.logger.log("internalerror", LOG_ID + "(onMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                        break;
+                }
+            }
+
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
     async onChatMessageReceived(msg, stanza: Element) {
         let that = this;
         try {
@@ -832,7 +924,7 @@ class ConversationEventHandler extends GenericHandler {
 
                                                 that._onMessageReceived(conversationId, dataMessage);
 
-                                            }                                           
+                                            }
                                         });
                                     }
                                 }
@@ -1054,7 +1146,7 @@ class ConversationEventHandler extends GenericHandler {
                         let xmlns = node.attrs.xmlns;
                         switch (xmlns) {
                             case "jabber:x:bubble:conference":
-                            case "jabber:x:conference:2": 
+                            case "jabber:x:conference:2":
                             case "jabber:x:conference": {
                                 conference = true;
                                 conferencebubbleId = node.attrs.thread;
@@ -1065,8 +1157,8 @@ class ConversationEventHandler extends GenericHandler {
                             case "jabber:x:oob" : {
                                 attachIndex = node.attrs.index;
                                 attachNumber = node.attrs.count;
-                                let  urlFile = node.getChild("url").getText();
-                                let fileId = urlFile ? urlFile.split(/[/ ]+/).pop() : "";
+                                let urlFile = node.getChild("url").getText();
+                                let fileId = urlFile ? urlFile.split(/[/ ]+/).pop():"";
                                 oob = {
                                     url: urlFile,
                                     mime: node.getChild("mime").getText(),
@@ -1240,19 +1332,19 @@ class ConversationEventHandler extends GenericHandler {
 
 
                             let conference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(conferenceId);
-                            if (conference === null) {
+                            if (conference===null) {
                                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. conferenceId : ", conferenceId);
                                 conference = new ConferenceSession(conferenceId);
                             } else {
                                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. conference : ", conference);
                             }
-                            
+
                             // We consider always conference as active expect if we receive the opposite information
                             conference.active = true;
 
                             let newConferenceId = undefined;
                             if (conferenceInfo.hasOwnProperty("new-conference-id")) {
-                                newConferenceId = conferenceInfo["new-conference-id"]; 
+                                newConferenceId = conferenceInfo["new-conference-id"];
                                 /* let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
                                 if (newConference==null) {
                                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
@@ -1262,7 +1354,7 @@ class ConversationEventHandler extends GenericHandler {
                                 } // */
 
                                 try {
-                                    if (newConferenceId !== conferenceId) {
+                                    if (newConferenceId!==conferenceId) {
                                         let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
                                         that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints:"");
                                         let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
@@ -1292,7 +1384,7 @@ class ConversationEventHandler extends GenericHandler {
                                     that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
                                 }
                             }
-                            
+
                             if (conferenceInfo.hasOwnProperty("conference-state")) {
                                 // conference-state
                                 let conferenceState = conferenceInfo["conference-state"];
@@ -1316,16 +1408,16 @@ class ConversationEventHandler extends GenericHandler {
                                     if (conferenceState.hasOwnProperty("talker-active"))
                                         conference.talkerActive = (conferenceState["talker-active"]=="true")
                                                 || (conferenceState["talker-active"]._=="true");
-                                    
-                                      if (conferenceState.hasOwnProperty("reason"))
-                                        conference.reason = conferenceState["reason"];
-/*
-                                    if (conferenceState.hasOwnProperty("participant-count"))
-                                        conference.participantCount =  parseInt((conferenceState["participant-count"]) , 10);
 
-                                    if (conferenceState.hasOwnProperty("publisher-count"))
-                                        conference.publisherCount =  parseInt((conferenceState["publisher-count"]) , 10);
-*/
+                                    if (conferenceState.hasOwnProperty("reason"))
+                                        conference.reason = conferenceState["reason"];
+                                    /*
+                                                                        if (conferenceState.hasOwnProperty("participant-count"))
+                                                                            conference.participantCount =  parseInt((conferenceState["participant-count"]) , 10);
+                                    
+                                                                        if (conferenceState.hasOwnProperty("publisher-count"))
+                                                                            conference.publisherCount =  parseInt((conferenceState["publisher-count"]) , 10);
+                                    */
                                 }
                             }
 
@@ -1356,19 +1448,20 @@ class ConversationEventHandler extends GenericHandler {
                             // removed-participants
                             if (conferenceInfo.hasOwnProperty("removed-participants")) {
                                 let removedParticipants = conferenceInfo["removed-participants"];
-                                let removedIdList : List <string> = that.parseIdFromConferenceUpdatedEvent(removedParticipants, "participant");
-                                if (conference.participants != null)
-                                {
-                                    let list : List<Participant> = conference.participants;
-                                    let myParticipant = conference.participants.where((item: Participant)=> {return item.jid_im === that.jid_im});
+                                let removedIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(removedParticipants, "participant");
+                                if (conference.participants!=null) {
+                                    let list: List<Participant> = conference.participants;
+                                    let myParticipant = conference.participants.where((item: Participant) => {
+                                        return item.jid_im===that.jid_im
+                                    });
                                     for (let id of removedIdList.asEnumerable().toArray()) {
-                                        if (id === (myParticipant.elementAt(0)).id) {
+                                        if (id===(myParticipant.elementAt(0)).id) {
                                             amIRemoved = true;
                                         }
 
-                                        list.remove((item : Participant) => {
-                                            return id === item.id;
-                                        }) ;
+                                        list.remove((item: Participant) => {
+                                            return id===item.id;
+                                        });
                                         /*for(let participant of list.asEnumerable().toArray())
                                         {
                                             if (participant.id == id)
@@ -1451,6 +1544,27 @@ class ConversationEventHandler extends GenericHandler {
 
                     }
                         break;
+                    case "discover": {
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) discover to : ", fromJid);
+
+                        let msg = xml("message", {
+                            "from": that.fullJid,
+                            //"from": to,
+                            "to": fromJid ? fromJid : that.jid_im,
+                            "id": stanza.attrs.id
+                            //"xmlns" : "jabber:iq:http"
+                        });
+
+                        let stanzaReq = xml("resource", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"}, that.resourceId);
+                        msg.append(stanzaReq, undefined);
+
+                        //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", discover - msg : ", msg);
+
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", discover - send result : ", stanzaReq.root().toString());
+                        await that.xmppClient.send(msg);
+
+                        break;
+                    }
                     default:
                         that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
                         that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);

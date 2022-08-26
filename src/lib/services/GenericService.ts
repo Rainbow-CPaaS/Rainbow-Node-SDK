@@ -23,6 +23,7 @@ class GenericService {
     protected _rest: RESTService;
     protected _started: boolean;
     protected _initialized: boolean;
+    
     protected _startConfig: {
         start_up:boolean,
         optional:boolean

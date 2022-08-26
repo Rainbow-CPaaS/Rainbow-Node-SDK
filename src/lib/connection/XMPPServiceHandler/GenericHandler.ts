@@ -45,6 +45,9 @@ class GenericHandler {
     get applicationId() {
         return this.xmppService.applicationId;
     }
+    get resourceId() {
+        return this.xmppService.resourceId;
+    }
 
     get xmppClient() {
         return this.xmppService.xmppClient;

@@ -190,6 +190,7 @@ class ConversationsService extends GenericService {
         let that = this;
         that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE, that._conversationEventHandler.onMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_GROUPCHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_WEBRTC, that._conversationEventHandler.onWebRTCMessageReceived.bind(that._conversationEventHandler)),

@@ -2375,6 +2375,14 @@ class XMPPService extends GenericService {
   <discover 
     xmlns="urn:xmpp:http" version="1.1"/>
   </presence>   
+   to be replaced by :
+   <message
+xmlns="jabber:client" xml:lang="en" to="vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud" from="pcloud_enduser_1@david-all-in-one-rd-dev-1.opentouch.cloud/1204817012550600026282835" id="7b5a3fb7-03c8-4526-8caf-a682bd4ab44e_0">
+<discover
+xmlns="urn:xmpp.http" version="1.1"/>
+<nac/>
+</message>
+
          */
 
         let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
@@ -2382,7 +2390,8 @@ class XMPPService extends GenericService {
 
         that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) to : ", to);
 
-        let msg = xml("presence", {
+        let msg = xml("message", {
+            "xml:lang":"en",
             "from": that.fullJid,
             //"from": to,
             "to": to ? to : that.jid_im,
@@ -2393,16 +2402,17 @@ class XMPPService extends GenericService {
         let stanzaReq = xml("discover", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"});
         msg.append(stanzaReq, undefined);
 
+        let stanzaNacReq = xml("nac", {});
+        msg.append(stanzaNacReq, undefined);
+
         that.logger.log("internal", LOG_ID + "(discoverHTTPoverXMPP) msg : ", msg);
 
         //return Promise.resolve(message);
         return await that.xmppClient.sendIq(msg);
     }
     
-    async answerDiscoverHTTPoverXMPP( to) {
+/*    async answerDiscoverHTTPoverXMPP( to) {
         let that = this;
-        /*
-         */
 
         let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
         let uniqId=  that.xmppUtils.getUniqueId(undefined);
@@ -2424,7 +2434,7 @@ class XMPPService extends GenericService {
 
         //return Promise.resolve(message);
         return await that.xmppClient.sendIq(msg);
-    }
+    } // */
     
     async getHTTPoverXMPP(urlToGet, to, headers = {}) {
         let that = this;

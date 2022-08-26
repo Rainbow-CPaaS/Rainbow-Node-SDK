@@ -212,12 +212,12 @@ class PresenceEventHandler extends GenericHandler {
                 let status = ""
                 let discover = false;
                 let until = "";
-                if (stanza.attrs.type === "unavailable") {
+                if (stanza.attrs.type==="unavailable") {
                     show = PresenceShow.Offline; //"unavailable";
                 } else {
                     let children = stanza.children;
                     children.forEach(function (node) {
-                        if (node && typeof node !== "string") {
+                        if (node && typeof node!=="string") {
                             switch (node.getName()) {
                                 case "priority":
                                     priority = node.getText() || 5;
@@ -238,10 +238,10 @@ class PresenceEventHandler extends GenericHandler {
                                     discover = true;
                                     break;
                                 case "actor":
-                                    if (node.attrs && (node.attrs.xmlns === "jabber:iq:configuration")) {
+                                    if (node.attrs && (node.attrs.xmlns==="jabber:iq:configuration")) {
                                         // Contact updated
                                         if (node.parent && node.parent.getChild("x") &&
-                                            (node.parent.getChild("x").getChild("data") || node.parent.getChild("x").getChild("avatar"))) {
+                                                (node.parent.getChild("x").getChild("data") || node.parent.getChild("x").getChild("avatar"))) {
                                             // Either avatar or user vcard changed
                                             that.eventEmitter.emit("evt_internal_onrostercontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                                         }
@@ -253,34 +253,31 @@ class PresenceEventHandler extends GenericHandler {
                         }
                     });
                 }
-                
-                if (discover) {
-                    that._xmpp.answerDiscoverHTTPoverXMPP(from);
-                } else {
-                    let typeResource = xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
-                            "phone":
-                            xmppUtils.isFromMobile(from) ?
-                                    "mobile":
-                                    xmppUtils.isFromNode(from) ?
-                                            "node":
-                                            "desktopOrWeb"
-                    let evtParam = {
-                        fulljid: from,
-                        jid: xmppUtils.getBareJIDFromFullJID(from),
-                        resource: xmppUtils.getResourceFromFullJID(from),
-                        value: {
-                            priority,
-                            //show: show || "",
-                            delay,
-                            //status: status || "",
-                            until, // The validity date of the calendar presence. 
-                            show,
-                            status,
-                            "type": typeResource
-                        }
-                    };
-                    that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
-                }
+
+                let typeResource = xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
+                        "phone":
+                        xmppUtils.isFromMobile(from) ?
+                                "mobile":
+                                xmppUtils.isFromNode(from) ?
+                                        "node":
+                                        "desktopOrWeb"
+                let evtParam = {
+                    fulljid: from,
+                    jid: xmppUtils.getBareJIDFromFullJID(from),
+                    resource: xmppUtils.getResourceFromFullJID(from),
+                    value: {
+                        priority,
+                        //show: show || "",
+                        delay,
+                        //status: status || "",
+                        until, // The validity date of the calendar presence. 
+                        show,
+                        status,
+                        "type": typeResource
+                    }
+                };
+                that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
+
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
