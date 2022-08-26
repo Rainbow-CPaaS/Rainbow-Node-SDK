@@ -4495,7 +4495,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
     }
     
-    async function testdiscoverHTTPoverXMPP(jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+    async function testdiscoverHTTPoverXMPP(jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
@@ -4505,11 +4505,14 @@ let urlS2S;
             "user-Pin": "ignoredWithPhone",
             "user-Phone": "31000"
         };
-        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+        if (vincent01) {
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            jidHTTPoverXMPPBot = contact.jid;
+        }
         
         //let headers = {};
         //let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidServer);
-        let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, contact.jid);
+        let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
 /*
         if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
