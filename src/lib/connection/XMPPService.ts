@@ -881,6 +881,10 @@ class XMPPService extends GenericService {
                     applicationStanza.append(xml("companyid", {}, that.company.id));
                 }
 
+                applicationStanza.append(xml("xrbclient", {}, "sdk_node"));
+
+                applicationStanza.append(xml("xrbversion", {}, packageVersion.version));
+
                 stanza.append(applicationStanza);
             }
 

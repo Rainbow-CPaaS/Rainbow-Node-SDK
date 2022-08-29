@@ -8,7 +8,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.16.0] - 2022-09-XX
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 
--   Remove `answerDiscoverHTTPoverXMPP` low layer method, and put the code in treatment of the request discover event.   
+-   Remove `answerDiscoverHTTPoverXMPP` low layer method, and put the code in treatment of the request discover event.
+-   Add `xrbclient` `xrbversion` in `application` node of `presence` stanza at login.   
 
 ## [2.15.0] - 2022-08-25
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
