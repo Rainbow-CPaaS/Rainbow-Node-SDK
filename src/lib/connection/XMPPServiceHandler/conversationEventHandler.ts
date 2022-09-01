@@ -663,6 +663,7 @@ class ConversationEventHandler extends GenericHandler {
         // */
     }
 
+    /*
     async onMessageReceived(msg, stanza: Element) {
         let that = this;
         try {
@@ -750,7 +751,7 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onMessageReceived) CATCH Error !!! : ", err);
         }
-    };
+    }; // */
 
     async onChatMessageReceived(msg, stanza: Element) {
         let that = this;
@@ -771,6 +772,8 @@ class ConversationEventHandler extends GenericHandler {
             let messageType = stanza.attrs.type;
             let timestamp = new Date();
             let replaceMessageId = null;
+            let deletedMsg = false;
+            let modifiedMsg = false;
             let attention = false;
             let confOwnerId = null;
             let confOwnerDisplayName = null;
@@ -1211,6 +1214,14 @@ class ConversationEventHandler extends GenericHandler {
                     case "replace": {
                         let replacedId = node.attrs.id;
                         replaceMessageId = replacedId;
+                    }
+                        break;
+                    case "delete": {
+                        deletedMsg = true;
+                    }
+                        break;
+                    case "modify": {
+                        modifiedMsg = true;
                     }
                         break;
                     case "deleted": {
@@ -1692,7 +1703,9 @@ class ConversationEventHandler extends GenericHandler {
                     historyIndex,
                     attachedMsgId,
                     attachIndex,
-                    attachNumber
+                    attachNumber,
+                    deleted : false,
+                    modified : false
                 };
 
                 if (eventName) {
@@ -1753,7 +1766,7 @@ class ConversationEventHandler extends GenericHandler {
                     that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", This is a replace msg, so set data.originalMessageReplaced.replacedByMessage : ", replaceMessageId);
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
-                    if (!hasATextMessage && !isForwarded) {
+                    if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg) {
                         that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
@@ -1761,6 +1774,14 @@ class ConversationEventHandler extends GenericHandler {
                     }
                 }
 
+                if (deletedMsg) {
+                    data.deleted = true;
+                }
+                
+                if (modifiedMsg) {
+                    data.modified = true;
+                }
+                
                 data.isMarkdown = false;
                 if (data.alternativeContent && data.alternativeContent.length > 0) {
                     data.isMarkdown = (data.alternativeContent[0]).type==="text/markdown";
@@ -1817,7 +1838,9 @@ class ConversationEventHandler extends GenericHandler {
                         data.confOwnerDisplayName,
                         data.confOwnerJid,
                         data.isForwarded,
-                        data.forwardedMsg
+                        data.forwardedMsg,
+                        data.deleted,
+                        data.modified
                 );
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage Message : ", dataMessage);
                 dataMessage.updateMessage(data);
@@ -2561,7 +2584,7 @@ class ConversationEventHandler extends GenericHandler {
                 let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId) : cs.getOrCreateOneToOneConversation(conversationId);
                 createPromise.then((conv) => {
                     data.conversation = conv;
-                    data.conversation.addMessage(data);
+                    data.conversation.addOrUpdateMessage(data);
                     /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                         data.conversation.messages.push(data);
                     } // */
@@ -2582,7 +2605,7 @@ class ConversationEventHandler extends GenericHandler {
                 // */
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                 data.conversation = conversation;
-                data.conversation.addMessage(data);
+                data.conversation.addOrUpdateMessage(data);
                 /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                     data.conversation.messages.push(data);
                 } // */

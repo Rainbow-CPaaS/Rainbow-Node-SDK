@@ -38,7 +38,8 @@ let conf =  {
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
-            "maxPingAnswerTimer": 10000
+            "maxPingAnswerTimer": 10000,
+            "xmppRessourceName": undefined
         },
         s2s: {
             hostCallback: "nrock",
@@ -62,7 +63,8 @@ let conf =  {
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
-            "maxPingAnswerTimer": 10000
+            "maxPingAnswerTimer": 10000,
+            "xmppRessourceName": undefined
         },
         s2s: {
             hostCallback: "nrock",
@@ -86,7 +88,8 @@ let conf =  {
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
-            "maxPingAnswerTimer": 10000
+            "maxPingAnswerTimer": 10000,
+            "xmppRessourceName": undefined
         },
         s2s: {
             hostCallback: "nrock",
@@ -137,7 +140,8 @@ let conf =  {
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
         enableCarbon: true,
-        enablesendurgentpushmessages: false
+        enablesendurgentpushmessages: false,
+        useMessageEditionAndDeletionV2: false
     },
     mode:"xmpp",
     "concurrentRequests": 1000,

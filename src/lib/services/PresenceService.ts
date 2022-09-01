@@ -573,7 +573,7 @@ class PresenceService extends GenericService{
      * @method getCalendarStates
      * @instance
      * @category Presence CALENDAR
-     * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
+     * @param {Array<string>} users The list of the Rainbow user's references - id or logins (Contact::loginEmail) - to retrieve the calendar presence.
      * @description
      *    Allow to get the calendar presence of severals users <br>
      *    return promise with {  

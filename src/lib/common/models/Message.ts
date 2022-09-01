@@ -152,6 +152,8 @@ class Message {
     public isForwarded : boolean;
     public forwardedMsg : any;
     public replacedByMessage: Message;
+    public deleted : boolean;
+    public modified : boolean;
 
 
     constructor(serverAckTimer: any, 
@@ -213,7 +215,9 @@ class Message {
                 confOwnerDisplayName: string, 
                 confOwnerJid: string,
                 isForwarded:boolean,
-                forwardedMsg: any) {
+                forwardedMsg: any,
+                deleted:boolean = false,
+                modified : boolean = false) {
         
         /**
          * @private
@@ -599,6 +603,20 @@ class Message {
          * @readonly
          */
         this.replacedByMessage = null;
+
+        /**
+         * @public
+         * @property {boolean} deleted the message has been deleted.
+         * @readonly
+         */
+        this.deleted = deleted;
+
+        /**
+         * @public
+         * @property {boolean} modified the message has been modified.
+         * @readonly
+         */
+        this.modified = modified;
     }
 
     /**
@@ -606,7 +624,7 @@ class Message {
      * @method
      * @instance
      */
-    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any) {
+    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any, deleted : boolean = false, modified : boolean = false) {
         // convert emojione from unicode to short
         //let message = $filter("emojiUnicodeToShort")(data);
         //const message = data;
@@ -667,7 +685,9 @@ class Message {
             confOwnerDisplayName,
             confOwnerJid,
             isForwarded,
-            forwardedMsg
+            forwardedMsg,
+            deleted,
+            modified
         });
     }
 
@@ -847,7 +867,9 @@ class Message {
                     data.confOwnerDisplayName,
                     data.confOwnerJid,
                     data.isForwarded,
-                    data.forwardedMsg);
+                    data.forwardedMsg,
+                    data.deleted,
+                    data.modified);
             if (data) {
                 let messageproperties = Object.getOwnPropertyNames(message);
                 Object.getOwnPropertyNames(data).forEach(

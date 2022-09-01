@@ -324,16 +324,23 @@ class Conversation {
      * @memberof Conversation
      * @instance
      */
-    addMessage(message) {
+    addOrUpdateMessage(message) {
         let that = this;
-
+        let messageObj = undefined ;
+        
         // Check if this message already exist in message store
-        if (that.messages.find(function(item) { return item.id === message.id; })) {
-            return message;
+        let messageIndice = that.messages.findIndex(function(item, index, tab) {
+            return item.id === message.id
+        });
+        if (messageIndice != -1) {
+            // update the already existing message and return this new value.
+            that.messages[messageIndice] = message;
+            messageObj = that.messages[messageIndice];
+        } else {
+            // Store the message
+            that.messages.push(message);
+            messageObj = message;
         }
-
-        // Store the message
-        that.messages.push(message);
 
         // Update lastModification
         that.lastModification = new Date();
@@ -349,7 +356,7 @@ class Conversation {
             this.bubble.lastActivityDate = this.lastModification;
         }
 
-        return message;
+        return messageObj;
     }
 
     /*************************************************************/

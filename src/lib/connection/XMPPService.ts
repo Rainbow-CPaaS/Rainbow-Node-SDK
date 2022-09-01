@@ -143,6 +143,7 @@ class XMPPService extends GenericService {
     private storeMessages: boolean;
     private copyMessage: boolean;
     private enablesendurgentpushmessages: boolean;
+    private useMessageEditionAndDeletionV2: boolean;
     private rateLimitPerHour: number;
     private messagesDataStore: DataStoreType;
     private raiseLowLevelXmppInEvent: boolean;
@@ -150,6 +151,7 @@ class XMPPService extends GenericService {
     private maxIdleTimer: number;
     private maxPingAnswerTimer: number;
     private company: any;
+    private xmppRessourceName: string;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
@@ -179,6 +181,7 @@ class XMPPService extends GenericService {
         that.storeMessages = _im.storeMessages;
         that.copyMessage = _im.copyMessage;
         that.enablesendurgentpushmessages = _im.enablesendurgentpushmessages;
+        that.useMessageEditionAndDeletionV2 = _im.useMessageEditionAndDeletionV2;
         that.rateLimitPerHour = _im.rateLimitPerHour;
         that.messagesDataStore = _im.messagesDataStore;
         that.useXMPP = true;
@@ -193,6 +196,7 @@ class XMPPService extends GenericService {
         that.raiseLowLevelXmppOutReq = _xmpp.raiseLowLevelXmppOutReq;
         that.maxIdleTimer = ( _xmpp.maxIdleTimer && (_xmpp.maxIdleTimer > 10000) )? _xmpp.maxIdleTimer: MAX_IDLE_TIMER;
         that.maxPingAnswerTimer = ( _xmpp.maxPingAnswerTimer && (_xmpp.maxPingAnswerTimer > 5000) ) ? _xmpp.maxPingAnswerTimer : MAX_PING_ANSWER_TIMER;
+        that.xmppRessourceName = _xmpp.xmppRessourceName;
 
         that._startConfig =  {
             start_up: true,
@@ -247,7 +251,11 @@ class XMPPService extends GenericService {
                 that.userId = account.id;
                 that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
                 //that.resourceId =  "/node_" + that.generatedRandomId ;
-                that.resourceId =  "node_" + that.generatedRandomId ;
+                if (that.xmppRessourceName) {
+                    that.resourceId = "node_" + that.xmppRessourceName;
+                } else {
+                    that.resourceId = "node_" + that.generatedRandomId;
+                }
                 that.jid = account.jid_im;
                 
                 that.company = account.company;
@@ -366,7 +374,7 @@ class XMPPService extends GenericService {
                 that.pingTimer = setTimeout(() => {
                     that.pingTimer = null;
                     that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
-                    that.pingTimer = setTimeout(() => {
+                    that.pingTimer = setTimeout(async () => {
                         /*let err = {
                             "condition": "No data received from server since " + ((that.maxIdleTimer + that.maxPingAnswerTimer * 2) / 1000) + " secondes. The XMPP link is badly broken, so the application needs to destroy and recreate the SDK, with fresh start(...)."
                         };
@@ -376,7 +384,23 @@ class XMPPService extends GenericService {
                         if (that.xmppClient.socket != null) {
                             that.xmppClient.socket.end();
                         }
-                        that.stopIdleTimer();
+                        if (that.reconnect) {
+                            if (that.reconnect.isReconnecting) {
+                                that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) the SDK is that.reconnect.isReconnecting : ", that.reconnect.isReconnecting, " so only stop the idle timer");
+                                that.stopIdleTimer();
+                            } else {
+                                that.logger.log("info", LOG_ID + "(startOrResetIdleTimer) SDK is NOT reconnecting, so try to reconnect...");
+                                await that.reconnect.reconnect().catch((err) => {
+                                    that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                                });                            }
+                        } else {
+                            that.logger.log("info", LOG_ID + "(startOrResetIdleTimer) that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error.");
+                            let err = {
+                                code : -1,
+                                label: "that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error."
+                            }
+                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                        }
 
                         /*
                         // Disconnect the auto-reconnect mode
@@ -1181,13 +1205,33 @@ class XMPPService extends GenericService {
         // Handle One to one conversation message
         if (conversation.type === Conversation.Type.ONE_TO_ONE) {
             let to = conversation.id; //that.contact.jid;
-            xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
-                xml("body", {"xml:lang": lang}, data),
-                xml("replace", {id: origMsgId, "xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
-                xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
-                xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
-                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
-            );
+            if (that.useMessageEditionAndDeletionV2 == false) {
+                xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
+                        xml("body", {"xml:lang": lang}, data),
+                        xml("replace", {id: origMsgId, "xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                        xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                        xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                        xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
+                );
+            } else {
+                if (data === "") {
+                    xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                            xml("body", {"xml:lang": lang}, data),
+                            xml("delete", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
+                    );
+                } else {
+                    xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                            xml("body", {"xml:lang": lang}, data),
+                            xml("modify", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
+                    );
+                }
+            }
 
             if (that.copyMessage == false) {
                 xmppMessage.append(xml("no-copy", {
@@ -1206,14 +1250,31 @@ class XMPPService extends GenericService {
         }
         // Handle Room conversation message
         else {
-            xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
+            if (that.useMessageEditionAndDeletionV2 == false) {
+                xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
                 xml("body", {"xml:lang": lang}, data),
                 xml("replace", {id: origMsgId, "xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
-                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
-            );
-            if (that.copyMessage == false) {
+                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
+            } else {
+                if (data==="") {
+                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: origMsgId},
+                            xml("body", {"xml:lang": lang}, data),
+                            xml("delete", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
+                } else {
+                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
+                            xml("body", {"xml:lang": lang}, data),
+                            xml("modify", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));                    
+                }
+            }
+            if (that.copyMessage==false) {
                 xmppMessage.append(xml("no-copy", {
                     "xmlns": NameSpacesLabels.HintsNameSpace
                 }));

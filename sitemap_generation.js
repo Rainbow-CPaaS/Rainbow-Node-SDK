@@ -92,7 +92,7 @@ function streamToString (smStream) {
                 video: true,
             }, // */
             level: 'silent'
-        })
+        });
 
         appendUrl(index, "", (value) => {
 

@@ -536,7 +536,7 @@ class S2SServiceEventHandler {
                 } // */
 
                 data.conversation = conversation;
-                data.conversation.addMessage(data);
+                data.conversation.addOrUpdateMessage(data);
                 /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
                     data.conversation.messages.push(data);
                 } // */

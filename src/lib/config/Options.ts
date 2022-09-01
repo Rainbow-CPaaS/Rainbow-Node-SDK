@@ -301,6 +301,8 @@ class Options {
                 break;
         }
         if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppInEvent) { xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent; }
+        if ( this._options.xmpp && this._options.xmpp.xmppRessourceName) { xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName; }
+        if ( this._options.xmpp && this._options.xmpp.xmppRessourceName) { xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName; }
         if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppOutReq) { xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq; }
         if ( this._options.xmpp && this._options.xmpp.maxIdleTimer) { xmppOptions.maxIdleTimer = this._options.xmpp.maxIdleTimer; }
         if ( this._options.xmpp && this._options.xmpp.maxPingAnswerTimer) { xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer; }
@@ -452,7 +454,8 @@ class Options {
             autoLoadConversations: true,
             autoLoadContacts: true,
             enableCarbon: true,
-            enablesendurgentpushmessages: false
+            enablesendurgentpushmessages: false,
+            useMessageEditionAndDeletionV2: false
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -475,6 +478,7 @@ class Options {
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
+        optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == true) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
 
         return optionsIM;
     }
