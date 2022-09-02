@@ -51,7 +51,7 @@ The following OS are supported:
 
 For developping on the Rainbow Developers Sandboxed Platform, your need a **Developer** account in order to use the Rainbow SDK for Node.js.
 
-To obtain it, you have to connect to the [Rainbow API Hub](https://hub.openrainbow.com) and to follow the instructions.
+To obtain it, you have to connect to the [Rainbow for Developers](https://developers.openrainbow.com) and to follow the instructions.
 
 -   Or you can contact the Rainbow [support](mailto:support@openrainbow.com) team if you need one.
 

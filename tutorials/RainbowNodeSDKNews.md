@@ -8,4 +8,4 @@ The Node.JS SDK online news about officials delivries are available at [What is 
 
 The Node.JS SDK ChangeLog file is available from [ChangeLog](/doc/sdk/node/api/ChangeLogRSS.xml).
 
-The Rainbow notification about the Node.JS SDK news. Follow the `Rainbow API Hub information channel` : Get latest information about Rainbow SDKs and APIs.
+The Rainbow notification about the Node.JS SDK news. Follow the `Rainbow for Developers information channel` : Get latest information about Rainbow SDKs and APIs.
