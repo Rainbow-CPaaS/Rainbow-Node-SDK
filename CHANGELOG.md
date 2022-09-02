@@ -12,7 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `xrbclient` `xrbversion` in `application` node of `presence` stanza at login.
 -   Add the ability to choose a customized specific xmpp resource name with an init option `xmppRessourceName`. The resource will be "node_+`xmppRessourceName`".
 -   Update for the new behaviour of `delete` and `modify` message. The `Message` class has new properties `deleted` and `modified`. By default it is desactivated by the property `useMessageEditionAndDeletionV2` in im section of the init option.
-    
+-   Fix sitemap generation.    
 
 ## [2.15.0] - 2022-08-25
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.

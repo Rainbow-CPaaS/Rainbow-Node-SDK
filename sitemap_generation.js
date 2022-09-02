@@ -32,19 +32,23 @@ let appendUrl = function (obj, stack, cb) {
 
 function streamToString (smStream) {
     let chunks = "";
+    //console.log("smStream : \"", smStream, "\"");
     return new Promise((resolve, reject) => {
         smStream.on('data', chunk => {
-            //console.log("data : ", chunk);
-            if (chunk.indexOf("<url") !== -1) {
-                chunks += "\n" ;
+            console.log("data : ", chunk);
+            let chunck1 = chunk.indexOf("</url>");
+            //let chunck1 = chunk.indexOf("<url");
+            if ( ( chunck1 !== -1 ) ) {
+                chunks += chunk + "\n";
+            } else {
+                chunks += chunk ;
             }
-            chunks += chunk;
-        })
-        smStream.on('error', reject)
+        });
+        smStream.on('error', reject);
         smStream.on('end', () => {
             //console.log("chunks : ", chunks);
             resolve(chunks);
-        })
+        });
         smStream.end();
         //streamToPromise(smStream).then(smStream.end)
     })
