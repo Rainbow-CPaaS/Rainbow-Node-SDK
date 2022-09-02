@@ -6,14 +6,15 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.0] - 2022-09-XX
+## [2.15.1] - 2022-09-02
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 
 -   Remove `answerDiscoverHTTPoverXMPP` low layer method, and put the code in treatment of the request discover event.
 -   Add logs about reconnexion and try to reconnect if the ping failed and no reconnexion is in progress.
 -   Add `xrbclient` `xrbversion` in `application` node of `presence` stanza at login.
 -   Add the ability to choose a customized specific xmpp resource name with an init option `xmppRessourceName`. The resource will be "node_+`xmppRessourceName`".
 -   Update for the new behaviour of `delete` and `modify` message. The `Message` class has new properties `deleted` and `modified`. By default it is desactivated by the property `useMessageEditionAndDeletionV2` in im section of the init option.
--   Fix sitemap generation.    
+-   Fix sitemap generation. 
+-   Finaly disable discover of HTTPoverXMPP.   
 
 ## [2.15.0] - 2022-08-25
 -   Fix `FileStorageService::copyFileInPersonalCloudSpace`. There was an issue in URL.
