@@ -258,7 +258,7 @@ class Core {
                             try {
                                 resolvedHostnames = await resolveDns(that._http.host);
                                 that.logger.log("debug", "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
-                                if ((resolvedHostnames!=[]) && (resolvedHostnames.length > 0)) {
+                                if ((Array.isArray(resolvedHostnames)) && (resolvedHostnames.length > 0)) {
                                     findingDns = false;
                                     dnsFound = true;
                                 } else {
