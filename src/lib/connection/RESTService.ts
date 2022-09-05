@@ -2698,7 +2698,7 @@ Request Method: PUT
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
             if (fileName!=undefined) {
-                addParamToUrl(urlParamsTab, "fileName", fileName ? "true":"false");
+                addParamToUrl(urlParamsTab, "fileName", fileName );
             }
             if (extension!=undefined) {
                 addParamToUrl(urlParamsTab, "extension", extension);

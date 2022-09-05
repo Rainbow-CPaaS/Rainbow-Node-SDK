@@ -6,6 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.16.0] - 2022-09-XX
+-   fix  RESTService::retrieveFileDescriptors method, the type of the fileName.
+-   Update for RQRAINB-7234 : NodeJS [Edge] Meet Bubble link should work also on Edges
+
 ## [2.15.1] - 2022-09-02
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 
 -   Remove `answerDiscoverHTTPoverXMPP` low layer method, and put the code in treatment of the request discover event.

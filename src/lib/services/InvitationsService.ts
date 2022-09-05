@@ -183,7 +183,8 @@ class InvitationsService extends GenericService {
 				publicUrl: undefined,
 				action: openInvitation.action,
 				roomType: openInvitation.roomType,
-				bubble: undefined
+				bubble: undefined,
+				invitationURL: openInvitation.invitationURL
 			};
 			invitation.publicUrl = that._bubbles.getPublicURLFromResponseContent(invitation);
 			invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid);

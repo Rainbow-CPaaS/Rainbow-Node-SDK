@@ -5162,6 +5162,7 @@ getAllActiveBubbles
         getPublicURLFromResponseContent(content: any): string {
             let that = this;
             let url: string = null;
+            /*
             let openInviteId = content.openInviteId;
     
             if (openInviteId) {
@@ -5172,6 +5173,14 @@ getAllActiveBubbles
                     strPort = ":" + that._port;
     
                 url = that._protocol + "://meet." + that._host + strPort + "/" + openInviteId;
+            }
+            return url;
+            
+             */
+
+            if ((content != null) )
+            {
+                    url = content.invitationURL;
             }
             return url;
         }

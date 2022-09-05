@@ -256,12 +256,14 @@ class InvitationEventHandler extends GenericHandler {
                 let roomid = userInviteElem.find("roomid").text();
                 let action = userInviteElem.attrs.action;
                 let roomType = userInviteElem.find("roomType").text();
+                let invitationURL = userInviteElem.find("invitationURL").text();
 
                 let invitation = {
                     openinviteid,
                     roomid,
                     action,
-                    roomType
+                    roomType,
+                    invitationURL
                 };
                 that.eventEmitter.emit("evt_internal_openinvitationManagementUpdate", invitation);
                 return true;

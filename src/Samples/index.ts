@@ -1960,7 +1960,7 @@ let urlS2S;
         
         // */
 
-        let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId();
+        let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId(undefined, true);
         logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - filesDescriptors : ", filesDescriptors);
         
         /*let companyId = connectedUser.companyId;
