@@ -4851,6 +4851,15 @@ let urlS2S;
     
     //endregion Rainbow HTTPoverXMPP 
     
+    //region Presence
+
+    async function testgetMyPresenceInformation() {
+        let res = await rainbowSDK.presence.getMyPresenceInformation();
+        logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
+    }
+    
+    //endregion Presence
+    
     function testresolveDns(url : string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result)=>{
             logger.log("debug", "MAIN - testresolveDns, result : ", result);

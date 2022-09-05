@@ -329,6 +329,33 @@ class PresenceService extends GenericService{
         });
     }
 
+    /**
+     * @public
+     * @method getMyPresenceInformation
+     * @since 2.16.0 
+     * @instance
+     * @category Presence CONNECTED USER
+     * @description
+     *      Get user's resources presences informations from server. <br>
+     */
+    getMyPresenceInformation() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.getMyPresenceInformation();
+                that._logger.log("debug", "(getMyPresenceInformation) - sent.");
+                that._logger.log("internal", "(getMyPresenceInformation) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getMyPresenceInformation) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getMyPresenceInformation) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     //endregion Presence CONNECTED USER
 
     //region Presence Bubbles

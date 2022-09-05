@@ -1850,13 +1850,15 @@ Request Method: PUT
         });
     }
 
+    //region Presence
+    
     /**
      * @description
      *      https://api.openrainbow.org/admin/#api-users_presence-admin_users_GetUserPresence
      * @param {any} userId
      * @return {Promise<unknown>}
      */
-    getUserPresenceInformation(userId = undefined){
+    getUserPresenceInformation(userId : string = undefined){
         let that = this;
 
         if (!userId) {
@@ -1876,6 +1878,25 @@ Request Method: PUT
         });
     }
 
+    getMyPresenceInformation(){
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            that.http.get("/api/rainbow/enduser/v1.0/users/me/presences", that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getMyPresenceInformation) successfull");
+                that.logger.log("internal", LOG_ID + "(getMyPresenceInformation) REST result : ", json, " user presence.");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMyPresenceInformation) error");
+                that.logger.log("internalerror", LOG_ID, "(getMyPresenceInformation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
+    //endregion Presence
+    
     /**
      * @description
      *      https://api.openrainbow.org/mediapillar/#api-mediapillars-GetMediaPillarsData
