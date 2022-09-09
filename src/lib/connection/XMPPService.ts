@@ -249,11 +249,12 @@ class XMPPService extends GenericService {
                 that.jid_tel = account.jid_tel;
                 that.jid_password = account.jid_password;
                 that.userId = account.id;
-                that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
                 //that.resourceId =  "/node_" + that.generatedRandomId ;
                 if (that.xmppRessourceName) {
+                    that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.xmppRessourceName);
                     that.resourceId = "node_" + that.xmppRessourceName;
                 } else {
+                    that.fullJid = that.xmppUtils.generateRandomFullJidForNode(that.jid_im, that.generatedRandomId);
                     that.resourceId = "node_" + that.generatedRandomId;
                 }
                 that.jid = account.jid_im;

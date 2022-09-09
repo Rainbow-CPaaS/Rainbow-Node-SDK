@@ -4565,13 +4565,17 @@ let urlS2S;
 */
     }
     
-    async function testtraceHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
+    async function testtraceHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
         let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
         //let headers = {};
-        let res : any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers);
+        if (vincent01) {
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            jidHTTPoverXMPPBot = contact.jid + "/node_vnagw";
+        }
+        let res : any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
         let resp = res.iq.resp;
         let bodyResult = decodeURIComponent(resp.data.text);

@@ -9,8 +9,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.16.0] - 2022-09-XX
 -   fix  RESTService::retrieveFileDescriptors method, the type of the fileName.
 -   Update for RQRAINB-7234 : NodeJS [Edge] Meet Bubble link should work also on Edges.
--   Get user's resources presences information from server.
+-   Add API `PresenceService::getMyPresenceInformation` to get connected user's resources presences information from server.
 -   Fix type compare of array when finding DNS.
+-   Fix fullJid for `xmppRessourceName` option.
 
 ## [2.15.1] - 2022-09-02
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 
