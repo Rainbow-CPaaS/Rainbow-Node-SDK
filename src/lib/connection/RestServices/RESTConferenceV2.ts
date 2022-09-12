@@ -187,17 +187,32 @@ class RESTConferenceV2 extends GenericRESTService{
         });
     }
     
-    joinConference(roomId : string, mediaType : string, participantPhoneNumber : string, country : string, dc : Array<string>, mute: boolean, microphone : boolean ) {
-        // post /api/rainbow/conference/v1.0/rooms/:roomId/join
+    joinConference(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
+        // API https://api.openrainbow.org/conference/#api-conference_v2-joinConferenceV2
+        // POST /api/rainbow/conference/v1.0/rooms/:roomId/join 
         let that = this;
-        const data = {
-            mediaType, 
-            participantPhoneNumber, 
-            country,
-            dc,
-            mute, 
-            microphone
-        };
+        const data : any = {};
+        if (participantPhoneNumber != undefined) {
+            data.participantPhoneNumber = participantPhoneNumber;
+        }
+        if (country != undefined) {
+            data.country = country;
+        }
+        if (deskphone != undefined) {
+            data.deskphone = deskphone;
+        }
+        if (dc != undefined) {
+            data.dc = dc;
+        }
+        if (mute != undefined) {
+            data.mute = mute;
+        }
+        if (microphone != undefined) {
+            data.microphone = microphone;
+        }
+        if (media != undefined) {
+            data.media = media;
+        }
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), data, undefined).then(function (json) {

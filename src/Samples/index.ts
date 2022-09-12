@@ -2726,19 +2726,22 @@ let urlS2S;
         });
     }
 
-    function testCreateBubblesAndJoinConference() {
-        let physician = {
+    function testjoinConferenceV2(bubbleId : string = "621c9f61dd692c3dd3131869") {
+        /*let physician = {
             "name": "",
             "contact": null,
             "loginEmail": "vincent02@vbe.test.openrainbow.net",
             "appointmentRoom": "testBot"
         };
         let botappointment = "vincent01@vbe.test.openrainbow.net";
+        // */
 
-        rainbowSDK.bubbles.getBubbleById("5bbb1f5fd6e166709a42d7c7").then((bubble) => {
-            rainbowSDK.bubbles.joinConference(bubble).then((result) => {
+        rainbowSDK.bubbles.getBubbleById(bubbleId).then((bubble) => {
+            logger.log("debug", "MAIN - testjoinConferenceV2 - found bubble.id : ", bubble.id);
+        //rainbowSDK.bubbles.getBubbleById("5bbb1f5fd6e166709a42d7c7").then((bubble) => {
+            rainbowSDK.bubbles.joinConferenceV2(bubble.id).then((result) => {
                 //let bubbles = rainbowSDK.bubbles.getAll();
-                logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
+                logger.log("debug", "MAIN - testjoinConferenceV2 - after joinConference - bubble : ", bubble, ", result : ", result);
             });
         });
 

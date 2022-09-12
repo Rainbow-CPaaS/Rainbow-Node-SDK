@@ -10633,6 +10633,11 @@ Request Method: PUT
         return that.restConferenceV2.addPSTNParticipantToConference(roomId, participantPhoneNumber, country);
     }
 
+    askConferenceSnapshotV2(roomId : string, limit : number = 100,  offset : number = 0) {
+        let that = this;
+        return that.snapshotConference(roomId, limit, offset);
+    }
+
     snapshotConference(roomId : string, limit : number = 100,  offset : number = 0) {
         let that = this;
         return that.restConferenceV2.snapshotConference(roomId, limit, offset);
@@ -10658,9 +10663,9 @@ Request Method: PUT
         return that.restConferenceV2.getTalkingTimeForAllPparticipantsInConference(roomId, limit,  offset );
     }
 
-    joinConferenceV2(roomId : string, mediaType : string, participantPhoneNumber : string, country : string, dc : Array<string>, mute: boolean, microphone : boolean) {
+    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
         let that = this;
-        return that.restConferenceV2.joinConference(roomId, mediaType, participantPhoneNumber, country, dc, mute, microphone);
+        return that.restConferenceV2.joinConference(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media);
     }
 
     pauseRecording(roomId : string) {

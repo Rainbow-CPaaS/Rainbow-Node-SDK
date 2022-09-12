@@ -49,6 +49,28 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 -   Fix sitemap génération for developpers Web site.
 -   Replace path `/#/documentation` with `/` in documentation for developpers Web site.
 
+### SDK for Node.JS 2.16 - STS Version - August 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   None
+
 ### SDK for Node.JS 2.10.0-lts.10 - LTS Version - June 2022
 
 ---

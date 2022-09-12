@@ -12,6 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add API `PresenceService::getMyPresenceInformation` to get connected user's resources presences information from server.
 -   Fix type compare of array when finding DNS.
 -   Fix fullJid for `xmppRessourceName` option.
+-   Add call of `BubbleService::snapshotConference` for conference V2 at startup when a conference.sessions is define on bubbles.
 
 ## [2.15.1] - 2022-09-02
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 

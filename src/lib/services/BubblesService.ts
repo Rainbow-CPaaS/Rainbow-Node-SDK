@@ -188,6 +188,13 @@ class Bubbles extends GenericService {
         if (useRestAtStartup) {
             await that.bubblesManager.reset();
             await that.getBubbles();
+            for (const bubble of that.getAll()) {
+                if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                    that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                    that.snapshotConference(bubble.id);
+                }
+                
+            }
         }
         that.setInitialized();
     }
@@ -5707,14 +5714,108 @@ getAllActiveBubbles
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.snapshotConference(roomId, limit, offset).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(snapshotConference) result from server : ", result);
+            that._rest.snapshotConference(roomId, limit, offset).then(async (confSnapshop) => {
+                that._logger.log("internal", LOG_ID + "(snapshotConference) result from server : ", confSnapshop);
 
-                if (result) {
+                /*if (result) {
                     resolve(result);
                 } else {
                     resolve(null);
                 }
+                // */
+                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
+                let active: boolean = false;
+                active = confSnapshop["active"];
+
+                let conference: ConferenceSession ;
+
+                let conferenceId = roomId;
+
+                // Do something only if conference is active
+                if (active) {
+                    // Get conference form cache (if any)
+                    conference = await that.getConferenceByIdFromCache(conferenceId);
+                    if (conference==null) {
+                        conference = new ConferenceSession(conferenceId);
+                    }
+
+                    conference.active = true;
+
+                    // Clear participants since this server request give all info about them
+                    conference.participants = new List<Participant>();
+
+                    try {
+                        // Loop on participants found
+                        let jArray = confSnapshop["participants"];
+
+                        if ((jArray!=null)) {
+                            //jArray.forEach(async (jParticipant: any) => {
+                            for (const jParticipant of jArray) {
+                                let participant: Participant = null;
+                                if (jParticipant.hasOwnProperty("participantId")) {
+                                    // Id
+                                    let participantId = jParticipant["participantId"];
+
+                                    // Create Participant object
+                                    participant = new Participant(participantId);
+
+                                    // Muted
+                                    if (jParticipant.hasOwnProperty("mute"))
+                                        participant.muted = (jParticipant["mute"]=="true");
+                                    else
+                                        participant.muted = false;
+
+                                    // Hold
+                                    if (jParticipant.hasOwnProperty("held"))
+                                        participant.hold = (jParticipant["held"]=="true");
+                                    else
+                                        participant.hold = false;
+
+                                    // IsModerator
+                                    if (jParticipant.hasOwnProperty("participantRole"))
+                                        participant.moderator = (jParticipant["participantRole"]=="moderator");
+                                    else
+                                        participant.moderator = false;
+
+                                    // IsConnected
+                                    if (jParticipant.hasOwnProperty("participantState"))
+                                        participant.connected = (jParticipant["participantState"]=="connected");
+                                    else
+                                        participant.connected = false;
+
+                                    // Jid_im
+                                    if (jParticipant.hasOwnProperty("jid_im")) {
+                                        participant.jid_im = jParticipant["jid_im"];
+                                        participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err) => {
+                                            that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
+                                            return null;
+                                        });
+                                    }
+
+                                    // PhoneNumber
+                                    if (jParticipant.hasOwnProperty("phoneNumber"))
+                                        participant.phoneNumber = jParticipant["phoneNumber"];
+
+                                    // Finally add participant to the list
+                                    conference.participants.add(participant);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
+                    }
+                } else {
+                    conference = new ConferenceSession(conferenceId);
+                    conference.active = false;
+
+                    // Clear participants since this server request give all info about them
+                    conference.participants = new List<Participant>();
+                }
+                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
+
+                // Finally add conference to the cache
+                await that.addOrUpdateConferenceToCache(conference, true);
+                return conference;
             }).catch((err) => {
                 return reject(err);
             });
@@ -5902,19 +6003,22 @@ getAllActiveBubbles
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
+     //* @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
      * @param {string} participantPhoneNumber Join through dial.
      * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
+     * @param {string} deskphone User joins conference through his deskphone. Default value : false
      * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center).
      * @param {string} mute Join as muted/unmuted.
      * @param {string} microphone Has client a microphone?
+     * @param {string} media Requested media. Default value : [audio,video] . Possible value : audio, video .
      * @async
      * @description
      *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
+     *           NOTE: The join can not be done without any audio/video media, because the server will close the connection after one minute.
      * @return {Promise<any>} the result of the operation.
 
      */
-    joinConferenceV2(roomId: string, mediaType: string = "webrtcSharingOnly", participantPhoneNumber: string, country: string, dc: Array<string>, mute: boolean = false, microphone: boolean = true) {
+    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["audio","video"], mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(joinConferenceV2) roomId : " + roomId);
@@ -5924,7 +6028,7 @@ getAllActiveBubbles
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.joinConferenceV2(roomId, mediaType, participantPhoneNumber, country, dc, mute, microphone).then(async (result) => {
+            that._rest.joinConferenceV2(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(joinConferenceV2) result from server : ", result);
 
                 if (result) {
