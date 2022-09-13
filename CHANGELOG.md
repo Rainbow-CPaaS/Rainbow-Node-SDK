@@ -6,13 +6,14 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.0] - 2022-09-XX
+## [2.15.2] - 2022-09-13
 -   fix  RESTService::retrieveFileDescriptors method, the type of the fileName.
 -   Update for RQRAINB-7234 : NodeJS [Edge] Meet Bubble link should work also on Edges.
 -   Add API `PresenceService::getMyPresenceInformation` to get connected user's resources presences information from server.
 -   Fix type compare of array when finding DNS.
 -   Fix fullJid for `xmppRessourceName` option.
 -   Add call of `BubbleService::snapshotConference` for conference V2 at startup when a conference.sessions is define on bubbles.
+-   Add a defense at login when network is disconnected. The SDK try to connect until the login request reach the server.
 
 ## [2.15.1] - 2022-09-02
 -   Updated discover of HTTPoverXMPP to use a message stanza instead of presence one. 

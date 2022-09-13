@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
+import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
 
 export {};
 
@@ -99,32 +99,50 @@ class Core {
 
             let json = null;
 
-            return new Promise(function (resolve, reject) {
+            return new Promise(async function (resolve, reject) {
 
                 if (that.options.useXMPP) {
-                    return that._xmpp.stop(forceStopXMPP).then(() => {
-                        return that._rest.signin(token);
-                    }).then((_json) => {
-                        json = _json;
-                        let headers = {
-                            "headers": {
-                                // "Authorization": "Bearer " + that._rest.token,
-                                "x-rainbow-client": "sdk_node",
-                                "x-rainbow-client-version": packageVersion.version
-                                // "Accept": accept || "application/json",
+                    let loginSucceed = false;
+                    
+                    while (loginSucceed == false) {
+                        let loginResult = undefined;
+                        await that._xmpp.stop(forceStopXMPP).then(() => {
+                            return that._rest.signin(token);
+                        }).then((_json) => {
+                            json = _json;
+                            let headers = {
+                                "headers": {
+                                    // "Authorization": "Bearer " + that._rest.token,
+                                    "x-rainbow-client": "sdk_node",
+                                    "x-rainbow-client-version": packageVersion.version
+                                    // "Accept": accept || "application/json",
+                                }
+                            };
+                            return that._xmpp.signin(that._rest.loggedInUser, headers);
+                        }).then(function () {
+                            that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                            that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                            //return resolve(json);
+                            loginResult = json;
+                            loginSucceed = true;
+                        }).catch(function (err) {
+                            that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                            that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                            that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                            //return reject(err);
+                            loginSucceed = false;
+                            loginResult = err;
+                        });         
+                        if (loginSucceed) {
+                            resolve(loginResult);   
+                        } else {
+                            if (loginResult.code > 400) {
+                                return reject(loginResult)
+                            }  else {
+                                await pause(10000);
                             }
-                        };
-                        return that._xmpp.signin(that._rest.loggedInUser, headers);
-                    }).then(function () {
-                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return resolve(json);
-                    }).catch(function (err) {
-                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return reject(err);
-                    });
+                        }
+                    }
                 } else if (that.options.useS2S) {
                     return that._rest.signin(token).then(async (_json) => {
                         json = _json;
@@ -885,7 +903,9 @@ class Core {
 
             await that._s2s.stop().then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped s2s.");
-                return that._rest.stop();
+                if (that.options._restOptions.useRestAtStartup) {
+                    return that._rest.stop();
+                }
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped rest");
                 return that._http.stop();
