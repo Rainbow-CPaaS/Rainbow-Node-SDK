@@ -1009,7 +1009,7 @@ class Core {
 
         return new Promise(async(resolve, reject) => {
            // Test REST connection
-            restStatus = that._rest ? await that._rest.checkRESTAuthentication() : false;
+            restStatus = (that._rest && that.options._restOptions.useRestAtStartup ) ? await that._rest.checkRESTAuthentication() : false;
            // Test XMPP connection
             xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
                 that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
@@ -1022,7 +1022,7 @@ class Core {
 
             // */
            // Test S2S connection
-            s2sStatus  = that._rest ? await that._rest.checkS2SAuthentication() : false;
+            s2sStatus  = (that._rest && that.options._restOptions.useRestAtStartup ) ? await that._rest.checkS2SAuthentication() : false;
 
             let httpStatus : any = that._http ? await that._http.checkHTTPStatus():{nbHttpAdded:0, httpQueueSize:0, nbRunningReq:0, maxSimultaneousRequests:0, nbReqInQueue:0};
 

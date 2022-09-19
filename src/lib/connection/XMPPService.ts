@@ -2075,25 +2075,43 @@ class XMPPService extends GenericService {
         });
     }
 
-    sendPing() : Promise<any>{
+    async sendPing() : Promise<any> {
         let that = this;
-        if (that.useXMPP) {
-            let id = that.xmppUtils.getUniqueMessageId();
-            let stanza = xml("iq", {
-                "type": "get",
-                "id": id
-            }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
+        try {
+            if (that.useXMPP) {
+                let id = that.xmppUtils.getUniqueMessageId();
+                let stanza = xml("iq", {
+                    "type": "get",
+                    "id": id
+                }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
-            that.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version );
-            return that.xmppClient.send(stanza).catch((error) => {
-                that.logger.log("error", LOG_ID + "(sendPing) error ");
-                that.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
-                return error;
-            });
-        } else {
-            that.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
+                that.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version);
+                if (that.xmppClient) {
+                    return that.xmppClient.send(stanza).catch((error) => {
+                        that.logger.log("error", LOG_ID + "(sendPing) error ");
+                        that.logger.log("internalerror", LOG_ID + "(sendPing) error : ", error);
+                        return error;
+                    });
+
+                } else {
+                    that.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection, xmppClient undefined. So XMPP link is closed.");
+                    return {
+                        code: -1,
+                        label: "No XMPP connection, xmppClient undefined. So XMPP link is closed."
+                    };
+                }
+            } else {
+                that.logger.log("warn", LOG_ID + "(sendPing) No XMPP connection...");
+            }
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(sendPing) CATCH Error !!! error : ", e);
+            return {
+                code: -1,
+                label: "(sendPing) CATCH Error !!! error : " + e.message
+            };
         }
     }
+    
 // region Alerts
 
     async SendAlertMessage(alertMessage : AlertMessage) {

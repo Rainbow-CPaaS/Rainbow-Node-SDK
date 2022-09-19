@@ -4472,7 +4472,7 @@ let urlS2S;
         }
     }
 
-    async function testpostHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+    async function testpostHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_vnagw") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
@@ -4498,20 +4498,26 @@ let urlS2S;
                 "}";
         let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidServer);
         logger.log("debug", "MAIN - testpostHTTPoverXMPPVNA, res : ", res);
-        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode==200 && res.iq.resp.data) {
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"]  && res.iq.resp.data) {
             logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
-            let isJson = false;
-            for (const header of res.iq.resp.headers.header) {
-                if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
-                    isJson = true;
+            //if (res.iq.resp["$attrs"].statusCode==200) {
+                let isJson = false;
+                for (const header of res.iq.resp.headers.header) {
+                    if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
+                        isJson = true;
+                    }
                 }
-            }
-            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
-            if (isJson) {
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
-            }
+                let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+                if (isJson) {
+                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+                }
+            /*} else {
+                let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+
+            } //*/
         }
     }
 
