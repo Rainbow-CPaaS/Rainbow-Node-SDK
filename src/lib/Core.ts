@@ -579,7 +579,7 @@ class Core {
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
-            await self._stateManager.transitTo(self._stateManager.ERROR, err);
+            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
             }).catch(function(err) {
@@ -744,7 +744,7 @@ class Core {
         that.logger.log("debug", LOG_ID + "(start) _entering_");
         that.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 
-        return new Promise(function (resolve, reject) {
+        return new Promise(async function (resolve, reject) {
 
             try {
 
@@ -763,6 +763,46 @@ class Core {
                         that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     }
                     that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
+                    
+                    try {
+                        if (that._stateManager.isCONNECTED()) {
+                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isDISCONNECTED()) {
+                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isERROR()) {
+                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isFAILED()) {
+                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isREADY()) {
+                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isRECONNECTING()) {
+                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ". Should not do anything.");
+                        }
+                        if (that._stateManager.isSTARTED()) {
+                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            await that.stop();
+                        }
+                        if (that._stateManager.isSTARTING()) {
+                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ". SDK should not do anything.");
+                        }
+                        if (that._stateManager.isSTOPPED()) {
+                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ", will start.");
+                        }
+                    } catch (err) {
+                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error when treatment of SDK status, SDK status is " + that._stateManager.state + ".");
+                        that.logger.log("internalerror", LOG_ID + "(start) !!! CATCH Error when treatment of SDK status : ", err);
+                    } 
+                    
                     return that._stateManager.start().then(() => {
                         return that._http.start();
                     }).then(() => {
@@ -1011,14 +1051,18 @@ class Core {
            // Test REST connection
             restStatus = (that._rest && that.options._restOptions.useRestAtStartup ) ? await that._rest.checkRESTAuthentication() : false;
            // Test XMPP connection
-            xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
-                that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
-                if (result && result.code === 1) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }) : false;
+            try {
+                xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
+                    that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
+                    if (result && result.code === 1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }) : false;
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error : ", err);
+            }
 
             // */
            // Test S2S connection
