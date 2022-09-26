@@ -277,7 +277,8 @@ class XmppClient  {
 
                     if (that.socketClosed) {
                         that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
-                        return Promise.reject("Error the socket is close, so do not send data on it.")
+                        //return Promise.reject("Error the socket is close, so do not send data on it.")
+                        return reject2({reason:"Error the socket is close, so do not send data on it."})
                     }
 
                     let stanza = args[0];
@@ -344,19 +345,24 @@ class XmppClient  {
                         return reject2(error);
                     }
 
-                    return this.client.send(...args).then(() => {
+                    try {
+                        return await this.client.send(...args).then(() => {
+                            that.nbMessagesSentThisHour++;
+                            resolve2({"code": 1, "label": "OK"});
+                        });
+                    } catch(err){
+                        that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
+                        //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
+                        return reject2(err);
+                    }
+                    /* return this.client.send(...args).then(() => {
                         that.nbMessagesSentThisHour++;
                         resolve2({"code": 1, "label":"OK"});
                     }).catch(async (err) => {
                         that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
                         //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                         return reject2(err);
-                        /*
-                        this.client.restart().finally(() => {
-                            reject2(err);
-                        });
-                        // */
-                    });
+                    }); // */
                 })
             ).then((result) => {
                 that.logger.log("debug", LOG_ID + "(send) sent");

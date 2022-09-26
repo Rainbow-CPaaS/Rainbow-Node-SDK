@@ -279,15 +279,21 @@ class Call {
 
     setContact (contact) {
         this.contact = contact;
-        this.avatars = [this.contact.avatar.src];
+        if (this.contact && this.contact.avatar) {
+            this.avatars = [this.contact.avatar.src];
+        } else {
+            this.avatars = [];
+        }
     }
 
     setParticipants (participants) {
-        this.participants = participants;
-        this.avatars = [];
-        var that = this;
-        this.participants.forEach(function (participant) {
-            that.avatars.push(participant.avatar.src);
+        let that = this;
+        that.participants = participants;
+        that.avatars = [];
+        that.participants.forEach(function (participant) {
+            if (participant && participant.avatar) {
+                that.avatars.push(participant.avatar.src);
+            }
         });
     }
 
