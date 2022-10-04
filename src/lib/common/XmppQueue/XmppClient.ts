@@ -2,7 +2,7 @@
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
-import {Deferred} from "../Utils";
+import {Deferred, stackTrace} from "../Utils";
 
 export {};
 
@@ -33,6 +33,7 @@ const xml2js = require('xml2js');
 const Element = require('ltx').Element;
 
 let LOG_ID='XMPPCLIENT';
+
 
 class XmppClient  {
 	public options: any;
@@ -74,6 +75,12 @@ class XmppClient  {
         
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60; // */
+
+        //process.on('unhandledRejection', e => { console.log("(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace()); throw e; });
+        process.on('unhandledRejection', e => {
+            that.logger.log("error", LOG_ID + "(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace());
+            //console.log("(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace()); 
+        });
     }
 
     async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
@@ -83,8 +90,8 @@ class XmppClient  {
         that.client.setQuery('urn:xmpp:http', 'req', that.iqSetEventHttp.bind(that));
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
-        that.xmppQueue = XmppQueue.getXmppQueue(_logger);
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
+        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests);
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
@@ -263,7 +270,120 @@ class XmppClient  {
     send(...args) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(send) _entering_");
-        return new Promise((resolve) => {
+        return this.xmppQueue.add(async (resolve2, reject2) => {
+            /*
+            if (args && args[0]) {
+                that.logger.log("internal", LOG_ID + "(send) stanza to send ", that.logger.colors.gray(args[0].toString()));
+            } else {
+                that.logger.log("error", LOG_ID + "(send) stanza to send is empty");
+            } // */
+
+            //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
+
+            if (that.socketClosed) {
+                that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                //return Promise.reject("Error the socket is close, so do not send data on it.")
+                return reject2({
+                    timestamp: (new Date()).toLocaleTimeString(),
+                    reason: "Error the socket is close, so do not send data on it."
+                });
+                // */
+                /* return {
+                     timestamp: (new Date()).toLocaleTimeString(),
+                     reason:"Error the socket is close, so do not send data on it."
+                 };
+                 // */
+            }
+
+            let stanza = args[0];
+
+            if (that.enablesendurgentpushmessages && stanza && stanza.name=="message") {
+                let stanzaJson = await that.getJsonFromXML(stanza);
+                that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
+                //if (stanzaJson && stanzaJson.message != undefined) {
+                //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message.");
+                if (stanzaJson.message.body && stanzaJson.message.body!="") {
+                    that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                    // <retry-push xmlns='urn:xmpp:hints'/> 
+                    let retryPush = "retry-push";
+                    stanza.append(xml(retryPush, {
+                        "xmlns": NameSpacesLabels.HintsNameSpace
+                    }));
+                    that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                }
+                //} 
+            }
+
+            if (that.storeMessages==false && stanza && typeof stanza==="object" && stanza.name=="message") {
+                // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
+                // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
+                //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
+                // <no-copy xmlns="urn:xmpp:hints"/>
+                //   <no-store xmlns="urn:xmpp:hints"/>
+                /*  stanza.append(xml("no-copy", {
+                      "xmlns": NameSpacesLabels.HintsNameSpace
+                  }));
+                  // */
+
+                //let nostoreTag="no-store";
+                let nostoreTag = that.messagesDataStore;
+                stanza.append(xml(nostoreTag, {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+                // */
+                //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
+            }
+
+            /*if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }//*/
+
+            // test the rate-limit
+            if (this.nbMessagesSentThisHour > that.rateLimitPerHour) {
+                let timeWhenRateLimitPerHourHappens = new Date().getTime();
+                let timeToWaitBeforeNextMessageAvabilityMs = that.timeBetweenReset - (timeWhenRateLimitPerHourHappens - that.lastTimeReset.getTime());
+                let error = {
+                    "errorCode": -1,
+                    "timeWhenRateLimitPerHourHappens": timeWhenRateLimitPerHourHappens,
+                    "nbMessagesSentThisHour": this.nbMessagesSentThisHour,
+                    "rateLimitPerHour": that.rateLimitPerHour,
+                    "timeToWaitBeforeNextMessageAvabilityMs": timeToWaitBeforeNextMessageAvabilityMs,
+                    "label": "error number of sent messages is over the rate limit.",
+                    "sendArgs": args
+                };
+                that.logger.log("error", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
+                that.logger.log("internalerror", LOG_ID + "(send) error number of sent messages is over the rate limit : ", error);
+                return reject2(error);
+            }
+
+            try {
+                await this.client.send(...args).then(() => {
+                    that.nbMessagesSentThisHour++;
+                    resolve2({"code": 1, "label": "OK"});
+                });
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
+                //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
+                return reject2(err);
+            }
+            /* return this.client.send(...args).then(() => {
+                that.nbMessagesSentThisHour++;
+                resolve2({"code": 1, "label":"OK"});
+            }).catch(async (err) => {
+                that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
+                //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
+                return reject2(err);
+            }); // */
+        });        
+    }
+
+    send_orig(...args) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(send) _entering_");
+        return new Promise((resolve, reject) => {
             let prom = this.xmppQueue.addPromise(
                 new Promise(async (resolve2, reject2) => {
                     /*
@@ -278,7 +398,16 @@ class XmppClient  {
                     if (that.socketClosed) {
                         that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
                         //return Promise.reject("Error the socket is close, so do not send data on it.")
-                        return reject2({reason:"Error the socket is close, so do not send data on it."})
+                        return reject2({
+                            timestamp: (new Date()).toLocaleTimeString(),
+                            reason:"Error the socket is close, so do not send data on it."
+                        });
+                        // */
+                       /* return {
+                            timestamp: (new Date()).toLocaleTimeString(),
+                            reason:"Error the socket is close, so do not send data on it."
+                        };
+                        // */
                     }
 
                     let stanza = args[0];
@@ -346,7 +475,7 @@ class XmppClient  {
                     }
 
                     try {
-                        return await this.client.send(...args).then(() => {
+                        await this.client.send(...args).then(() => {
                             that.nbMessagesSentThisHour++;
                             resolve2({"code": 1, "label": "OK"});
                         });
@@ -370,6 +499,10 @@ class XmppClient  {
             }).catch((errr) => {
                 that.logger.log("error", LOG_ID + "(send) error in send promise : ", errr);
                 that.logger.log("internalerror", LOG_ID + "(send) error in send promise : ", errr);
+                if (errr && errr.reason && errr.reason.indexOf("the socket is close") != -1 ){
+                    that.logger.log("error", LOG_ID + "(send) error in send, the socket is closed, so set socketClosed to true.", errr);
+                    that.socketClosed = true;
+                }
                 throw errr;
             });
 
@@ -420,6 +553,68 @@ class XmppClient  {
     }
 
     sendIq(...args){
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
+        return new Promise((resolve, reject) => {
+            if (args.length > 0) {
+                let idId = (args[0] && args[0].attrs ) ? args[0].attrs.id : undefined;
+
+                let prom = this.xmppQueue.add(async (resolve2, reject2) => {
+                    // return ; // To do failed the lock acquire.
+                        if (that.socketClosed) {
+                            that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                            //return Promise.reject("Error the socket is close, so do not send data on it.")
+                            return reject2({
+                                timestamp: (new Date()).toLocaleTimeString(),
+                                reason: "Error the socket is close, so do not send data on it."
+                            });
+                        }
+                        try {
+                            await that.client.send(...args).then(() => {
+                                that.nbMessagesSentThisHour++;
+                                resolve2({"code": 1, "label": "OK"});
+                            });
+                        } catch (err) {
+                            that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at idId : ", idId, ", super.send : ", err);
+                            //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
+                            return reject2(err);
+                        }
+                        /* return this.client.send(...args).catch((err) => {
+                         that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at idId : " , idId, ", super.send : ", err);
+                        }) // */
+                }); 
+                /*.then((res) => {
+                    that.logger.log("debug", LOG_ID + "(sendIq) sent idId : ", idId, "");
+                }); // */
+
+                // callback to be called when the IQ Get result event is received from server.
+                function cb(result) {
+                    // Wait a few time between requests to avoid burst with lot of it.
+                    setTimeout(() => {
+                        that.logger.log("debug", LOG_ID + "(send) idId : " , idId, ", setTimeout resolve");
+                        that.logger.log("internal", LOG_ID + "(send) idId : " , idId, ", setTimeout resolve : ", result);
+                        resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
+                    }, that.timeBetweenXmppRequests);
+                }
+                
+                // Store the promise to be resolved
+                this.iqGetEventWaiting[idId] = cb;
+
+                /* // Wait a few time between requests to avoid burst with lot of it.
+                setTimeout(()=> {
+                    //that.logger.log("debug", LOG_ID + "(send) setTimeout resolve");
+                    resolve(prom);
+                }, that.timeBetweenXmppRequests); // */
+            } else {
+                resolve(Promise.resolve());
+            }
+        }).then((promiseToreturn) => {
+            that.logger.log("debug", LOG_ID + "(sendIq) _exiting_ return promise");
+            return promiseToreturn;
+        });
+    }
+
+    sendIq_orig(...args){
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
         return new Promise((resolve, reject) => {
@@ -493,8 +688,12 @@ class XmppClient  {
             //let result = await that.client.disconnect(5000);
             //that.logger.log("debug", LOG_ID + "(restartConnect) disconnect result : ", result);
             //return that.client.open(that.options);
-            await that.client._reset();
-            await that.client.start();
+            try {
+                await that.client._reset();
+                await that.client.start();
+            } catch (err) {
+                that.logger.log("debug", LOG_ID + "(restartConnect) error while reconnect : ", err);
+            }
         } else {
             return Promise.resolve("restartReconnect is disabled");
         }

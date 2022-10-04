@@ -6,6 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.15.3] - 2022-09-13
+-   Fix getConnectionStatus when REST is not used.
+-   Add methods `Utils::doWithinInterval`, `Utils::isPromise` to manage promises.
+-   Refactor XmppQueue to use lock to avoid the previously happened unhandled exceptions.
+-   Add the catch of `unhandledRejection` in XmppClient constructor.
+-   Refactor XmppClient::send, XmppClient::sendIq methods to use the new XmppQueue with lock system. 
+
 ## [2.15.2] - 2022-09-13
 -   fix  RESTService::retrieveFileDescriptors method, the type of the fileName.
 -   Update for RQRAINB-7234 : NodeJS [Edge] Meet Bubble link should work also on Edges.

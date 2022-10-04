@@ -5,6 +5,7 @@ const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
 const dns = require('dns')
+const utilTypes = require('util').types
 
 let makeId = (n) => {
   let text = "";
@@ -175,6 +176,25 @@ function until(conditionFunction : Function, labelOfWaitingCondition : string, w
     return new Promise(poll);
 }
 
+// function to treat a promise in an amount of time.
+function doWithinInterval({promise, timeout, error}) {
+    let timer = null;
+
+    return Promise.race([
+        new Promise((resolve, reject) => {
+            function reject2() {
+                return reject(error);
+            }
+            timer = setTimeout(reject2, timeout);
+            return timer;
+        }),
+        promise.then((value) => {
+            clearTimeout(timer);
+            return value;
+        })
+    ]);
+}
+
 function orderByFilter(originalArray, filterFct, flag, sortFct) {
     let o = []
 
@@ -304,10 +324,16 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                                 //logger.log("debug", LOG_ID + logger.colors.data("Method " + propertyName + "(...) _exiting_"));
                             } else {
                                 //return Promise.resolve({msg: "The service of the Object " + target.name + " is not ready!!! Can not call method : " + propertyName});
-                                throw({msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName});
+                                let error = {code : -1, msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
+                                if (isPromise(originalMethod)) {
+                                    error.code = 400;
+                                    // returnValue = Promise.reject(error);
+                                }
+                                    //throw({msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName});
+                                    throw(error);
                             }
                         } else {
-                            return Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
+                            returnValue = Promise.resolve({msg: "The service of the Object " + target.name + " is not configured for start-up!!! Can not call method : " + propertyName});
                         }
                     }
                 }
@@ -362,6 +388,10 @@ function logEntryExit(LOG_ID) : any {
                         logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
                     } catch (err) {
                         logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
+                        let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
+                        if (err.code == 400) {
+                            returnValue = Promise.reject(error);
+                        }
                     }
                 }
                 // Return back the value to the execution stack
@@ -479,6 +509,11 @@ function stackTrace() {
     return err.stack;
 }
 
+function isPromise (x) {
+    let isProm = utilTypes.isPromise(x) || x.constructor.name === 'Promise' || x.constructor.name === 'AsyncFunction';
+    return isProm ;
+    //return Object(x).constructor===Promise;
+}
 
 const resolveDns = (cname) => {
     return new Promise(function (resolve, reject ) {
@@ -538,7 +573,9 @@ export let objToExport = {
     addDaysToDate,
     addParamToUrl,
     cleanEmptyMembersFromObject,
-    resolveDns
+    resolveDns,
+    isPromise,
+    doWithinInterval
 };
 
 module.exports = objToExport;
@@ -565,7 +602,9 @@ export {
     addDaysToDate,
     addParamToUrl,
     cleanEmptyMembersFromObject,
-    resolveDns
+    resolveDns,
+    isPromise,
+    doWithinInterval
 };
 
 export default {
@@ -591,5 +630,7 @@ export default {
     addDaysToDate,
     addParamToUrl,
     cleanEmptyMembersFromObject,
-    resolveDns
+    resolveDns,
+    isPromise,
+    doWithinInterval
 };
