@@ -1,6 +1,7 @@
 'use strict'
 import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "../Utils";
 import {List} from "ts-generic-collections-linq";
+import {XMPPUTils} from "../XMPPUtils";
 
 export {};
 
@@ -13,19 +14,27 @@ let AsyncLock = require('async-lock');
 //var intanceofXmppQueue = undefined;
 let LOG_ID = 'XMPPQUEUE';
 
+let xmppUtils = XMPPUTils.getXMPPUtils();
+
 class ItemForQueue {
     private defered : Deferred;
-    private itemFunction : any;    
+    private itemFunction : any;
+    private id : string;
     
     constructor(itemFunction : any) {
         let that = this;        
         that.defered = new Deferred();
         that.itemFunction = itemFunction;
+        that.id = xmppUtils.getUniqueId("XmppQueue");
         if (typeof (itemFunction) !== 'function') {
             throw new Error('You must pass a function to execute');
         }
     }
 
+    getId() {
+        return this.id;
+    }
+    
     getPromise() {
         let that = this;
         return that.defered.promise;
@@ -56,8 +65,8 @@ class ItemForQueue {
             that.itemFunction(that.defered.resolve, that.defered.reject);
             await that.defered.promise;
             // */
-            that.itemFunction(that.defered.resolve, that.defered.reject);
-            doWithinInterval({promise:that.defered.promise, timeout : 5000, error : "Timeout raised."}).catch((err) => {
+            that.itemFunction(that.defered.resolve, that.defered.reject, that.getId());
+            doWithinInterval({promise:that.defered.promise, timeout : 5000, error : "Timeout raised for doWithInterval of : " + that.getId()}).catch((err) => {
                 that.defered.reject(err);
             });
             return that.defered.promise;
@@ -81,7 +90,10 @@ class XmppQueue {
         that.timeBetweenXmppRequests = timeBetweenXmppRequests;
         that.requestsToSend = Promise.resolve(undefined);
         //that.items = new List<ItemForQueue>();
-        that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000, maxOccupationTime : 3000});
+        // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock 
+        // maxPending: 1000, Set max pending tasks - max number of tasks allowed in the queue at a time
+        // maxOccupationTime : 3000 Specify max occupation time - max amount of time allowed between entering the queue and completing execution
+        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 1000, maxOccupationTime : 5 * 60 * 1000});
     }
 
     addPromise(promiseFactory) {
@@ -143,27 +155,27 @@ class XmppQueue {
     add(callback) {
         let that = this;
         let timestamp = (new Date()).toUTCString();
-        that.logger.log("debug", LOG_ID + "(add) - ", timestamp, " - ItemForQueue storing");
         try {
             let deferedItem = new ItemForQueue(callback);
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", deferedItem.getId(), " - ItemForQueue storing");
             //that.items.add(deferedItem);
             //setTimeoutPromised(1000).then(() => {
             that.lock(async () => {
                 try {
                     //deferedItem.start.bind(deferedItem)();
                     //await pause(that.timeBetweenXmppRequests);
-                    that.logger.log("debug", LOG_ID + "(add) - ", timestamp, " - ItemForQueue will start.");
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", deferedItem.getId(), " - ItemForQueue will start.");
                     let deferedResult : Promise<any> = await deferedItem.start();
                     //await until(() => { deferedResult.state != "pending"}, "Waiting the promises to complete.");
-                    that.logger.log("debug", LOG_ID + "(add) - ", timestamp, " - ItemForQueue started and finished. Will pause before leave lock. deferedResult : ", deferedResult);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", deferedItem.getId(), " - ItemForQueue started and finished. Will pause before leave lock. deferedResult : ", deferedResult);
                 } catch (err) {
-                    that.logger.log("error", LOG_ID + "(add) - ", timestamp, " - CATCH Error !!! in lock, error : ", err);
+                    that.logger.log("error", LOG_ID + "(add) - id : ", deferedItem.getId(), " - CATCH Error !!! in lock, error : ", err);
                 }
                 await pause(that.timeBetweenXmppRequests);
-            }).then(() => {
-                that.logger.log("debug", LOG_ID + "(add) lock succeed.");
+            }, deferedItem.getId()).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", deferedItem.getId(), " -  lock succeed.");
             }).catch((error) => {
-                that.logger.log("error", LOG_ID + "(add) Catch Error, error : ", error);
+                that.logger.log("error", LOG_ID + "(add) - id : ", deferedItem.getId(), " - Catch Error, error : ", error);
                 deferedItem.reject(error);
             }); // */
             /*
@@ -173,7 +185,7 @@ class XmppQueue {
             return deferedItem.getPromise();
         } catch (err) {
             let error = {err : err};
-            that.logger.log("error", LOG_ID + "(add) - ", timestamp, " - CATCH Error !!! error : ", error);
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
             throw error;
         }
     }
@@ -212,36 +224,35 @@ class XmppQueue {
     } // */
 
 
-    async lock(fn) {
+    async lock(fn, id) {
         let that = this;
         let resultLock = "Lock failed.";
-        let timestampId = new Date().getMilliseconds();
         try {
-            that.logger.log("internal", LOG_ID + "(lock) - ", timestampId, " - will acquire lock the ", that.lockKey);
+            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
             await that.lockEngine.acquire(that.lockKey, async () => {
                 // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - ", timestampId, " - lock the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
                 let result = undefined;
                 try {
                     result = await fn(); // async work
                     return result;
                 } catch (err3) {
-                    that.logger.log("error", LOG_ID + "(lock) - ", timestampId, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
+                    that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
                 }
             }).then((result) => {
                 // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - ", timestampId, " - release the ", that.lockKey, ", result : ", result);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
                 resultLock = result;
             }).catch((err2) => {
-                        that.logger.log("warn", LOG_ID + "(lock) - ", timestampId, " - catch at acquire : ", that.lockKey, ", error : ", err2);
+                        that.logger.log("warn", LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
                         throw resultLock = err2;
                     }
             );
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(lock) - ", timestampId, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
+            that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
             throw resultLock = err;
         }
-        that.logger.log("internal", LOG_ID + "(lock) - ", timestampId, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
         return resultLock;
     }
 

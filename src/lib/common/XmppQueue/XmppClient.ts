@@ -559,14 +559,14 @@ class XmppClient  {
             if (args.length > 0) {
                 let idId = (args[0] && args[0].attrs ) ? args[0].attrs.id : undefined;
 
-                let prom = this.xmppQueue.add(async (resolve2, reject2) => {
+                let prom = this.xmppQueue.add(async (resolve2, reject2, id) => {
                     // return ; // To do failed the lock acquire.
                         if (that.socketClosed) {
-                            that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                            that.logger.log("error", LOG_ID + "(send) - id : ", id, " - Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
                             //return Promise.reject("Error the socket is close, so do not send data on it.")
                             return reject2({
                                 timestamp: (new Date()).toLocaleTimeString(),
-                                reason: "Error the socket is close, so do not send data on it."
+                                reason: "Error the socket is close, so do not send data on it. - id : " + id + " -"
                             });
                         }
                         try {
@@ -575,7 +575,7 @@ class XmppClient  {
                                 resolve2({"code": 1, "label": "OK"});
                             });
                         } catch (err) {
-                            that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at idId : ", idId, ", super.send : ", err);
+                            that.logger.log("debug", LOG_ID + "(sendIq) - id : ", id, " - _catch error_ at idId : ", idId, ", super.send : ", err);
                             //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                             return reject2(err);
                         }
@@ -591,8 +591,8 @@ class XmppClient  {
                 function cb(result) {
                     // Wait a few time between requests to avoid burst with lot of it.
                     setTimeout(() => {
-                        that.logger.log("debug", LOG_ID + "(send) idId : " , idId, ", setTimeout resolve");
-                        that.logger.log("internal", LOG_ID + "(send) idId : " , idId, ", setTimeout resolve : ", result);
+                        that.logger.log("debug", LOG_ID + "(send) - idId : " , idId, ", setTimeout resolve");
+                        that.logger.log("internal", LOG_ID + "(send) - idId : " , idId, ", setTimeout resolve : ", result);
                         resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
                     }, that.timeBetweenXmppRequests);
                 }
