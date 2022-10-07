@@ -1332,8 +1332,12 @@ class ChannelsService extends GenericService {
                         timestamp: item.item.entry.$.timestamp ? new Date(item.item.entry.$.timestamp) : "",
                         title: item.item.entry.title ? item.item.entry.title : "",
                         message: item.item.entry.message ? item.item.entry.message : "",
+                        creation: item.item.creation ? item.item.creation : "",
                         url: item.item.entry.url ? item.item.entry.url : "",
-                        images: []
+                        typeEntry:  item.item.entry.type ? item.item.entry.type : "",
+                        images: [],
+                        my_appreciation : item.item.my_appreciation ? item.item.my_appreciation : "",
+                        appreciations: item.item.appreciations ? ( item.item.appreciations.$ ? item.item.appreciations.$ : "" ) : ""
                     };
 
                     if (Array.isArray(item.item.entry.images)) {

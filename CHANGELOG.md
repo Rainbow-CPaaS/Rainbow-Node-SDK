@@ -12,6 +12,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Refactor XmppQueue to use lock to avoid the previously happened unhandled exceptions.
 -   Add the catch of `unhandledRejection` in XmppClient constructor.
 -   Refactor XmppClient::send, XmppClient::sendIq methods to use the new XmppQueue with lock system. 
+-   Add `Bubble::isAlertNotificationEnabled`, `Bubble::isOwnedByGroup`, `Bubble::isActiveLastChange`, `Bubble::processId` properties.
+-   Add `Contact::outOfOffice`, `Contact::lastSeenDate`, `Contact::eLearningCustomisation`, `Contact::eLearningGamificationCustomisation`, `Contact::useRoomAsRBVoiceUser`, `Contact::useWebRTCAudioAsRBVoiceUser`, `Contact::msTeamsPresence` properties.
+-   Add `Chanel::enable_comments`, `Chanel::max_comments`, `Chanel::max_payload_comment_size`, `Chanel::additionDate` properties.
+-   Add in channel messages of result of ChannelsService::fetchChannelItems properties `creation`, `typeEntry`, `my_appreciation`, `appreciations`.
 
 ## [2.15.2] - 2022-09-13
 -   fix  RESTService::retrieveFileDescriptors method, the type of the fileName.

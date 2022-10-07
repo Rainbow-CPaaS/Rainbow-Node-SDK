@@ -13875,9 +13875,9 @@ declare module 'lib/services/AdminService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | report | Object | * check results summary |
-	     * | status | String | * status of the check csv<br><br>Valeurs autorisées : `success`, `failure`, `pending` |
+	     * | status | String | * status of the check csv<br><br>Possible values : `success`, `failure`, `pending` |
 	     * | reqId | String | * check request identifier |
-	     * | mode | String | * request csv mode<br><br>Valeurs autorisées : `user`, `device` |
+	     * | mode | String | * request csv mode<br><br>Possible values : `user`, `device` |
 	     * | actions | Object | * actions information |
 	     * | sync optionnel | Number | * number of user synchronization actions |
 	     * | upsert optionnel | Number | * number of user create/update actions |
@@ -14130,7 +14130,7 @@ declare module 'lib/services/AdminService' {
 	     *      This API retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId). <br>
 	     *           <br>
 	     *      return { <br>
-	     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+	     *           status : string, // status of the check csv. Possible values : success, failure, pending  <br>
 	     *          report : Object,  // check results summary <br>
 	     *              companyId : string, // Id of the company of the directory <br>
 	     *              userId : string, Id of the requesting user <br>
@@ -14160,7 +14160,7 @@ declare module 'lib/services/AdminService' {
 	     *      This API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...). <br>
 	     *           <br>
 	     *      return { <br>
-	     *           status : string, // status of the check csv. Valeurs autorisées : success, failure, pending  <br>
+	     *           status : string, // status of the check csv. Possible values : success, failure, pending  <br>
 	     *          report : Object,  // check results summary <br>
 	     *              details : string details for for report <br>
 	     *        } <br>
@@ -14169,7 +14169,7 @@ declare module 'lib/services/AdminService' {
 	     * @return {Promise<any>}
 	     * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
 	     * @param {Object} data The body of the request : {
-	     *     status : string, // status for the execution of the command Valeurs autorisées : success, failure
+	     *     status : string, // status for the execution of the command Possible values : success, failure
 	     *     details : string, // details that can be provided about the command execution
 	     * }
 	     */
@@ -14188,7 +14188,7 @@ declare module 'lib/services/AdminService' {
 	     *      return an {Object}  of result data. <br>
 	     * @return {Promise<any>}
 	     * @param companyId companyId from which to retrieve entries, default to admin's companyId
-	     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Valeurs autorisées : csv, json, all
+	     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Possible values : csv, json, all
 	     * @param ldap_id Allows to filter entries containing a ldap_id. </br>
 	     * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
 	     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>

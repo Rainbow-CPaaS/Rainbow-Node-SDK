@@ -97,6 +97,14 @@ class Channel {
     public messages: any[] = [];
     public deleted: boolean = false;
     public mute: boolean = false;
+    
+    public enable_comments: boolean = null;
+    public max_comments: number = null;
+    public max_payload_comment_size: number = null;
+    public additionDate: boolean = null;
+    
+    public lastCheckDate : string;
+    public max_payload_size_comment : number;
 
     /**
      * @this Channel
@@ -131,8 +139,14 @@ class Channel {
         _messageRetrieved: boolean = false,
         _messages: any[] = [],
         _deleted: boolean = false,
-        _mute: boolean = false
-    ) {
+        _mute: boolean = false,
+        _enable_comments: boolean = null,
+        _max_comments: number = null,
+        _max_payload_comment_size: number = null,
+        _additionDate: boolean = null,
+        _lastCheckDate : string,
+        _max_payload_size_comment : number
+) {
         /**
          * @public
          * @property {string} name channel name
@@ -148,14 +162,14 @@ class Channel {
         /**
          * @public
          * @property {string} visibility channel type/visibility<br>
-         * 		"private" : a « Pub » channel, only the owner may publish messages.<br>
-         * 					Managed by owner, the only one who can add or remove users in a private channels.<br>
-         * 					Can't be found by search.<br>
-         * 		"company" : « PubSub » channel (company users may join/leave)
-         * 					May be found by search for users in the same company.<br>
-         * 		"public"  : « PubSub » public channel.
-         * 					Only allowed users may create a "public" channel.
-         * 					May be found by search for all users.<br>
+         *        "private" : a « Pub » channel, only the owner may publish messages.<br>
+         *                    Managed by owner, the only one who can add or remove users in a private channels.<br>
+         *                    Can't be found by search.<br>
+         *        "company" : « PubSub » channel (company users may join/leave)
+         *                    May be found by search for users in the same company.<br>
+         *        "public"  : « PubSub » public channel.
+         *                    Only allowed users may create a "public" channel.
+         *                    May be found by search for all users.<br>
          *
          */
         this.visibility = _visibility;
@@ -205,44 +219,153 @@ class Channel {
         this.subscribers_count = _subscribers_count;
 
         /**
-         @public
+         *  @public
          * @property {string} category the category channel
          *
          */
         this.category = _category;
 
         /**
-         @public
+         *  @public
          * @property {string} mode the category mode
          *
          */
         this.mode = _mode;
 
+        /**
+         *  @public
+         * @property {number} max_items max # of items to persist. Default value : 30
+         *
+         */
         this.max_items = _max_items;
+        
+        /**
+         *  @public
+         * @property {number} max_payload_size max payload size in bytes. Default value : 60000
+         *
+         */
         this.max_payload_size = _max_payload_size;
 
         this.serverURL = _serverURL;
 
+        /**
+         *  @public
+         * @property {string} lastAvatarUpdateDate date of last avatar change
+         *
+         */
         this.lastAvatarUpdateDate = _lastAvatarUpdateDate;
-        let timestamp = this.lastAvatarUpdateDate ? "&ts=" + new Date(this.lastAvatarUpdateDate).getTime() : "";
+        let timestamp = this.lastAvatarUpdateDate ? "&ts=" + new Date(this.lastAvatarUpdateDate).getTime():"";
+
+        /**
+         *  @public
+         * @property {string} avatar The path of the channel avatar.
+         *
+         */
         this.avatar = this.serverURL + "/api/channel-avatar/" + _id + "?size=256" + timestamp;
 
-        if (_subscribed !== undefined) { this.subscribed = _subscribed; }
-        if (_type !== undefined) { this.userRole = _type; }
-        if (_invited !== undefined) { this.invited = _invited; }
+        if (_subscribed!==undefined) {
+
+            /**
+             *  @public
+             * @property {boolean} subscribed user subscription state
+             *
+             */
+            this.subscribed = _subscribed;
+        }
+        if (_type!==undefined) {
+
+            /**
+             *  @public
+             * @property {string} userRole the channel affiliation type of the requesting user. Possible values : owner, publisher, member
+             *
+             */
+            this.userRole = _type;
+        }
+        if (_invited!==undefined) {
+
+            /**
+             *  @public
+             * @property {boolean} invited the channel invitation state of the requesting user
+             *
+             */
+            this.invited = _invited;
+        }
 
         if (!this.mode) {
             switch (this.visibility) {
-                case "company": this.mode = "company_public"; break;
-                case "public": this.mode = "all_public"; break;
-                case "private": this.mode = "company_private"; break;
-                default: break;
+                case "company":
+                    this.mode = "company_public";
+                    break;
+                case "public":
+                    this.mode = "all_public";
+                    break;
+                case "private":
+                    this.mode = "company_private";
+                    break;
+                default:
+                    break;
             }
         }
 
-        this.deleted = _deleted;
 
+        /**
+         *  @public
+         * @property {boolean} deleted Channel deleted.
+         *
+         */
+        this.deleted = _deleted;
+        
+        /**
+         *  @public
+         * @property {boolean} mute current mute state
+         *
+         */
         this.mute = _mute;
+
+        /**
+         *  @public
+         * @property {boolean} enable_comments enable comments for a channel. Default value : true
+         *
+         */
+        this.enable_comments = _enable_comments;
+
+        /**
+         *  @public
+         * @property {number} max_comments max # of comments for an item (-1 for infinite). Default value : -1
+         *
+         */
+        this.max_comments = _max_comments;
+
+        /**
+         *  @public
+         * @property {number} max_payload_comment_size max payload size in bytes for a comment. Default value : 60000
+         *
+         */
+        this.max_payload_comment_size = _max_payload_comment_size; 
+
+        /**
+         *  @public
+         * @property {boolean} additionDate the invitation/membership date
+         *
+         */
+        this.additionDate = _additionDate;
+
+
+        /**
+         *  @public
+         * @property {string} lastCheckDate 
+         *
+         */
+        this.lastCheckDate = _lastCheckDate;
+
+
+        /**
+         *  @public
+         * @property {number} max_payload_size_comment 
+         *
+         */
+        this.max_payload_size_comment = _max_payload_size_comment;
+
     }
 
     public isNotMember() { return (this.userRole = "none"); }
@@ -322,7 +445,13 @@ class Channel {
                 data.messageRetrieved,
                 data.messages,
                 data.deleted,
-                data.mute
+                data.mute, 
+                data.enable_comments,
+                data.max_comments,
+                data.max_payload_comment_size,
+                data.additionDate,
+                data.lastCheckDate,
+                data.max_payload_size_comment
         );
 
             if (data) {

@@ -141,6 +141,10 @@ class Bubble {
     public containerName: string;
     public status: string = "none";
     private _initialPresence : InitialPresence;
+    public isAlertNotificationEnabled : boolean
+    public isOwnedByGroup : boolean
+    public isActiveLastChange : boolean
+    public processId : any
 
 
     public static RoomUserStatus = {
@@ -200,7 +204,8 @@ class Bubble {
     public tags: Array<any>;
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null) {
+                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null) {
 
         /**
          * @public
@@ -449,6 +454,11 @@ class Bubble {
          * @readonly
          */
         this._initialPresence = new InitialPresence();
+        
+        this.isAlertNotificationEnabled = _isAlertNotificationEnabled;
+        this.isOwnedByGroup = _isOwnedByGroup;
+        this.isActiveLastChange = _isActiveLastChange;
+        this.processId = _processId;
     }
 
     /**
@@ -576,7 +586,11 @@ class Bubble {
                 data.tags,
                 avatarDomain,
                 data.containerId, 
-                data.containerName
+                data.containerName,
+                data.isAlertNotificationEnabled,
+                data.isOwnedByGroup,
+                data.isActiveLastChange,
+                data.processId
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);

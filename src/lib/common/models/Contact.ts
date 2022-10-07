@@ -134,6 +134,7 @@ class Contact {
     public  isInitialized : boolean;
     public  initializationDate : string;
     public  createdBySelfRegister : boolean;
+    public  createdByAdmin : any;
     public  createdByAppId : string;
     public  firstLoginDate : string;
     public  lastLoginDate : string;
@@ -176,20 +177,28 @@ class Contact {
     public  creationDate : string;
     public  profiles : Array<any>;
     public  activationDate : string;
-    public  lastOfflineMailReceivedDate : Array<any>;
+    public  lastOfflineMailReceivedDate : string;
     public  state : string;
     public  authenticationType : string;
     public  department : string;
     public  isADSearchAvailable : boolean;
     public  isTv : boolean;
-    public  calendars : any;
+    public  calendars : Array<any>;
     public  openInvites : any;
     public isAlertNotificationEnabled : boolean;
+    
+    public outOfOffice : any;
+    public lastSeenDate : string;
+    public eLearningCustomisation : any;
+    public eLearningGamificationCustomisation : any;
+    public useRoomAsRBVoiceUser : boolean;
+    public useWebRTCAudioAsRBVoiceUser : boolean;
+    public msTeamsPresence : any;
 
     constructor() {
 
         this._lastContactCacheUpdate = new Date();
-        
+
         /**
          * @public
          * @readonly
@@ -213,13 +222,14 @@ class Contact {
 
         this.displayNameMD5 = "";
 
-            /**
+        /**
          * @public
          * @readonly
          * @property {string} companyName The company name of the Contact
          * @instance
          */
         this.companyName = "";
+        this.company = null;
 
         /**
          * @public
@@ -609,70 +619,660 @@ class Contact {
          */
         this.temp = false;
 
+        /**
+         * @public
+         * @property {string} userInfo1 Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+         * @readonly
+         */
         this.userInfo1 = null;
-        this.userInfo2 = null;
         
+        /**
+         * @public
+         * @property {string} userInfo2 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+         * @readonly
+         */
+        this.userInfo2 = null;
+
+
+        /**
+         * @public
+         * @property {Object} customData User's custom data. Object with free keys/values. </BR>
+         * It is up to the client to manage the user's customData (new customData provided overwrite the existing one). </BR>
+         * Restrictions on customData Object: </BR>
+         * * max 20 keys, </BR>
+         * * max key length: 64 characters, </BR>
+         * * max value length: 4096 characters.
+         * @readonly
+         */
         this.customData = [];
+
+        /**
+         * @public
+         * @property {string} selectedTheme Theme to be used by the user. </BR>
+         * If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
+         * @readonly
+         */
         this.selectedTheme = null;
 
+
+        /**
+         * @public
+         * @property {Array<string>} tags An Array of free tags associated to the user. </BR>
+         * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </BR>
+         * tags can only be set by users who have administrator rights on the user. The user can't modify the tags. </BR>
+         * The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags.
+         * @readonly
+         */
         this.tags = [];
-    this.isActive = false;
-    this.accountType = null;
-    this.systemId = null;
-    this.isInitialized = false;
-    this.initializationDate = null;
-    this.createdBySelfRegister = false;
-    this.createdByAppId = null;
-    this.firstLoginDate = null;
-    this.lastLoginDate = null;
-    this.loggedSince = null;
-    this.failedLoginAttempts = 0;
-    this.lastLoginFailureDate = null;
-    this.lastExpiredTokenRenewedDate = null;
-    this.lastPasswordUpdateDate = null;
-    this.timeToLive = -1;
-    this.timeToLiveDate = null;
-    this.terminatedDate = null;
-    this.fileSharingCustomisation = null;
-    this.userTitleNameCustomisation = null;
-    this.softphoneOnlyCustomisation = null;
-    this.useRoomCustomisation = null;
-    this.phoneMeetingCustomisation = null;
-    this.useChannelCustomisation = null;
-    this.useScreenSharingCustomisation = null;
-    this.useWebRTCAudioCustomisation = null;
-    this.useWebRTCVideoCustomisation = null;
-    this.instantMessagesCustomisation = null;
-    this.userProfileCustomisation = null;
-    this.fileStorageCustomisation = null;
-    this.overridePresenceCustomisation = null;
-    this.changeTelephonyCustomisation = null;
-    this.changeSettingsCustomisation = null;
-    this.recordingConversationCustomisation = null;
-    this.useGifCustomisation = null;
-    this.useDialOutCustomisation = null;
-    this.fileCopyCustomisation = null;
-    this.fileTransferCustomisation = null;
-    this.forbidFileOwnerChangeCustomisation = null;
-    this.readReceiptsCustomisation = null;
-    this.useSpeakingTimeStatistics = null;
-    this.selectedAppCustomisationTemplate  = null;
-    this.alertNotificationReception = null;
-    this.selectedDeviceFirmware = null;
-    this.visibility = null;
-    this.jid_password = null;
-    this.creationDate = null;
-    this.profiles = [];
-    this.activationDate = null;
-    this.lastOfflineMailReceivedDate = [];
-    this.state = null;
-    this.authenticationType = null;
-    this.department = null;
-    this.isADSearchAvailable = false;
-    this.isTv = false;
-    this.calendars = null;
-    this.openInvites = null;
-    this.isAlertNotificationEnabled = false;
+
+        /**
+         * @public
+         * @property {boolean} isActive Is user active
+         * @readonly
+         */
+        this.isActive = false;
+
+        /**
+         * @public
+         * @property {string} accountType 
+         * @readonly
+         */
+        this.accountType = null;
+
+        /**
+         * @public
+         * @property {string} systemId If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. [Only for phone numbers linked to a system (pbx)]
+         * @readonly
+         */
+        this.systemId = null;
+
+        /**
+         * @public
+         * @property {boolean} isInitialized Is user initialized
+         * @readonly
+         */
+        this.isInitialized = false;
+
+        /**
+         * @public
+         * @property {string} initializationDate User initialization date
+         * @readonly
+         */
+        this.initializationDate = null;
+
+        /**
+         * @public
+         * @property {boolean} createdBySelfRegister true if user has been created using self register
+         * @readonly
+         */
+        this.createdBySelfRegister = false;
+
+        /**
+         * @public
+         * @property {Object} createdByAdmin If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user
+         * @readonly
+         */
+        this.createdByAdmin  = null;
+
+        /**
+         * @private
+         * @property {string} createdByAppId
+         * @readonly
+         */
+        this.createdByAppId = null;
+
+        /**
+         * @public
+         * @property {string} firstLoginDate Date of first user login (only set the first time user logs in, null if user never logged in)
+         * @readonly
+         */
+        this.firstLoginDate = null;
+
+        /**
+         * @public
+         * @property {string} lastLoginDate Date of last user login (defined even if user is logged out)
+         * @readonly
+         */
+        this.lastLoginDate = null;
+
+        /**
+         * @public
+         * @property {string} loggedSince Date of last user login (null if user is logged out)
+         * @readonly
+         */
+        this.loggedSince = null;
+
+        /**
+         * @private
+         * @property {number} failedLoginAttempts
+         * @readonly
+         */
+        this.failedLoginAttempts = 0;
+
+        /**
+         * @private
+         * @property {string} lastLoginFailureDate
+         * @readonly
+         */
+        this.lastLoginFailureDate = null;
+
+        /**
+         * @private
+         * @property {string} lastExpiredTokenRenewedDate
+         * @readonly
+         */
+        this.lastExpiredTokenRenewedDate = null;
+
+        /**
+         * @private
+         * @property {string} lastPasswordUpdateDate
+         * @readonly
+         */
+        this.lastPasswordUpdateDate = null;
+
+        /**
+         * @public
+         * @property {number} timeToLive Duration in second to wait before automatically starting a user deletion from the creation date.</BR>
+         * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment.</BR>
+         * Value -1 means timeToLive is disable (i.e. user account will not expire).
+         * @readonly
+         */
+        this.timeToLive = -1;
+
+        /**
+         * @private
+         * @property {string} timeToLiveDate
+         * @readonly
+         */
+        this.timeToLiveDate = null;
+
+        /**
+         * @private
+         * @property {string} terminatedDate
+         * @readonly
+         */
+        this.terminatedDate = null;
+
+        /**
+         * @public
+         * @property {string} fileSharingCustomisation Activate/Deactivate file sharing capability per user </BR>
+         * Define if the user can use the file sharing service then, allowed to download and share file. </BR>
+         * FileSharingCustomisation can be: </BR>
+         * </BR>
+         *  * same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. </BR>
+         *  * enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. </BR>
+         *  * disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. </BR>
+         *  
+         * @readonly
+         */
+        this.fileSharingCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName)</BR>
+         * Define if the user can change some profile data.</BR>
+         * userTitleNameCustomisation can be:</BR>
+         * * same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting.</BR>
+         * * enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data.</BR>
+         * * disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data.</BR>
+         * @readonly
+         */
+        this.userTitleNameCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} softphoneOnlyCustomisation Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services</BR>
+         * Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.</BR>
+         * softphoneOnlyCustomisation can be:</BR>
+         * * same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting.</BR>
+         * * enabled: The user switch to a softphone mode only.</BR>
+         * * disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on.</BR>
+         * @readonly
+         */
+        this.softphoneOnlyCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.</BR>
+         * Define if a user can create bubbles or participate in bubbles (chat and web conference).</BR>
+         * useRoomCustomisation can be:</BR>
+         * * same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting.</BR>
+         * * enabled: The user can use bubbles.</BR>
+         * * disabled: The user can't use bubbles.</BR>
+         * @readonly
+         */
+        this.useRoomCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).</BR>
+         * Define if a user has the right to join phone meetings.</BR>
+         * phoneMeetingCustomisation can be:</BR>
+         * * same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting.</BR>
+         * * enabled: The user can join phone meetings.</BR>
+         * * disabled: The user can't join phone meetings.</BR>
+         * @readonly
+         */
+        this.phoneMeetingCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.</BR>
+         * Define if a user has the right to create channels or be a member of channels.</BR>
+         * useChannelCustomisation can be:</BR>
+         * * same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting.</BR>
+         * * enabled: The user can use some channels.</BR>
+         * * disabled: The user can't use some channel.</BR>
+         * @readonly
+         */
+        this.useChannelCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.</BR>
+         * Define if a user has the right to share his screen.</BR>
+         * useScreenSharingCustomisation can be:</BR>
+         * * same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting.</BR>
+         * * enabled: Each user of the company can share his screen.</BR>
+         * * disabled: No user of the company can share his screen.</BR>
+         * @readonly
+         */
+        this.useScreenSharingCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.</BR>
+         * Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).</BR>
+         * useWebRTCAudioCustomisation can be:</BR>
+         * * same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting.</BR>
+         * * enabled: The user can switch to a Web RTC audio conversation.</BR>
+         * * disabled: The user can't switch to a Web RTC audio conversation.</BR>
+         * @readonly
+         */
+        this.useWebRTCAudioCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.</BR>
+         * Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).</BR>
+         * useWebRTCVideoCustomisation can be:</BR>
+         * * same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting.</BR>
+         * * enabled: The user can switch to a Web RTC video conversation.</BR>
+         * * disabled: The user can't switch to a Web RTC video conversation.</BR>
+         * @readonly
+         */
+        this.useWebRTCVideoCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.</BR>
+         * Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.</BR>
+         * instantMessagesCustomisation can be:</BR>
+         * * same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting.</BR>
+         * * enabled: The user can use instant messages.</BR>
+         * * disabled: The user can't use instant messages.</BR>
+         * @readonly
+         */
+        this.instantMessagesCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.</BR>
+         * Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).</BR>
+         * userProfileCustomisation can be:</BR>
+         * * same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting.</BR>
+         * * enabled: The user can modify his profile.</BR>
+         * * disabled: The user can't modify his profile.</BR>
+         * @readonly
+         */
+        this.userProfileCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.</BR>
+         * Define if a user has the right to upload/download/copy or share documents.</BR>
+         * fileStorageCustomisation can be:</BR>
+         * * same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting.</BR>
+         * * enabled: The user can manage and share files.</BR>
+         * * disabled: The user can't manage and share files.</BR>
+         * @readonly
+         */
+        this.fileStorageCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to use instant messages.</BR>
+         * Define if a user has the right to change his presence manually or only use automatic states.</BR>
+         * overridePresenceCustomisation can be:</BR>
+         * * same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting.</BR>
+         * * enabled: The user can change his presence.</BR>
+         * * disabled: The user can't change his presence.</BR>
+         * @readonly
+         */
+        this.overridePresenceCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.</BR>
+         * Define if a user has the right to modify some telephony settigs like forward activation...</BR>
+         * changeTelephonyCustomisation can be:</BR>
+         * * same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting.</BR>
+         * * enabled: The user can modify telephony settings.</BR>
+         * * disabled: The user can't modify telephony settings.</BR>
+         * @readonly
+         */
+        this.changeTelephonyCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.</BR>
+         * changeSettingsCustomisation can be:</BR>
+         * * same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting.</BR>
+         * * enabled: The user can change all client general settings.</BR>
+         * * disabled: The user can't change any client general setting.</BR>
+         * @readonly
+         */
+        this.changeSettingsCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.</BR>
+         * Define if a user has the right to record a conversation (for P2P and multi-party calls).</BR>
+         * recordingConversationCustomisation can be:</BR>
+         * * same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting.</BR>
+         * * enabled: The user can record a peer to peer or a multi-party call.</BR>
+         * * disabled: The user can't record a peer to peer or a multi-party call.</BR>
+         * @readonly
+         */
+        this.recordingConversationCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.</BR>
+         * Define if a user has the is allowed to send animated GIFs in conversations</BR>
+         * useGifCustomisation can be:</BR>
+         * * same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting.</BR>
+         * * enabled: The user can send animated GIFs in conversations.</BR>
+         * * disabled: The user can't send animated GIFs in conversations.</BR>
+         * @readonly
+         */
+        this.useGifCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.</BR>
+         * Define if a user is allowed to be called by the Rainbow conference bridge.</BR>
+         * useDialOutCustomisation can be:</BR>
+         * * same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting.</BR>
+         * * enabled: The user can be called by the Rainbow conference bridge.</BR>
+         * * disabled: The user can't be called by the Rainbow conference bridge.</BR>
+         * @readonly
+         */
+        this.useDialOutCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} fileCopyCustomisation Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space</BR>
+         * fileCopyCustomisation can be:</BR>
+         * * same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting.</BR>
+         * * enabled: The user can make a copy of a file to his personal cloud space.</BR>
+         * * disabled: The user can't make a copy of a file to his personal cloud space.</BR>
+         * @readonly
+         */
+        this.fileCopyCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} fileTransferCustomisation Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation.</BR>
+         * The file cannot be re-shared.</BR>
+         * fileTransferCustomisation can be:</BR>
+         * * same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting.</BR>
+         * * enabled: The user can transfer a file doesn't belong to him.</BR>
+         * * disabled: The user can't transfer a file doesn't belong to him.</BR>
+         * @readonly
+         */
+        this.fileTransferCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the capability for a user to loose the ownership on one file.</BR>
+         * One user can drop the ownership to another Rainbow user of the same company.</BR>
+         * forbidFileOwnerChangeCustomisation can be:</BR>
+         * * same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting.</BR>
+         * * enabled: The user can't give the ownership of his file.</BR>
+         * * disabled: The user can give the ownership of his file.</BR>
+         * @readonly
+         */
+        this.forbidFileOwnerChangeCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} readReceiptsCustomisation Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.</BR>
+         * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.</BR>
+         * This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.</BR>
+         * readReceiptsCustomisation can be:</BR>
+         * * same_than_company: The same readReceiptsCustomisation setting than the user's company's is applied to the user. if the readReceiptsCustomisation of the company is changed the user's readReceiptsCustomisation will use this company new setting.</BR>
+         * * enabled: The user allows the sender to check if an IM is read.</BR>
+         * * disabled: The user doesn't allow the sender to check if an IM is read.</BR>
+         * @readonly
+         */
+        this.readReceiptsCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} useSpeakingTimeStatistics Activate/Deactivate the capability for a user to see speaking time statistics.</BR>
+         * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.</BR>
+         * useSpeakingTimeStatistics can be:</BR>
+         * * same_than_company: The same useSpeakingTimeStatistics setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's useSpeakingTimeStatistics will use this company new setting.</BR>
+         * * enabled: The user can use meeting speaking time statistics.</BR>
+         * * disabled: The user can't use meeting speaking time statistics.</BR>
+         * @readonly
+         */
+        this.useSpeakingTimeStatistics = null;
+
+        /**
+         * @public
+         * @property {string} selectedAppCustomisationTemplate To log the last template applied to the user.
+         * @readonly
+         */
+        this.selectedAppCustomisationTemplate = null;
+
+        /**
+         * @public
+         * @property {string} alertNotificationReception Activate/Deactivate the capability for a user to receive alert notification.</BR>
+         * Define if a user has the right to receive alert notification</BR>
+         * alertNotificationReception can be:</BR>
+         * enabled: Each user of the company can receive alert notification.</BR>
+         * disabled: No user of the company can receive alert notification.</BR>
+         * @readonly
+         */
+        this.alertNotificationReception = null;
+
+        /**
+         * @private
+         * @property {string} selectedDeviceFirmware
+         * @readonly
+         */
+        this.selectedDeviceFirmware = null;
+
+        /**
+         * @public
+         * @property {string} visibility Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).</BR>
+         * </BR>
+         * * public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users</BR>
+         * * private: User can't be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users</BR>
+         * * organisation: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users</BR>
+         * * closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users</BR>
+         * * isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users</BR>
+         * * none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users</BR>
+         * </BR>
+         * External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.</BR>
+         * </BR>
+         * Note related to organisation visibility:</BR>
+         * </BR>
+         * * Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.</BR>
+         * * The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.</BR>
+         * </BR>
+         * Default value : private. Possible values : public, private, organisation, closed, isolated</BR>
+         * @readonly
+         */
+        this.visibility = null;
+
+        /**
+         * @public
+         * @property {string} jid_password User Jabber IM and TEL password
+         * @readonly
+         */
+        this.jid_password = null;
+
+        /**
+         * @public
+         * @property {string} creationDate Date when the theme has been created.
+         * @readonly
+         */
+        this.creationDate = null;
+
+        /**
+         * @public
+         * @property {Array<Object>} profiles User profile Objects. 
+         * @readonly
+         */
+        this.profiles = [];
+
+        /**
+         * @public
+         * @property {string} activationDate User activation date
+         * @readonly
+         */
+        this.activationDate = null;
+
+        /**
+         * @public
+         * @property {string} lastOfflineMailReceivedDate The last time the user has received a message to connect to Rainbow from the logged in user 
+         * @readonly
+         */
+        this.lastOfflineMailReceivedDate = null;
+
+        /**
+         * @public
+         * @property {string} state When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+         * @readonly
+         */
+        this.state = null;
+
+        /**
+         * @public
+         * @property {string} authenticationType User authentication type (if not set company default authentication will be used). Possible values : DEFAULT, RAINBOW, SAML, OIDC
+         * @readonly
+         */
+        this.authenticationType = null;
+
+        /**
+         * @public
+         * @property {string} department User department
+         * @readonly
+         */
+        this.department = null;
+
+        /**
+         * @public
+         * @property {boolean} isADSearchAvailable Is ActiveDirectory (Office365) search available for this user 
+         * @readonly
+         */
+        this.isADSearchAvailable = false;
+
+        /**
+         * @public
+         * @property {boolean} isTv Indicates if the user corresponds to a TV or not
+         * @readonly
+         */
+        this.isTv = false;
+
+        /**
+         * @public
+         * @property {Array<Object>} calendars List of associated calendars from external providers configured by the user (office365, google calendar, ...) </BR>
+         * Only returned if the requested user is the logged in user. 
+         * @readonly
+         */
+        this.calendars = null;
+
+        /**
+         * @private
+         * @property {string} openInvites 
+         * @readonly
+         */
+        this.openInvites = null;
+
+        /**
+         * @public
+         * @property {boolean} isAlertNotificationEnabled Is user subscribed to Rainbow Alert Offer
+         * @readonly
+         */
+        this.isAlertNotificationEnabled = false;
+
+
+        /**
+         * @public
+         * @property {Object} outOfOffice Out of office user's informations. 
+         * @readonly
+         */
+        this.outOfOffice = null;
+
+        /**
+         * @public
+         * @property {string} lastSeenDate Approximate date when the user has been seen on Rainbow (null if user never logged in) </BR>
+         * This date is updated: </BR>
+         * When the user logs in (either from login API, SAML/OIDC SSO, OAuth) </BR>
+         * When the token of the user is refreshed. </BR>
+         * When the user logs out </BR>
+         * @readonly
+         */
+        this.lastSeenDate = null;
+
+        /**
+         * @public
+         * @property {boolean} eLearningCustomisation Activate/Deactivate the capability for a user to participate on a Elearning training. </BR>
+         * Defines if a user can particapate on an Elearning training. </BR>
+         * eLearningCustomisation can be: </BR>
+         * * same_than_company: The same eLearningCustomisation setting than the user's company's is applied to the user. if the eLearningCustomisation of the company is changed the user's eLearningCustomisation will use this company new setting. </BR>
+         * * enabled: The user can participate on an Elearning training. </BR>
+         * * disabled: The user can't participate on an Elearning training. </BR>
+         * @readonly
+         */
+        this.eLearningCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} eLearningGamificationCustomisation Activate/Deactivate the capability for a user to earn badges for Elearning progress. </BR>
+         * Defines if a user can earn badges for Elearning progress. </BR>
+         * eLearningGamificationCustomisation can be: </BR>
+         * * same_than_company: The same eLearningGamificationCustomisation setting than the user's company's is applied to the user. if the eLearningGamificationCustomisation of the company is changed the user's eLearningGamificationCustomisation will use this company new setting. </BR>
+         * * enabled: The user can earn badges for Elearning progress. </BR>
+         * * disabled: The user can't earn badges for Elearning progress. </BR>
+         * @readonly
+         */
+        this.eLearningGamificationCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} useRoomAsRBVoiceUser Technical flag for Rainbow voice users. Whatever the customisation template applied for the user, if he has a Rainbow Voice licence useRoomAsRBVoiceUser is enabled else it is disabled.
+         * @readonly
+         */
+        this.useRoomAsRBVoiceUser = null;
+
+        /**
+         * @public
+         * @property {boolean} useWebRTCAudioAsRBVoiceUser Technical flag for Rainbow voice users. Whatever the customisation template applied for the user, if he has a Rainbow Voice licence useWebRTCAudioAsRBVoiceUser is enabled else it is disabled.
+         * @readonly
+         */
+        this.useWebRTCAudioAsRBVoiceUser = null;
+
+        /**
+         * @public
+         * @property {Object} msTeamsPresence List of associated Microsoft Teams Presence configured by the user. 
+         * @readonly
+         */
+        this.msTeamsPresence = null;
 
     }
 
@@ -955,6 +1555,9 @@ class Contact {
         if (userData.createdByAppId) {
             that.createdByAppId = userData.createdByAppId;
         }
+        if (userData.createdByAdmin) {
+            that.createdByAdmin = userData.createdByAdmin;
+        }
         if (userData.firstLoginDate) {
             that.firstLoginDate = userData.firstLoginDate;
         }
@@ -1105,6 +1708,27 @@ class Contact {
         if (userData.isAlertNotificationEnabled) {
             this.isAlertNotificationEnabled = userData.isAlertNotificationEnabled;
         }
+        if (userData.outOfOffice) {
+            this.outOfOffice = userData.outOfOffice;
+        }
+        if (userData.lastSeenDate) {
+            this.lastSeenDate = userData.lastSeenDate;
+        }
+        if (userData.eLearningCustomisation) {
+            this.eLearningCustomisation = userData.eLearningCustomisation;
+        }
+        if (userData.eLearningGamificationCustomisation) {
+            this.eLearningGamificationCustomisation = userData.eLearningGamificationCustomisation;
+        }
+        if (userData.useRoomAsRBVoiceUser) {
+            this.useRoomAsRBVoiceUser = userData.useRoomAsRBVoiceUser;
+        }
+        if (userData.useWebRTCAudioAsRBVoiceUser) {
+            this.useWebRTCAudioAsRBVoiceUser = userData.useWebRTCAudioAsRBVoiceUser;
+        }
+        if (userData.msTeamsPresence) {
+            this.msTeamsPresence = userData.msTeamsPresence;
+        }
 
         // Compute display name
         that.computeDisplayName();
@@ -1124,7 +1748,7 @@ class Contact {
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);
                     if (!objProperties.find((el) => {
-                        return val == el;
+                        return (val == el || val == "displayName");
                     })) {
                         // dev-code-console //
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);

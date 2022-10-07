@@ -1572,6 +1572,35 @@ let urlS2S;
         }
     }
 
+    async function testfetchChannelItemsFromSubscribed() {
+        //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
+        let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
+        let mychannel = mychannels ? mychannels[0]:null;
+        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+        if (mychannel) {
+            for (let i = 0; i < 1; i++) {
+                let now = new Date().getTime();
+                let itemId = "";
+                let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
+                logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
+
+                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
+                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
+
+                /*itemId = items[0].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                });
+                itemId = items[items.length - 1].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                }); // */
+            }
+        } else {
+            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+        }
+    }
+
     async function testcreateChannel() {
             let mychannels = rainbowSDK.channels.getAllOwnedChannel();
             let mychannel = mychannels ? mychannels[0]:null;
