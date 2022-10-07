@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.15.3] - 2022-09-13
+## [2.15.3] - 2022-10-07
 -   Fix getConnectionStatus when REST is not used.
 -   Add methods `Utils::doWithinInterval`, `Utils::isPromise` to manage promises.
 -   Refactor XmppQueue to use lock to avoid the previously happened unhandled exceptions.
