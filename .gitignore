@@ -278,3 +278,6 @@ fabric.properties
 /tasks/generateFoss.js.map
 /runcpdoc.bat
 /yarn.lock
+/Samples/testStop.d.ts
+/Samples/testStop.js.map
+/Samples/testStop.js
