@@ -475,6 +475,10 @@ class RESTTelephony {
             });
         });
     }
+    
+    // GET /api/rainbow/telephony/v1.0/voicemessages
+    
+    
 }
 
 let restService = null;
