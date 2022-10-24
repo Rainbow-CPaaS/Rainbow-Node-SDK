@@ -242,6 +242,9 @@ safeJsonParse(str) {
                             details: error
                         });
                     } else {
+                        if (response) {
+                            response.body = body;
+                        }
                         resolve (response);
                     }
                 });
@@ -298,6 +301,9 @@ safeJsonParse(str) {
                             details: error
                         });
                     } else {
+                        if (response) {
+                            response.body = body;
+                        }
                         resolve(response);
                     }
                 });
@@ -358,6 +364,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
+                that.logger.log("internal", LOG_ID + "(_postUrlRaw) successfull - error : ", error, ", body : ", body);
                 if (error) {
                     return reject({
                         code: -1,
@@ -365,6 +372,9 @@ safeJsonParse(str) {
                         details: error
                     });
                 } else {
+                    if (response) {
+                        response.body = body;
+                    }
                     resolve (response);
                 }
             });
@@ -431,6 +441,9 @@ safeJsonParse(str) {
                             details: error
                         });
                     } else {
+                        if (response) {
+                            response.body = body;
+                        }
                         resolve(response);
                     }
                 });
@@ -494,6 +507,9 @@ safeJsonParse(str) {
                             details: error
                         });
                     } else {
+                        if (response) {
+                            response.body = body;
+                        }
                         resolve(response);
                     }
                 });

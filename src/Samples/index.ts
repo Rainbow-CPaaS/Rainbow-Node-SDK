@@ -112,7 +112,7 @@ let urlS2S;
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
-           // "xmppRessourceName": "vnagw"
+            "xmppRessourceName": "vnagw"
         },
         "s2s": {
             "hostCallback": urlS2S,
@@ -4453,6 +4453,37 @@ let urlS2S;
     //endregion bubbles polls
 
     //region Rainbow HTTPoverXMPP
+
+    async function testpostUrl(urlToPost :string = "http://10.69.81.117:8091/management/api/onthemove/location/") {
+        let headers = {
+            'user-Id': 'ignoredWithPhone',
+            'user-Pin': 'ignoredWithPhone',
+            'user-Phone': '30100',
+            'Content-Type': 'application/json',
+            'Content-Length': '163',
+            'user-agent': 'node/v14.17.2 (linux; x64) Rainbow Sdk/2.16.0-lts.0'
+        };
+        //let body = decodeURIComponent(JSON.stringify({
+        let body = JSON.stringify({
+            "city":"new york",
+                "did":"8188784500",
+                "name":"3",
+                "psap":"911",
+                "state":"QC",
+                "streetName":"Quebec Rd",
+                "streetNumber":"4812",
+                "zipcode":"10010",
+                "country":"CA"} ) ;
+        try {
+
+
+            let res = await rainbowSDK._core._http.postUrlRaw(urlToPost, headers, body);
+            logger.log("debug", "MAIN - testpostUrl, res : ", res);
+        } catch (err) {
+            logger.log("error", "MAIN - testpostUrl, error err : ", err);
+        }
+
+    }
     
     async function testsubscribePresence() {
         let to = "29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net"; // "vincent11@vbe.test.openrainbow.net";
@@ -4521,7 +4552,7 @@ let urlS2S;
                 "\"nomadic\": false,\n" +
                 "\"psap\": \"911\",\n" +
                 "\"state\": \"CA\",\n" +
-                "\"streetName\": \"Helmond Drive\",\n" +
+                "\"streetName\": \"Québec Drive\",\n" +
                 "\"streetNumber\": \"27000\",\n" +
                 "\"zipcode\": \"91301\"\n" +
                 "}";
@@ -4630,14 +4661,18 @@ let urlS2S;
         logger.log("debug", "MAIN - testheadHTTPoverXMPP, res : ", res);
     }
     
-    async function testpostHTTPoverXMPP(urlToPost :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+    async function testpostHTTPoverXMPP(urlToPost :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
         let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
         //let headers = {};
+        if (vincent01) {
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            jidHTTPoverXMPPBot = contact.jid + "/node_vnagw";
+        }
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
-        let res = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data);
+        let res = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - testpostHTTPoverXMPP, res : ", res);
     }
     

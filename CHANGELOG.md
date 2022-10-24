@@ -6,8 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.17.0] - 2022-11-XX
+-   Fix body in error of raw request in HttpService. 
+
 ## [2.16.0-lts.0] - 2022-10-07
-Deliver STS version 2.15.3 as new LTS.
+-   Deliver STS version 2.15.3 as new LTS.
 
 ## [2.15.3] - 2022-10-07
 -   Fix getConnectionStatus when REST is not used.
