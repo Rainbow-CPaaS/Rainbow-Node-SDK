@@ -7,7 +7,8 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.17.0] - 2022-11-XX
--   Fix body in error of raw request in HttpService. 
+-   Fix body in error of raw request in HttpService.
+-   Extract the definition of methods from the constructor of the `core` class. 
 
 ## [2.16.0-lts.0] - 2022-10-07
 -   Deliver STS version 2.15.3 as new LTS.

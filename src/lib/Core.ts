@@ -40,23 +40,17 @@ import * as Utils from "./common/Utils";
 
 const packageVersion = require("../package.json");
 
-let _signin;
+/*let _signin;
 let _retrieveInformation;
+// */
 
 const LOG_ID = "CORE - ";
 
 @logEntryExit(LOG_ID)
 class Core {
-	public _signin: any;
-	public _signinWSOnly: any;
-	public _retrieveInformation: any;
-	public setRenewedToken: any;
-	public onTokenRenewed: any;
 	public logger: any;
 	public _rest: RESTService;
-	public onTokenExpired: any;
 	public _eventEmitter: Events;
-	public _tokenSurvey: any;
 	public options: any;
 	public _proxy: ProxyImpl;
 	public _http: HTTPService;
@@ -92,453 +86,7 @@ class Core {
     constructor(options) {
 
         let self = this;
-
-        self._signin = (forceStopXMPP, token) => {
-            let that = self;
-            that.logger.log("debug", LOG_ID + "(signin) _entering_");
-
-            let json = null;
-
-            return new Promise(async function (resolve, reject) {
-
-                if (that.options.useXMPP) {
-                    let loginSucceed = false;
-                    
-                    while (loginSucceed == false) {
-                        let loginResult = undefined;
-                        await that._xmpp.stop(forceStopXMPP).then(() => {
-                            return that._rest.signin(token);
-                        }).then((_json) => {
-                            json = _json;
-                            let headers = {
-                                "headers": {
-                                    // "Authorization": "Bearer " + that._rest.token,
-                                    "x-rainbow-client": "sdk_node",
-                                    "x-rainbow-client-version": packageVersion.version
-                                    // "Accept": accept || "application/json",
-                                }
-                            };
-                            return that._xmpp.signin(that._rest.loggedInUser, headers);
-                        }).then(function () {
-                            that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                            that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                            //return resolve(json);
-                            loginResult = json;
-                            loginSucceed = true;
-                        }).catch(function (err) {
-                            that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                            that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                            that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                            //return reject(err);
-                            loginSucceed = false;
-                            loginResult = err;
-                        });         
-                        if (loginSucceed) {
-                            resolve(loginResult);   
-                        } else {
-                            if (loginResult.code > 400) {
-                                return reject(loginResult)
-                            }  else {
-                                await pause(10000);
-                            }
-                        }
-                    }
-                } else if (that.options.useS2S) {
-                    return that._rest.signin(token).then(async (_json) => {
-                        json = _json;
-                        let headers = {
-                            "headers": {
-                                "Authorization": "Bearer " + that._rest.token,
-                                "x-rainbow-client": "sdk_node",
-                                "x-rainbow-client-version": packageVersion.version
-                                // "Accept": accept || "application/json",
-                            }
-                        };
-
-                        return that._s2s.signin(that._rest.loggedInUser, headers);
-                    }).then(function () {
-                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return resolve(json);
-                    }).catch(function (err) {
-                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return reject(err);
-                    });
-                } else {
-                    that._rest.signin(token).then((_json) => {
-                        json = _json;
-                        let headers = {
-                            "headers": {
-                                "Authorization": "Bearer " + that._rest.token,
-                                "x-rainbow-client": "sdk_node",
-                                "x-rainbow-client-version": packageVersion.version
-                                // "Accept": accept || "application/json",
-                            }
-                        };
-                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return resolve(json);
-                    }).catch((err)=> {
-                        that.logger.log("debug", LOG_ID + "(signin) signed failed : ", err);
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
-                        return reject(err);
-                    });
-                }
-            });
-        };
-
-        self._signinWSOnly = (forceStopXMPP, token, userInfos) => {
-            let that = self;
-            that.logger.log("debug", LOG_ID + "(_signinWSOnly) _entering_");
-
-            let json = null;
-
-            return new Promise(function (resolve, reject) {
-
-                if (that.options.useXMPP) {
-                    return that._xmpp.stop(forceStopXMPP).then(() => {
-                        that._rest.account = userInfos;
-                        if (token) {
-                            return that._rest.signin(token);
-                        } else {
-                            return Promise.resolve();
-                        }
-                    }).then((_json) => {
-                        json = _json;
-                        let headers = {
-                            "headers": {
-                                // "Authorization": "Bearer " + that._rest.token,
-                                "x-rainbow-client": "sdk_node",
-                                "x-rainbow-client-version": packageVersion.version
-                                // "Accept": accept || "application/json",
-                            }
-                        };
-                        return that._xmpp.signin(userInfos, headers);
-                    }).then(function () {
-                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) signed in successfully");
-                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
-                        return resolve(json);
-                    }).catch(function (err) {
-                        that.logger.log("error", LOG_ID + "(_signinWSOnly) can't signed-in.");
-                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
-                        return reject(err);
-                    });
-                } else {
-                    return reject({"error":"Error, can not login WS Only without useXMPP option setted to true."}); 
-                }
-            });
-        };
-
-        self._retrieveInformation = () => {
-            let that = self;
-            that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
-            //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
-            return new Promise(async (resolve, reject) => {
-
-                if (that.options.testOutdatedVersion) { 
-                    await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
-                        // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
-                        infos.results.forEach((packagePublished: any) => {
-                            if (packagePublished.package.name === packageVersion.name) {
-                                //if (packagePublished.package.version !== packageVersion.version) {
-                                if (lt(packageVersion.version, packagePublished.package.version)) {
-                                    self.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
-                                        "*******************************************************\n\n", self.logger.colors.red.underline("WARNING : "), self.logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
-                                    let error = {
-                                        "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
-                                        "currentPackage": packageVersion.version,
-                                        "latestPublishedPackage": packagePublished.package.version
-                                    };
-                                    self._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
-
-                                    //self.events.publish("rainbowversionwarning", error);
-                                } else {
-                                    self.logger.log("info", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
-                                }
-                            }
-                        });
-                    }).catch((error) => {
-                        self.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
-                        // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
-                    });
-                }
-
-                if (that.options.testDNSentry) {
-                    let findingDns = true;
-                    let resolvedHostnames: any = [];
-                    let dnsFound = false;
-
-                    async function fn_resolveDns() {
-                        while (findingDns) {
-                            try {
-                                resolvedHostnames = await resolveDns(that._http.host);
-                                that.logger.log("debug", "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
-                                if ((Array.isArray(resolvedHostnames)) && (resolvedHostnames.length > 0)) {
-                                    findingDns = false;
-                                    dnsFound = true;
-                                } else {
-                                    that.logger.log("debug", "(_retrieveInformation), resolveDns DNS entry not found for HOST : ", that._http.host," continue to search.");
-                                    //if ((resolvedHostnames == undefined) || (resolvedHostnames.length == 0) ) {
-                                    await setTimeoutPromised(3000);
-                                }
-                            } catch (err) {
-                                that.logger.log("error", "(_retrieveInformation), failed to resolveDns : ", that._http.host, ", error : ", err);
-                            }
-                        }
-                    }
-
-                    setTimeout(fn_resolveDns, 100);
-                    await until(() => {
-                        // Test if resolvedHostnames is undefined and if the Array is filled (so the dns entry was found)
-                        let result = dnsFound;
-                        result ?
-                                that.logger.log("debug", "(_retrieveInformation), resolvedHostnames found, so stop the search."):
-                                that.logger.log("warn", "(_retrieveInformation), resolvedHostnames not found, continue search");
-
-
-                        return result
-                    }, "Waiting for DNS resolve the hostname : " + that._http.host, 5*60000).catch((err)=> {
-                        that.logger.log("warn", "(_retrieveInformation), resolvedHostnames FAILED for , ", that._http.host, " error : ", err, ", so continue initialize the SDK, but it will probably failed.");
-                    });
-
-                    findingDns = false;
-
-                    if (dnsFound) {
-                        that.logger.log("info", "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
-                    } else {
-                        that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
-                    }
-                }
-
-                if (that.options.useS2S) {
-                    return that.presence._sendPresenceFromConfiguration().then(() => {
-                        let result: Promise<any> = Promise.resolve(undefined);
-                        if (that.options.imOptions.autoLoadContacts) {
-                            result = that._contacts.getRosters();
-                        } else {
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
-                        }
-                        return result
-                    }).then(() => {
-                        return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._profiles.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._contacts.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._fileServer.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        //return that.presence._sendPresenceFromConfiguration();                       
-                    }).then(() => {
-                        return that._channels.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._admin.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._bubbles.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._channels.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._conversations.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._groups.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._presence.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._settings.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        //return that.presence.sendInitialPresence();
-                        return Promise.resolve(undefined);
-                    }).then(() => {
-                        //return that.im.enableCarbon();
-                        return Promise.resolve(undefined);
-                    }).then(() => {
-                        if (that.options._restOptions.useRestAtStartup) {
-                            return that._rest.getBots();
-                        }
-                    }).then((bots: any) => {
-                        that._botsjid = bots ? bots.map((bot) => {
-                            return bot.jid;
-                        }):[];
-                        return Promise.resolve(undefined);
-                    }).then(() => {
-                        if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                            return that._conversations.getServerConversations();
-                        } else {
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
-                            return;
-                        }
-                    }).then(() => {
-                        return that._calllog.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._favorites.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._alerts.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._webinars.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        return that._invitations.init(that.options._restOptions.useRestAtStartup);
-                    }).then(() => {
-                        if (that.options._restOptions.useRestAtStartup) {
-                            return that._s2s.listConnectionsS2S();
-                        }
-                    }).then(() => {
-                        resolve(undefined);
-                    }).catch((err) => {
-                        that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
-                        that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
-                        reject(err);
-                    });
-                    //return resolve(undefined);
-                }
-                
-                if (that.options.useCLIMode) {
-                    return resolve(undefined);
-                }
-                
-                if (that.options.useXMPP) {
-                    return that.presence._sendPresenceFromConfiguration().then(() => {
-                        let result: Promise<any> = Promise.resolve(undefined);
-                        if (that.options.imOptions.autoLoadContacts) {
-                            result = that._contacts.getRosters();
-                        } else {
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
-                        }
-                        return result
-                    }).then(() => {
-                            return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._profiles.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._telephony.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._contacts.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._fileServer.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            //return that.presence._sendPresenceFromConfiguration();
-                        }).then(() => {
-                           // return that._bubbles.getBubbles(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._channels.init(that.options._restOptions.useRestAtStartup);
-                            //return that._channels.fetchMyChannels(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._admin.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._bubbles.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._conversations.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._groups.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._presence.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._settings.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            //return that.presence.sendInitialPresence();
-                            return Promise.resolve(undefined);
-                        }).then(() => {
-                            return that.im.init(that.options._imOptions.enableCarbon, that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            if (that.options._restOptions.useRestAtStartup) {
-                                return that._rest.getBots();
-                            }
-                        }).then((bots: any) => {
-                            that._botsjid = bots ? bots.map((bot) => {
-                                return bot.jid;
-                            }) : [];
-                            return Promise.resolve(undefined);
-                        }).then(() => {
-                            if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                                return that._conversations.getServerConversations();
-                            } else {
-                                that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
-                                return;
-                            }
-                        }).then(() => {
-                            return that._calllog.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._favorites.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._alerts.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._webinars.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            return that._invitations.init(that.options._restOptions.useRestAtStartup);
-                        }).then(() => {
-                            resolve(undefined);
-                        }).catch((err) => {
-                            that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
-                            that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
-                            reject(err);
-                        });
-                }
-            });
-        };
-
-        self.setRenewedToken = async (strToken : string) => {
-            self.logger.log("info", LOG_ID +  "(setRenewedToken) strToken : ", strToken);
-            return await self._rest.signin(strToken).then(() => {
-                self.logger.log("info", LOG_ID +  "(setRenewedToken) token successfully renewed, send evt_internal_tokenrenewed event");
-                self._eventEmitter.iee.emit("evt_internal_tokenrenewed");                
-            });
-            //return await self.signin(false, strToken);
-        }
         
-        self.onTokenRenewed = function onTokenRenewed() {
-            self.logger.log("info", LOG_ID +  "(onTokenRenewed) token successfully renewed");
-            self._rest.startTokenSurvey();
-        };
-
-        self.onTokenExpired = function onTokenExpired() {
-            self.logger.log("info", LOG_ID +  "(onTokenExpired) token expired. Signin required");
-/*
-            self._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
-            self._eventEmitter.iee.removeListener("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
-*/
-            if (!self._rest.p_decodedtokenRest || ( self._rest.p_decodedtokenRest && ! self._rest.p_decodedtokenRest.oauth)) {
-                self._eventEmitter.iee.emit("evt_internal_signinrequired");
-            } else {
-                self.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
-                self._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
-            }
-        };
-
-        self._tokenSurvey = () => {
-            let that = self;
-            that.logger.log("debug", LOG_ID +  "(tokenSurvey) _enter_");
-
-            if (that.options.useCLIMode) {
-                that.logger.log("info", LOG_ID +  "(tokenSurvey) No token survey in CLI mode");
-                return;
-            }
-
-/*
-            that._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
-            that._eventEmitter.iee.removeListener("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
-            that._eventEmitter.iee.on("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
-            that._eventEmitter.iee.on("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
-*/
-            that._rest.startTokenSurvey();
-        };
-
-
         // Initialize the logger
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
@@ -694,6 +242,454 @@ class Core {
         self.startCleanningInterval();
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
     }
+
+    _signin (forceStopXMPP, token) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(signin) _entering_");
+
+        let json = null;
+
+        return new Promise(async function (resolve, reject) {
+
+            if (that.options.useXMPP) {
+                let loginSucceed = false;
+
+                while (loginSucceed == false) {
+                    let loginResult = undefined;
+                    await that._xmpp.stop(forceStopXMPP).then(() => {
+                        return that._rest.signin(token);
+                    }).then((_json) => {
+                        json = _json;
+                        let headers = {
+                            "headers": {
+                                // "Authorization": "Bearer " + that._rest.token,
+                                "x-rainbow-client": "sdk_node",
+                                "x-rainbow-client-version": packageVersion.version
+                                // "Accept": accept || "application/json",
+                            }
+                        };
+                        return that._xmpp.signin(that._rest.loggedInUser, headers);
+                    }).then(function () {
+                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        //return resolve(json);
+                        loginResult = json;
+                        loginSucceed = true;
+                    }).catch(function (err) {
+                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        //return reject(err);
+                        loginSucceed = false;
+                        loginResult = err;
+                    });
+                    if (loginSucceed) {
+                        resolve(loginResult);
+                    } else {
+                        if (loginResult.code > 400) {
+                            return reject(loginResult)
+                        }  else {
+                            await pause(10000);
+                        }
+                    }
+                }
+            } else if (that.options.useS2S) {
+                return that._rest.signin(token).then(async (_json) => {
+                    json = _json;
+                    let headers = {
+                        "headers": {
+                            "Authorization": "Bearer " + that._rest.token,
+                            "x-rainbow-client": "sdk_node",
+                            "x-rainbow-client-version": packageVersion.version
+                            // "Accept": accept || "application/json",
+                        }
+                    };
+
+                    return that._s2s.signin(that._rest.loggedInUser, headers);
+                }).then(function () {
+                    that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    return resolve(json);
+                }).catch(function (err) {
+                    that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
+                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    return reject(err);
+                });
+            } else {
+                that._rest.signin(token).then((_json) => {
+                    json = _json;
+                    let headers = {
+                        "headers": {
+                            "Authorization": "Bearer " + that._rest.token,
+                            "x-rainbow-client": "sdk_node",
+                            "x-rainbow-client-version": packageVersion.version
+                            // "Accept": accept || "application/json",
+                        }
+                    };
+                    that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
+                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    return resolve(json);
+                }).catch((err)=> {
+                    that.logger.log("debug", LOG_ID + "(signin) signed failed : ", err);
+                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    return reject(err);
+                });
+            }
+        });
+    };
+
+    _signinWSOnly (forceStopXMPP, token, userInfos) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _entering_");
+
+        let json = null;
+
+        return new Promise(function (resolve, reject) {
+
+            if (that.options.useXMPP) {
+                return that._xmpp.stop(forceStopXMPP).then(() => {
+                    that._rest.account = userInfos;
+                    if (token) {
+                        return that._rest.signin(token);
+                    } else {
+                        return Promise.resolve();
+                    }
+                }).then((_json) => {
+                    json = _json;
+                    let headers = {
+                        "headers": {
+                            // "Authorization": "Bearer " + that._rest.token,
+                            "x-rainbow-client": "sdk_node",
+                            "x-rainbow-client-version": packageVersion.version
+                            // "Accept": accept || "application/json",
+                        }
+                    };
+                    return that._xmpp.signin(userInfos, headers);
+                }).then(function () {
+                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) signed in successfully");
+                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                    return resolve(json);
+                }).catch(function (err) {
+                    that.logger.log("error", LOG_ID + "(_signinWSOnly) can't signed-in.");
+                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
+                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                    return reject(err);
+                });
+            } else {
+                return reject({"error":"Error, can not login WS Only without useXMPP option setted to true."});
+            }
+        });
+    };
+
+    _retrieveInformation () {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
+        //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
+        return new Promise(async (resolve, reject) => {
+
+            if (that.options.testOutdatedVersion) {
+                await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+                    // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
+                    infos.results.forEach((packagePublished: any) => {
+                        if (packagePublished.package.name === packageVersion.name) {
+                            //if (packagePublished.package.version !== packageVersion.version) {
+                            if (lt(packageVersion.version, packagePublished.package.version)) {
+                                that.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
+                                        "*******************************************************\n\n", that.logger.colors.red.underline("WARNING : "), that.logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
+                                let error = {
+                                    "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
+                                    "currentPackage": packageVersion.version,
+                                    "latestPublishedPackage": packagePublished.package.version
+                                };
+                                that._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
+
+                                //self.events.publish("rainbowversionwarning", error);
+                            } else {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
+                            }
+                        }
+                    });
+                }).catch((error) => {
+                    that.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
+                    // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                });
+            }
+
+            if (that.options.testDNSentry) {
+                let findingDns = true;
+                let resolvedHostnames: any = [];
+                let dnsFound = false;
+
+                async function fn_resolveDns() {
+                    while (findingDns) {
+                        try {
+                            resolvedHostnames = await resolveDns(that._http.host);
+                            that.logger.log("debug", "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
+                            if ((Array.isArray(resolvedHostnames)) && (resolvedHostnames.length > 0)) {
+                                findingDns = false;
+                                dnsFound = true;
+                            } else {
+                                that.logger.log("debug", "(_retrieveInformation), resolveDns DNS entry not found for HOST : ", that._http.host," continue to search.");
+                                //if ((resolvedHostnames == undefined) || (resolvedHostnames.length == 0) ) {
+                                await setTimeoutPromised(3000);
+                            }
+                        } catch (err) {
+                            that.logger.log("error", "(_retrieveInformation), failed to resolveDns : ", that._http.host, ", error : ", err);
+                        }
+                    }
+                }
+
+                setTimeout(fn_resolveDns, 100);
+                await until(() => {
+                    // Test if resolvedHostnames is undefined and if the Array is filled (so the dns entry was found)
+                    let result = dnsFound;
+                    result ?
+                            that.logger.log("debug", "(_retrieveInformation), resolvedHostnames found, so stop the search."):
+                            that.logger.log("warn", "(_retrieveInformation), resolvedHostnames not found, continue search");
+
+
+                    return result
+                }, "Waiting for DNS resolve the hostname : " + that._http.host, 5*60000).catch((err)=> {
+                    that.logger.log("warn", "(_retrieveInformation), resolvedHostnames FAILED for , ", that._http.host, " error : ", err, ", so continue initialize the SDK, but it will probably failed.");
+                });
+
+                findingDns = false;
+
+                if (dnsFound) {
+                    that.logger.log("info", "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
+                } else {
+                    that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
+                }
+            }
+
+            if (that.options.useS2S) {
+                return that.presence._sendPresenceFromConfiguration().then(() => {
+                    let result: Promise<any> = Promise.resolve(undefined);
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
+                }).then(() => {
+                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._profiles.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._contacts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._fileServer.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    //return that.presence._sendPresenceFromConfiguration();                       
+                }).then(() => {
+                    return that._channels.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._admin.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._bubbles.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._channels.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._conversations.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._groups.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._presence.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._settings.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    //return that.presence.sendInitialPresence();
+                    return Promise.resolve(undefined);
+                }).then(() => {
+                    //return that.im.enableCarbon();
+                    return Promise.resolve(undefined);
+                }).then(() => {
+                    if (that.options._restOptions.useRestAtStartup) {
+                        return that._rest.getBots();
+                    }
+                }).then((bots: any) => {
+                    that._botsjid = bots ? bots.map((bot) => {
+                        return bot.jid;
+                    }):[];
+                    return Promise.resolve(undefined);
+                }).then(() => {
+                    if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
+                        return that._conversations.getServerConversations();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                        return;
+                    }
+                }).then(() => {
+                    return that._calllog.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._favorites.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._alerts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._webinars.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._invitations.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    if (that.options._restOptions.useRestAtStartup) {
+                        return that._s2s.listConnectionsS2S();
+                    }
+                }).then(() => {
+                    resolve(undefined);
+                }).catch((err) => {
+                    that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
+                    that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                    reject(err);
+                });
+                //return resolve(undefined);
+            }
+
+            if (that.options.useCLIMode) {
+                return resolve(undefined);
+            }
+
+            if (that.options.useXMPP) {
+                return that.presence._sendPresenceFromConfiguration().then(() => {
+                    let result: Promise<any> = Promise.resolve(undefined);
+                    if (that.options.imOptions.autoLoadContacts) {
+                        result = that._contacts.getRosters();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                    }
+                    return result
+                }).then(() => {
+                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._profiles.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._contacts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._fileServer.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    //return that.presence._sendPresenceFromConfiguration();
+                }).then(() => {
+                    // return that._bubbles.getBubbles(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._channels.init(that.options._restOptions.useRestAtStartup);
+                    //return that._channels.fetchMyChannels(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._admin.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._bubbles.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._conversations.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._groups.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._presence.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._settings.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    //return that.presence.sendInitialPresence();
+                    return Promise.resolve(undefined);
+                }).then(() => {
+                    return that.im.init(that.options._imOptions.enableCarbon, that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    if (that.options._restOptions.useRestAtStartup) {
+                        return that._rest.getBots();
+                    }
+                }).then((bots: any) => {
+                    that._botsjid = bots ? bots.map((bot) => {
+                        return bot.jid;
+                    }) : [];
+                    return Promise.resolve(undefined);
+                }).then(() => {
+                    if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
+                        return that._conversations.getServerConversations();
+                    } else {
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                        return;
+                    }
+                }).then(() => {
+                    return that._calllog.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._favorites.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._alerts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._rbvoice.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._webinars.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._invitations.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    resolve(undefined);
+                }).catch((err) => {
+                    that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
+                    that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                    reject(err);
+                });
+            }
+        });
+    };
+
+    async setRenewedToken (strToken : string) {
+        let that = this;
+        that.logger.log("info", LOG_ID +  "(setRenewedToken) strToken : ", strToken);
+        return await that._rest.signin(strToken).then(() => {
+            that.logger.log("info", LOG_ID +  "(setRenewedToken) token successfully renewed, send evt_internal_tokenrenewed event");
+            that._eventEmitter.iee.emit("evt_internal_tokenrenewed");
+        });
+        //return await self.signin(false, strToken);
+    }
+
+    onTokenRenewed() {
+        let that = this;
+        that.logger.log("info", LOG_ID +  "(onTokenRenewed) token successfully renewed");
+        that._rest.startTokenSurvey();
+    };
+
+    onTokenExpired() {
+        let that = this;
+        that.logger.log("info", LOG_ID +  "(onTokenExpired) token expired. Signin required");
+        /*
+                    self._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
+                    self._eventEmitter.iee.removeListener("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
+        */
+        if (!that._rest.p_decodedtokenRest || ( that._rest.p_decodedtokenRest && ! that._rest.p_decodedtokenRest.oauth)) {
+            that._eventEmitter.iee.emit("evt_internal_signinrequired");
+        } else {
+            that.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
+            that._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
+        }
+    };
+
+    _tokenSurvey () {
+        let that = this;
+        that.logger.log("debug", LOG_ID +  "(tokenSurvey) _enter_");
+
+        if (that.options.useCLIMode) {
+            that.logger.log("info", LOG_ID +  "(tokenSurvey) No token survey in CLI mode");
+            return;
+        }
+
+        /*
+                    that._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
+                    that._eventEmitter.iee.removeListener("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
+                    that._eventEmitter.iee.on("evt_internal_tokenrenewed", that.onTokenRenewed.bind(that));
+                    that._eventEmitter.iee.on("evt_internal_tokenexpired", that.onTokenExpired.bind(that));
+        */
+        that._rest.startTokenSurvey();
+    };
 
     startCleanningInterval() {
         let that = this;
