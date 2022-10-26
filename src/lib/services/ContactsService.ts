@@ -17,10 +17,136 @@ import {Core} from "../Core";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
 import {Invitation} from "../common/models/Invitation";
 import {GenericService} from "./GenericService";
+let AsyncLock = require('async-lock');
 
 export {};
 
 const LOG_ID = "CONTACTS/SVCE - ";
+
+class RosterPresenceQueue {
+    private logger : Logger;
+    private _rosterPresenceQueue: any;
+
+
+    constructor(_logger : Logger) {
+        let that = this;
+        that.logger = _logger;
+
+        that._rosterPresenceQueue = [];
+        
+        // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock 
+        // maxPending: 1000, Set max pending tasks - max number of tasks allowed in the queue at a time
+        // maxOccupationTime : 3000 Specify max occupation time - max amount of time allowed between entering the queue and completing execution
+        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 1000, maxOccupationTime : 5 * 60 * 1000});
+    }
+
+    //region Lock
+
+    async lock(fn, id) {
+        let that = this;
+        let resultLock = "Lock failed.";
+        try {
+            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+            await that.lockEngine.acquire(that.lockKey, async () => {
+                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
+                let result = undefined;
+                try {
+                    result = await fn(); // async work
+                    return result;
+                } catch (err3) {
+                    that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
+                }
+            }).then((result) => {
+                // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
+                resultLock = result;
+            }).catch((err2) => {
+                        that.logger.log("warn", LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
+                        throw resultLock = err2;
+                    }
+            );
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
+            throw resultLock = err;
+        }
+        that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        return resultLock;
+    }
+
+    //endregion Lock
+
+    add( presenceToSave : {presence : any, date: any }){
+        let that = this;
+        let id = (new Date()).getTime();
+
+        that.logger.log("internal", LOG_ID + "(add) - id : ", id, " - will lock.");
+        that.lock(() => {
+            that.logger.log("internal", LOG_ID + "(add) - id : ", id, " - will call fn for presence.jid : ", presenceToSave.presence.jid);
+            this._rosterPresenceQueue.push(presenceToSave);
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+        });
+    }
+
+    treatPresenceForContact(contact: any, fn) {
+        let that = this;
+        let id = (new Date()).getTime();
+
+        that.logger.log("internal", LOG_ID + "(treatPresenceForContact) - id : ", id, " - will lock.");
+        that.lock(() => {
+            that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid===contact.jid).forEach(item => {
+                that.logger.log("internal", LOG_ID + "(treatPresenceForContact) - id : ", id, " - will call treat presence : ", item.presence, " for contact.jid : ", contact.jid);
+                fn(item.presence);
+            });
+            let currentDate = Date.now();
+            that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(treatPresenceForContact) - id : ", id, " -  lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(treatPresenceForContact) - id : ", id, " - Catch Error, error : ", error);            
+        });
+    }
+    
+    treatPresenceForAllContacts(fn) {
+        let that = this;
+        let id = (new Date()).getTime();
+
+        that.logger.log("internal", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will lock.");
+        that.lock(() => {
+            that._rosterPresenceQueue.forEach(item => {
+                that.logger.log("internal", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will call fn for presence.jid : ", item.presence.jid);
+                fn(item.presence);
+            });
+            let currentDate = Date.now();
+            that._rosterPresenceQueue = [];
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " -  lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - Catch Error, error : ", error);            
+        });
+    }
+    
+    remove(contact) {
+        let that = this;
+        let id = (new Date()).getTime();
+
+        that.lock(() => {
+            let currentDate = Date.now();
+            that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
+        }); 
+    }
+    
+    private lockEngine: any;
+    private lockKey = "LOCK_ROSTER_QUEUE";    
+}
+
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -40,8 +166,9 @@ const LOG_ID = "CONTACTS/SVCE - ";
 class ContactsService extends GenericService {
     private avatarDomain: any;
     private _contacts: Array<Contact>;
-    private _rosterPresenceQueue: any;
     public userContact: Contact;
+    private _rosterPresenceQueue: RosterPresenceQueue;
+    private _rosterPresenceQueue3: any;
     private _invitationsService: InvitationsService;
     private _presenceService: PresenceService;
     //private _logger: Logger;
@@ -70,7 +197,8 @@ class ContactsService extends GenericService {
         this._contacts = [];
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-        this._rosterPresenceQueue = [];
+        //this._rosterPresenceQueue3 = [];
+        this._rosterPresenceQueue = new RosterPresenceQueue(_logger);
         this.userContact = new Contact();
 
         this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
@@ -420,7 +548,7 @@ class ContactsService extends GenericService {
 
                             if (contactIndex!== -1) {
                                 contact = that._contacts[contactIndex];
-                                that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on local _contacts", contact);
+                                that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on local _contacts - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
                             } else {
                                 contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                             }
@@ -476,7 +604,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("internal", LOG_ID + "(getContactById) contact found locally", contactFound);
+                    that._logger.log("internal", LOG_ID + "(getContactById) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
 
                     if (contactFound.id===connectedUser.id) {
                         return resolve(connectedUser);
@@ -557,7 +685,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally : ", contactFound);
+                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
                     if (contactFound.id===connectedUser.id) {
                         resolve(connectedUser);
                     } else {
@@ -578,7 +706,7 @@ class ContactsService extends GenericService {
                                     if (!contact.loginEmail) {
                                         contact.loginEmail = loginEmail;
                                     }
-                                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) full data contact : ", contact, ", found on server with loginEmail : ", loginEmail);
+                                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) full data contact - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid, ", found on server with loginEmail : ", loginEmail);
                                     /*let contactIndex = that._contacts.findIndex((value) => {
                                         return value.jid_im === contactInformation.jid_im;
                                     });
@@ -879,12 +1007,20 @@ class ContactsService extends GenericService {
     getRosters() : Promise<Array<Contact>> {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._rest.getContacts().then((listOfContacts: any) => {
+            that._rest.getContacts().then(async (listOfContacts: any) => {
+                /*
+                for (const contact of listOfContacts) {
+                    that._logger.log("internal", LOG_ID + "(getRosters) list contact found on the server contact : ", contact);
+                } 
+                // */
+
                 if (! that._contacts) {
                     that._contacts = [];
                 }
 
+                /*
                 listOfContacts.forEach((contactData: any) => {
+                //for (const contactData of listOfContacts) {                        
                     let contactIndex = that._contacts.findIndex((_contact: any) => {
                         return _contact.jid_im===contactData.jid_im;
                     });
@@ -893,12 +1029,30 @@ class ContactsService extends GenericService {
                             that._contacts[contactIndex].roster = false;
                         }
                     }
+                //};
                 });
+                // */
 
+                // Remove the roster boolean for contacts in cache not in the result of roster list from server.
+                for (const contactFromCache of that._contacts) {
+                    let contactIndex = listOfContacts.findIndex((contactRetrievedFromRoster: any) => {
+                        return contactRetrievedFromRoster.jid_im===contactFromCache.jid_im;
+                    });
+                    if (contactIndex === -1) {
+                        contactFromCache.roster = false;
+                    }
+                }
+
+                // store/update contacts in cache with infos of roster list from server.
                 listOfContacts.forEach((contactData: any) => {
-                    that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                        that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server");
-                        that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
+                    that._logger.log("internal", LOG_ID + "(getRosters) contact find on the server : id : ", contactData.id, ", jid_im : ", contactData.jid_im, ", displayName : ", contactData.displayName);
+
+                    //for (const contactData of listOfContacts) {
+                    //await that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
+                     that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
+                        that._logger.log("info", LOG_ID + "(getRosters) contact found on the server");
+                        //that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
+                        that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
                         // Update or Add contact
                         let contactIndex = that._contacts.findIndex((_contact: any) => {
                             return _contact.jid_im===_contactFromServer.jid_im;
@@ -913,6 +1067,8 @@ class ContactsService extends GenericService {
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
+                            that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+
                             // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
                         } else {
                             contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
@@ -921,6 +1077,8 @@ class ContactsService extends GenericService {
                             contact.roster = true;
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
+                            that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+
                             // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
                         }
 
@@ -928,8 +1086,10 @@ class ContactsService extends GenericService {
                     }).catch((err) => {
                         this._logger.log("info", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
                     });
+                //};
                 });
 
+                this._logger.log("info", LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
                 resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
                 /*
                 
@@ -2181,7 +2341,7 @@ class ContactsService extends GenericService {
             }
 
             if (contact) {
-                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) contact found : ", contact);
+                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) contact found - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
 
                 if (!contact.resources) {
                     contact.resources = {};
@@ -2357,7 +2517,8 @@ class ContactsService extends GenericService {
                 // Seems to be a pending presence update in roster associated contact not yet available
                 if (presence.value.show!=="unavailable") {
                     // To a pending presence queue
-                    this._rosterPresenceQueue.push({presence, date: Date.now()});
+                    this._rosterPresenceQueue.add({presence, "date" : Date.now()});
+                    //this._rosterPresenceQueue3.push({presence, date: Date.now()});
                 }
             }
         } catch (err) {
@@ -2405,8 +2566,9 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server");
-            that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
+            that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
+            that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
+            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
             let contactIndex = -1;
             // Update or Add contact
             if (that._contacts) {
@@ -2415,7 +2577,7 @@ class ContactsService extends GenericService {
                 });
 
                 let contact = null;
-                that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+                // that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
 
                 if (contactIndex!== -1) {
                     contact = that._contacts[contactIndex];
@@ -2516,7 +2678,7 @@ class ContactsService extends GenericService {
      */
     _onRostersUpdate(contacts) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter : ", contacts);
+        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter contact length : ", contacts ? contacts.length : 0);
 
         contacts.forEach(contact => {
             if (contact.jid.substr(0, 3)!=="tel") { // Ignore telephonny events
@@ -2547,11 +2709,14 @@ class ContactsService extends GenericService {
                                 presence: "offline",
                                 status: ""
                             }));
-                            that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid===contact.jid).forEach(item =>
+                            that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+                            /*
+                            that._rosterPresenceQueue3.filter(presenceItem => presenceItem.presence.jid===contact.jid).forEach(item =>
                                     that._onRosterPresenceChanged(item.presence)
                             );
                             let currentDate = Date.now();
-                            that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
+                            that._rosterPresenceQueue3 = that._rosterPresenceQueue3.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
+                            // */
                         });
                     }
                 }

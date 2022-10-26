@@ -1,8 +1,5 @@
 "use strict";
 import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
-
-export {};
-
 import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
@@ -25,7 +22,6 @@ import {CallLogService} from "./services/CallLogService";
 import {FavoritesService} from "./services/FavoritesService";
 import {InvitationsService} from "./services/InvitationsService";
 import {Events} from "./common/Events";
-import {setFlagsFromString} from "v8";
 import {Options} from "./config/Options";
 import {ProxyImpl} from "./ProxyImpl";
 import {ErrorManager} from "./common/ErrorManager";
@@ -36,7 +32,8 @@ import {S2SService} from "./services/S2SService";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
-import * as Utils from "./common/Utils";
+
+export {};
 
 const packageVersion = require("../package.json");
 
@@ -464,14 +461,17 @@ class Core {
             }
 
             if (that.options.useS2S) {
-                return that.presence._sendPresenceFromConfiguration().then(() => {
-                    let result: Promise<any> = Promise.resolve(undefined);
+                try {
                     if (that.options.imOptions.autoLoadContacts) {
-                        result = that._contacts.getRosters();
+                        let result = await that._contacts.getRosters();
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                     }
-                    return result
+                } catch (e) {
+                    that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
+                }
+                return that.presence._sendPresenceFromConfiguration().then(() => {
+                    return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -557,14 +557,18 @@ class Core {
             }
 
             if (that.options.useXMPP) {
-                return that.presence._sendPresenceFromConfiguration().then(() => {
-                    let result: Promise<any> = Promise.resolve(undefined);
+                try {
                     if (that.options.imOptions.autoLoadContacts) {
-                        result = that._contacts.getRosters();
+                        let result = await that._contacts.getRosters();
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                     }
-                    return result
+                } catch (e) {
+                    that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
+                }
+                return that.presence._sendPresenceFromConfiguration().then(() => {
+                    return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {

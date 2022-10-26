@@ -4935,6 +4935,22 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
     }
     
+    async function testsetPresenceTo() {
+        let presenceStr = "away" ; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+        let setAway = true ;
+        setInterval(async()=> {
+            if (setAway) {
+                presenceStr = "away" ;
+                setAway = false;
+            } else {
+                presenceStr = "online" ;
+                setAway = true;
+            }
+            let res = await rainbowSDK.presence.setPresenceTo(presenceStr);
+            logger.log("debug", "MAIN - testsetPresenceTo, set presence res : ", res);
+        }, 20000);
+    }
+    
     //endregion Presence
     
     function testresolveDns(url : string = 'www.amagicshop.com.tw') {

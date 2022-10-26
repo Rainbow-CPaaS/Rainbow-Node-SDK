@@ -1627,6 +1627,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
+    /*
     getRosters() {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(start) getRosters");
@@ -1642,6 +1643,7 @@ class XMPPService extends GenericService {
             that.logger.log("warn", LOG_ID + "(getRosters) No XMPP connection...");
         }
     }
+    // */
 
     /****************************************************/
     /**            XMPP ROSTER MANAGEMENT              **/
