@@ -6,6 +6,33 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.16.1 - LTS Version - october 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   Fix body in error of raw request in HttpService.
+-   Extract the definition of methods from the constructor of the `core` class. 
+-   comments unused  XMPPService::getRosters method.
+-   Refactor treatment of contacts events during startup to store and send these events when data about the contact are received from getRosters method. correction for CRRAINB-29833.
+-   Avoid to send request to server when the parameter is not setted in RESTService::getBubble and RESTService::getBubbleByJid .
+
+
 ### SDK for Node.JS 2.15 - STS Version - August 2022
 
 ---
