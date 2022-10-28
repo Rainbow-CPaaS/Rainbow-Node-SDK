@@ -307,7 +307,9 @@ class BubblesManager {
      */
     async _onbubblepresencechanged(bubblepresenceinfo) {
         let that = this;
-        let bubble = await that._bubblesservice.getBubbleByJid(bubblepresenceinfo.jid);
+        let bubble = await that._bubblesservice.getBubbleByJid(bubblepresenceinfo.jid).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubblepresenceinfo, ", : ", err);
+        });
         that._logger.log("internal", LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo : ", bubblepresenceinfo, ", bubble : ", bubble);
         await that.removeBubbleToJoinInProgress(bubble);
         await that.addBubbleAlreadyJoined(bubble);
