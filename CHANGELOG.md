@@ -6,11 +6,12 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.17.0] - 2022-11-XX
+## [2.16.1-lts.0] - 2022-10-28
 -   Fix body in error of raw request in HttpService.
 -   Extract the definition of methods from the constructor of the `core` class. 
 -   comments unused  XMPPService::getRosters method.
--   Refactor treatment of contacts events during startup to store and send these events when data about the contact are received from getRosters method.
+-   Refactor treatment of contacts events during startup to store and send these events when data about the contact are received from getRosters method. correction for CRRAINB-29833.
+-   Avoid to send request to server when the parameter is not setted in RESTService::getBubble and RESTService::getBubbleByJid .
 
 ## [2.16.0-lts.0] - 2022-10-07
 -   Deliver STS version 2.15.3 as new LTS.

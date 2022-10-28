@@ -2078,6 +2078,10 @@ Request Method: PUT
     getBubble(bubbleId) {
         let that = this;
         return new Promise(function (resolve, reject) {
+            if (bubbleId === undefined) {
+                that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
             that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubble) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubble) REST result : ", json.data);
@@ -2094,6 +2098,10 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             //http://vberder.openrainbow.org/api/rainbow/enduser/v1.0/rooms/jids/{jid}
+            if (bubbleJid === undefined) {
+                that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
             that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubbleByJid) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST result : ", json.data);
