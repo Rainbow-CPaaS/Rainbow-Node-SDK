@@ -2671,6 +2671,173 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
     }
 
     //endregion Telephony NOMADIC
+
+    // region Telephony Voice Messages
+
+    /**
+     * @public
+     * @method deleteAllMyVoiceMessagesFromPbx
+     * @async
+     * @category Telephony Voice Messages
+     * @instance
+     * @description
+     *      This api allows to Delete all user's present (read and unread) voice messages from the Pbx. <br>
+     *      This command is to be used to remove all read and unread messages for one user, on the pbx side, it has no effect on the file storage side. <br>
+     *      Do not use this API command to delete the voice messages file from the file storage. <br>
+     *
+     *  return :
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String |     |
+     *
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    deleteAllMyVoiceMessagesFromPbx () {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
+        let that = this;
+        return that._rest.deleteAllMyVoiceMessagesFromPbx();
+    }
+
+    /**
+     * @public
+     * @method deleteAVoiceMessageFromPbx
+     * @async
+     * @category Telephony Voice Messages
+     * @instance
+     * @param {string} messageId The message Id
+     * @description
+     *      This api allows to Delete a voice message from the Pbx, using it's unique identifier (messageId), which is the one given in the messages list. <br>
+     *      This command is to be used to remove the message on the pbx side; it has no effect on the file storage side. <br>
+     *      Do not use this API command to delete the voice message file from the file storage. <br>
+     * 
+     *  return :
+     *          
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String |     |
+     *  
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    deleteAVoiceMessageFromPbx (messageId : string) {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
+        let that = this;
+        return that._rest.deleteAVoiceMessageFromPbx(messageId);
+    }
+
+    /**
+     * @public
+     * @method getAVoiceMessageFromPbx
+     * @async
+     * @category Telephony Voice Messages
+     * @instance
+     * @param {string} messageId The message Id
+     * @param {string} messageDate The date in ISO 8601 format, used form : YYYY-MM-DDTHH:MM:SSTZ
+     * @param {string} messageFrom The message sender phone number (can an external number in E164 form or an internal short).
+     * @description
+     *      This api allows to Get a voice message from the Pbx, using it's unique identifier (messageId), which is the one given in the messages list. <br>
+     *      But, in order to build a proper file name, we also need the message's creation date (ISO 8601) and the distant user's phone number. <br>
+     *      Initialy all voice messages are stored in the pbx, therefore they have to be transfered to Rainbow server before being given to the asking client. <br>
+     *      The positive acknowledged of this request only signifies that the pbx has accepted the download request. The client will be informed further once the message is available on file storage server. In the case the file transfer should fail, the client will also be informed.. <br>
+     *
+     *  parameters: <br>
+     *   * messageDate : mandatory, date in ISO 8601 format, used form : YYYY-MM-DDTHH:MM:SSTZ. <br>
+     *   * messageFrom : the message sender phone number (can an external number in E164 form or an internal short). <br>
+     *
+     *  return :
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String |     |
+     *  | resultCode | String | Pbx result code |
+     *
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    getAVoiceMessageFromPbx (messageId : string, messageDate : string, messageFrom : string) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        let that = this;
+        return that._rest.getAVoiceMessageFromPbx( messageId , messageDate, messageFrom);
+    }
+
+    /**
+     * @public
+     * @method getDetailedListOfVoiceMessages
+     * @async
+     * @category Telephony Voice Messages
+     * @instance
+     * @description
+     *      This api allows to Get the detailed list of all available voice messages. <br>
+     *      For a user, which has a voice mail box, it is possible to get the detailed list of it's messages. <br>
+     *      A voice message can be : <br>
+     *   * a message recorded by a calling party which couldn't reach the user, <br>
+     *   * a conversation recorded by the user itself. <br>
+     *
+     *  return :
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String |     |
+     *  | data | Object |     |
+     *  | voicemessages | Object |     |
+     *  | voiceMessageList | Object\[\] | Table of message descriptor. |
+     *  | id  | String | Message unique id. |
+     *  | unread | String | Message state, false for already read, true elsewhere. |
+     *  | length | String | Message length is seconds. |
+     *  | date | Date-Time | Message date in ISO 8601 (usual form : YYYY-MM-DDTHH:MM:SSTZ). |
+     *  | from | String | Message sender's number. |
+     *  | jid | String | Message sender's jid. |
+     *  | callable | String | Message sender can be called back or not. |
+     *  | identity | Object | Message sender names. |
+     *  | displayName | String | Message sender's display name. |
+     *  | firstName | String | Message sender's first name. |
+     *  | lastName | String | Message sender's last name. |
+     *
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    getDetailedListOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // GET /api/rainbow/telephony/v1.0/voicemessages
+        let that = this;
+        return that._rest.getDetailedListOfVoiceMessages();
+    }
+
+    /**
+     * @public
+     * @method getNumbersOfVoiceMessages
+     * @async
+     * @category Telephony Voice Messages
+     * @instance
+     * @description
+     *      This api allows to Get voice messages counters, total and unlistened. <br>
+     *      For a user, which has a voice mail box, it is possible to get the number of not yet listened message (aka unread messages). <br>
+     *      When possible the total number of messages is also given. <br>
+     *      Some VoiceMail units only gives if the users has or not one or more messages in his box, the number of them is unknown. <br>
+     *
+     *
+     *  return :
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String |     |
+     *  | data | Object |     |
+     *  | voicemessages | Object |     |
+     *  | unread | Number | Number of unlistened messages |
+     *  | total | Number | Total number of voice messages |
+     *  | present optionnel | Boolean | Pbx doesn't know how much messages a user has, only that one or more are present |
+     *          
+     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+     */
+    getNumbersOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
+        // GET /api/rainbow/telephony/v1.0/voicemessages/counters
+        let that = this;
+        return that._rest.getNumbersOfVoiceMessages();
+    }
+
+    // endregion Telephony Voice Messages
     
 }
 

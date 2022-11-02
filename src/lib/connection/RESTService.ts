@@ -4100,6 +4100,7 @@ Request Method: PUT
 
     ////////
     //region Telephony
+    
     makeCall(contact, phoneInfo) {
         let that = this;
         return that.restTelephony.makeCall(that.getRequestHeader(), contact, phoneInfo);
@@ -4218,6 +4219,45 @@ Request Method: PUT
             });
         });
     }
+
+    // region Voice Messages
+
+    deleteAllMyVoiceMessagesFromPbx () {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
+        let that = this;
+        return that.restTelephony.deleteAllMyVoiceMessagesFromPbx(that.getPostHeader());
+    }
+
+    deleteAVoiceMessageFromPbx (messageId) {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
+        let that = this;
+        return that.restTelephony.deleteAVoiceMessageFromPbx(that.getPostHeader(), messageId);
+    }
+
+    getAVoiceMessageFromPbx (messageId : string, messageDate : string, messageFrom : string) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        let that = this;
+        return that.restTelephony.getAVoiceMessageFromPbx(that.getRequestHeader(), messageId , messageDate, messageFrom);
+    }
+
+    getDetailedListOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // GET /api/rainbow/telephony/v1.0/voicemessages
+        let that = this;
+        return that.restTelephony.getDetailedListOfVoiceMessages(that.getRequestHeader());
+    }
+
+    getNumbersOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
+        // GET /api/rainbow/telephony/v1.0/voicemessages/counters
+        let that = this;
+        return that.restTelephony.getNumbersOfVoiceMessages(that.getRequestHeader());
+    }
+
+    // endregion Voice Messages
 
     //endregion Telephony
     
