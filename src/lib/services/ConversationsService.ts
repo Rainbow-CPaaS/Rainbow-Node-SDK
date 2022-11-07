@@ -1423,8 +1423,8 @@ class ConversationsService extends GenericService {
                 })
                 .catch( (error) => {
                     let errorMessage = "getOrCreateOneToOneConversation " + conversationId + " failure " + error.message;
-                    that._logger.log("error", LOG_ID + "Error." );
-                    that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "(getOrCreateOneToOneConversation) Error : ", error );
+                    that._logger.log("internalerror", LOG_ID + "(getOrCreateOneToOneConversation) Error : ", errorMessage);
 
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
@@ -1754,24 +1754,30 @@ class ConversationsService extends GenericService {
             await that._rest.getServerConversations(that.conversationsRetrievedFormat).then(async (conversations : []) => {
                 await that.removeOlderConversations(conversations);
             }).catch((error) => {
-                that._logger.log("warn", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
-                that._logger.log("internalerror", LOG_ID + "getServerConversations Failed to retrieve conversations for removeOlderConversations : ", error);
+                that._logger.log("warn", LOG_ID + "(getServerConversations) Failed to retrieve conversations for removeOlderConversations : ", error);
+                that._logger.log("internalerror", LOG_ID + "(getServerConversations) Failed to retrieve conversations for removeOlderConversations : ", error);
                 // The remove of old conversations is not mandatory, so lets continue the treatment.
             });
 
             that._rest.getServerConversations(that.conversationsRetrievedFormat).then((conversations : []) => {
                 // Create conversation promises
                 let conversationPromises = [];
-                that._logger.log("debug", LOG_ID + "getServerConversations conversations.length retrieved : ", conversations.length);
+                that._logger.log("debug", LOG_ID + "(getServerConversations) conversations.length retrieved : ", conversations.length);
                 conversations.forEach(function (conversationData : any) {
                     let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
-                    let conversationPromise: Promise<Conversation>;
+                    let conversationPromise: Promise<any>;
                     let muted = (conversationData.mute === true);
                     //that._logger.log("debug", LOG_ID + "getServerConversations conversationData retrieved : ", conversationData);
                     if (conversationData.type === "user") {
-                        conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate);
+                        conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate).catch( (err) => {
+                            that._logger.log("warn", LOG_ID + "(getServerConversations) getOrCreateOneToOneConversation warn error : ", err);
+                            return err;
+                        });
                     } else {
-                        conversationPromise = that.getBubbleConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, true, muted, conversationData.creationDate, conversationData.lastMessageSender);
+                        conversationPromise = that.getBubbleConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, true, muted, conversationData.creationDate, conversationData.lastMessageSender).catch( (err) => {
+                            that._logger.log("warn", LOG_ID + "(getServerConversations) getBubbleConversation warn error : ", err);
+                            return err;
+                        });
                     } // */
                     conversationPromises.push(conversationPromise);
                 });
@@ -1788,21 +1794,21 @@ class ConversationsService extends GenericService {
                         resolve(conversationsResult);
                     })
                     .catch((error) => {
-                        let errorMessage = "getServerConversations failure: " + error.message;
+                        let errorMessage = "(getServerConversations) failure: " + error.message;
                         that._logger.log("error", LOG_ID + "error.");
                         that._logger.log("internalerror", LOG_ID + "error : ", errorMessage);
                         return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     });
             })
                 .catch((err) => {
-                    let errorMessage = "getServerConversations failure: no server response";
+                    let errorMessage = "(getServerConversations) failure: no server response";
 
                     if (err) {
-                        errorMessage = "getServerConversations failure: " + JSON.stringify(err);
+                        errorMessage = "(getServerConversations) failure: " + JSON.stringify(err);
                     }
 
-                    that._logger.log("error", LOG_ID + "error.");
-                    that._logger.log("internalerror", LOG_ID + "error : ", errorMessage);
+                    that._logger.log("error", LOG_ID + "(getServerConversations) error : ", err);
+                    that._logger.log("internalerror", LOG_ID + "(getServerConversations) error : ", errorMessage);
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
         });

@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
 -   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
 -   Fix to initialize the contacts service before the telephony service.
+-   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed. 
     
 ## [2.17.0] - 2022-10-28
 -   Catch when getBubble failed.
