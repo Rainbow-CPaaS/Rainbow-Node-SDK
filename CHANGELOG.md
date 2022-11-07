@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix to initialize the contacts service before the telephony service.
 -   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed. 
 -   Catch when getBubble failed.
+
 ## [2.16.1-lts.0] - 2022-10-28
 -   Fix body in error of raw request in HttpService.
 -   Extract the definition of methods from the constructor of the `core` class. 
