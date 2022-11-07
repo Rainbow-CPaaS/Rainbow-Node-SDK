@@ -4952,7 +4952,58 @@ let urlS2S;
     }
     
     //endregion Presence
-    
+
+    // region Telephony Voice Messages
+
+    async function testdeleteAllMyVoiceMessagesFromPbx () {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
+        let that = this;
+        let res = await rainbowSDK.telephony.deleteAllMyVoiceMessagesFromPbx();
+        logger.log("debug", "MAIN - testdeleteAllMyVoiceMessagesFromPbx, res : ", res);
+    }
+
+    async function testdeleteAVoiceMessageFromPbx () {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
+        let that = this;
+        let messageId = "";
+        let res = await rainbowSDK.telephony.deleteAVoiceMessageFromPbx( messageId);
+        logger.log("debug", "MAIN - testdeleteAVoiceMessageFromPbx, res : ", res);
+    }
+
+    async function testgetAVoiceMessageFromPbx () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        let that = this;
+        let messageId : string, messageDate : string, messageFrom : string;
+        let res = await rainbowSDK.telephony.getAVoiceMessageFromPbx(messageId , messageDate, messageFrom);
+        logger.log("debug", "MAIN - testgetAVoiceMessageFromPbx, res : ", res);
+    }
+
+    async function testgetDetailedListOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // GET /api/rainbow/telephony/v1.0/voicemessages
+        let that = this;
+        try {
+            let res = await rainbowSDK.telephony.getDetailedListOfVoiceMessages();
+            logger.log("debug", "MAIN - testgetDetailedListOfVoiceMessages, res : ", res);
+        } catch (err) {
+            logger.log("error", "MAIN - testgetDetailedListOfVoiceMessages, error : ", err);
+            
+        }
+    }
+
+    async function testgetNumbersOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
+        // GET /api/rainbow/telephony/v1.0/voicemessages/counters
+        let that = this;
+        let res = await rainbowSDK.telephony.getNumbersOfVoiceMessages();
+        logger.log("debug", "MAIN - testgetNumbersOfVoiceMessages, res : ", res);
+    }
+
+    // endregion Telephony Voice Messages
+
     function testresolveDns(url : string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result)=>{
             logger.log("debug", "MAIN - testresolveDns, result : ", result);

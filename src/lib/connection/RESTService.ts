@@ -4220,7 +4220,7 @@ Request Method: PUT
         });
     }
 
-    // region Voice Messages
+    // region Telephony Voice Messages
 
     deleteAllMyVoiceMessagesFromPbx () {
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
@@ -4257,7 +4257,7 @@ Request Method: PUT
         return that.restTelephony.getNumbersOfVoiceMessages(that.getRequestHeader());
     }
 
-    // endregion Voice Messages
+    // endregion Telephony Voice Messages
 
     //endregion Telephony
     

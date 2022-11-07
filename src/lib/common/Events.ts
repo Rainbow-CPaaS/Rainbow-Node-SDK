@@ -140,6 +140,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontelephonystatuschanged <br>
  * @fires Events#rainbow_onnomadicstatusevent <br>
  * @fires Events#rainbow_onvoicemessageupdated <br>
+ * @fires Events#rainbow_onvoicemessagesinfo <br>
  * @fires Events#rainbow_oncallforwarded <br>
  * @fires Events#rainbow_onchannelmessagereceived <br>
  * @fires Events#rainbow_onchannelmyappreciationreceived <br>
@@ -245,6 +246,7 @@ class Events {
         "rainbow_ontelephonystatuschanged",
         "rainbow_onnomadicstatusevent",
         "rainbow_onvoicemessageupdated",
+        "rainbow_onvoicemessagesinfo",
         "rainbow_oncallforwarded",
         "rainbow_onchannelmessagereceived",
         "rainbow_onchannelmyappreciationreceived",
@@ -995,6 +997,17 @@ class Events {
              *      Fired when a voice message updated event is received
              */
             that.publishEvent("voicemessageupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_voicemessagesinfo", function (data) {
+            /**
+             * @event Events#rainbow_onvoicemessagesinfo
+             * @public
+             * @param { data }
+             * @description
+             *      Fired when voice messages infos updated event is received
+             */
+            that.publishEvent("voicemessagesinfo", data);
         });
 
         this._evReceiver.on("evt_internal_callforwarded", function (data) {
