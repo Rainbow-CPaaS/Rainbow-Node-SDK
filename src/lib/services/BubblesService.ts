@@ -233,7 +233,8 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
         }).catch((err) => {
-            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
         });
     }
 
@@ -269,7 +270,8 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
         }).catch((err) => {
-            that._logger.log("internal", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", err : ", err);
+            that._logger.log("error", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+            //that._logger.log("internalerror", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
         });
     }
 
@@ -334,6 +336,9 @@ class Bubbles extends GenericService {
                     }
 
                     that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble ? bubble : bubbleUpdated);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(_onOwnAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+                    //that._logger.log("internalerror", LOG_ID + "(_onOwnAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
                 });
             }
         } else {
@@ -387,6 +392,8 @@ class Bubbles extends GenericService {
             } // */
 
             that._eventEmitter.emit("evt_internal_bubblecustomDatachanged", bubble);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onCustomDataChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -417,6 +424,8 @@ class Bubbles extends GenericService {
             } // */
 
             that._eventEmitter.emit("evt_internal_bubbletopicchanged", bubble);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onTopicChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -441,6 +450,8 @@ class Bubbles extends GenericService {
 
             let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
             that._eventEmitter.emit("evt_internal_bubbleprivilegechanged", {bubble, "privilege": bubbleInfo.privilege});
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onPrivilegeBubbleChanged) get bubble failed for bubbleInfo : ", bubbleInfo, ", : ", err);
         });
     }
 
@@ -473,6 +484,8 @@ class Bubbles extends GenericService {
             } // */
 
             that._eventEmitter.emit("evt_internal_bubblenamechanged", bubble);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onNameChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -544,6 +557,8 @@ class Bubbles extends GenericService {
             let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
             //that._eventEmitter.emit("evt_internal_bubble___", bubble);
+        }).catch((err) => {
+            that._logger.log("error", LOG_ID + "(_onBubblePresenceSent) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -2309,7 +2324,8 @@ getAllActiveBubbles
                             resolve(null);
                         }
                     }).catch((err) => {
-                        return reject(err);
+                            that._logger.log("error", LOG_ID + "(getBubbleById) get bubble failed for id : ", id, ", : ", err);
+                            return reject(err);
                     });
                 }
     
@@ -2919,6 +2935,9 @@ getAllActiveBubbles
                                 // */
     
                                 resolve(bubbleReturned);
+                            }).catch((err) => {
+                                that._logger.log("error", LOG_ID + "(closeBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                                return reject(err);
                             });
                         });
                     }).catch((err) => {
@@ -3389,7 +3408,10 @@ getAllActiveBubbles
                         .then(function () {
                             that._logger.log("info", LOG_ID + "(promoteContactInBubble) user privilege successfully sent");
     
-                            return that._rest.getBubble(bubble.id);
+                            return that._rest.getBubble(bubble.id).catch((err) => {
+                                that._logger.log("error", LOG_ID + "(promoteContactInBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                                return reject(err);
+                            });
                         }).then(async (bubbleReUpdated: any) => {
     
                     // Update the existing local bubble stored
@@ -3511,8 +3533,10 @@ getAllActiveBubbles
                          */
     
                         resolve(bubble);
-                    });
-    
+                    }).catch((err) => {
+                        that._logger.log("error", LOG_ID + "(acceptInvitationToJoinBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                        return reject(err);
+                    });    
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(acceptInvitationToJoinBubble) error");
                     that._logger.log("internalerror", LOG_ID + "(acceptInvitationToJoinBubble) error : ", err);
@@ -3562,8 +3586,10 @@ getAllActiveBubbles
                          */
     
                         resolve(bubble);
-                    });
-    
+                    }).catch((err) => {
+                        that._logger.log("error", LOG_ID + "(declineInvitationToJoinBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                        return reject(err);
+                    });    
                 }).catch((err) => {
                     that._logger.log("error", LOG_ID + "(declineInvitationToJoinBubble) error");
                     that._logger.log("internalerror", LOG_ID + "(declineInvitationToJoinBubble) error : ", err);
@@ -3638,7 +3664,10 @@ getAllActiveBubbles
                 }).then(function () {
                     that._logger.log("info", LOG_ID + "(inviteContactToBubble) invitation successfully sent");
     
-                    return that._rest.getBubble(bubble.id);
+                    return that._rest.getBubble(bubble.id).catch((err) => {
+                        that._logger.log("error", LOG_ID + "(inviteContactToBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                        return reject(err);
+                    });
                 }).then(async (bubbleReUpdated: any) => {
     
                     let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
@@ -3695,7 +3724,10 @@ getAllActiveBubbles
                 }
                 return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
                     that._logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
-                    return that._rest.getBubble(bubble.id);
+                    return that._rest.getBubble(bubble.id).catch((err) => {
+                        that._logger.log("error", LOG_ID + "(inviteContactsByEmailsToBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                        return reject(err);
+                    });
                 }).then(async (bubbleReUpdated: any) => {
                     let bubble = await that.addOrUpdateBubbleToCache(bubbleReUpdated);
                     resolve(bubble);
@@ -3782,6 +3814,9 @@ getAllActiveBubbles
                             } // */
     
                             that._eventEmitter.emit("evt_internal_bubblecustomDatachanged", bubble);
+                        }).catch((err) => {
+                            that._logger.log("error", LOG_ID + "(setBubbleCustomData) get bubble failed for bubble : ", bubble, ", : ", err);
+                            return reject(err);
                         });
                     }
                     resolve(bubble);
@@ -4265,6 +4300,9 @@ getAllActiveBubbles
                                  */
     
                                 resolve(bubble);
+                            }).catch((err) => {
+                                that._logger.log("error", LOG_ID + "(removeContactFromBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                                return reject(err);
                             });
                         }).catch(function (err) {
                             that._logger.log("error", LOG_ID + "(removeContactFromBubble) error");
@@ -4294,6 +4332,9 @@ getAllActiveBubbles
                                 // So this event change will be sent twice time.
                                 that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
                                 resolve(bubble);
+                            }).catch((err) => {
+                                that._logger.log("error", LOG_ID + "(removeContactFromBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                                return reject(err);
                             });
                         }).catch(function (err) {
                             that._logger.log("error", LOG_ID + "(removeContactFromBubble) error");

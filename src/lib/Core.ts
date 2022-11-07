@@ -477,9 +477,9 @@ class Core {
                 }).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -574,9 +574,9 @@ class Core {
                 }).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {

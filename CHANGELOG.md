@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.16.1-lts.1] - 2022-11-07
+-   Fix to initialize the contacts service before the telephony service.
+-   Catch when getBubble failed.
 ## [2.16.1-lts.0] - 2022-10-28
 -   Fix body in error of raw request in HttpService.
 -   Extract the definition of methods from the constructor of the `core` class. 

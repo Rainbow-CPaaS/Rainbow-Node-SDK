@@ -1633,6 +1633,9 @@ class TelephonyService extends GenericService {
                 calleeShortNumber: that.voicemailNumber,
                 calleePbxId: that.pbxId
             };
+
+//            that._logger.log("debug", LOG_ID + "(deflectCallToVM) data : ", data, ", connectedUser : ", that._contacts.getConnectedUser());
+            
             that._rest.deflectCallToVM(call, data) .then(
                 function success() {
                     that._logger.log("debug", LOG_ID + "(deflectCallToVM) deflectCall success");
