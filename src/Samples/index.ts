@@ -3259,6 +3259,15 @@ let urlS2S;
         });
     }
 
+    async function testdeflectCallToVM() {
+        //let call = {contact:{displayNameForLog:()=>{console.log("deflectCallToVM contact display.")}}};
+        let call = calls ? calls[(calls.length-1)] : {contact:{displayNameForLog:()=>{console.log("deflectCallToVM contact display.")}}};
+        let result = await rainbowSDK.telephony.deflectCallToVM(call).catch((err) => {
+            logger.log("debug", "MAIN - (testdeflectCallToVM) error while deflect call to VM : ", err);
+        });
+        logger.log("debug", "MAIN - (testdeflectCallToVM) result : ", result);
+    }
+    
     //endregion Telephony
 
     //region Public URL of Bubble
