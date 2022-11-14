@@ -388,9 +388,9 @@ function logEntryExit(LOG_ID) : any {
                         logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
                     } catch (err) {
                         logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
-                        let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
+                        // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
                         if (err.code == 400) {
-                            returnValue = Promise.reject(error);
+                            returnValue = Promise.reject(err);
                         }
                     }
                 }

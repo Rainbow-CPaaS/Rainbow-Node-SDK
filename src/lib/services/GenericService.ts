@@ -93,6 +93,7 @@ class GenericService {
         let that = this;
         that._started = false;
         that._initialized = false;
+        that._logger.log("info", that._logId + `=== STOPPED ===`);
     }
 
 }

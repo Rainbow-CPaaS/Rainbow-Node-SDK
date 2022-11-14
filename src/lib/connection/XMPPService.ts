@@ -299,6 +299,7 @@ class XMPPService extends GenericService {
                 that.fullJid = "";
                 that.userId = "";
                 that.initialPresence = true;
+                that.logger.log("info", LOG_ID + "(stop) __ entering __ stop XMPP connection");
                 if (that.useXMPP && forceStop) {
                     that.stopIdleTimer();
 
@@ -335,7 +336,7 @@ class XMPPService extends GenericService {
                         that.xmppClient.send(stanza);
 
                         that.xmppClient.stop().then(() => {
-                            that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
+                            that.logger.log("debug", LOG_ID + "(stop) stopped XMPP connection");
                             that.xmppClient = null;
                             //that.setStopped();
                             resolve(undefined);
