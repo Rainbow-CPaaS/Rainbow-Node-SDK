@@ -276,7 +276,7 @@ class Message {
 
         /**
          * @public
-         * @property {Side} side The message originator
+         * @property {Side} side The message originator Message.Side.RIGHT is the bot and Message.Side.LT is other side.
          * @instance
          * @readonly
          */

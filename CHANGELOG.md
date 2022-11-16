@@ -6,9 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.16.1-lts.2] - 2022-11-XX
+-   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.    
+
 ## [2.16.1-lts.1] - 2022-11-07
 -   Fix to initialize the contacts service before the telephony service.
 -   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed. 
+
 -   Catch when getBubble failed.
 
 ## [2.16.1-lts.0] - 2022-10-28
