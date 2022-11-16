@@ -275,15 +275,32 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                                     const headersElem = stanzaMessage.find("headers");
                                     if (headersElem && headersElem.length > 0) {
-                                        const urgencyElem = headersElem.find("header");
-                                        if (urgencyElem.length===1) {
-                                            if (urgencyElem.attrs.name=='Urgency') {
-                                                urgency = urgencyElem.text();
+                                        if ( Array.isArray(headersElem) ) {
+                                            for (let i = 0; i <headersElem.length ; i++) {
+                                                const urgencyElem = headersElem[i].find("header");
+                                                if (urgencyElem.length===1) {
+                                                    if (urgencyElem.attrs.name=='Urgency') {
+                                                        urgency = urgencyElem.text();
+                                                    }
+                                                } else {
+                                                    for (let i = 0; i < urgencyElem.length; i++) {
+                                                        if (urgencyElem[i].attrs.name=='Urgency') {
+                                                            urgency = urgencyElem.text();
+                                                        }
+                                                    }
+                                                }
                                             }
                                         } else {
-                                            for (let i = 0; i < urgencyElem.length; i++) {
-                                                if (urgencyElem[i].attrs.name=='Urgency') {
+                                            const urgencyElem = headersElem.find("header");
+                                            if (urgencyElem.length===1) {
+                                                if (urgencyElem.attrs.name=='Urgency') {
                                                     urgency = urgencyElem.text();
+                                                }
+                                            } else {
+                                                for (let i = 0; i < urgencyElem.length; i++) {
+                                                    if (urgencyElem[i].attrs.name=='Urgency') {
+                                                        urgency = urgencyElem.text();
+                                                    }
                                                 }
                                             }
                                         }
@@ -513,7 +530,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 if (conversation) {
 
                     if ( conversation.pendingPromise ) {
-                        Promise.all( conversation.pendingPromise ).then(async () => {
+                        Promise.allSettled( conversation.pendingPromise ).then(async () => {
 
                             // Extract info
                             conversation.historyComplete = stanza.getChild("fin").getAttr("complete") === "true";
@@ -565,6 +582,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;
+                        }).catch ((err) => {
+                            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error in waited pending promises : ", err);
                         });
                     } else {
                         // @ts-ignore

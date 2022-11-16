@@ -2983,13 +2983,18 @@ let urlS2S;
     }
 
     function getConversationHistoryMaxime(conversation) {
+        logger.log("debug", "MAIN - getConversationHistoryMaxime");
         return rainbowSDK.conversations.getHistoryPage(conversation, 100).then((conversationUpdated) => {
-            return conversationUpdated.historyComplete ? conversationUpdated:getConversationHistoryMaxime(conversationUpdated);
+            logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage");
+            
+            let result =  conversationUpdated.historyComplete ? conversationUpdated:getConversationHistoryMaxime(conversationUpdated);
+            logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage result : ", result);
+            return result;
         });
     }
 
     async function testGetHistoryPage() {
-        let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
             logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
