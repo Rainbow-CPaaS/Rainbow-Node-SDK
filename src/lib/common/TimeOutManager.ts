@@ -2,6 +2,7 @@
 import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
 import {Dictionary, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
+import {type} from "os";
 
 export {};
 
@@ -15,16 +16,20 @@ class ItemForTimeOutQueue {
     private defered : Deferred;
     private itemFunction : any;
     public id : string;
+    private label: string;
+    public typePromised: boolean;
     public timeoutId: NodeJS.Timer;
     public timetoutInProgress: boolean;
 
-    constructor(itemFunction : any) {
+    constructor(itemFunction : any, label: string, typePromised: boolean) {
         let that = this;
+        that.typePromised= typePromised;
         that.defered = new Deferred();
         that.itemFunction = itemFunction;
         that.id = xmppUtils.getUniqueId("TimeOutQueue");
         that.timeoutId = null;
         that.timetoutInProgress = false;
+        that.label = label;
         
         if (typeof (itemFunction) !== 'function') {
             throw new Error('You must pass a function to execute');
@@ -74,21 +79,14 @@ class ItemForTimeOutQueue {
     async startPromised() {
         let that = this;
         try {
-            /*
-            // Wait a few time between requests to avoid burst with lot of it.
-            utils.setTimeoutPromised(that.timeBetweenXmppRequests).then(() => {
-                //that.logger.log("debug", LOG_ID + "(send) setTimeout resolve");
-                resolve(prom);
-            });
-            // */
             /* //return that.resolve(await that.itemFunction(that.defered.resolve, that.defered.reject));
             that.itemFunction(that.defered.resolve, that.defered.reject);
             await that.defered.promise;
             // */
             that.timeoutId = that.itemFunction(that.defered.resolve, that.defered.reject, that.getId());
-            doWithinInterval({promise:that.defered.promise, timeout : 5000, error : "Timeout raised for doWithInterval of : " + that.getId()}).catch((err) => {
+            /* doWithinInterval({promise:that.defered.promise, timeout : 5000, error : "Timeout raised for doWithInterval of : " + that.getId()}).catch((err) => {
                 that.defered.reject(err);
-            });
+            }); // */
             return that.defered.promise;
         } catch (err) {
             //return that.reject(err);
@@ -154,7 +152,7 @@ class TimeOutManager {
 
     //endregion Lock
 
-    setTimeout(fn, timer) {
+    setTimeout(fn, timer, label? : string) {
         let that = this;
 
         //let that = this;
@@ -162,7 +160,7 @@ class TimeOutManager {
         let timeoutId = null;
 
         try {
-            let timeoutItem = new ItemForTimeOutQueue(fnInternal);
+            let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, false);
             that.logger.log("debug", LOG_ID + "(setTimeout) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
             function fnInternal() {
                 return setTimeout(() => { fn() ; timeoutItem.timetoutInProgress = false} , timer);
@@ -196,7 +194,48 @@ class TimeOutManager {
         }
     }
 
-    setTimeoutPromised(fn, timer) {
+    setTimeoutPromised(fn, timer, label: string) {
+        let that = this;
+
+        //let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let timeoutId = null;
+        let timeoutPromise ;//= Promise.reject();
+
+
+        try {
+            let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, true);
+            that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
+            function fnInternal(resolve, reject, id) {
+                return setTimeout(() => { fn() ; resolve() ; timeoutItem.timetoutInProgress = false} , timer);
+            }
+
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue will start.");
+                    timeoutPromise = timeoutItem.startPromised();
+                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - timeoutId : ", timeoutItem.timeoutId);
+                    that.timeoutFnTab.add(timeoutItem.getId(), timeoutItem);
+                    //await until(() => { deferedResult.state != "pending"}, "Waiting the promises to complete.");
+                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue started and finished. Will pause before leave lock. timeoutId : ", timeoutId);
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - CATCH Error !!! in lock, error : ", err);
+                }
+                await pause(300);
+            }, timeoutItem.getId()).then(() => {
+                that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - Catch Error, error : ", error);
+                //timeoutItem.reject(error);
+            }); // */
+            return timeoutPromise;
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(setTimeoutPromised) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
        /* let that = this;
 
         function fnInternal() {

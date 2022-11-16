@@ -7,7 +7,6 @@ import {ErrorManager} from "./ErrorManager";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {Logger} from "./Logger";
-import {setTimeoutPromised} from "./Utils";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;

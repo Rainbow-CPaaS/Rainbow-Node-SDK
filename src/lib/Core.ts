@@ -32,6 +32,7 @@ import {S2SService} from "./services/S2SService";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
+import {TimeOutManager} from "./common/TimeOutManager";
 
 export {};
 
@@ -76,6 +77,7 @@ class Core {
 	public _botsjid: any;
     public _s2s: S2SService;
     cleanningClassIntervalID: NodeJS.Timeout;
+    private timeOutManager : TimeOutManager;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -96,6 +98,8 @@ class Core {
 
         loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
 
+        self.timeOutManager = new TimeOutManager(self.logger);
+        
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");
         self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
