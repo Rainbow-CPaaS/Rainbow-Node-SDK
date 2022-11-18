@@ -214,7 +214,7 @@ class Core {
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
-        self._stateManager = new StateManager(self._eventEmitter, self.logger);
+        self._stateManager = new StateManager(self._eventEmitter, self.logger, this.timeOutManager );
 
         // Instantiate others Services
         self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);

@@ -5037,9 +5037,11 @@ let urlS2S;
         timeOutManager.setTimeout(fn("1"), 20000, "timer a 20 secondes") ;
         timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes") ;
         timeOutManager.listEveryTimeout() ;
-        setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
-        setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
-        setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
+        //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
+        //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
+        //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
+        setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 5000);
+        setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
         /*
         timeOutManager.clearEveryTimeout();
@@ -5073,8 +5075,8 @@ let urlS2S;
         /*setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
-        setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
         // */
+        setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
         /*
         timeOutManager.clearEveryTimeout();
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);

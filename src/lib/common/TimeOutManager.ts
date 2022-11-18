@@ -1,8 +1,9 @@
 "use strict";
 import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
-import {Dictionary, List} from "ts-generic-collections-linq";
+import {Dictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
+import {isFunction} from "util";
 
 export {};
 
@@ -71,6 +72,9 @@ class ItemForTimeOutQueue {
         try {
             that.timetoutInProgress = false;
             clearTimeout(that.timeoutId );
+            if (that.typePromised) {
+                that.reject("stop");
+            } 
             return that.timeoutId;
         } catch (err) {
         }
@@ -79,10 +83,7 @@ class ItemForTimeOutQueue {
     async startPromised() {
         let that = this;
         try {
-            /* //return that.resolve(await that.itemFunction(that.defered.resolve, that.defered.reject));
-            that.itemFunction(that.defered.resolve, that.defered.reject);
-            await that.defered.promise;
-            // */
+            that.timetoutInProgress = true;
             that.timeoutId = that.itemFunction(that.defered.resolve, that.defered.reject, that.getId());
             /* doWithinInterval({promise:that.defered.promise, timeout : 5000, error : "Timeout raised for doWithInterval of : " + that.getId()}).catch((err) => {
                 that.defered.reject(err);
@@ -152,6 +153,20 @@ class TimeOutManager {
 
     //endregion Lock
 
+    // region Timeoout
+    
+    /**
+     * @public
+     * @method setTimeout
+     * @instance
+     * @category Timeout
+     * @description
+     *    To se a setTimeout function which is stored in a queue, and then can be manage.<br>
+     * @param fn
+     * @param timer
+     * @param {string} label
+     * @return {string} the return of the system setTimeout call method.
+     */
     setTimeout(fn, timer, label? : string) {
         let that = this;
 
@@ -163,7 +178,7 @@ class TimeOutManager {
             let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, false);
             that.logger.log("debug", LOG_ID + "(setTimeout) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
             function fnInternal() {
-                return setTimeout(() => { fn() ; timeoutItem.timetoutInProgress = false} , timer);
+                return setTimeout(async () => { fn() ; timeoutItem.timetoutInProgress = false ; await that.cleanAtimeOut(timeoutItem) ;} , timer);
             }
 
             that.lock(async () => {
@@ -179,7 +194,7 @@ class TimeOutManager {
                 } catch (err) {
                     that.logger.log("error", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - CATCH Error !!! in lock, error : ", err);
                 }
-                await pause(300);
+                //await pause(300);
             }, timeoutItem.getId()).then(() => {
                 that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " -  lock succeed.");
             }).catch((error) => {
@@ -207,7 +222,18 @@ class TimeOutManager {
             let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, true);
             that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
             function fnInternal(resolve, reject, id) {
-                return setTimeout(() => { fn() ; resolve() ; timeoutItem.timetoutInProgress = false} , timer);
+                return setTimeout(async () => { 
+                        if (fn && typeof fn === 'function') {
+                            try {
+                                fn() ;
+                            } catch (err) {
+                                
+                            }
+                        } 
+                        resolve() ; 
+                        timeoutItem.timetoutInProgress = false ; 
+                        await that.cleanAtimeOut(timeoutItem) ; 
+                    } , timer);
             }
 
             that.lock(async () => {
@@ -223,7 +249,7 @@ class TimeOutManager {
                 } catch (err) {
                     that.logger.log("error", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - CATCH Error !!! in lock, error : ", err);
                 }
-                await pause(300);
+                //await pause(300);
             }, timeoutItem.getId()).then(() => {
                 that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " -  lock succeed.");
             }).catch((error) => {
@@ -276,6 +302,30 @@ class TimeOutManager {
         // */
     }
     
+    async cleanAtimeOut(timeoutItemQueue : ItemForTimeOutQueue) {
+        let that = this;
+        if (timeoutItemQueue && timeoutItemQueue.timetoutInProgress === true) {
+            await timeoutItemQueue.stop();
+        }
+        let id = timeoutItemQueue.getId();
+        that.lock(async () => {
+            try {
+                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue will stop.");
+                that.timeoutFnTab.remove( (item : KeyValuePair<string, ItemForTimeOutQueue>) => {
+                    return timeoutItemQueue.getId()=== timeoutItemQueue.getId();
+                });
+                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue started and finished.");
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(setTimeout) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+            }
+            //await pause(300);
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " -  lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(setTimeout) - id : ", id, " - Catch Error, error : ", error);
+        }); // */
+        // return timeoutId;
+    }
     
     clearEveryTimeout() {
         let that = this;
