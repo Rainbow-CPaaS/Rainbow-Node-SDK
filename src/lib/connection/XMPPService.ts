@@ -478,6 +478,9 @@ class XMPPService extends GenericService {
         if (headers.headers["x-rainbow-client-version"]) {
             urlToConnect += "&x-rainbow-client-version=" + headers.headers["x-rainbow-client-version"];
         }
+        if (headers.headers["x-rainbow-client-id"]) {
+            urlToConnect += "&x-rainbow-client-id=" + headers.headers["x-rainbow-client-id"];
+        }
         let xmppLinkOptions = {
             "service": urlToConnect,
             "domain": domain,

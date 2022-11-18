@@ -62,7 +62,8 @@ class GenericRESTService {
             "Accept": accept || "application/json",
             "Range": undefined,
             "x-rainbow-client": "sdk_node",
-            "x-rainbow-client-version": packageVersion.version
+            "x-rainbow-client-version": packageVersion.version,
+            "x-rainbow-client-id": that.application?that.application.appID:""
         };
 
         return headers;
@@ -75,7 +76,8 @@ class GenericRESTService {
             "Authorization": "Bearer " + that._token,
             "accept": accept || "application/json",
             "x-rainbow-client": "sdk_node",
-            "x-rainbow-client-version": packageVersion.version
+            "x-rainbow-client-version": packageVersion.version,
+            "x-rainbow-client-id": that.application?that.application.appID:""
         };
 
         return headers;
@@ -115,7 +117,8 @@ class GenericRESTService {
             "Content-Type": "application/json",
             "Authorization": "Basic " + (auth || that._auth),
             "x-rainbow-client": "sdk_node",
-            "x-rainbow-client-version": packageVersion.version
+            "x-rainbow-client-version": packageVersion.version,
+            "x-rainbow-client-id": that.application?that.application.appID:""
         };
 
         let toEncrypt = that._application.appSecret + (password || that._credentials.password);
@@ -139,7 +142,8 @@ class GenericRESTService {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "x-rainbow-client": "sdk_node",
-            "x-rainbow-client-version": packageVersion.version
+            "x-rainbow-client-version": packageVersion.version,
+            "x-rainbow-client-id": that.application?that.application.appID:""
         };
     };
     

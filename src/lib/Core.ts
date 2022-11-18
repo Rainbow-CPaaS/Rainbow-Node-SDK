@@ -265,7 +265,8 @@ class Core {
                             "headers": {
                                 // "Authorization": "Bearer " + that._rest.token,
                                 "x-rainbow-client": "sdk_node",
-                                "x-rainbow-client-version": packageVersion.version
+                                "x-rainbow-client-version": packageVersion.version,
+                                "x-rainbow-client-id": that._rest.application?that._rest.application.appID:""
                                 // "Accept": accept || "application/json",
                             }
                         };
@@ -301,7 +302,8 @@ class Core {
                         "headers": {
                             "Authorization": "Bearer " + that._rest.token,
                             "x-rainbow-client": "sdk_node",
-                            "x-rainbow-client-version": packageVersion.version
+                            "x-rainbow-client-version": packageVersion.version,
+                            "x-rainbow-client-id": that._rest.application?that._rest.application.appID:""
                             // "Accept": accept || "application/json",
                         }
                     };
@@ -324,7 +326,8 @@ class Core {
                         "headers": {
                             "Authorization": "Bearer " + that._rest.token,
                             "x-rainbow-client": "sdk_node",
-                            "x-rainbow-client-version": packageVersion.version
+                            "x-rainbow-client-version": packageVersion.version,
+                            "x-rainbow-client-id": that._rest.application?that._rest.application.appID:""
                             // "Accept": accept || "application/json",
                         }
                     };
@@ -362,7 +365,8 @@ class Core {
                         "headers": {
                             // "Authorization": "Bearer " + that._rest.token,
                             "x-rainbow-client": "sdk_node",
-                            "x-rainbow-client-version": packageVersion.version
+                            "x-rainbow-client-version": packageVersion.version,
+                            "x-rainbow-client-id": that._rest.application?that._rest.application.appID:""
                             // "Accept": accept || "application/json",
                         }
                     };
