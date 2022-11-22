@@ -73,7 +73,7 @@ class ItemForTimeOutQueue {
             that.timetoutInProgress = false;
             clearTimeout(that.timeoutId );
             if (that.typePromised) {
-                that.reject("stop");
+                that.reject("stop the ItemForTimeOutQueue : " + that.getId() + " for : " + that.label);
             } 
             return that.timeoutId;
         } catch (err) {
@@ -334,14 +334,23 @@ class TimeOutManager {
             try {
                 that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout.");
                 if (that.timeoutFnTab) {
+                    for (let i = 0; i < that.timeoutFnTab.length ; i++) {
+                        let item = that.timeoutFnTab.elementAt(i);
+                        that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key, "] : ", item.value);
+                        if (item.value && item.value.timetoutInProgress===true) {
+                            item.value.stop();
+                        }
+                    }
+                    /*
                     that.timeoutFnTab.forEach((item) => {
                         that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key,  "] : ", item.value);
                         if (item.value && item.value.timetoutInProgress === true) {
                             item.value.stop();
                         }
                     });
+                    // */
                 }
-                // that.timeoutFnTab.clear();
+                that.timeoutFnTab.clear();
                 return "cleared";
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(clearEveryTimeout) - clear all timeout - CATCH Error !!! in lock, error : ", err);
@@ -385,6 +394,7 @@ class TimeOutManager {
         });
     }    
     
+    /*
     clearTimeout() {
         let that = this;
         return;
@@ -408,7 +418,7 @@ class TimeOutManager {
         });
         
     }
-
+// */
     listEveryTimeout() {
         let that = this;
         that.logger.log("debug", LOG_ID + "(listEveryTimeout) - __ entering __ ");

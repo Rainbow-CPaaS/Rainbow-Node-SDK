@@ -25,6 +25,7 @@ import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
 import {RESTWebinar} from "./RestServices/RESTWebinar";
 import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
+import {TimeOutManager} from "../common/TimeOutManager";
 
 const jwt : any = jwtDecode;
 
@@ -310,6 +311,7 @@ class RESTService extends GenericRESTService {
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
     private _options: any;
+    private timeOutManager : TimeOutManager;
 
     static getClassName(){ return 'RESTService'; }
     getClassName(){ return RESTService.getClassName(); }
@@ -324,6 +326,7 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(evtEmitter, _logger);
 
+        this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
         this.app = null;
@@ -593,10 +596,10 @@ class RESTService extends GenericRESTService {
                    clearTimeout(that.renewTokenInterval);
                }
                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
-               that.renewTokenInterval = setTimeout(function () {
+               that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
                    that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
                    that._renewAuthToken();
-               }, usedExpirationDuration);
+               }, usedExpirationDuration, "startTokenSurvey 1");
            }
        } else if (decodedToken) { // token is from oauth external login, so we can not refresh it by ourself.
            usedExpirationDuration = halftokenExpirationDuration ;
@@ -615,11 +618,11 @@ class RESTService extends GenericRESTService {
                    clearTimeout(that.renewTokenInterval);
                }
                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
-               that.renewTokenInterval = setTimeout(function () {
+               that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
                    //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
                    that.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
                    //that.startTokenSurvey()
-               }, usedExpirationDuration);
+               }, usedExpirationDuration, "startTokenSurvey 2");
            }
        } else {
            that.logger.log("info", LOG_ID + "(startTokenSurvey) decodedToken undefined.");
@@ -4455,7 +4458,7 @@ Request Method: PUT
 
             that.http.get("/api/rainbow/ping", that.getRequestHeader(), undefined).then(function (JSON) {
                 that.logger.log("info", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
-                setTimeout(() => {
+                that.timeOutManager.setTimeout(() => {
                     that.checkEveryPortals().then(() => {
                         that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection succeeded for currentAttempt : ", currentAttempt);
                         resolve(JSON);
@@ -4463,7 +4466,7 @@ Request Method: PUT
                         that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection failed! for currentAttempt : ", currentAttempt);
                         return reject(err);
                     });
-                }, 1000 * 10);
+                }, 1000 * 10, "checkPortalHealth");
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager for currentAttempt : ", currentAttempt);
                 that.logger.log("internalerror", LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
@@ -4497,7 +4500,7 @@ Request Method: PUT
             that.logger.log("info", LOG_ID + "(attemptToReconnect) set reconnectInProgress for the currentAttempt : ", currentAttempt);
             that.reconnectInProgress = true;
             that.logger.log("info", LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + " ms, this.currentAttempt : ", currentAttempt);
-            setTimeout(() => {
+            that.timeOutManager.setTimeout(() => {
                 that.checkPortalHealth(currentAttempt).then(() => {
                     //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
                     that.logger.log("info", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after succeeded for the currentAttempt : ", currentAttempt);
@@ -4509,7 +4512,7 @@ Request Method: PUT
                     that.reconnectInProgress = false;
                     that.eventEmitter.emit("attempt_failed");
                 });
-            }, reconnectDelay);
+            }, reconnectDelay, "attemptToReconnect");
         } else {
             that.logger.log("debug", LOG_ID + "(attemptToReconnect) reconnect in progress, so ignore this call for this.currentAttempt : ", currentAttempt);
         }

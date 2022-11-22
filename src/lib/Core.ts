@@ -46,6 +46,13 @@ const LOG_ID = "CORE - ";
 
 @logEntryExit(LOG_ID)
 class Core {
+    get timeOutManager(): TimeOutManager {
+        return this._timeOutManager;
+    }
+
+    set timeOutManager(value: TimeOutManager) {
+        this._timeOutManager = value;
+    }
 	public logger: any;
 	public _rest: RESTService;
 	public _eventEmitter: Events;
@@ -77,7 +84,7 @@ class Core {
 	public _botsjid: any;
     public _s2s: S2SService;
     cleanningClassIntervalID: NodeJS.Timeout;
-    private timeOutManager : TimeOutManager;
+    private _timeOutManager : TimeOutManager;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -98,7 +105,7 @@ class Core {
 
         loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
 
-        self.timeOutManager = new TimeOutManager(self.logger);
+        self._timeOutManager = new TimeOutManager(self.logger);
         
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");
         self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
@@ -214,7 +221,7 @@ class Core {
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
-        self._stateManager = new StateManager(self._eventEmitter, self.logger, this.timeOutManager );
+        self._stateManager = new StateManager(self._eventEmitter, self.logger, this._timeOutManager );
 
         // Instantiate others Services
         self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
@@ -943,6 +950,8 @@ class Core {
         
         return new Promise(async function (resolve, reject) {
 
+            that.timeOutManager.clearEveryTimeout();
+            
             if (that._stateManager.isSTOPPED()) {
                 return resolve ("core already stopped !");
             }
@@ -1030,6 +1039,9 @@ class Core {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
+            
+            that.timeOutManager.clearEveryTimeout();
+            
             // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
             that.logger.stop();
             //that.logger = null;

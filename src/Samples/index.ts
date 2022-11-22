@@ -5069,7 +5069,9 @@ let urlS2S;
         logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, start at : ", new Date().toTimeString());
         timeOutManager.setTimeoutPromised(fn("1"), 20000, "timer a 20 secondes").then(() => {
             logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, After setTimeoutPromised done at : ", new Date().toTimeString());
-        }) ;
+        }).catch((err) => {
+            logger.log("error", "MAIN - testtimeOutManagersetTimeoutPromised, Catch setTimeoutPromised done at : ", new Date().toTimeString(), ", error : ", err);
+        }); 
         //timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes") ;
         timeOutManager.listEveryTimeout() ;
         /*setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
@@ -5077,8 +5079,9 @@ let urlS2S;
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
         // */
         setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
-        /*
+        
         timeOutManager.clearEveryTimeout();
+        /*
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 20000);
