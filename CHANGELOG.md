@@ -12,7 +12,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix to initialize the contacts service before the telephony service.
 -   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed.
 -   Add a `TimeOutManager` manager to be able to control every setTimeout from one tool. Useful for stopping setTimeout when a stop of SDK occured.
--   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.    
+-   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
+-   Add `AdminService::getAnImportStatus` API to provide a short status of the last import (completed or pending) of a company directory.    
     
 ## [2.17.0] - 2022-10-28
 -   Catch when getBubble failed.

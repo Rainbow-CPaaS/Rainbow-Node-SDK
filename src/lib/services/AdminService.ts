@@ -2922,6 +2922,58 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @method getAnImportStatus
+     * @since 2.18.0
+     * @instance
+     * @async
+     * @category AD/LDAP - AD/LDAP Massprovisioning
+     * @param {string} companyId the company id. Default value is the current company.
+     * @description
+     *     This API provides a short status of the last import (completed or pending) of a company directory. <br>
+     *          <br>
+     *              superadmin can get the status of the import of the directory of any company. <br>
+     *              bp_admin can only get the status of the import of the directory of their own companies or their End Customer companies. <br>
+     *              organization_admin can only get the status of the import of the directory of the companies under their organization. <br>
+     *              company_admin and directory_admin can only get the status of the import of the directory of their onw companies. <br>
+     * <br>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object |     |
+     * | state | String | Import state<br><br>Valeurs autorisées : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+     * | companyId | String | Id of the company of the directory |
+     * | userId | String | Id of the requesting user |
+     * | displayName | String | Display name of the requesting user |
+     * | label | String | Description of the import |
+     * | csvHeaders | String | CSV header line (Fields names) |
+     * | startTime | String | Import processing start time |
+     * | created | Integer | Count of created entries |
+     * | failed | Integer | Count of failed entries |
+     * 
+     */
+    getAnImportStatus(companyId? : string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+                
+                let result = await that._rest.getAnImportStatus(companyId);
+                that._logger.log("debug", "(getAnImportStatus) - sent.");
+                that._logger.log("internal", "(getAnImportStatus) - result : ", result);
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAnImportStatus) Error.");
+                that._logger.log("internalerror", LOG_ID + "(getAnImportStatus) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
      * @method getInformationOnImports
      * @since 2.12.0
      * @instance
