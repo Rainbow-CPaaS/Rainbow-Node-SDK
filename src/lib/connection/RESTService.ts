@@ -6463,6 +6463,7 @@ Request Method: PUT
         });
     }
 
+    // @deprecated 
     enableOrNotCalendar(disable : boolean) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -6484,6 +6485,56 @@ Request Method: PUT
         });
     }
 
+    controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
+        // API https://api.openrainbow.org/calendar/#api-Calendar-ControlCalendar
+        // PUT /api/rainbow/calendar/v1.0/control
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let that = this;
+            let urlParams = "/api/rainbow/calendar/v1.0/control";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(urlParams);
+            addParamToUrl(urlParamsTab, "disable", disable);
+            addParamToUrl(urlParamsTab, "ignore", ignore);
+            urlParams = urlParamsTab[0];  
+            that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST url : ", urlParams);
+            
+            let params = {};
+          
+            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(controlCalendarOrIgnoreAnEntry) successfull");
+                that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error");
+                that.logger.log("internalerror", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    unregisterCalendar () {
+        // DELETE /api/rainbow/calendar/v1.0
+        // API https://api.openrainbow.org/calendar/#api-Calendar-UnregisterCalendar
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST ");
+
+            that.http.delete("/api/rainbow/calendar/v1.0"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAnImportStatusReport) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAnImportStatusReport) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAnImportStatusReport) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     //endregion
     
     //region AD/LDAP

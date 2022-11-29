@@ -730,10 +730,11 @@ class PresenceService extends GenericService{
     }
     
     /**
-     * @public
+     * @private
      * @method enableCalendar
      * @instance
      * @category Presence CALENDAR
+     * @deprecated
      * @description
      *    Allow to enable the calendar. <br>
      *    return promise with { <br>
@@ -747,7 +748,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      
      */
-    async enableCalendar( ) {
+    private async enableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -768,10 +769,11 @@ class PresenceService extends GenericService{
     }
     
     /**
-     * @public
+     * @private
      * @method disableCalendar
      * @instance
      * @category Presence CALENDAR
+     * @deprecated
      * @description
      *    Allow to disable the calendar. <br>
      *    return promise with { <br>
@@ -785,7 +787,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      
      */
-    async disableCalendar( ) {
+  private async disableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -804,7 +806,86 @@ class PresenceService extends GenericService{
             });
         });
     }
-    
+
+    /**
+     * @public
+     * @method controlCalendarOrIgnoreAnEntry
+     * @instance
+     * @category Presence CALENDAR
+     * @param {boolean} disable disable calendar, true to re-enable
+     * @param {string} ignore ignore the current calendar entry, false resumes the entry. Possible values : current, false
+     * @description
+     *    Enable/disable a calendar sharing or ignore a calendar entry. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
+     * @async
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+     */
+    controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.controlCalendarOrIgnoreAnEntry(disable, ignore).then((result : any) => {
+                that._logger.log("info", LOG_ID + "(controlCalendarOrIgnoreAnEntry) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error");
+                that._logger.log("internalerror", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to control calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+     /**
+     * @public
+     * @method unregisterCalendar
+     * @instance
+     * @category Presence CALENDAR
+     * @description
+     *    Delete a calendar sharing. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("deleted") <br>
+     *    }  <br>
+     *    <br>
+     * @async
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+     */
+    async unregisterCalendar ( ) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.unregisterCalendar().then((result : any) => {
+                that._logger.log("info", LOG_ID + "(unregisterCalendar) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(unregisterCalendar) error");
+                that._logger.log("internalerror", LOG_ID + "(unregisterCalendar) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to unregister calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+
     // endregion Presence CALENDAR
     // region Presence Contact
 
