@@ -1143,7 +1143,7 @@ class FileStorage extends GenericService{
             let viewers = [];
             if (data.viewers) {
                 for (let viewerData of data.viewers) {
-                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that._contactService));
+                    viewers.push(fileViewerElementFactory(viewerData.viewerId, viewerData.type, viewerData.contact, that._contactService.getContactById));
                 }
             }
             let url = data.url;
@@ -1849,7 +1849,7 @@ class FileStorage extends GenericService{
                             viewerId: response.data.viewerId,
                             type: response.data.type
                         }])[0]; // */
-                        let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type, undefined,  undefined);
+                        let viewerAdded = fileViewerElementFactory(response.data.viewerId, response.data.type, undefined,  that._contactService.getContactById);
                         if (viewerAdded.type === "user") {
                             that._contactService.getContactById(viewerId, true)
                                 .then((contact) => {

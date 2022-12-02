@@ -1681,6 +1681,16 @@ let urlS2S;
         });
     }
 
+    async function testgetAllFilesSentV1() {
+        let that = this;
+        for (let fd of rainbowSDK.fileStorage.getAllFilesSent()) {
+            let fdjson = JSON.stringify(fd);
+            logger.log("debug", "Main - testgetAllFilesSentV1 Checking file fd.fileName : ", fd.fileName, ", JSON string : ", fdjson);
+            let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
+            logger.log("debug", `Main - testgetAllFilesSentV1 fileDescriptorFull : `, fileDescriptorFull);
+        }
+    }
+
     async function testgetAllFilesReceived() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
