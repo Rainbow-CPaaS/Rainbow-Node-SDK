@@ -22,6 +22,7 @@ interface IFileViewer {
  */
 class FileViewer /* implements IFileViewer */{
 	public contactService: any;
+	private getContactByDBId: any;
 	public viewerId: any;
 	public type: any;
 	public contact: any;
@@ -39,8 +40,8 @@ class FileViewer /* implements IFileViewer */{
         viewerId/*: string */,
         type/*: FileViewerType */,
         contact/*: any */,
-        _contactService/*: any = null*/) {
-        this.contactService = _contactService;
+        getContactByDBId/*: any = null*/) {
+        this.getContactByDBId = getContactByDBId;
         /**
 	     * @public
          * @property {String} viewerId The id of the viewer
@@ -69,11 +70,13 @@ class FileViewer /* implements IFileViewer */{
         if (this.contact) { this._avatarSrc = this.contact.avatar.src; }
         else {
             this._avatarSrc = null;
-            this.contactService.getContactByDBId(this.viewerId)
-                .then((contact) => { 
-                    this.contact = contact;
-                    this._avatarSrc = this.contact.avatar.src;
-                });
+            if (this.getContactByDBId) {
+                this.getContactByDBId(this.viewerId)
+                        .then((contact) => {
+                            this.contact = contact;
+                            this._avatarSrc = this.contact.avatar.src;
+                        });
+            }
         }
         return this._avatarSrc;
     }
