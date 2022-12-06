@@ -132,7 +132,6 @@ class Bubble {
     public disableNotifications: boolean;
     public lastAvatarUpdateDate: null;
     public guestEmails: any[];
-    public confEndpoints: any[];
     public activeUsersCounter: number;
     public avatar: string;
     public organizers: Array<any>;
@@ -204,7 +203,7 @@ class Bubble {
     public tags: Array<any>;
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
-                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _confEndpoints: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
+                _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
                 _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null) {
 
         /**
@@ -361,14 +360,6 @@ class Bubble {
          * @instance
          */
         this.guestEmails = _guestEmails;
-
-        /**
-         * @public
-         * @readonly
-         * @property {string} confEndpoints The End point of the conference of the bubble.
-         * @instance
-         */
-        this.confEndpoints = _confEndpoints;
 
         /**
          * @public
@@ -577,8 +568,7 @@ class Bubble {
                 data.conference,
                 data.disableNotifications,
                 data.lastAvatarUpdateDate,
-                data.guestEmails,
-                data.confEndpoints,
+                data.guestEmails,                
                 data.activeUsersCounter,
                 data.autoRegister,
                 data.lastActivityDate,

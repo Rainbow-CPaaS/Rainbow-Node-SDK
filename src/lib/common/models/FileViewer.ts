@@ -21,7 +21,6 @@ interface IFileViewer {
  *      This class is used to represent a File Viewer who is the list of persons (individual or a bubble) that can access (download) the file.
  */
 class FileViewer /* implements IFileViewer */{
-	public contactService: any;
 	private getContactByDBId: any;
 	public viewerId: any;
 	public type: any;

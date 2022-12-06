@@ -70,6 +70,7 @@ import {inspect} from "util";
 
 const inquirer = require("inquirer");
 import jwt from "jwt-decode";
+import * as util from "util";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -1701,6 +1702,19 @@ let urlS2S;
         }
     }
 
+    async function testgetAllFilesSent() {
+        let that = this;
+        let filesSent = rainbowSDK.fileStorage.getAllFilesSent();
+        let filesSentJSON = util.inspect(filesSent, false, 4, false);
+        logger.log("debug", "Main - testgetAllFilesSent Checking files stringified : ", filesSentJSON);
+
+        /*for (let fd of filesSent) {
+            logger.log("debug", `Main - testgetAllFilesSent Checking file ${fd.fileName} ...`, fd);
+            let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
+            logger.log("debug", `Main - testgetAllFilesSent fileDescriptorFull : `, fileDescriptorFull);
+        } // */
+    }
+
     async function testaddFileViewer() {
         let that = this;
 
@@ -2717,7 +2731,7 @@ let urlS2S;
     //endregion Bubbles
 
     //region Conference V1
-    
+    /*
     function testGetAllConferences() {
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
@@ -2767,14 +2781,6 @@ let urlS2S;
     }
 
     function testjoinConferenceV2(bubbleId : string = "621c9f61dd692c3dd3131869") {
-        /*let physician = {
-            "name": "",
-            "contact": null,
-            "loginEmail": "vincent02@vbe.test.openrainbow.net",
-            "appointmentRoom": "testBot"
-        };
-        let botappointment = "vincent01@vbe.test.openrainbow.net";
-        // */
 
         rainbowSDK.bubbles.getBubbleById(bubbleId).then((bubble) => {
             logger.log("debug", "MAIN - testjoinConferenceV2 - found bubble.id : ", bubble.id);
@@ -2801,24 +2807,15 @@ let urlS2S;
         //                     rainbowSDK.bubbles.joinConference(bubble).then((result) => {
         //                         //let bubbles = rainbowSDK.bubbles.getAll();
         //                         logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
-        //                     }); // */
-        //                     /*rainbowSDK.contacts.getContactByLoginEmail(botappointment).then(contactbot => {
-        //                         rainbowSDK.bubbles.inviteContactToBubble(contactbot, bubble, false, false).then(function () {
-        //                             setTimeout(() => { rainbowSDK.bubbles.promoteContactInBubble(contactbot, bubble).then(function (updatedBubble) {
-        //                                 rainbowSDK.conversations.getBubbleConversation(updatedBubble).then(conversation => {
-        //                                    logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok", conversation);
-        //                                });
-        //                            })} , 2000);
-        //                        });
-        //                    }); // */
+        //                     }); 
         //                 });
         //             });
         //         }
         //     }
-        // }); // */
+        // }); 
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
-
+// */
     //endregion Conference V1
 
     //region Guests
@@ -3734,11 +3731,12 @@ let urlS2S;
 
     async function testenableDisableCalendar() {
         // To use with vincent.berder on Official
-        let result = await rainbowSDK.presence.disableCalendar();
+      /*  let result = await rainbowSDK.presence.disableCalendar();
         logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
 
         let result2 = await rainbowSDK.presence.enableCalendar();
         logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
+        // */
     }
 
     //endregion    
@@ -4287,11 +4285,11 @@ let urlS2S;
     async function tesaskConferenceSnapshot() {
         let confId = "60d5a4ee0eeee002d144e9bf";
         
-        rainbowSDK.bubbles.askConferenceSnapshot(confId).then(async (confStarted) => {
+        /*rainbowSDK.bubbles.askConferenceSnapshot(confId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request ok, confStarted : ", confStarted);
         }).catch (err => {
             logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
-        });
+        }); // */
     }
     
     //endregion Conference V2
