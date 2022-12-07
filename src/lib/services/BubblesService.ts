@@ -844,8 +844,102 @@ class Bubbles extends GenericService {
         });
         return result;
     }
-    
-//endregion CONFERENCE SPECIFIC
+
+    /**
+     * @private
+     * @Method retrieveConferences
+     * @since 2.6.0
+     * @instance
+     * @category CONFERENCE SPECIFIC
+     * @deprecated
+     * @param {string} mediaType [optional] mediaType of conference(s) to retrive.
+     * @param {boolean} scheduled [optional] whether it is a scheduled conference or not
+     * @param {boolean} provisioning [optional] whether it is a conference that is in provisioning state or not
+     * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
+     * @memberof ConferenceService
+     */
+    public retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any> {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(retrieveConferences)  with mediaType=" + mediaType + " and scheduled=" + scheduled);
+
+        switch (mediaType) {
+            case MEDIATYPE.PstnAudio:
+                return;
+                //return this.pstnConferenceService.retrievePstnConferences(scheduled, provisioning);
+            case MEDIATYPE.WEBRTC:
+            case MEDIATYPE.WEBRTCSHARINGONLY:
+                //return this.BubblesService.retrieveWebConferences(mediaType);
+            default:
+                break;
+        }
+
+        return new Promise((resolve, reject) => {
+
+            if (/*!this.pstnConferenceService.isPstnConferenceAvailable && */ !(that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED))) {
+                that._logger.log("internal", LOG_ID + "(retrieveConferences)  - user is not allowed");
+                reject(new Error("notAllowed"));
+                return;
+            }
+
+            /*let urlParameters = "conferences?format=full&userId=" + this.contactService.userContact.dbId;
+            if (angular.isDefined(scheduled)) {
+                urlParameters += "&scheduled=" + scheduled;
+            } // */
+
+            that._rest.retrieveAllConferences(scheduled).then((result: Iterable<any>) => {
+                for (let conferenceData of result) {
+                    switch (conferenceData.mediaType) {
+                        case MEDIATYPE.PstnAudio:
+                            //this.pstnConferenceService.updateOrCreatePstnConferenceEndpoint(conferenceData);
+                            break;
+                        case MEDIATYPE.WEBRTC:
+                        case MEDIATYPE.WEBRTCSHARINGONLY:
+                            that.updateOrCreateWebConferenceEndpoint(conferenceData);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                resolve(result);
+            }).catch(() => {
+                resolve(undefined);
+            });
+            /*
+            this.$http({
+                method: "GET",
+                url: this.confProvPortalURL + urlParameters,
+                headers: this.authService.getRequestHeader()
+            })
+                // Handle success response
+                .then((response: ng.IHttpPromiseCallbackArg<any>) => {
+                        let conferencesProvisionData = response.data.data;
+                        for (let conferenceData of conferencesProvisionData) {
+                            switch (conferenceData.mediaType) {
+                                case this.MEDIATYPE.PSTNAUDIO:
+                                    this.pstnConferenceService.updateOrCreatePstnConferenceEndpoint(conferenceData);
+                                    break;
+                                case this.MEDIATYPE.WEBRTC:
+                                case this.MEDIATYPE.WEBRTCSHARINGONLY:
+                                    this.BubblesService.updateOrCreateWebConferenceEndpoint(conferenceData);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        this.$log.info("[ConferenceService] retrieveConferences successfully");
+                        resolve(conferencesProvisionData);
+                    },
+                    (response: ng.IHttpPromiseCallbackArg<any>) => {
+                        let msg = response.data ? response.data.errorDetails : response.data;
+                        let errorMessage = "retrieveConferences failure: " + msg;
+                        this.$log.error("[ConferenceService] " + errorMessage);
+                        reject(new Error(errorMessage));
+                    });
+                    // */
+        });
+    };
+
+ //endregion CONFERENCE SPECIFIC
 
 //region PERSONAL CONFERENCE SPECIFIC
 
