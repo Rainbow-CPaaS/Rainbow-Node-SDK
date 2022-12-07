@@ -6,20 +6,18 @@
 
 Using the Rainbow SDK for Node.JS, you have the possibility to create and administrate Bubbles as well as to participate to the discussion. This guide is focussed on the management of the Bubbles. If you need to know how to send and receive messages in Bubbles, have a look to the guide [Answering to Chat Messages](/doc/sdk/node/guides/Answering_chat_message).
 
-### Managing conferences - PSTN or WebRTC
+### Managing conferences 
 
 This guide explains how to manage conferences from a bubble: get list of participants, mute/unmute participant, drop participant, get list of publishers
 
 Publishers are people using media others than audio like **sharing** or **video**
-
-The term **PersonalConference** is used as a reference to **PSTN conference**: people can use their own phone device to join this kind of conference. Then another media can be added (sharing, video) but only in WebRTC.
 
 The short term **Conference** is used as a reference to **WebRTC conference**: the audio part is done in WebRTC. Then another media can be added (sharing, video) alos in WebRTC.
 
 ### Check permissions
 ---
 
-First thing to do, it's to check if the user can make conferences. For this `ConferenceAllowed` and `PersonalConferenceAllowed` methods must be used from `Bubbles` object. 
+First thing to do, it's to check if the user can make conferences. For this `conferenceAllowed` methods must be used from `Bubbles` object. 
 
 
 ```js
@@ -29,50 +27,7 @@ First thing to do, it's to check if the user can make conferences. For this `Con
 
 // Is the WebRTC conference allowed ?
 let conferenceAllowed = rainbowSDK.bubbles.conferenceAllowed();
-// Is the PSTN conference allowed ?
-let personalConferenceAllowed = rainbowSDK.bubbles.personalConferenceAllowed();
 ...
-
-```
-
-### Phone Numbers, access code and public URL to acces the Personal Conference
----
-
-A Personal Conference must be joined in audio by a standard phone device. So it's necessary to have a phone number to access it - for this use `BubblesService::personalConferenceGetPhoneNumbers` method.
-
-Once joined you need to enter an access code in DTMF to grant the permission. There is a code different for moderators and for participants. To have them use `BubblesService::personalConferenceGetPassCodes` method.
-
-You can also share a public URL to any person you want. So they can access to a web site which then permits to access to the conference. To have this URL use `BubblesService::personalConferenceGetPublicUrl` method.
-
-It's also possible to ask the server to call you back direclty to a phone number to join the conference. In same time you can specify you role: moderator or participant. To do this use `BubblesService::personalConferenceJoin` method.
-
-**NOTE**: before to use `BubblesService::personalConferenceJoin` method, the conference must first be started using `BubblesService::personalConferenceStart` method
-
-
-```js
-...
-//Once connected
-
-let personalConfPhones = await rainbowSDK.bubbles.personalConferenceGetPhoneNumbers();
-
-...
-
-let personalConfPassCode = await rainbowSDK.bubbles.personalConferenceGetPassCodes();
-
-...
-
-let personalConfPublicUrl = await rainbowSDK.bubbles.personalConferenceGetPublicUrl();
-
-...
-
-let asModerator = true;           // User wants to join as moderator;
-let muted = true;                 // User want to join directly as muted;
-let phoneNumber = "+33612345678";  // The phone number used to be called back by the server - use an international format
-let country = "FRA";               // The country of the user - can be empty
-
-await rainbowSDK.bubbles.personalConferenceStart();
-// The server as well started the conference - so we can now join it
-await rainbowSDK.bubbles.personalConferenceJoin(asModerator, muted, phoneNumber, country );
 
 ```
 
@@ -106,7 +61,7 @@ for (const bubble of bubbles) {
 let conferencId = null;
 
 // Start a conference linked to the bubble provided in poarameter. 
-rainbowSDK.bubbles.conferenceStart(myBubbleToConferenced).then((result) => {
+rainbowSDK.bubbles.startConferenceOrWebinarInARoom(myBubbleToConferenced.id).then((result) => {
     // the id of the conference is in the result of the start in confId properties. 
     // It allow to follow the life of the bubble with the `rainbow_onbubbleconferenceupdated` event (see bellow).
     // Note that only a first event is received with the `participant::connected` property to false.
@@ -117,7 +72,7 @@ rainbowSDK.bubbles.conferenceStart(myBubbleToConferenced).then((result) => {
 ...
 
 // stop the conference
-rainbowSDK.bubbles.conferenceStop(conferencId).then((result) => {
+rainbowSDK.bubbles.stopConferenceOrWebinar(conferencId).then((result) => {
     // 
     logger.log("debug", "(conferenceStop) result : ", result);
 });

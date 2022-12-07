@@ -850,24 +850,6 @@ class Bubbles extends GenericService {
 //region PERSONAL CONFERENCE SPECIFIC
 
     /**
-     * @public
-     * @method personalConferenceAllowed
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @return {boolean}
-     * @deprecated
-     * @description
-     * To know if the current user has the permission to start its own Personal Conference
-     */
-    personalConferenceAllowed(): boolean {
-        let that = this;
-        return that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().PERSONAL_CONFERENCE_ALLOWED);
-
-        //return application.IsFeatureEnabled(Feature.PERSONAL_CONFERENCE_ALLOWED);
-    }
-
-    /**
      * @private
      * @method personalConferenceGetId
      * @since 2.6.0
