@@ -42,6 +42,7 @@ The WebRTC conferences can not be joined from node SDK because a WebRTC stack is
 ...
 //Once connected
 
+// @deprecated
 rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
         console.log("(retrieveConferences) conferences : ", conferences);
 });
@@ -80,30 +81,10 @@ rainbowSDK.bubbles.stopConferenceOrWebinar(conferencId).then((result) => {
 
 ```
 
-### Reset access code and public URL of the Personal Conference
+### Follow conference update - WebRTC
 ---
 
-For security reason, if you want you can reset access code and public URL of your personal conference.
-
-To do this, you must use `personalConferenceResetPassCodes` and `personalConferenceGenerateNewPublicUrl` methods. 
-
-
-```js
-...
-//Once connected
-
-await rainbowSDK.bubbles.personalConferenceResetPassCodes();
-
-...
-
-await rainbowSDK.bubbles.personalConferenceGenerateNewPublicUrl();
-
-```
-
-### Follow conference update - PSTN or WebRTC
----
-
-To follow the status of conference in progress use `rainbow_onbubbleconferencestartedreceived` `rainbow_onbubbleconferencestoppedreceived` `rainbow_onbubbleconferenceupdated` events (same events for PSTN or WebRTC conference).
+To follow the status of conference in progress use `rainbow_onbubbleconferencestartedreceived` `rainbow_onbubbleconferencestoppedreceived` `rainbow_onbubbleconferenceupdated` events (same events WebRTC conference).
 
 You can know the list of participants and their status (moderator or not, muted or not), the list of publishers (using "sharing" and or "video"), and the current talkers.  
 
@@ -140,67 +121,6 @@ rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: Conferenc
  And the new conference will be raised with  `rainbow_onbubbleconferenceupdated` event with property `isActive` be true, the `participants` list updated without the moderator who leaved, and a link to the old conference in property `replaceConference`.
  
 
-### Lock/UnLock, Mute/Unmute and Stop Conference
----
-
-You can lock / unlock a Personal Conference (but not WebRTC Conference) using `BubblesService::personalConferenceLockOrUnlock` method. Once locked it's no more possible to reach the conference using audio.
-
-You can mute all participants except moderators using `BubblesService::personalConferenceMuteOrUnmute` or `BubblesService::conferenceMuteOrUnmute` methods. In Personal Conference, participants muted need to wait to be unmuted to speak. In WebRTC Conference they can unmute theirself.
-
-You can stop a conference using  `BubblesService::personalConferenceStop` or `BubblesService::conferenceStop` methods.
-
-Example below explain how to use them for a Personal Conference. It's nearly the same for WebRTC Conference, you just need to specify also a conference Id.
-
-```js
-
-...
-//Once connected
-
-
-// We want to lock the conference
-let lockConference = true;
-await rainbowSDK.bubbles.personalConferenceLockOrUnlock(lockConference);
-
-...
-
-// We want to mute the conference
-let muteConference = true;
-
-await rainbowSDK.bubbles.personalConferenceMuteOrUnmute(lockComuteConferencenference);
-
-...
-
-// We want to stop (end) the conference - All participants are dropped (even moderators)
-await rainbowSDK.bubbles.personalConferenceStop();
-
-```
-
-
-### Mute/Unmute, Drop participant
----
-
-You can mute/unmute a specific participant using `BubblesService::personalConferenceMuteOrUnmutParticipant` or `BubblesService::conferenceMuteOrUnmutParticipant` method from `Bubbles` object. In Pesonal Conference, a muted particpant must wait to be unmuted. In a WebRTC conference, he can unmute himself.
-
-You can drop a specific participant using `PBubblesService::personalConferenceDropParticipant` or `BubblesService::conferenceDropParticipant` method from `Bubbles` object. This participant looses all media currently used.
-
-Example below explain how to use them for a Personal Conference. It's nearly the same for WebRTC Conference, you just need to specify also an conference Id.
-
-```js
-
-...
-//Once connected
-
-let participantID; // Id of a participant previously set
-let mute = true;  // We want to mute this participant
-await rainbowSDK.bubbles.personalConferenceMuteOrUnmutParticipant(participantID, mute);
-
-...
-
-// Id of a participant previously set
-let participantID; 
-await rainbowSDK.bubbles.personalConferenceDropParticipant(participantID);
-```
-
 
 ### Limits
 ---
@@ -209,4 +129,4 @@ To consult the exact limits concerning the Rainbow Bubbles, visit [this link](/d
 
 ---
 
-_Last updated April, 04th 2017_
+_Last updated december, 08th 2022_

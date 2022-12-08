@@ -894,7 +894,7 @@ class Bubbles extends GenericService {
                             break;
                         case MEDIATYPE.WEBRTC:
                         case MEDIATYPE.WEBRTCSHARINGONLY:
-                            that.updateOrCreateWebConferenceEndpoint(conferenceData);
+                            //that.updateOrCreateWebConferenceEndpoint(conferenceData);
                             break;
                         default:
                             break;
@@ -904,38 +904,6 @@ class Bubbles extends GenericService {
             }).catch(() => {
                 resolve(undefined);
             });
-            /*
-            this.$http({
-                method: "GET",
-                url: this.confProvPortalURL + urlParameters,
-                headers: this.authService.getRequestHeader()
-            })
-                // Handle success response
-                .then((response: ng.IHttpPromiseCallbackArg<any>) => {
-                        let conferencesProvisionData = response.data.data;
-                        for (let conferenceData of conferencesProvisionData) {
-                            switch (conferenceData.mediaType) {
-                                case this.MEDIATYPE.PSTNAUDIO:
-                                    this.pstnConferenceService.updateOrCreatePstnConferenceEndpoint(conferenceData);
-                                    break;
-                                case this.MEDIATYPE.WEBRTC:
-                                case this.MEDIATYPE.WEBRTCSHARINGONLY:
-                                    this.BubblesService.updateOrCreateWebConferenceEndpoint(conferenceData);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        this.$log.info("[ConferenceService] retrieveConferences successfully");
-                        resolve(conferencesProvisionData);
-                    },
-                    (response: ng.IHttpPromiseCallbackArg<any>) => {
-                        let msg = response.data ? response.data.errorDetails : response.data;
-                        let errorMessage = "retrieveConferences failure: " + msg;
-                        this.$log.error("[ConferenceService] " + errorMessage);
-                        reject(new Error(errorMessage));
-                    });
-                    // */
         });
     };
 

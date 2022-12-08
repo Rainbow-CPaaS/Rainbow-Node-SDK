@@ -2731,13 +2731,14 @@ let urlS2S;
     //endregion Bubbles
 
     //region Conference V1
-    /*
+    
     function testGetAllConferences() {
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
         });
     }
     
+    /*
     async function testaskConferenceSnapshot() {
         let allConferences: [any] = await rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - testaskConferenceSnapshot all conferences : ", conferences);

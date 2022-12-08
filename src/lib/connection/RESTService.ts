@@ -5036,7 +5036,68 @@ Request Method: PUT
         });
     } 
     // */
+    retrieveAllConferences(scheduled) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(retrieveAllConferences) REST params : ", params);
+            let url = "/api/rainbow/confprovisioning/v1.0/conferences?";
+            if (scheduled != undefined) {
+                url += "scheduled=" + scheduled ;
+            }
+            url += "&format=full&userId=" + that.userId;
 
+            that.http.get(url , that.getRequestHeader(), params).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveAllConferences) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveAllConferences) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveAllConferences) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveAllConferences) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * Method retrieveWebConferences
+     * @public
+     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
+     * @returns {Promise<any>} a promise that resolves when conference are reterived
+     * @memberof WebConferenceService
+     */
+    retrieveWebConferences(mediaType: string = MEDIATYPE.WEBRTC): Promise<any> {
+        let that = this;
+        that.logger.log("info", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
+        return new Promise((resolve, reject) => {
+            let urlQueryParameters = "?format=full&userId=" + that.userId;
+
+            if (mediaType) {
+                urlQueryParameters += "&mediaType=" + mediaType;
+            }
+
+            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
+                    /* this.$http({
+                        method: "GET",
+                        url: this.confProvPortalURL + "conferences" + urlQueryParameters,
+                        headers: this.authService.getRequestHeader()
+                    }) // */
+                    // Handle success response
+                    .then((response) => {
+                                let conferencesProvisionData = response;
+                                that.logger.log("info", LOG_ID + "(retrieveWebConferences) successfully");
+                                that.logger.log("internal", LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
+                                resolve(conferencesProvisionData.data);
+                            },
+                            (response) => {
+                                let msg = response.data ? response.data.errorDetails : response.data;
+                                let errorMessage = "(retrieveWebConferences) failure: " + msg;
+                                that.logger.log("error", LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
+                                reject(new Error(errorMessage));
+                            });
+        });
+    };
+    
     //endregion conference
 
     //region Offers and subscriptions
