@@ -6,7 +6,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.18.0 - STS Version - XXX 2022
+### SDK for Node.JS 2.18.0 - STS Version - December 2022
 
 ---
 
@@ -19,6 +19,17 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 **API Breaking Changes**
 
 -   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
+-   Remove Conference V1 methods in BubblesService : 
+-   `askConferenceSnapshot` `joinConference` `getBubbleByConferenceIdFromCache` `getBubbleIdByConferenceIdFromCache` 
+-   `getConferencesIdByBubbleIdFromCache` `getConferenceByIdFromCache` `conferenceGetListFromCache` 
+-   `updateOrCreateWebConferenceEndpoint` `updateWebConferenceInfos` `getWebRtcConfEndpointId` `getWebRtcSharingOnlyConfEndpointId` 
+-   `conferenceStart` `conferenceStop` `conferenceJoin` `conferenceMuteOrUnmute` `conferenceMuteOrUnmutParticipant` 
+-   `conferenceDropParticipant` `personalConferenceAllowed` `personalConferenceGetId` 
+-   `personalConferenceGetBubbleFromCache` `personalConferenceGetBubbleIdFromCache` `personalConferenceGetPhoneNumbers`
+-   `personalConferenceGetPassCodes` `personalConferenceResetPassCodes` `personalConferenceGetPublicUrl` `personalConferenceStart`
+-   `personalConferenceStop` `personalConferenceJoin` `personalConferenceMuteOrUnmute` `personalConferenceLockOrUnlock` 
+-   `personalConferenceMuteOrUnmuteParticipant` `personalConferenceDropParticipant` `conferenceEndedForBubble` `askBubbleForConferenceDetails` 
+-   `personalConferenceRename` `conferenceModeratorAction` `conferenceMuteOrUnmutParticipant` 
 
 **API Changes**
 
