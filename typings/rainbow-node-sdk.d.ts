@@ -4,10 +4,14 @@ declare module 'lib/common/Utils' {
 	    reject: any;
 	    promise: any;
 	    constructor();
-	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: any): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
+	} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function doWithinInterval({ promise, timeout, error }: {
+	    promise: any;
+	    timeout: any;
+	    error: any;
+	}): Promise<any>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: any): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
 	    type: any;
 	    data: Uint8Array;
-	}; function getRandomInt(max: any): number; function stackTrace(): string; const resolveDns: (cname: any) => Promise<unknown>;
+	}; function getRandomInt(max: any): number; function stackTrace(): string; function isPromise(x: any): any; const resolveDns: (cname: any) => Promise<unknown>;
 	export let objToExport: {
 	    makeId: (n: any) => string;
 	    createPassword: (size: any) => string;
@@ -32,8 +36,10 @@ declare module 'lib/common/Utils' {
 	    addParamToUrl: typeof addParamToUrl;
 	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
 	    resolveDns: (cname: any) => Promise<unknown>;
+	    isPromise: typeof isPromise;
+	    doWithinInterval: typeof doWithinInterval;
 	};
-	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns }; const _default: {
+	export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval }; const _default: {
 	    makeId: (n: any) => string;
 	    createPassword: (size: any) => string;
 	    isAdmin: (roles: any) => boolean;
@@ -57,6 +63,8 @@ declare module 'lib/common/Utils' {
 	    addParamToUrl: typeof addParamToUrl;
 	    cleanEmptyMembersFromObject: typeof cleanEmptyMembersFromObject;
 	    resolveDns: (cname: any) => Promise<unknown>;
+	    isPromise: typeof isPromise;
+	    doWithinInterval: typeof doWithinInterval;
 	};
 	export default _default;
 
@@ -106,10 +114,16 @@ declare module 'lib/common/models/Channel' {
 	    messages: any[];
 	    deleted: boolean;
 	    mute: boolean;
+	    enable_comments: boolean;
+	    max_comments: number;
+	    max_payload_comment_size: number;
+	    additionDate: boolean;
+	    lastCheckDate: string;
+	    max_payload_size_comment: number;
 	    /**
 	     * @this Channel
 	     */
-	    constructor(_name: string, _id: string, _visibility: string, _topic: string, _creatorId: string, _companyId: string, _creationDate: Date, _users_count: number, _lastAvatarUpdateDate: Date, _subscribed: boolean, _type: string, _invited: boolean, _category: string, _mode: string, _subscribers_count: number, _serverURL: string, _max_items: number, _max_payload_size: number, _pageIndex: number, _isLoading: boolean, _complete: boolean, _users: any[], _publishersRetreived: boolean, _loaded: boolean, _avatar: string, _userRole?: string, _messageRetrieved?: boolean, _messages?: any[], _deleted?: boolean, _mute?: boolean);
+	    constructor(_name: string, _id: string, _visibility: string, _topic: string, _creatorId: string, _companyId: string, _creationDate: Date, _users_count: number, _lastAvatarUpdateDate: Date, _subscribed: boolean, _type: string, _invited: boolean, _category: string, _mode: string, _subscribers_count: number, _serverURL: string, _max_items: number, _max_payload_size: number, _pageIndex: number, _isLoading: boolean, _complete: boolean, _users: any[], _publishersRetreived: boolean, _loaded: boolean, _avatar: string, _userRole: string, _messageRetrieved: boolean, _messages: any[], _deleted: boolean, _mute: boolean, _enable_comments: boolean, _max_comments: number, _max_payload_comment_size: number, _additionDate: boolean, _lastCheckDate: string, _max_payload_size_comment: number);
 	    isNotMember(): string;
 	    isOwner(): boolean;
 	    isPublisher(): boolean;
@@ -337,6 +351,11 @@ declare module 'lib/connection/RestServices/RESTTelephony' {
 	    logoff(requestHeader: any, endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
 	    withdrawal(requestHeader: any, agentId: any, groupId: any, status: any): Promise<unknown>;
 	    wrapup(requestHeader: any, agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
+	    deleteAllMyVoiceMessagesFromPbx(postHeader: any): Promise<unknown>;
+	    deleteAVoiceMessageFromPbx(postHeader: any, messageId: any): Promise<unknown>;
+	    getAVoiceMessageFromPbx(requestHeader: any, messageId: string, messageDate: string, messageFrom: string): Promise<unknown>;
+	    getDetailedListOfVoiceMessages(requestHeader: any): Promise<unknown>;
+	    getNumbersOfVoiceMessages(requestHeader: any): Promise<unknown>;
 	}
 	export { RESTTelephony };
 
@@ -482,12 +501,14 @@ declare module 'lib/common/models/Message' {
 	    isForwarded: boolean;
 	    forwardedMsg: any;
 	    replacedByMessage: Message;
+	    deleted: boolean;
+	    modified: boolean;
 	    constructor(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, status: string, receiptStatus: number, isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions: any, urgency: string, urgencyAck: boolean, urgencyHandler: any, historyIndex: string, attachedMsgId: string, attachIndex: number, attachNumber: number, resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: {
 	        url: string;
 	        mime: string;
 	        filename: string;
 	        filesize: string;
-	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any);
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any, deleted?: boolean, modified?: boolean);
 	    /**
 	     * @private
 	     * @method
@@ -498,7 +519,7 @@ declare module 'lib/common/models/Message' {
 	        mime: string;
 	        filename: string;
 	        filesize: string;
-	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any): Message;
+	    }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg: any, deleted?: boolean, modified?: boolean): Message;
 	    /**
 	     * @private
 	     * @method
@@ -605,7 +626,7 @@ declare module 'lib/common/models/Conversation' {
 	     * @memberof Conversation
 	     * @instance
 	     */
-	    addMessage(message: any): any;
+	    addOrUpdateMessage(message: any): any;
 	    /*************************************************************/
 	    /*************************************************************/
 	    static createOneToOneConversation(participant: any): Conversation;
@@ -637,6 +658,7 @@ declare module 'lib/connection/XMPPServiceHandler/GenericHandler' {
 	    get jid(): any;
 	    get userId(): any;
 	    get applicationId(): any;
+	    get resourceId(): any;
 	    get xmppClient(): import("../../common/XmppQueue/XmppClient").XmppClient;
 	    get eventEmitter(): any;
 	    get logger(): any;
@@ -689,6 +711,7 @@ declare module 'lib/config/config' {
 	            raiseLowLevelXmppOutReq: boolean;
 	            maxIdleTimer: number;
 	            maxPingAnswerTimer: number;
+	            xmppRessourceName: any;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -713,6 +736,7 @@ declare module 'lib/config/config' {
 	            raiseLowLevelXmppOutReq: boolean;
 	            maxIdleTimer: number;
 	            maxPingAnswerTimer: number;
+	            xmppRessourceName: any;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -737,6 +761,7 @@ declare module 'lib/config/config' {
 	            raiseLowLevelXmppOutReq: boolean;
 	            maxIdleTimer: number;
 	            maxPingAnswerTimer: number;
+	            xmppRessourceName: any;
 	        };
 	        s2s: {
 	            hostCallback: string;
@@ -776,6 +801,7 @@ declare module 'lib/config/config' {
 	        autoLoadContacts: boolean;
 	        enableCarbon: boolean;
 	        enablesendurgentpushmessages: boolean;
+	        useMessageEditionAndDeletionV2: boolean;
 	    };
 	    mode: string;
 	    concurrentRequests: number;
@@ -919,8 +945,10 @@ declare module 'lib/common/XmppQueue/XmppClient' {
 	    resolvPendingRequest(id: any, stanza: any): Promise<boolean>;
 	    resetnbMessagesSentThisHour(): void;
 	    getJsonFromXML(xml: string): Promise<any>;
-	    send(...args: any[]): Promise<unknown>;
+	    send(...args: any[]): any;
+	    send_orig(...args: any[]): Promise<unknown>;
 	    sendIq(...args: any[]): Promise<unknown>;
+	    sendIq_orig(...args: any[]): Promise<unknown>;
 	    on(evt: any, cb: any): void;
 	    get sasl(): any;
 	    setgetMechanism(cb: any): void;
@@ -974,6 +1002,7 @@ declare module 'lib/common/Logger' {
 	/// <reference types="node" />
 	export {}; class Logger {
 	    private enableEncryptedLogs;
+	    logLevel: string;
 	    get logEventEmitter(): NodeJS.EventEmitter;
 	    set logEventEmitter(value: NodeJS.EventEmitter);
 	    colors: any;
@@ -986,9 +1015,9 @@ declare module 'lib/common/Logger' {
 	    private cryptr;
 	    constructor(config: any);
 	    get log(): any;
-	    argumentsToStringReduced(v: any): any;
-	    argumentsToStringFull(v: any): any;
-	    argumentsToString: (v: any) => any;
+	    argumentsToStringReduced(v: any, delemiter?: string): any;
+	    argumentsToStringFull(v: any, delemiter?: string): any;
+	    argumentsToString: (v: any, delemiter?: string) => any;
 	}
 	export { Logger };
 
@@ -1331,6 +1360,7 @@ declare module 'lib/common/models/Contact' {
 	    isInitialized: boolean;
 	    initializationDate: string;
 	    createdBySelfRegister: boolean;
+	    createdByAdmin: any;
 	    createdByAppId: string;
 	    firstLoginDate: string;
 	    lastLoginDate: string;
@@ -1373,15 +1403,22 @@ declare module 'lib/common/models/Contact' {
 	    creationDate: string;
 	    profiles: Array<any>;
 	    activationDate: string;
-	    lastOfflineMailReceivedDate: Array<any>;
+	    lastOfflineMailReceivedDate: string;
 	    state: string;
 	    authenticationType: string;
 	    department: string;
 	    isADSearchAvailable: boolean;
 	    isTv: boolean;
-	    calendars: any;
+	    calendars: Array<any>;
 	    openInvites: any;
 	    isAlertNotificationEnabled: boolean;
+	    outOfOffice: any;
+	    lastSeenDate: string;
+	    eLearningCustomisation: any;
+	    eLearningGamificationCustomisation: any;
+	    useRoomAsRBVoiceUser: boolean;
+	    useWebRTCAudioAsRBVoiceUser: boolean;
+	    msTeamsPresence: any;
 	    constructor();
 	    updateLastContactCacheUpdate(): void;
 	    isObsoleteCache(): boolean;
@@ -1646,7 +1683,6 @@ declare module 'lib/common/models/Bubble' {
 	    disableNotifications: boolean;
 	    lastAvatarUpdateDate: null;
 	    guestEmails: any[];
-	    confEndpoints: any[];
 	    activeUsersCounter: number;
 	    avatar: string;
 	    organizers: Array<any>;
@@ -1655,6 +1691,10 @@ declare module 'lib/common/models/Bubble' {
 	    containerName: string;
 	    status: string;
 	    private _initialPresence;
+	    isAlertNotificationEnabled: boolean;
+	    isOwnedByGroup: boolean;
+	    isActiveLastChange: boolean;
+	    processId: any;
 	    static RoomUserStatus: {
 	        INVITED: string;
 	        ACCEPTED: string;
@@ -1706,7 +1746,7 @@ declare module 'lib/common/models/Bubble' {
 	    owner: boolean;
 	    autoAcceptInvitation: boolean;
 	    tags: Array<any>;
-	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _confEndpoints: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _autoAcceptInvitation?: boolean, _tags?: Array<any>, _avatarDomain?: string, _containerId?: string, _containerName?: string);
+	    constructor(_id: any, _name: any, _topic: any, _jid: any, _creator: any, _history: any, _users: any, _creationDate: any, _visibility: any, _customData: any, _isActive: any, _conference: any, _disableNotifications: boolean, _lastAvatarUpdateDate: any, _guestEmails: [], _activeUsersCounter: number, _autoRegister: boolean, _lastActivityDate: any, _autoAcceptInvitation?: boolean, _tags?: Array<any>, _avatarDomain?: string, _containerId?: string, _containerName?: string, _isAlertNotificationEnabled?: boolean, _isOwnedByGroup?: boolean, _isActiveLastChange?: boolean, _processId?: any);
 	    /**
 	     * Method helper to know if room is a meeting
 	     * @private
@@ -2004,6 +2044,9 @@ declare module 'lib/common/models/ConferenceSession' {
 	    private _delegateCapability;
 	    private _connected;
 	    private _contact;
+	    private _associatedUserId;
+	    private _associatedGroupName;
+	    private _isOwner;
 	    constructor(id: string);
 	    /**
 	     *
@@ -2043,6 +2086,12 @@ declare module 'lib/common/models/ConferenceSession' {
 	    set microphone(value: boolean);
 	    get delegateCapability(): boolean;
 	    set delegateCapability(value: boolean);
+	    get associatedUserId(): string;
+	    set associatedUserId(value: string);
+	    get associatedGroupName(): string;
+	    set associatedGroupName(value: string);
+	    get isOwner(): boolean;
+	    set isOwner(value: boolean);
 	    ToString(): string;
 	} class Talker {
 	    private _participant;
@@ -2309,14 +2358,12 @@ declare module 'lib/common/BubblesManager' {
 declare module 'lib/services/BubblesService' {
 	/// <reference types="node" />
 	import { List } from 'ts-generic-collections-linq';
-	import { MEDIATYPE } from 'lib/connection/RESTService';
 	import { Bubble } from 'lib/common/models/Bubble';
 	import { EventEmitter } from 'events';
 	import { Logger } from 'lib/common/Logger';
 	import { Core } from 'lib/Core';
 	import { Contact } from 'lib/common/models/Contact';
 	import { ConferenceSession } from 'lib/common/models/ConferenceSession';
-	import { ConferencePassCodes } from 'lib/common/models/ConferencePassCodes';
 	import { GenericService } from 'lib/services/GenericService';
 	export {}; class Bubbles extends GenericService {
 	    private _bubbles;
@@ -2328,7 +2375,6 @@ declare module 'lib/services/BubblesService' {
 	    private _personalConferenceConfEndpointId;
 	    private _conferenceEndpoints;
 	    private _conferencesSessionById;
-	    private _linkConferenceAndBubble;
 	    private _webrtcConferenceId;
 	    _webConferenceRoom: any;
 	    private readonly _protocol;
@@ -2459,71 +2505,6 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    _onBubbleConferenceStoppedReceived(bubble: any): Promise<void>;
 	    /**
-	     * @method askConferenceSnapshot
-	     * @public
-	     * @instance
-	     * @since 2.8.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @param {string} conferenceId The id of the conference.
-	     * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
-	     * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
-	     * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
-	     * @deprecated
-	     * @description
-	     * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
-	     * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
-	     * If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
-	     * @return {Promise<ConferenceSession>}
-	     */
-	    askConferenceSnapshot(conferenceId: string, type?: MEDIATYPE, limit?: number, offset?: number): Promise<ConferenceSession>;
-	    /**
-	     * @method joinConference
-	     * @private
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param bubble
-	     * @return {Promise<unknown>}
-	     * @description
-	     *  private for ale rainbow team's tests only
-	     */
-	    joinConference(bubble: any): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method getBubbleByConferenceIdFromCache
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @description
-	     * To get a bubble from the cache using a conference Id
-	     * @return {Bubble} A bubble object or NULL if not found
-	     */
-	    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble;
-	    /**
-	     * @public
-	     * @method getBubbleIdByConferenceIdFromCache
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @return {string}
-	     * @description
-	     * To get ID of the bubble from the cache using a conference Id
-	     */
-	    getBubbleIdByConferenceIdFromCache(conferenceId: string): string;
-	    /**
-	     * @public
-	     * @method getConferencesIdByBubbleIdFromCache
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} bubbleId
-	     * @return {Array<string>}
-	     * @description
-	     *      to get the list of conferences id linked to a specified bubble.
-	     */
-	    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string>;
-	    /**
 	     * @public
 	     * @method conferenceAllowed
 	     * @since 2.6.0
@@ -2575,152 +2556,6 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any>;
 	    /**
-	     * @Method updateOrCreateWebConferenceEndpoint
-	     * @private
-	     * @since 2.6.0
-	     * @instance
-	     * @category CONFERENCE SPECIFIC
-	     * @param {any} conferenceData [required] conference data for the update / creation
-	     * @returns {any} the updated conferenceEndpoint or null on error
-	     * @memberof BubblesService
-	     */
-	    updateOrCreateWebConferenceEndpoint(conferenceData: any): any;
-	    /**
-	     * @method updateWebConferenceInfos
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @private
-	     * @param {any[]} endpoints
-	     */
-	    updateWebConferenceInfos(endpoints: any[]): void;
-	    /**
-	     * @Method getWebRtcConfEndpointId
-	     * @private
-	     * @since 2.6.0
-	     * @instance
-	     * @category CONFERENCE SPECIFIC
-	     * @deprecated
-	     * @returns {string} the user unique webrtc conference enpoint id
-	     * @memberof BubblesService
-	     */
-	    getWebRtcConfEndpointId(): string;
-	    /**
-	     * @Method getWebRtcSharingOnlyConfEndpointId
-	     * @private
-	     * @since 2.6.0
-	     * @instance
-	     * @category CONFERENCE SPECIFIC
-	     * @deprecated
-	     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
-	     * @memberof BubblesService
-	     */
-	    getWebRtcSharingOnlyConfEndpointId(): string;
-	    /**
-	     * @private
-	     * @method conferenceStart
-	     * @since 2.6.0
-	     * @instance
-	     * @category CONFERENCE SPECIFIC
-	     * @deprecated
-	     * @description
-	     *     To start a conference. <br>
-	     *     Only a moderator can start a conference. It also need to be a premium account. <br>
-	     * @param {Bubble} bubble   The bubble where the conference should start
-	     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
-	     * @return {Promise<any>} The result of the starting.
-	     */
-	    conferenceStart(bubble: any, conferenceId?: string): Promise<any>;
-	    /**
-	     * @private
-	     * @method conferenceStop
-	     * @since 2.6.0
-	     * @instance
-	     * @category CONFERENCE SPECIFIC
-	     * @deprecated
-	     * @description
-	     *     To stop a conference. <br>
-	     *     Only a moderator can stop a conference. It also need to be a premium account. <br>
-	     * @param {string} conferenceId The id of the conference that should stop
-	     * @return {Promise<any>} return undefined.
-	     */
-	    conferenceStop(conferenceId?: string): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method conferenceJoin
-	     * @since 2.6.0
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @param {boolean} asModerator To join conference as operator or not
-	     * @param {boolean} muted To join conference as muted or not
-	     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
-	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-	     * @category CONFERENCE SPECIFIC
-	     * @deprecated
-	     * @description
-	     * To join a conference.  <br>
-	     * NOTE: The conference must be first started before to join it.
-	     * @return {Promise<any>}
-	     */
-	    conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method conferenceMuteOrUnmute
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @deprecated
-	     * @description
-	     * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceMuteOrUnmute(conferenceId: string, mute: boolean): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method conferenceMuteOrUnmutParticipant
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @param {string} participantId ID of the participant to mute/unmute
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @deprecated
-	     * @description
-	     * Mute or Unmute the specified participant in the conference.<br>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method conferenceDropParticipant
-	     * @since 2.6.0
-	     * @category CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} conferenceId ID of the conference
-	     * @param {string} participantId ID of the participant to drop
-	     * @deprecated
-	     * @description
-	     * Drop the specified participant in the conference. <br>
-	     * Only the moderator of the conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    conferenceDropParticipant(conferenceId: string, participantId: string): Promise<unknown>;
-	    /**
-	     * @public
-	     * @method personalConferenceAllowed
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @return {boolean}
-	     * @deprecated
-	     * @description
-	     * To know if the current user has the permission to start its own Personal Conference
-	     */
-	    personalConferenceAllowed(): boolean;
-	    /**
 	     * @private
 	     * @method personalConferenceGetId
 	     * @since 2.6.0
@@ -2744,54 +2579,6 @@ declare module 'lib/services/BubblesService' {
 	     * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
 	     */
 	    personalConferenceGetBubbleFromCache(): Promise<Bubble>;
-	    /**
-	     * @private
-	     * @method personalConferenceGetBubbleIdFromCache
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-	     * @return {string} The Bubble which contains the Personal Meeting or null
-	     */
-	    personalConferenceGetBubbleIdFromCache(): string;
-	    /**
-	     * @private
-	     * @method personalConferenceGetPhoneNumbers
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To get the list of phone numbers used to reach the Personal Meeting
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceGetPhoneNumbers(): Promise<any>;
-	    /**
-	     * @private
-	     * @method personalConferenceGetPassCodes
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To retrieve the pass codes of the Personal Meeting of the current user
-	     * @return {Promise<ConferencePassCodes>}
-	     */
-	    personalConferenceGetPassCodes(): Promise<ConferencePassCodes>;
-	    /**
-	     * @private
-	     * @method personalConferenceResetPassCodes
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To reset and get new pass codes of the Personal Meeting of the current user
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceResetPassCodes(): Promise<any>;
 	    /**
 	     * @private
 	     * @method personalConferenceGetPublicUrl
@@ -2818,156 +2605,13 @@ declare module 'lib/services/BubblesService' {
 	     */
 	    personalConferenceGenerateNewPublicUrl(): Promise<any>;
 	    /**
-	     * @private
-	     * @method personalConferenceStart
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To start a Personal Conference. <br>
-	     * Only a moderator can start a Personal Conference.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceStart(): Promise<any>;
-	    /**
-	     * @private
-	     * @method personalConferenceStop
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @deprecated
-	     * @description
-	     * To stop the Personal Conference.<br>
-	     * Only a moderator can stop a Personal Conference
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceStop(): Promise<any>;
-	    /**
-	     * @private
-	     * @method personalConferenceJoin
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {boolean} asModerator To join Personal Conference as operator or not
-	     * @param {boolean} muted To join Personal Conference as muted or not
-	     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
-	     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-	     * @deprecated
-	     * @description
-	     * To join the Personal Conference.
-	     * NOTE: The Personal Conference must be first started before to join it.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any>;
-	    /**
-	     * @private
-	     * @method personalConferenceMuteOrUnmute
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {boolean} mute
-	     * @deprecated
-	     * @description
-	     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
-	     * Only the moderator of the Personal Conference can use this method
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceMuteOrUnmute(mute: boolean): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method personalConferenceLockOrUnlock
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {boolean} toLock  True to lock, False to unlock
-	     * @deprecated
-	     * @description
-	     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
-	     * Lock / Unlock is only possible for PSTN Conference. <br>
-	     * Only a moderator can use this method
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceLockOrUnlock(toLock: boolean): Promise<unknown>;
-	    /**
-	     * @private
-	     * @method personalConferenceMuteOrUnmuteParticipant
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} participantId ID of the participant to mute/unmute
-	     * @param {boolean} mute True to mute, False to unmute
-	     * @deprecated
-	     * @description
-	     * Mute or Unmute the specified participant in the Personal Conference.<br>
-	     * Only the moderator of the Personal Conference can use this method.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any>;
-	    /**
-	     * @private
-	     * @method personalConferenceDropParticipant
-	     * @since 2.6.0
-	     * @category PERSONAL CONFERENCE SPECIFIC
-	     * @instance
-	     * @param {string} participantId ID of the participant to drop
-	     * @deprecated
-	     * @description
-	     * Drop the specified participant in the Personal Conference. <br>
-	     * Only the moderator of the Personal Conference can use this method.
-	     * @return {Promise<any>}
-	     */
-	    personalConferenceDropParticipant(participantId: string): Promise<any>;
-	    /**
-	     * @method conferenceEndedForBubble
-	     * @private
-	     * @instance
-	     * @param {string} bubbleJid
-	     * @return {Promise<void>}
-	     */
-	    conferenceEndedForBubble(bubbleJid: string): Promise<void>;
-	    /**
-	     * @method askBubbleForConferenceDetails
-	     * @private
-	     * @instance
-	     * @param {string} bubbleJid
-	     */
-	    askBubbleForConferenceDetails(bubbleJid: string): void;
-	    /**
-	     * @method personalConferenceRename
-	     * @private
-	     * @instance
-	     * @param {string} name
-	     * @return {Promise<unknown>}
-	     */
-	    personalConferenceRename(name: string): Promise<unknown>;
-	    /**
-	     * @method conferenceModeratorAction
-	     * @private
-	     * @instance
-	     * @param {string} conferenceId
-	     * @param {string} action
-	     * @return {Promise<unknown>}
-	     */
-	    conferenceModeratorAction(conferenceId: string, action: string): Promise<unknown>;
-	    /**
-	     * @method conferenceMuteOrUnmutParticipant
-	     * @private
-	     * @instance
-	     * @param {string} conferenceId
-	     * @param {string} participantId
-	     * @param {string} action
-	     * @return {Promise<unknown>}
-	     */
-	    conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string): Promise<unknown>;
-	    /**
 	     * @method removeBubbleFromCache
 	     * @private
 	     * @instance
 	     * @param {string} conferenceId
 	     * @param {boolean} deleteLinkWithBubble
 	     */
-	    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean): void;
+	    removeConferenceFromCache(conferenceId: string): void;
 	    /**
 	     * @method addOrUpdateConferenceToCache
 	     * @private
@@ -2976,7 +2620,7 @@ declare module 'lib/services/BubblesService' {
 	     * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
 	     * @param {Object} updatedDatasForEvent participants added or removed
 	     */
-	    addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2?: boolean, updatedDatasForEvent?: any): Promise<void>;
+	    addOrUpdateConferenceToCache(conference: ConferenceSession, updatedDatasForEvent?: any): Promise<void>;
 	    /**
 	     * @public
 	     * @method getBubblesConsumption
@@ -4252,19 +3896,22 @@ declare module 'lib/services/BubblesService' {
 	     * @since 2.2.0
 	     * @category Conference V2
 	     * @param {string} roomId The id of the room.
-	     * @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
+	     //* @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
 	     * @param {string} participantPhoneNumber Join through dial.
 	     * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
+	     * @param {string} deskphone User joins conference through his deskphone. Default value : false
 	     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center).
 	     * @param {string} mute Join as muted/unmuted.
 	     * @param {string} microphone Has client a microphone?
+	     * @param {string} media Requested media. Default value : [audio,video] . Possible value : audio, video .
 	     * @async
 	     * @description
 	     *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
+	     *           NOTE: The join can not be done without any audio/video media, because the server will close the connection after one minute.
 	     * @return {Promise<any>} the result of the operation.
 
 	     */
-	    joinConferenceV2(roomId: string, mediaType: string, participantPhoneNumber: string, country: string, dc: Array<string>, mute?: boolean, microphone?: boolean): Promise<unknown>;
+	    joinConferenceV2(roomId: string, participantPhoneNumber?: string, country?: string, deskphone?: boolean, dc?: Array<string>, mute?: boolean, microphone?: boolean, media?: Array<string>): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method pauseRecording
@@ -5121,8 +4768,9 @@ declare module 'lib/services/ContactsService' {
 	export {}; class ContactsService extends GenericService {
 	    private avatarDomain;
 	    private _contacts;
-	    private _rosterPresenceQueue;
 	    userContact: Contact;
+	    private _rosterPresenceQueue;
+	    private _rosterPresenceQueue3;
 	    private _invitationsService;
 	    private _presenceService;
 	    static getClassName(): string;
@@ -6055,6 +5703,16 @@ declare module 'lib/services/PresenceService' {
 	     */
 	    _sendPresenceFromConfiguration(): Promise<unknown>;
 	    /**
+	     * @public
+	     * @method getMyPresenceInformation
+	     * @since 2.16.0
+	     * @instance
+	     * @category Presence CONNECTED USER
+	     * @description
+	     *      Get user's resources presences informations from server. <br>
+	     */
+	    getMyPresenceInformation(): Promise<unknown>;
+	    /**
 	     * @private
 	     * @method sendInitialBubblePresence
 	     * @instance
@@ -6150,7 +5808,7 @@ declare module 'lib/services/PresenceService' {
 	     * @method getCalendarStates
 	     * @instance
 	     * @category Presence CALENDAR
-	     * @param {Array<string>} users The list of user's logins (Contact::loginEmail) to retrieve the calendar presence.
+	     * @param {Array<string>} users The list of the Rainbow user's references - id or logins (Contact::loginEmail) - to retrieve the calendar presence.
 	     * @description
 	     *    Allow to get the calendar presence of severals users <br>
 	     *    return promise with {
@@ -6223,10 +5881,11 @@ declare module 'lib/services/PresenceService' {
 	     */
 	    getCalendarAutomaticReplyStatus(userId?: string): Promise<unknown>;
 	    /**
-	     * @public
+	     * @private
 	     * @method enableCalendar
 	     * @instance
 	     * @category Presence CALENDAR
+	     * @deprecated
 	     * @description
 	     *    Allow to enable the calendar. <br>
 	     *    return promise with { <br>
@@ -6240,12 +5899,13 @@ declare module 'lib/services/PresenceService' {
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
 	     
 	     */
-	    enableCalendar(): Promise<unknown>;
+	    private enableCalendar;
 	    /**
-	     * @public
+	     * @private
 	     * @method disableCalendar
 	     * @instance
 	     * @category Presence CALENDAR
+	     * @deprecated
 	     * @description
 	     *    Allow to disable the calendar. <br>
 	     *    return promise with { <br>
@@ -6259,7 +5919,47 @@ declare module 'lib/services/PresenceService' {
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
 	     
 	     */
-	    disableCalendar(): Promise<unknown>;
+	    private disableCalendar;
+	    /**
+	     * @public
+	     * @method controlCalendarOrIgnoreAnEntry
+	     * @instance
+	     * @category Presence CALENDAR
+	     * @param {boolean} disable disable calendar, true to re-enable
+	     * @param {string} ignore ignore the current calendar entry, false resumes the entry. Possible values : current, false
+	     * @description
+	     *    Enable/disable a calendar sharing or ignore a calendar entry. <br>
+	     *    return promise with { <br>
+	     *       Status : string // Operation status ("enabled" or "disabled") <br>
+	     *    }  <br>
+	     *    <br>
+	     * @async
+	     * @return {Promise< {
+	     *       Status : string
+	     *    }, ErrorManager>}
+	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+	     */
+	    controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string): Promise<unknown>;
+	    /**
+	    * @public
+	    * @method unregisterCalendar
+	    * @instance
+	    * @category Presence CALENDAR
+	    * @description
+	    *    Delete a calendar sharing. <br>
+	    *    return promise with { <br>
+	    *       Status : string // Operation status ("deleted") <br>
+	    *    }  <br>
+	    *    <br>
+	    * @async
+	    * @return {Promise< {
+	    *       Status : string
+	    *    }, ErrorManager>}
+	    * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+	    */
+	    unregisterCalendar(): Promise<unknown>;
 	    /**
 	     * @private
 	     * @method subscribePresence
@@ -6271,7 +5971,7 @@ declare module 'lib/services/PresenceService' {
 	     * @return {Promise< any, ErrorManager>}
 	     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
 	     */
-	    subscribePresence(to: any): Promise<unknown>;
+	    subscribePresence(to: any): Promise<any>;
 	}
 	export { PresenceService };
 
@@ -6664,12 +6364,14 @@ declare module 'lib/connection/GenericRESTService' {
 	        Range: any;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getRequestHeaderLowercaseAccept(accept?: string): {
 	        Authorization: string;
 	        accept: string;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getRequestHeaderWithRange(accept?: string, range?: string): {
 	        Authorization: string;
@@ -6677,6 +6379,7 @@ declare module 'lib/connection/GenericRESTService' {
 	        Range: any;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getPostHeader(contentType?: string): {
 	        Authorization: string;
@@ -6684,6 +6387,7 @@ declare module 'lib/connection/GenericRESTService' {
 	        Range: any;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getPostHeaderWithRange(accept?: string, initialSize?: string, minRange?: string, maxRange?: string): {
 	        Authorization: string;
@@ -6691,6 +6395,7 @@ declare module 'lib/connection/GenericRESTService' {
 	        Range: any;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getLoginHeader(auth?: string, password?: string): {
 	        Accept: string;
@@ -6698,12 +6403,14 @@ declare module 'lib/connection/GenericRESTService' {
 	        Authorization: string;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	    getDefaultHeader(): {
 	        Accept: string;
 	        "Content-Type": string;
 	        "x-rainbow-client": string;
 	        "x-rainbow-client-version": any;
+	        "x-rainbow-client-id": any;
 	    };
 	}
 	export { GenericRESTService as GenericRESTService };
@@ -6726,7 +6433,7 @@ declare module 'lib/connection/RestServices/RESTConferenceV2' {
 	    disconnectPSTNParticipantFromConference(roomId: string): Promise<unknown>;
 	    disconnectParticipantFromConference(roomId: string, userId: string): Promise<unknown>;
 	    getTalkingTimeForAllPparticipantsInConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
-	    joinConference(roomId: string, mediaType: string, participantPhoneNumber: string, country: string, dc: Array<string>, mute: boolean, microphone: boolean): Promise<unknown>;
+	    joinConference(roomId: string, participantPhoneNumber?: string, country?: string, deskphone?: boolean, dc?: Array<string>, mute?: boolean, microphone?: boolean, media?: Array<string>): Promise<unknown>;
 	    pauseRecording(roomId: string): Promise<unknown>;
 	    resumeRecording(roomId: string): Promise<unknown>;
 	    startRecording(roomId: string): Promise<unknown>;
@@ -6767,6 +6474,55 @@ declare module 'lib/connection/RestServices/RESTWebinar' {
 	    deleteWebinar(webinarId: string): Promise<unknown>;
 	}
 	export { RESTWebinar };
+
+}
+declare module 'lib/common/TimeOutManager' {
+	/// <reference types="node" />
+	export {}; class ItemForTimeOutQueue {
+	    private defered;
+	    private itemFunction;
+	    id: string;
+	    private label;
+	    typePromised: boolean;
+	    timeoutId: NodeJS.Timer;
+	    timetoutInProgress: boolean;
+	    constructor(itemFunction: any, label: string, typePromised: boolean);
+	    getId(): string;
+	    getPromise(): any;
+	    resolve(...args: any[]): any;
+	    reject(...args: any[]): any;
+	    start(): Promise<NodeJS.Timer>;
+	    stop(): Promise<NodeJS.Timer>;
+	    startPromised(): Promise<any>;
+	} class TimeOutManager {
+	    private timeoutFnTab;
+	    private logger;
+	    private lockEngine;
+	    private lockKey;
+	    constructor(_logger: any);
+	    start(): void;
+	    stop(): void;
+	    lock(fn: any, id: any): Promise<string>;
+	    /**
+	     * @public
+	     * @method setTimeout
+	     * @instance
+	     * @category Timeout
+	     * @description
+	     *    To se a setTimeout function which is stored in a queue, and then can be manage.<br>
+	     * @param fn
+	     * @param timer
+	     * @param {string} label
+	     * @return {string} the return of the system setTimeout call method.
+	     */
+	    setTimeout(fn: any, timer: any, label?: string): any;
+	    setTimeoutPromised(fn: any, timer: any, label: string): any;
+	    cleanAtimeOut(timeoutItemQueue: ItemForTimeOutQueue): Promise<void>;
+	    clearEveryTimeout(): void;
+	    cleanNotInProgressTimeoutCache(): void;
+	    listEveryTimeout(): void;
+	}
+	export { TimeOutManager };
 
 }
 declare module 'lib/connection/RESTService' {
@@ -6846,6 +6602,7 @@ declare module 'lib/connection/RESTService' {
 	    connectionS2SInfo: any;
 	    private reconnectInProgress;
 	    private _options;
+	    private timeOutManager;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(_options: any, evtEmitter: EventEmitter, _logger: Logger, core: Core);
@@ -6930,7 +6687,8 @@ declare module 'lib/connection/RESTService' {
 	     * @param {any} userId
 	     * @return {Promise<unknown>}
 	     */
-	    getUserPresenceInformation(userId?: any): Promise<unknown>;
+	    getUserPresenceInformation(userId?: string): Promise<unknown>;
+	    getMyPresenceInformation(): Promise<unknown>;
 	    /**
 	     * @description
 	     *      https://api.openrainbow.org/mediapillar/#api-mediapillars-GetMediaPillarsData
@@ -7056,6 +6814,11 @@ declare module 'lib/connection/RESTService' {
 	    wrapup(agentId: any, groupId: any, password: any, status: any): Promise<unknown>;
 	    getRainbowNodeSdkPackagePublishedInfos(): Promise<unknown>;
 	    getNpmPackagePublishedInfos(packageName?: string): Promise<unknown>;
+	    deleteAllMyVoiceMessagesFromPbx(): Promise<unknown>;
+	    deleteAVoiceMessageFromPbx(messageId: any): Promise<unknown>;
+	    getAVoiceMessageFromPbx(messageId: string, messageDate: string, messageFrom: string): Promise<unknown>;
+	    getDetailedListOfVoiceMessages(): Promise<unknown>;
+	    getNumbersOfVoiceMessages(): Promise<unknown>;
 	    getServerConversations(format?: string): Promise<unknown>;
 	    createServerConversation(conversation: any): Promise<unknown>;
 	    deleteServerConversation(conversationId: any): Promise<unknown>;
@@ -7105,19 +6868,6 @@ declare module 'lib/connection/RESTService' {
 	    removePublicUrl(bubbleId: any): Promise<unknown>;
 	    createPublicUrl(bubbleId: any): Promise<unknown>;
 	    registerGuest(guest: GuestParams): Promise<unknown>;
-	    joinConference(webPontConferenceId: any, role?: string): Promise<unknown>;
-	    getRoomByConferenceEndpointId(conferenceEndpointId: any): Promise<unknown>;
-	    conferenceStart(roomId: string, conferenceId: string, mediaType: MEDIATYPE): Promise<unknown>;
-	    conferenceStop(conferenceId: string, mediaType: MEDIATYPE, roomId: string): Promise<unknown>;
-	    conferenceJoin(conferenceId: any, mediaType: any, asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<unknown>;
-	    conferenceDropParticipant(conferenceId: any, mediaType: any, participantId: any): Promise<unknown>;
-	    personalConferenceGetPhoneNumbers(): Promise<unknown>;
-	    personalConferenceGetPassCodes(personalConferenceConfEndpointId: any): Promise<unknown>;
-	    personalConferenceResetPassCodes(personalConferenceConfEndpointId: any): Promise<unknown>;
-	    personalConferenceRename(personalConferenceConfEndpointId: string, name: string): Promise<unknown>;
-	    askConferenceSnapshot(conferenceId: string, type: MEDIATYPE, limit?: number, offset?: number): Promise<unknown>;
-	    conferenceModeratorAction(conferenceId: string, mediaType: MEDIATYPE, action: string): Promise<unknown>;
-	    conferenceModeratorActionOnParticipant(conferenceId: string, mediaType: MEDIATYPE, participantId: string, action: string): Promise<unknown>;
 	    retrieveAllConferences(scheduled: any): Promise<unknown>;
 	    /**
 	     * Method retrieveWebConferences
@@ -7208,9 +6958,12 @@ declare module 'lib/connection/RESTService' {
 	    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
 	    getCalendarAutomaticReplyStatus(userid?: string): Promise<unknown>;
 	    enableOrNotCalendar(disable: boolean): Promise<unknown>;
+	    controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string): Promise<unknown>;
+	    unregisterCalendar(): Promise<unknown>;
 	    checkCSVdata(data?: any, companyId?: string, delimiter?: string, comment?: string): Promise<unknown>;
 	    deleteAnImportStatusReport(reqId: string): Promise<unknown>;
 	    getAnImportStatusReport(reqId?: string, format?: string): any;
+	    getAnImportStatus(companyId?: string): any;
 	    getInformationOnImports(companyId?: string): any;
 	    getResultOfStartedOffice365TenantSynchronizationTask(tenant?: string, format?: string): any;
 	    importCSVData(data?: any, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<unknown>;
@@ -7466,12 +7219,13 @@ declare module 'lib/connection/RESTService' {
 	        answers: Array<number>;
 	    }>): Promise<unknown>;
 	    addPSTNParticipantToConference(roomId: string, participantPhoneNumber: string, country: string): Promise<unknown>;
+	    askConferenceSnapshotV2(roomId: string, limit?: number, offset?: number): Promise<unknown>;
 	    snapshotConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
 	    delegateConference(roomId: string, userId: string): Promise<unknown>;
 	    disconnectPSTNParticipantFromConference(roomId: string): Promise<unknown>;
 	    disconnectParticipantFromConference(roomId: string, userId: string): Promise<unknown>;
 	    getTalkingTimeForAllPparticipantsInConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
-	    joinConferenceV2(roomId: string, mediaType: string, participantPhoneNumber: string, country: string, dc: Array<string>, mute: boolean, microphone: boolean): Promise<unknown>;
+	    joinConferenceV2(roomId: string, participantPhoneNumber?: string, country?: string, deskphone?: boolean, dc?: Array<string>, mute?: boolean, microphone?: boolean, media?: Array<string>): Promise<unknown>;
 	    pauseRecording(roomId: string): Promise<unknown>;
 	    resumeRecording(roomId: string): Promise<unknown>;
 	    startRecording(roomId: string): Promise<unknown>;
@@ -7501,7 +7255,7 @@ declare module 'lib/connection/RESTService' {
 }
 declare module 'lib/common/models/FileViewer' {
 	export {}; class FileViewer {
-	    contactService: any;
+	    private getContactByDBId;
 	    viewerId: any;
 	    type: any;
 	    contact: any;
@@ -7509,7 +7263,7 @@ declare module 'lib/common/models/FileViewer' {
 	    /**
 	     * @this FileViewer
 	     */
-	    constructor(viewerId: any, type: any, contact: any, _contactService: any);
+	    constructor(viewerId: any, type: any, contact: any, getContactByDBId: any);
 	    get avatarSrc(): any;
 	} function FileViewerElementFactory(viewerId: any, type: any, contact: any, contactService: any): FileViewer;
 	export { FileViewerElementFactory, FileViewer };
@@ -8905,14 +8659,16 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler';
 	import { ConferenceSession } from 'lib/common/models/ConferenceSession';
 	import { List } from 'ts-generic-collections-linq';
+	import { XMPPService } from 'lib/connection/XMPPService';
 	export {}; class ConversationEventHandler extends GenericHandler {
-	    MESSAGE_CHAT: any;
-	    MESSAGE_GROUPCHAT: any;
-	    MESSAGE_WEBRTC: any;
-	    MESSAGE_MANAGEMENT: any;
-	    MESSAGE_ERROR: any;
-	    MESSAGE_HEADLINE: any;
-	    MESSAGE_CLOSE: any;
+	    MESSAGE: string;
+	    MESSAGE_CHAT: string;
+	    MESSAGE_GROUPCHAT: string;
+	    MESSAGE_WEBRTC: string;
+	    MESSAGE_MANAGEMENT: string;
+	    MESSAGE_ERROR: string;
+	    MESSAGE_HEADLINE: string;
+	    MESSAGE_CLOSE: string;
 	    private _conversationService;
 	    findAttrs: any;
 	    findChildren: any;
@@ -8923,7 +8679,7 @@ declare module 'lib/connection/XMPPServiceHandler/conversationEventHandler' {
 	    private _presenceService;
 	    static getClassName(): string;
 	    getClassName(): string;
-	    constructor(xmppService: any, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
+	    constructor(xmppService: XMPPService, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
 	    private createSessionParticipantFromElem;
 	    parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
 	    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
@@ -9929,6 +9685,7 @@ declare module 'lib/connection/XMPPService' {
 	    private storeMessages;
 	    private copyMessage;
 	    private enablesendurgentpushmessages;
+	    private useMessageEditionAndDeletionV2;
 	    private rateLimitPerHour;
 	    private messagesDataStore;
 	    private raiseLowLevelXmppInEvent;
@@ -9936,6 +9693,7 @@ declare module 'lib/connection/XMPPService' {
 	    private maxIdleTimer;
 	    private maxPingAnswerTimer;
 	    private company;
+	    private xmppRessourceName;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _rest: any, _options: any);
@@ -9945,8 +9703,8 @@ declare module 'lib/connection/XMPPService' {
 	    startOrResetIdleTimer(incomingStanza?: boolean): void;
 	    stopIdleTimer(): void;
 	    handleXMPPConnection(headers: any): Promise<void>;
-	    setPresence(show: any, status: any): Promise<unknown>;
-	    subscribePresence(to: any): Promise<unknown>;
+	    setPresence(show: any, status: any): any;
+	    subscribePresence(to: any): any;
 	    enableCarbon(): Promise<unknown>;
 	    disableCarbon(): Promise<unknown>;
 	    sendChatMessage(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<unknown>;
@@ -9957,13 +9715,12 @@ declare module 'lib/connection/XMPPService' {
 	    sendChatExistingFSMessage(message: any, jid: any, lang: any, fileDescriptor: any): Promise<unknown>;
 	    sendChatExistingFSMessageToBubble(message: any, jid: any, lang: any, fileDescriptor: any): Promise<unknown>;
 	    sendIsTypingState(conversation: any, isTypingState: any): Promise<unknown>;
-	    getRosters(): void;
 	    /****************************************************/
 	    /**            XMPP ROSTER MANAGEMENT              **/
 	    /****************************************************/
 	    sendSubscription(contact: any): Promise<void>;
 	    sendSubscribeInvitation(jid: any): Promise<unknown>;
-	    sendInitialBubblePresence(jid: any): Promise<unknown>;
+	    sendInitialBubblePresence(jid: any): any;
 	    sendUnavailableBubblePresence(jid: any): void;
 	    getAgentStatus(): Promise<unknown>;
 	    /**
@@ -9987,7 +9744,6 @@ declare module 'lib/connection/XMPPService' {
 	    mamDelete(options: any): void;
 	    voiceMessageQuery(jid: any): Promise<unknown>;
 	    discoverHTTPoverXMPP(to: any, headers?: {}): Promise<unknown>;
-	    answerDiscoverHTTPoverXMPP(to: any): Promise<unknown>;
 	    getHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
 	    traceHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
 	    headHTTPoverXMPP(urlToGet: any, to: any, headers?: {}): Promise<unknown>;
@@ -11203,9 +10959,9 @@ declare module 'lib/common/models/VoiceMail' {
 declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { XMPPUTils } from 'lib/common/XMPPUtils';
-	export {};
 	import { Call } from 'lib/common/models/Call';
-	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler'; class TelephonyEventHandler extends GenericHandler {
+	import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler';
+	export {}; class TelephonyEventHandler extends GenericHandler {
 	    MESSAGE: any;
 	    IQ_RESULT: any;
 	    IQ_ERROR: any;
@@ -11287,6 +11043,10 @@ declare module 'lib/connection/XMPPServiceHandler/telephonyEventHandler' {
 	    /** NOMADIC STATUS STUFF                                              **/
 	    /*********************************************************************/
 	    onNomadicStatusEvent(eventElem: any): Promise<any>;
+	    /*********************************************************************/
+	    /** VOICE MESSAGES
+	     /*********************************************************************/
+	    onVoiceMessagesEvent(eventElem: any): Promise<void>;
 	    /*********************************************************************/
 	    /** PRIVATE UTILITY METHODS                                         **/
 	    /*********************************************************************/
@@ -11908,6 +11668,139 @@ declare module 'lib/services/TelephonyService' {
 	    updateNomadicData(response: any): Promise<void>;
 	    getNomadicObject(): any;
 	    getNomadicDestination(): any;
+	    /**
+	     * @public
+	     * @method deleteAllMyVoiceMessagesFromPbx
+	     * @async
+	     * @category Telephony Voice Messages
+	     * @instance
+	     * @description
+	     *      This api allows to Delete all user's present (read and unread) voice messages from the Pbx. <br>
+	     *      This command is to be used to remove all read and unread messages for one user, on the pbx side, it has no effect on the file storage side. <br>
+	     *      Do not use this API command to delete the voice messages file from the file storage. <br>
+	     *
+	     *  return :
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | status | String |     |
+	     *
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    deleteAllMyVoiceMessagesFromPbx(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method deleteAVoiceMessageFromPbx
+	     * @async
+	     * @category Telephony Voice Messages
+	     * @instance
+	     * @param {string} messageId The message Id
+	     * @description
+	     *      This api allows to Delete a voice message from the Pbx, using it's unique identifier (messageId), which is the one given in the messages list. <br>
+	     *      This command is to be used to remove the message on the pbx side; it has no effect on the file storage side. <br>
+	     *      Do not use this API command to delete the voice message file from the file storage. <br>
+	     *
+	     *  return :
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | status | String |     |
+	     *
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    deleteAVoiceMessageFromPbx(messageId: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getAVoiceMessageFromPbx
+	     * @async
+	     * @category Telephony Voice Messages
+	     * @instance
+	     * @param {string} messageId The message Id
+	     * @param {string} messageDate The date in ISO 8601 format, used form : YYYY-MM-DDTHH:MM:SSTZ
+	     * @param {string} messageFrom The message sender phone number (can an external number in E164 form or an internal short).
+	     * @description
+	     *      This api allows to Get a voice message from the Pbx, using it's unique identifier (messageId), which is the one given in the messages list. <br>
+	     *      But, in order to build a proper file name, we also need the message's creation date (ISO 8601) and the distant user's phone number. <br>
+	     *      Initialy all voice messages are stored in the pbx, therefore they have to be transfered to Rainbow server before being given to the asking client. <br>
+	     *      The positive acknowledged of this request only signifies that the pbx has accepted the download request. The client will be informed further once the message is available on file storage server. In the case the file transfer should fail, the client will also be informed.. <br>
+	     *
+	     *  parameters: <br>
+	     *   * messageDate : mandatory, date in ISO 8601 format, used form : YYYY-MM-DDTHH:MM:SSTZ. <br>
+	     *   * messageFrom : the message sender phone number (can an external number in E164 form or an internal short). <br>
+	     *
+	     *  return :
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | status | String |     |
+	     *  | resultCode | String | Pbx result code |
+	     *
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    getAVoiceMessageFromPbx(messageId: string, messageDate: string, messageFrom: string): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getDetailedListOfVoiceMessages
+	     * @async
+	     * @category Telephony Voice Messages
+	     * @instance
+	     * @description
+	     *      This api allows to Get the detailed list of all available voice messages. <br>
+	     *      For a user, which has a voice mail box, it is possible to get the detailed list of it's messages. <br>
+	     *      A voice message can be : <br>
+	     *   * a message recorded by a calling party which couldn't reach the user, <br>
+	     *   * a conversation recorded by the user itself. <br>
+	     *
+	     *  return :
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | status | String |     |
+	     *  | data | Object |     |
+	     *  | voicemessages | Object |     |
+	     *  | voiceMessageList | Object\[\] | Table of message descriptor. |
+	     *  | id  | String | Message unique id. |
+	     *  | unread | String | Message state, false for already read, true elsewhere. |
+	     *  | length | String | Message length is seconds. |
+	     *  | date | Date-Time | Message date in ISO 8601 (usual form : YYYY-MM-DDTHH:MM:SSTZ). |
+	     *  | from | String | Message sender's number. |
+	     *  | jid | String | Message sender's jid. |
+	     *  | callable | String | Message sender can be called back or not. |
+	     *  | identity | Object | Message sender names. |
+	     *  | displayName | String | Message sender's display name. |
+	     *  | firstName | String | Message sender's first name. |
+	     *  | lastName | String | Message sender's last name. |
+	     *
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    getDetailedListOfVoiceMessages(): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method getNumbersOfVoiceMessages
+	     * @async
+	     * @category Telephony Voice Messages
+	     * @instance
+	     * @description
+	     *      This api allows to Get voice messages counters, total and unlistened. <br>
+	     *      For a user, which has a voice mail box, it is possible to get the number of not yet listened message (aka unread messages). <br>
+	     *      When possible the total number of messages is also given. <br>
+	     *      Some VoiceMail units only gives if the users has or not one or more messages in his box, the number of them is unknown. <br>
+	     *
+	     *
+	     *  return :
+	     *
+	     *  | Champ | Type | Description |
+	     *  | --- | --- | --- |
+	     *  | status | String |     |
+	     *  | data | Object |     |
+	     *  | voicemessages | Object |     |
+	     *  | unread | Number | Number of unlistened messages |
+	     *  | total | Number | Total number of voice messages |
+	     *  | present optionnel | Boolean | Pbx doesn't know how much messages a user has, only that one or more are present |
+	     *
+	     * @return {Promise} Return resolved promise if succeed, and a rejected else.
+	     */
+	    getNumbersOfVoiceMessages(): Promise<unknown>;
 	}
 	export { TelephonyService as TelephonyService };
 
@@ -13514,6 +13407,40 @@ declare module 'lib/services/AdminService' {
 	    getAnImportStatusReport(reqId?: string, format?: string): Promise<unknown>;
 	    /**
 	     * @public
+	     * @method getAnImportStatus
+	     * @since 2.18.0
+	     * @instance
+	     * @async
+	     * @category AD/LDAP - AD/LDAP Massprovisioning
+	     * @param {string} companyId the company id. Default value is the current company.
+	     * @description
+	     *     This API provides a short status of the last import (completed or pending) of a company directory. <br>
+	     *          <br>
+	     *              superadmin can get the status of the import of the directory of any company. <br>
+	     *              bp_admin can only get the status of the import of the directory of their own companies or their End Customer companies. <br>
+	     *              organization_admin can only get the status of the import of the directory of the companies under their organization. <br>
+	     *              company_admin and directory_admin can only get the status of the import of the directory of their onw companies. <br>
+	     * <br>
+	     * @return {Promise<any>} result.
+	     *
+	     *
+	     * | Champ | Type | Description |
+	     * | --- | --- | --- |
+	     * | data | Object |     |
+	     * | state | String | Import state<br><br>Valeurs autorisées : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+	     * | companyId | String | Id of the company of the directory |
+	     * | userId | String | Id of the requesting user |
+	     * | displayName | String | Display name of the requesting user |
+	     * | label | String | Description of the import |
+	     * | csvHeaders | String | CSV header line (Fields names) |
+	     * | startTime | String | Import processing start time |
+	     * | created | Integer | Count of created entries |
+	     * | failed | Integer | Count of failed entries |
+	     *
+	     */
+	    getAnImportStatus(companyId?: string): Promise<unknown>;
+	    /**
+	     * @public
 	     * @method getInformationOnImports
 	     * @since 2.12.0
 	     * @instance
@@ -14187,9 +14114,9 @@ declare module 'lib/services/AdminService' {
 	     *
 	     *      return an {Object}  of result data. <br>
 	     * @return {Promise<any>}
-	     * @param companyId companyId from which to retrieve entries, default to admin's companyId
-	     * @param format Allows to retrieve more or less phone numbers details in response. Default value : json. Possible values : csv, json, all
-	     * @param ldap_id Allows to filter entries containing a ldap_id. </br>
+	     * @param {string} companyId companyId from which to retrieve entries, default to admin's companyId
+	     * @param {string} format Allows to retrieve more or less phone numbers details in response. Default value : json. Possible values : csv, json, all
+	     * @param {boolean} ldap_id Allows to filter entries containing a ldap_id. </br>
 	     * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
 	     * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>
 	     * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }} </br>
@@ -15887,6 +15814,7 @@ declare module 'lib/services/AdminService' {
 
 }
 declare module 'lib/common/StateManager' {
+	import { TimeOutManager } from 'lib/common/TimeOutManager';
 	export {}; enum SDKSTATUSENUM {
 	    "STARTED" = "started",
 	    "STARTING" = "starting",
@@ -15901,7 +15829,8 @@ declare module 'lib/common/StateManager' {
 	    eventEmitter: any;
 	    logger: any;
 	    state: any;
-	    constructor(_eventEmitter: any, logger: any);
+	    private timeOutManager;
+	    constructor(_eventEmitter: any, logger: any, timeOutManager: TimeOutManager);
 	    start(): Promise<unknown>;
 	    stop(): Promise<unknown>;
 	    transitTo(state: any, data?: any): Promise<unknown>;
@@ -16289,6 +16218,7 @@ declare module 'lib/config/Options' {
 	        raiseLowLevelXmppOutReq: boolean;
 	        maxIdleTimer: number;
 	        maxPingAnswerTimer: number;
+	        xmppRessourceName: any;
 	    };
 	    _getS2SOptions(): {
 	        hostCallback: string;
@@ -16326,6 +16256,7 @@ declare module 'lib/config/Options' {
 	        autoLoadContacts: boolean;
 	        enableCarbon: boolean;
 	        enablesendurgentpushmessages: boolean;
+	        useMessageEditionAndDeletionV2: boolean;
 	    };
 	    _getApplicationsOptions(): {
 	        appID: string;
@@ -18887,7 +18818,6 @@ declare module 'lib/services/HTTPoverXMPPService' {
 }
 declare module 'lib/Core' {
 	/// <reference types="node" />
-	export {};
 	import { XMPPService } from 'lib/connection/XMPPService';
 	import { RESTService } from 'lib/connection/RESTService';
 	import { HTTPService } from 'lib/connection/HttpService';
@@ -18914,17 +18844,14 @@ declare module 'lib/Core' {
 	import { S2SService } from 'lib/services/S2SService';
 	import { WebinarsService } from 'lib/services/WebinarsService';
 	import { RBVoiceService } from 'lib/services/RBVoiceService';
-	import { HTTPoverXMPP } from 'lib/services/HTTPoverXMPPService'; class Core {
-	    _signin: any;
-	    _signinWSOnly: any;
-	    _retrieveInformation: any;
-	    setRenewedToken: any;
-	    onTokenRenewed: any;
+	import { HTTPoverXMPP } from 'lib/services/HTTPoverXMPPService';
+	import { TimeOutManager } from 'lib/common/TimeOutManager';
+	export {}; class Core {
+	    get timeOutManager(): TimeOutManager;
+	    set timeOutManager(value: TimeOutManager);
 	    logger: any;
 	    _rest: RESTService;
-	    onTokenExpired: any;
 	    _eventEmitter: Events;
-	    _tokenSurvey: any;
 	    options: any;
 	    _proxy: ProxyImpl;
 	    _http: HTTPService;
@@ -18953,9 +18880,17 @@ declare module 'lib/Core' {
 	    _botsjid: any;
 	    _s2s: S2SService;
 	    cleanningClassIntervalID: NodeJS.Timeout;
+	    private _timeOutManager;
 	    static getClassName(): string;
 	    getClassName(): string;
 	    constructor(options: any);
+	    _signin(forceStopXMPP: any, token: any): Promise<unknown>;
+	    _signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
+	    _retrieveInformation(): Promise<unknown>;
+	    setRenewedToken(strToken: string): Promise<void>;
+	    onTokenRenewed(): void;
+	    onTokenExpired(): void;
+	    _tokenSurvey(): void;
 	    startCleanningInterval(): void;
 	    start(token: any): Promise<unknown>;
 	    signin(forceStopXMPP: any, token: any): Promise<unknown>;
@@ -19039,6 +18974,7 @@ declare module 'lib/NodeSDK' {
 	     * @param {string} options.rainbow.mode "xmpp", The event mode used to receive the events. Can be `xmpp` or `s2s` (default : `xmpp`).
 	     * @param {string} options.xmpp.timeBetweenXmppRequests the time between two xmpp request (avoid burst)
 	     * @param {string} options.xmpp.raiseLowLevelXmppInEvent enable the raise of event "rainbow_onxmmpeventreceived" when a data is received in xmpp pipe.
+	     * @param {string} options.xmpp.xmppRessourceName to define the name of the xmpp resource.
 	     * @param {string} options.xmpp.raiseLowLevelXmppOutReq enable the raise of event "rainbow_onxmmprequestsent" when a data is sent in xmpp pipe.
 	     * @param {string} options.xmpp.maxIdleTimer to define the delay without xmpp exchange after which a ping is sent to server.
 	     * @param {string} options.xmpp.maxPingAnswerTimer to define the time to wait the xmpp ping response.
@@ -19173,7 +19109,7 @@ declare module 'lib/NodeSDK' {
 	     *    Set the token renewed externaly of the SDK. This is for oauth authentication.
 	     * @memberof NodeSDK
 	     */
-	    setRenewedToken(strToken: any): any;
+	    setRenewedToken(strToken: any): Promise<void>;
 	    /**
 	     * @public
 	     * @method stop
@@ -19474,6 +19410,14 @@ declare module 'index' {
 
 }
 declare module 'Samples/index' {
+	export {};
+
+}
+declare module 'Samples/samplesTests' {
+	export {};
+
+}
+declare module 'Samples/testStop' {
 	export {};
 
 }

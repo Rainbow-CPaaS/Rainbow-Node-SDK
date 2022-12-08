@@ -20,16 +20,16 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 -   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
 -   Remove Conference V1 methods in BubblesService : 
--   `askConferenceSnapshot` `joinConference` `getBubbleByConferenceIdFromCache` `getBubbleIdByConferenceIdFromCache` 
--   `getConferencesIdByBubbleIdFromCache` `getConferenceByIdFromCache` `conferenceGetListFromCache` 
--   `updateOrCreateWebConferenceEndpoint` `updateWebConferenceInfos` `getWebRtcConfEndpointId` `getWebRtcSharingOnlyConfEndpointId` 
--   `conferenceStart` `conferenceStop` `conferenceJoin` `conferenceMuteOrUnmute` `conferenceMuteOrUnmutParticipant` 
--   `conferenceDropParticipant` `personalConferenceAllowed` `personalConferenceGetId` 
--   `personalConferenceGetBubbleFromCache` `personalConferenceGetBubbleIdFromCache` `personalConferenceGetPhoneNumbers`
--   `personalConferenceGetPassCodes` `personalConferenceResetPassCodes` `personalConferenceGetPublicUrl` `personalConferenceStart`
--   `personalConferenceStop` `personalConferenceJoin` `personalConferenceMuteOrUnmute` `personalConferenceLockOrUnlock` 
--   `personalConferenceMuteOrUnmuteParticipant` `personalConferenceDropParticipant` `conferenceEndedForBubble` `askBubbleForConferenceDetails` 
--   `personalConferenceRename` `conferenceModeratorAction` `conferenceMuteOrUnmutParticipant` 
+-   methods `askConferenceSnapshot` `joinConference` `getBubbleByConferenceIdFromCache` `getBubbleIdByConferenceIdFromCache` 
+-   methods `getConferencesIdByBubbleIdFromCache` `getConferenceByIdFromCache` `conferenceGetListFromCache` 
+-   methods `updateOrCreateWebConferenceEndpoint` `updateWebConferenceInfos` `getWebRtcConfEndpointId` `getWebRtcSharingOnlyConfEndpointId` 
+-   methods `conferenceStart` `conferenceStop` `conferenceJoin` `conferenceMuteOrUnmute` `conferenceMuteOrUnmutParticipant` 
+-   methods `conferenceDropParticipant` `personalConferenceAllowed` `personalConferenceGetId` 
+-   methods `personalConferenceGetBubbleFromCache` `personalConferenceGetBubbleIdFromCache` `personalConferenceGetPhoneNumbers`
+-   methods `personalConferenceGetPassCodes` `personalConferenceResetPassCodes` `personalConferenceGetPublicUrl` `personalConferenceStart`
+-   methods `personalConferenceStop` `personalConferenceJoin` `personalConferenceMuteOrUnmute` `personalConferenceLockOrUnlock` 
+-   methods `personalConferenceMuteOrUnmuteParticipant` `personalConferenceDropParticipant` `conferenceEndedForBubble` `askBubbleForConferenceDetails` 
+-   methods `personalConferenceRename` `conferenceModeratorAction` `conferenceMuteOrUnmutParticipant` 
 
 **API Changes**
 
