@@ -290,7 +290,8 @@ program
         let apiKey = process.env.MJ_APIKEY_PUBLIC;
         let apiSecret = process.env.MJ_APIKEY_PRIVATE;
 
-        let mailjet = Mailjet.connect(apiKey, apiSecret);
+        //let mailjet = Mailjet.connect(apiKey, apiSecret);
+        let mailjet = Mailjet.apiConnect(apiKey, apiSecret);
 
         generateNunjucksVariables(env).then(vars => {
             //console.log ("sendMail(vars, mailjet);");
