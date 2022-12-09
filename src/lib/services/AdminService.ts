@@ -14,7 +14,8 @@ import {Contact} from "../common/models/Contact";
 import {ContactsService} from "./ContactsService";
 import {GenericService} from "./GenericService";
 
-let dateFormat = require('dateformat');
+import {dateFormat} from "dateformat";
+
 let fs = require('fs');
 
 const LOG_ID = "ADMIN/SVCE - ";
