@@ -6,10 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.1-lts.3] - 2022-12-09
--   Update `FileViewer` Class to avoid the property ContactsService to be serialized when the Object is used with JSON.stringify tool.
-
-## [2.18.0] - 2022-12-08
+## [2.18.0] - 2022-12-09
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
 -   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
 -   Fix to initialize the contacts service before the telephony service.
@@ -23,6 +20,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
     
 ## [2.17.0] - 2022-10-28
 -   Catch when getBubble failed.
+
+## [2.16.1-lts.3] - 2022-12-09
+-   Update `FileViewer` Class to avoid the property ContactsService to be serialized when the Object is used with JSON.stringify tool.
 
 ## [2.16.1-lts.2] - 2022-11-18
 -   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
