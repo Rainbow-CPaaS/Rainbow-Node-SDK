@@ -287,7 +287,7 @@ Bubbles : Promise.any : delegateConference(string, string)
 Bubbles : Promise.any : disconnectPSTNParticipantFromConference(string)
 Bubbles : Promise.any : disconnectParticipantFromConference(string, string)
 Bubbles : Promise.any : getTalkingTimeForAllPparticipantsInConference(string, string, string)
-Bubbles : Promise.any : joinConferenceV2(string, string, string, string, string[], string, string)
+Bubbles : Promise.any : joinConferenceV2(string, string, string, string, string[], string, string, string)
 Bubbles : Promise.any : pauseRecording(string)
 Bubbles : Promise.any : resumeRecording(string)
 Bubbles : Promise.any : startRecording(string)
@@ -482,6 +482,7 @@ InvitationsService : Object : reSendInvitation(Number)
 InvitationsService : Object : sendInvitationsByBulk(Array)
 PresenceService : Promise.any, ErrorManager : setPresenceTo(String)
 PresenceService : void : getUserConnectedPresence()
+PresenceService : void : getMyPresenceInformation()
 PresenceService : Promise.{busy: boolean, status: string, subject: string, since: string, until: string}, ErrorManager : getCalendarState()
 PresenceService : Promise.{busy: boolean, status: string, subject: string, since: string, until: string}, ErrorManager : getCalendarStates(string[])
 PresenceService : Promise.{"url": string}, ErrorManager : setCalendarRegister(string, boolean, string)
@@ -525,7 +526,7 @@ TelephonyService : Promise : logoff(String, String, String, String)
 TelephonyService : Promise : withdrawal(String, String, String)
 TelephonyService : Promise : wrapup(String, String, String, String)
 TelephonyService : Promise : getNomadicStatus()
-SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
+SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
 NodeSDK : void : start(String)
 NodeSDK : void : start()
 NodeSDK : void : setRenewedToken()
@@ -721,6 +722,21 @@ Channel : number : users_count
 Channel : number : subscribers_count
 Channel : string : category
 Channel : string : mode
+Channel : number : max_items
+Channel : number : max_payload_size
+Channel : string : lastAvatarUpdateDate
+Channel : string : avatar
+Channel : boolean : subscribed
+Channel : string : userRole
+Channel : boolean : invited
+Channel : boolean : deleted
+Channel : boolean : mute
+Channel : boolean : enable_comments
+Channel : number : max_comments
+Channel : number : max_payload_comment_size
+Channel : boolean : additionDate
+Channel : string : lastCheckDate
+Channel : number : max_payload_size_comment
 Contact : string : id
 Contact : Object : name
 Contact : string : companyName
@@ -773,6 +789,67 @@ Contact : boolean : guestMode
 Contact : string : openInviteId
 Contact : string : ask
 Contact : string : subscription
+Contact : string : userInfo1
+Contact : string : userInfo2
+Contact : Object : customData
+Contact : string : selectedTheme
+Contact : string[] : tags
+Contact : boolean : isActive
+Contact : string : accountType
+Contact : string : systemId
+Contact : boolean : isInitialized
+Contact : string : initializationDate
+Contact : boolean : createdBySelfRegister
+Contact : Object : createdByAdmin
+Contact : string : firstLoginDate
+Contact : string : lastLoginDate
+Contact : string : loggedSince
+Contact : number : timeToLive
+Contact : string : fileSharingCustomisation
+Contact : string : userTitleNameCustomisation
+Contact : string : softphoneOnlyCustomisation
+Contact : string : useRoomCustomisation
+Contact : string : phoneMeetingCustomisation
+Contact : string : useChannelCustomisation
+Contact : string : useScreenSharingCustomisation
+Contact : string : useWebRTCAudioCustomisation
+Contact : string : useWebRTCVideoCustomisation
+Contact : string : instantMessagesCustomisation
+Contact : string : userProfileCustomisation
+Contact : string : fileStorageCustomisation
+Contact : string : overridePresenceCustomisation
+Contact : string : changeTelephonyCustomisation
+Contact : string : changeSettingsCustomisation
+Contact : string : recordingConversationCustomisation
+Contact : string : useGifCustomisation
+Contact : string : useDialOutCustomisation
+Contact : string : fileCopyCustomisation
+Contact : string : fileTransferCustomisation
+Contact : string : forbidFileOwnerChangeCustomisation
+Contact : string : readReceiptsCustomisation
+Contact : string : useSpeakingTimeStatistics
+Contact : string : selectedAppCustomisationTemplate
+Contact : string : alertNotificationReception
+Contact : string : visibility
+Contact : string : jid_password
+Contact : string : creationDate
+Contact : Object[] : profiles
+Contact : string : activationDate
+Contact : string : lastOfflineMailReceivedDate
+Contact : string : state
+Contact : string : authenticationType
+Contact : string : department
+Contact : boolean : isADSearchAvailable
+Contact : boolean : isTv
+Contact : Object[] : calendars
+Contact : boolean : isAlertNotificationEnabled
+Contact : Object : outOfOffice
+Contact : string : lastSeenDate
+Contact : boolean : eLearningCustomisation
+Contact : string : eLearningGamificationCustomisation
+Contact : boolean : useRoomAsRBVoiceUser
+Contact : boolean : useWebRTCAudioAsRBVoiceUser
+Contact : Object : msTeamsPresence
 Contact : string : displayName
 Conversation : string : id
 Conversation : string : dbId
@@ -857,6 +934,8 @@ Message : boolean : isForwarded
 Message : any : forwardedMsg
 Message [1] --> [1] Message
 Message : Message : replacedByMessage
+Message : boolean : deleted
+Message : boolean : modified
 Message : Object : Type
 Message : number : ReceiptStatus
 Message : string : Side
