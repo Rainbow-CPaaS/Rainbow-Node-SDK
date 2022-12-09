@@ -48,15 +48,6 @@ class Emitter extends EventEmitter {
                 if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){
                     params.unshift("");
                     data = that._logger.argumentsToString(params, " ,\n");
-                    /*
-                    params.forEach((dataIter) => {
-                    //console.log("EVENT dataIter : ", dataIter);
-                    //that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
-                    let data = that._logger.argumentsToString(["", dataIter]);
-                    //console.log("EVENT data : ", data);
-                    that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));
-
-                    }); //  */
                     params.shift();
                 }
                 that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));

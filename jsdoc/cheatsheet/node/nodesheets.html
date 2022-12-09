@@ -81,6 +81,7 @@ AdminService : Promise.any : getAUserProfilesFeaturesByUserEmail(string)
 AdminService : Promise.any : checkCSVdata(string, string, string, any)
 AdminService : Promise.any : deleteAnImportStatusReport(string)
 AdminService : Promise.any : getAnImportStatusReport(string, string)
+AdminService : Promise.any : getAnImportStatus(string)
 AdminService : Promise.any : getInformationOnImports(string)
 AdminService : Promise.any : getResultOfStartedOffice365TenantSynchronizationTask(string, string)
 AdminService : Promise.any : importCSVData(string, string, string, string, string, string, any)
@@ -204,14 +205,9 @@ AlertsService : Promise.any : getAlertStatsFeedbackSentForANotificationMessage(s
 AlertsService : Promise.any : getReportSummary(string)
 AlertsService : Promise.any : getReportDetails(string)
 AlertsService : Promise.any : getReportComplete(string)
-Bubbles : Promise.ConferenceSession : askConferenceSnapshot(string, MEDIATYPE, number, number)
-Bubbles : Bubble : getBubbleByConferenceIdFromCache(string)
-Bubbles : string : getBubbleIdByConferenceIdFromCache(string)
-Bubbles : string[] : getConferencesIdByBubbleIdFromCache(string)
 Bubbles : boolean : conferenceAllowed()
 Bubbles : ConferenceSession : getConferenceByIdFromCache(string)
 Bubbles : boolean : conferenceGetListFromCache()
-Bubbles : boolean : personalConferenceAllowed()
 Bubbles : Promise.Object : getBubblesConsumption()
 Bubbles : Promise.Bubble : getBubbleById(string, boolean)
 Bubbles : Promise.Bubble : getBubbleByJid(string, boolean)
@@ -487,8 +483,8 @@ PresenceService : Promise.{busy: boolean, status: string, subject: string, since
 PresenceService : Promise.{busy: boolean, status: string, subject: string, since: string, until: string}, ErrorManager : getCalendarStates(string[])
 PresenceService : Promise.{"url": string}, ErrorManager : setCalendarRegister(string, boolean, string)
 PresenceService : Promise.{enabled: string, start: string, end: string, message_text: string, message_thtml: string}, ErrorManager : getCalendarAutomaticReplyStatus(string)
-PresenceService : Promise.{Status: string}, ErrorManager : enableCalendar()
-PresenceService : Promise.{Status: string}, ErrorManager : disableCalendar()
+PresenceService : Promise.{Status: string}, ErrorManager : controlCalendarOrIgnoreAnEntry(boolean, string)
+PresenceService : Promise.{Status: string}, ErrorManager : unregisterCalendar()
 s2s : Promise.Object, ErrorManager : listConnectionsS2S()
 s2s : Promise.Object, ErrorManager : checkS2Sconnection()
 s2s : Promise.Object, ErrorManager : deleteAllConnectionsS2S()
@@ -526,6 +522,11 @@ TelephonyService : Promise : logoff(String, String, String, String)
 TelephonyService : Promise : withdrawal(String, String, String)
 TelephonyService : Promise : wrapup(String, String, String, String)
 TelephonyService : Promise : getNomadicStatus()
+TelephonyService : Promise : deleteAllMyVoiceMessagesFromPbx()
+TelephonyService : Promise : deleteAVoiceMessageFromPbx(string)
+TelephonyService : Promise : getAVoiceMessageFromPbx(string, string, string)
+TelephonyService : Promise : getDetailedListOfVoiceMessages()
+TelephonyService : Promise : getNumbersOfVoiceMessages()
 SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, Object)
 NodeSDK : void : start(String)
 NodeSDK : void : start()
@@ -607,6 +608,7 @@ Events ::event : rainbow_onconferenced
 Events ::event : rainbow_ontelephonystatuschanged
 Events ::event : rainbow_onnomadicstatusevent
 Events ::event : rainbow_onvoicemessageupdated
+Events ::event : rainbow_onvoicemessagesinfo
 Events ::event : rainbow_oncallforwarded
 Events ::event : rainbow_onfilecreated
 Events ::event : rainbow_onfileupdated
@@ -671,7 +673,6 @@ Bubble : any : conference
 Bubble : boolean : disableNotifications
 Bubble : string : lastAvatarUpdateDate
 Bubble : string[] : guestEmails
-Bubble : string : confEndpoints
 Bubble : number : activeUsersCounter
 Bubble : string : avatar
 Bubble : String : autoRegister
