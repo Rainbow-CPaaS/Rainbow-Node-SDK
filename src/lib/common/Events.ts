@@ -113,6 +113,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleinvitationreceived <br>
  * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
  * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
+ * @fires Events#rainbow_onbubbleconferencedelegatereceived <br>
  * @fires Events#rainbow_onbubbleconferenceupdated <br>
  * @fires Events#rainbow_onbubblecustomdatachanged <br>
  * @fires Events#rainbow_onbubbletopicchanged <br>
@@ -219,6 +220,7 @@ class Events {
         "rainbow_onbubbleinvitationreceived",
         "rainbow_onbubbleconferencestartedreceived",
         "rainbow_onbubbleconferencestoppedreceived",
+        "rainbow_onbubbleconferencedelegatereceived",
         "rainbow_onbubbleconferenceupdated",
         "rainbow_onbubblecustomdatachanged",
         "rainbow_onbubbletopicchanged",
@@ -732,6 +734,18 @@ class Events {
              *      Fired when an event conference stop in a bubble is received
              */
             that.publishEvent("bubbleconferencestoppedreceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencedelegatereceived", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubbleconferencedelegatereceived
+             * @public
+             * @param { Bubble } bubble The bubble of the conference stopped.
+             * @param { Bubble } userIdEvent The id of the user getting the delegation of conference.
+             * @description
+             *      Fired when an event conference delegate in a bubble is received
+             */
+            that.publishEvent("bubbleconferencedelegatereceived", bubble);
         });
 
         
