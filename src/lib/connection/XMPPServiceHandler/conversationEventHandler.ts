@@ -766,6 +766,7 @@ class ConversationEventHandler extends GenericHandler {
             let pollid = "";
             let questions = undefined;
             let eventJid = "";
+            let userIdEvent = "";
             let hasATextMessage = false;
             let oob = null;
             let geoloc = null;
@@ -1041,6 +1042,7 @@ class ConversationEventHandler extends GenericHandler {
                     case "event":
                         eventName = node.attrs.name;
                         eventJid = node.attrs.jid;
+                        userIdEvent = node.attrs["user-id"];
                         //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", eventName : ", eventName,", eventJid : ", eventJid);
                         break;
                     case "room-id":
@@ -1606,6 +1608,17 @@ class ConversationEventHandler extends GenericHandler {
                     that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
+                }
+                    break;
+                case "conferenceDelegate": {
+                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference delegate received, userIdEvent : ", userIdEvent);
+                    if (!conferencebubbleJid) {
+                        conferencebubbleJid = fromJid;
+                    }
+                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((error) => {
+                        that.logger.log("warn", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference delegate received,issue getting bubble, conferencebubbleJid : ", conferencebubbleJid);
+                    });
+                    that.eventEmitter.emit("evt_internal_bubbleconferencedelegatereceived", bubble, userIdEvent);
                 }
                     break;
                 case "startConference": {

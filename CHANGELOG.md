@@ -6,6 +6,24 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.19.0] - 2022-12-XX
+-   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
+
+## [2.18.0] - 2022-12-09
+-   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
+-   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
+-   Fix to initialize the contacts service before the telephony service.
+-   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed.
+-   Add a `TimeOutManager` manager to be able to control every setTimeout from one tool. Useful for stopping setTimeout when a stop of SDK occured.
+-   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
+-   Add `AdminService::getAnImportStatus` API to provide a short status of the last import (completed or pending) of a company directory.
+-   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
+-   Add `PresenceService::controlCalendarOrIgnoreAnEntry` API to Enable/disable a calendar sharing or ignore a calendar entry.
+-   Add `PresenceService::unregisterCalendar` API to Delete a calendar sharing.
+    
+## [2.17.0] - 2022-10-28
+-   Catch when getBubble failed.
+
 ## [2.16.1-lts.3] - 2022-12-09
 -   Update `FileViewer` Class to avoid the property ContactsService to be serialized when the Object is used with JSON.stringify tool.
 
