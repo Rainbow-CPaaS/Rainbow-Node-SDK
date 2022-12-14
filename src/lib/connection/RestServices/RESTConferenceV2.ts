@@ -213,15 +213,24 @@ class RESTConferenceV2 extends GenericRESTService{
         if (media != undefined) {
             data.media = media;
         }
-
+        //let args = Array.prototype.slice.call(arguments, 1);
+        let args = arguments;
+        let options = {
+            showHidden  : false,
+            depth : 3,
+            colors : true,
+            maxArrayLength : 3
+        };
+        that.logger.log("info", LOG_ID + "(joinConference) arguments : ", util.inspect(args, options));
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(inviteContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
+            that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), JSON.stringify(data), undefined).then(function (json) {
+            //that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(joinConference) successfull");
+                that.logger.log("internal", LOG_ID + "(joinConference) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
+                that.logger.log("error", LOG_ID, "(joinConference) error : ", err);
+                that.logger.log("internalerror", LOG_ID, "(joinConference) error : ", err);
                 return reject(err);
             });
         });

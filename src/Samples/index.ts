@@ -4273,6 +4273,85 @@ let urlS2S;
         });
     }
     
+    async function teststartConferenceOrWebinarInARoom() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        
+        rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
+            logger.log("debug", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+        }).catch (err => {
+            logger.log("error", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+        });
+    }
+    
+    async function testpromoteContactToModerator() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+                
+        rainbowSDK.bubbles.promoteContactToModerator(contact, bubble).then(async (result) => {
+            logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
+        }).catch (err => {
+            logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
+        });
+    }
+    
+    async function testjoinConferenceV2_vincent01() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+                
+        rainbowSDK.bubbles.joinConferenceV2( bubbleId).then(async (result) => {
+            logger.log("debug", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request ok, result : ", result);
+        }).catch (err => {
+            logger.log("error", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request not ok, err : ", err);
+        });
+    }
+
+    async function testjoinConferenceV2_vincent01_WithStart() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+
+        rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
+            logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+            rainbowSDK.bubbles.joinConferenceV2( bubbleId).then(async (result) => {
+                logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request ok, result : ", result);
+            }).catch (err => {
+                logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
+            });
+        }).catch (err => {
+            logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+        });
+    }
+    
+    async function testdelegateConference() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
+                
+        rainbowSDK.bubbles.delegateConference( bubbleId,  contact.id).then(async (result) => {
+            logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
+        }).catch (err => {
+            logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
+        });
+    }
+    
+    async function teststopConference() {
+        // To be used with vincent01 NET
+        let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+        
+        rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStopped) => {
+            logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStopped : ", confStopped);
+        }).catch (err => {
+            logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
+        });
+    }
+    
     async function tesaskConferenceSnapshot() {
         let confId = "60d5a4ee0eeee002d144e9bf";
         
