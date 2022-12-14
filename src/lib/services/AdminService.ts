@@ -1,22 +1,23 @@
 "use strict";
 
-import {XMPPService} from "../connection/XMPPService";
+import {XMPPService} from "../connection/XMPPService.js";
 
 export {};
 
-import {ErrorManager} from "../common/ErrorManager";
-import  {RESTService} from "../connection/RESTService";
-import {addParamToUrl, Deferred, isStarted, logEntryExit} from "../common/Utils";
+import {ErrorManager} from "../common/ErrorManager.js";
+import  {RESTService} from "../connection/RESTService.js";
+import {addParamToUrl, Deferred, isStarted, logEntryExit} from "../common/Utils.js";
 import {EventEmitter} from "events";
-import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
-import {Contact} from "../common/models/Contact";
-import {ContactsService} from "./ContactsService";
-import {GenericService} from "./GenericService";
+import {Logger} from "../common/Logger.js";
+import {S2SService} from "./S2SService.js";
+import {Contact} from "../common/models/Contact.js";
+import {ContactsService} from "./ContactsService.js";
+import {GenericService} from "./GenericService.js";
 
-import {dateFormat} from "dateformat";
+import pkg from 'dateformat';
+import {default as fs} from "fs";
+const { dateFormat } = pkg;
 
-let fs = require('fs');
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -7951,7 +7952,7 @@ class AdminService extends GenericService {
     
 }
 
-module.exports.AdminService = AdminService;
-module.exports.OFFERTYPES = OFFERTYPES;
-module.exports.CLOUDPBXCLIOPTIONPOLICY = CLOUDPBXCLIOPTIONPOLICY;
+// module.exports.AdminService = AdminService;
+// module.exports.OFFERTYPES = OFFERTYPES;
+// module.exports.CLOUDPBXCLIOPTIONPOLICY = CLOUDPBXCLIOPTIONPOLICY;
 export {AdminService as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY};

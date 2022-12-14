@@ -1,22 +1,23 @@
 "use strict";
 
 import {EventEmitter} from "events";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {PresenceService} from "../services/PresenceService";
-import {S2SService} from "../services/S2SService";
-import {Core} from "../Core";
-import {getRandomInt, logEntryExit, pause, until} from "../common/Utils";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {PresenceService} from "../services/PresenceService.js";
+import {S2SService} from "../services/S2SService.js";
+import {Core} from "../Core.js";
+import {getRandomInt, logEntryExit, pause, until} from "../common/Utils.js";
 import {IEnumerable, IList, List} from "ts-generic-collections-linq";
 import {Dictionary, IDictionary} from "ts-generic-collections-linq";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
-import {BubblesService} from "../services/BubblesService";
-let AsyncLock = require('async-lock');
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
+import {BubblesService} from "../services/BubblesService.js";
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 import {FibonacciStrategy} from "backoff";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 //let backoff = require("backoff");
 // @ ts-ignore
- import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index";
+ import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index.js";
 // const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
 // const BackoffError = require("request-rate-limiter").BackoffError; 
         
@@ -254,6 +255,6 @@ class HttpManager {
     }
 }
 
-module.exports.HttpManager = HttpManager;
-module.exports.RequestForQueue = RequestForQueue;
+// module.exports.HttpManager = HttpManager;
+// module.exports.RequestForQueue = RequestForQueue;
 export {RequestForQueue, HttpManager};

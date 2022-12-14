@@ -1,11 +1,11 @@
 "use strict";
 
-import {Appreciation, Channel} from "./Channel";
+import {Appreciation, Channel} from "./Channel.js";
 
 export {};
 
 import { Subject, Subscription } from "rxjs";
-import {Contact} from "./Contact";
+import {Contact} from "./Contact.js";
 
 // declare let config: any;
 class WebinarSessionParticipant {
@@ -296,9 +296,9 @@ class Webinar {
     }
 }
 
-module.exports.WebinarSessionParticipant = WebinarSessionParticipant;
-module.exports.WebinarSession = WebinarSession;
-module.exports.WebinarParticipant = WebinarParticipant;
-module.exports.WebinarCSVStatus = WebinarCSVStatus;
-module.exports.Webinar = Webinar;
+// module.exports.WebinarSessionParticipant = WebinarSessionParticipant;
+// module.exports.WebinarSession = WebinarSession;
+// module.exports.WebinarParticipant = WebinarParticipant;
+// module.exports.WebinarCSVStatus = WebinarCSVStatus;
+// module.exports.Webinar = Webinar;
 export {WebinarSessionParticipant, WebinarSession, WebinarParticipant, WebinarCSVStatus, Webinar};

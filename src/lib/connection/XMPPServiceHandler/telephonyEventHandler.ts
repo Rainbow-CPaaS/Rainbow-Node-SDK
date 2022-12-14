@@ -1,24 +1,28 @@
 "use strict";
-import {XMPPService} from "../XMPPService";
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPService} from "../XMPPService.js";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
-import {Call} from "../../common/models/Call";
-import {logEntryExit} from "../../common/Utils";
+import {Call} from "../../common/models/Call.js";
+import {logEntryExit} from "../../common/Utils.js";
 //const config = require("../../config/config");
-import {config} from "../../config/config";
-import {GenericHandler} from "./GenericHandler";
+import {config} from "../../config/config.js";
+import {GenericHandler} from "./GenericHandler.js";
 
 export {};
 
 
-const Utils = require("../../common/Utils");
-const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
+//const Utils = require("../../common/Utils");
+import {default as Utils} from "../../common/Utils.js";
+//const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
+import {NameUpdatePrio } from "../../common/models/Contact.js";
 
-const xml = require("@xmpp/xml");
-const PromiseQueue = require("../../common/promiseQueue");
+//const xml = require("@xmpp/xml");
+//const PromiseQueue = require("../../common/promiseQueue");
+import {createPromiseQueue} from "../../common/promiseQueue.js";
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/TEL - ";
 
@@ -89,7 +93,7 @@ class TelephonyEventHandler extends GenericHandler {
         this.telephonyService = telephonyService;
         this.contactService = contactService;
 
-        this.promiseQueue = PromiseQueue.createPromiseQueue(that.logger);
+        this.promiseQueue = createPromiseQueue(that.logger);
         this._profiles = profileService;
 
     }
@@ -1530,5 +1534,5 @@ class TelephonyEventHandler extends GenericHandler {
 
 }
 
-module.exports.TelephonyEventHandler = TelephonyEventHandler;
+// module.exports.TelephonyEventHandler = TelephonyEventHandler;
 export {TelephonyEventHandler};

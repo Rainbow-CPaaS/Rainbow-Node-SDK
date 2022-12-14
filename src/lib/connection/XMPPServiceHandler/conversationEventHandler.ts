@@ -1,18 +1,18 @@
 "use strict";
-import {xu} from "../../common/XMPPUtils";
-import {ConversationsService} from "../../services/ConversationsService";
-import {Conversation} from "../../common/models/Conversation";
+import {xu} from "../../common/XMPPUtils.js";
+import {ConversationsService} from "../../services/ConversationsService.js";
+import {Conversation} from "../../common/models/Conversation.js";
 import {Element} from "ltx";
-import {logEntryExit} from "../../common/Utils";
-import {FileStorageService} from "../../services/FileStorageService";
-import {FileServerService} from "../../services/FileServerService";
-import {BubblesService} from "../../services/BubblesService";
-import {ContactsService} from "../../services/ContactsService";
-import {Message} from "../../common/models/Message";
-import {GenericHandler} from "./GenericHandler";
-import {WebConferenceSession} from "../../common/models/webConferenceSession";
-import {WebConferenceParticipant} from "../../common/models/webConferenceParticipant";
-import {Contact} from "../../common/models/Contact";
+import {logEntryExit} from "../../common/Utils.js";
+import {FileStorageService} from "../../services/FileStorageService.js";
+import {FileServerService} from "../../services/FileServerService.js";
+import {BubblesService} from "../../services/BubblesService.js";
+import {ContactsService} from "../../services/ContactsService.js";
+import {Message} from "../../common/models/Message.js";
+import {GenericHandler} from "./GenericHandler.js";
+import {WebConferenceSession} from "../../common/models/webConferenceSession.js";
+import {WebConferenceParticipant} from "../../common/models/webConferenceParticipant.js";
+import {Contact} from "../../common/models/Contact.js";
 import {
     ConferenceSession,
     Participant,
@@ -20,23 +20,25 @@ import {
     Service,
     Silent,
     Talker
-} from "../../common/models/ConferenceSession";
+} from "../../common/models/ConferenceSession.js";
 import {List} from "ts-generic-collections-linq";
-import {MEDIATYPE} from "../RESTService";
-import {PresenceService} from "../../services/PresenceService";
+import {MEDIATYPE} from "../RESTService.js";
+import {PresenceService} from "../../services/PresenceService.js";
 import {url} from "inspector";
-import {NameSpacesLabels, XMPPService} from "../XMPPService";
+import {NameSpacesLabels, XMPPService} from "../XMPPService.js";
 
 export {};
 
 
 //const GenericHandler = require("./GenericHandler");
 
-const util = require('util');
+//const util = require('util');
 
-const xml = require("@xmpp/xml");
+//const xml = require("@xmpp/xml");
+import {default as xml} from "@xmpp/xml";
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/EVENT/CONV - ";
 
@@ -2849,4 +2851,4 @@ class ConversationEventHandler extends GenericHandler {
 }
 
 export {ConversationEventHandler};
-module.exports.ConversationEventHandler = ConversationEventHandler;
+// module.exports.ConversationEventHandler = ConversationEventHandler;

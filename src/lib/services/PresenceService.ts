@@ -1,20 +1,20 @@
 "use strict";
-import {Logger} from "../common/Logger";
-import {XMPPService} from "../connection/XMPPService";
-import {ErrorManager} from "../common/ErrorManager";
-import * as PubSub from "pubsub-js";
-import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isStarted, logEntryExit, until} from "../common/Utils";
-import {SettingsService} from "./SettingsService";
+import {Logger} from "../common/Logger.js";
+import {XMPPService} from "../connection/XMPPService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {default as PubSub} from "pubsub-js";
+import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler.js";
+import {isStarted, logEntryExit, until} from "../common/Utils.js";
+import {SettingsService} from "./SettingsService.js";
 import {EventEmitter} from "events";
-import {RESTService} from "../connection/RESTService";
-import {ROOMROLE, S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {BubblesService} from "./BubblesService";
-import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
-import {GenericService} from "./GenericService";
+import {RESTService} from "../connection/RESTService.js";
+import {ROOMROLE, S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {BubblesService} from "./BubblesService.js";
+import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow.js";
+import {GenericService} from "./GenericService.js";
 import {interval} from "rxjs";
-import {Bubble} from "../common/models/Bubble";
+import {Bubble} from "../common/models/Bubble.js";
 
 export {};
 
@@ -924,5 +924,5 @@ class PresenceService extends GenericService{
     // endregion Presence Contact
 }
 
-module.exports.PresenceService = PresenceService;
+// module.exports.PresenceService = PresenceService;
 export {PresenceService } ;

@@ -3,10 +3,10 @@
 
 
 //const Call = require("./Call");
-import {Call} from "./Call";
+import {Call} from "./Call.js";
 //const uuid4 = require("uuid/v4");
 import { v4 as uuid4 } from 'uuid';
-import {Message} from "./Message";
+import {Message} from "./Message.js";
 
 
 /**
@@ -503,5 +503,5 @@ Conversation.Status = {
     }
 };
 
-module.exports.Conversation = Conversation;
+// module.exports.Conversation = Conversation;
 export {Conversation};

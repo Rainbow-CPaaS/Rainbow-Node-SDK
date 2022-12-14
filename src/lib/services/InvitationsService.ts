@@ -1,25 +1,25 @@
 "use strict";
-import {FavoritesService} from "./FavoritesService";
+import {FavoritesService} from "./FavoritesService.js";
 
 export {};
 
-import * as PubSub from "pubsub-js";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
+import {default as PubSub} from "pubsub-js";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
 import {EventEmitter} from "events";
-import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
-import {isStarted, logEntryExit} from "../common/Utils";
-import {Invitation} from "../common/models/Invitation";
-import * as moment from 'moment';
-import {Logger} from "../common/Logger";
-import {ContactsService} from "./ContactsService";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {BubblesService} from "./BubblesService";
-import {GroupsService} from "./GroupsService";
-import {GenericService} from "./GenericService";
-import {Contact} from "../common/models/Contact";
+import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler.js";
+import {isStarted, logEntryExit} from "../common/Utils.js";
+import {Invitation} from "../common/models/Invitation.js";
+import moment from 'moment';
+import {Logger} from "../common/Logger.js";
+import {ContactsService} from "./ContactsService.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {BubblesService} from "./BubblesService.js";
+import {GroupsService} from "./GroupsService.js";
+import {GenericService} from "./GenericService.js";
+import {Contact} from "../common/models/Contact.js";
 
 const LOG_ID = "INVITATION/SVCE - ";
 
@@ -1042,5 +1042,5 @@ class InvitationsService extends GenericService {
 	//endregion Invitations RECEIVED/SENT
 }
 
-module.exports.InvitationsService = InvitationsService;
+// module.exports.InvitationsService = InvitationsService;
 export {InvitationsService};

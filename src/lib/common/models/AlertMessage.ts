@@ -238,5 +238,5 @@ class AlertMessageInfo
     }
 }
 
-module.exports = {AlertMessage, AlertMessageInfo};
+// module.exports = {AlertMessage, AlertMessageInfo};
 export {AlertMessage, AlertMessageInfo};

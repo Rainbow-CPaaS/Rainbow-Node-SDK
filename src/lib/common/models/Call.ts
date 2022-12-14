@@ -1,5 +1,5 @@
 "use strict";
-import {Channel} from "./Channel";
+import {Channel} from "./Channel.js";
 
 export {};
 
@@ -525,7 +525,7 @@ Call.Media = {
 };
 
 
-//module.exports = Call;
+//// module.exports = Call;
 
-module.exports.Call = Call;
+// module.exports.Call = Call;
 export {Call};

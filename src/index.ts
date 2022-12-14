@@ -21,24 +21,24 @@ Module._extensions['.js'] = function (module, filename) {
 
 // */
 
-import {NodeSDK} from "./lib/NodeSDK";
+import {NodeSDK} from "./lib/NodeSDK.js";
 
 /*
 //let RainbowSdk : any = NodeSDK;
 //NodeSDK.RainbowSdk = NodeSDK;
 NodeSDK.NodeSDK = NodeSDK;
-module.exports = NodeSDK;
+// module.exports = NodeSDK;
 
 //let RainbowSdk = NodeSDK;
-//module.exports = RainbowSdk;
-//module.exports.NodeSDK = NodeSDK;
+//// module.exports = RainbowSdk;
+//// module.exports.NodeSDK = NodeSDK;
 
 export default NodeSDK;
 // */
 
-module.exports = NodeSDK;
-module.exports.default = NodeSDK;
-module.exports.NodeSDK = NodeSDK;
+// module.exports = NodeSDK;
+// module.exports.default = NodeSDK;
+// module.exports.NodeSDK = NodeSDK;
 export default NodeSDK;
 export { NodeSDK as NodeSDK}; //, OptionsType};
 

@@ -1,5 +1,5 @@
-import LeakyBucket from './leakybucket';
-import BackoffError from './BackoffError';
+import LeakyBucket from "./leakybucket.js";
+import BackoffError from "./BackoffError.js";
 //import logd from 'logd';
 
 //const log = logd.module('request-rate-limiter');

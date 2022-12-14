@@ -1,15 +1,15 @@
 "use strict";
-import {XMPPService} from "../connection/XMPPService";
+import {XMPPService} from "../connection/XMPPService.js";
 
 export {};
 
-import {Core} from "../Core";
-import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
-import {Contact} from "../common/models/Contact";
+import {Core} from "../Core.js";
+import {Logger} from "../common/Logger.js";
+import {S2SService} from "./S2SService.js";
+import {Contact} from "../common/models/Contact.js";
 import {EventEmitter} from "events";
-import {RESTService} from "../connection/RESTService";
-import {ContactsService} from "./ContactsService";
+import {RESTService} from "../connection/RESTService.js";
+import {ContactsService} from "./ContactsService.js";
 
 class GenericService {
     protected _logger : Logger;
@@ -98,5 +98,5 @@ class GenericService {
 
 }
 
-module.exports = {'GenericService' : GenericService};
+//module.exports = {'GenericService' : GenericService};
 export {GenericService as GenericService};

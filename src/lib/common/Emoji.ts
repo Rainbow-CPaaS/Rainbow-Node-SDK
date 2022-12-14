@@ -21566,5 +21566,5 @@ function shortnameToUnicode(str) {
     return str;
 };
 
-exports.shortnameToUnicode = shortnameToUnicode;
+//exports.shortnameToUnicode = shortnameToUnicode;
 export {shortnameToUnicode};

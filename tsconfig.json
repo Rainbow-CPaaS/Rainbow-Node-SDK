@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "noImplicitAny": false,
-    "module": "commonjs",
+    "module": "ES2020",
     "target": "es2020",
     "sourceMap": true,
     "declaration": true,
@@ -10,7 +10,7 @@
     "charset": "utf-8",
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    // "esModuleInterop": true,
+    "esModuleInterop": true,
     "removeComments": false,
     "skipLibCheck": true,
     //"moduleResolution": "node",
@@ -21,6 +21,7 @@
     "rootDir": "./src",
     "project": "./src",
     //"stripInternal": true,
+    "resolveJsonModule": true,
     "outDir": "./",
     "lib": [
       "es6",
@@ -31,7 +32,9 @@
     //"moduleResolution": "classic",
     //"checkJs": true,
     "explainFiles": true,
-    "diagnostics": true
+    "diagnostics": true,
+    "traceResolution": true,
+    "moduleResolution": "nodeNext"
   },
   "buildOnSave": true,
   "compileOnSave": true,

@@ -1,20 +1,20 @@
 "use strict";
 
-import {Contact} from "../common/models/Contact";
-import {ErrorManager} from "../common/ErrorManager";
-import {Appreciation, Channel} from "../common/models/Channel";
-import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
+import {Contact} from "../common/models/Contact.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Appreciation, Channel} from "../common/models/Channel.js";
+import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler.js";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
 import {EventEmitter} from "events";
-import * as PubSub from "pubsub-js";
-import * as fs from "fs";
-import * as mimetypes from "mime-types";
-import {isStarted, logEntryExit} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {GenericService} from "./GenericService";
+import {default as PubSub} from "pubsub-js";
+import {default as fs} from "fs";
+import {default as mimetypes} from "mime-types";
+import {isStarted, logEntryExit} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
@@ -2305,5 +2305,5 @@ class ChannelsService extends GenericService {
 
 }
 
-module.exports.ChannelsService = ChannelsService;
+// module.exports.ChannelsService = ChannelsService;
 export {ChannelsService as ChannelsService};

@@ -1,14 +1,19 @@
 "use strict";
 
-import {XMPPService} from "../XMPPService";
-import {logEntryExit} from "../../common/Utils";
-import {GenericHandler} from "./GenericHandler";
+import {XMPPService} from "../XMPPService.js";
+import {logEntryExit} from "../../common/Utils.js";
+import {GenericHandler} from "./GenericHandler.js";
 
 
-const xml = require("@xmpp/xml");
-const packageVersion = require("../../../package");
+//const xml = require("@xmpp/xml");
+import {default as xml} from "@xmpp/xml";
+//const packageVersion = require("../../../package");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
 
-const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/IQ - ";
 
@@ -197,5 +202,5 @@ class IQEventHandler extends GenericHandler {
 
 }
 
-module.exports.IQEventHandler = IQEventHandler;
+// module.exports.IQEventHandler = IQEventHandler;
 export {IQEventHandler};

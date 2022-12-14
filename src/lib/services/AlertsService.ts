@@ -1,24 +1,24 @@
 "use strict";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {isNullOrEmpty, logEntryExit} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {AlertEventHandler} from '../connection/XMPPServiceHandler/alertEventHandler';
-import {Alert, AlertsData} from '../common/models/Alert';
-import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {isNullOrEmpty, logEntryExit} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import {AlertEventHandler} from "../connection/XMPPServiceHandler/alertEventHandler.js";
+import {Alert, AlertsData} from "../common/models/Alert.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {isStarted} from "../common/Utils.js";
 import {EventEmitter} from "events";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
 import {List} from "ts-generic-collections-linq";
-import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
-import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate";
-import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
-import {GenericService} from "./GenericService";
+import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice.js";
+import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate.js";
+import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter.js";
+import {GenericService} from "./GenericService.js";
 
 const LOG_ID = "ALERTS/SVCE - ";
 
@@ -1920,5 +1920,5 @@ class AlertsService extends GenericService{
 
 }
 
-module.exports.AlertsService = AlertsService;
+// module.exports.AlertsService = AlertsService;
 export {AlertsService};

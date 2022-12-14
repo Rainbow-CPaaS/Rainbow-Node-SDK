@@ -1,8 +1,12 @@
 "use strict";
 
-import * as btoa from "btoa";
-import * as CryptoJS from "crypto-js";
-let packageVersion = require("../../package.json");
+import {default as btoa} from "btoa";
+import {default as CryptoJS} from "crypto-js";
+//let packageVersion = require("../../package.json");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
 
 class GenericRESTService {
     protected _token: any;
@@ -149,5 +153,5 @@ class GenericRESTService {
     
 }
 
-module.exports = {'GenericRESTService' : GenericRESTService};
+// module.exports = {'GenericRESTService' : GenericRESTService};
 export {GenericRESTService as GenericRESTService};

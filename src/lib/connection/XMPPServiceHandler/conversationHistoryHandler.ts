@@ -1,31 +1,40 @@
 "use strict";
 
-import {XMPPService} from "../XMPPService";
-import {XMPPUTils, xu} from "../../common/XMPPUtils";
-import {ConversationEventHandler} from "./conversationEventHandler";
+import {XMPPService} from "../XMPPService.js";
+import {XMPPUTils, xu} from "../../common/XMPPUtils.js";
+import {ConversationEventHandler} from "./conversationEventHandler.js";
 
 export {};
 
 
-const moment = require("moment");
-const prettydata = require("../pretty-data").pd;
+//const moment = require("moment");
+import { default as moment, Moment } from 'moment' 
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 // @ts-ignore
 global.window = {};
 
-const momentDurationFormatSetup = require("moment-duration-format");
+//const momentDurationFormatSetup = require("moment-duration-format");
+//import * as momentDurationFormatSetupPkg from "moment-duration-format";
+//let momentDurationFormatSetup = momentDurationFormatSetupPkg.momentDurationFormatSetup;
+import momentDurationFormatSetup from 'moment-duration-format';
+
+//const momentDurationFormatSetup= momentDurationFormatSetupPkg.momentDurationFormatSetup;
+
+// @ts-ignore
 momentDurationFormatSetup(moment);
 
 // @ts-ignore
 global.window = undefined;
 
-const xml = require("@xmpp/xml");
-import {Message} from "../../common/models/Message";
-import {logEntryExit} from "../../common/Utils";
-import {ConversationsService} from "../../services/ConversationsService";
-import {ContactsService} from "../../services/ContactsService";
+//const xml = require("@xmpp/xml");
+import {Message} from "../../common/models/Message.js";
+import {logEntryExit} from "../../common/Utils.js";
+import {ConversationsService} from "../../services/ConversationsService.js";
+import {ContactsService} from "../../services/ContactsService.js";
 import {stringify} from "querystring";
-import {GenericHandler} from "./GenericHandler";
+import {GenericHandler} from "./GenericHandler.js";
 
 const LOG_ID = "XMPP/HNDL/HIST/CONV - ";
 
@@ -701,4 +710,4 @@ class ConversationHistoryHandler  extends GenericHandler {
 }
 
 export {ConversationHistoryHandler};
-module.exports.ConversationHistoryHandler = ConversationHistoryHandler;
+// module.exports.ConversationHistoryHandler = ConversationHistoryHandler;

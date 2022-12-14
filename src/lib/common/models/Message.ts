@@ -1,8 +1,8 @@
 "use strict";
-import {GeoLoc} from "./GeoLoc";
+import {GeoLoc} from "./GeoLoc.js";
 import {stringify} from "querystring";
-import {xu} from "../XMPPUtils";
-import {Conversation} from "./Conversation";
+import {xu} from "../XMPPUtils.js";
+import {Conversation} from "./Conversation.js";
 
 export {};
 
@@ -894,5 +894,5 @@ class Message {
     }
 
 }
-module.exports.Message = Message;
+// module.exports.Message = Message;
 export {Message};

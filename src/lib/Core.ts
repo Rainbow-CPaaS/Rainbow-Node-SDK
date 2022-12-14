@@ -1,49 +1,54 @@
 "use strict";
-import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
-import {XMPPService} from "./connection/XMPPService";
-import {RESTService} from "./connection/RESTService";
-import {HTTPService} from "./connection/HttpService";
-import {Logger} from "./common/Logger";
-import {ImsService} from "./services/ImsService";
-import {PresenceService} from "./services/PresenceService";
-import {ChannelsService} from "./services/ChannelsService";
-import {ContactsService} from "./services/ContactsService";
-import {ConversationsService} from "./services/ConversationsService";
-import {ProfilesService} from "./services/ProfilesService";
-import {TelephonyService} from "./services/TelephonyService";
-import {BubblesService} from "./services/BubblesService";
-import {GroupsService} from "./services/GroupsService";
-import {AdminService} from "./services/AdminService";
-import {SettingsService} from "./services/SettingsService";
-import {FileServerService} from "./services/FileServerService";
-import {FileStorageService} from "./services/FileStorageService";
-import {SDKSTATUSENUM, StateManager} from "./common/StateManager";
-import {CallLogService} from "./services/CallLogService";
-import {FavoritesService} from "./services/FavoritesService";
-import {InvitationsService} from "./services/InvitationsService";
-import {Events} from "./common/Events";
-import {Options} from "./config/Options";
-import {ProxyImpl} from "./ProxyImpl";
-import {ErrorManager} from "./common/ErrorManager";
-import {AlertsService} from "./services/AlertsService";
+import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils.js";
+import {XMPPService} from "./connection/XMPPService.js";
+import {RESTService} from "./connection/RESTService.js";
+import {HTTPService} from "./connection/HttpService.js";
+import {Logger} from "./common/Logger.js";
+import {ImsService} from "./services/ImsService.js";
+import {PresenceService} from "./services/PresenceService.js";
+import {ChannelsService} from "./services/ChannelsService.js";
+import {ContactsService} from "./services/ContactsService.js";
+import {ConversationsService} from "./services/ConversationsService.js";
+import {ProfilesService} from "./services/ProfilesService.js";
+import {TelephonyService} from "./services/TelephonyService.js";
+import {BubblesService} from "./services/BubblesService.js";
+import {GroupsService} from "./services/GroupsService.js";
+import {AdminService} from "./services/AdminService.js";
+import {SettingsService} from "./services/SettingsService.js";
+import {FileServerService} from "./services/FileServerService.js";
+import {FileStorageService} from "./services/FileStorageService.js";
+import {SDKSTATUSENUM, StateManager} from "./common/StateManager.js";
+import {CallLogService} from "./services/CallLogService.js";
+import {FavoritesService} from "./services/FavoritesService.js";
+import {InvitationsService} from "./services/InvitationsService.js";
+import {Events} from "./common/Events.js";
+import {Options} from "./config/Options.js";
+import {ProxyImpl} from "./ProxyImpl.js";
+import {ErrorManager} from "./common/ErrorManager.js";
+import {AlertsService} from "./services/AlertsService.js";
 
 import {lt} from "semver";
-import {S2SService} from "./services/S2SService";
-import {WebinarsService} from "./services/WebinarsService";
-import {RBVoiceService} from "./services/RBVoiceService";
-import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
-import {TimeOutManager} from "./common/TimeOutManager";
+import {S2SService} from "./services/S2SService.js";
+import {WebinarsService} from "./services/WebinarsService.js";
+import {RBVoiceService} from "./services/RBVoiceService.js";
+import {HTTPoverXMPP} from "./services/HTTPoverXMPPService.js";
+import {TimeOutManager} from "./common/TimeOutManager.js";
 
 export {};
 
-const packageVersion = require("../package.json");
+//const packageVersion = require("../package.json");
+//import  * as packageVersion from "../../package.json";
 
 /*let _signin;
 let _retrieveInformation;
 // */
 
 const LOG_ID = "CORE - ";
-
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version    
+};
+ 
 @logEntryExit(LOG_ID)
 class Core {
     get timeOutManager(): TimeOutManager {
@@ -1206,6 +1211,6 @@ class Core {
     }
 }
 
-//module.exports = Core;
-module.exports.Core = Core;
+//// module.exports = Core;
+// module.exports.Core = Core;
 export {Core};

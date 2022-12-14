@@ -1,10 +1,10 @@
 'use strict';
 
-import {addParamToUrl, logEntryExit} from "../../common/Utils";
-import {GenericRESTService} from "../GenericRESTService";
+import {addParamToUrl, logEntryExit} from "../../common/Utils.js";
+import {GenericRESTService} from "../GenericRESTService.js";
 
-const ErrorCase = require('../../common/ErrorManager');
-const util = require('util');
+//const util = require('util');
+import {default as util} from 'util';
 const LOG_ID = "REST/CONFV2 - ";
 
 @logEntryExit(LOG_ID)
@@ -584,7 +584,7 @@ class RESTConferenceV2 extends GenericRESTService{
 let restService = null;
 
 export {RESTConferenceV2};
-module.exports.RESTConferenceV2 = RESTConferenceV2;
+// module.exports.RESTConferenceV2 = RESTConferenceV2;
 
 
 

@@ -1,7 +1,7 @@
-import RequestRateLimiter from './src/RequestRateLimiter';
-import BackoffError from './src/BackoffError';
-import RequestRequestHandler from './src/RequestRequestHandler';
-import MockRequestHandler from './src/MockRequestHandler';
+import RequestRateLimiter from "./src/RequestRateLimiter.js";
+import BackoffError from "./src/BackoffError.js";
+import RequestRequestHandler from "./src/RequestRequestHandler.js";
+import MockRequestHandler from "./src/MockRequestHandler.js";
 
 
 export { 

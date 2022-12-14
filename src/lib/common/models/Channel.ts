@@ -1,5 +1,5 @@
 "use strict";
-import {Conversation} from "./Conversation";
+import {Conversation} from "./Conversation.js";
 
 export {};
 
@@ -474,6 +474,6 @@ class Channel {
 }
 
 
-module.exports.Channel = Channel;
-module.exports.Appreciation = Appreciation;
+// module.exports.Channel = Channel;
+// module.exports.Appreciation = Appreciation;
 export {Channel, Appreciation};

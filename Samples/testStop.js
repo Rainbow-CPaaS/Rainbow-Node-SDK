@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("../index");
-const config_1 = require("../lib/config/config");
+import { NodeSDK as RainbowSDK } from "../index.js";
+import { DataStoreType } from "../lib/config/config.js";
 let options = {
     "rainbow": {
         "host": "sandbox",
@@ -102,7 +100,7 @@ let options = {
         "nbMaxConversations": 15,
         "rateLimitPerHour": 100000,
         //        "messagesDataStore": DataStoreType.NoStore,
-        "messagesDataStore": config_1.DataStoreType.StoreTwinSide,
+        "messagesDataStore": DataStoreType.StoreTwinSide,
         "autoInitialBubblePresence": true,
         "autoLoadConversations": true,
         // "autoInitialBubblePresence": false,
@@ -170,7 +168,7 @@ process.argv.forEach((val, index) => {
 });
 options.logs.customLabel = options.credentials.login;
 options.logs.customLabel = options.credentials.login;
-const rainbowSDK = new index_1.NodeSDK(options);
+const rainbowSDK = new RainbowSDK(options);
 rainbowSDK.start().then(() => {
     let bubbles = rainbowSDK.bubbles.getAllActiveBubbles(); //.then( (bubble) =>
     //{

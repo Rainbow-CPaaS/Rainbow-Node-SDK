@@ -2,7 +2,10 @@
 export {};
 
 
-const {plugin, xml} = require('@xmpp/plugin');
+//const {plugin, xml} = require('@xmpp/plugin');
+import {default as pluginObj} from "@xmpp/plugin/index.js";
+const plugin = pluginObj.plugin;
+const xml = pluginObj.xml;
 
 module.exports = plugin('mam', {
   start() {

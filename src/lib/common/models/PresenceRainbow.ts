@@ -1,8 +1,8 @@
 "use strict";
 
 
-import {Offer, offerManager} from "./Offer";
-import {ErrorManager} from "../ErrorManager";
+import {Offer, offerManager} from "./Offer.js";
+import {ErrorManager} from "../ErrorManager.js";
 
 /**
  *   Enum with all presence levels possible
@@ -383,12 +383,12 @@ class PresenceRainbow extends PresenceInfo {
 }
 
 
-module.exports.PresenceCalendar = PresenceCalendar;
-module.exports.PresenceInfo = PresenceInfo;
-module.exports.PresenceLevel = PresenceLevel;
-module.exports.PresenceShow = PresenceShow;
-module.exports.PresenceStatus = PresenceStatus;
-module.exports.PresenceDetails = PresenceDetails;
-module.exports.PresencePhone = PresencePhone;
-module.exports.PresenceRainbow = PresenceRainbow;
+// module.exports.PresenceCalendar = PresenceCalendar;
+// module.exports.PresenceInfo = PresenceInfo;
+// module.exports.PresenceLevel = PresenceLevel;
+// module.exports.PresenceShow = PresenceShow;
+// module.exports.PresenceStatus = PresenceStatus;
+// module.exports.PresenceDetails = PresenceDetails;
+// module.exports.PresencePhone = PresencePhone;
+// module.exports.PresenceRainbow = PresenceRainbow;
 export {PresenceCalendar, PresenceInfo, PresenceLevel, PresenceShow, PresenceStatus, PresenceDetails, PresencePhone, PresenceRainbow};

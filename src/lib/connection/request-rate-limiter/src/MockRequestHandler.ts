@@ -1,4 +1,4 @@
-import BackoffError from './BackoffError';
+import BackoffError from "./BackoffError.js";
 
 
 export default class MockRequestHandler {

@@ -1,35 +1,38 @@
 "use strict";
 
 import jwtDecode from "jwt-decode";
-import * as btoa from "btoa";
-import * as CryptoJS from "crypto-js";
+import {default as btoa} from "btoa";
 
-import * as backoff from "backoff";
+import {default as backoff} from "backoff";
 
 import {addParamToUrl, logEntryExit, makeId} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
-import  {RESTTelephony} from "./RestServices/RESTTelephony";
-import {HTTPService} from "./HttpService";
-import {Invitation} from "../common/models/Invitation";
-import {Contact} from "../common/models/Contact";
+import  {RESTTelephony} from "./RestServices/RESTTelephony.js";
+import {HTTPService} from "./HttpService.js";
+import {Invitation} from "../common/models/Invitation.js";
+import {Contact} from "../common/models/Contact.js";
 import EventEmitter = NodeJS.EventEmitter;
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 import {error} from "winston";
-import {ROOMROLE} from "../services/S2SService";
+import {ROOMROLE} from "../services/S2SService.js";
 import {urlencoded} from "body-parser";
-import {Core} from "../Core";
-import {Channel} from "../common/models/Channel";
-import {ErrorManager} from "../common/ErrorManager";
-import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
-import {RESTWebinar} from "./RestServices/RESTWebinar";
-import {GenericService} from "../services/GenericService";
-import {GenericRESTService} from "./GenericRESTService";
-import {TimeOutManager} from "../common/TimeOutManager";
+import {Core} from "../Core.js";
+import {Channel} from "../common/models/Channel.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {RESTConferenceV2} from "./RestServices/RESTConferenceV2.js";
+import {RESTWebinar} from "./RestServices/RESTWebinar.js";
+import {GenericService} from "../services/GenericService.js";
+import {GenericRESTService} from "./GenericRESTService.js";
+import {TimeOutManager} from "../common/TimeOutManager.js";
 
 const jwt : any = jwtDecode;
 
-let packageVersion = require("../../package.json");
+//let packageVersion = require("../../package.json");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
 
 const RECONNECT_INITIAL_DELAY = 2000;
 const RECONNECT_MAX_DELAY = 60000;
@@ -10694,6 +10697,6 @@ Request Method: PUT
 }
 
 export {RESTService, MEDIATYPE, GuestParams};
-module.exports.RESTService = RESTService;
-module.exports.MEDIATYPE = MEDIATYPE;
-module.exports.GuestParams = GuestParams;
+// module.exports.RESTService = RESTService;
+// module.exports.MEDIATYPE = MEDIATYPE;
+// module.exports.GuestParams = GuestParams;

@@ -1,6 +1,6 @@
 import { Subject, Subscription } from "rxjs";
-import { Bubble } from "./Bubble";
-import { WebConferenceParticipant } from "./webConferenceParticipant";
+import { Bubble } from "./Bubble.js";
+import { WebConferenceParticipant } from "./webConferenceParticipant.js";
 
 /**
  * @module

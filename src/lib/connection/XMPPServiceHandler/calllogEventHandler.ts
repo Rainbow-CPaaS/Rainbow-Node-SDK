@@ -1,27 +1,30 @@
 "use strict";
 import {accessSync} from "fs";
-import {XMPPService} from "../XMPPService";
-import {logEntryExit} from "../../common/Utils";
+import {XMPPService} from "../XMPPService.js";
+import {logEntryExit, Deferred, orderByFilter} from "../../common/Utils.js";
 
 export {};
 
 
-const Utils = require("../../common/Utils");
+//const Utils = require("../../common/Utils");
 //const Conversation = require("../../common/models/Conversation");
 //const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
-const moment = require("moment");
-const Deferred = require("../../common/Utils").Deferred;
-const CallLog = require("../../common/models/CallLog");
+//const moment = require("moment");
+import moment from 'moment';
+//const Deferred = require("../../common/Utils").Deferred;
+//const CallLog = require("../../common/models/CallLog");
+import {CallLog, create} from "../../common/models/CallLog.js";
 
-const xml = require("@xmpp/xml");
-const PromiseQueue = require("../../common/promiseQueue");
-const prettydata = require("../pretty-data").pd;
+// const xml = require("@xmpp/xml");
+// const PromiseQueue = require("../../common/promiseQueue");
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
-const orderByFilter = require("../../common/Utils").orderByFilter;
+//const orderByFilter = require("../../common/Utils").orderByFilter;
 
 //const config = require("../../config/config");
-import {config} from "../../config/config";
-import {GenericHandler} from "./GenericHandler";
+import {config} from "../../config/config.js";
+import {GenericHandler} from "./GenericHandler.js";
 
 const LOG_ID = "XMPP/HNDL/TEL/CLOG - ";
 
@@ -286,7 +289,9 @@ class CallLogEventHandler extends GenericHandler {
         let calleeJid = messageElem.find("callee").text();
         let state = messageElem.find("state").text();
         let duration = parseInt(messageElem.find("duration").text(), 10);
+        let durationStr = String(duration);
         let callSubject = messageElem.find("subject").text();
+        let isLatestCall = messageElem.find("isLatestCall").text();
         let foundidentity = null;
         let identityFirstName = "";
         let identityLastName = "";
@@ -321,9 +326,10 @@ class CallLogEventHandler extends GenericHandler {
 
 
         if (duration > 0) {
-            duration = moment.duration(duration, "ms").format("h[H] mm[m] ss[s]");
+            durationStr = moment.duration(duration, "ms").format("h[H] mm[m] ss[s]");
         } else {
             duration = 0;
+            durationStr ="0"
         }
 
         if (date) {
@@ -423,7 +429,7 @@ class CallLogEventHandler extends GenericHandler {
                         //#29830--
                     }
 
-                    let callLog = CallLog.create(id, contact, state, duration, type, read, date, direction, callSubject);
+                    let callLog = create(id, contact, state, durationStr, type, read, date, direction, callSubject,isLatestCall);
 
                     //do not push up duplicates
                     if (!that.logAlreadyExists(callLog) && state !== "failed" && state !== "ongoing") {
@@ -650,4 +656,4 @@ class CallLogEventHandler extends GenericHandler {
 }
 
 export {CallLogEventHandler};
-module.exports.CallLogEventHandler = CallLogEventHandler;
+// module.exports.CallLogEventHandler = CallLogEventHandler;

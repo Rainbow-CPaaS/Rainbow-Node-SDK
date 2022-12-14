@@ -2,7 +2,8 @@
 export {};
 
 
-const promiseFinaly = require('promise.prototype.finally');
+//const promiseFinaly = require('promise.prototype.finally');
+import {default as promiseFinaly} from 'promise.prototype.finally';
 
 promiseFinaly.shim();
 
@@ -63,6 +64,6 @@ let createPromiseQueue = function (_logger) {
     return new PromiseQueue(_logger);
 };
 
-//module.exports.PromiseQueue = PromiseQueue;
-module.exports.createPromiseQueue = createPromiseQueue;
+//// module.exports.PromiseQueue = PromiseQueue;
+// module.exports.createPromiseQueue = createPromiseQueue;
 export {createPromiseQueue};

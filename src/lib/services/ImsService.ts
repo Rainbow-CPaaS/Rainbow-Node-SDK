@@ -1,25 +1,25 @@
 "use strict";
-import {ConversationsService} from "./ConversationsService";
+import {ConversationsService} from "./ConversationsService.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {ErrorManager} from "../common/ErrorManager";
-import {Conversation} from "../common/models/Conversation";
-import {shortnameToUnicode,} from "../common/Emoji";
-import {XMPPUTils} from "../common/XMPPUtils";
-import {logEntryExit, until} from "../common/Utils";
-import {isStarted} from "../common/Utils";
-import {Logger} from "../common/Logger";
+import {XMPPService} from "../connection/XMPPService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Conversation} from "../common/models/Conversation.js";
+import {shortnameToUnicode,} from "../common/Emoji.js";
+import {XMPPUTils} from "../common/XMPPUtils.js";
+import {logEntryExit, until} from "../common/Utils.js";
+import {isStarted} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
 import {EventEmitter} from "events";
-import {BubblesService} from "./BubblesService";
-import {FileStorageService} from "./FileStorageService";
-import {S2SService} from "./S2SService";
-import {RESTService} from "../connection/RESTService";
-import {Core} from "../Core";
-import {PresenceService} from "./PresenceService";
-import {GenericService} from "./GenericService";
-import {Message} from "../common/models/Message";
+import {BubblesService} from "./BubblesService.js";
+import {FileStorageService} from "./FileStorageService.js";
+import {S2SService} from "./S2SService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {Core} from "../Core.js";
+import {PresenceService} from "./PresenceService.js";
+import {GenericService} from "./GenericService.js";
+import {Message} from "../common/models/Message.js";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -989,5 +989,5 @@ class ImsService extends GenericService{
 
 }
 
-module.exports.ImsService = ImsService;
+// module.exports.ImsService = ImsService;
 export {ImsService};

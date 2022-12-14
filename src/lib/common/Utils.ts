@@ -1,11 +1,17 @@
 "use strict";
 
 
-const config = require ("../config/config");
-import {atob} from "atob";
-const Jimp = require('jimp');
-const dns = require('dns')
-const utilTypes = require('util').types
+import {config} from "../config/config.js";
+
+//import {atob} from "atob";
+import pkg from 'atob';
+const { atob } = pkg;
+//const Jimp = require('jimp');
+import {default as Jimp} from 'jimp';
+import {default as dns} from 'dns';
+//import * as utilTypes from 'util'
+import {types as utilTypes} from "util";
+
 
 let makeId = (n) => {
   let text = "";
@@ -578,7 +584,7 @@ export let objToExport = {
     doWithinInterval
 };
 
-module.exports = objToExport;
+// module.exports = objToExport;
 export {
     makeId,
     createPassword,

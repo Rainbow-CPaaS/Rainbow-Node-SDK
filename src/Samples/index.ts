@@ -6,22 +6,22 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
-import {pause, setTimeoutPromised, until, getRandomInt} from "../lib/common/Utils";
-import {TimeOutManager} from "../lib/common/TimeOutManager";
+import {pause, setTimeoutPromised, until, getRandomInt, resolveDns} from "../lib/common/Utils.js";
+import {TimeOutManager} from "../lib/common/TimeOutManager.js";
 import set = Reflect.set;
 import {url} from "inspector";
-import {OFFERTYPES} from "../lib/services/AdminService";
-import {Conversation} from "../lib/common/models/Conversation";
+import {OFFERTYPES} from "../lib/services/AdminService.js";
+import {Conversation} from "../lib/common/models/Conversation.js";
 import {createWriteStream} from "fs";
-import {SDKSTATUSENUM} from "../lib/common/StateManager";
-import {AlertFilter} from "../lib/common/models/AlertFilter";
+import {SDKSTATUSENUM} from "../lib/common/StateManager.js";
+import {AlertFilter} from "../lib/common/models/AlertFilter.js";
 import {List} from "ts-generic-collections-linq";
-import {AlertTemplate} from "../lib/common/models/AlertTemplate";
-import {Alert} from "../lib/common/models/Alert";
-import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
-import {Contact} from "../lib/common/models/Contact";
-import {ConferenceSession} from "../lib/common/models/ConferenceSession";
-import {DataStoreType} from "../lib/config/config";
+import {AlertTemplate} from "../lib/common/models/AlertTemplate.js";
+import {Alert} from "../lib/common/models/Alert.js";
+import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice.js";
+import {Contact} from "../lib/common/models/Contact.js";
+import {ConferenceSession} from "../lib/common/models/ConferenceSession.js";
+import {DataStoreType} from "../lib/config/config.js";
 
 
 // @ts-ignore
@@ -56,21 +56,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", {value: true});
+
 // Load the SDK
 // For using the fiddler proxy which logs requests to server
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-import Bubble_1 from "../lib/common/models/Bubble";
-import {NodeSDK as RainbowSDK} from "../index";
-import * as Utils from "../lib/common/Utils";
-import fs = require("fs");
+import Bubble_1 from "../lib/common/models/Bubble.js";
+import {NodeSDK as RainbowSDK} from "../index.js";
+//import * as Utils from "../lib/common/Utils";
+//let fs = require("fs");
+import {default as fs} from "fs";
 //import fileapi from "file-api";
-let fileapi = require('file-api');
+//let fileapi = require('file-api');
+import {default as fileapi} from 'file-api';
 import {inspect} from "util";
 
-const inquirer = require("inquirer");
-import jwt from "jwt-decode";
-import * as util from "util";
+//const inquirer = require("inquirer");
+import {default as inquirer} from "inquirer";
+//import jwt from "jwt-decode";
+import {default as jwt} from 'jwt-decode/build/jwt-decode.js';
+import {default as util} from "util";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -78,7 +82,8 @@ import * as util from "util";
 //let rainbowMode = "s2s" ;
 let rainbowMode = "xmpp";
 
-let ngrok = require('ngrok');
+//let ngrok = require('ngrok');
+import {default as ngrok} from 'ngrok';
 //import ngrok from 'ngrok';
 
 let urlS2S;
@@ -1013,7 +1018,7 @@ let urlS2S;
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
@@ -1041,7 +1046,7 @@ let urlS2S;
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
                 let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
@@ -1096,7 +1101,7 @@ let urlS2S;
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
-                /*await Utils.until(() => {
+                /*await until(() => {
                     return conversation.getMessageById(msgSent.id) !== undefined;
                 }, "Wait for message to be added in conversation num : " + i);
                 let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
@@ -1262,7 +1267,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
                 logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation id : " + conversation.id);
 
@@ -1292,7 +1297,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
                 logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation id : " + conversation.id);
 
@@ -1331,7 +1336,7 @@ let urlS2S;
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
             }
@@ -1413,7 +1418,7 @@ let urlS2S;
                 // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
+                await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation Msg : " + msgstr);
             }
@@ -2085,7 +2090,7 @@ let urlS2S;
                         });
 
                         rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
-                            //await Utils.setTimeoutPromised(200);
+                            //await setTimeoutPromised(200);
                             /*let utcMsg = new Date().getTime();
                             let message = "message de test in " + utcMsg;
                             rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
@@ -2438,7 +2443,7 @@ let urlS2S;
         }
     }
 
-//utils.setTimeoutPromised(1).then(()=> {
+//setTimeoutPromised(1).then(()=> {
 //    rainbowSDK.start();
 //});
     function testBubblesArchived() {
@@ -2489,7 +2494,7 @@ let urlS2S;
                 "mypersonnaldata": "valueofmypersonnaldata",
                 "updateDate": now
             });
-            /*    await utils.setTimeoutPromised(3000);
+            /*    await setTimeoutPromised(3000);
     
                 activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
                 activesBubbles.forEach( ( bubbleIter )=> {
@@ -2802,7 +2807,7 @@ let urlS2S;
         //             rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i).then((bubble) => {
         //                 logger.log("debug", "MAIN - [testCreateBubblesAndJoinConference    ] :: createBubble request ok", bubble);
         //                 rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async() => {
-        //                     await Utils.setTimeoutPromised(600);
+        //                     await setTimeoutPromised(600);
         //                     let message = "message de test";
         //                     //await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
         //                     rainbowSDK.bubbles.joinConference(bubble).then((result) => {
@@ -3185,7 +3190,7 @@ let urlS2S;
             rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall : ", data1);
-                Utils.setTimeoutPromised(1000).then(() => {
+                setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall getCalls : ", data2);
                     });
@@ -3198,7 +3203,7 @@ let urlS2S;
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
                     //await rainbowSDK.telephony.releaseCall(c);
-                    Utils.setTimeoutPromised(10000).then(() => {
+                    setTimeoutPromised(10000).then(() => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
                             logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after releaseCall getCalls : ", data3);
@@ -3216,7 +3221,7 @@ let urlS2S;
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall : ", data1, " PLEASE ANSWER CALL ON PHONE.");
 
-                Utils.setTimeoutPromised(1000).then(() => {
+                setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall getCalls : ", data2);
                     });
@@ -3229,7 +3234,7 @@ let urlS2S;
                 // Release all calls
                 calls.forEach(async (c) => {
                     await rainbowSDK.telephony.holdCall(c);
-                    Utils.setTimeoutPromised(6000).then(async () => {
+                    setTimeoutPromised(6000).then(async () => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
                             logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after holdCall getCalls : ", data3);
@@ -3248,7 +3253,7 @@ let urlS2S;
             rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", "My_correlatorData").then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
                 logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall : ", data1);
-                Utils.setTimeoutPromised(1000).then(() => {
+                setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall getCalls : ", data2);
                     });
@@ -3261,7 +3266,7 @@ let urlS2S;
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
                     //await rainbowSDK.telephony.releaseCall(c);
-                    Utils.setTimeoutPromised(10000).then(() => {
+                    setTimeoutPromised(10000).then(() => {
                         logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
                             logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after releaseCall getCalls : ", data3);
@@ -5184,7 +5189,7 @@ let urlS2S;
     // endregion TimeOutManager
     
     function testresolveDns(url : string = 'www.amagicshop.com.tw') {
-        Utils.resolveDns(url).then((result)=>{
+        resolveDns(url).then((result)=>{
             logger.log("debug", "MAIN - testresolveDns, result : ", result);
         }).catch((err)=>{
             logger.log("debug", "MAIN - testresolveDns, error : ", err);

@@ -1,29 +1,29 @@
 "use strict";
 
-import {InvitationEventHandler} from "../XMPPServiceHandler/invitationEventHandler";
+import {InvitationEventHandler} from "../XMPPServiceHandler/invitationEventHandler.js";
 
 export {};
 
 
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
 
-import {logEntryExit} from "../../common/Utils";
+import {logEntryExit} from "../../common/Utils.js";
 import {rejects} from "assert";
-import {RESTService} from "../RESTService";
-import {ContactsService} from "../../services/ContactsService";
-import {Logger} from "../../common/Logger";
+import {RESTService} from "../RESTService.js";
+import {ContactsService} from "../../services/ContactsService.js";
+import {Logger} from "../../common/Logger.js";
 import EventEmitter = NodeJS.EventEmitter;
-import {Contact} from "../../common/models/Contact";
-import {Conversation} from "../../common/models/Conversation";
-import {ConversationsService} from "../../services/ConversationsService";
-import {Bubble} from "../../common/models/Bubble";
-import {BubblesService} from "../../services/BubblesService";
-import {Core} from "../../Core";
-import {PresenceRainbow} from "../../common/models/PresenceRainbow";
+import {Contact} from "../../common/models/Contact.js";
+import {Conversation} from "../../common/models/Conversation.js";
+import {ConversationsService} from "../../services/ConversationsService.js";
+import {Bubble} from "../../common/models/Bubble.js";
+import {BubblesService} from "../../services/BubblesService.js";
+import {Core} from "../../Core.js";
+import {PresenceRainbow} from "../../common/models/PresenceRainbow.js";
 
-const util = require('util');
+//const util = require('util');
 
-const xml = require("@xmpp/xml");
+//const xml = require("@xmpp/xml");
 
 const LOG_ID = "S2S/HNDL - ";
 
@@ -742,4 +742,4 @@ class S2SServiceEventHandler {
 
 
 export {S2SServiceEventHandler};
-module.exports.S2SServiceEventHandler = S2SServiceEventHandler;
+// module.exports.S2SServiceEventHandler = S2SServiceEventHandler;

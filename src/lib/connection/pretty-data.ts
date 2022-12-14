@@ -330,4 +330,5 @@ pp.prototype.sqlmin = function(text) {
 
 // --------------------------------------------------------------------------------------------
 
-exports.pd= new pp();
+let pd = new pp();
+export {pd };

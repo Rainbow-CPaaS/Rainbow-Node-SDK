@@ -14,17 +14,18 @@ import {
     Deferred,
     doWithinInterval,
     stackTrace
-} from "../lib/common/Utils";
+} from "../lib/common/Utils.js";
 import {List} from "ts-generic-collections-linq";
 import {inspect} from "util";
 import {sample, timeout} from "rxjs";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
-import {Bubble} from "../lib/common/models/Bubble";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
+import {Bubble} from "../lib/common/models/Bubble.js";
 import {setInterval} from "timers";
 import {error} from "winston";
 
 const inquirer = require("inquirer");
-var AsyncLock = require('async-lock');
+//var AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
 let LOG_ID = "SAMPLESTESTS";
 

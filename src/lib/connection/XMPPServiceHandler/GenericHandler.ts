@@ -1,8 +1,9 @@
 "use strict";
 export {};
 
-import {XMPPService} from "../XMPPService";
-const xml2js = require('xml2js');
+import {XMPPService} from "../XMPPService.js";
+//const xml2js = require('xml2js');
+import {default as xml2js} from 'xml2js';
 
 class GenericHandler {
 	public xmppService: XMPPService;
@@ -60,5 +61,5 @@ class GenericHandler {
     }
 }
 
-module.exports = {'GenericHandler' : GenericHandler};
+// module.exports = {'GenericHandler' : GenericHandler};
 export {GenericHandler as GenericHandler};

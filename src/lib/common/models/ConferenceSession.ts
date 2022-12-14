@@ -1,9 +1,9 @@
 ﻿"use strict";
 
 import {List} from "ts-generic-collections-linq";
-import {MEDIATYPE} from "../../connection/RESTService";
-import {Contact} from "./Contact";
-import {Bubble} from "./Bubble";
+import {MEDIATYPE} from "../../connection/RESTService.js";
+import {Contact} from "./Contact.js";
+import {Bubble} from "./Bubble.js";
 
 export {};
 
@@ -785,10 +785,10 @@ class ConferenceSession {
     }
 }
 
-module.exports.Talker = Talker;
-module.exports.Silent = Silent;
-module.exports.Publisher = Publisher;
-module.exports.Participant = Participant;
-module.exports.Service = Service;
-module.exports.ConferenceSession = ConferenceSession;
+// module.exports.Talker = Talker;
+// module.exports.Silent = Silent;
+// module.exports.Publisher = Publisher;
+// module.exports.Participant = Participant;
+// module.exports.Service = Service;
+// module.exports.ConferenceSession = ConferenceSession;
 export {Publisher, Participant, ConferenceSession, Talker, Silent, Service};

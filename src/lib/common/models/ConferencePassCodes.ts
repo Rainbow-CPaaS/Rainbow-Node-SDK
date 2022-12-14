@@ -45,5 +45,5 @@ class ConferencePassCodes {
     }
 }
 
-module.exports.ConferencePassCodes = ConferencePassCodes;
+// module.exports.ConferencePassCodes = ConferencePassCodes;
 export {ConferencePassCodes};

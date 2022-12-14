@@ -152,6 +152,6 @@ class Invitation {
     }
 }
 
-module.exports = {'Invitation' : Invitation};
+// module.exports = {'Invitation' : Invitation};
 export {Invitation as Invitation};
 

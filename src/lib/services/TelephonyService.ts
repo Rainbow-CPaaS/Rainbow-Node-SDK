@@ -1,27 +1,27 @@
 "use strict";
-import {logEntryExit} from "../common/Utils";
+import {logEntryExit} from "../common/Utils.js";
 
 export {};
 
-import {RESTService} from "../connection/RESTService";
-import {XMPPService} from "../connection/XMPPService";
-import {ErrorManager} from "../common/ErrorManager";
-import {Call} from "../common/models/Call";
-import * as VoiceMail from "../common/models/VoiceMail";
-import * as utils from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import { XMPPUTils } from "../common/XMPPUtils";
-import {isStarted} from "../common/Utils";
-import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyEventHandler";
-import {ContactsService} from "./ContactsService";
-import {BubblesService} from "./BubblesService";
-import {ProfilesService} from "./ProfilesService";
+import {RESTService} from "../connection/RESTService.js";
+import {XMPPService} from "../connection/XMPPService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Call} from "../common/models/Call.js";
+import {createVoiceMail} from "../common/models/VoiceMail.js";
+import {default as utils} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import { XMPPUTils } from "../common/XMPPUtils.js";
+import {isStarted} from "../common/Utils.js";
+import {TelephonyEventHandler} from "../connection/XMPPServiceHandler/telephonyEventHandler.js";
+import {ContactsService} from "./ContactsService.js";
+import {BubblesService} from "./BubblesService.js";
+import {ProfilesService} from "./ProfilesService.js";
 import {EventEmitter} from "events";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 import {error} from "winston";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {GenericService} from "./GenericService";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {GenericService} from "./GenericService.js";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 
@@ -120,7 +120,7 @@ class TelephonyService extends GenericService {
         let that = this;
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this.voiceMail = VoiceMail.createVoiceMail(_core._profiles);
+        this.voiceMail = createVoiceMail(_core._profiles);
 
         return new Promise((resolve, reject) => {
             try {
@@ -2844,5 +2844,5 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
     
 }
 
-module.exports.TelephonyService = TelephonyService;
+// module.exports.TelephonyService = TelephonyService;
 export {TelephonyService as TelephonyService};

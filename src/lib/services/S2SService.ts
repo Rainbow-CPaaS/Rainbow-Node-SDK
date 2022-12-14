@@ -1,20 +1,15 @@
 "use strict";
 
-import * as util from "util";
-import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {Conversation} from "../common/models/Conversation";
-import {XMPPUTils} from "../common/XMPPUtils";
-import {NameSpacesLabels, XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
-import {S2SServiceEventHandler} from "../connection/S2S/S2SServiceEventHandler";
+import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils.js";
+import {XMPPUTils} from "../common/XMPPUtils.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {S2SServiceEventHandler} from "../connection/S2S/S2SServiceEventHandler.js";
 import {EventEmitter} from "events";
-import {Logger} from "../common/Logger";
-import {ProxyImpl} from "../ProxyImpl";
-import {GenericService} from "./GenericService";
-const express = require( "express" );
+import {Logger} from "../common/Logger.js";
+import {ProxyImpl} from "../ProxyImpl.js";
+import {GenericService} from "./GenericService.js";
+//const express = require( "express" );
+import {default as express} from "express" ;
 
 const LOG_ID = "S2S - ";
 
@@ -504,5 +499,5 @@ enum ROOMROLE  {
 };
 
 export { S2SService, ROOMROLE};
-module.exports.S2SService = S2SService;
-module.exports.ROOMROLE = ROOMROLE;
+// module.exports.S2SService = S2SService;
+// module.exports.ROOMROLE = ROOMROLE;

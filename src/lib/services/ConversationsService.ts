@@ -1,33 +1,33 @@
 "use strict";
-import {ContactsService} from "./ContactsService";
+import {ContactsService} from "./ContactsService.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {Conversation} from "../common/models/Conversation";
-import {Call} from "../common/models/Call";
-import * as moment from 'moment';
-import {Deferred, logEntryExit} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
-import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
-import {shortnameToUnicode} from "../common/Emoji";
-import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
-import {isStarted} from "../common/Utils";
-import {BubblesService} from "./BubblesService";
-import {FileStorageService} from "./FileStorageService";
-import {FileServerService} from "./FileServerService";
-import {Logger} from "../common/Logger";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Conversation} from "../common/models/Conversation.js";
+import {Call} from "../common/models/Call.js";
+import moment from 'moment';
+import {Deferred, logEntryExit} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler.js";
+import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler.js";
+import {shortnameToUnicode} from "../common/Emoji.js";
+import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer.js";
+import {isStarted} from "../common/Utils.js";
+import {BubblesService} from "./BubblesService.js";
+import {FileStorageService} from "./FileStorageService.js";
+import {FileServerService} from "./FileServerService.js";
+import {Logger} from "../common/Logger.js";
 import {EventEmitter} from "events";
-import {Contact} from "../common/models/Contact";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {PresenceService} from "./PresenceService";
-import {Message} from "../common/models/Message";
-import {Bubble} from "../common/models/Bubble";
-import {GenericService} from "./GenericService";
+import {Contact} from "../common/models/Contact.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {PresenceService} from "./PresenceService.js";
+import {Message} from "../common/models/Message.js";
+import {Bubble} from "../common/models/Bubble.js";
+import {GenericService} from "./GenericService.js";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 
@@ -2046,5 +2046,5 @@ class ConversationsService extends GenericService {
     }
 }
 
-module.exports.ConversationsService = ConversationsService;
+// module.exports.ConversationsService = ConversationsService;
 export {ConversationsService as ConversationsService};

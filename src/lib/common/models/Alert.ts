@@ -1,8 +1,9 @@
 "use strict";
 
-const AsyncLock = require('async-lock');
+//const AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
 
 export {};
 
@@ -298,5 +299,5 @@ class AlertsData {
     //endregion
 }
 
-module.exports = {Alert, AlertsData};
+// module.exports = {Alert, AlertsData};
 export {Alert, AlertsData};

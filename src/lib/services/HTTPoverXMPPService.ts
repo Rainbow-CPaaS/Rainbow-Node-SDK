@@ -1,23 +1,12 @@
 "use strict";
 
-import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import * as deepEqual from "deep-equal";
-import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {XMPPService} from "../connection/XMPPService";
+import {ErrorManager} from "../common/ErrorManager.js";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {ContactsService} from "./ContactsService";
-import {ProfilesService} from "./ProfilesService";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import * as PubSub from "pubsub-js";
-import {GenericService} from "./GenericService";
-//import {RBVoice} from "../common/models/rbvoice";
-//import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
-import {Channel} from "../common/models/Channel";
-import {HttpoverxmppEventHandler} from "../connection/XMPPServiceHandler/httpoverxmppEventHandler";
+import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {Core} from "../Core.js";
+import {default as PubSub} from "pubsub-js";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
@@ -475,6 +464,6 @@ class HTTPoverXMPP extends GenericService {
 
 }
 
-module.exports.HTTPoverXMPP = HTTPoverXMPP;
+// module.exports.HTTPoverXMPP = HTTPoverXMPP;
 export {HTTPoverXMPP as HTTPoverXMPP};
 

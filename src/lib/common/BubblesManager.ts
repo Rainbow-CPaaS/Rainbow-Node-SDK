@@ -1,20 +1,21 @@
 "use strict";
 
-import {Bubble} from "./models/Bubble";
-import {Logger} from "./Logger";
+import {Bubble} from "./models/Bubble.js";
+import {Logger} from "./Logger.js";
 import {EventEmitter} from "events";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {PresenceService} from "../services/PresenceService";
-import {S2SService} from "../services/S2SService";
-import {Core} from "../Core";
-import {getRandomInt, logEntryExit, pause, until} from "./Utils";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {PresenceService} from "../services/PresenceService.js";
+import {S2SService} from "../services/S2SService.js";
+import {Core} from "../Core.js";
+import {getRandomInt, logEntryExit, pause, until} from "./Utils.js";
 import { List } from "ts-generic-collections-linq";
 import {Dictionary, IDictionary} from "ts-generic-collections-linq";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
-import {ConferenceSession} from "./models/ConferenceSession";
-import {BubblesService} from "../services/BubblesService";
-let AsyncLock = require('async-lock');
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
+import {ConferenceSession} from "./models/ConferenceSession.js";
+import {BubblesService} from "../services/BubblesService.js";
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 import {FibonacciStrategy} from "backoff";
 //let backoff = require("backoff");
 
@@ -447,5 +448,5 @@ class BubblesManager {
     //endregion
 }
 
-module.exports.BubblesManager = BubblesManager;
+// module.exports.BubblesManager = BubblesManager;
 export {BubblesManager};

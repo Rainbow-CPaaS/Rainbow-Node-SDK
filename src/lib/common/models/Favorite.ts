@@ -1,5 +1,5 @@
 "use strict";
-import {AlertFilter, AlertFiltersData} from "./AlertFilter";
+import {AlertFilter, AlertFiltersData} from "./AlertFilter.js";
 
 export {};
 
@@ -38,8 +38,8 @@ class Favorite {
     }
 }
 
-exports.Favorite = Favorite;
-module.exports.Favorite = Favorite;
+//exports.Favorite = Favorite;
+// module.exports.Favorite = Favorite;
 
-module.exports = {Favorite};
+// module.exports = {Favorite};
 export {Favorite};

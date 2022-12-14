@@ -3,7 +3,7 @@
   "version": "2.18.0",
   "description": "Alcatel-Lucent Enterprise Rainbow SDK for Node.js",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "mocha --reporter spec",
     "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",
@@ -83,7 +83,10 @@
   },
   "dependencies": {
     "@types/backoff": "^2.5.2",
+    "@types/moment-duration-format": "^2.2.3",
     "@xmpp/client": "^0.13.1",
+    "@xmpp/plugin": "^0.3.0",
+    "@xmpp/plugins": "^0.3.0",
     "@xmpp/xml": "^0.13.1",
     "async-lock": "^1.4.0",
     "atob": "^2.1.2",

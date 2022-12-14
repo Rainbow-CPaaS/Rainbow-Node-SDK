@@ -2,10 +2,12 @@
 
 
 
-import {addParamToUrl, logEntryExit} from "../../common/Utils";
+import {addParamToUrl, logEntryExit} from "../../common/Utils.js";
 
-const ErrorCase = require('../../common/ErrorManager');
-const util = require('util');
+//const ErrorCase = require('../../common/ErrorManager');
+import {ErrorManager} from '../../common/ErrorManager.js';
+// const util = require('util');
+import {default as util} from 'util';
 const LOG_ID = "REST/TEL - ";
 
 @logEntryExit(LOG_ID)
@@ -86,7 +88,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not release call', 'no connectionId found in call ', util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not release call', 'no connectionId found in call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(releaseCall) Catch Error !!! ");
                 that._logger.log("internalerror", LOG_ID + "(releaseCall) Catch Error !!! Error : ", error);
                 return reject(error);
@@ -118,7 +120,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not makeConsultationCall call', 'makeConsultationCall for callId ' + callId);// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not makeConsultationCall call', 'makeConsultationCall for callId ' + callId);// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(makeConsultationCall) ", error);
                 return reject(error);
             }
@@ -140,7 +142,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not answerCall call', 'answerCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not answerCall call', 'answerCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(answerCall) ");
                 that._logger.log("internalerror", LOG_ID + "(answerCall) : ", error);
                 return reject(error);
@@ -163,7 +165,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not holdCall call', 'holdCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not holdCall call', 'holdCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(answerCall) ");
                 that._logger.log("internalerror", LOG_ID + "(answerCall) ", error);
                 return reject(error);
@@ -186,7 +188,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not retrieveCall call', 'retrieveCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not retrieveCall call', 'retrieveCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(retrieveCall) ");
                 that._logger.log("internalerror", LOG_ID + "(retrieveCall) : ", error);
                 return reject(error);
@@ -209,7 +211,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not deflectCallToVM call', 'deflectCallToVM for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not deflectCallToVM call', 'deflectCallToVM for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(deflectCallToVM) ");
                 that._logger.log("internalerror", LOG_ID + "(deflectCallToVM) : ", error);
                 return reject(error);
@@ -232,7 +234,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not deflectCall call', 'deflectCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not deflectCall call', 'deflectCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(deflectCall) ");
                 that._logger.log("internalerror", LOG_ID + "(deflectCall) : ", error);
                 return reject(error);
@@ -255,7 +257,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not transfertCall call', 'transfertCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not transfertCall call', 'transfertCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(transfertCall) ");
                 that._logger.log("internalerror", LOG_ID + "(transfertCall) : ", error);
                 return reject(error);
@@ -278,7 +280,7 @@ class RESTTelephony {
                     return reject(err);
                 });
             } else {
-                let error = ErrorCase.OTHERERROR('can not conferenceCall call', 'conferenceCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().OTHERERROR('can not conferenceCall call', 'conferenceCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(conferenceCall) ");
                 that._logger.log("internalerror", LOG_ID + "(conferenceCall) : ", error);
                 return reject(error);
@@ -610,4 +612,4 @@ class RESTTelephony {
 let restService = null;
 
 export {RESTTelephony};
-module.exports.RESTTelephony = RESTTelephony;
+// module.exports.RESTTelephony = RESTTelephony;

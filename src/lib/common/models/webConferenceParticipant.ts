@@ -1,4 +1,4 @@
-import { Contact } from "./Contact";
+import { Contact } from "./Contact.js";
 
 /**
  * @module

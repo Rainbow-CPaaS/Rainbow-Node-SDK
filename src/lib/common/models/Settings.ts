@@ -1,6 +1,6 @@
 "use strict";
 export {};
-import {PresenceLevel, PresenceRainbow} from "./PresenceRainbow";
+import {PresenceLevel, PresenceRainbow} from "./PresenceRainbow.js";
 
 
 /**
@@ -56,7 +56,7 @@ class Settings {
     }
 }
 
-module.exports = {
-    Settings: Settings
-};
+//// module.exports = {
+//    Settings: Settings
+//};
 export {Settings};

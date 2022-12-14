@@ -3,10 +3,10 @@ import construct = Reflect.construct;
 
 export {};
 
-import {ErrorManager} from "./ErrorManager";
+import {ErrorManager} from "./ErrorManager.js";
 import {EventEmitter} from "events";
-import {Core} from "../Core";
-import {Logger} from "./Logger";
+import {Core} from "../Core.js";
+import {Logger} from "./Logger.js";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
@@ -1642,5 +1642,5 @@ class Events {
     }
 
 }
-module.exports.Events = Events;
+// module.exports.Events = Events;
 export {Events};

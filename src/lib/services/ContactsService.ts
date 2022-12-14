@@ -1,23 +1,24 @@
 "use strict";
-import {InvitationsService} from "./InvitationsService";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {XMPPUTils} from "../common/XMPPUtils";
-import {ErrorManager} from "../common/ErrorManager";
-import {Contact, NameUpdatePrio} from "../common/models/Contact";
-import * as util from 'util';
-import * as md5 from 'md5';
-import * as path from 'path';
-import {isStarted, logEntryExit} from "../common/Utils";
-import {PresenceService} from "./PresenceService";
+import {InvitationsService} from "./InvitationsService.js";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {XMPPUTils} from "../common/XMPPUtils.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Contact, NameUpdatePrio} from "../common/models/Contact.js";
+import {default as util} from 'util';
+import {default as md5} from 'md5';
+import {default as path} from 'path';
+import {isStarted, logEntryExit} from "../common/Utils.js";
+import {PresenceService} from "./PresenceService.js";
 import {EventEmitter} from "events";
-import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
-import {Invitation} from "../common/models/Invitation";
-import {GenericService} from "./GenericService";
-let AsyncLock = require('async-lock');
+import {Logger} from "../common/Logger.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow.js";
+import {Invitation} from "../common/models/Invitation.js";
+import {GenericService} from "./GenericService.js";
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
 export {};
 
@@ -2729,5 +2730,5 @@ class ContactsService extends GenericService {
     //endregion Events
 }
 
-module.exports.Contacts = ContactsService;
+// module.exports.Contacts = ContactsService;
 export {ContactsService as ContactsService};

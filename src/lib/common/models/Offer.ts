@@ -150,8 +150,8 @@ class OfferManager {
 
 let offerManager = new OfferManager();
 
-module.exports = {
+/*module.exports = {
     'Offer': Offer,
     'offerManager': offerManager
-};
+}; // */
 export {Offer, offerManager};

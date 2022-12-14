@@ -94,5 +94,5 @@ class ConferencePhoneNumber {
     }
 }
 
-module.exports.ConferencePhoneNumber = ConferencePhoneNumber;
+// module.exports.ConferencePhoneNumber = ConferencePhoneNumber;
 export {ConferencePhoneNumber};

@@ -1,6 +1,6 @@
 "use strict";
 
-import {MEDIATYPE} from "../../connection/RESTService";
+import {MEDIATYPE} from "../../connection/RESTService.js";
 
 export {};
 
@@ -235,5 +235,5 @@ class Conference {
 	}
 }
 
-module.exports.Conference = Conference;
+// module.exports.Conference = Conference;
 export {Conference};

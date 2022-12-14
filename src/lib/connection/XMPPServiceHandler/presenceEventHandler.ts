@@ -1,17 +1,18 @@
 "use strict";
-import {XMPPService, NameSpacesLabels} from "../XMPPService";
-import {XMPPUTils} from "../../common/XMPPUtils";
-import {logEntryExit} from "../../common/Utils";
-import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
-import {Contact} from "../../common/models/Contact";
-import {ContactsService} from "../../services/ContactsService";
-import {GenericHandler} from "./GenericHandler";
+import {XMPPService, NameSpacesLabels} from "../XMPPService.js";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
+import {logEntryExit} from "../../common/Utils.js";
+import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow.js";
+import {Contact} from "../../common/models/Contact.js";
+import {ContactsService} from "../../services/ContactsService.js";
+import {GenericHandler} from "./GenericHandler.js";
 
 export {};
 
-const xml = require("@xmpp/xml");
+//const xml = require("@xmpp/xml");
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/PRES - ";
 
@@ -287,5 +288,5 @@ class PresenceEventHandler extends GenericHandler {
 
 }
 
-module.exports.PresenceEventHandler = PresenceEventHandler;
+// module.exports.PresenceEventHandler = PresenceEventHandler;
 export {PresenceEventHandler};

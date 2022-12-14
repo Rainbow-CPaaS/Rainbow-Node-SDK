@@ -1,10 +1,10 @@
 "use strict";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 
 export {};
 
 
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager} from "../common/ErrorManager.js";
 
 const LOG_ID = "TRFPROMISEQUEUE - ";
 
@@ -130,4 +130,4 @@ class TransferPromiseQueue {
     }
 }
 
-module.exports = TransferPromiseQueue;
+// module.exports = TransferPromiseQueue;

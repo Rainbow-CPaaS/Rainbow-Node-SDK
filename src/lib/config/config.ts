@@ -246,7 +246,8 @@ let conf =  {
     }
 
 };
-module.exports.config = conf;
+/*module.exports.config = conf;
 //module.exports.OptionsType = OptionsType;
 module.exports.DataStoreType = DataStoreType;
+// */
 export {conf as config , DataStoreType};

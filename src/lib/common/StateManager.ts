@@ -1,11 +1,12 @@
 "use strict";
-import {TimeOutManager} from "./TimeOutManager";
+import {TimeOutManager} from "./TimeOutManager.js";
 
 export {};
 
 
-import {ErrorManager} from "./ErrorManager";
-const utils= require("./Utils");
+import {ErrorManager} from "./ErrorManager.js";
+//const utils= require("./Utils");
+import {default as utils} from "./Utils.js";
 
 enum SDKSTATUSENUM {
     "STARTED" = "started",
@@ -178,6 +179,6 @@ class StateManager {
 
 }
 
-module.exports.StateManager = StateManager;
-module.exports.SDKSTATUSTYPES = SDKSTATUSENUM;
+// module.exports.StateManager = StateManager;
+// module.exports.SDKSTATUSTYPES = SDKSTATUSENUM;
 export{StateManager, SDKSTATUSENUM};

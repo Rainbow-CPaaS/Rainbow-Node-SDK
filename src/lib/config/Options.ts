@@ -1,10 +1,10 @@
 "use strict";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 
 export {};
 
 //const config = require("./config");
-import {config, DataStoreType} from "./config";
+import {config, DataStoreType} from "./config.js";
 
 const LOG_ID = "OPTIONS - ";
 
@@ -525,5 +525,5 @@ class Options {
      */
 
 }
-module.exports.Options = Options;
+// module.exports.Options = Options;
 export {Options};

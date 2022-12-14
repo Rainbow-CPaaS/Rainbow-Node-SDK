@@ -1,16 +1,16 @@
 "use strict";
-import {GenericService} from "./GenericService";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {Offer, offerManager} from '../common/models/Offer' ;
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Offer, offerManager} from "../common/models/Offer.js" ;
 import {EventEmitter} from "events";
-import {isStarted, logEntryExit} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
+import {isStarted, logEntryExit} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {S2SService} from "./S2SService.js";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
@@ -585,5 +585,5 @@ class ProfilesService extends GenericService {
 
 }
 
-module.exports = {"ProfilesService" : ProfilesService, "FeaturesEnum" : FeaturesEnum } ;
+// module.exports = {"ProfilesService" : ProfilesService, "FeaturesEnum" : FeaturesEnum } ;
 export {ProfilesService , FeaturesEnum}

@@ -1,29 +1,30 @@
 "use strict";
-import {RESTService} from "../RESTService";
+import {RESTService} from "../RESTService.js";
 
 export {};
 
 
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
 
-import {Conversation} from "../../common/models/Conversation";
-import {Channel} from "../../common/models/Channel";
-import {isNullOrEmpty, logEntryExit} from "../../common/Utils";
-import {AlertMessage} from "../../common/models/AlertMessage";
-import {AlertMessageInfo} from "../../common/models/AlertMessage";
-import {NameSpacesLabels, XMPPService} from "../XMPPService";
-import {AlertsService} from "../../services/AlertsService";
+import {Conversation} from "../../common/models/Conversation.js";
+import {Channel} from "../../common/models/Channel.js";
+import {isNullOrEmpty, logEntryExit} from "../../common/Utils.js";
+import {AlertMessage} from "../../common/models/AlertMessage.js";
+import {AlertMessageInfo} from "../../common/models/AlertMessage.js";
+import {NameSpacesLabels, XMPPService} from "../XMPPService.js";
+import {AlertsService} from "../../services/AlertsService.js";
 import {Dictionary, IDictionary, KeyValuePair} from "ts-generic-collections-linq";
-import {Bubble} from "../../common/models/Bubble";
-import {GenericHandler} from "./GenericHandler";
+import {Bubble} from "../../common/models/Bubble.js";
+import {GenericHandler} from "./GenericHandler.js";
 
-const util = require('util');
+//const util = require('util');
+//const xml = require("@xmpp/xml");
 
-const xml = require("@xmpp/xml");
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
-const prettydata = require("../pretty-data").pd;
-
-const AsyncLock = require('async-lock');
+//const AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
 const LOG_ID = "XMPP/HNDL/ALERTS - ";
 
@@ -623,4 +624,4 @@ class AlertEventHandler extends GenericHandler {
 }
 
 export {AlertEventHandler};
-module.exports.NotificationEventHandler = AlertEventHandler;
+// module.exports.NotificationEventHandler = AlertEventHandler;

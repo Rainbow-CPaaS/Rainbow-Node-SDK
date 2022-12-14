@@ -2,27 +2,42 @@
 export {};
 
 
-const {xml, jid, Client} = require('@xmpp/client-core');
+//const {xml, jid, Client} = require('@xmpp/client-core');
+import {xml, jid, Client} from '@xmpp/client-core';
 
-const _reconnect = require('@xmpp/reconnect');
-const _websocket = require('@xmpp/websocket');
-const _tcp = require('@xmpp/tcp');
-const _tls = require('@xmpp/tls');
-const _middleware = require('@xmpp/middleware');
-const _streamFeatures = require('@xmpp/stream-features');
-const _iqCaller = require('@xmpp/iq/caller');
-const _iqCallee = require('@xmpp/iq/callee');
-const _resolve = require('@xmpp/resolve');
+//const _reconnect = require('@xmpp/reconnect');
+import {default as _reconnect} from '@xmpp/reconnect';
+//const _websocket = require('@xmpp/websocket');
+import {default as _websocket} from '@xmpp/websocket';
+//const _tcp = require('@xmpp/tcp');
+import {default as _tcp} from '@xmpp/tcp';
+//const _tls = require('@xmpp/tls');
+import _tls from '@xmpp/tls';
+//const _middleware = require('@xmpp/middleware');
+import {default as _middleware} from '@xmpp/middleware';
+//const _streamFeatures = require('@xmpp/stream-features');
+import {default as _streamFeatures} from '@xmpp/stream-features';
+//const _iqCaller = require('@xmpp/iq/caller');
+import {default as _iqCaller} from '@xmpp/iq/caller.js';
+//const _iqCallee = require('@xmpp/iq/callee');
+import {default as _iqCallee} from '@xmpp/iq/callee.js';
+//const _resolve = require('@xmpp/resolve');
+import {default as _resolve} from '@xmpp/resolve';
 
 // Stream features - order matters and define priority
-const _starttls = require('@xmpp/starttls/client');
-const _sasl = require('@xmpp/sasl');
-const _resourceBinding = require('@xmpp/resource-binding');
-const _sessionEstablishment = require('@xmpp/session-establishment');
+//const _starttls = require('@xmpp/starttls/client');
+import {default as _starttls} from '@xmpp/starttls/client.js';
+//const _sasl = require('@xmpp/sasl');
+import {default as  _sasl} from '@xmpp/sasl';
+//const _resourceBinding = require('@xmpp/resource-binding');
+import {default as _resourceBinding} from '@xmpp/resource-binding';
+//const _sessionEstablishment = require('@xmpp/session-establishment');
+import {default as _sessionEstablishment} from '@xmpp/session-establishment';
 
 // SASL mechanisms - order matters and define priority
 //const scramsha1 = require('@xmpp/sasl-scram-sha-1');
-const plain = require('@xmpp/sasl-plain');
+//const plain = require('@xmpp/sasl-plain');
+import {default as plain} from '@xmpp/sasl-plain';
 //const anonymous = require('@xmpp/sasl-anonymous');
 
 
@@ -99,6 +114,8 @@ function client(options = {}) {
 
 
 
-module.exports.xml = xml;
-module.exports.jid = jid;
-module.exports.client = client;
+// module.exports.xml = xml;
+// module.exports.jid = jid;
+// module.exports.client = client;
+
+export {client, jid, xml};

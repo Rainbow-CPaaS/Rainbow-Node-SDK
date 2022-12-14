@@ -1,13 +1,14 @@
 'use strict'
-import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "../Utils";
+import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "../Utils.js";
 import {List} from "ts-generic-collections-linq";
-import {XMPPUTils} from "../XMPPUtils";
+import {XMPPUTils} from "../XMPPUtils.js";
 
 export {};
 
-let AsyncLock = require('async-lock');
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
-/* module.exports = function () {
+/* // module.exports = function () {
     return 'Hello, world! it is queue!';
 }; // */
 
@@ -273,4 +274,6 @@ function getXmppQueue(_logger, timeBetweenXmppRequests) {
 */
 }
 
-module.exports.getXmppQueue = getXmppQueue;
+// module.exports.getXmppQueue = getXmppQueue;
+
+export {getXmppQueue};

@@ -1,23 +1,23 @@
 "use strict";
 
-import {GenericService} from "./GenericService";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
-import {logEntryExit, setTimeoutPromised} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
+import {logEntryExit, setTimeoutPromised} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import {CallLogEventHandler} from "../connection/XMPPServiceHandler/calllogEventHandler.js";
 //import {setFlagsFromString} from "v8";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
 import {EventEmitter} from "events";
-import {isStarted} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {ContactsService} from "./ContactsService";
-import {ProfilesService} from "./ProfilesService";
-import {TelephonyService} from "./TelephonyService";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
+import {isStarted} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {ContactsService} from "./ContactsService.js";
+import {ProfilesService} from "./ProfilesService.js";
+import {TelephonyService} from "./TelephonyService.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 
@@ -503,5 +503,5 @@ function CallLogsBean() : ICallLogsBean {
 
 }
 
-module.exports.CallLogService = CallLogService;
+// module.exports.CallLogService = CallLogService;
 export {CallLogService};

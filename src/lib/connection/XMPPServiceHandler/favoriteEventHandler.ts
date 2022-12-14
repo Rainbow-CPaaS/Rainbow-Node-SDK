@@ -1,21 +1,22 @@
 "use strict";
-import {RESTService} from "../RESTService";
+import {RESTService} from "../RESTService.js";
 
 export {};
 
 
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
 
-import {Conversation} from "../../common/models/Conversation";
-import {Channel} from "../../common/models/Channel";
-import {logEntryExit} from "../../common/Utils";
-import {GenericHandler} from "./GenericHandler";
+import {Conversation} from "../../common/models/Conversation.js";
+import {Channel} from "../../common/models/Channel.js";
+import {logEntryExit} from "../../common/Utils.js";
+import {GenericHandler} from "./GenericHandler.js";
 
-const util = require('util');
+//const util = require('util');
 
-const xml = require("@xmpp/xml");
+//const xml = require("@xmpp/xml");
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/FAV - ";
 
@@ -221,4 +222,4 @@ class FavoriteEventHandler extends GenericHandler {
 }
 
 export {FavoriteEventHandler};
-module.exports.FavoriteEventHandler = FavoriteEventHandler;
+// module.exports.FavoriteEventHandler = FavoriteEventHandler;

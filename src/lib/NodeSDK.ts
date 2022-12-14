@@ -1,36 +1,36 @@
 "use strict";
 
-import {Core} from "./Core";
-import {Appreciation} from "./common/models/Channel";
-import {ErrorManager} from "./common/ErrorManager";
-import {setTimeoutPromised} from "./common/Utils";
-import {ImsService} from "./services/ImsService";
-import {ChannelsService} from "./services/ChannelsService";
-import {S2SService} from "./services/S2SService";
-import {InvitationsService} from "./services/InvitationsService";
-import {FavoritesService} from "./services/FavoritesService";
-import {CallLogService} from "./services/CallLogService";
-import {TelephonyService} from "./services/TelephonyService";
-import {SDKSTATUSENUM} from "./common/StateManager";
-import {SettingsService} from "./services/SettingsService";
-import {RESTService} from "./connection/RESTService";
-import {AdminService} from "./services/AdminService";
-import {FileStorageService} from "./services/FileStorageService";
-import {FileServerService} from "./services/FileServerService";
-import {Events} from "./common/Events";
-import {GroupsService} from "./services/GroupsService";
-import {BubblesService} from "./services/BubblesService";
-import {PresenceService} from "./services/PresenceService";
-import {ConversationsService} from "./services/ConversationsService";
-import {ContactsService} from "./services/ContactsService";
-import {AlertsService} from "./services/AlertsService";
-import {ProfilesService} from "./services/ProfilesService";
-import {DataStoreType} from "./config/config";
-import {WebinarsService} from "./services/WebinarsService";
-import {RBVoiceService} from "./services/RBVoiceService";
-import {Logger} from "./common/Logger";
+import {Core} from "./Core.js";
+import {Appreciation} from "./common/models/Channel.js";
+import {ErrorManager} from "./common/ErrorManager.js";
+import {setTimeoutPromised} from "./common/Utils.js";
+import {ImsService} from "./services/ImsService.js";
+import {ChannelsService} from "./services/ChannelsService.js";
+import {S2SService} from "./services/S2SService.js";
+import {InvitationsService} from "./services/InvitationsService.js";
+import {FavoritesService} from "./services/FavoritesService.js";
+import {CallLogService} from "./services/CallLogService.js";
+import {TelephonyService} from "./services/TelephonyService.js";
+import {SDKSTATUSENUM} from "./common/StateManager.js";
+import {SettingsService} from "./services/SettingsService.js";
+import {RESTService} from "./connection/RESTService.js";
+import {AdminService} from "./services/AdminService.js";
+import {FileStorageService} from "./services/FileStorageService.js";
+import {FileServerService} from "./services/FileServerService.js";
+import {Events} from "./common/Events.js";
+import {GroupsService} from "./services/GroupsService.js";
+import {BubblesService} from "./services/BubblesService.js";
+import {PresenceService} from "./services/PresenceService.js";
+import {ConversationsService} from "./services/ConversationsService.js";
+import {ContactsService} from "./services/ContactsService.js";
+import {AlertsService} from "./services/AlertsService.js";
+import {ProfilesService} from "./services/ProfilesService.js";
+import {DataStoreType} from "./config/config.js";
+import {WebinarsService} from "./services/WebinarsService.js";
+import {RBVoiceService} from "./services/RBVoiceService.js";
+import {Logger} from "./common/Logger.js";
 import {inspect} from "util";
-import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
+import {HTTPoverXMPP} from "./services/HTTPoverXMPPService.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -1042,8 +1042,8 @@ class NodeSDK {
 
 }
 
-module.exports = NodeSDK;
-module.exports.NodeSDK = NodeSDK;
-module.exports.default = NodeSDK;
+// module.exports = NodeSDK;
+// module.exports.NodeSDK = NodeSDK;
+// module.exports.default = NodeSDK;
 export default NodeSDK;
 export { NodeSDK as NodeSDK}; //, OptionsType};

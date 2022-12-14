@@ -24,5 +24,5 @@ class GeoLoc {
     }
 }
 
-module.exports.GeoLoc = GeoLoc;
+// module.exports.GeoLoc = GeoLoc;
 export {GeoLoc};

@@ -1,20 +1,20 @@
 "use strict";
-import {Logger} from "../common/Logger";
+import {Logger} from "../common/Logger.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {logEntryExit} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
-import { Favorite } from '../common/models/Favorite';
-import {ErrorManager} from "../common/ErrorManager";
-import {isStarted} from "../common/Utils";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {logEntryExit} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import {FavoriteEventHandler} from "../connection/XMPPServiceHandler/favoriteEventHandler.js";
+import { Favorite } from "../common/models/Favorite.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {isStarted} from "../common/Utils.js";
 import {EventEmitter} from "events";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
-import {GenericService} from "./GenericService";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
+import {GenericService} from "./GenericService.js";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -510,5 +510,5 @@ class FavoritesService extends GenericService{
     //endregion Events
 }
 
-module.exports.FavoritesService = FavoritesService;
+// module.exports.FavoritesService = FavoritesService;
 export {FavoritesService};

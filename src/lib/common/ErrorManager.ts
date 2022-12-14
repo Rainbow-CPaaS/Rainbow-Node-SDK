@@ -153,5 +153,5 @@ class ErrorManager {
 
 }
 
-export {ErrorManager, code};
-module.exports.ErrorManager = ErrorManager;
+export { ErrorManager, code};
+//// module.exports.ErrorManager = ErrorManager;

@@ -4,13 +4,13 @@ import EventEmitter = NodeJS.EventEmitter;
 export {};
 
 
-const winston = require("winston");
-const DailyRotateFile = require('winston-daily-rotate-file');
-const fs = require("fs");
-const colors = require("colors/safe");
-const util = require("util");
-const stripAnsi = require('strip-ansi');
-const Cryptr = require('cryptr');
+import {default as winston} from "winston";
+import DailyRotateFile from 'winston-daily-rotate-file';
+import {default as fs} from "fs";
+import {default as colors} from "colors/safe.js";
+import {default as util} from"util";
+import stripAnsi from 'strip-ansi';
+import {default as Cryptr} from 'cryptr';
 //import stripAnsi from 'strip-ansi';
 /* let stripAnsi;
 (async () => {
@@ -20,7 +20,7 @@ const Cryptr = require('cryptr');
 // */
 
 //let defaultConfig = require("../config/config");
-import {config as defaultConfig} from "../config/config";
+import {config as defaultConfig} from "../config/config.js";
 import {from} from "rxjs";
 
 const LOG_ID = "LOGS - ";
@@ -355,6 +355,7 @@ class Logger {
         if (enableConsoleLog && enableFileLog) {
 
 
+            // @ts-ignore
             this._winston = winston.createLogger({
 
                 format: winston.format.combine(
@@ -373,16 +374,16 @@ class Logger {
                         level: self.logLevel
                     }),
                     new (DailyRotateFile)({
-                        name: 'logs',
+                        //name: 'logs',
                         filename: `${logDir}/%DATE%-rainbowsdk${customFileName}.log`,
                         maxSize: maxSize,
                         zippedArchive: zippedArchive,
-                        timestamp: tsFormat,
+                        //timestamp: tsFormat,
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
-                        prepend: true,
+                        //prepend: true,
                         level: self.logLevel
-                    })
+                    } )
                 ]
             });
 
@@ -428,14 +429,14 @@ class Logger {
 
                 transports: [
                     new (DailyRotateFile)({
-                        name: 'logs',
+                        //name: 'logs',
                         filename: `${logDir}/%DATE%-rainbowsdk${customFileName}.log`,
                         maxSize: maxSize,
                         zippedArchive: zippedArchive,
-                        timestamp: tsFormat,
+                        //timestamp: tsFormat,
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
-                        prepend: true,
+                        //prepend: true,
                         level: self.logLevel
                     })
         ]
@@ -525,5 +526,5 @@ class Logger {
     argumentsToString = this.argumentsToStringFull;
 }
 
-module.exports.Logger = Logger;
+// module.exports.Logger = Logger;
 export {Logger};

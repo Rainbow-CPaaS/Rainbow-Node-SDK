@@ -1,16 +1,16 @@
 "use strict";
-import {GenericService} from "./GenericService";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {isStarted, logEntryExit} from "../common/Utils";
-import {Logger} from "../common/Logger";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {isStarted, logEntryExit} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
 import {EventEmitter} from "events";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
 
 const LOG_ID = "GROUPS/SVCE - ";
 
@@ -825,5 +825,5 @@ const LOG_ID = "GROUPS/SVCE - ";
     
  }
 
- module.exports.GroupsService = GroupsService;
+ // module.exports.GroupsService = GroupsService;
  export {GroupsService as GroupsService} ;

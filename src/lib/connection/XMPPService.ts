@@ -1,22 +1,31 @@
 "use strict";
 
-import * as util from "util";
-import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
-import * as PubSub from "pubsub-js";
-import {Conversation} from "../common/models/Conversation";
-import {XMPPUTils} from "../common/XMPPUtils";
+import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils.js";
+import {default as PubSub} from "pubsub-js";
+import {Conversation} from "../common/models/Conversation.js";
+import {XMPPUTils} from "../common/XMPPUtils.js";
 
-import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
-import {XmppClient} from "../common/XmppQueue/XmppClient";
-import { AlertMessage } from "../common/models/AlertMessage";
-import {DataStoreType} from "../config/config";
-import {GenericService} from "../services/GenericService";
+import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler.js";
+import {XmppClient} from "../common/XmppQueue/XmppClient.js";
+import { AlertMessage } from "../common/models/AlertMessage.js";
+import {DataStoreType} from "../config/config.js";
+import {GenericService} from "../services/GenericService.js";
 import {domainToASCII} from "url";
-import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
+import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler.js";
 
-const packageVersion = require("../../package");
-const url = require('url');
-const prettydata = require("./pretty-data").pd;
+//const packageVersion = require("../../package");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
+
+//const url = require('url');
+import url from 'url';
+//const prettydata = require("./pretty-data").pd;
+import {pd as prettydata} from "./pretty-data.js";
+
+import {default as WSObjMock} from "mock-socket";
+import {default as WSObj} from "ws";
 
 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
 let ws_options = null;
@@ -25,9 +34,11 @@ let ws_options = null;
 let isInTest = typeof global.it === "function";
 let WS;
 if ( isInTest ) {
-    WS = require("mock-socket").WebSocket;
+    //WS = require("mock-socket").WebSocket;
+    WS = WSObjMock.WebSocket;
 } else {
-    WS = require("ws");
+    //WS = require("ws");
+    WS = WSObj.WebSocket;
 }
 
 class XmppWebSocket extends WS {
@@ -38,12 +49,17 @@ class XmppWebSocket extends WS {
 // @ts-ignore
 global.WebSocket = XmppWebSocket;
 
-const Client = require("../common/XmppQueue/XmppClient").XmppClient;
-const xml = require("@xmpp/xml");
-let backoff = require("backoff");
+//const Client = require("../common/XmppQueue/XmppClient").XmppClient;
+import {XmppClient as Client} from "../common/XmppQueue/XmppClient.js";
+//const xml = require("@xmpp/xml");
+import {default as xml} from "@xmpp/xml";
+//let backoff = require("backoff");
+import {default as backoff} from "backoff";
 //const setTimeout = require("timers").setTimeout;
 
-const HttpsProxyAgent = require("https-proxy-agent");
+//const HttpsProxyAgent = require("https-proxy-agent");
+import HttpsProxyAgent from "https-proxy-agent";
+import createHttpsProxyAgent from "https-proxy-agent";
 
 // import {URL} from "url";
 
@@ -445,13 +461,14 @@ class XMPPService extends GenericService {
 
         let options = {agent: null};
         //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
-        let opt = url.parse(that.proxy.proxyURL);
+        let opt :any = url.parse(that.proxy.proxyURL);
         if (that.proxy.isProxyConfigured) {
             if (that.proxy.secureProtocol) {
                 opt.secureProxy = true;
             }
             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-            options.agent = new HttpsProxyAgent(opt);
+            //options.agent = new HttpsProxyAgent(opt);
+            options.agent = createHttpsProxyAgent(opt);
             //options.agent = new HttpsProxyAgent(that.proxy.proxyURL);
             ws_options = options;
         }
@@ -2963,6 +2980,6 @@ WHERE  { ?x dc:title ?title .
 }
 
 export { XMPPService, NameSpacesLabels };
-module.exports.XMPPService = XMPPService;
-module.exports.NameSpacesLabels = NameSpacesLabels;
+// module.exports.XMPPService = XMPPService;
+// module.exports.NameSpacesLabels = NameSpacesLabels;
 

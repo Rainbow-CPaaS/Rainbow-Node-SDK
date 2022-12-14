@@ -1,13 +1,14 @@
 "use strict";
-import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
+import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils.js";
 import {Dictionary, KeyValuePair, List} from "ts-generic-collections-linq";
-import {XMPPUTils} from "./XMPPUtils";
+import {XMPPUTils} from "./XMPPUtils.js";
 import {type} from "os";
 import {isFunction} from "util";
 
 export {};
 
-let AsyncLock = require('async-lock');
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
 let LOG_ID = 'TIMEOUTQUEUE';
 
@@ -445,6 +446,6 @@ class TimeOutManager {
     }
 }
 
-module.exports.TimeOutManager = TimeOutManager;
+//module.exports.TimeOutManager = TimeOutManager;
 
 export {TimeOutManager};

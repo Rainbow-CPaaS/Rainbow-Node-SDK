@@ -1,25 +1,25 @@
 "use strict";
 
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import * as deepEqual from "deep-equal";
-import {GuestParams, MEDIATYPE} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
-import {Bubble} from "../common/models/Bubble";
+import {default as deepEqual} from "deep-equal";
+import {GuestParams, MEDIATYPE} from "../connection/RESTService.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {Bubble} from "../common/models/Bubble.js";
 import {EventEmitter} from "events";
-import {createPromiseQueue} from "../common/promiseQueue";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {ContactsService} from "./ContactsService";
-import {ProfilesService} from "./ProfilesService";
-import {Core} from "../Core";
-import {PresenceService} from "./PresenceService";
-import {Contact} from "../common/models/Contact";
-import {ConferenceSession, Participant} from "../common/models/ConferenceSession";
-import {ConferencePassCodes} from "../common/models/ConferencePassCodes";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
-import {Conference} from "../common/models/Conference";
-import {BubblesManager} from "../common/BubblesManager";
-import {GenericService} from "./GenericService";
+import {createPromiseQueue} from "../common/promiseQueue.js";
+import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {ContactsService} from "./ContactsService.js";
+import {ProfilesService} from "./ProfilesService.js";
+import {Core} from "../Core.js";
+import {PresenceService} from "./PresenceService.js";
+import {Contact} from "../common/models/Contact.js";
+import {ConferenceSession, Participant} from "../common/models/ConferenceSession.js";
+import {ConferencePassCodes} from "../common/models/ConferencePassCodes.js";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
+import {Conference} from "../common/models/Conference.js";
+import {BubblesManager} from "../common/BubblesManager.js";
+import {GenericService} from "./GenericService.js";
 
 export {};
 
@@ -5590,6 +5590,6 @@ class Bubbles extends GenericService {
 
 }
 
-module.exports.BubblesService = Bubbles;
+// module.exports.BubblesService = Bubbles;
 export {Bubbles as BubblesService};
 

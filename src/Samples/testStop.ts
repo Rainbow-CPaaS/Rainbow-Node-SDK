@@ -1,5 +1,5 @@
-import {NodeSDK as RainbowSDK} from "../index";
-import {DataStoreType} from "../lib/config/config";
+import {NodeSDK as RainbowSDK} from "../index.js";
+import {DataStoreType} from "../lib/config/config.js";
 
 let options: any = {
     "rainbow": {

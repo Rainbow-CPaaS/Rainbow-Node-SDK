@@ -1,10 +1,11 @@
 "use strict";
-import {Bubble} from "./Bubble";
+import {Bubble} from "./Bubble.js";
 
 export {};
-const AsyncLock = require('async-lock');
+//const AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
+import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
 
 /**
  * @class
@@ -323,6 +324,6 @@ class AlertDevicesData {
     //endregion
 }
 
-module.exports.AlertDevice =  AlertDevice;
-module.exports.AlertDevicesData = AlertDevicesData;
+// module.exports.AlertDevice =  AlertDevice;
+// module.exports.AlertDevicesData = AlertDevicesData;
 export {AlertDevice, AlertDevicesData};

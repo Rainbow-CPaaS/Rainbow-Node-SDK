@@ -1,24 +1,39 @@
 "use strict";
 
 //let unirest = require("unirest");
-import {logEntryExit, pause} from "../common/Utils";
-import {HttpManager, RequestForQueue} from "./HttpManager";
-import * as util from "util";
+import {logEntryExit, pause} from "../common/Utils.js";
+import {HttpManager, RequestForQueue} from "./HttpManager.js";
+import {default as util} from "util";
 
 
-require('http').globalAgent.maxSockets = 999;
+//require('http').globalAgent.maxSockets = 999;
+import {default as http} from 'http';
+http.globalAgent.maxSockets = 999;
 
-const Request = require("request");
+//const Request = require("request");
+import {default as Request} from "request";
 //const Request = require("http").request;
-const packageVersion = require("../../package.json");
+//const packageVersion = require("../../package.json");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
 
 //let http = require('http');
-const urlParse = require("url").parse;
-const EventEmitter = require("events").EventEmitter;
-const humanize = require("humanize-number");
-const chalk = require("chalk");
+//const urlParse = require("url").parse;
+import {default as urlObj} from "url";
+let urlParse = urlObj.parse;
+//const EventEmitter = require("events").EventEmitter;
+import {default as EventEmitterObj} from "events";
+let EventEmitter = EventEmitterObj.EventEmitter;
 
-const debugHttp = require("debug-http");
+//const humanize = require("humanize-number");
+import {default as humanize} from "humanize-number";
+//const chalk = require("chalk");
+import {default as chalk} from "chalk";
+
+//const debugHttp = require("debug-http");
+import {default as debugHttp} from "debug-http";
 
 const LOG_ID = "HTTP - ";
 
@@ -1487,4 +1502,4 @@ safeJsonParse(str) {
 }
 
 export {HTTPService};
-module.exports.HTTPService = HTTPService;
+// module.exports.HTTPService = HTTPService;

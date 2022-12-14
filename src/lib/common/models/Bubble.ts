@@ -1,7 +1,7 @@
 "use strict";
 
-import { Contact } from "./Contact";
-import {orderByFilter} from "../Utils";
+import { Contact } from "./Contact.js";
+import {orderByFilter} from "../Utils.js";
 import {constants} from "http2";
 
 export{};
@@ -636,4 +636,4 @@ class Bubble {
 
 export {Bubble, InitialPresence};
 export default {Bubble, InitialPresence};
-module.exports = {Bubble, InitialPresence};
+// module.exports = {Bubble, InitialPresence};

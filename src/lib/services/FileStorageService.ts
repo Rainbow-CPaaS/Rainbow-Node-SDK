@@ -3,29 +3,29 @@ import {createWriteStream} from "fs";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import * as fileapi from "file-api";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {default as fileapi} from "file-api";
 import {Observable} from 'rxjs';
-import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
-import {FileDescriptor, fileDescriptorFactory} from "../common/models/FileDescriptor";
-import {Conversation} from "../common/models/Conversation";
-import {ErrorManager} from "../common/ErrorManager";
-import * as url from 'url';
-import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils";
+import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer.js";
+import {FileDescriptor, fileDescriptorFactory} from "../common/models/FileDescriptor.js";
+import {Conversation} from "../common/models/Conversation.js";
+import {ErrorManager} from "../common/ErrorManager.js";
+import {default as url} from 'url';
+import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils.js";
 import {EventEmitter} from "events";
-import {isStarted} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {FileServerService} from "./FileServerService";
-import {ConversationsService} from "./ConversationsService";
-import {ContactsService} from "./ContactsService";
-import {S2SService} from "./S2SService";
-import {Core} from "../Core";
+import {isStarted} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {FileServerService} from "./FileServerService.js";
+import {ConversationsService} from "./ConversationsService.js";
+import {ContactsService} from "./ContactsService.js";
+import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
 import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
-import {GenericService} from "./GenericService";
+import {GenericService} from "./GenericService.js";
 
-import * as mime from "mime";
+import {default as mime} from "mime";
 if ( ! mime.lookup) mime.lookup = mime.getType;
 
 const LOG_ID = "FileStorage/SVCE - ";
@@ -2308,5 +2308,5 @@ class FileStorage extends GenericService{
 
 }
 
-module.exports.FileStorageService = FileStorage;
+// module.exports.FileStorageService = FileStorage;
 export {FileStorage as FileStorageService};

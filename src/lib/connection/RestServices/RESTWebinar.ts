@@ -1,10 +1,10 @@
 'use strict';
 
-import {addParamToUrl, cleanEmptyMembersFromObject, logEntryExit} from "../../common/Utils";
-import {GenericRESTService} from "../GenericRESTService";
+import {addParamToUrl, cleanEmptyMembersFromObject, logEntryExit} from "../../common/Utils.js";
+import {GenericRESTService} from "../GenericRESTService.js";
 
-const ErrorCase = require('../../common/ErrorManager');
-const util = require('util');
+// const ErrorCase = require('../../common/ErrorManager');
+//const util = require('util');
 const LOG_ID = "REST/WEBINAR - ";
 
 @logEntryExit(LOG_ID)
@@ -293,7 +293,7 @@ class RESTWebinar extends GenericRESTService{
 let restService = null;
 
 export {RESTWebinar};
-module.exports.RESTWebinar = RESTWebinar;
+// module.exports.RESTWebinar = RESTWebinar;
 
 
 

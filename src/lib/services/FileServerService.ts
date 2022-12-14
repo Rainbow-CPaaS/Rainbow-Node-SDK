@@ -3,25 +3,25 @@ import {Observable, Subscriber} from "rxjs";
 
 export {};
 
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
-import * as  crypto from "crypto";
-import * as URL from "url";
-import * as fs from "fs";
+import {XMPPService} from "../connection/XMPPService.js";
+import {RESTService} from "../connection/RESTService.js";
+import {default as  crypto} from "crypto";
+import {default as URL} from "url";
+import {default as fs} from "fs";
 //const TransferPromiseQueue = require("./TransferPromiseQueue");
-import {createPromiseQueue} from "../common/promiseQueue";
-import {Deferred, logEntryExit, pause} from "../common/Utils";
-import {ErrorManager} from "../common/ErrorManager";
+import {createPromiseQueue} from "../common/promiseQueue.js";
+import {Deferred, logEntryExit, pause} from "../common/Utils.js";
+import {ErrorManager} from "../common/ErrorManager.js";
 //const blobUtil = require("blob-util");
 //const Blob = require("blob");
-import {isStarted} from "../common/Utils";
-import {Logger} from "../common/Logger";
-import {FileStorageService} from "./FileStorageService";
-import {S2SService} from "./S2SService";
+import {isStarted} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {FileStorageService} from "./FileStorageService.js";
+import {S2SService} from "./S2SService.js";
 import {EventEmitter} from "events";
-import {Core} from "../Core";
-import {FileDescriptor} from "../common/models/FileDescriptor";
-import {GenericService} from "./GenericService";
+import {Core} from "../Core.js";
+import {FileDescriptor} from "../common/models/FileDescriptor.js";
+import {GenericService} from "./GenericService.js";
 
 const LOG_ID = "FileServer/SVCE - ";
 
@@ -920,5 +920,5 @@ class FileServer extends GenericService{
     }
 }
 
-module.exports.FileServerService = FileServer;
+// module.exports.FileServerService = FileServer;
 export {FileServer as FileServerService};

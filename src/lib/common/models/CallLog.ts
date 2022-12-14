@@ -54,10 +54,9 @@ function CallLog(id, contact, state, duration, type?, read?, date?, direction?, 
     // this.isWebRTCAudioCall = false;
 }
 
-CallLog.create = function (id, contact, state, duration, type, read, date, direction, callSubject, isLatestCall) {
-    let callLog = new CallLog(id, contact, state, duration, type, read, date, direction, callSubject, isLatestCall);
-    return callLog;
-};
+function create (id, contact, state, duration, type, read, date, direction, callSubject, isLatestCall) {
+    return new CallLog(id, contact, state, duration, type, read, date, direction, callSubject, isLatestCall);
+}
 
 CallLog.getNames = function (callLog) {
     let result = {
@@ -153,5 +152,6 @@ CallLog.Type = {
 };
 
 
-module.exports = CallLog;
+// module.exports = CallLog;
 
+export {CallLog, create};

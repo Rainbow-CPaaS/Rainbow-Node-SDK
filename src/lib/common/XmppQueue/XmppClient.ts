@@ -1,8 +1,8 @@
 'use strict';
 //import Element from "ltx";
-import {NameSpacesLabels} from "../../connection/XMPPService";
-import {DataStoreType} from "../../config/config";
-import {Deferred, stackTrace} from "../Utils";
+import {NameSpacesLabels} from "../../connection/XMPPService.js";
+import {DataStoreType} from "../../config/config.js";
+import {Deferred, stackTrace} from "../Utils.js";
 
 export {};
 
@@ -11,26 +11,34 @@ export {};
 const Client = require('./lib/Client')
 const {xml, jid} = require('@xmpp/client-core')
 
-module.exports.Client = Client
-module.exports.xml = xml
-module.exports.jid = jid
+// module.exports.Client = Client
+// module.exports.xml = xml
+// module.exports.jid = jid
 
  */
 
 //let client = require("@xmpp/client").client;
-let client = require("./XmppClientWrapper").client;
-let XmppQueue = require("./XmppQueue");
-let utils = require("../Utils");
+//let client = require("./XmppClientWrapper").client;
+//import * as clientObj from "./XmppClientWrapper.js";
+import { client } from "./XmppClientWrapper.js";
+//let client : any = clientObj.client;
+//let XmppQueue = require("./XmppQueue");
+import {getXmppQueue as getXmppQueue} from "./XmppQueue.js";
+import {default as utils} from "../Utils.js";
 
-const _sasl = require('@xmpp/sasl');
-const _middleware = require('@xmpp/middleware');
-const _streamFeatures = require('@xmpp/stream-features');
-const plain = require('@xmpp/sasl-plain');
-const xml = require("@xmpp/xml");
+//const _sasl = require('@xmpp/sasl');
+//import {default as _sasl} from '@xmpp/sasl';
+//const _middleware = require('@xmpp/middleware');
+//const _streamFeatures = require('@xmpp/stream-features');
+//const plain = require('@xmpp/sasl-plain');
+//const xml = require("@xmpp/xml");
+import xml from "@xmpp/xml";
 //const debug = require("@xmpp/debug");
-const xml2js = require('xml2js');
+//const xml2js = require('xml2js');
+import {default as xml2js} from 'xml2js';
 
-const Element = require('ltx').Element;
+import {default as ElementObj} from 'ltx';
+const Element = ElementObj.Element;
 
 let LOG_ID='XMPPCLIENT';
 
@@ -71,7 +79,7 @@ class XmppClient  {
         this.iqGetEventWaiting = {};
         this.client = client(...args);
         //debug(this.client, true);
-        this.socket = client.socket;
+        this.socket = this.client.socket;
         
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60; // */
@@ -91,7 +99,7 @@ class XmppClient  {
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
-        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests);
+        that.xmppQueue = getXmppQueue(_logger, that.timeBetweenXmppRequests);
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
@@ -764,7 +772,7 @@ Element.prototype.attr = function (attrName) {
     return this.attrs[attrName];
 };
 
-module.exports.getXmppClient = getXmppClient;
-module.exports.XmppClient = XmppClient;
+// module.exports.getXmppClient = getXmppClient;
+// module.exports.XmppClient = XmppClient;
 
 export {getXmppClient, XmppClient};

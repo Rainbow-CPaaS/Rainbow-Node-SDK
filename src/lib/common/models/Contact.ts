@@ -1,11 +1,13 @@
 "use strict";
-import {addDaysToDate} from "../Utils";
+import {addDaysToDate} from "../Utils.js";
 
 export {};
 
 
-const MD5 = require("md5");
-import {config} from "../../config/config";
+//const MD5 = require("md5");
+import {default as MD5} from "md5";
+import {config} from "../../config/config.js";
+import {from} from "rxjs";
 //const config = require("../../config/config");
 
 /*************************************************************/
@@ -2261,5 +2263,5 @@ class Contact {
  //*/
 }
 
-module.exports = {'Contact' : Contact, 'AdminType' : AdminType, 'NameUpdatePrio' : NameUpdatePrio};
+// module.exports = {'Contact' : Contact, 'AdminType' : AdminType, 'NameUpdatePrio' : NameUpdatePrio};
 export {Contact as Contact, AdminType as AdminType, NameUpdatePrio as NameUpdatePrio};
