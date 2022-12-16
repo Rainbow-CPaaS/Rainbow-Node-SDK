@@ -320,18 +320,24 @@ pipeline {
                         
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                        echo "Publish with sources of Branch : ${env.BRANCH_NAME}"
                         if [ "${env.BRANCH_NAME}" = "STSDelivery" ]; then
-                            export TAGNAME="sts"
+                            if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                                echo "Publish on npmjs with tag : sts"
+                                npm publish --tag "sts"
+                            else
+                                echo "Publish on npmjs with node .net tag."
+                                npm publish --tag .net
+                            fi
                         fi
                         if [ "${env.BRANCH_NAME}" = "STSModuleDelivery" ]; then
-                            export TAGNAME="sts-module"
-                        fi
-                        if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
-                            echo "Publish on npmjs with tag."
-                            npm publish --tag "${TAGNAME}"
-                        else
-                            echo "Publish on npmjs with node .net tag."
-                            npm publish --tag .net
+                            if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                                echo "Publish on npmjs with tag : sts-module"
+                                npm publish --tag "sts-module"
+                            else
+                                echo "Publish on npmjs with node .net tag."
+                                npm publish --tag .net
+                            fi
                         fi
                     fi
                         
