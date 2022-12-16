@@ -27,7 +27,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.18.0-module-sts.1', description: 'What is the version of the STS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS version be compiled with internal debug ?')
@@ -59,9 +59,15 @@ pipeline {
                  //} 
                         
                  when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
+                     anyOf {
+                        allOf {
+                            branch "STSDelivery"; 
+                            triggeredBy 'user'
+                        };
+                        allOf {
+                            branch "STSModuleDelivery"; 
+                            triggeredBy 'user'
+                        }
                     }
                  }
                  steps {
@@ -71,9 +77,15 @@ pipeline {
             }
             stage('Checkout') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
+                     anyOf {
+                        allOf {
+                            branch "STSDelivery"; 
+                            triggeredBy 'user'
+                        };
+                        allOf {
+                            branch "STSModuleDelivery"; 
+                            triggeredBy 'user'
+                        }
                     }
                 }
                 steps{
@@ -208,9 +220,15 @@ pipeline {
 
             stage('Build') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
+                     anyOf {
+                        allOf {
+                            branch "STSDelivery"; 
+                            triggeredBy 'user'
+                        };
+                        allOf {
+                            branch "STSModuleDelivery"; 
+                            triggeredBy 'user'
+                        }
                     }
                 }
                 steps{
@@ -302,9 +320,15 @@ pipeline {
                         
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                        if [ "${env.BRANCH_NAME}" = "STSDelivery" ]; then
+                            export TAGNAME="sts"
+                        fi
+                        if [ "${env.BRANCH_NAME}" = "STSModuleDelivery" ]; then
+                            export TAGNAME="sts-module"
+                        fi
                         if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
                             echo "Publish on npmjs with tag."
-                            npm publish --tag sts
+                            npm publish --tag "${TAGNAME}"
                         else
                             echo "Publish on npmjs with node .net tag."
                             npm publish --tag .net
@@ -333,9 +357,15 @@ pipeline {
               
             stage('Build Documentation from Rainbow Node SDK') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
+                     anyOf {
+                        allOf {
+                            branch "STSDelivery"; 
+                            triggeredBy 'user'
+                        }/* ;
+                        allOf {
+                            branch "STSModuleDelivery"; 
+                            triggeredBy 'user'
+                        } */
                     }
                 }
                 steps{
@@ -355,9 +385,16 @@ pipeline {
               
             stage('Documentation Packaging') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
+                     anyOf {
+                        allOf {
+                            branch "STSDelivery"; 
+                            triggeredBy 'user'
+                        }
+                        /*;
+                        allOf {
+                            branch "STSModuleDelivery"; 
+                            triggeredBy 'user'
+                        } */
                     }
                 }
                 steps { 
