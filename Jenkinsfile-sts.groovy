@@ -294,16 +294,16 @@ pipeline {
                         #grunt dtsGenerator --verbose
                         
                         #echo Sub Step 1 : To compil the sources
-                        grunt debugDeliveryBuild --verbose
+                        grunt debugDeliveryBuild --verbose --gruntfile Gruntfile.cjs
                         #echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt debugDeliveryDelivery --verbose
+                        grunt debugDeliveryDelivery --verbose --gruntfile Gruntfile.cjs
                     else
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
                         echo Sub Step 1 : To compil the sources
-                        grunt 
+                        grunt --verbose --gruntfile Gruntfile.cjs
                         echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt delivery 
+                        grunt delivery --verbose --gruntfile Gruntfile.cjs
                     fi
                         
                         

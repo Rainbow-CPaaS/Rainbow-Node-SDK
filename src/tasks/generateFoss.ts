@@ -1,19 +1,34 @@
 "use strict";
+//const Request = require("request");
+import {default as Request } from "request";
+//const md = require("markdown").markdown;
+import {default as mdObj} from "markdown";
+const md = mdObj.markdown;
+//const fs = require("fs");
+import { default as fs } from "fs";
+//const path = require("path");
+import { default as path } from "path";
+//const RainbowSDK = require("../index");
+//import {NodeSDK as RainbowSDK} from "../index";
+//const Utils = require("../lib/common/Utils");
+// @ts-ignore
+import {default as Utils } from "../lib/common/Utils";
 
-module.exports = function(grunt) {
+export function generateFossfn(grunt) {
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
     grunt.registerMultiTask('generateFoss', 'Generate Foss file with lib imported in package.json', function () {
 
-        const Request = require("request");
+        /*const Request = require("request");
         const md = require("markdown").markdown;
         const fs = require("fs");
         const path = require("path");
 
         const RainbowSDK = require("../index");
-        const Utils = require("../lib/common/Utils");
+        const Utils = require("../lib/common/Utils"); // */
+
 
         let optionsFoss = this.options({
             debugcode: true
@@ -30,7 +45,7 @@ module.exports = function(grunt) {
         let file = tabFiles[0];
             
         let content = fs.readFileSync(path.join(__dirname, "../package.json"));
-        let packageJSON = JSON.parse(content);
+        let packageJSON = JSON.parse(String(content));
         let minVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts") - 2):packageJSON.version.substr(0, packageJSON.version.lastIndexOf("."));
 //let fullVersion = packageJSON.version;
 //let currentVersion = packageJSON.version.indexOf("-lts") > -1 ? packageJSON.version.substr(0, packageJSON.version.lastIndexOf("-lts")) : packageJSON.version;
