@@ -2106,6 +2106,7 @@ Request Method: PUT
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             if (context != undefined) {
+                url += "/" + context ;
             }
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -2133,15 +2134,31 @@ Request Method: PUT
         });
     }
 
-    getBubbleByJid(bubbleJid) {
+    getBubbleByJid(bubbleJid: string, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomByJid
+        // GET /api/rainbow/enduser/v1.0/rooms/jids/:jid
         let that = this;
         return new Promise(function (resolve, reject) {
-            //http://vberder.openrainbow.org/api/rainbow/enduser/v1.0/rooms/jids/{jid}
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid ;
             if (bubbleJid === undefined) {
                 that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubbleByJid) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST result : ", json.data);
                 resolve(json.data);

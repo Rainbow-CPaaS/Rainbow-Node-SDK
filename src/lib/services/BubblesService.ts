@@ -1138,12 +1138,13 @@ class Bubbles extends GenericService {
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
          * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-         * @param {boolean} unsubscribed
-         * @param {number} nbUsersToKeep
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its ID in memory and if it is not found in server. <br>
+         *  Get a bubble data visible by the user requesting it (a private room the user is part of or a public room)
          */
         getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
@@ -1204,12 +1205,26 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} jid the JID of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its JID in memory and if it is not found in server. <br>
+         *  Get a rooms data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        async getBubbleByJid(jid, force?: boolean): Promise<Bubble> {
+        async getBubbleByJid(jid, force?: boolean, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise(async (resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
@@ -1228,7 +1243,7 @@ class Bubbles extends GenericService {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                    return await that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
+                    return await that._rest.getBubbleByJid(jid, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
     
                         if (bubbleFromServer) {
