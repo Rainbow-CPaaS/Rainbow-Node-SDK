@@ -1272,7 +1272,44 @@ class Bubbles extends GenericService {
                 resolve(bubbleFound);
             });
         }
-    
+
+        /**
+         * @public
+         * @method getAllBubblesJidsOfAUserIsMemberOf
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @async
+         * @return {Promise<Bubble>}  return a promise with The result found or null.
+         * @description
+         *  Provide the list of room JIDs a user is a member of. <br>
+         * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to join the room. </br>
+         * Else they have to wait an event from XMPP server before joining. </br>
+         * This flag is reset when the room is inactive for a while (basically 60 days), and set when a first user joins the room. </br>
+         * isActive=false : inactive rooms only </br>
+         * isActive=true : active rooms only </br>
+         * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
+         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Valeur par défaut : true
+         * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100
+         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+         * @param {string} sortField Sort items list based on the given field.
+         * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+         */
+        getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) ");
+
+                try {
+                    return await that._rest.getAllBubblesJidsOfAUserIsMemberOf(isActive, webinar, unsubscribed, limit, offset, sortField, sortOrder).then(async (listOfBubblesJIDs) => {
+                        that._logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) listOfBubblesJIDs from server : ", listOfBubblesJIDs);
+                        resolve(listOfBubblesJIDs);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+        }
+
         /**
          * @public
          * @method getAllPendingBubbles

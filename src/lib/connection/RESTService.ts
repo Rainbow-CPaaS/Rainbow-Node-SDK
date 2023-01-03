@@ -2170,6 +2170,50 @@ Request Method: PUT
         });
     }
 
+    getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomJIDs
+        // GET /api/rainbow/enduser/v1.0/rooms/jids
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/jids" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (isActive!=undefined) {
+                addParamToUrl(urlParamsTab, "isActive", isActive );
+            }
+            if (webinar!=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     setBubbleCustomData(bubbleId, customData) {
         let that = this;
         return new Promise(function (resolve, reject) {
