@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
 -   Add `BubblesService::updateBubbleData` This API allows to update room data.
 -   Update the `BubblesService::getBubbleById` with few parameters.
+-   Update the `BubblesService::getBubbleByJid` with few parameters.
 
 ## [2.18.0] - 2022-12-09
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
