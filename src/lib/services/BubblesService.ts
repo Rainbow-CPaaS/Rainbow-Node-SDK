@@ -2540,6 +2540,106 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @method updateBubbleData
+         * @instance
+         * @category Manage Bubbles - Bubbles FIELDS
+         * @param {string} bubbleId The id of the Bubble to update
+         * @param {string} visibility Public/private group visibility for search. Default value : private. Possible values : private, public.
+         * @param {string} topic Room topic.
+         * @param {string} name Room name.
+         * @param {string} owner User unique identifier; New room owner must be a moderator and current owner must have valid licence (feature BUBBLE_PROMOTE_MEMBER).
+         * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link).
+         * According with autoRegister value, if another person uses the link to join the room:
+         * autoRegister = 'unlock':
+         * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.
+         * autoRegister = 'lock':
+         * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.
+         * autoRegister = 'unlock_ack' (value not authorized yet):
+         * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock.
+         * 
+         * @param {boolean} autoAcceptInvitation When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room)
+         * @param {boolean} muteUponEntry When participant enters the conference, he is automatically muted.
+         * @param {boolean} playEntryTone Play an entry tone each time a participant enters the conference.
+         * @param {boolean} disableTimeStats When set to true, clients will hide the Time Stats tab from bubble meetings.
+         * @param {Object} phoneNumbers : Array of object with : { 
+         * location : string location of the Dial In phone number
+         * locationcode : string location code of the Dial In phone number
+         * number : string Dial In phone number
+         * numberE164 : string Dial In phone number in E164 format
+         * }
+         * @param {boolean} includeAllPhoneNumbers Indicates if user chooses to include all Dial In phone numbers.
+         * @description
+         *  This API allows to update room data. <br>
+         *      
+         * @async
+         * @return {Promise<Bubble, ErrorManager>}
+         * @fulfil {Bubble} - The bubble updated with the data
+
+         */
+        updateBubbleData(bubbleId : string, visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+    muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean ) {
+    
+            let that = this;
+    
+            if (!bubbleId) {
+                this._logger.log("warn", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter.");
+                this._logger.log("internalerror", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+    
+            let data : { visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+                muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+                    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean } = {};
+            
+            if (visibility != undefined) {
+                data.visibility = visibility;
+            }
+            if (topic != undefined) {
+                data.topic = topic;
+            }
+            if (name != undefined) {
+                data.name = name;
+            }
+            if (owner != undefined) {
+                data.owner = owner;
+            }
+            if (autoRegister != undefined) {
+                data.autoRegister = autoRegister;
+            }
+            if (autoAcceptInvitation != undefined) {
+                data.autoAcceptInvitation = autoAcceptInvitation;
+            }
+            if (muteUponEntry != undefined) {
+                data.muteUponEntry = muteUponEntry;
+            }
+            if (playEntryTone != undefined) {
+                data.playEntryTone = playEntryTone;
+            }
+            if (disableTimeStats != undefined) {
+                data.disableTimeStats = disableTimeStats;
+            }
+            if (phoneNumbers != undefined) {
+                data.phoneNumbers = phoneNumbers;
+            }
+            if (includeAllPhoneNumbers != undefined) {
+                data.includeAllPhoneNumbers = includeAllPhoneNumbers;
+            }
+
+            return new Promise(async(resolve, reject) => {    
+                that._rest.updateRoomData(bubbleId, data).then(async (json: any) => {
+                    that._logger.log("internal", LOG_ID + "(updateBubbleData) result : ", json);
+                    let bubble = await that.addOrUpdateBubbleToCache(json);
+                    resolve(bubble);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateBubbleData) error", err);
+                    return reject(err);
+                });
+            });
+        }
+    
+        /**
+         * @public
          * @method setBubbleCustomData
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS

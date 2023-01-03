@@ -1950,6 +1950,23 @@ Request Method: PUT
         });
     }
 
+    updateRoomData(bubbleId: string, data : any) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-updateRoom
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateRoomData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateRoomData) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateRoomData) error");
+                that.logger.log("internalerror", LOG_ID, "(updateRoomData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     setBubbleVisibility(bubbleId, visibility) {
         let that = this;
         return new Promise(function (resolve, reject) {
