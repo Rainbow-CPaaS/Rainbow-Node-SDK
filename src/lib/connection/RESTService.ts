@@ -4934,10 +4934,10 @@ Request Method: PUT
         // API https://api.openrainbow.org/enduser/#api-rooms-getRoomIdPublicLinks
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(GetABubblePublicLinkAsModerator) REST.");
+            that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
             if (bubbleId === undefined) {
-                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             let urlParamsTab: string[] = [];
@@ -4951,13 +4951,13 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) successfull");
-                that.logger.log("internal", LOG_ID + "(GetABubblePublicLinkAsModerator) REST result : ", json.data);
-                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) REST success.");
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) successfull");
+                that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) REST success.");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(GetABubblePublicLinkAsModerator) error");
-                that.logger.log("internalerror", LOG_ID, "(GetABubblePublicLinkAsModerator) error : ", err);
+                that.logger.log("error", LOG_ID, "(getABubblePublicLinkAsModerator) error");
+                that.logger.log("internalerror", LOG_ID, "(getABubblePublicLinkAsModerator) error : ", err);
                 return reject(err);
             });
         });
