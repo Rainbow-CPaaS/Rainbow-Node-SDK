@@ -1126,12 +1126,26 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} id the id of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} context 
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
+         * @param {boolean} unsubscribed
+         * @param {number} nbUsersToKeep
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its ID in memory and if it is not found in server. <br>
          */
-        getBubbleById(id, force?: boolean): Promise<Bubble> {
+        getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise((resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
@@ -1149,7 +1163,7 @@ class Bubbles extends GenericService {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
-                    return that._rest.getBubble(id).then(async (bubbleFromServer: any) => {
+                    return that._rest.getBubble(id, context, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer: any) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
     
                         if (that._options._imOptions.autoInitialBubblePresence) {
@@ -2548,25 +2562,25 @@ class Bubbles extends GenericService {
          * @param {string} topic Room topic.
          * @param {string} name Room name.
          * @param {string} owner User unique identifier; New room owner must be a moderator and current owner must have valid licence (feature BUBBLE_PROMOTE_MEMBER).
-         * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link).
-         * According with autoRegister value, if another person uses the link to join the room:
-         * autoRegister = 'unlock':
-         * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.
-         * autoRegister = 'lock':
-         * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.
-         * autoRegister = 'unlock_ack' (value not authorized yet):
-         * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock.
+         * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link). <br>
+         * According with autoRegister value, if another person uses the link to join the room: <br>
+         * autoRegister = 'unlock': <br>
+         * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. <br>
+         * autoRegister = 'lock': <br>
+         * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room. <br>
+         * autoRegister = 'unlock_ack' (value not authorized yet): <br>
+         * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock. <br>
          * 
          * @param {boolean} autoAcceptInvitation When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room)
          * @param {boolean} muteUponEntry When participant enters the conference, he is automatically muted.
          * @param {boolean} playEntryTone Play an entry tone each time a participant enters the conference.
          * @param {boolean} disableTimeStats When set to true, clients will hide the Time Stats tab from bubble meetings.
-         * @param {Object} phoneNumbers : Array of object with : { 
-         * location : string location of the Dial In phone number
-         * locationcode : string location code of the Dial In phone number
-         * number : string Dial In phone number
-         * numberE164 : string Dial In phone number in E164 format
-         * }
+         * @param {Object} phoneNumbers : Array of object with : {  <br>
+         * location : string location of the Dial In phone number <br>
+         * locationcode : string location code of the Dial In phone number <br>
+         * number : string Dial In phone number <br>
+         * numberE164 : string Dial In phone number in E164 format <br>
+         * } <br>
          * @param {boolean} includeAllPhoneNumbers Indicates if user chooses to include all Dial In phone numbers.
          * @description
          *  This API allows to update room data. <br>

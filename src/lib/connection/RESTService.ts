@@ -2095,14 +2095,33 @@ Request Method: PUT
         });
     }
 
-    getBubble(bubbleId) {
+    getBubble(bubbleId : string, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomById
+        // GET /api/rainbow/enduser/v1.0/rooms/:roomId
         let that = this;
         return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true";
             if (bubbleId === undefined) {
                 that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
+            if (context != undefined) {
+            }
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubble) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubble) REST result : ", json.data);
                 resolve(json.data);
@@ -2264,7 +2283,8 @@ Request Method: PUT
     }
 
     archiveBubble(bubbleId) {
-        // /api/rainbow/enduser/v1.0/rooms/:roomId/archive
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/archive
+        // API https://api.openrainbow.org/enduser/#api-rooms-updateRoomArchive 
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(archiveBubble) bubbleId : ", bubbleId);
@@ -2313,6 +2333,8 @@ Request Method: PUT
     }
 
     deleteBubble(bubbleId) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-deleteRoom
+        // DELETE /api/rainbow/enduser/v1.0/rooms/:roomId
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader()).then(function (json) {
