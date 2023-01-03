@@ -4929,6 +4929,40 @@ Request Method: PUT
 
     //region Public url
 
+    getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any>{
+        // GET /api/rainbow/enduser/v1.0/rooms/:roomId/public-links
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomIdPublicLinks
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(GetABubblePublicLinkAsModerator) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
+            if (bubbleId === undefined) {
+                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (emailContent!=undefined) {
+                addParamToUrl(urlParamsTab, "emailContent", emailContent );
+            }
+            if (language!=undefined) {
+                addParamToUrl(urlParamsTab, "language", language);
+            }
+            url = urlParamsTab[0];
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) successfull");
+                that.logger.log("internal", LOG_ID + "(GetABubblePublicLinkAsModerator) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(GetABubblePublicLinkAsModerator) REST success.");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(GetABubblePublicLinkAsModerator) error");
+                that.logger.log("internalerror", LOG_ID, "(GetABubblePublicLinkAsModerator) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
     /**
      *
      * @param {string} userId id of to get all openInviteId belonging to this user. If not setted the connected user is used.

@@ -3880,6 +3880,29 @@ class Bubbles extends GenericService {
     //endregion Bubbles CONTAINERS
 
     //region Bubbles PUBLIC URL
+
+    /**
+     * @private
+     * @method getABubblePublicLinkAsModerator
+     * @since 1.72
+     * @instance
+     * @category Manage Bubbles - Bubbles PUBLIC URL
+     * @param {string} bubbleId 
+     * @param {boolean} emailContent 
+     * @param {string} language 
+     * @description
+     *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>
+     * @return {Promise<any>}
+     */
+    async getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any> {
+        let that = this;
+        if (!bubbleId) {
+            this._logger.log("warn", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        return that._rest.getABubblePublicLinkAsModerator(bubbleId, emailContent, language);
+    }
     
         /**
          * @private
