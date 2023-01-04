@@ -1359,9 +1359,7 @@ class Bubbles extends GenericService {
      * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
      * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
-     * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595)
-
-     creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
      * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
      */
@@ -1375,6 +1373,73 @@ class Bubbles extends GenericService {
                     return await that._rest.getAllBubblesVisibleByTheUser(format, userId, status, confId, scheduled, hasConf, isActive, name, sortField , sortOrder,
                             unsubscribed,webinar, limit, offset, nbUsersToKeep, creator, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
                         that._logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) listOfBubbles from server : ", listOfBubbles);
+                        resolve(listOfBubbles);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+        }
+        
+    /**
+     * @public
+     * @method getBubblesDataByListOfBubblesIds
+     * @instance
+     * @category Manage Bubbles - Bubbles MANAGEMENT
+     * @async
+     * @return {Promise<Bubble>}  return a promise with The result found or null.
+     * @description
+     *  Display a list of short bubbles description including: id - room identifier, name - room name </br>
+     *  Get Bubbles data by list of room ids </br>
+     *  User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
+     *
+     * @param {Array<string>} bubblesIds list of room's unique identifier (like 56f42c1914e2a8a91b99e595) for which requesting data. if a room identifier doesn't correspond to a room visible by userId or logged in user it is ignored.
+     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
+     * full: </br>
+     * if userId is used at the same time as format=full: all rooms fields else not all fields but only: id, name, jid, topic, creator, confEndpoints, conference, guestEmails, customData, disableNotifications, isActive, autoAcceptInvitation </br>
+     * the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If userId is used at the same time as format=full, then this user is added in first position of the users list even if he has the status unsubscribed. </br>
+     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list. </br>
+     * </br>
+     *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
+     *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
+     * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {boolean} scheduled When a room is/was used for a meeting, select rooms used for an immediate or a scheduled meeting. scheduled query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * scheduled=false : all rooms used for an instant meeting </br>
+     * scheduled=true : all rooms used for a scheduled meeting </br>
+     * @param {boolean} hasConf Select all rooms used for meeting. hasConf query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * hasConf=false : all rooms never used for a meeting </br>
+     * hasConf=true : all rooms used for a meeting </br>
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+
+     creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     */
+    getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
+                                      unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
+    
+                try {
+                    return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
+                            unsubscribed, webinar, limit, offset, nbUsersToKeep,  context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                        that._logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) listOfBubbles from server : ", listOfBubbles);
                         resolve(listOfBubbles);
                     });
                 } catch (err) {

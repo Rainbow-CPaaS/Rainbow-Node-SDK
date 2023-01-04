@@ -2292,6 +2292,79 @@ Request Method: PUT
         });      
     }
 
+    getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
+                                  unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomsByIds
+        // GET /api/rainbow/enduser/v1.0/rooms/ids
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/ids" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (userId!=undefined) {
+                addParamToUrl(urlParamsTab, "userId", userId);
+            }
+            if (status!=undefined) {
+                addParamToUrl(urlParamsTab, "status", status);
+            }
+            if (confId!=undefined) {
+                addParamToUrl(urlParamsTab, "confId", confId);
+            }
+            if (scheduled!=undefined) {
+                addParamToUrl(urlParamsTab, "scheduled", scheduled);
+            }
+            if (hasConf!=undefined) {
+                addParamToUrl(urlParamsTab, "hasConf", hasConf);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (webinar !=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            if (context!=undefined) {
+                addParamToUrl(urlParamsTab, "context", context);
+            }
+            if (needIsAlertNotificationEnabled!=undefined) {
+                addParamToUrl(urlParamsTab, "needIsAlertNotificationEnabled", needIsAlertNotificationEnabled);
+            }
+            url = urlParamsTab[0];
+
+            let data= {
+                bubblesIds,
+            }
+            
+            that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST url : ", url);
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getBubblesDataByListOfBubblesIds) successfull");
+                that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getBubblesDataByListOfBubblesIds) error");
+                that.logger.log("internalerror", LOG_ID, "(getBubblesDataByListOfBubblesIds) error : ", err);
+                return reject(err);
+            });
+        });      
+    }
+
     setBubbleCustomData(bubbleId, customData) {
         let that = this;
         return new Promise(function (resolve, reject) {
