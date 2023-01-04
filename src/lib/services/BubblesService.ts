@@ -1276,6 +1276,7 @@ class Bubbles extends GenericService {
         /**
          * @public
          * @method getAllBubblesJidsOfAUserIsMemberOf
+         * @since 2.19.0
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @async
@@ -1313,6 +1314,7 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @method getAllBubblesVisibleByTheUser
+     * @since 2.19.0
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
@@ -1384,6 +1386,7 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @method getBubblesDataByListOfBubblesIds
+     * @since 2.19.0
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
@@ -1432,21 +1435,21 @@ class Bubbles extends GenericService {
      */
     getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
-            let that = this;
-            return new Promise(async (resolve, reject) => {
-                that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
-    
-                try {
-                    return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
-                            unsubscribed, webinar, limit, offset, nbUsersToKeep,  context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
-                        that._logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) listOfBubbles from server : ", listOfBubbles);
-                        resolve(listOfBubbles);
-                    });
-                } catch (err) {
-                    reject (err);
-                }
-            });
-        }
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
+
+            try {
+                return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
+                        unsubscribed, webinar, limit, offset, nbUsersToKeep, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                    that._logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) listOfBubbles from server : ", listOfBubbles);
+                    resolve(listOfBubbles);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
     
         /**
          * @public
@@ -4057,14 +4060,15 @@ class Bubbles extends GenericService {
     //region Bubbles PUBLIC URL
 
     /**
-     * @private
+     * @public
      * @method getABubblePublicLinkAsModerator
-     * @since 1.72
+     * @since 2.19.0
      * @instance
      * @category Manage Bubbles - Bubbles PUBLIC URL
      * @param {string} bubbleId 
      * @param {boolean} emailContent 
      * @param {string} language 
+     * @async
      * @description
      *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>
      * @return {Promise<any>}
