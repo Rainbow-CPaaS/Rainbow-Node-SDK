@@ -2214,6 +2214,84 @@ Request Method: PUT
         });
     }
 
+    getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+                                  unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRooms
+        // GET /api/rainbow/enduser/v1.0/rooms
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (userId!=undefined) {
+                addParamToUrl(urlParamsTab, "userId", userId);
+            }
+            if (status!=undefined) {
+                addParamToUrl(urlParamsTab, "status", status);
+            }
+            if (confId!=undefined) {
+                addParamToUrl(urlParamsTab, "confId", confId);
+            }
+            if (scheduled!=undefined) {
+                addParamToUrl(urlParamsTab, "scheduled", scheduled);
+            }
+            if (hasConf!=undefined) {
+                addParamToUrl(urlParamsTab, "hasConf", hasConf);
+            }
+            if (isActive!=undefined) {
+                addParamToUrl(urlParamsTab, "isActive", isActive);
+            }
+            if (name!=undefined) {
+                addParamToUrl(urlParamsTab, "name", name);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (webinar !=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            if (creator!=undefined) {
+                addParamToUrl(urlParamsTab, "creator", creator);
+            }
+            if (context!=undefined) {
+                addParamToUrl(urlParamsTab, "context", context);
+            }
+            if (needIsAlertNotificationEnabled!=undefined) {
+                addParamToUrl(urlParamsTab, "needIsAlertNotificationEnabled", needIsAlertNotificationEnabled);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllBubblesVisibleByTheUser) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBubblesVisibleByTheUser) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBubblesVisibleByTheUser) error : ", err);
+                return reject(err);
+            });
+        });      
+    }
+
     setBubbleCustomData(bubbleId, customData) {
         let that = this;
         return new Promise(function (resolve, reject) {
