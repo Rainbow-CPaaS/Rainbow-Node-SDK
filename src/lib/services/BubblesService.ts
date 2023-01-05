@@ -4065,9 +4065,9 @@ class Bubbles extends GenericService {
      * @since 2.19.0
      * @instance
      * @category Manage Bubbles - Bubbles PUBLIC URL
-     * @param {string} bubbleId 
-     * @param {boolean} emailContent 
-     * @param {string} language 
+     * @param {string} bubbleId Bubble unique identifier
+     * @param {boolean} emailContent Allows to retrieve email content in the json body response.
+     * @param {string} language Allows to provide a language to use for email content. If not provided, logged in user language is used.
      * @async
      * @description
      *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>

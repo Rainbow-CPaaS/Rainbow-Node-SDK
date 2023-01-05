@@ -2100,7 +2100,7 @@ Request Method: PUT
         // GET /api/rainbow/enduser/v1.0/rooms/:roomId
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true";
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId ;//+ "?format=full&unsubscribed=true";
             if (bubbleId === undefined) {
                 that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -10181,7 +10181,8 @@ Request Method: PUT
 
     // delete a directory entry
     deleteDirectoryEntry (entryId : string) {
-        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId      
+        // API https://api.openrainbow.org/directory/#api-directory-DeleteDirectory
+        // DELETE /api/rainbow/directory/v1.0/entries/:entryId      
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader())
