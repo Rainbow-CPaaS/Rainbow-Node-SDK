@@ -6,6 +6,16 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.16.1-lts.4] - 2022-01-XX
+-   Add `BubblesService::updateBubbleData` This API allows to update room data.
+-   Update the `BubblesService::getBubbleById` with few parameters.
+-   Update the `BubblesService::getBubbleByJid` with few parameters.
+-   Add `BubblesService::getABubblePublicLinkAsModerator` api allow to get the openInviteId bound with the given bubble.
+-   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
+-   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
+-   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
+-   Add getAllOwnedIdBubbles Get the list of bubbles created by the user.
+
 ## [2.19.0] - 2022-12-XX
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
 
