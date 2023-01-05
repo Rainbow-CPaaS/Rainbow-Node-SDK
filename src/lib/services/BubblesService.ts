@@ -2227,6 +2227,26 @@ class Bubbles extends GenericService {
         }
     
         /**
+         * @public
+         * @method getAllOwnedIdBubbles
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @description
+         *    Get the list of bubbles created by the user <br>
+         * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
+         */
+        getAllOwnedIdBubbles() {
+            let that = this;
+            that._logger.log("debug", LOG_ID + "(getAllOwnedIdBubbles) ");
+            let allOwnedIdBubbles = [];
+            let allOwnedBubbles = that.getAllOwnedBubbles();
+            for (let i = 0; i < allOwnedBubbles.length ; i++) {
+                allOwnedIdBubbles.push(allOwnedBubbles[i].id);
+            }
+            return allOwnedIdBubbles;
+        }
+    
+        /**
          * @method getBubbleFromCache
          * @private
          * @category Manage Bubbles - Bubbles MANAGEMENT

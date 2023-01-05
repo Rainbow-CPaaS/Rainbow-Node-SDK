@@ -2349,7 +2349,7 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             let data= {
-                bubblesIds,
+                "roomIds" : bubblesIds,
             }
             
             that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST url : ", url);
