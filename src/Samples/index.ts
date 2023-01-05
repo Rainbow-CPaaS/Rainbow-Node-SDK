@@ -2713,6 +2713,39 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetAvatarFromBubble - avatarBlob : ", avatarBlob);
     }
 
+    async function testgetABubblePublicLinkAsModerator() {
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        let bubblePublicLink = await rainbowSDK.bubbles.getABubblePublicLinkAsModerator(result[0].id);
+        logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - bubblePublicLink : ", bubblePublicLink);
+    }
+
+    async function testgetAllBubblesJidsOfAUserIsMemberOf() {
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        let result2 = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
+        logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result2 : ", result2);
+    }
+
+    async function testgetAllBubblesVisibleByTheUser() {
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        let result2 = await rainbowSDK.bubbles.getAllBubblesVisibleByTheUser();
+        logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result2 : ", result2);
+    }
+
+    async function testgetBubblesDataByListOfBubblesIds() {
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        let bubblesIds = [];
+        for (let i = 0; i < result.length; i++) {
+            bubblesIds.push(result[i].id);
+        }
+        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - bubblesIds : ", bubblesIds);
+        let result2 = await rainbowSDK.bubbles.getBubblesDataByListOfBubblesIds(bubblesIds);
+        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result2 : ", result2);
+    }
+
     //endregion Bubbles
 
     //region Conference V1

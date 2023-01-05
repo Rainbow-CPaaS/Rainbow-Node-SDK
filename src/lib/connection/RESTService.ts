@@ -1947,6 +1947,23 @@ Request Method: PUT
         });
     }
 
+    updateRoomData(bubbleId: string, data : any) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-updateRoom
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateRoomData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateRoomData) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateRoomData) error");
+                that.logger.log("internalerror", LOG_ID, "(updateRoomData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     setBubbleVisibility(bubbleId, visibility) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -2075,14 +2092,34 @@ Request Method: PUT
         });
     }
 
-    getBubble(bubbleId) {
+    getBubble(bubbleId : string, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomById
+        // GET /api/rainbow/enduser/v1.0/rooms/:roomId
         let that = this;
         return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId ;//+ "?format=full&unsubscribed=true";
             if (bubbleId === undefined) {
                 that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
+            if (context != undefined) {
+                url += "/" + context ;
+            }
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubble) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubble) REST result : ", json.data);
                 resolve(json.data);
@@ -2094,15 +2131,31 @@ Request Method: PUT
         });
     }
 
-    getBubbleByJid(bubbleJid) {
+    getBubbleByJid(bubbleJid: string, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomByJid
+        // GET /api/rainbow/enduser/v1.0/rooms/jids/:jid
         let that = this;
         return new Promise(function (resolve, reject) {
-            //http://vberder.openrainbow.org/api/rainbow/enduser/v1.0/rooms/jids/{jid}
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid ;
             if (bubbleJid === undefined) {
                 that.logger.log("info", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid + "?format=full&unsubscribed=true", that.getRequestHeader(), undefined).then(function (json) {
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getBubbleByJid) successfull");
                 that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST result : ", json.data);
                 resolve(json.data);
@@ -2112,6 +2165,201 @@ Request Method: PUT
                 return reject(err);
             });
         });
+    }
+
+    getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomJIDs
+        // GET /api/rainbow/enduser/v1.0/rooms/jids
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/jids" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (isActive!=undefined) {
+                addParamToUrl(urlParamsTab, "isActive", isActive );
+            }
+            if (webinar!=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+                                  unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRooms
+        // GET /api/rainbow/enduser/v1.0/rooms
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (userId!=undefined) {
+                addParamToUrl(urlParamsTab, "userId", userId);
+            }
+            if (status!=undefined) {
+                addParamToUrl(urlParamsTab, "status", status);
+            }
+            if (confId!=undefined) {
+                addParamToUrl(urlParamsTab, "confId", confId);
+            }
+            if (scheduled!=undefined) {
+                addParamToUrl(urlParamsTab, "scheduled", scheduled);
+            }
+            if (hasConf!=undefined) {
+                addParamToUrl(urlParamsTab, "hasConf", hasConf);
+            }
+            if (isActive!=undefined) {
+                addParamToUrl(urlParamsTab, "isActive", isActive);
+            }
+            if (name!=undefined) {
+                addParamToUrl(urlParamsTab, "name", name);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (webinar !=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            if (creator!=undefined) {
+                addParamToUrl(urlParamsTab, "creator", creator);
+            }
+            if (context!=undefined) {
+                addParamToUrl(urlParamsTab, "context", context);
+            }
+            if (needIsAlertNotificationEnabled!=undefined) {
+                addParamToUrl(urlParamsTab, "needIsAlertNotificationEnabled", needIsAlertNotificationEnabled);
+            }
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllBubblesVisibleByTheUser) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBubblesVisibleByTheUser) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBubblesVisibleByTheUser) error : ", err);
+                return reject(err);
+            });
+        });      
+    }
+
+    getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
+                                  unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomsByIds
+        // GET /api/rainbow/enduser/v1.0/rooms/ids
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/ids" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (format!=undefined) {
+                addParamToUrl(urlParamsTab, "format", format );
+            }
+            if (userId!=undefined) {
+                addParamToUrl(urlParamsTab, "userId", userId);
+            }
+            if (status!=undefined) {
+                addParamToUrl(urlParamsTab, "status", status);
+            }
+            if (confId!=undefined) {
+                addParamToUrl(urlParamsTab, "confId", confId);
+            }
+            if (scheduled!=undefined) {
+                addParamToUrl(urlParamsTab, "scheduled", scheduled);
+            }
+            if (hasConf!=undefined) {
+                addParamToUrl(urlParamsTab, "hasConf", hasConf);
+            }
+            if (sortField!=undefined) {
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+            }
+            if (sortOrder!=undefined) {
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            }
+            if (unsubscribed!=undefined) {
+                addParamToUrl(urlParamsTab, "unsubscribed", unsubscribed);
+            }
+            if (webinar !=undefined) {
+                addParamToUrl(urlParamsTab, "webinar", webinar);
+            }
+            if (limit!=undefined) {
+                addParamToUrl(urlParamsTab, "limit", limit);
+            }
+            if (offset!=undefined) {
+                addParamToUrl(urlParamsTab, "offset", offset);
+            }
+            if (nbUsersToKeep!=undefined) {
+                addParamToUrl(urlParamsTab, "nbUsersToKeep", nbUsersToKeep);
+            }
+            if (context!=undefined) {
+                addParamToUrl(urlParamsTab, "context", context);
+            }
+            if (needIsAlertNotificationEnabled!=undefined) {
+                addParamToUrl(urlParamsTab, "needIsAlertNotificationEnabled", needIsAlertNotificationEnabled);
+            }
+            url = urlParamsTab[0];
+
+            let data= {
+                "roomIds" : bubblesIds,
+            }
+            
+            that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST url : ", url);
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getBubblesDataByListOfBubblesIds) successfull");
+                that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getBubblesDataByListOfBubblesIds) error");
+                that.logger.log("internalerror", LOG_ID, "(getBubblesDataByListOfBubblesIds) error : ", err);
+                return reject(err);
+            });
+        });      
     }
 
     setBubbleCustomData(bubbleId, customData) {
@@ -2244,7 +2492,8 @@ Request Method: PUT
     }
 
     archiveBubble(bubbleId) {
-        // /api/rainbow/enduser/v1.0/rooms/:roomId/archive
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/archive
+        // API https://api.openrainbow.org/enduser/#api-rooms-updateRoomArchive 
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(archiveBubble) bubbleId : ", bubbleId);
@@ -2293,6 +2542,8 @@ Request Method: PUT
     }
 
     deleteBubble(bubbleId) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-deleteRoom
+        // DELETE /api/rainbow/enduser/v1.0/rooms/:roomId
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader()).then(function (json) {
@@ -4829,6 +5080,40 @@ Request Method: PUT
     //endregion Messages
 
     //region Public url
+
+    getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any>{
+        // GET /api/rainbow/enduser/v1.0/rooms/:roomId/public-links
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomIdPublicLinks
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
+            if (bubbleId === undefined) {
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (emailContent!=undefined) {
+                addParamToUrl(urlParamsTab, "emailContent", emailContent );
+            }
+            if (language!=undefined) {
+                addParamToUrl(urlParamsTab, "language", language);
+            }
+            url = urlParamsTab[0];
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) successfull");
+                that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(getABubblePublicLinkAsModerator) REST success.");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getABubblePublicLinkAsModerator) error");
+                that.logger.log("internalerror", LOG_ID, "(getABubblePublicLinkAsModerator) error : ", err);
+                return reject(err);
+            });
+        });
+    };
 
     /**
      *
@@ -10056,7 +10341,8 @@ Request Method: PUT
 
     // delete a directory entry
     deleteDirectoryEntry (entryId : string) {
-        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId      
+        // API https://api.openrainbow.org/directory/#api-directory-DeleteDirectory
+        // DELETE /api/rainbow/directory/v1.0/entries/:entryId      
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader())

@@ -2278,12 +2278,27 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} id the id of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} context 
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its ID in memory and if it is not found in server. <br>
+         *  Get a bubble data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        getBubbleById(id, force?: boolean): Promise<Bubble> {
+        getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise((resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
@@ -2301,7 +2316,7 @@ getAllActiveBubbles
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
-                    return that._rest.getBubble(id).then(async (bubbleFromServer: any) => {
+                    return that._rest.getBubble(id, context, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer: any) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
     
                         if (that._options._imOptions.autoInitialBubblePresence) {
@@ -2342,12 +2357,26 @@ getAllActiveBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} jid the JID of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its JID in memory and if it is not found in server. <br>
+         *  Get a rooms data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        async getBubbleByJid(jid, force?: boolean): Promise<Bubble> {
+        async getBubbleByJid(jid, force?: boolean, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise(async (resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
@@ -2366,7 +2395,7 @@ getAllActiveBubbles
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                    return await that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
+                    return await that._rest.getBubbleByJid(jid, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
     
                         if (bubbleFromServer) {
@@ -2395,6 +2424,184 @@ getAllActiveBubbles
                 resolve(bubbleFound);
             });
         }
+
+        /**
+         * @public
+         * @method getAllBubblesJidsOfAUserIsMemberOf
+         * @since 2.19.0
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @async
+         * @return {Promise<Bubble>}  return a promise with The result found or null.
+         * @description
+         *  Provide the list of room JIDs a user is a member of. <br>
+         * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to join the room. </br>
+         * Else they have to wait an event from XMPP server before joining. </br>
+         * This flag is reset when the room is inactive for a while (basically 60 days), and set when a first user joins the room. </br>
+         * isActive=false : inactive rooms only </br>
+         * isActive=true : active rooms only </br>
+         * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
+         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Valeur par défaut : true
+         * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100
+         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+         * @param {string} sortField Sort items list based on the given field.
+         * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+         */
+        getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) ");
+
+                try {
+                    return await that._rest.getAllBubblesJidsOfAUserIsMemberOf(isActive, webinar, unsubscribed, limit, offset, sortField, sortOrder).then(async (listOfBubblesJIDs) => {
+                        that._logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) listOfBubblesJIDs from server : ", listOfBubblesJIDs);
+                        resolve(listOfBubblesJIDs);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+        }
+
+    /**
+     * @public
+     * @method getAllBubblesVisibleByTheUser
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles MANAGEMENT
+     * @async
+     * @return {Promise<Bubble>}  return a promise with The result found or null.
+     * @description
+     *  Display a list of short room description including: id - room identifier, name - room name </br>
+     *  Get all rooms visible by the user requesting it (the private rooms the user is part of and the public rooms)</br>
+     *  Admin shall be able to disallow the use of bubbles, either for the whole company, or per user. User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
+     *
+     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
+     * full: </br>
+     * if userId is used at the same time as format=full: all rooms fields else not all fields but only: id, name, jid, topic, creator, confEndpoints, conference, guestEmails, customData, disableNotifications, isActive, autoAcceptInvitation </br>
+     * the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If userId is used at the same time as format=full, then this user is added in first position of the users list even if he has the status unsubscribed. </br>
+     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list. </br>
+     * </br>
+     *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
+     *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
+     * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {boolean} scheduled When a room is/was used for a meeting, select rooms used for an immediate or a scheduled meeting. scheduled query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * scheduled=false : all rooms used for an instant meeting </br>
+     * scheduled=true : all rooms used for a scheduled meeting </br>
+     * @param {boolean} hasConf Select all rooms used for meeting. hasConf query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * hasConf=false : all rooms never used for a meeting </br>
+     * hasConf=true : all rooms used for a meeting </br>
+     * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to share their presence. </br>
+     * Else they have to wait an event from XMPP server to share the presence. </br>
+     * This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence. </br>
+     * isActive=false : all rooms not active yet </br>
+     * isActive=true : all active rooms </br>
+     * @param {string} name Allow to search room which name includes a word beginning by ...
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+     * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     */
+        getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+                                      unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getAllBubblesVisibleByTheUser) ");
+    
+                try {
+                    return await that._rest.getAllBubblesVisibleByTheUser(format, userId, status, confId, scheduled, hasConf, isActive, name, sortField , sortOrder,
+                            unsubscribed,webinar, limit, offset, nbUsersToKeep, creator, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                        that._logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) listOfBubbles from server : ", listOfBubbles);
+                        resolve(listOfBubbles);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+        }
+        
+    /**
+     * @public
+     * @method getBubblesDataByListOfBubblesIds
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles MANAGEMENT
+     * @async
+     * @return {Promise<Bubble>}  return a promise with The result found or null.
+     * @description
+     *  Display a list of short bubbles description including: id - room identifier, name - room name </br>
+     *  Get Bubbles data by list of room ids </br>
+     *  User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
+     *
+     * @param {Array<string>} bubblesIds list of room's unique identifier (like 56f42c1914e2a8a91b99e595) for which requesting data. if a room identifier doesn't correspond to a room visible by userId or logged in user it is ignored.
+     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
+     * full: </br>
+     * if userId is used at the same time as format=full: all rooms fields else not all fields but only: id, name, jid, topic, creator, confEndpoints, conference, guestEmails, customData, disableNotifications, isActive, autoAcceptInvitation </br>
+     * the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If userId is used at the same time as format=full, then this user is added in first position of the users list even if he has the status unsubscribed. </br>
+     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list. </br>
+     * </br>
+     *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
+     *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
+     * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {boolean} scheduled When a room is/was used for a meeting, select rooms used for an immediate or a scheduled meeting. scheduled query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * scheduled=false : all rooms used for an instant meeting </br>
+     * scheduled=true : all rooms used for a scheduled meeting </br>
+     * @param {boolean} hasConf Select all rooms used for meeting. hasConf query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * hasConf=false : all rooms never used for a meeting </br>
+     * hasConf=true : all rooms used for a meeting </br>
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+
+     creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     */
+    getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
+                                      unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
+
+            try {
+                return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
+                        unsubscribed, webinar, limit, offset, nbUsersToKeep, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                    that._logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) listOfBubbles from server : ", listOfBubbles);
+                    resolve(listOfBubbles);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
     
         /**
          * @public
@@ -3176,6 +3383,26 @@ getAllActiveBubbles
         }
     
         /**
+         * @public
+         * @method getAllOwnedIdBubbles
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @description
+         *    Get the list of bubbles created by the user <br>
+         * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
+         */
+        getAllOwnedIdBubbles() {
+            let that = this;
+            that._logger.log("debug", LOG_ID + "(getAllOwnedIdBubbles) ");
+            let allOwnedIdBubbles = [];
+            let allOwnedBubbles = that.getAllOwnedBubbles();
+            for (let i = 0; i < allOwnedBubbles.length ; i++) {
+                allOwnedIdBubbles.push(allOwnedBubbles[i].id);
+            }
+            return allOwnedIdBubbles;
+        }
+    
+        /**
          * @method getBubbleFromCache
          * @private
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -3741,6 +3968,106 @@ getAllActiveBubbles
     //endregion Bubbles INVITATIONS
     
     //region Bubbles FIELDS
+    
+        /**
+         * @public
+         * @method updateBubbleData
+         * @instance
+         * @category Manage Bubbles - Bubbles FIELDS
+         * @param {string} bubbleId The id of the Bubble to update
+         * @param {string} visibility Public/private group visibility for search. Default value : private. Possible values : private, public.
+         * @param {string} topic Room topic.
+         * @param {string} name Room name.
+         * @param {string} owner User unique identifier; New room owner must be a moderator and current owner must have valid licence (feature BUBBLE_PROMOTE_MEMBER).
+         * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link). <br>
+         * According with autoRegister value, if another person uses the link to join the room: <br>
+         * autoRegister = 'unlock': <br>
+         * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. <br>
+         * autoRegister = 'lock': <br>
+         * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room. <br>
+         * autoRegister = 'unlock_ack' (value not authorized yet): <br>
+         * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock. <br>
+         * 
+         * @param {boolean} autoAcceptInvitation When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room)
+         * @param {boolean} muteUponEntry When participant enters the conference, he is automatically muted.
+         * @param {boolean} playEntryTone Play an entry tone each time a participant enters the conference.
+         * @param {boolean} disableTimeStats When set to true, clients will hide the Time Stats tab from bubble meetings.
+         * @param {Object} phoneNumbers : Array of object with : {  <br>
+         * location : string location of the Dial In phone number <br>
+         * locationcode : string location code of the Dial In phone number <br>
+         * number : string Dial In phone number <br>
+         * numberE164 : string Dial In phone number in E164 format <br>
+         * } <br>
+         * @param {boolean} includeAllPhoneNumbers Indicates if user chooses to include all Dial In phone numbers.
+         * @description
+         *  This API allows to update room data. <br>
+         *      
+         * @async
+         * @return {Promise<Bubble, ErrorManager>}
+         * @fulfil {Bubble} - The bubble updated with the data
+
+         */
+        updateBubbleData(bubbleId : string, visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+    muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean ) {
+    
+            let that = this;
+    
+            if (!bubbleId) {
+                this._logger.log("warn", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter.");
+                this._logger.log("internalerror", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+    
+            let data : { visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+                muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+                    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean } = {};
+            
+            if (visibility != undefined) {
+                data.visibility = visibility;
+            }
+            if (topic != undefined) {
+                data.topic = topic;
+            }
+            if (name != undefined) {
+                data.name = name;
+            }
+            if (owner != undefined) {
+                data.owner = owner;
+            }
+            if (autoRegister != undefined) {
+                data.autoRegister = autoRegister;
+            }
+            if (autoAcceptInvitation != undefined) {
+                data.autoAcceptInvitation = autoAcceptInvitation;
+            }
+            if (muteUponEntry != undefined) {
+                data.muteUponEntry = muteUponEntry;
+            }
+            if (playEntryTone != undefined) {
+                data.playEntryTone = playEntryTone;
+            }
+            if (disableTimeStats != undefined) {
+                data.disableTimeStats = disableTimeStats;
+            }
+            if (phoneNumbers != undefined) {
+                data.phoneNumbers = phoneNumbers;
+            }
+            if (includeAllPhoneNumbers != undefined) {
+                data.includeAllPhoneNumbers = includeAllPhoneNumbers;
+            }
+
+            return new Promise(async(resolve, reject) => {    
+                that._rest.updateRoomData(bubbleId, data).then(async (json: any) => {
+                    that._logger.log("internal", LOG_ID + "(updateBubbleData) result : ", json);
+                    let bubble = await that.addOrUpdateBubbleToCache(json);
+                    resolve(bubble);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateBubbleData) error", err);
+                    return reject(err);
+                });
+            });
+        }
     
         /**
          * @public
@@ -4955,6 +5282,30 @@ getAllActiveBubbles
     //endregion Bubbles CONTAINERS
 
     //region Bubbles PUBLIC URL
+
+    /**
+     * @public
+     * @method getABubblePublicLinkAsModerator
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles PUBLIC URL
+     * @param {string} bubbleId Bubble unique identifier
+     * @param {boolean} emailContent Allows to retrieve email content in the json body response.
+     * @param {string} language Allows to provide a language to use for email content. If not provided, logged in user language is used.
+     * @async
+     * @description
+     *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>
+     * @return {Promise<any>}
+     */
+    async getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any> {
+        let that = this;
+        if (!bubbleId) {
+            this._logger.log("warn", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        return that._rest.getABubblePublicLinkAsModerator(bubbleId, emailContent, language);
+    }
     
         /**
          * @private
