@@ -135,7 +135,10 @@ let conf =  {
         nbMaxConversations: 15,
         rateLimitPerHour: 1000,
         messagesDataStore: DataStoreType.UsestoreMessagesField,
+        autoInitialGetBubbles: true,
         autoInitialBubblePresence: true,
+        "autoInitialBubbleFormat": "small",
+        "autoInitialBubbleUnsubscribed": false,
         autoLoadConversations: true,
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
