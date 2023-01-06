@@ -450,7 +450,10 @@ class Options {
             nbMaxConversations: 15,
             rateLimitPerHour: 1000,
             messagesDataStore: DataStoreType.UsestoreMessagesField,
+            autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
+            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
             autoLoadContacts: true,
             enableCarbon: true,
@@ -473,7 +476,10 @@ class Options {
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
+        optionsIM.autoInitialGetBubbles = (this._options.im.autoInitialGetBubbles == false) ? this._options.im.autoInitialGetBubbles : config.im.autoInitialGetBubbles;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
+        optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
+        optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == true) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;

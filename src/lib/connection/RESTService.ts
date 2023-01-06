@@ -2036,11 +2036,11 @@ Request Method: PUT
         });
     }
 
-    getBubbles() {
+    getBubbles(format : string="small", unsubscribed : boolean = false) {
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
             return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&unsubscribed=true&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/rooms?format="+ format +"&unsubscribed=" + unsubscribed + "&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 //that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
                     bubbles = bubbles.concat(json.data);
                     that.logger.log("info", LOG_ID + "(getBubbles) getSetOfBubbles successfull");
@@ -2220,6 +2220,11 @@ Request Method: PUT
             let url: string = "/api/rainbow/enduser/v1.0/rooms" ;
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
+            if (userId == undefined) {
+                userId = that.account.id;
+            }
+
+
             if (format!=undefined) {
                 addParamToUrl(urlParamsTab, "format", format );
             }

@@ -187,13 +187,17 @@ class Bubbles extends GenericService {
         let that = this;
         if (useRestAtStartup) {
             await that.bubblesManager.reset();
-            await that.getBubbles();
-            for (const bubble of that.getAll()) {
-                if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
-                    that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
-                    that.snapshotConference(bubble.id);
+            if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
+                await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed);
+                for (const bubble of that.getAll()) {
+                    if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                        that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                        that.snapshotConference(bubble.id);
+                    }
+
                 }
-                
+            } else {
+                that._logger.log("warn", LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
             }
         }
         that.setInitialized();
@@ -3265,11 +3269,11 @@ getAllActiveBubbles
          * @description
          *      Internal method
          */
-        getBubbles() {
+        getBubbles(format : string="small", unsubscribed : boolean = false) {
             let that = this;
     
             return new Promise(function (resolve, reject) {
-                that._rest.getBubbles().then(async function (listOfBubbles: any = []) {
+                that._rest.getBubbles(format, unsubscribed).then(async function (listOfBubbles: any = []) {
                     that._logger.log("debug", LOG_ID + "(getBubbles)  listOfBubbles.length : ", listOfBubbles.length);
     
                     //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
