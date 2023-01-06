@@ -15,7 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
 -   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
--   Add getAllOwnedIdBubbles Get the list of bubbles created by the user.
+-   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
 
 ## [2.18.0] - 2022-12-09
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
