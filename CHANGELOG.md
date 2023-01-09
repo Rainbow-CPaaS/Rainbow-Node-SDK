@@ -16,6 +16,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
+-   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
+
 
 ## [2.18.0] - 2022-12-09
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
