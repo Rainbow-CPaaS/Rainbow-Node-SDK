@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.1-lts.4] - 2022-01-XX
+## [2.16.1-lts.4] - 2022-01-09
 -   Add `BubblesService::updateBubbleData` This API allows to update room data.
 -   Update the `BubblesService::getBubbleById` with few parameters.
 -   Update the `BubblesService::getBubbleByJid` with few parameters.
@@ -14,7 +14,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
 -   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
--   Add getAllOwnedIdBubbles Get the list of bubbles created by the user.
+-   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
+-   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
 
 ## [2.19.0] - 2022-12-XX
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
