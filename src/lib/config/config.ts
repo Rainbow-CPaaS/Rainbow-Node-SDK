@@ -137,8 +137,8 @@ let conf =  {
         messagesDataStore: DataStoreType.UsestoreMessagesField,
         autoInitialGetBubbles: true,
         autoInitialBubblePresence: true,
-        "autoInitialBubbleFormat": "small",
-        "autoInitialBubbleUnsubscribed": false,
+        "autoInitialBubbleFormat": "full",
+        "autoInitialBubbleUnsubscribed": true,
         autoLoadConversations: true,
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
