@@ -6,7 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.19.0] - 2022-12-XX
+## [2.20.0] - 2022-01-XX
+
+## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
 -   Add `BubblesService::updateBubbleData` This API allows to update room data.
 -   Update the `BubblesService::getBubbleById` with few parameters.
