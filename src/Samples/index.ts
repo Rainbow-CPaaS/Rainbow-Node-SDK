@@ -202,8 +202,8 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             //"autoInitialGetBubbles": false,
             "autoInitialBubblePresence": true,
-            //"autoInitialBubbleFormat": "full",
-            //"autoInitialBubbleUnsubscribed": true,
+            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleUnsubscribed": false,
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
@@ -5335,8 +5335,39 @@ let urlS2S;
     }
 
     logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
-    
-    function start() {
+
+    function startWSOnly() {
+        rainbowSDK.start(token).then(async (result: any) => {
+//Promise.resolve({}).then(async(result: any) => {
+            try {
+                // Do something when the SDK is started
+                connectedUser = result.loggedInUser;
+                token = result.token;
+                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+
+                //let startDuration = Math.round(new Date() - startDate);
+                let startDuration = result.startDuration;
+                // that.stats.push({ service: "telephonyService", startDuration: startDuration });
+                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+
+                rainbowSDK.stop().then(() => {
+                    logger.log("debug", "MAIN - rainbow SDK startedand stopped, now we start WS Only : token : ", token, ", connectedUser : ", JSON.stringify(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+                    rainbowSDK.startWSOnly(token , connectedUser).then((result) => {
+                        // Do something when the SDK is started
+                        logger.log("debug", "MAIN - rainbow SDK started WS Only result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
+                    })
+                    ;
+                }); // */
+            } catch (err) {
+                console.log("MAIN - Error during starting : ", inspect(err));
+            }
+        });        
+    }
+
+
+        function start() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
             try {
