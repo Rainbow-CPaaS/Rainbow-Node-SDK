@@ -356,6 +356,26 @@ class PresenceService extends GenericService{
         });
     }
 
+    /**
+     * @public
+     * @method setApplyMsTeamsPresenceSettings
+     * @instance
+     * @async
+     * @category Presence CONNECTED USER
+     * @description
+     *    Allow to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.<br>
+     * @param {boolean} connectTeams The boolean to activate or not the feature.
+     * @return {Promise<any>}
+     */
+    async setApplyMsTeamsPresenceSettings(connectTeams : boolean= false) {
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that._logger.log("internal", LOG_ID + "(setApplyMsTeamsPresenceSettings) connectTeams : ", connectTeams);
+
+            resolve( that._settings.updateUserSettings({applyMsTeamsPresence: connectTeams}));
+        });
+    }
+    
     //endregion Presence CONNECTED USER
 
     //region Presence Bubbles

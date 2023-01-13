@@ -100,6 +100,9 @@ enum PresenceStatus {
     /** The contact is on mobile phone */
     Mobile = "mobile",
 
+    /** The contact is on mobile phone */
+    Teams = "teams",
+
     /** The status is empty string. */
     EmptyString = ""
 }

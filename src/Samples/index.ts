@@ -2924,7 +2924,7 @@ let urlS2S;
 
     rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
         //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-        logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence);
+        logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence, ", status : ", data.status);
         //getLastMessageOfConversation(contact);
     });
 

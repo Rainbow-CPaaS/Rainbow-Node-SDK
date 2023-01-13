@@ -50,9 +50,14 @@ class PresenceEventHandler extends GenericHandler {
             const fromBareJid = XMPPUTils.getXMPPUtils().getBareJidFromJid(fromJid);
             const x = stanza.find("x");
             const namespace = x.attr("xmlns");
+            let applyMsTeamsPresence = false;
 
             // Ignore muc presence
             if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) { return true; }
+
+            if (stanza.getChild("applyMsTeamsPresence")) {
+                applyMsTeamsPresence = true;
+            }
 
             if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
                 // My presence changes (coming from me or another resource)
@@ -98,13 +103,13 @@ class PresenceEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_oncontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                 }
                 //let contact: Contact = await that._contacts.getContactByJid(from, false);
-                let typeResource =  xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
+                let typeResource =  applyMsTeamsPresence ? "teams" : xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                         "phone" :
                         xmppUtils.isFromMobile(from) ?
                                 "mobile" :
                                 xmppUtils.isFromNode(from) ?
                                         "node" :
-                                        "desktopOrWeb"
+                                        "desktopOrWeb";
                 
                 that.eventEmitter.emit("evt_internal_presencechanged", {
                     "fulljid": from,
@@ -254,13 +259,13 @@ class PresenceEventHandler extends GenericHandler {
                     });
                 }
 
-                let typeResource = xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
+                let typeResource = applyMsTeamsPresence ? "teams" : xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
                         "phone":
                         xmppUtils.isFromMobile(from) ?
                                 "mobile":
                                 xmppUtils.isFromNode(from) ?
                                         "node":
-                                        "desktopOrWeb"
+                                        "desktopOrWeb" ;
                 let evtParam = {
                     fulljid: from,
                     jid: xmppUtils.getBareJIDFromFullJID(from),

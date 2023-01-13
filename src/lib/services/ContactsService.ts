@@ -2094,6 +2094,9 @@ class ContactsService extends GenericService {
                 let is_online_mobile = false;
                 let auto_away = false;
                 let is_offline = false;
+                let teams_online = false;
+                let teams_dnd = false;
+                
                 for (let resourceId in that.userContact.resources) {
 
                     let resource = that.userContact.resources[resourceId];
@@ -2101,7 +2104,11 @@ class ContactsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(_onPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
+                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                            teams_online = true;
+                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                            teams_dnd = true;
+                        } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.status===PresenceStatus.EmptyString) {
                             manual_dnd = true;
@@ -2135,6 +2142,8 @@ class ContactsService extends GenericService {
                 }
 
                 that._logger.log("internal", LOG_ID + "(_onPresenceChanged) result booleans of decoded presence : ", {
+                    teams_online,
+                    teams_dnd,
                     manual_invisible,
                     manual_dnd,
                     manual_away,
@@ -2188,6 +2197,9 @@ class ContactsService extends GenericService {
                      // */
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = webrtc_reason;
+                } else if (teams_dnd && !teams_online) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Teams;
                 } else if (is_online) {
                     /* contact.presence = "online";
                     contact.status = "";
@@ -2361,6 +2373,8 @@ class ContactsService extends GenericService {
                 let is_online_mobile = false;
                 let auto_away = false;
                 let is_offline = false;
+                let teams_online = false;
+                let teams_dnd = false;
                 for (let resourceId in contact.resources) {
 
                     let resource = contact.resources[resourceId];
@@ -2368,7 +2382,11 @@ class ContactsService extends GenericService {
                     this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
+                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                            teams_online = true;
+                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                            teams_dnd = true;
+                        } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.status===PresenceStatus.EmptyString) {
                             manual_dnd = true;
@@ -2406,6 +2424,8 @@ class ContactsService extends GenericService {
                 }
 
                 this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) result booleans of decoded presence : ", {
+                    teams_online,
+                    teams_dnd,
                     manual_invisible,
                     manual_dnd,
                     manual_away,
@@ -2459,6 +2479,9 @@ class ContactsService extends GenericService {
                      // */
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = webrtc_reason;
+                } else if (teams_dnd && !teams_online) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Teams;
                 } else if (is_online) {
                     /* contact.presence = "online";
                     contact.status = "";

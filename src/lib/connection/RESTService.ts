@@ -6391,7 +6391,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params : any = {};
 
-            that.logger.log("internal", LOG_ID + "(getReportDetails) REST params : ", params);
+            that.logger.log("internal", LOG_ID + "(getCalendarState) REST params : ", params);
 
             that.http.get("/api/rainbow/calendar/v1.0", that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getCalendarState) successfull");
