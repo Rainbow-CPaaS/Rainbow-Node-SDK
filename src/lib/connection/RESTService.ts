@@ -6548,6 +6548,185 @@ Request Method: PUT
     
     //endregion
     
+    //region MSTeams
+
+    controlMsteamsPresence (disable? : boolean, ignore? : string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-ControlPresence
+        // PUT /api/rainbow/msteamspresence/v1.0/control
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let that = this;
+            let urlParams = "/api/rainbow/msteamspresence/v1.0/control";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(urlParams);
+            addParamToUrl(urlParamsTab, "disable", disable);
+            addParamToUrl(urlParamsTab, "ignore", ignore);
+            urlParams = urlParamsTab[0];
+            that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST url : ", urlParams);
+
+            let params = {};
+
+            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(controlMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(controlMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(controlMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getMsteamsPresenceState(userId  : string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresence
+        // GET /api/rainbow/msteamspresence/v1.0 
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/msteamspresence/v1.0";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "userid", userId );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceState) successfull");
+                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMsteamsPresenceState) error");
+                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceState) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getMsteamsPresenceStates( users : Array<string> = []) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresences
+        // POST /api/rainbow/msteamspresence/v1.0/states
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/states";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+        
+        let data = {users};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceStates) successfull");
+                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceStates) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMsteamsPresenceStates) error");
+                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceStates) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    registerMsteamsPresenceSharing( redirect? : boolean, callback? : string) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-registerPresence
+        // POST /api/rainbow/msteamspresence/v1.0/register
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/register";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+
+        let data = {redirect, callback};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(registerMsteamsPresenceSharing) successfull");
+                that.logger.log("internal", LOG_ID + "(registerMsteamsPresenceSharing) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(registerMsteamsPresenceSharing) error");
+                that.logger.log("internalerror", LOG_ID, "(registerMsteamsPresenceSharing) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    unregisterMsteamsPresenceSharing() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-unregisterPresence
+        // DELETE /api/rainbow/msteamspresence/v1.0
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+
+            that.http.delete("/api/rainbow/msteamspresence/v1.0"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("debug", LOG_ID + "(unregisterMsteamsPresenceSharing) successfull");
+                that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(unregisterMsteamsPresenceSharing) error");
+                that.logger.log("internalerror", LOG_ID, "(unregisterMsteamsPresenceSharing) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    activateMsteamsPresence() {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-activatePresence
+        // POST /api/rainbow/msteamspresence/v1.0/activate
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/activate";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+
+        let data = {};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(activateMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(activateMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(activateMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(activateMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deactivateMsteamsPresence() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-deactivatePresence
+        // DELETE /api/rainbow/msteamspresence/v1.0/activate
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+
+            that.http.delete("/api/rainbow/msteamspresence/v1.0/activate"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("debug", LOG_ID + "(deactivateMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(deactivateMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deactivateMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(deactivateMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion MSTeams
+
     //region AD/LDAP
     //region AD/LDAP Massprovisioning
 

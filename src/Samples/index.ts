@@ -202,7 +202,7 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             //"autoInitialGetBubbles": false,
             "autoInitialBubblePresence": true,
-            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": false,
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
@@ -210,7 +210,7 @@ let urlS2S;
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
-           "useMessageEditionAndDeletionV2": true
+            "useMessageEditionAndDeletionV2": true
         },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -302,6 +302,8 @@ let urlS2S;
         "callLogs": null,
         "simplifiedCallLogs": null
     };
+
+    logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
 
     function saveCall(call) {
         if (!calls[call.id]) {
@@ -538,32 +540,32 @@ let urlS2S;
             </sent>
           </message>
          */
-        let ackUngency = false; 
-        if (ackUngency && message && message.urgency === "high" ) {
-            if (message.fromBubbleJid ) {
-                rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message,undefined,"std").then((result) => {
+        let ackUngency = false;
+        if (ackUngency && message && message.urgency==="high") {
+            if (message.fromBubbleJid) {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                 });
-            }  else {
+            } else {
                 rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                 });
             } // */
         }
-                
-        let ignoreAckUngency = true; 
-        if (ignoreAckUngency && message && message.urgency === "high" ) {
-            if (message.fromBubbleJid ) {
-                rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message,undefined,"std").then((result) => {
+
+        let ignoreAckUngency = true;
+        if (ignoreAckUngency && message && message.urgency==="high") {
+            if (message.fromBubbleJid) {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                 });
-            }  else {
+            } else {
                 rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
                     logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                 });
             } // */
         }
-        
+
     });
     rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
         logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
@@ -595,7 +597,7 @@ let urlS2S;
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
         logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
     });
-    
+
     let countStop = 0;
     rainbowSDK.events.on("rainbow_onerror", (data) => {
         logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
@@ -654,20 +656,51 @@ let urlS2S;
         // */
     });
 
-    //region Contacts
+    //This is the event handler to detect change of a contact's presence and output in console contact name and new status
+    rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
+        //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
+        if (contact.presence!="Unknown") {
+            return false;
+        }
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
+        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
+        //getLastMessageOfConversation(contact);
+    });
+
+    rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
+        //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
+        logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence, ", status : ", data.status);
+        //getLastMessageOfConversation(contact);
+    });
+
+    rainbowSDK.events.on("rainbow_onuserinviteaccepted", function (invit) {
+        logger.log("debug", "MAIN - (rainbow_onuserinviteaccepted) invit : ", invit);
+    });
+
+    rainbowSDK.events.on("rainbow_oncontactremovedfromnetwork", async function (contact) {
+        logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
+    });
     
-    function testupdateMyInformations() {
-        let contactInfo = {
-           
-        };
+    class Tests {
+    
+    //region Contacts
+
+     testupdateMyInformations() {
+        let contactInfo = {};
         rainbowSDK.contacts.updateMyInformations(contactInfo).then(result => {
             logger.log("debug", "MAIN - [testupdateMyInformations    ] ::  result : ", result);
         }).catch((err) => {
             logger.log("error", "MAIN - [testupdateMyInformations    ] :: catch reject contact : ", err);
         });
     }
-    
-    function testgetUserPresenceInformation() {
+
+     testgetUserPresenceInformation() {
         rainbowSDK.admin.getUserPresenceInformation().then(result => {
             logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
         }).catch((err) => {
@@ -675,7 +708,7 @@ let urlS2S;
         });
     }
 
-    function testgetContactByLoginEmail_UnknownUser() {
+     testgetContactByLoginEmail_UnknownUser() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
             logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
@@ -684,7 +717,7 @@ let urlS2S;
         });
     }
 
-    function testgetContactByLoginEmail_NotInRoster() {
+     testgetContactByLoginEmail_NotInRoster() {
         let usershouldbeUnkown = "vincent06@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
             logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
@@ -693,7 +726,7 @@ let urlS2S;
         });
     }
 
-    function testgetContactByLoginEmail_david() {
+     testgetContactByLoginEmail_david() {
         let usershouldbeUnkown = "pbx191b-32a3-d759-4d7e-90a3-215b-f2ff-f499-vna@david-all-in-one-rd-dev-1.opentouch.cloud";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
             logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
@@ -703,14 +736,14 @@ let urlS2S;
         rainbowSDK.admin.getAllUsersByFilter(usershouldbeUnkown, undefined, "vna_location", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
-                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined ).then(contact => {
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(contact => {
             logger.log("debug", "MAIN - [getAllUsersByFilter    ] ::  contact : ", contact);
         }).catch((err) => {
             logger.log("error", "MAIN - [getAllUsersByFilter    ] :: catch reject contact : ", err);
         });
     }
 
-    function multiple_testgetContactByLoginEmail_NotInRoster() {
+     multiple_testgetContactByLoginEmail_NotInRoster() {
         let usershouldbeUnkown = "vincent02@vbe.test.openrainbow.net"; // "WRONG6ac069e5eb4741e2af64a8beac59406f@openrainbow.net"
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then((contact: Contact) => {
             for (let i = 0; i < 20; i++) {
@@ -724,23 +757,23 @@ let urlS2S;
     }
 
 
-    async function testgetContactByLoginEmailCaseSensitiveTest() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
-            let contactVincent00upperCase = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
-            logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
+    async  testgetContactByLoginEmailCaseSensitiveTest() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+        let contactVincent00upperCase = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
+        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
     }
 
-    function displayRoster() {
+     displayRoster() {
         let contacts = rainbowSDK.contacts.getAll();
         let roster = contacts.filter(contact => contact.roster).map(contact => contact.displayName)
         logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
     }
 
-    /*function testgetContactByLoginEmail() {
+    /* testgetContactByLoginEmail() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
@@ -749,7 +782,7 @@ let urlS2S;
         });
     } // */
 
-    function testgetContactByLoginEmail(loginEmail: string = "vincent++@vbe.test.openrainbow.net", forceServerSearch: boolean = false) {
+     testgetContactByLoginEmail(loginEmail: string = "vincent++@vbe.test.openrainbow.net", forceServerSearch: boolean = false) {
         //let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail, forceServerSearch).then(contact => {
             if (contact) {
@@ -761,7 +794,7 @@ let urlS2S;
     /**
      * need to be administrator of the company. Here vincent02 is ok.
      */
-    function testgetContactInfos() {
+     testgetContactInfos() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
@@ -777,7 +810,7 @@ let urlS2S;
         });
     }
 
-    function testgetContactInfos2() {
+     testgetContactInfos2() {
         let loginEmail = "representaive2@al-mydemo.com";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
@@ -796,7 +829,7 @@ let urlS2S;
     /**
      * need to be administrator of the company. Here vincent02 is ok.
      */
-    function testupdateContactInfos() {
+     testupdateContactInfos() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
@@ -829,105 +862,105 @@ let urlS2S;
         });
     }
 
-    async function testjoinContacts_AddContactToRoster() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
-            //let jid = contactVincent01.jid_im;
-            //  let me = rainbowSDK.contacts.getConnectedUser();
-            let tab = [];
-            tab.push(contactVincent01.id);
-            rainbowSDK.contacts.joinContacts(contactVincent00, tab);
+    async  testjoinContacts_AddContactToRoster() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+        //let jid = contactVincent01.jid_im;
+        //  let me = rainbowSDK.contacts.getConnectedUser();
+        let tab = [];
+        tab.push(contactVincent01.id);
+        rainbowSDK.contacts.joinContacts(contactVincent00, tab);
     }
 
-    async function testsendSubscription() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
-            //let jid = contactVincent01.jid_im;
-            //  let me = rainbowSDK.contacts.getConnectedUser();
-            let tab = [];
-            tab.push(contactVincent01.id);
-            //rainbowSDK.contacts.addContact(contactVincent00, tab);
+    async  testsendSubscription() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+        //let jid = contactVincent01.jid_im;
+        //  let me = rainbowSDK.contacts.getConnectedUser();
+        let tab = [];
+        tab.push(contactVincent01.id);
+        //rainbowSDK.contacts.addContact(contactVincent00, tab);
     }
 
-    async function testaddToContactsList() {
-            let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
-            //let jid = contactVincent01.jid_im;
-            //  let me = rainbowSDK.contacts.getConnectedUser();
-            //let tab = [];
-            //tab.push(contactVincent01.id);
-            await rainbowSDK.contacts.addToNetwork(contactVincent00);
+    async  testaddToContactsList() {
+        let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+        //let jid = contactVincent01.jid_im;
+        //  let me = rainbowSDK.contacts.getConnectedUser();
+        //let tab = [];
+        //tab.push(contactVincent01.id);
+        await rainbowSDK.contacts.addToNetwork(contactVincent00);
     }
 
-    async function testremoveFromNetwork() {
-            let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : ", contactVincent00);
-            await rainbowSDK.contacts.removeFromNetwork(contactVincent00);
+    async  testremoveFromNetwork() {
+        let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : ", contactVincent00);
+        await rainbowSDK.contacts.removeFromNetwork(contactVincent00);
     }
 
-    async function testgetAllUsers() {
-            // let utc = new Date().toJSON().replace(/-/g, '_');
-            let users = await rainbowSDK.admin.getAllUsers("small", 2, 5, "firstName");
-            logger.log("debug", "MAIN - [testgetAllUsers] after getAllUsers : ", users);
-            //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
-            //let jid = contactVincent01.jid_im;
-            //  let me = rainbowSDK.contacts.getConnectedUser();
-            //let tab = [];
-            //tab.push(contactVincent01.id);
-            //await rainbowSDK.contacts.addToNetwork(contactVincent00);
+    async  testgetAllUsers() {
+        // let utc = new Date().toJSON().replace(/-/g, '_');
+        let users = await rainbowSDK.admin.getAllUsers("small", 2, 5, "firstName");
+        logger.log("debug", "MAIN - [testgetAllUsers] after getAllUsers : ", users);
+        //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+        //let jid = contactVincent01.jid_im;
+        //  let me = rainbowSDK.contacts.getConnectedUser();
+        //let tab = [];
+        //tab.push(contactVincent01.id);
+        //await rainbowSDK.contacts.addToNetwork(contactVincent00);
     }
 
-    async function testgetAllUsersByFilter() {
-            // let utc = new Date().toJSON().replace(/-/g, '_');
-            let users = await rainbowSDK.admin.getAllUsersByFilter("vincent02@vbe.test.openrainbow.net", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
-                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
-                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
-                    , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined );
-            logger.log("debug", "MAIN - [testgetAllUsersByFilter] after getAllUsersByFilter : ", users);
+    async  testgetAllUsersByFilter() {
+        // let utc = new Date().toJSON().replace(/-/g, '_');
+        let users = await rainbowSDK.admin.getAllUsersByFilter("vincent02@vbe.test.openrainbow.net", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+                , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        logger.log("debug", "MAIN - [testgetAllUsersByFilter] after getAllUsersByFilter : ", users);
     }
 
-    async function testgetAllUsersByCompanyId() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+    async  testgetAllUsersByCompanyId() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
 
-            let users = await rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
-            logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
+        let users = await rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
+        logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
     }
 
-    async function testgetAllUsersBySearchEmailByCompanyId() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            let searchEmail = "cord";
-            let users = await rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
-            logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
+    async  testgetAllUsersBySearchEmailByCompanyId() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        let searchEmail = "cord";
+        let users = await rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
+        logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
     }
 
-    async function testgetServerFavorites() {
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let favorites = await rainbowSDK.favorites.fetchAllFavorites();
-            //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
-            //let jid = contactVincent01.jid_im;
-            //  let me = rainbowSDK.contacts.getConnectedUser();
-            //let tab = [];
-            //tab.push(contactVincent01.id);
-            //await rainbowSDK.contacts.addToNetwork(contactVincent00);
+    async  testgetServerFavorites() {
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let favorites = await rainbowSDK.favorites.fetchAllFavorites();
+        //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+        //let jid = contactVincent01.jid_im;
+        //  let me = rainbowSDK.contacts.getConnectedUser();
+        //let tab = [];
+        //tab.push(contactVincent01.id);
+        //await rainbowSDK.contacts.addToNetwork(contactVincent00);
     }
 
-    async function testcreateGuestUserError() {
+    async  testcreateGuestUserError() {
         let firstname = "firstname_";
         let lastname = "lastname_" + new Date().getTime() + "_";
         for (let iter = 0; iter < 1; iter++) {
@@ -939,178 +972,178 @@ let urlS2S;
         }
     }
 
-    function testsearchUsers() {
+     testsearchUsers() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
-        rainbowSDK.contacts.searchUsers(20,undefined,"vincent").then(contact => {
+        rainbowSDK.contacts.searchUsers(20, undefined, "vincent").then(contact => {
             logger.log("debug", "MAIN - [testsearchUsers    ] ::  contact : ", contact);
         }).catch((err) => {
             logger.log("error", "MAIN - [testsearchUsers    ] :: catch reject contact : ", err);
         });
     }
-    
+
     //endregion Contacts
-    
+
     //region Messages
 
-    async function testgetContactsMessagesFromConversationId() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            //let now = new Date().getTime();
-            // get messages which are not events
-            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-            logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+    async  testgetContactsMessagesFromConversationId() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        //let now = new Date().getTime();
+        // get messages which are not events
+        let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
     }
 
-    async function testgetContactsMessagesFromConversationIdForGuest() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+    async  testgetContactsMessagesFromConversationIdForGuest() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
 
 
-            rainbowSDK.admin.createAnonymousGuestUser(60 * 60).then((guest: any) => {
-                logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result createAnonymousGuestUser : ", guest);
-                rainbowSDK.contacts.getContactByJid(guest.jid_im, true).then(contact => {
-                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactByJid : ", contact);
-                    rainbowSDK.conversations.openConversationForContact(contact).then(async conversation => {
-                        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result openConversationForContact : ", conversation);
-                        let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-                        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactsMessagesFromConversationId : ", msgNotEvents);
-                    });
+        rainbowSDK.admin.createAnonymousGuestUser(60 * 60).then((guest: any) => {
+            logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result createAnonymousGuestUser : ", guest);
+            rainbowSDK.contacts.getContactByJid(guest.jid_im, true).then(contact => {
+                logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactByJid : ", contact);
+                rainbowSDK.conversations.openConversationForContact(contact).then(async conversation => {
+                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result openConversationForContact : ", conversation);
+                    let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactsMessagesFromConversationId : ", msgNotEvents);
                 });
             });
-            /*
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            //let now = new Date().getTime();
-            // get messages which are not events
-            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-            logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
-            // */
+        });
+        /*
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        //let now = new Date().getTime();
+        // get messages which are not events
+        let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+        // */
     }
 
-    async function testremoveAllMessages() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                // Send message
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-            }
-            let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-            logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
+    async  testremoveAllMessages() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
+        logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
-    async function testsendMessageToConversationForContact() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                // Send message
-                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-                let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-                logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
-            }
-            // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-            // logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
-    }
-
-    async function testsendMessageToConversationForContactIrles() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "christophe.irles@al-enterprise.com";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
-                    "\n" +
-                    "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
-            let content = {
-                message: txt,
-                type: "text/markdown"
-            };
+    async  testsendMessageToConversationForContact() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
             let now = new Date().getTime();
             // Send message
             //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+        }
+        // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
+        // logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
-    async function testsendMessageToJid() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 1;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                // Send message
-                let msgSent = await rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
-                /*await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id) !== undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-                let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-                logger.log("debug", "MAIN - testsendMessageToJid - deleted in conversation the message : ", msgDeleted);
-                // */
-            }
-            // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-            // logger.log("debug", "MAIN - testsendMessageToJid - conversation with messages removed : ", conversationWithMessagesRemoved);
+    async  testsendMessageToConversationForContactIrles() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "christophe.irles@al-enterprise.com";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                "\n" +
+                "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+        let content = {
+            message: txt,
+            type: "text/markdown"
+        };
+        let now = new Date().getTime();
+        // Send message
+        //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
     }
 
-    function testsendMessageToConversation() {
+    async  testsendMessageToJid() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
+            /*await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id) !== undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testsendMessageToJid - deleted in conversation the message : ", msgDeleted);
+            // */
+        }
+        // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
+        // logger.log("debug", "MAIN - testsendMessageToJid - conversation with messages removed : ", conversationWithMessagesRemoved);
+    }
+
+     testsendMessageToConversation() {
         let that = this;
         // let conversation = null;
         let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
@@ -1129,335 +1162,335 @@ let urlS2S;
         });
     }
 
-    async function testsendMessageToConversation_html() {
-            let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+    async  testsendMessageToConversation_html() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                "\n" +
+                "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+        let content = {
+            message: txt,
+            type: "text/markdown"
+        };
+        /*let content = {
+            message : "<a href=\"xxx\">mon lmien</<a>",
+            type : "text/html"
+        }; // */
+        rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then((result) => {
+            logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - result : ", result);
+            logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - conversation : ", conversation);
+        });
+    }
+
+    async  testSendMessageToJid() {
+        let that = this;
+        let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
+            logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
+        });
+    }
+
+    async  testsendCorrectedChatMessage() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+            await until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
+        setTimeout(async () => {
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
+            });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+        }, 10000);
+    }
+
+    async  testsendCorrectedChatMessageWithContent() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            let txt = "# Test " + now + " \n" +
                     "\n" +
-                    "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+                    "Here is the test in **Rainbow-Node-SDK**\n";
             let content = {
                 message: txt,
                 type: "text/markdown"
             };
-            /*let content = {
-                message : "<a href=\"xxx\">mon lmien</<a>",
-                type : "text/html"
-            }; // */
-            rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then((result) => {
-                logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - result : ", result);
-                logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - conversation : ", conversation);
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
+            await until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
+        setTimeout(async () => {
+            let now = new Date().getTime();
+            let txt = "# Test modified " + now + " \n" +
+                    "\n" +
+                    "Here is the test in **Rainbow-Node-SDK**\n";
+            let content = {
+                message: txt,
+                type: "text/markdown"
+            };
+
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
             });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
+        }, 10000);
     }
 
-    async function testSendMessageToJid() {
-            let that = this;
-            let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
-                logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
-            });
+    async  testdeleteMessageFromConversation() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                "\n" +
+                "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+        let content = {
+            message: txt,
+            type: "text/markdown"
+        };
+        /*let content = {
+            message : "<a href=\"xxx\">mon lmien</<a>",
+            type : "text/html"
+        }; // */
+        rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
+            logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
+            logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
+
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation id : " + conversation.id);
+
+            let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+
+        });
     }
 
-    async function testsendCorrectedChatMessage() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                // Send message
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
-                await until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-            }
-            let msgSentOrig = msgsSent.slice(-1)[0];
-            let msgStrModified = "modified : " + msgSentOrig.content;
+    async  testmodifyMessageFromConversation() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
+                "\n" +
+                "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
+        let content = {
+            message: txt,
+            type: "text/markdown"
+        };
+        /*let content = {
+            message : "<a href=\"xxx\">mon lmien</<a>",
+            type : "text/html"
+        }; // */
+        rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
+            logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
+            logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
+
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation id : " + conversation.id);
+
+            let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testmodifyMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+
+        });
+    }
+
+    async  testgetlastEditableMsg() {
+        let that = this;
+        let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
+    }
+
+    async  testsendCorrectedChatMessageForBubble() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
+        // Retrieve a contact by its id
+        //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
+        let nbMsgToSend = 2;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date(); // .getTime()
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+        }
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.message;
+        logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
+        setTimeout(async () => {
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
+            });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+        }, 5000);
+    }
+
+    async  testsendCorrectedChatMessageForBubbleInExistingConversation() {
+        //let that = this;
+        let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
+        let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
+        await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+        let msgSentOrig = conversation.getlastEditableMsg();
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        setTimeout(async () => {
             logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-            setTimeout(async () => {
-                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                    logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
-                });
-                logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }, 10000);
-    }
-
-    async function testsendCorrectedChatMessageWithContent() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                let txt = "# Test " + now + " \n" +
-                        "\n" +
-                        "Here is the test in **Rainbow-Node-SDK**\n";
-                let content = {
-                    message: txt,
-                    type: "text/markdown"
-                };
-                // Send message
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
-                await until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-            }
-            let msgSentOrig = msgsSent.slice(-1)[0];
-            let msgStrModified = "modified : " + msgSentOrig.content;
-            logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
-            setTimeout(async () => {
-                let now = new Date().getTime();
-                let txt = "# Test modified " + now + " \n" +
-                        "\n" +
-                        "Here is the test in **Rainbow-Node-SDK**\n";
-                let content = {
-                    message: txt,
-                    type: "text/markdown"
-                };
-
-                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
-                    logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
-                });
-                logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
-            }, 10000);
-    }
-
-    async function testdeleteMessageFromConversation() {
-            let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
-                    "\n" +
-                    "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
-            let content = {
-                message: txt,
-                type: "text/markdown"
-            };
-            /*let content = {
-                message : "<a href=\"xxx\">mon lmien</<a>",
-                type : "text/html"
-            }; // */
-            rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
-                logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
-                logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
-
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation id : " + conversation.id);
-
-                let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-                logger.log("debug", "MAIN - testdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
-
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
             });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+        }, 5000);
     }
-    
-    async function testmodifyMessageFromConversation() {
-            let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let txt = "# TYPESCRIPT in SDK for Node.JS\n" +
-                    "\n" +
-                    "Here is the howto TypeScript in **Rainbow-Node-SDK**\n";
-            let content = {
-                message: txt,
-                type: "text/markdown"
-            };
-            /*let content = {
-                message : "<a href=\"xxx\">mon lmien</<a>",
-                type : "text/html"
-            }; // */
-            rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
-                logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
-                logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation id : " + conversation.id);
+    async  testdeleteAllMessageInOneToOneConversation() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        if (conversation && conversation.id) {
+            let result = await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
+        } else {
+            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
+        }
+    }
 
-                let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-                logger.log("debug", "MAIN - testmodifyMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+    async  testSendMessageToJidOfMySelf() {
+        let that = this;
+        let contactEmailToSearch = options.credentials.login;
+        logger.log("debug", "MAIN - testSendMessageToJidOfMySelf contactEmailToSearch : ", contactEmailToSearch);
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        await rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJidOfMySelf", contact.jid, "FR", null, "Le sujet de node testSendMessageToJidOfMySelf").then((result) => {
+            logger.log("debug", "MAIN - testSendMessageToJidOfMySelf sendMessageToJid - result : ", result);
+        }).catch((err) => {
+            logger.log("debug", "MAIN - testSendMessageToJidOfMySelf Error : ", err);
+        });
+    }
 
+    async  testSendMultipleMessages() {
+        //let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 100;
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            let msgstr = "hello num " + i + " from node : " + now;
+            // Send message
+            logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", msgstr);
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, msgstr, "FR", null, "Le sujet de node : " + now).catch((err) => {
+                logger.log("internalerror", "MAIN - testSendMultipleMessages - error while sendMessageToConversation : ", err);
             });
-    }
-    
-    async function testgetlastEditableMsg() {
-            let that = this;
-            let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
-    }
-
-    async function testsendCorrectedChatMessageForBubble() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
-            // Retrieve a contact by its id
-            //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
-            let nbMsgToSend = 2;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date(); // .getTime()
-                // Send message
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation num : " + i);
-            }
-            let msgSentOrig = msgsSent.slice(-1)[0];
-            let msgStrModified = "modified : " + msgSentOrig.message;
-            logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-            setTimeout(async () => {
-                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                    logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
-                });
-                logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }, 5000);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
+            await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation Msg : " + msgstr);
+        }
+        //let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
+        //logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
-    async function testsendCorrectedChatMessageForBubbleInExistingConversation() {
-            //let that = this;
-            let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
-            let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
-            await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
-            let msgSentOrig = conversation.getlastEditableMsg();
-            let msgStrModified = "modified : " + msgSentOrig.content;
-            setTimeout(async () => {
-                logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
-                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                    logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
-                });
-                logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
-            }, 5000);
+    async  testsendMessageToContactUrgencyMiddle() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+        rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, 'middle').then((result) => {
+            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+        });
     }
 
-    async function testdeleteAllMessageInOneToOneConversation() {
-            let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            if (conversation && conversation.id) {
-                let result = await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
-                logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
-                logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
-            } else {
-                logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
-            }
-    }
-
-    async function testSendMessageToJidOfMySelf() {
-            let that = this;
-            let contactEmailToSearch = options.credentials.login;
-            logger.log("debug", "MAIN - testSendMessageToJidOfMySelf contactEmailToSearch : ", contactEmailToSearch);
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            await rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJidOfMySelf", contact.jid, "FR", null, "Le sujet de node testSendMessageToJidOfMySelf").then((result) => {
-                logger.log("debug", "MAIN - testSendMessageToJidOfMySelf sendMessageToJid - result : ", result);
-            }).catch((err) => {
-                logger.log("debug", "MAIN - testSendMessageToJidOfMySelf Error : ", err);
-            });
-    }
-
-    async function testSendMultipleMessages() {
-            //let that = this;
-            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
-            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            // Retrieve the associated conversation
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 100;
-            let msgsSent = [];
-            for (let i = 1; i <= nbMsgToSend; i++) {
-                let now = new Date().getTime();
-                let msgstr = "hello num " + i + " from node : " + now;
-                // Send message
-                logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", msgstr);
-                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, msgstr, "FR", null, "Le sujet de node : " + now).catch((err) => {
-                    logger.log("internalerror", "MAIN - testSendMultipleMessages - error while sendMessageToConversation : ", err);
-                });
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-                // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-                msgsSent.push(msgSent);
-                logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
-                await Utils.until(() => {
-                    return conversation.getMessageById(msgSent.id)!==undefined;
-                }, "Wait for message to be added in conversation Msg : " + msgstr);
-            }
-            //let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-            //logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
-    }
-
-    async function testsendMessageToContactUrgencyMiddle() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
-            rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, 'middle').then((result) => {
-                logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
-            });
-    }
-
-    async function testsendMessageToContactUrgencyHigh() {
-            let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
-            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
-            //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
-            rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'high').then((result) => {
-                logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
-            });
+    async  testsendMessageToContactUrgencyHigh() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
+        logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+        rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'high').then((result) => {
+            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+        });
     }
 
     //endregion Messages
-    
+
     //region group 
 
-    async function testdeleteAllGroups() {
+    async  testdeleteAllGroups() {
         let that = this;
         logger.log("debug", "MAIN - testdeleteAllGroups before delete");
         await rainbowSDK.groups.deleteAllGroups();
         logger.log("debug", "MAIN - testdeleteAllGroups after delete");
     }
 
-    async function testsetGroupAsFavorite() {
+    async  testsetGroupAsFavorite() {
         let that = this;
         //logger.log("debug", "testsetGroupAsFavorite before delete");
         let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
@@ -1472,7 +1505,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
     }
 
-    async function testgetGroupByName(forceSearchOnServer) {
+    async  testgetGroupByName(forceSearchOnServer) {
         //let groups = rainbowSDK.groups.getAll();
         //let group = groups.find(group => group.name === GROUP_NAME);
         let GROUP_NAME = "Services";
@@ -1489,8 +1522,8 @@ let urlS2S;
     //endregion group
 
     // region Channels
-    
-    function testChannelImage() {
+
+     testChannelImage() {
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
         rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((result) => {
@@ -1512,7 +1545,7 @@ let urlS2S;
         });
     }
 
-    async function testPublishChannel() {
+    async  testPublishChannel() {
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
         if (mychannel) {
@@ -1528,7 +1561,7 @@ let urlS2S;
         }
     }
 
-    async function testgetDetailedAppreciationsChannel() {
+    async  testgetDetailedAppreciationsChannel() {
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
@@ -1548,7 +1581,7 @@ let urlS2S;
         }
     }
 
-    async function testfetchChannelItems() {
+    async  testfetchChannelItems() {
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
@@ -1577,7 +1610,7 @@ let urlS2S;
         }
     }
 
-    async function testfetchChannelItemsFromSubscribed() {
+    async  testfetchChannelItemsFromSubscribed() {
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
@@ -1606,26 +1639,26 @@ let urlS2S;
         }
     }
 
-    async function testcreateChannel() {
-            let mychannels = rainbowSDK.channels.getAllOwnedChannel();
-            let mychannel = mychannels ? mychannels[0]:null;
-            let utc = new Date().toJSON().replace(/-/g, "/");
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            // Retrieve a contact by its id
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
-            logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
-            let tab: any = [{"id": contact.id}];
-            let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
-            logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
-            let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
-            logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
-            /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
-                logger.log("debug", "createItem - res : ", res);
-            }); // */
+    async  testcreateChannel() {
+        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannel = mychannels ? mychannels[0]:null;
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
+        logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
+        let tab: any = [{"id": contact.id}];
+        let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
+        logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
+        let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
+        logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
+        /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
+            logger.log("debug", "createItem - res : ", res);
+        }); // */
     }
 
-    function testChannelDeleteMessage() {
+     testChannelDeleteMessage() {
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
         rainbowSDK.channels.getMessagesFromChannel(mychannel).then((result) => {
@@ -1644,7 +1677,7 @@ let urlS2S;
         });
     }
 
-    function testChannelupdateChannelDescription() {
+     testChannelupdateChannelDescription() {
         let mychannels = rainbowSDK.channels.getAllOwnedChannel();
         let mychannel = mychannels ? mychannels[0]:null;
         let utc = new Date().toJSON().replace(/-/g, "_");
@@ -1655,7 +1688,7 @@ let urlS2S;
         });
     }
 
-    function testupdateChannelAvatar() {
+     testupdateChannelAvatar() {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
@@ -1663,8 +1696,8 @@ let urlS2S;
     //endregion Channels
 
     //region Files
-    
-    function downloadFile() {
+
+     downloadFile() {
         logger.log("debug", "Main - downloadFile - file - ");
         rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceived: any) => {
             logger.log("debug", "Main - downloadFile, retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceived);
@@ -1686,7 +1719,7 @@ let urlS2S;
         });
     }
 
-    async function testgetAllFilesSentV1() {
+    async  testgetAllFilesSentV1() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesSent()) {
             let fdjson = JSON.stringify(fd);
@@ -1696,7 +1729,7 @@ let urlS2S;
         }
     }
 
-    async function testgetAllFilesReceived() {
+    async  testgetAllFilesReceived() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
             logger.log("debug", `Main - Checking file ${fd.fileName} ...`, fd);
@@ -1705,7 +1738,7 @@ let urlS2S;
         }
     }
 
-    async function testgetAllFilesSent() {
+    async  testgetAllFilesSent() {
         let that = this;
         let filesSent = rainbowSDK.fileStorage.getAllFilesSent();
         let filesSentJSON = util.inspect(filesSent, false, 4, false);
@@ -1718,7 +1751,7 @@ let urlS2S;
         } // */
     }
 
-    async function testaddFileViewer() {
+    async  testaddFileViewer() {
         let that = this;
 
         let user: Contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
@@ -1733,7 +1766,7 @@ let urlS2S;
         }
     }
 
-    async function testdownloadFile() {
+    async  testdownloadFile() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
             logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
@@ -1767,7 +1800,7 @@ let urlS2S;
                                     writeStream.write(new Buffer(blobArray[index]));
                                     blobArray[index] = null;
                                 } else {
-                                    this.$log.debug("[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                    logger.log("debug","[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
                                     break;
                                 }
                             }
@@ -1785,7 +1818,7 @@ let urlS2S;
         }
     }
 
-    async function testdownloadFileInPath() {
+    async  testdownloadFileInPath() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
             logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
@@ -1827,7 +1860,7 @@ let urlS2S;
         }
     }
 
-    function testUploadFileToConversation() {
+     testUploadFileToConversation() {
         let that = this;
         // let conversation = null;
         let file = null;
@@ -1883,7 +1916,7 @@ let urlS2S;
         //});
     }
 
-    function testUploadFileToConversationEmpty() {
+     testUploadFileToConversationEmpty() {
         let that = this;
         // let conversation = null;
         let file = null;
@@ -1910,7 +1943,7 @@ let urlS2S;
         //});
     }
 
-    function testUploadFileToConversationByPath() {
+     testUploadFileToConversationByPath() {
         let that = this;
         // let conversation = null;
         let file = null;
@@ -1932,7 +1965,7 @@ let urlS2S;
         //});
     }
 
-    function testuploadFileToStorage() {
+     testuploadFileToStorage() {
         let that = this;
         // let conversation = null;
         let file = null;
@@ -1948,7 +1981,7 @@ let urlS2S;
         });
     }
 
-    async function testfileOwnershipChange() {
+    async  testfileOwnershipChange() {
         let that = this;
         let contactEmail = "vincent03@vbe.test.openrainbow.net";
         //let contactEmail = "vincent.berder@al-enterprise.com";
@@ -1969,7 +2002,7 @@ let urlS2S;
                     let fileStored: any = await rainbowSDK.fileStorage.uploadFileToStorage(file);
                     logger.log("debug", "MAIN - testfileOwnershipChange - fileStored.id : ", fileStored.id, ", fileStored.fileName : ", fileStored.fileName, ", fileStored.url : ", fileStored.url, ", fileStored.ownerId : ", fileStored.ownerId);
                     let fileOwnerChanged = await rainbowSDK.fileStorage.fileOwnershipChange(fileStored.id, contact.id);
-                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged.id : ", fileOwnerChanged.id, ", fileOwnerChanged.fileName : ", fileOwnerChanged.fileName, ", fileOwnerChanged.url : ", fileOwnerChanged.url, ", fileOwnerChanged.ownerId : ", fileOwnerChanged.ownerId); 
+                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged.id : ", fileOwnerChanged.id, ", fileOwnerChanged.fileName : ", fileOwnerChanged.fileName, ", fileOwnerChanged.url : ", fileOwnerChanged.url, ", fileOwnerChanged.ownerId : ", fileOwnerChanged.ownerId);
                 } catch (err) {
                     logger.log("error", "MAIN - testfileOwnershipChange - error : ", err);
                 }
@@ -1977,7 +2010,7 @@ let urlS2S;
         });
     }
 
-    function testRetrieveOneFileDescriptor() {
+     testRetrieveOneFileDescriptor() {
         logger.log("debug", "Main - testRetrieveOneFileDescriptor - file - ");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId("5cab49e3827d70023481c17a");
         logger.log("debug", "Main - testRetrieveOneFileDescriptor, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
@@ -1986,7 +2019,7 @@ let urlS2S;
         });
     }
 
-    async function testgetFileDescriptorsByCompanyId() {
+    async  testgetFileDescriptorsByCompanyId() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId. ");
         /*let format  : string = "small";
@@ -2019,7 +2052,7 @@ let urlS2S;
 
         let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId(undefined, true);
         logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - filesDescriptors : ", filesDescriptors);
-        
+
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
@@ -2035,17 +2068,17 @@ let urlS2S;
         // */
 
     }
-    
-    async function testretrieveFileDescriptorsListPerOwner() {
+
+    async  testretrieveFileDescriptorsListPerOwner() {
         let filesDescriptors = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
         logger.log("debug", "MAIN - testretrieveFileDescriptorsListPerOwner - filesDescriptors : ", filesDescriptors);
     }
-    
+
     //endregion Files
 
     //region Bubbles
 
-    function testCreateBubbles() {
+     testCreateBubbles() {
         let physician = {
             "name": "",
             "contact": null,
@@ -2114,7 +2147,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testCreateBubbleAndSendMessage() {
+    async  testCreateBubbleAndSendMessage() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         let appointmentRoom = "testBot";
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -2136,8 +2169,8 @@ let urlS2S;
         }); // */
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
-    
-  async function testCreateBubbleAndInvite() {
+
+    async  testCreateBubbleAndInvite() {
         let loginEmail = "vincent01@vbe.test.openrainbow.net";
         let appointmentRoom = "testBot_";
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -2161,7 +2194,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testCreateBubbleWithNoInvitationAndSendMessage() {
+    async  testCreateBubbleWithNoInvitationAndSendMessage() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         let appointmentRoom = "testBot";
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -2185,7 +2218,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testCreate50BubblesAndArchiveThem() {
+    async  testCreate50BubblesAndArchiveThem() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         let appointmentRoom = "testBot";
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -2232,7 +2265,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testCreate50BubblesAndActivateThem() {
+    async  testCreate50BubblesAndActivateThem() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         let appointmentRoom = "testBot";
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -2269,7 +2302,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    function testCreateBubblesAndInviteContactsByEmails() {
+     testCreateBubblesAndInviteContactsByEmails() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
             logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
@@ -2291,7 +2324,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    function testCreateBubblesOnly() {
+     testCreateBubblesOnly() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
             logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
@@ -2299,7 +2332,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testNbCreateBubblesOnly(nbBubblesToCreate: number) {
+    async  testNbCreateBubblesOnly(nbBubblesToCreate: number) {
         let utc = new Date().toJSON().replace(/-/g, "/");
         for (let i = 0; i < nbBubblesToCreate; i++) {
             await rainbowSDK.bubbles.createBubble("bubbles_" + i + "_" + utc, "bubbles_" + i + "_" + utc).then((bubble: any) => {
@@ -2310,7 +2343,7 @@ let urlS2S;
         }
     }
 
-    function testCreateBubble_closeAndDeleteBubble() {
+     testCreateBubble_closeAndDeleteBubble() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubble_closeAndDeleteBubble" + utc, "testCreateBubble_closeAndDeleteBubble" + utc, true).then((bubble) => {
             logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: createBubble request ok, bubble : ", bubble);
@@ -2321,7 +2354,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    async function testsendMessageToBubbleJid_WithMention() {
+    async  testsendMessageToBubbleJid_WithMention() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         let bubbleName = "testBotName_";
         let bubbleDescription = "testBotDescription_";
@@ -2364,7 +2397,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    function testgetBubblesConsumption() {
+     testgetBubblesConsumption() {
         rainbowSDK.bubbles.getBubblesConsumption().then(consumption => {
             if (consumption) {
                 logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption consumption : ", consumption);
@@ -2375,17 +2408,17 @@ let urlS2S;
 
     }
 
-    async function testgetAllOwnedNotArchivedBubbles() {
+    async  testgetAllOwnedNotArchivedBubbles() {
         let bubblesNotArchived = await rainbowSDK.bubbles.getAllOwnedNotArchivedBubbles();
         logger.log("debug", "MAIN - testgetAllOwnedNotArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
     }
 
-    async function testgetAllOwnedArchivedBubbles() {
+    async  testgetAllOwnedArchivedBubbles() {
         let bubblesArchived = await rainbowSDK.bubbles.getAllOwnedArchivedBubbles();
         logger.log("debug", "MAIN - testgetAllOwnedArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
     }
 
-    async function testgetAllOwnedBubblesArchivedBubbles() {
+    async  testgetAllOwnedBubblesArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
@@ -2407,7 +2440,7 @@ let urlS2S;
 
     }
 
-    async function testgetArchivedBubbles() {
+    async  testgetArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllBubbles();
         logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
@@ -2429,7 +2462,7 @@ let urlS2S;
 
     }
 
-    function testArchive10BubblesFromgetAllActiveBubbles() {
+     testArchive10BubblesFromgetAllActiveBubbles() {
         let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
         logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles getAllActiveBubbles - nb owned bulles : ", bubbles ? bubbles.length:0);
 
@@ -2444,7 +2477,7 @@ let urlS2S;
 //utils.setTimeoutPromised(1).then(()=> {
 //    rainbowSDK.start();
 //});
-    function testBubblesArchived() {
+     testBubblesArchived() {
         /*let bubbles = rainbowSDK.bubbles.getAllBubbles();
     
         bubbles.forEach((bubble) => {
@@ -2467,7 +2500,7 @@ let urlS2S;
         });
     }
 
-    function testgetBubbleUnknown() {
+     testgetBubbleUnknown() {
         let bubbleTestestsed = "room_e290bece54c34d69aef68f831be0d309@muc.vberder-all-in-one-dev-1.opentouch.cloud";
         rainbowSDK.bubbles.getBubbleByJid(bubbleTestestsed).then((bubbleFound) => {
             logger.log("debug", "MAIN - [testgetBubbleUnknown    ] :: bubbleFound : ", bubbleFound);
@@ -2476,115 +2509,115 @@ let urlS2S;
         });
     }
 
-    async function testSetBubbleCustomData() {
-            let that = this;
-            let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-            let bubble;
-            if (activesBubbles && activesBubbles.length > 0) {
-                //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = Bubble_1.Bubble.BubbleFactory("", rainbowSDK.contacts)(activesBubbles[0]);
-            }
-            //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-            logger.log("debug", "MAIN - testSetBubbleCustomData - bubble : ", bubble);
-            //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
-            let now = new Date().getTime();
-            await rainbowSDK.bubbles.setBubbleCustomData(bubble, {
-                "mypersonnaldata": "valueofmypersonnaldata",
-                "updateDate": now
-            });
-            /*    await utils.setTimeoutPromised(3000);
-    
-                activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-                activesBubbles.forEach( ( bubbleIter )=> {
-                    if (bubble && bubbleIter && bubbleIter.id === bubble.id) {
-                        logger.log("debug", "MAIN - testSetBubbleCustomData, Few seconds after sending the customData bubbleIter : ", bubbleIter);
-                    }
-    
-                });
-            // */
-            //});
-    }
+    async  testSetBubbleCustomData() {
+        let that = this;
+        let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+        let bubble;
+        if (activesBubbles && activesBubbles.length > 0) {
+            //bubble = Object.assign(new Bubble(), activesBubbles[0]);
+            bubble = Bubble_1.Bubble.BubbleFactory("", rainbowSDK.contacts)(activesBubbles[0]);
+        }
+        //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
+        logger.log("debug", "MAIN - testSetBubbleCustomData - bubble : ", bubble);
+        //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
+        let now = new Date().getTime();
+        await rainbowSDK.bubbles.setBubbleCustomData(bubble, {
+            "mypersonnaldata": "valueofmypersonnaldata",
+            "updateDate": now
+        });
+        /*    await utils.setTimeoutPromised(3000);
 
-    async function testSetBubbleName() {
-            let that = this;
-            let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-            let bubble;
-            if (activesBubbles && activesBubbles.length > 0) {
-                //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
-            }
-            //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-            logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
-            //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
-            let now = new Date().getTime();
-            let bubbleUpdated = await rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
-            logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
-    }
-
-    async function testSetBubbleTopic() {
-            let that = this;
-            let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-            let bubble;
-            if (activesBubbles && activesBubbles.length > 0) {
-                //bubble = Object.assign(new Bubble(), activesBubbles[0]);
-                bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
-            }
-            //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-            logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
-            //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
-            let now = new Date().getTime();
-            let bubbleUpdated = await rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
-            logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
-    }
-
-
-    async function testDeletebubble() {
-            let bubbleId = "5cde768d424fb13186b9e6d4";
-            let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
-            rainbowSDK.bubbles.deleteBubble(bubble);
-    }
-
-    async function testDeleteBubble() {
-            let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
-            logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
-            rainbowSDK.bubbles.deleteBubble(bubbles[0]).then((resultDelete) => {
-                logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
-            });
-    }
-
-    async function testDeleteBubble_ByBubbleId(bubbleId) {
-            let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
-            logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId, ", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
-            rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
-                logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
-            });
-    }
-
-    async function testLeaveBubble() {
-            let bubbles = await rainbowSDK.bubbles.getAllBubbles();
-            logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
-            for (const bubble of bubbles) {
-                if (bubble.name.indexOf("testBot")!= -1) {
-                    logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
-                    if (bubble.ownerContact.id===rainbowSDK._core._rest.userId) {
-                        // The bubble should be deleted instead of leaved
-                        logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", The bubble should be deleted instead of leaved."); //logger.colors.green(JSON.stringify(result)));
-                        rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
-                            logger.log("debug", "MAIN - testLeaveBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
-                        });
-                    } else {
-                        rainbowSDK.bubbles.leaveBubble(bubble).then((resultLeave) => {
-                            logger.log("debug", "MAIN - testLeaveBubble bubble.name : ", bubble.name, ", resultLeave : ", resultLeave); //logger.colors.green(JSON.stringify(result)));
-                        });
-                        // */
-                    }
-                } else {
-                    logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+            activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            activesBubbles.forEach( ( bubbleIter )=> {
+                if (bubble && bubbleIter && bubbleIter.id === bubble.id) {
+                    logger.log("debug", "MAIN - testSetBubbleCustomData, Few seconds after sending the customData bubbleIter : ", bubbleIter);
                 }
-            }
+
+            });
+        // */
+        //});
     }
 
-    function testCreateBubblesAndSetTags() {
+    async  testSetBubbleName() {
+        let that = this;
+        let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+        let bubble;
+        if (activesBubbles && activesBubbles.length > 0) {
+            //bubble = Object.assign(new Bubble(), activesBubbles[0]);
+            bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+        }
+        //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
+        logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
+        //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
+        let now = new Date().getTime();
+        let bubbleUpdated = await rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
+        logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
+    }
+
+    async  testSetBubbleTopic() {
+        let that = this;
+        let activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+        let bubble;
+        if (activesBubbles && activesBubbles.length > 0) {
+            //bubble = Object.assign(new Bubble(), activesBubbles[0]);
+            bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
+        }
+        //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
+        logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
+        //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
+        let now = new Date().getTime();
+        let bubbleUpdated = await rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
+        logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
+    }
+
+
+    async  testDeletebubble() {
+        let bubbleId = "5cde768d424fb13186b9e6d4";
+        let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        rainbowSDK.bubbles.deleteBubble(bubble);
+    }
+
+    async  testDeleteBubble() {
+        let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+        rainbowSDK.bubbles.deleteBubble(bubbles[0]).then((resultDelete) => {
+            logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+        });
+    }
+
+    async  testDeleteBubble_ByBubbleId(bubbleId) {
+        let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
+        logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId, ", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
+        rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
+            logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+        });
+    }
+
+    async  testLeaveBubble() {
+        let bubbles = await rainbowSDK.bubbles.getAllBubbles();
+        logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+        for (const bubble of bubbles) {
+            if (bubble.name.indexOf("testBot")!= -1) {
+                logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+                if (bubble.ownerContact.id===rainbowSDK._core._rest.userId) {
+                    // The bubble should be deleted instead of leaved
+                    logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", The bubble should be deleted instead of leaved."); //logger.colors.green(JSON.stringify(result)));
+                    rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
+                        logger.log("debug", "MAIN - testLeaveBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+                    });
+                } else {
+                    rainbowSDK.bubbles.leaveBubble(bubble).then((resultLeave) => {
+                        logger.log("debug", "MAIN - testLeaveBubble bubble.name : ", bubble.name, ", resultLeave : ", resultLeave); //logger.colors.green(JSON.stringify(result)));
+                    });
+                    // */
+                }
+            } else {
+                logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+            }
+        }
+    }
+
+     testCreateBubblesAndSetTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTags" + utc, "testCreateBubblesAndSetTags" + utc).then((bubble: any) => {
             logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: createBubble request ok", bubble);
@@ -2607,7 +2640,7 @@ let urlS2S;
     }
 
 
-    function testretrieveAllBubblesByTags() {
+     testretrieveAllBubblesByTags() {
         //let tags = [{tag: "Essai1DeTag"}];
         let tags = ["Essai1DeTag", "tagess2"];
         let tags1 = ["Essai1DeTag"];
@@ -2627,7 +2660,7 @@ let urlS2S;
         });
     }
 
-    function testCreateBubblesAndSetTagsAndDeleteTags() {
+     testCreateBubblesAndSetTagsAndDeleteTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTagsAndDeleteTags" + utc, "testCreateBubblesAndSetTagsAndDeleteTags" + utc).then((bubble: any) => {
             logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: createBubble request ok", bubble);
@@ -2660,7 +2693,7 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
-    function testUploadFileToBubble() {
+     testUploadFileToBubble() {
         let that = this;
         let file = null;
         let strMessage = "message for the file";
@@ -2676,9 +2709,9 @@ let urlS2S;
         logger.log("debug", "EngineVincent00 - uploadFileToBubble getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
-            if (bubble.isActive == false) {
-                that.presence.sendInitialBubblePresenceSync(bubble);
-            } 
+            if (bubble.isActive==false) {
+                rainbowSDK.presence.sendInitialBubblePresenceSync(bubble);
+            }
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessage).then((result) => {
                 logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
@@ -2687,7 +2720,7 @@ let urlS2S;
         //});
     }
 
-    function test_refreshMemberAndOrganizerLists() {
+     test_refreshMemberAndOrganizerLists() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
         logger.log("debug", "test_refreshMemberAndOrganizerLists - getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
@@ -2699,7 +2732,7 @@ let urlS2S;
         }
     }
 
-    function testGetUsersFromBubble() {
+     testGetUsersFromBubble() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
         logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
@@ -2713,46 +2746,46 @@ let urlS2S;
         //});
     }
 
-    function testupdateAvatarForBubble() {
+     testupdateAvatarForBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
         rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", result[0]);
     }
 
-    function testgetAllOwnedBubbles() {
+     testgetAllOwnedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
     }
 
-    async function testgetAvatarFromBubble() {
+    async  testgetAvatarFromBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetAvatarFromBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let avatarBlob = await rainbowSDK.bubbles.getAvatarFromBubble(result[0]);
         logger.log("debug", "MAIN - testgetAvatarFromBubble - avatarBlob : ", avatarBlob);
     }
 
-    async function testgetABubblePublicLinkAsModerator() {
+    async  testgetABubblePublicLinkAsModerator() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let bubblePublicLink = await rainbowSDK.bubbles.getABubblePublicLinkAsModerator(result[0].id);
         logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - bubblePublicLink : ", bubblePublicLink);
     }
 
-    async function testgetAllBubblesJidsOfAUserIsMemberOf() {
+    async  testgetAllBubblesJidsOfAUserIsMemberOf() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let result2 = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
         logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result2 : ", result2);
     }
 
-    async function testgetAllBubblesVisibleByTheUser() {
+    async  testgetAllBubblesVisibleByTheUser() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let result2 = await rainbowSDK.bubbles.getAllBubblesVisibleByTheUser();
         logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result2 : ", result2);
     }
 
-    async function testgetBubblesDataByListOfBubblesIds() {
+    async  testgetBubblesDataByListOfBubblesIds() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let bubblesIds = [];
@@ -2767,15 +2800,15 @@ let urlS2S;
     //endregion Bubbles
 
     //region Conference V1
-    
-    function testGetAllConferences() {
+
+     testGetAllConferences() {
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
         });
     }
-    
+
     /*
-    async function testaskConferenceSnapshot() {
+    async  testaskConferenceSnapshot() {
         let allConferences: [any] = await rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - testaskConferenceSnapshot all conferences : ", conferences);
             return conferences;
@@ -2798,7 +2831,7 @@ let urlS2S;
         }
     }
 
-    function testStartConference() {
+     testStartConference() {
         let webrtcConferenceId = rainbowSDK.bubbles.getWebRtcConfEndpointId();
         logger.log("debug", "MAIN - testStartConference, webrtcConferenceId : ", webrtcConferenceId);
 
@@ -2817,7 +2850,7 @@ let urlS2S;
         });
     }
 
-    function testjoinConferenceV2(bubbleId : string = "621c9f61dd692c3dd3131869") {
+     testjoinConferenceV2(bubbleId : string = "621c9f61dd692c3dd3131869") {
 
         rainbowSDK.bubbles.getBubbleById(bubbleId).then((bubble) => {
             logger.log("debug", "MAIN - testjoinConferenceV2 - found bubble.id : ", bubble.id);
@@ -2857,7 +2890,7 @@ let urlS2S;
 
     //region Guests
 
-    async function testCreateAGuestAndAddItToACreatedBubble() {
+    async  testCreateAGuestAndAddItToACreatedBubble() {
         let loginEmail = "vincentGuest@vbe.test.openrainbow.net";
         let password = "Password_123"
         let bubbleName = "testBotName_";
@@ -2881,7 +2914,7 @@ let urlS2S;
 
     }
 
-    async function testCleanAGuest() {
+    async  testCleanAGuest() {
         let loginEmail = "vincentGuest@vbe.test.openrainbow.net";
         let password = "Password_123"
         let bubbleName = "testBotName_";
@@ -2904,43 +2937,12 @@ let urlS2S;
     }
 
     //endregion Guests
-
-//This is the event handler to detect change of a contact's presence and output in console contact name and new status
-    rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
-        //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
-        if (contact.presence!="Unknown") {
-            return false;
-        }
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
-        //getLastMessageOfConversation(contact);
-    });
-
-    rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
-        //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-        logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence, ", status : ", data.status);
-        //getLastMessageOfConversation(contact);
-    });
-
-    rainbowSDK.events.on("rainbow_onuserinviteaccepted", function (invit) {
-        logger.log("debug", "MAIN - (rainbow_onuserinviteaccepted) invit : ", invit);
-    });
-
-    rainbowSDK.events.on("rainbow_oncontactremovedfromnetwork", async function (contact) {
-        logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
-    });
-
-
-    async function testgetLastMessageOfConversation() {
+        
+    async  testgetLastMessageOfConversation() {
+        let that = this;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        let conversation = await getLastMessageOfConversation(contact);
+        let conversation = await that.getLastMessageOfConversation(contact);
         logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation : ", conversation);
 
         conversation.messages.forEach((message) => {
@@ -2948,7 +2950,7 @@ let urlS2S;
         });
     }
 
-    async function testresetHistoryPageForConversation() {
+    async  testresetHistoryPageForConversation() {
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
@@ -2957,7 +2959,8 @@ let urlS2S;
         });
     }
 
-    function getLastMessageOfConversation(contact): Promise<Conversation> {
+     getLastMessageOfConversation(contact): Promise<Conversation> {
+        let that = this;
         let theLastMessageText = null;
         let conv = undefined;
         return new Promise((resolve, reject) => {
@@ -2971,12 +2974,12 @@ let urlS2S;
                 //Check value of property conversation.historyComplete
                 if (conversation.historyComplete===false) {
                     //Retrieve conversation history prior getting last message from conversation history
-                    await getConversationHistory(conversation);
+                    await that.getConversationHistory(conversation);
                     resolve(conversation);
                 } else {
                     //The code below will be executed in case if conversation history in completed.
                     //Therefore we can call function to output the last message to console
-                    PrintTheLastMessage(conversation);
+                    that.PrintTheLastMessage(conversation);
                     resolve(conversation);
                 }
             }).catch(function (err) {
@@ -2987,7 +2990,8 @@ let urlS2S;
         });
     }
 
-    function getConversationHistory(conversation) {
+     getConversationHistory(conversation) {
+        let that = this;
         return new Promise((resolve, reject) => {
             //get messages from conversation. Max number of messages whichcan be retrieved at once is 100
             rainbowSDK.im.getMessagesFromConversation(conversation, 3).then(function (result) {
@@ -3000,7 +3004,7 @@ let urlS2S;
                 } else {
                     //At that pint conversation object has message history updated.
                     //Therefore we can call function to output the last message to console
-                    PrintTheLastMessage(conversation);
+                    that.PrintTheLastMessage(conversation);
                     resolve(conversation)
                 }
             }).catch(function (err) {
@@ -3011,7 +3015,7 @@ let urlS2S;
         });
     }
 
-    function PrintTheLastMessage(conversation) {
+     PrintTheLastMessage(conversation) {
         //Get number of messages in conversation
         let nbMessagesInConversation = conversation.messages.length;
         //If it is more than 0 then retrieve the last message from messages array.
@@ -3026,36 +3030,39 @@ let urlS2S;
         }
     }
 
-    function getConversationHistoryMaxime(conversation) {
+     getConversationHistoryMaxime(conversation) {
+        let that = this;
         logger.log("debug", "MAIN - getConversationHistoryMaxime");
         return rainbowSDK.conversations.getHistoryPage(conversation, 100).then((conversationUpdated) => {
             logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage");
-            
-            let result =  conversationUpdated.historyComplete ? conversationUpdated:getConversationHistoryMaxime(conversationUpdated);
+
+            let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
             logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage result : ", result);
             return result;
         });
     }
 
-    async function testGetHistoryPage() {
+    async  testGetHistoryPage() {
+        let that = this;
         let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
             logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
-            getConversationHistoryMaxime(conversation).then(() => {
+            that.getConversationHistoryMaxime(conversation).then(() => {
                 logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
             });
             ;
         });
     }
 
-    async function testGetHistoryPageBubble() {
+    async  testGetHistoryPageBubble() {
+        let that = this;
         let bubbles = rainbowSDK.bubbles.getAllBubbles();
         if (bubbles.length > 0) {
             let bubble = bubbles[0];
             rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
                 logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
-                getConversationHistoryMaxime(conversation).then(() => {
+                that.getConversationHistoryMaxime(conversation).then(() => {
                     logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                 });
             });
@@ -3063,7 +3070,7 @@ let urlS2S;
     }
 
 
-    function testgetAllConversations() {
+     testgetAllConversations() {
         let conversations = rainbowSDK.conversations.getAllConversations();
         if (conversations) {
             conversations.forEach((conversation) => {
@@ -3072,7 +3079,7 @@ let urlS2S;
         }
     }
 
-    async function testgetMyProfiles() {
+    async  testgetMyProfiles() {
         //let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         /*
@@ -3086,19 +3093,19 @@ let urlS2S;
     }
 
 //region BUBBLES CONTAINERS
-    async function testgetAllBubblesContainers() {
+    async  testgetAllBubblesContainers() {
         rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
             logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
         });
     }
 
-    async function testgetAllBubblesContainersByName() {
+    async  testgetAllBubblesContainersByName() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
             logger.log("debug", "MAIN - testgetAllBubblesContainersByName - getAllBubblesContainers, result : ", result);
         });
     }
 
-    async function testgetABubblesContainersById() {
+    async  testgetABubblesContainersById() {
         rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
             logger.log("debug", "MAIN - testgetABubblesContainersById - getAllBubblesContainers, result : ", result);
             rainbowSDK.bubbles.getABubblesContainersById(result[0].id).then(async function (result2) {
@@ -3108,7 +3115,7 @@ let urlS2S;
         });
     }
 
-    async function testaddBubblesToContainerById() {
+    async  testaddBubblesToContainerById() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
             logger.log("debug", "MAIN - testaddBubblesToContainerById - getAllBubblesContainers, result : ", result);
             let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
@@ -3122,7 +3129,7 @@ let urlS2S;
         });
     }
 
-    async function testupdateBubbleContainerNameAndDescriptionById() {
+    async  testupdateBubbleContainerNameAndDescriptionById() {
         let name = "containers1"
         rainbowSDK.bubbles.getAllBubblesContainers(name).then(async function (result) {
             logger.log("debug", "MAIN - testupdateBubbleContainerNameAndDescriptionById - getAllBubblesContainers, result : ", result);
@@ -3135,7 +3142,7 @@ let urlS2S;
         });
     }
 
-    async function testcreateBubbleContainer() {
+    async  testcreateBubbleContainer() {
         let name = "containersNew"
         let utc = new Date().toJSON().replace(/-/g, "_");
         name += "_" + utc;
@@ -3148,7 +3155,7 @@ let urlS2S;
         });
     }
 
-    async function testaddBubblesAndRemoveToContainersById() {
+    async  testaddBubblesAndRemoveToContainersById() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result: any) {
             logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - getAllBubblesContainers, result : ", result);
             let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
@@ -3168,27 +3175,27 @@ let urlS2S;
 
     //region CallLog
 
-    function testDeleteOneCallLog() {
+     testDeleteOneCallLog() {
         let mycalllog = mycalllogs ? mycalllogs.callLogs[0]:{};
         let utc = new Date().toJSON().replace(/-/g, "_");
         rainbowSDK.calllog.deleteOneCallLog(mycalllog.id);
     }
 
-    function testDeleteAllCallLogs() {
+     testDeleteAllCallLogs() {
         let mycalllog = mycalllogs ? mycalllogs.callLogs[0]:{};
         let utc = new Date().toJSON().replace(/-/g, "_");
         rainbowSDK.calllog.deleteAllCallLogs();
     }
 
-    async function testDeleteCallLogsForContact() {
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let jid = contact.jid_im;
-            rainbowSDK.calllog.deleteCallLogsForContact(jid);
+    async  testDeleteCallLogsForContact() {
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let jid = contact.jid_im;
+        rainbowSDK.calllog.deleteCallLogsForContact(jid);
     }
 
-    function testmarkCallLogAsRead() {
+     testmarkCallLogAsRead() {
         let mycalllog = {"id": null}; //mycalllogs ? mycalllogs.callLogs[0] : {};
         let utc = new Date().toJSON().replace(/-/g, "_");
         if (mycalllogs) {
@@ -3207,7 +3214,7 @@ let urlS2S;
         }
     }
 
-    function testmarkAllCallsLogsAsRead() {
+     testmarkAllCallsLogsAsRead() {
         logger.log("debug", "MAIN - testmarkAllCallsLogsAsRead."); //logger.colors.green(JSON.stringify(result)));
         rainbowSDK.calllog.markAllCallsLogsAsRead();
     }
@@ -3215,8 +3222,8 @@ let urlS2S;
     //endregion CallLog
 
     //region Telephony
-    
-    function testmakeCallByPhoneNumber() {
+
+     testmakeCallByPhoneNumber() {
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
@@ -3246,7 +3253,7 @@ let urlS2S;
         });
     }
 
-    function testmakeCallByPhoneNumberAndHoldCallRetrieveCall() {
+     testmakeCallByPhoneNumberAndHoldCallRetrieveCall() {
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
@@ -3279,7 +3286,7 @@ let urlS2S;
         });
     }
 
-    function testmakeCallByPhoneNumberProd() {
+     testmakeCallByPhoneNumberProd() {
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", "My_correlatorData").then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
@@ -3309,27 +3316,33 @@ let urlS2S;
         });
     }
 
-    async function testdeflectCallToVM() {
+    async  testdeflectCallToVM() {
         //let call = {contact:{displayNameForLog:()=>{console.log("deflectCallToVM contact display.")}}};
-        let call = calls ? calls[(calls.length-1)] : {contact:{displayNameForLog:()=>{console.log("deflectCallToVM contact display.")}}};
+        let call = calls ? calls[(calls.length - 1)]:{
+            contact: {
+                displayNameForLog: () => {
+                    console.log("deflectCallToVM contact display.")
+                }
+            }
+        };
         let result = await rainbowSDK.telephony.deflectCallToVM(call).catch((err) => {
             logger.log("debug", "MAIN - (testdeflectCallToVM) error while deflect call to VM : ", err);
         });
         logger.log("debug", "MAIN - (testdeflectCallToVM) result : ", result);
     }
-    
+
     //endregion Telephony
 
     //region Public URL of Bubble
 
-    async function testgetAllPublicUrlOfBubbles() {
+    async  testgetAllPublicUrlOfBubbles() {
         let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubbles().catch((err) => {
             logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubbles) error while creating guest user :  ", err);
         });
         logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubbles] All PublicUrl Of Bubbles : ", result);
     }
 
-    async function testgetAllPublicUrlOfBubblesOfAUser() {
+    async  testgetAllPublicUrlOfBubblesOfAUser() {
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubblesOfAUser(contact).catch((err) => {
@@ -3338,7 +3351,7 @@ let urlS2S;
         logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubblesOfAUser] All PublicUrl Of Bubbles : ", result);
     }
 
-    async function testgetAllPublicUrlOfABubble() {
+    async  testgetAllPublicUrlOfABubble() {
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let myBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
@@ -3353,7 +3366,7 @@ let urlS2S;
         }
     }
 
-    async function testgetAllPublicUrlOfABubbleOfAUser() {
+    async  testgetAllPublicUrlOfABubbleOfAUser() {
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
@@ -3368,12 +3381,12 @@ let urlS2S;
             }
         }
     }
-    
+
     //endregion Public URL of Bubble
 
     //region Offers
 
-    async function testretrieveAllOffersOfCompanyById() {
+    async  testretrieveAllOffersOfCompanyById() {
         let Offers = await rainbowSDK.admin.retrieveAllOffersOfCompanyById();
         logger.log("debug", "MAIN - testretrieveAllOffersOfCompanyById - Offers : ", Offers);
         for (let offer of Offers) {
@@ -3384,7 +3397,7 @@ let urlS2S;
         }
     }
 
-    async function testsubscribeCompanyToDemoOffer() {
+    async  testsubscribeCompanyToDemoOffer() {
 
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
@@ -3406,14 +3419,14 @@ let urlS2S;
 
     }
 
-    async function testgetAUserProfilesByUserId() {
+    async  testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
         let result = await rainbowSDK.admin.getAUserProfilesByUserEmail(connectedUser.loginEmail);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId by email - profiles : ", result);
     }
 
-    async function testgetAUserProfilesFeaturesByUserId() {
+    async  testgetAUserProfilesFeaturesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesFeaturesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId - profiles : ", Offers);
         let result = await rainbowSDK.admin.getAUserProfilesFeaturesByUserEmail(connectedUser.loginEmail);
@@ -3424,7 +3437,7 @@ let urlS2S;
 
     //region Connections
 
-    function testReconnection() {
+     testReconnection() {
         let that = this;
         // let conversation = null;
         let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
@@ -3447,22 +3460,22 @@ let urlS2S;
         });
     }
 
-    async function testDeleteServerConversation() {
-            let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-            let utc = new Date().toJSON().replace(/-/g, "_");
-            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            if (conversation && conversation.id) {
-                let result = await rainbowSDK.conversations.deleteServerConversation(conversation.dbId);
-                logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - result : ", result);
-                logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - conversation : ", conversation);
-            } else {
-                logger.log("debug", "MAIN - testDeleteServerConversation conversation empty or no id defined - conversation : ", conversation);
-            }
+    async  testDeleteServerConversation() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        if (conversation && conversation.id) {
+            let result = await rainbowSDK.conversations.deleteServerConversation(conversation.dbId);
+            logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - result : ", result);
+            logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - conversation : ", conversation);
+        } else {
+            logger.log("debug", "MAIN - testDeleteServerConversation conversation empty or no id defined - conversation : ", conversation);
+        }
     }
 
-    async function test_multireconnect() {
+    async  test_multireconnect() {
         for (let i = 0; i < 1000; i++) {
             /*
             rainbowSDK._core.rest.reconnect().then((result)=> {
@@ -3478,7 +3491,7 @@ let urlS2S;
         }
     }
 
-    async function testcheckPortalHealth() {
+    async  testcheckPortalHealth() {
 
         rainbowSDK._core.rest.checkPortalHealth(0).then((result) => {
             logger.log("debug", "MAIN - testcheckPortalHealth - succeed : ", result);
@@ -3491,7 +3504,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testcheckPortalHealth - ");
     }
 
-    async function testgetConnectionStatus() {
+    async  testgetConnectionStatus() {
         let connectionStatus: { restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number } = await rainbowSDK.getConnectionStatus();
         logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
         let state = SDKSTATUSENUM.CONNECTED;
@@ -3502,8 +3515,8 @@ let urlS2S;
     //endregion Connections
 
     //region Alerts
-    
-    async function testcreateDevice() {
+
+    async  testcreateDevice() {
 
         let alertDevice: AlertDevice = new AlertDevice();
         alertDevice.name = "MyNodeDevice";
@@ -3512,7 +3525,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testcreateDevice - result : ", result);
     }
 
-    async function testdeleteDevice() {
+    async  testdeleteDevice() {
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
         logger.log("debug", "MAIN - testdeleteDevice getDevices - result : ", result);
         let alertDevices = result.getAlertDevices().toArray();
@@ -3522,7 +3535,7 @@ let urlS2S;
         }
     }
 
-    async function testgetDevicesList() {
+    async  testgetDevicesList() {
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
         logger.log("debug", "MAIN - testgetDevicesList getDevices - result : ", result);
         let alertDevices = result.getAlertDevices().toArray();
@@ -3531,7 +3544,7 @@ let urlS2S;
         }
     }
 
-    async function testcreateFilter() {
+    async  testcreateFilter() {
 
         let filter: AlertFilter = new AlertFilter();
         filter.name = "Filter1";
@@ -3551,7 +3564,7 @@ let urlS2S;
             // */
     }
 
-    async function testcreateTemplate() {
+    async  testcreateTemplate() {
 
         let template: AlertTemplate = new AlertTemplate();
         template.name = "Template01";
@@ -3583,7 +3596,7 @@ let urlS2S;
     // */
     }
 
-    async function testdeleteDevice_createDevice() {
+    async  testdeleteDevice_createDevice() {
         // Use alertDemoWestworld@vbe.test.openrainbow.net
         let result: any = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
         logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
@@ -3605,7 +3618,7 @@ let urlS2S;
 
     }
 
-    async function testcreateAlert() {
+    async  testcreateAlert() {
 
         // Use vincent01@vbe.test.openrainbow.net
 
@@ -3636,7 +3649,7 @@ let urlS2S;
     }, // */
     }
 
-    async function testgetDevices() {
+    async  testgetDevices() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, "", "", "", 0, 100);
         logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.total:0);
@@ -3647,7 +3660,7 @@ let urlS2S;
         //});
     }
 
-    async function testgetDevice() {
+    async  testgetDevice() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, "", "", "", 0, 100);
         logger.log("debug", "MAIN - testgetDevice - result : ", result, " nb devices : ", result ? result.total:0);
@@ -3659,7 +3672,7 @@ let urlS2S;
         //});
     }
 
-    async function testgetDevicesTags() {
+    async  testgetDevicesTags() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetDevicesTags. ");
         let result = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
@@ -3667,7 +3680,7 @@ let urlS2S;
         //});
     }
 
-    async function testrenameDevicesTags() {
+    async  testrenameDevicesTags() {
         let newTagName: string;
         let tag: string;
         let companyId: string = connectedUser.companyId;
@@ -3679,7 +3692,7 @@ let urlS2S;
         //});
     }
 
-    async function testdeleteDevicesTags() {
+    async  testdeleteDevicesTags() {
         let tag: string;
         let companyId: string = connectedUser.companyId;
         let tags = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
@@ -3689,14 +3702,14 @@ let urlS2S;
         //});
     }
 
-    async function testgetstatsTags() {
+    async  testgetstatsTags() {
         let companyId: string = connectedUser.companyId;
         let result = await rainbowSDK.alerts.getstatsTags(companyId);
         logger.log("debug", "MAIN - testgetstatsTags - result : ", result);
         //});
     }
 
-    async function testgetTemplates() {
+    async  testgetTemplates() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0, 100);
         logger.log("debug", "MAIN - testgetTemplates - result : ", result, " nb templates : ", result ? result.length:0);
@@ -3706,7 +3719,7 @@ let urlS2S;
         //});
     }
 
-    async function testgetFilters() {
+    async  testgetFilters() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getFilters(0, 100);
         logger.log("debug", "MAIN - testgetFilters - result : ", result, " nb filters : ", result ? result.length:0);
@@ -3716,7 +3729,7 @@ let urlS2S;
         //});
     }
 
-    async function testgetAlerts() {
+    async  testgetAlerts() {
         // To use with vincent01 on .NET
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getAlerts();
@@ -3731,13 +3744,13 @@ let urlS2S;
 
 //region Calendar
 
-    async function testgetCalendarState() {
+    async  testgetCalendarState() {
         // To use with vincent.berder on Official
         let result = await rainbowSDK.presence.getCalendarState();
         logger.log("debug", "MAIN - testgetCalendarState - result : ", result);
     }
 
-    async function testgetCalendarStates() {
+    async  testgetCalendarStates() {
         // To use with vincent.berder on Official
         let contacts = rainbowSDK.contacts.getAll();
         logger.log("debug", "MAIN - testgetCalendarStates - contacts : ", contacts);
@@ -3754,7 +3767,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetCalendarStates - result : ", result);
     }
 
-    async function testgetCalendarAutomaticReplyStatus() {
+    async  testgetCalendarAutomaticReplyStatus() {
         // To use with vincent.berder on Official
         let result = await rainbowSDK.presence.getCalendarAutomaticReplyStatus();
         logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - result : ", result);
@@ -3766,28 +3779,101 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contact : ", contacts[0], ", result2 : ", result2);
     }
 
-    async function testenableDisableCalendar() {
+    async  testenableDisableCalendar() {
         // To use with vincent.berder on Official
-      /*  let result = await rainbowSDK.presence.disableCalendar();
-        logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
-
-        let result2 = await rainbowSDK.presence.enableCalendar();
-        logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
-        // */
+        /*  let result = await rainbowSDK.presence.disableCalendar();
+          logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
+  
+          let result2 = await rainbowSDK.presence.enableCalendar();
+          logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
+          // */
     }
 
     //endregion    
 
+    //region MS Teams
+
+    async  testcontrolMsteamsPresenceDisable() {
+        try {
+            let disable: boolean = false;
+            let ignore: string = "true";
+
+            let result = await rainbowSDK.presence.controlMsteamsPresence(disable, ignore);
+            logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
+        }
+    }
+
+    async  testcontrolMsteamsPresenceEnable() {
+        try {
+            let disable: boolean = true;
+            let ignore: string = "true";
+
+            let result = await rainbowSDK.presence.controlMsteamsPresence(disable, ignore);
+            logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
+        }
+    }
+
+    async  testgetMsteamsPresenceState() {
+        try {
+            let result = await rainbowSDK.presence.getMsteamsPresenceState();
+            logger.log("debug", "MAIN - testgetMsteamsPresenceState - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testgetMsteamsPresenceState - error : ", e);
+        }
+    }
+
+    async  testgetMsteamsPresenceStates() {
+        try {
+            let result = await rainbowSDK.presence.getMsteamsPresenceStates();
+            logger.log("debug", "MAIN - testgetMsteamsPresenceStates - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testgetMsteamsPresenceStates - error : ", e);
+        }
+    }
+
+    async  testunregisterMsteamsPresenceSharing() {
+        try {
+            let result = await rainbowSDK.presence.unregisterMsteamsPresenceSharing();
+            logger.log("debug", "MAIN - testunregisterMsteamsPresenceSharing - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testunregisterMsteamsPresenceSharing - error : ", e);
+        }
+    }
+
+    async  testactivateMsteamsPresence() {
+        try {
+            let result = await rainbowSDK.presence.activateMsteamsPresence();
+            logger.log("debug", "MAIN - testactivateMsteamsPresence - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testactivateMsteamsPresence - error : ", e);
+        }
+    }
+
+    async  testdeactivateMsteamsPresence() {
+        try {
+            let result = await rainbowSDK.presence.deactivateMsteamsPresence();
+            logger.log("debug", "MAIN - testdeactivateMsteamsPresence - result : ", result);
+        } catch (e) {
+            logger.log("error", "MAIN - testdeactivateMsteamsPresence - error : ", e);
+        }
+    }
+
+    //endregion MS Teams
+
     //region Rainbow Voice
-    
-    async function testgetCloudPbxById() {
+
+    async  testgetCloudPbxById() {
         // To use with 
         let systemId = "5cf7dd229fb99523e4de0ea9";
         let result = await rainbowSDK.admin.getCloudPbxById(systemId);
         logger.log("debug", "MAIN - testgetCloudPbxById - result : ", result);
     }
 
-    async function testgetCloudPbxs() {
+    async  testgetCloudPbxs() {
         // To use with 
         let result = await rainbowSDK.admin.getCloudPbxs(100, 0, "companyId", 1, connectedUser.companyId, null);
         logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
@@ -3797,7 +3883,7 @@ let urlS2S;
 
     //region Company
 
-    async function testgetAllCompanies() {
+    async  testgetAllCompanies() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
@@ -3818,35 +3904,35 @@ let urlS2S;
 
     }
 
-    async function testgetAllCompaniesWithFilters() {
+    async  testgetAllCompaniesWithFilters() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testgetAllCompaniesWithFilters. ");
-        let format  : string = "small";
-        let sortField : string = "name" ; 
-        let bpId : string = undefined ;
-        let catalogId : string = undefined ;
-        let offerId : string = undefined ; 
-        let offerCanBeSold : boolean = undefined ; 
-        let externalReference : string = undefined; 
-        let externalReference2 : string = undefined;
-        let salesforceAccountId : string = undefined; 
-        let selectedAppCustomisationTemplate : string = undefined
+        let format: string = "small";
+        let sortField: string = "name";
+        let bpId: string = undefined;
+        let catalogId: string = undefined;
+        let offerId: string = undefined;
+        let offerCanBeSold: boolean = undefined;
+        let externalReference: string = undefined;
+        let externalReference2: string = undefined;
+        let salesforceAccountId: string = undefined;
+        let selectedAppCustomisationTemplate: string = undefined
         let selectedThemeObj: boolean = undefined;
-        let offerGroupName : string = undefined;
-        let limit : number = 100;
-        let offset : number = 0;
-        let sortOrder : number = 1;
-        let name : string = "westworld";
-        let status : string = undefined;
-        let visibility : string = undefined;
-        let organisationId : string = undefined
-        let isBP : boolean = undefined;
-        let hasBP : boolean = undefined;
-        let bpType : string = undefined;
-        
+        let offerGroupName: string = undefined;
+        let limit: number = 100;
+        let offset: number = 0;
+        let sortOrder: number = 1;
+        let name: string = "westworld";
+        let status: string = undefined;
+        let visibility: string = undefined;
+        let organisationId: string = undefined
+        let isBP: boolean = undefined;
+        let hasBP: boolean = undefined;
+        let bpType: string = undefined;
+
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
         logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - allCompanies : ", allCompanies.length);
-        
+
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
@@ -3863,32 +3949,32 @@ let urlS2S;
 
     }
 
-    async function testgetCompanyById() {
+    async  testgetCompanyById() {
         let myCompanyId = connectedUser.companyId;
         let companyInfo = await rainbowSDK.admin.getCompanyById(myCompanyId)
 
         logger.log("debug", "MAIN - testgetCompanyById - companyInfo : ", companyInfo);
     }
-    
+
     //endregion Company
 
     //region Custom Templates
-    
-    async function testapplyCustomisationTemplates() {
+
+    async  testapplyCustomisationTemplates() {
         let myCompanyId = connectedUser.companyId;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        
+
         //let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, contact.id);
         //let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", contact.companyId, undefined);
-        let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, undefined);
+        let result: any = await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, undefined);
         // let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", undefined, contact.id);
         logger.log("debug", "MAIN - testapplyCustomisationTemplates - result : ", result);
     }
-    
-    async function testcreateCustomisationTemplate () {
+
+    async  testcreateCustomisationTemplate() {
 //      let visibleBy: [],
-        let instantMessagesCustomisation  = 'enabled';
+        let instantMessagesCustomisation = 'enabled';
         let useGifCustomisation = 'enabled';
         let fileSharingCustomisation = 'enabled';
         let fileStorageCustomisation = 'enabled';
@@ -3915,35 +4001,37 @@ let urlS2S;
 
         let name = 'MyTemplateVBE2';
 
-        let result : any= await rainbowSDK.admin.createCustomisationTemplate(name , myCompanyId , undefined , instantMessagesCustomisation , useGifCustomisation ,
-                fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
-                useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
-                userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
-                fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics );
-        logger.log("debug", "MAIN - testcreateCustomisationTemplate - result : ", result);        
+        let result: any = await rainbowSDK.admin.createCustomisationTemplate(name, myCompanyId, undefined, instantMessagesCustomisation, useGifCustomisation,
+                fileSharingCustomisation, fileStorageCustomisation, phoneMeetingCustomisation, useDialOutCustomisation, useChannelCustomisation, useRoomCustomisation,
+                useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation,
+                userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation,
+                fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics);
+        logger.log("debug", "MAIN - testcreateCustomisationTemplate - result : ", result);
     }
 
-    async function testdeleteCustomisationTemplate() {
-        await testgetCompanyById();
+    async  testdeleteCustomisationTemplate() {
+        let that = this ;
+        await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
-        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
         logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
 
         for (const template of result.data) {
             logger.log("debug", "MAIN - testdeleteCustomisationTemplate - template : ", template);
             let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
             logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
-            if (template.name == "MyTemplateVBE2") {
-                let result2 : any= await rainbowSDK.admin.deleteCustomisationTemplate(template.id);
+            if (template.name=="MyTemplateVBE2") {
+                let result2: any = await rainbowSDK.admin.deleteCustomisationTemplate(template.id);
                 logger.log("debug", "MAIN - testdeleteCustomisationTemplate - delete result2 : ", result2);
             }
         }
     }
 
-    async function testgetAllAvailableCustomisationTemplates() {
-        await testgetCompanyById();
+    async  testgetAllAvailableCustomisationTemplates() {
+        let that = this;
+        await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
-        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
         logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - result : ", result);
 
         for (const template of result.data) {
@@ -3953,14 +4041,15 @@ let urlS2S;
         }
     }
 
-    async function testgetRequestedCustomisationTemplate() {
-        await testgetCompanyById();
+    async  testgetRequestedCustomisationTemplate() {
+        let that = this;
+        await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
-        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
         logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - result : ", result);
 
         for (const template of result.data) {
-            if (template.name == "MyTemplateVBE2") {
+            if (template.name=="MyTemplateVBE2") {
                 logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - template : ", template);
                 let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
                 logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - templateInfo : ", templateInfo);
@@ -3968,18 +4057,19 @@ let urlS2S;
         }
     }
 
-    async function testupdateCustomisationTemplate() {
-        await testgetCompanyById();
+    async  testupdateCustomisationTemplate() {
+        let that = this;
+        await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
-        let result : any= await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
+        let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
         logger.log("debug", "MAIN - testupdateCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
 
         for (const template of result.data) {
             logger.log("debug", "MAIN - testupdateCustomisationTemplate - template : ", template);
             //let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
             //logger.log("debug", "MAIN - testupdateCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
-            if (template.name == "MyTemplateVBE2") {
-                let instantMessagesCustomisation  = 'enabled';
+            if (template.name=="MyTemplateVBE2") {
+                let instantMessagesCustomisation = 'enabled';
                 let useGifCustomisation = 'enabled';
                 let fileSharingCustomisation = 'enabled';
                 let fileStorageCustomisation = 'enabled';
@@ -4006,21 +4096,21 @@ let urlS2S;
 
                 let name = 'MyTemplateVBE2';
 
-                let result2 : any= await rainbowSDK.admin.updateCustomisationTemplate(template.id, name , undefined , instantMessagesCustomisation , useGifCustomisation ,
-                        fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
-                        useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
-                        userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
-                        fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation, useSpeakingTimeStatistics );
-                logger.log("debug", "MAIN - testupdateCustomisationTemplate - updateCustomisationTemplate result2 : ", result2);        
+                let result2: any = await rainbowSDK.admin.updateCustomisationTemplate(template.id, name, undefined, instantMessagesCustomisation, useGifCustomisation,
+                        fileSharingCustomisation, fileStorageCustomisation, phoneMeetingCustomisation, useDialOutCustomisation, useChannelCustomisation, useRoomCustomisation,
+                        useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation,
+                        userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation,
+                        fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics);
+                logger.log("debug", "MAIN - testupdateCustomisationTemplate - updateCustomisationTemplate result2 : ", result2);
             }
         }
     }
 
     //endregion Custom Templates
-    
+
     //region Directory
 
-    async function testcreateDirectoryEntry() {
+    async  testcreateDirectoryEntry() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testcreateDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
@@ -4053,7 +4143,7 @@ let urlS2S;
         //});
     }
 
-    async function testexportDirectoryCsvFile() {
+    async  testexportDirectoryCsvFile() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testexportDirectoryCsvFile. ");
         let companyId = connectedUser.companyId;
@@ -4061,7 +4151,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testexportDirectoryCsvFile - result : ", result);
     }
 
-    async function testImportDirectoryCsvFile() {
+    async  testImportDirectoryCsvFile() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testImportDirectoryCsvFile. ");
         let companyId = connectedUser.companyId;
@@ -4069,7 +4159,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
     }
 
-    function testgetCSVTemplate() {
+     testgetCSVTemplate() {
         // to use with bp-admin@pqa.test.openrainbow.net user on NET platform.
         rainbowSDK.admin.getCSVTemplate("5f75a07c1db9464d67e3245e", "user", "test").then((res) => {
             if (res) {
@@ -4079,8 +4169,8 @@ let urlS2S;
             logger.log("error", "MAIN - [testgetCSVTemplate    ] :: error : ", err);
         });
     }
-    
-    function testgetListDirectoryEntriesData () {
+
+     testgetListDirectoryEntriesData() {
         let emailToSearch = "Bouvet@vbe.test.openrainbow.net";
         let companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate,
                 tags, format, limit, offset, sortField, sortOrder, view = undefined;
@@ -4090,7 +4180,7 @@ let urlS2S;
         type = "user";
         //search = emailToSearch;
 
-        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res : any) => {
+        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res: any) => {
             if (res) {
                 logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res : ", res);
                 if (res.data) {
@@ -4104,7 +4194,7 @@ let urlS2S;
         });
     }
 
-    function testgetDirectoryEntryData () {
+     testgetDirectoryEntryData() {
         let emailToSearch = "Bouvet@vbe.test.openrainbow.net";
         let companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate,
                 tags, format, limit, offset, sortField, sortOrder, view = undefined;
@@ -4114,15 +4204,15 @@ let urlS2S;
         type = "user";
         //search = emailToSearch;
 
-        format= "full";
-        
-        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res : any) => {
+        format = "full";
+
+        rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res: any) => {
             if (res) {
                 logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res : ", res);
                 if (res.data) {
                     for (let i = 0; i < res.data.length; i++) {
                         logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i]);
-                        if (res.data[i].companyName == "compa") {
+                        if (res.data[i].companyName=="compa") {
                             rainbowSDK.admin.getDirectoryEntryData(res.data[i].id, "full").then((result) => {
                                 logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i], ", result : ", result);
                             });
@@ -4136,10 +4226,10 @@ let urlS2S;
     }
 
     //endregion Directory
-    
+
     //region Personal Directory
 
-    async function testcreatePersonalDirectoryEntry() {
+    async  testcreatePersonalDirectoryEntry() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
@@ -4156,7 +4246,7 @@ let urlS2S;
                 city = "Illkirch",
                 state = null,
                 postalCode = "67115",
-                country= "FRA",
+                country = "FRA",
                 workPhoneNumbers = ["0011223344"],
                 mobilePhoneNumbers = [],
                 otherPhoneNumbers = [],
@@ -4165,30 +4255,30 @@ let urlS2S;
                 tags = [],
                 custom1 = "",
                 custom2 = "";
-        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry( firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
+        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry(firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
         logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry - result : ", result);
 
         // */
         //});
     }
 
-    async function testgetListPersonalDirectoryEntriesData() {
-        let result = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+    async  testgetListPersonalDirectoryEntriesData() {
+        let result = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         logger.log("debug", "MAIN - getListPersonalDirectoryEntriesData - result : ", result);
     }
-    
-    async function testupdatePersonalDirectoryEntry() {
-        let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+
+    async  testupdatePersonalDirectoryEntry() {
+        let personalDirectoryList: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
-        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
+        if (personalDirectoryList && personalDirectoryList.data && personalDirectoryList.total > 0) {
             let result = await rainbowSDK.contacts.updatePersonalDirectoryEntry(personalDirectoryList.data[0].id, personalDirectoryList.data[0].firstName + "_updated");
             logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - updatePersonalDirectoryEntry result : ", result);
-            let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            let personalDirectoryListUpdated: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
             logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
         }
     }
 
-    async function testdeletePersonalDirectoryEntry() {
+    async  testdeletePersonalDirectoryEntry() {
         logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
         let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
@@ -4213,24 +4303,24 @@ let urlS2S;
                 tags = [],
                 custom1 = "",
                 custom2 = "";
-        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry( firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
+        let result = await rainbowSDK.contacts.createPersonalDirectoryEntry(firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
         logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - createPersonalDirectoryEntry result : ", result);
 
-        let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+        let personalDirectoryList: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
-        if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.data.total > 0) {
+        if (personalDirectoryList && personalDirectoryList.data && personalDirectoryList.data.total > 0) {
             let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
             logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
-            let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
+            let personalDirectoryListUpdated: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
             logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
         }
     }
-    
+
     //endregion Personal Directory
 
     //region ldap
 
-    async function testsynchronizeUsersAndDeviceswithCSV() {
+    async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
@@ -4254,7 +4344,7 @@ let urlS2S;
         });
     }
 
-    async function testretrieveRainbowUserList() {
+    async  testretrieveRainbowUserList() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
@@ -4278,7 +4368,7 @@ let urlS2S;
 
     //region Conference V2
 
-    async function testConferenceV2() {
+    async  testConferenceV2() {
         logger.log("debug", "MAIN - (testConferenceV2). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
@@ -4308,55 +4398,55 @@ let urlS2S;
         });
     }
 
-    
-    async function teststopConferenceV2() {
+
+    async  teststopConferenceV2() {
         let bubbleId = "6213b94219fa5d0143a71e3c";
-        
+
         rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
         });
     }
-    
-    async function teststartConferenceOrWebinarInARoom() {
+
+    async  teststartConferenceOrWebinarInARoom() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
-        
+
         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
         });
     }
-    
-    async function testpromoteContactToModerator() {
+
+    async  testpromoteContactToModerator() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
-                
+
         rainbowSDK.bubbles.promoteContactToModerator(contact, bubble).then(async (result) => {
             logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
         });
     }
-    
-    async function testjoinConferenceV2_vincent01() {
+
+    async  testjoinConferenceV2_vincent01() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
         //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
-                
-        rainbowSDK.bubbles.joinConferenceV2( bubbleId).then(async (result) => {
+
+        rainbowSDK.bubbles.joinConferenceV2(bubbleId).then(async (result) => {
             logger.log("debug", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request ok, result : ", result);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request not ok, err : ", err);
         });
     }
 
-    async function testjoinConferenceV2_vincent01_WithStart() {
+    async  testjoinConferenceV2_vincent01_WithStart() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
         //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
@@ -4364,57 +4454,56 @@ let urlS2S;
 
         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
-            rainbowSDK.bubbles.joinConferenceV2( bubbleId).then(async (result) => {
+            rainbowSDK.bubbles.joinConferenceV2(bubbleId).then(async (result) => {
                 logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request ok, result : ", result);
-            }).catch (err => {
+            }).catch(err => {
                 logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
             });
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
         });
     }
-    
-    async function testdelegateConference() {
+
+    async  testdelegateConference() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
         //let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
-                
-        rainbowSDK.bubbles.delegateConference( bubbleId,  contact.id).then(async (result) => {
+
+        rainbowSDK.bubbles.delegateConference(bubbleId, contact.id).then(async (result) => {
             logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
         });
     }
-    
-    async function teststopConference() {
+
+    async  teststopConference() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
-        
+
         rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStopped) => {
             logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStopped : ", confStopped);
-        }).catch (err => {
+        }).catch(err => {
             logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
         });
     }
-    
-    async function tesaskConferenceSnapshot() {
+
+    async  tesaskConferenceSnapshot() {
         let confId = "60d5a4ee0eeee002d144e9bf";
-        
+
         /*rainbowSDK.bubbles.askConferenceSnapshot(confId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request ok, confStarted : ", confStarted);
         }).catch (err => {
             logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
         }); // */
     }
-    
-    
-    
+
+
     //endregion Conference V2
 
     //region Webinar
 
-    async function testgetWebinarsData() {
+    async  testgetWebinarsData() {
         logger.log("debug", "MAIN - (testgetWebinarsData). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
@@ -4422,7 +4511,7 @@ let urlS2S;
         });
     }
 
-    async function testcreateWebinar() {
+    async  testcreateWebinar() {
         logger.log("debug", "MAIN - (testcreateWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
@@ -4435,7 +4524,7 @@ let urlS2S;
         });
     }
 
-    async function testupdateWebinar() {
+    async  testupdateWebinar() {
         logger.log("debug", "MAIN - (testupdateWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (webinarsResult: any) => {
@@ -4449,7 +4538,7 @@ let urlS2S;
         });
     }
 
-    async function testcreateAndDeleteWebinar() {
+    async  testcreateAndDeleteWebinar() {
         logger.log("debug", "MAIN - (testcreateAndDeleteWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
@@ -4467,7 +4556,7 @@ let urlS2S;
         });
     }
 
-    async function testDeleteAllWebinar() {
+    async  testDeleteAllWebinar() {
         logger.log("debug", "MAIN - (testDeleteAllWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
@@ -4485,26 +4574,26 @@ let urlS2S;
 
     //region Clients Versions
 
-    async function testgetAllClientsVersions() {
+    async  testgetAllClientsVersions() {
         let that = this;
         let res = await rainbowSDK.admin.getAllClientsVersions(null, null);
         logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
-    async function testgetAllClientsVersionsBot() {
+    async  testgetAllClientsVersionsBot() {
         let that = this;
         let res = await rainbowSDK.admin.getAllClientsVersions(null, "bot");
         logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
-    async function testcreateAClientVersion() {
+    async  testcreateAClientVersion() {
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.admin.createAClientVersion(undefined, "2.5.0");
         logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
-    async function testdeleteAClientVersion() {
+    async  testdeleteAClientVersion() {
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.admin.deleteAClientVersion(options.application.appID);
@@ -4515,7 +4604,7 @@ let urlS2S;
 
     //region bubbles polls
 
-    async function testcreateBubblePollAndDelete() {
+    async  testcreateBubblePollAndDelete() {
         let that = this;
 
         //let res = await rainbowSDK.bubbles.createBubblePoll();
@@ -4531,11 +4620,11 @@ let urlS2S;
                     logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubble request ok, bubble : ", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
 
-                        let questions : Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }> = [
+                        let questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }> = [
                             {
-                                text : "Question 1",
-                                multipleChoice : true,
-                                answers : [{text : "oui"} , {text : "non"}]
+                                text: "Question 1",
+                                multipleChoice: true,
+                                answers: [{text: "oui"}, {text: "non"}]
                             }
                         ];
                         rainbowSDK.bubbles.createBubblePoll(bubble.id, "My Poll", questions, false, 0).then(async (pollCreated: any) => {
@@ -4543,35 +4632,37 @@ let urlS2S;
 
                             await setTimeoutPromised(3000);
 
-                            let polls = await rainbowSDK.bubbles.getBubblePollsByBubble (bubble.id, "full", 100, 0) ;
+                            let polls = await rainbowSDK.bubbles.getBubblePollsByBubble(bubble.id, "full", 100, 0);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble request ok, result : ", polls);
 
                             let updatePollResult = await rainbowSDK.bubbles.updateBubblePoll(pollCreated.pollId, bubble.id, "My Poll updated", questions, false, 0);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: updateBubblePoll request ok, result : ", updatePollResult);
 
-                            let pollsUpdated = await rainbowSDK.bubbles.getBubblePollsByBubble (bubble.id, "full", 100, 0) ;
+                            let pollsUpdated = await rainbowSDK.bubbles.getBubblePollsByBubble(bubble.id, "full", 100, 0);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble updated request ok, result : ", pollsUpdated);
-                            
-                            let pollPublishedResult = await rainbowSDK.bubbles.publishBubblePoll (pollCreated.pollId) ;
+
+                            let pollPublishedResult = await rainbowSDK.bubbles.publishBubblePoll(pollCreated.pollId);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult);
 
-                            let votesPollResult = await rainbowSDK.bubbles.votesForBubblePoll (pollCreated.pollId, [{ "question" : 0, "answers" : [0]}]) ;
+                            let votesPollResult = await rainbowSDK.bubbles.votesForBubblePoll(pollCreated.pollId, [{
+                                "question": 0,
+                                "answers": [0]
+                            }]);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: votesForBubblePoll request ok, result : ", votesPollResult);
 
-                            let unpollPublishedResult = await rainbowSDK.bubbles.unpublishBubblePoll (pollCreated.pollId) ;
+                            let unpollPublishedResult = await rainbowSDK.bubbles.unpublishBubblePoll(pollCreated.pollId);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: unpublishBubblePoll request ok, result : ", unpollPublishedResult);
 
-                            let pollPublishedResult2 = await rainbowSDK.bubbles.publishBubblePoll (pollCreated.pollId) ;
+                            let pollPublishedResult2 = await rainbowSDK.bubbles.publishBubblePoll(pollCreated.pollId);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult2);
 
-                            let terminatedBubblePollResult = await rainbowSDK.bubbles.terminateBubblePoll(pollCreated.pollId) ;
+                            let terminatedBubblePollResult = await rainbowSDK.bubbles.terminateBubblePoll(pollCreated.pollId);
                             logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: terminateBubblePoll request ok, result : ", terminatedBubblePollResult);
-                            
-                            
+
 
                             rainbowSDK.bubbles.deleteBubblePoll(pollCreated.pollId).then(async (result) => {
                                 logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: deleteBubblePoll request ok, polls : ", result);
-    
+
                                 rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
                                     logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: closeAndDeleteBubble request ok, result : ", result);
                                 });
@@ -4584,7 +4675,7 @@ let urlS2S;
         });
     }
 
-    async function testdeleteBubblePoll() {
+    async  testdeleteBubblePoll() {
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.bubbles.deleteBubblePoll(undefined);
@@ -4595,7 +4686,7 @@ let urlS2S;
 
     //region Rainbow HTTPoverXMPP
 
-    async function testpostUrl(urlToPost :string = "http://10.69.81.117:8091/management/api/onthemove/location/") {
+    async  testpostUrl(urlToPost: string = "http://10.69.81.117:8091/management/api/onthemove/location/") {
         let headers = {
             'user-Id': 'ignoredWithPhone',
             'user-Pin': 'ignoredWithPhone',
@@ -4606,15 +4697,16 @@ let urlS2S;
         };
         //let body = decodeURIComponent(JSON.stringify({
         let body = JSON.stringify({
-            "city":"new york",
-                "did":"8188784500",
-                "name":"3",
-                "psap":"911",
-                "state":"QC",
-                "streetName":"Quebec Rd",
-                "streetNumber":"4812",
-                "zipcode":"10010",
-                "country":"CA"} ) ;
+            "city": "new york",
+            "did": "8188784500",
+            "name": "3",
+            "psap": "911",
+            "state": "QC",
+            "streetName": "Quebec Rd",
+            "streetNumber": "4812",
+            "zipcode": "10010",
+            "country": "CA"
+        });
         try {
 
 
@@ -4625,43 +4717,43 @@ let urlS2S;
         }
 
     }
-    
-    async function testsubscribePresence() {
+
+    async  testsubscribePresence() {
         let to = "29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net"; // "vincent11@vbe.test.openrainbow.net";
         let res = await rainbowSDK.presence.subscribePresence(to);
         logger.log("debug", "MAIN - testsubscribePresence, res : ", res);
-        
+
     }
-    
-    async function testgetHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/") {
+
+    async  testgetHTTPoverXMPP(urlToGet: string = "https://moncompte.laposte.fr/") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let res = await rainbowSDK.httpoverxmpp.get(urlToGet, headers);
         logger.log("debug", "MAIN - testgetHTTPoverXMPP, res : ", res);
     }
-    
-    async function testgetHTTPoverXMPPVNA(urlToGet :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+
+    async  testgetHTTPoverXMPPVNA(urlToGet: string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
         let headers = {
-            "dateOfRequest" : new Date().toLocaleDateString(),
+            "dateOfRequest": new Date().toLocaleDateString(),
             "user-Id": "ignoredWithPhone",
             "user-Pin": "ignoredWithPhone",
             "user-Phone": "31000"
         };
         //let headers = {};
-        let res : any = await rainbowSDK.httpoverxmpp.get(urlToGet, headers, jidServer);
+        let res: any = await rainbowSDK.httpoverxmpp.get(urlToGet, headers, jidServer);
         logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
-        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode==200 && res.iq.resp.data) {
             logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             let isJson = false;
             for (const header of res.iq.resp.headers.header) {
-                if (header["$attrs"].name == "content-type" && header["$attrs"]._ == "application/json") {
+                if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
                     isJson = true;
                 }
             }
@@ -4673,7 +4765,7 @@ let urlS2S;
         }
     }
 
-    async function testpostHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_vnagw") {
+    async  testpostHTTPoverXMPPVNA(urlToPost: string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_vnagw") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
@@ -4699,21 +4791,21 @@ let urlS2S;
                 "}";
         let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidServer);
         logger.log("debug", "MAIN - testpostHTTPoverXMPPVNA, res : ", res);
-        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"]  && res.iq.resp.data) {
+        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp.data) {
             logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //if (res.iq.resp["$attrs"].statusCode==200) {
-                let isJson = false;
-                for (const header of res.iq.resp.headers.header) {
-                    if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
-                        isJson = true;
-                    }
+            let isJson = false;
+            for (const header of res.iq.resp.headers.header) {
+                if (header["$attrs"].name=="content-type" && header["$attrs"]._=="application/json") {
+                    isJson = true;
                 }
-                let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
-                if (isJson) {
-                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
-                }
+            }
+            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+            if (isJson) {
+                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+            }
             /*} else {
                 let bodyStr = decodeURIComponent(res.iq.resp.data.text);
                 logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
@@ -4722,11 +4814,12 @@ let urlS2S;
         }
     }
 
-    async function testdeleteHTTPoverXMPPVNA(urlToPost :string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
+    async  testdeleteHTTPoverXMPPVNA(urlToPost: string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString(),
+        let headers = {
+            "dateOfRequest": new Date().toLocaleDateString(),
             "user-Id": "ignoredWithPhone",
             "user-Pin": "ignoredWithPhone",
             "user-Phone": "31000"
@@ -4736,13 +4829,13 @@ let urlS2S;
         let res = await rainbowSDK.httpoverxmpp.delete(urlToPost, headers, data, jidServer);
         logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
     }
-    
-    async function testdiscoverHTTPoverXMPP(jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
+
+    async  testdiscoverHTTPoverXMPP(jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01?: boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
         let headers = {
-            "dateOfRequest" : new Date().toLocaleDateString(),
+            "dateOfRequest": new Date().toLocaleDateString(),
             "user-Id": "ignoredWithPhone",
             "user-Pin": "ignoredWithPhone",
             "user-Phone": "31000"
@@ -4751,62 +4844,62 @@ let urlS2S;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
             jidHTTPoverXMPPBot = contact.jid;
         }
-        
+
         //let headers = {};
         //let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidServer);
-        let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidHTTPoverXMPPBot);
+        let res: any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP(headers, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
-/*
-        if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
-            //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
-            let isJson = false;
-            for (const header of res.iq.resp.headers.header) {
-                if (header["$attrs"].name == "content-type" && header["$attrs"]._ == "application/json") {
-                    isJson = true;
+        /*
+                if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
+                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+                    //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+                    let isJson = false;
+                    for (const header of res.iq.resp.headers.header) {
+                        if (header["$attrs"].name == "content-type" && header["$attrs"]._ == "application/json") {
+                            isJson = true;
+                        }
+                    }
+                    let bodyStr = decodeURIComponent(res.iq.resp.data.text);
+                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+                    if (isJson) {
+                        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+                    }
                 }
-            }
-            let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
-            if (isJson) {
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
-            }
-        }
-*/
+        */
     }
-    
-    async function testtraceHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
+
+    async  testtraceHTTPoverXMPP(urlToGet: string = "https://moncompte.laposte.fr/", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01?: boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         if (vincent01) {
             let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
             jidHTTPoverXMPPBot = contact.jid + "/node_vnagw";
         }
-        let res : any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers, jidHTTPoverXMPPBot);
+        let res: any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
         let resp = res.iq.resp;
         let bodyResult = decodeURIComponent(resp.data.text);
         logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
     }
-    
-    async function testheadHTTPoverXMPP(urlToGet :string = "https://moncompte.laposte.fr/hello") {
+
+    async  testheadHTTPoverXMPP(urlToGet: string = "https://moncompte.laposte.fr/hello") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let res = await rainbowSDK.httpoverxmpp.head(urlToGet, headers);
         logger.log("debug", "MAIN - testheadHTTPoverXMPP, res : ", res);
     }
-    
-    async function testpostHTTPoverXMPP(urlToPost :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01? : boolean) {
+
+    async  testpostHTTPoverXMPP(urlToPost: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01?: boolean) {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         if (vincent01) {
             let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
@@ -4816,30 +4909,30 @@ let urlS2S;
         let res = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - testpostHTTPoverXMPP, res : ", res);
     }
-    
-    async function testputHTTPoverXMPP(urlToPut :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+
+    async  testputHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
         let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
         logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
     }
-    
-    async function testdeleteHTTPoverXMPP(urlToPut :string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
+
+    async  testdeleteHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
         //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
-        let headers = {"dateOfRequest" : new Date().toLocaleDateString()};
+        let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
         let res = await rainbowSDK.httpoverxmpp.delete(urlToPut, headers, data);
         logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
     }
-    
-    async function testHTTPoverXMPP() {
+
+    async  testHTTPoverXMPP() {
         let that = this;
         let utc = new Date().toJSON().replace(/-/g, "/");
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
@@ -4866,7 +4959,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
         let resp = res2.iq.resp;
         let bodyResult = decodeURIComponent(resp.data.text);
-        let resultOfHttp : any = bodyResult;
+        let resultOfHttp: any = bodyResult;
         if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
             for (let i = 0; i < resp.headers.header.length; i++) {
                 if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
@@ -4911,7 +5004,7 @@ let urlS2S;
         //let headers = {};
         let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
 
-        let data : any = {
+        let data: any = {
             firstName: "testPersonalDirectory_firstname_" + utc,
             lastName: "testPersonalDirectory_lastname_" + utc,
             companyName: connectedUser.companyName,
@@ -4932,7 +5025,7 @@ let urlS2S;
 
         };
         let body = JSON.stringify(data);
-        let res : any = await rainbowSDK.httpoverxmpp.post(urlToPost, headersPost, body);
+        let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headersPost, body);
         logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP res : ", res);
         resp = res.iq.resp;
         bodyResult = decodeURIComponent(resp.data.text);
@@ -4962,7 +5055,7 @@ let urlS2S;
         if (resp.$attrs.statusCode >= 200 && resp.$attrs.statusCode <= 206) {
             for (let i = 0; i < resp.headers.header.length; i++) {
                 if (resp.headers.header[i].$attrs.name==="content-type" && (resp.headers.header[i]._.indexOf("json") > -1 || resp.headers.header[i]._.indexOf("csv") > -1)) {
-                    resultOfHttp = JSON.parse(bodyResult);                
+                    resultOfHttp = JSON.parse(bodyResult);
                 }
 
             }
@@ -4997,7 +5090,7 @@ let urlS2S;
         }
 
         logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
-        
+
         // *** Get directory entry ***
 
         urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
@@ -5045,7 +5138,6 @@ let urlS2S;
         }
 
 
-
         /*
         let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
         logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
@@ -5060,43 +5152,43 @@ let urlS2S;
         // */
 
     }
-    
-    async function testdiscover() {
+
+    async  testdiscover() {
         let that = this;
         let res = await rainbowSDK.httpoverxmpp.discover();
         logger.log("debug", "MAIN - testdiscover, res : ", res);
     }
-    
+
     //endregion Rainbow HTTPoverXMPP 
-    
+
     //region Presence
 
-    async function testgetMyPresenceInformation() {
+    async  testgetMyPresenceInformation() {
         let res = await rainbowSDK.presence.getMyPresenceInformation();
         logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
     }
-    
-    async function testsetPresenceTo() {
-        let presenceStr = "away" ; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
-        let setAway = true ;
-        setInterval(async()=> {
+
+    async  testsetPresenceTo() {
+        let presenceStr = "away"; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+        let setAway = true;
+        setInterval(async () => {
             if (setAway) {
-                presenceStr = "away" ;
+                presenceStr = "away";
                 setAway = false;
             } else {
-                presenceStr = "online" ;
+                presenceStr = "online";
                 setAway = true;
             }
             let res = await rainbowSDK.presence.setPresenceTo(presenceStr);
             logger.log("debug", "MAIN - testsetPresenceTo, set presence res : ", res);
         }, 20000);
     }
-    
+
     //endregion Presence
 
     // region Telephony Voice Messages
 
-    async function testdeleteAllMyVoiceMessagesFromPbx () {
+    async  testdeleteAllMyVoiceMessagesFromPbx() {
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
         let that = this;
@@ -5104,25 +5196,25 @@ let urlS2S;
         logger.log("debug", "MAIN - testdeleteAllMyVoiceMessagesFromPbx, res : ", res);
     }
 
-    async function testdeleteAVoiceMessageFromPbx () {
+    async  testdeleteAVoiceMessageFromPbx() {
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
         let that = this;
         let messageId = "";
-        let res = await rainbowSDK.telephony.deleteAVoiceMessageFromPbx( messageId);
+        let res = await rainbowSDK.telephony.deleteAVoiceMessageFromPbx(messageId);
         logger.log("debug", "MAIN - testdeleteAVoiceMessageFromPbx, res : ", res);
     }
 
-    async function testgetAVoiceMessageFromPbx () {
+    async  testgetAVoiceMessageFromPbx() {
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
-        let messageId : string, messageDate : string, messageFrom : string;
-        let res = await rainbowSDK.telephony.getAVoiceMessageFromPbx(messageId , messageDate, messageFrom);
+        let messageId: string, messageDate: string, messageFrom: string;
+        let res = await rainbowSDK.telephony.getAVoiceMessageFromPbx(messageId, messageDate, messageFrom);
         logger.log("debug", "MAIN - testgetAVoiceMessageFromPbx, res : ", res);
     }
 
-    async function testgetDetailedListOfVoiceMessages () {
+    async  testgetDetailedListOfVoiceMessages() {
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
         // GET /api/rainbow/telephony/v1.0/voicemessages
         let that = this;
@@ -5131,11 +5223,11 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetDetailedListOfVoiceMessages, res : ", res);
         } catch (err) {
             logger.log("error", "MAIN - testgetDetailedListOfVoiceMessages, error : ", err);
-            
+
         }
     }
 
-    async function testgetNumbersOfVoiceMessages () {
+    async  testgetNumbersOfVoiceMessages() {
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
         // GET /api/rainbow/telephony/v1.0/voicemessages/counters
         let that = this;
@@ -5146,23 +5238,25 @@ let urlS2S;
     // endregion Telephony Voice Messages
 
     // region TimeOutManager
-    
-    async function testtimeOutManagersetTimeout () {
-        
-        if (rainbowSDK.state === "ready") {
+
+    async  testtimeOutManagersetTimeout() {
+
+        if (rainbowSDK.state==="ready") {
             await rainbowSDK.stop();
         }
-        
+
         let timeOutManager = new TimeOutManager(logger);
-        function fn (id) {
+
+        function fn(id) {
             return () => {
                 logger.log("debug", "MAIN - testtimeOutManagersetTimeout, id : ", id, " done at : ", new Date().toTimeString());
             }
         }
+
         logger.log("debug", "MAIN - testtimeOutManagersetTimeout, start at : ", new Date().toTimeString());
-        timeOutManager.setTimeout(fn("1"), 20000, "timer a 20 secondes") ;
-        timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes") ;
-        timeOutManager.listEveryTimeout() ;
+        timeOutManager.setTimeout(fn("1"), 20000, "timer a 20 secondes");
+        timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes");
+        timeOutManager.listEveryTimeout();
         //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
         //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
         //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
@@ -5179,33 +5273,35 @@ let urlS2S;
 
 
     }
-    
-    async function testtimeOutManagersetTimeoutPromised () {
-        
-        if (rainbowSDK.state === "ready") {
+
+    async  testtimeOutManagersetTimeoutPromised() {
+
+        if (rainbowSDK.state==="ready") {
             await rainbowSDK.stop();
         }
-        
+
         let timeOutManager = new TimeOutManager(logger);
-        function fn (id) {
+
+        function fn(id) {
             return () => {
                 logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, id : ", id, " done at : ", new Date().toTimeString());
             }
         }
+
         logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, start at : ", new Date().toTimeString());
         timeOutManager.setTimeoutPromised(fn("1"), 20000, "timer a 20 secondes").then(() => {
             logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, After setTimeoutPromised done at : ", new Date().toTimeString());
         }).catch((err) => {
             logger.log("error", "MAIN - testtimeOutManagersetTimeoutPromised, Catch setTimeoutPromised done at : ", new Date().toTimeString(), ", error : ", err);
-        }); 
+        });
         //timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes") ;
-        timeOutManager.listEveryTimeout() ;
+        timeOutManager.listEveryTimeout();
         /*setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
         // */
         setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
-        
+
         timeOutManager.clearEveryTimeout();
         /*
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);
@@ -5216,59 +5312,26 @@ let urlS2S;
 
 
     }
-    
+
     // endregion TimeOutManager
-    
-    function testresolveDns(url : string = 'www.amagicshop.com.tw') {
-        Utils.resolveDns(url).then((result)=>{
+
+     testresolveDns(url: string = 'www.amagicshop.com.tw') {
+        Utils.resolveDns(url).then((result) => {
             logger.log("debug", "MAIN - testresolveDns, result : ", result);
-        }).catch((err)=>{
+        }).catch((err) => {
             logger.log("debug", "MAIN - testresolveDns, error : ", err);
         })
     }
-    
-    function testGetEventsList() {
+
+     testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;
         for (const event in eventsTab) {
             logger.log("debug", "MAIN - testGetEventsList, eventTab : ", eventsTab[event]);
         }
     }
 
-    function commandLineInteraction() {
-        let questions = [
-            {
-                type: "input",
-                name: "cmd",
-                message: "Command> "
-            }
-        ];
-        logger.log("debug", "MAIN - commandLineInteraction, enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
-        inquirer.prompt(questions).then(answers => {
-            //console.log(`Hi ${answers.cmd}!`);
-            logger.log("debug", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-            try {
-                if (answers.cmd==="by") {
-                    logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
-                    rainbowSDK.stop().then(() => {
-                        process.exit(0);
-                    });
-                } else {
-                    logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-                    eval(answers.cmd);
-                    commandLineInteraction();
-                }
-            } catch (e) {
-                logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
-                commandLineInteraction();
-            }
-        });
-    }
-
-//let startDate = new Date();
-    let token = undefined;
-
     // testMultiPromise(500)
-    async function testMultiPromise(nb = 100) {
+    async  testMultiPromise(nb = 100) {
         let that = this;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let nbRequestToSend = nb;
@@ -5292,9 +5355,7 @@ let urlS2S;
         })
     }
 
-    let connectedUser: any = {};
-
-    async function testStartWithToken() {
+    async  testStartWithToken() {
         await rainbowSDK.stop();
         //let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
 //let token = 'sdfsqfsqfsdfsdfgdf';
@@ -5322,7 +5383,7 @@ let urlS2S;
 
 // */
 
-    async function testStopAndStart() {
+    async  testStopAndStart() {
         await rainbowSDK.stop();
         let token = undefined;
 
@@ -5333,10 +5394,8 @@ let urlS2S;
         });
         await rainbowSDK.stop();
     }
-
-    logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
-
-    function startWSOnly() {
+    
+     startWSOnly() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
             try {
@@ -5354,7 +5413,7 @@ let urlS2S;
 
                 rainbowSDK.stop().then(() => {
                     logger.log("debug", "MAIN - rainbow SDK startedand stopped, now we start WS Only : token : ", token, ", connectedUser : ", JSON.stringify(connectedUser)); //logger.colors.green(JSON.stringify(result)));
-                    rainbowSDK.startWSOnly(token , connectedUser).then((result) => {
+                    rainbowSDK.startWSOnly(token, connectedUser).then((result) => {
                         // Do something when the SDK is started
                         logger.log("debug", "MAIN - rainbow SDK started WS Only result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                     })
@@ -5363,11 +5422,11 @@ let urlS2S;
             } catch (err) {
                 console.log("MAIN - Error during starting : ", inspect(err));
             }
-        });        
+        });
     }
 
 
-        function start() {
+     start() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
             try {
@@ -5758,8 +5817,180 @@ let urlS2S;
         }); // */
     }
 
-    function stop () {
+     stop() {
         rainbowSDK.stop();
+    }
+}
+
+    function commandLineInteraction() {
+        let tests = new Tests();
+        let testsFunctions = findTests(tests);
+
+        logger.log("debug", "MAIN - findTests : ", testsFunctions);
+        let questions = [
+            {
+                type: "input",
+                name: "cmd",
+                message: "Command> ",
+                choices: testsFunctions
+            }
+        ];
+        
+        function enterCmd () {
+            logger.log("debug", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+            inquirer.prompt(questions).then(answers => {
+                //console.log(`Hi ${answers.cmd}!`);
+                logger.log("debug", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                try {
+                    switch (answers.cmd) {
+                        case "exit":
+                        case "by":
+                            logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                            rainbowSDK.stop().then(() => {
+                                process.exit(0);
+                            });
+                            break;
+                        case "help":
+                            logger.log("debug", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
+                            for (const testsFunction of testsFunctions) {
+                                logger.log("debug", "MAIN - testsFunction : tests.",testsFunction ); //logger.colors.green(JSON.stringify(result)));
+                            }
+                            enterCmd();
+                            break;
+                        case "start":
+                            logger.log("debug", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
+                            eval("tests.start()");
+                            enterCmd();
+                            break;
+                        case "stop":
+                            logger.log("debug", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
+                            eval("tests.stop()");
+                            enterCmd();
+                            break;
+                        default:
+                            logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                            let cmdStr = (answers.cmd + "").indexOf("tests.") === 0 ? answers.cmd : "tests." + answers.cmd 
+                            eval(cmdStr);
+                            enterCmd();
+                            break;
+                    }
+                    /*
+                    if (answers.cmd==="by") {
+                        logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                        rainbowSDK.stop().then(() => {
+                            process.exit(0);
+                        });
+                    } else {
+                        logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                        eval(answers.cmd);
+                        enterCmd();
+                    }
+                    // */
+                } catch (e) {
+                    logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
+                    enterCmd();
+                }
+            });
+        }
+        
+        enterCmd ();
+    }
+
+//let startDate = new Date();
+    let token = undefined;
+
+
+    let connectedUser: any = {};
+
+    function findTests(obj) {
+        let propertiestoIgnore = [];
+        let privateAPI = [];
+        let depth = 0
+        let MAXDEPTH = 3;
+        let tests = [];
+
+        if (!obj) return [];
+
+        let props = Object.getPrototypeOf(obj);
+        Object.getOwnPropertyNames(props).forEach(function (property) {
+            //that.logger.log("debug", logService + "[iterateAPI] getPrototypeOf property : " + property);
+            try {
+                if ((propertiestoIgnore.indexOf(property) == -1) && depth < MAXDEPTH) {
+                    //that.logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                    if (props.hasOwnProperty(property)) {
+                        if (typeof obj[property] === "object") {
+                            //that.logger.log("debug", logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
+                            /*if (property === "_contacts" || property === "_core") {
+                                that.logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
+                                iterateAPI(obj[property], currentStack + "." + property, list);
+                            } // */
+//                            iterateAPI(obj[property], currentStack + "." + property, list);
+                        } else {
+                            if (typeof props[property] === "function") {
+                                //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
+                                if (!(property in privateAPI)) {
+                                    logger.log("debug", "MAIN - (findTests) found in props a test function : tests." + property + "()");
+                                    /*servicesList[currentStack] = currentStack;
+                                    var item = {
+                                        "serviceName": currentStack,
+                                        "methodName": currentStack + "." + property,
+                                        "called": 0
+                                    };
+                                    list[item.methodName] = item;                                    
+                                    // */
+                                    tests.push(property);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                // that.logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
+            }
+        });
+
+        Object.getOwnPropertyNames(obj)
+                //for (var property in obj) {
+                .forEach(function (property) {
+                    //Object.getOwnPropertyNames(obj).forEach(function (property) {
+                    try {
+                        if ((propertiestoIgnore.indexOf(property) == -1) && depth < MAXDEPTH) {
+                            //that.logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                            if (obj.hasOwnProperty(property)) {
+                                if (typeof obj[property] === "object") {
+                                    //that.logger.log("debug",logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
+                                    if (property === "_contacts" || property === "_core") {
+//                                that.logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property  );
+//                                iterateAPI(obj[property], currentStack + "." + property, list);
+                                    }
+                                    //that.logger.log("debug", logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
+                                   // iterateAPI(obj[property], currentStack + "." + property, list, servicesList, depth + 1 );
+                                } else {
+                                    if (typeof obj[property] === "function") {
+                                        //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
+                                        if (!(property in privateAPI)) {
+                                             logger.log("debug","MAIN - (findTests) found in propreties a test function : tests." + property + "()");
+                                            /*
+                                            servicesList[currentStack] = currentStack;
+                                            var item = {
+                                                "serviceName": currentStack,
+                                                "methodName": currentStack + "." + property,
+                                                "called": 0
+                                            };
+                                            list[item.methodName] = item;
+                                            // */
+                                            tests.push(property);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        // that.logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
+                    }
+                });
+
+        return tests;
     }
     
     commandLineInteraction();

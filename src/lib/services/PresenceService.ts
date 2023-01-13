@@ -907,6 +907,208 @@ class PresenceService extends GenericService{
 
 
     // endregion Presence CALENDAR
+    
+    // region Presence MSTeams
+
+    /**
+     * @public
+     * @method controlMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {boolean} disable disable presence, true to re-enable
+     * @param {string} ignore ignore the current rainbow presence sharing
+     * @async
+     * @description
+     *     Enable/disable a presence sharing or ignore rainbow presence sharing. <br>
+     *     When disabled or enabled, a message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}
+     */
+    async controlMsteamsPresence (disable? : boolean, ignore? : string) {
+        let that = this;
+        return that._rest.controlMsteamsPresence(disable, ignore);
+    }
+
+    /**
+     * @public
+     * @method getMsteamsPresenceState
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {string} userId The Rainbow user id, his jid or the email of his attached Microsoft teams presence. Default value is the current connected user's id
+     * @async
+     * @description
+     *     Get a MS-teams presence state <br>
+     * @return {Promise<any>} </br> </br>
+     * 
+     * enabled
+     * -------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | busy | Boolean | presence busy flag. |
+     *  | status | String | presence status (one of "chat", "busy" or "dnd") |
+     *
+     *  disabled
+     *  --------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing is disabled (status = 'disabled') |
+     *
+     *  subscription_error
+     *  ------------------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing with a expired subscription |
+     *
+     *  none
+     *  ----
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing is not defined (status = 'none') |
+     *  
+     *  
+     *  */
+    async getMsteamsPresenceState(userId?  : string) {
+        let that = this;
+        if (!userId) {
+            userId = that._rest.account.id;
+        }
+        return that._rest.getMsteamsPresenceState(userId);
+    }
+
+    /**
+     * @public
+     * @method getMsteamsPresenceStates
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {Array<string>} users The Rainbow user references (can be email or id). Default value is an Array with the current connected user's id.
+     * @async
+     * @description
+     *     Get a MS-teams presence states of several users <br>
+     * @return {Promise<any>}  </br> </br>
+     * 
+     * enabled
+     * -------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | users | Object\[\] | list of presence user states. |
+     *  | busy | Boolean | presence busy flag. |
+     *  | status | String | presence status (one of "chat", "busy" or "dnd"). |
+     *  
+     *  others
+     *  ------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | users | Object\[\] | list of presence user states. |
+     *  | status | String | presence status (one of "disabled", "subscription_error", "none"). |
+     *
+     */
+    async getMsteamsPresenceStates( users : Array<string> = []) {
+        let that = this;
+        if (users.length == 0) {
+            users.push(that._rest.account.id);
+        }
+        return that._rest.getMsteamsPresenceStates(users);
+    }
+
+    /**
+     * @public
+     * @method registerMsteamsPresenceSharing
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page.
+     * @param {string} callback Redirect URL to the requesting client.
+     * @async
+     * @description
+     *     The requesting client get a redirection URL or could be redirected immediately to the provider login page to gather user consent. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | url | String | Microsoft Teams Presence OAuth URL |
+     * 
+     * */
+    async registerMsteamsPresenceSharing( redirect? : boolean, callback? : string) {
+        let that = this;
+        return that._rest.registerMsteamsPresenceSharing(redirect, callback);
+    }
+
+    /**
+     * @public
+     * @method unregisterMsteamsPresenceSharing
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     Delete a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async unregisterMsteamsPresenceSharing() {
+        let that = this;
+        return that._rest.unregisterMsteamsPresenceSharing();
+    }
+
+    /**
+     * @public
+     * @method activateMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     activate a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async activateMsteamsPresence() {
+        let that = this;
+        return that._rest.activateMsteamsPresence();
+    }
+
+    /**
+     * @public
+     * @method deactivateMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     desactivate a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async deactivateMsteamsPresence() {
+        let that = this;
+        return that._rest.deactivateMsteamsPresence();
+    }
+
+    // endregion Presence MSTeams
+
     // region Presence Contact
 
     /**
