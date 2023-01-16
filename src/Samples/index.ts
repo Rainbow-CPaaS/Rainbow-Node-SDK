@@ -2097,7 +2097,8 @@ let urlS2S;
                 physician.contact = contact;
                 for (let i = 0; i < 1; i++) {
                     let utc = new Date().toJSON().replace(/-/g, "/");
-                    rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i, true).then((bubble) => {
+                    let withInvitation = false;
+                    rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i, withInvitation).then((bubble) => {
                         logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
 
                         rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {

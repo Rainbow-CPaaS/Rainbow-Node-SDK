@@ -111,6 +111,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleownaffiliationchanged <br>
  * @fires Events#rainbow_onbubbledeleted <br>
  * @fires Events#rainbow_onbubbleinvitationreceived <br>
+ * @fires Events#rainbow_onbubblecontactinvitationreceived <br>
  * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
  * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
  * @fires Events#rainbow_onbubbleconferencedelegatereceived <br>
@@ -218,6 +219,7 @@ class Events {
         "rainbow_onbubbleownaffiliationchanged",
         "rainbow_onbubbledeleted",
         "rainbow_onbubbleinvitationreceived",
+        "rainbow_onbubblecontactinvitationreceived",
         "rainbow_onbubbleconferencestartedreceived",
         "rainbow_onbubbleconferencestoppedreceived",
         "rainbow_onbubbleconferencedelegatereceived",
@@ -712,6 +714,17 @@ class Events {
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
+        });   
+        
+        this._evReceiver.on("evt_internal_contactinvitationdetailsreceived", async function(invitation) {
+            /**
+             * @event Events#rainbow_onbubblecontactinvitationreceived
+             * @public
+             * @param { any } invitation The invitation bubble {contact: Contact, bubble: Bubble, content: string, subject:string}
+             * @description
+             *      Fired when an invitation to join a bubble is received for a contact.
+             */
+            that.publishEvent("bubblecontactinvitationreceived", invitation);
         });
 
         this._evReceiver.on("evt_internal_bubbleconferencestartedreceived", function(bubble) {

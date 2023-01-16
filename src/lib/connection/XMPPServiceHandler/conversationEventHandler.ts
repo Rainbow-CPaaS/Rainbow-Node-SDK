@@ -683,7 +683,8 @@ class ConversationEventHandler extends GenericHandler {
                         eventName = node.attrs.name;
                         eventJid = node.attrs.jid;
                         userIdEvent = node.attrs["user-id"];
-                        //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", eventName : ", eventName,", eventJid : ", eventJid);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", eventName : ", eventName,", eventJid : ", eventJid, ", userIdEvent : ", userIdEvent);
+                        break;
                         break;
                     case "room-id":
                         roomid = node.getText();
@@ -1026,15 +1027,31 @@ class ConversationEventHandler extends GenericHandler {
 
             switch (eventName) {
                 case "invitation": {
-                    let invitation = {
-                        event: "invitation",
-                        bubbleId: conferencebubbleId,
-                        bubbleJid: conferencebubbleJid,
-                        fromJid: fromJid,
-                        resource: resource
-                    };
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
-                    that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                    if (eventJid && eventJid != that.jid_im) {
+                        let invitation = {
+                            event: "invitation",
+                            contact_jid: eventJid,
+                            bubbleJid: fromJid,
+                            fromJid: fromJid,
+                            resource: resource,
+                            content,
+                            subject
+                        };
+                        //let contact = await that._contactsService.getContactByJid(eventJid);
+                        //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else,\n  content (=body) : ", content, ", subject : ", subject);
+                        that.eventEmitter.emit("evt_internal_contactinvitationreceived", invitation);
+                    } else {
+                        let invitation = {
+                            event: "invitation",
+                            bubbleId: conferencebubbleId,
+                            bubbleJid: conferencebubbleJid,
+                            fromJid: fromJid,
+                            resource: resource
+                        };
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
+                        that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                    }
                 }
                     break;
                 case "conferenceAdd": {
