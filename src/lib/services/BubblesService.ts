@@ -96,6 +96,7 @@ class Bubbles extends GenericService {
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
         this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
+        this._eventEmitter.on("evt_internal_contactinvitationreceived", this._onContactInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_customdatachanged", this._onCustomDataChanged.bind(this));
@@ -218,28 +219,72 @@ class Bubbles extends GenericService {
         that._logger.log("info", LOG_ID + "(_onInvitationReceived) received. ");
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
-        this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated: any) => {
-            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
-            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
+        if (invitation && invitation.bubbleId) {
+            this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
-            /*// Store the new bubble
-            let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
-            if (foundIndex > -1) {
-                bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
-                that._bubbles[foundIndex] = bubbleUpdated;
-            }
-            else {
-                bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
-                that._bubbles.push(bubbleUpdated);
-            } // */
+                that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else  if (invitation && invitation.bubbleJid) {
+            this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
-        }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
-            //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
-        });
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else {
+            that._logger.log("warn", LOG_ID + "(_onInvitationReceived) failed to find bubble for invitation : ", invitation);
+        }
+    }
+
+    /**
+     * @private
+     * @method _onContactInvitationReceived
+     * @instance
+     * @param {Object} invitation contains informations about bubble and user's jid
+     * @description
+     *      Method called when receiving an invitation to join a bubble for a contact<br>
+     */
+    _onContactInvitationReceived(invitation) {
+        let that = this;
+        that._logger.log("info", LOG_ID + "(_onContactInvitationReceived) received. ");
+        that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation : ", invitation);
+
+        if (invitation && invitation.bubbleJid) {
+            this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble : ", bubbleUpdated);
+                let contact = await that._contacts.getContactByJid(invitation.contact_jid);
+                //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                let invitationFull = {
+                    contact: contact,
+                    bubble: bubble,
+                    content : invitation.content,
+                    subject : invitation.subject
+                };
+
+
+                that._eventEmitter.emit("evt_internal_contactinvitationdetailsreceived", invitationFull);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else {
+            that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) receive empty invitation : ", invitation);
+        }
     }
 
     /**
