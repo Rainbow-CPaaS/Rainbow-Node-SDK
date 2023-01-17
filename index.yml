@@ -62,5 +62,6 @@
   - Profiles Service: 'ref:doc/sdk/node/api/profiles.md'
   - Rainbow Voice Service: 'ref:doc/sdk/node/api/rbvoice.md'
   - S2S Service: 'ref:doc/sdk/node/api/s2s.md'
+  - Settings Service: 'ref:doc/sdk/node/api/settingssvc.md'
   - Telephony Service: 'ref:doc/sdk/node/api/telephony.md'
   - Webinars Service: 'ref:doc/sdk/node/api/webinars.md'

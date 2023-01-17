@@ -1186,9 +1186,9 @@ class Bubbles extends GenericService {
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
@@ -1264,9 +1264,9 @@ class Bubbles extends GenericService {
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
@@ -1338,11 +1338,11 @@ class Bubbles extends GenericService {
          * isActive=false : inactive rooms only </br>
          * isActive=true : active rooms only </br>
          * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
-         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Valeur par défaut : true
-         * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100
-         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Default value : true
+         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100
+         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
          * @param {string} sortField Sort items list based on the given field.
-         * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
          */
         getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
             let that = this;
@@ -1387,7 +1387,7 @@ class Bubbles extends GenericService {
      * </br>
      *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
      *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
-     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
      * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
      * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
@@ -1404,15 +1404,15 @@ class Bubbles extends GenericService {
      * isActive=true : all active rooms </br>
      * @param {string} name Allow to search room which name includes a word beginning by ...
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
      * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
      */
         getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
@@ -1460,7 +1460,7 @@ class Bubbles extends GenericService {
      * </br>
      *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
      *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
-     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
      * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
      * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
@@ -1471,16 +1471,16 @@ class Bubbles extends GenericService {
      * hasConf=false : all rooms never used for a meeting </br>
      * hasConf=true : all rooms used for a meeting </br>
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
 
      creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
      */
     getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {

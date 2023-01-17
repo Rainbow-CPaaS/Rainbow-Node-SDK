@@ -51,12 +51,17 @@ class PresenceEventHandler extends GenericHandler {
             const x = stanza.find("x");
             const namespace = x.attr("xmlns");
             let applyMsTeamsPresence = false;
+            let applyCalendarPresence = false;
 
             // Ignore muc presence
             if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) { return true; }
 
-            if (stanza.getChild("applyMsTeamsPresence")) {
+            if (stanza.find("applyMsTeamsPresence").length != 0) {
                 applyMsTeamsPresence = true;
+            }
+
+            if (stanza.find("applyCalendarPresence").length != 0) {
+                applyCalendarPresence = true;
             }
 
             if (from === that.fullJid || xmppUtils.getBareJIDFromFullJID(from) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
@@ -103,7 +108,7 @@ class PresenceEventHandler extends GenericHandler {
                     that.eventEmitter.emit("evt_internal_oncontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                 }
                 //let contact: Contact = await that._contacts.getContactByJid(from, false);
-                let typeResource =  applyMsTeamsPresence ? "teams" : xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
+                let typeResource =  xmppUtils.isFromPresenceJid(from) ? "presence" : xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                         "phone" :
                         xmppUtils.isFromMobile(from) ?
                                 "mobile" :
@@ -111,7 +116,7 @@ class PresenceEventHandler extends GenericHandler {
                                         "node" :
                                         "desktopOrWeb";
                 
-                that.eventEmitter.emit("evt_internal_presencechanged", {
+                let data = {
                     "fulljid": from,
                     "jid": xmppUtils.getBareJIDFromFullJID(from),
                     //contact,
@@ -121,11 +126,23 @@ class PresenceEventHandler extends GenericHandler {
                     value: {
                         "show": show,
                         "status": status,
+                        //"applyCalendarPresence": undefined,
+                        //"applyMsTeamsPresence": undefined,
                         delay,
                         until, // The validity date of the calendar presence.
                         "type": typeResource
                     }
-                });
+                };
+                if (typeResource === "calendar" ) {
+                    // @ts-ignore
+                    data.value.applyCalendarPresence = applyCalendarPresence;
+                }
+                if (typeResource === "presence" ) {
+                    // @ts-ignore
+                    data.value.applyMsTeamsPresence = applyMsTeamsPresence;
+                }
+                
+                that.eventEmitter.emit("evt_internal_presencechanged", data);
             } else if (from.includes("room_")) {
 
                 let presence = stanza.attrs.type;
@@ -259,13 +276,13 @@ class PresenceEventHandler extends GenericHandler {
                     });
                 }
 
-                let typeResource = applyMsTeamsPresence ? "teams" : xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
+                let typeResource = xmppUtils.isFromPresenceJid(from) ? "presence":xmppUtils.isFromCalendarJid(from) ? "calendar":xmppUtils.isFromTelJid(from) ?
                         "phone":
                         xmppUtils.isFromMobile(from) ?
                                 "mobile":
                                 xmppUtils.isFromNode(from) ?
                                         "node":
-                                        "desktopOrWeb" ;
+                                        "desktopOrWeb";
                 let evtParam = {
                     fulljid: from,
                     jid: xmppUtils.getBareJIDFromFullJID(from),
@@ -273,6 +290,8 @@ class PresenceEventHandler extends GenericHandler {
                     value: {
                         priority,
                         //show: show || "",
+                     //   "applyCalendarPresence": undefined,
+                       // "applyMsTeamsPresence": undefined,
                         delay,
                         //status: status || "",
                         until, // The validity date of the calendar presence. 
@@ -281,6 +300,14 @@ class PresenceEventHandler extends GenericHandler {
                         "type": typeResource
                     }
                 };
+                if (typeResource==="calendar") {
+                    // @ts-ignore
+                    evtParam.value.applyCalendarPresence = applyCalendarPresence;
+                }
+                if (typeResource==="presence") {
+                    // @ts-ignore
+                    evtParam.value.applyMsTeamsPresence = applyMsTeamsPresence;
+                }
                 that.eventEmitter.emit("evt_internal_onrosterpresence", evtParam);
 
             }

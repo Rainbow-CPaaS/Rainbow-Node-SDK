@@ -2943,7 +2943,7 @@ class AdminService extends GenericService {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object |     |
-     * | state | String | Import state<br><br>Valeurs autorisées : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+     * | state | String | Import state<br><br>Possible values : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
      * | companyId | String | Id of the company of the directory |
      * | userId | String | Id of the requesting user |
      * | displayName | String | Display name of the requesting user |
