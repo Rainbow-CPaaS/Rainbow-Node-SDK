@@ -583,6 +583,7 @@ class PresenceService extends GenericService{
      *    until: string // Date until the current presence is valid <br> 
      *    }  <br>
      *    <br>
+     *        Note : "applyCalendarPresence" boolean is not return by this api, so you can not know if the presence should be used in general calculated presence. </br>
      * @async
      * @return {Promise<{  
      *    busy: boolean, 
@@ -632,6 +633,7 @@ class PresenceService extends GenericService{
      *    until: string // Date until the current presence is valid <br> 
      *    }  <br>
      *    <br>
+     *        Note : "applyCalendarPresence" boolean is not return by this api, so you can not know if the presence should be used in general calculated presence. </br>
      * @async
      * @return {Promise< { 
      *    busy: boolean, 

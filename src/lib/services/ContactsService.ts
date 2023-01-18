@@ -2104,9 +2104,9 @@ class ContactsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(_onPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
-                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
                         } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
@@ -2382,9 +2382,9 @@ class ContactsService extends GenericService {
                     this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
-                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams) {
+                        } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
                         } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
