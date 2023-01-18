@@ -679,63 +679,77 @@ class XMPPService extends GenericService {
             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
             //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
             if (that.reconnect && err) {
-                // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
-                switch (err.condition) {
-                    // Conditions which need a reconnection
-                    case "remote-connection-failed":
-                    case "reset":
-                    case "resource-constraint":
-                    case "connection-timeout":
-                    case "system-shutdown":
-                        that.stopIdleTimer();
-                        let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
-                        await setTimeoutPromised(waitime);
-                        if (!that.isReconnecting) {
-                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            await that.reconnect.reconnect().catch((err) => {
-                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
-                            });
-                        } else {
-                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
-                        }
-                        break;
-                    // Conditions which need to only raise an event to inform up layer.
-                    case "bad-format":
-                    case "bad-namespace-prefix":
-                    case "host-gone":
-                    case "host-unknown":
-                    case "improper-addressing":
-                    case "internal-server-error":
-                    case "invalid-from":
-                    case "invalid-namespace":
-                    case "invalid-xml":
-                    case "not-authorized":
-                    case "not-well-formed":
-                    case "policy-violation":
-                    case "restricted-xml":
-                    case "undefined-condition":
-                    case "unsupported-encoding":
-                    case "unsupported-feature":
-                    case "unsupported-stanza-type":
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmpperror", err);
-                        break;
-                    // Conditions which are fatal errors and then need to stop the SDK.
-                    case "see-other-host":
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
-                    case "conflict":
-                    case "unsupported-version":
-                        that.stopIdleTimer();
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                        break;
-                    // Default condition, we do not know what to do, so to avoid wrong stop of SDK, we only send an event.
-                    default:
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmpperror", err);
-                        break;
-                }
+                try {
+                    // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
+                    switch (err.condition) {
+                            // Conditions which need a reconnection
+                        case "remote-connection-failed":
+                        case "reset":
+                        case "connection-timeout":
+                        case "system-shutdown":
+                            that.stopIdleTimer();
+                            let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime, " seconds before try to reconnect");
+                            await setTimeoutPromised(waitime);
+                            if (!that.isReconnecting) {
+                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                                await that.reconnect.reconnect().catch((err) => {
+                                    that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                                });
+                            } else {
+                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                            }
+                            break;
+                            // Conditions which need to only raise an event to inform up layer.
+                        case "bad-format":
+                        case "bad-namespace-prefix":
+                        case "host-gone":
+                        case "host-unknown":
+                        case "improper-addressing":
+                        case "internal-server-error":
+                        case "invalid-from":
+                        case "invalid-namespace":
+                        case "invalid-xml":
+                        case "not-authorized":
+                        case "not-well-formed":
+                        case "restricted-xml":
+                        case "undefined-condition":
+                        case "unsupported-encoding":
+                        case "unsupported-feature":
+                        case "unsupported-stanza-type":
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                            // Conditions which are fatal errors and then need to stop the SDK.
+                        case "see-other-host":
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
+                        case "conflict":
+                        case "policy-violation":
+                            if (err.text!="has been kicked") {
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
+                                that.eventEmitter.emit("evt_internal_xmpperror", err);
+                                break;
+                            }
+                        case "resource-constraint":
+                            if (err.text!="Max sessions reached") {
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not Fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
+                                that.eventEmitter.emit("evt_internal_xmpperror", err);
+                                break;
+                            }
+                        case "unsupported-version":
+                            that.stopIdleTimer();
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                            break;
+                            // Default condition, we do not know what to do, so to avoid wrong stop of SDK, we only send an event.
+                        default:
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                    }
+                } catch (err2) {
+                    that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : CATCH Error  error : ", err2, ", err received : ", err);
+                } 
             } else {
                 that.stopIdleTimer();
                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
