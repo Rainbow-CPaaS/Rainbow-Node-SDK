@@ -179,7 +179,7 @@ let urlS2S;
             "maxFiles" : 10 // */
             }
         },
-        "testOutdatedVersion": true,
+        "testOutdatedVersion": false,
         "testDNSentry": true,
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
@@ -628,6 +628,8 @@ let urlS2S;
                 console.log("MAIN - Error during starting : " + util.inspect(err));
             });
             // */
+        }).catch((err) => {
+            console.log("MAIN - Error during starting : " + util.inspect(err));
         });
     });
 
@@ -5356,6 +5358,7 @@ let urlS2S;
         })
     }
 
+    //region Start / Stop
     async  testStartWithToken() {
         await rainbowSDK.stop();
         //let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
@@ -5394,6 +5397,90 @@ let urlS2S;
             logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK.stop();
+    }
+    
+    async  test5Start() {
+        logger.log("debug", "MAIN - (test5Start) __ begin __.");
+        let options1: any={};
+        let options2: any={};
+        let options3: any={};
+        let options4: any={};
+        
+        Object.assign(options1, options);
+        options1.logs.customLabel = options1.credentials.login + "_1";
+        options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
+        let rainbowSDK1 = new RainbowSDK(options1);
+        rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
+            // do something when the SDK has been started
+            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+        });
+        rainbowSDK1.events.on("rainbow_onerror", (data) => {
+            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+            rainbowSDK1 = undefined;
+        });
+        /*
+        Object.assign(options2, options);
+        options2.logs.customLabel = options2.credentials.login + "_2";
+        options2.logs.file.customFileName = "R-SDK-Node-" + options2.credentials.login + "_2";
+        let rainbowSDK2 = new RainbowSDK(options2);
+        rainbowSDK2.events.on("rainbow_onconnectionerror", () => {
+            // do something when the SDK has been started
+            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+        });
+        rainbowSDK2.events.on("rainbow_onerror", (data) => {
+            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+            rainbowSDK2 = undefined;
+        });
+
+        Object.assign(options3, options);
+        options3.logs.customLabel = options3.credentials.login + "_3";
+        options3.logs.file.customFileName = "R-SDK-Node-" + options3.credentials.login + "_3";
+        let rainbowSDK3 = new RainbowSDK(options3);
+        rainbowSDK3.events.on("rainbow_onconnectionerror", () => {
+            // do something when the SDK has been started
+            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+        });
+        rainbowSDK3.events.on("rainbow_onerror", (data) => {
+            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+            rainbowSDK3 = undefined;
+        });
+
+        Object.assign(options4, options);
+        options4.logs.customLabel = options4.credentials.login + "_4";
+        options4.logs.file.customFileName = "R-SDK-Node-" + options4.credentials.login + "_4";
+        let rainbowSDK4 = new RainbowSDK(options4);
+        rainbowSDK4.events.on("rainbow_onconnectionerror", () => {
+            // do something when the SDK has been started
+            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+        });
+        rainbowSDK4.events.on("rainbow_onerror", (data) => {
+            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+            rainbowSDK4 = undefined;
+        });
+*/
+        await rainbowSDK.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (test5Start) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        await rainbowSDK1.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        /*
+        await rainbowSDK2.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (test5Start) rainbow SDK 2 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        await rainbowSDK3.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (test5Start) rainbow SDK 3 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        await rainbowSDK4.start(token).then(async (result2) => {
+            // Do something when the SDK is started
+            logger.log("debug", "MAIN - (test5Start) rainbow SDK 4 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+        });
+        */
+        // await rainbowSDK.stop();
     }
     
      startWSOnly() {
@@ -5821,7 +5908,10 @@ let urlS2S;
      stop() {
         rainbowSDK.stop();
     }
-}
+
+    //endregion Start / Stop
+
+    }
 
     function commandLineInteraction() {
         let tests = new Tests();
@@ -5847,9 +5937,13 @@ let urlS2S;
                         case "exit":
                         case "by":
                             logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
-                            rainbowSDK.stop().then(() => {
-                                process.exit(0);
-                            });
+                                if (rainbowSDK) {
+                                    rainbowSDK.stop().then(() => {
+                                        process.exit(0);
+                                    });
+                                } else {
+                                    process.exit(0);
+                                }
                             break;
                         case "help":
                             logger.log("debug", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
@@ -5870,8 +5964,10 @@ let urlS2S;
                             break;
                         default:
                             logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-                            let cmdStr = (answers.cmd + "").indexOf("tests.") === 0 ? answers.cmd : "tests." + answers.cmd 
-                            eval(cmdStr);
+                            if (answers.cmd) {
+                                let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
+                                eval(cmdStr);
+                            }
                             enterCmd();
                             break;
                     }

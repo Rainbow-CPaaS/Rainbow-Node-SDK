@@ -333,7 +333,9 @@ class XMPPService extends GenericService {
 
                         that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
-                        that.xmppClient.send(stanza);
+                        that.xmppClient.send(stanza).catch((err) => {
+                            that.logger.log("warn", LOG_ID + "(stop) send failed to send Unavailable Presence, error : ", err);
+                        });
 
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stopped XMPP connection");
@@ -726,19 +728,25 @@ class XMPPService extends GenericService {
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                         case "conflict":
                         case "policy-violation":
-                            if (err.text!="has been kicked") {
+                            if (err.condition == "policy-violation" && err.text!="has been kicked") {
                                 that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
                                 that.eventEmitter.emit("evt_internal_xmpperror", err);
                                 break;
                             }
                         case "resource-constraint":
-                            if (err.text!="Max sessions reached") {
+                            if (err.condition == "resource-constraint" && err.text!="Max sessions reached") {
                                 that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not Fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
                                 that.eventEmitter.emit("evt_internal_xmpperror", err);
                                 break;
                             }
                         case "unsupported-version":
                             that.stopIdleTimer();
+                            // Disconnect the auto-reconnect mode
+                            if (that.reconnect) {
+                                that.logger.log("debug", LOG_ID + "(stop) stop XMPP auto-reconnect mode");
+                                that.reconnect.stop();
+                                that.reconnect = null;
+                            }
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                             that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                             break;
