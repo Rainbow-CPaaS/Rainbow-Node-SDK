@@ -1602,7 +1602,9 @@ class ConversationsService extends GenericService {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                             if (bubble) {
-                                that._presenceService.sendInitialBubblePresenceSync(bubble);
+                                that._presenceService.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                    that._logger.log("warn", LOG_ID + "(getBubbleConversation) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                });
                             }
                             // Send conversations update event
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);

@@ -639,7 +639,6 @@ class Events {
                             if (that._core.options._imOptions.autoInitialBubblePresence) {
                                 if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
                                     // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
                                     await that._core._presence.sendInitialBubblePresenceSync(bubble);
                                 }
                             } else {

@@ -151,9 +151,10 @@ class Core {
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
-                return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
+                return self._stateManager.transitTo(self._stateManager.CONNECTED).then(async (data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
+                    await that._bubbles.reset() ;
                     return self._retrieveInformation();
                 });
             }).then((data3) => {
