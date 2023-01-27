@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
 -   Add use `applyMsTeamsPresence` in calculated presence.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
+-   Fix `BubblesService::startRecording`.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.

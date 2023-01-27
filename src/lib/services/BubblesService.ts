@@ -5426,7 +5426,7 @@ class Bubbles extends GenericService {
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.pauseRecording(roomId).then(async (result) => {
+            that._rest.startRecording(roomId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(startRecording) result from server : ", result);
 
                 if (result) {
