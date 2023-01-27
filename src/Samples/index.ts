@@ -12,7 +12,7 @@ import set = Reflect.set;
 import {url} from "inspector";
 import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
-import {createWriteStream} from "fs";
+import {createWriteStream, readFileSync, writeFileSync, appendFileSync  } from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
 import {AlertFilter} from "../lib/common/models/AlertFilter";
 import {List} from "ts-generic-collections-linq";
@@ -22,7 +22,11 @@ import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
+import { Server as MockServer, WebSocket as WS } from 'mock-socket';
+//const MockServer = require("mock-socket").Server;
+//const WS = require("mock-socket").WebSocket;
 
+// global.it = () => {return true};
 
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -110,8 +114,8 @@ let urlS2S;
             "port": "443",
             "protocol": "wss",
             "timeBetweenXmppRequests": "20",
-            "raiseLowLevelXmppInEvent": false,
-            "raiseLowLevelXmppOutReq": false,
+            "raiseLowLevelXmppInEvent": true,
+            "raiseLowLevelXmppOutReq": true,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
             "xmppRessourceName": "vnagw"
@@ -330,13 +334,13 @@ let urlS2S;
     rainbowSDK.events.on("rainbow_onxmmpeventreceived", (...argv) => {
         // do something when the SDK is ready to be used
         logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow xmpp event received : ", logger.colors.cyan(...argv));
-        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "in: " + logger.colors.cyan(argv[0]) + "\n");
+        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "in: " + logger.colors.red(argv[0]) + "\n");
     });
 
     rainbowSDK.events.on("rainbow_onxmmprequestsent", (...argv) => {
         // do something when the SDK is ready to be used
         logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow xmpp request sent : ", logger.colors.yellow(...argv));
-        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "out: " + logger.colors.yellow(argv[0]) + "\n");
+        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "out: " + logger.colors.green(argv[0]) + "\n");
     });
 
     let GROUP_NAME = "Services";
@@ -5418,7 +5422,7 @@ let urlS2S;
             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK1 = undefined;
         });
-        /*
+        
         Object.assign(options2, options);
         options2.logs.customLabel = options2.credentials.login + "_2";
         options2.logs.file.customFileName = "R-SDK-Node-" + options2.credentials.login + "_2";
@@ -5457,7 +5461,8 @@ let urlS2S;
             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK4 = undefined;
         });
-*/
+// */
+        /*
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
             logger.log("debug", "MAIN - (test5Start) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
@@ -5466,6 +5471,7 @@ let urlS2S;
             // Do something when the SDK is started
             logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
+        // */         
         /*
         await rainbowSDK2.start(token).then(async (result2) => {
             // Do something when the SDK is started
@@ -5512,8 +5518,151 @@ let urlS2S;
             }
         });
     }
+    
+     startMockXMPP() {
+         let options1: any={};
 
+         Object.assign(options1, options);
+         options1.logs.customLabel = options1.credentials.login + "_1";
+         options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
+         let rainbowSDK1 = new RainbowSDK(options1);
 
+         // XMPP WebSocket Server
+         logger.log("debug", "MAIN - (startMockXMPP) going to MockServer : " + "wss://openrainbow.net:443/websocket");
+         class XmppWebSocket extends WS {
+             constructor( address, protocols ) {
+                 super(address, protocols);
+             }
+         }
+// @ts-ignore
+         global.WebSocket = XmppWebSocket;
+
+         let isAuthenticated = false;
+         let resource = "";
+         let alice = {loggedInUser : {jid_im : "98091bcde14d4eadac763d9cc0851719@openrainbow.net"}};
+         //alice.loggedInUser.jid_im
+         
+         const mockServer = new MockServer("wss://openrainbow.net:443/websocket");
+         mockServer.on("connection", (socket) => {
+             logger.log("debug", "MAIN - (startMockXMPP) (on) MockServer.connection : " + "socket : " + socket);
+              socket.on('message', (message: string) => {
+                 logger.log("debug", "MAIN - (startMockXMPP) (on) we have intercepted the message and can assert on it " + "socket : " + socket);
+                // t.is(data, 'test message from app', 'we have intercepted the message and can assert on it');
+                 //socket.send('test message from mock server');
+                  if (message.startsWith("<open")) {
+                      socket.send("<open xmlns='urn:ietf:params:xml:ns:xmpp-framing' to='openrainbow.net' version='1.0'/>");
+                      if (!isAuthenticated) {
+                          socket.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http:" +
+                                  "//jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/eja" +
+                                  "bberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><register xmlns='http://jabber.org/f" +
+                                  "eatures/iq-register'/><mechanisms xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><mech" +
+                                  "anism>PLAIN</mechanism><mechanism>DIGEST-MD5</mechanism><mechanism>SCRAM-SHA-1</" +
+                                  "mechanism></mechanisms></stream:features>");
+                      } else {
+                          socket.send("<stream:features xmlns:stream='http://etherx.jabber.org/streams'><c xmlns='http:" +
+                                  "//jabber.org/protocol/caps' hash='sha-1' node='http://www.process-one.net/en/eja" +
+                                  "bberd/' ver='XOFO0R0cqi8p4qFlpdNxjjjK4Zs='/><bind xmlns='urn:ietf:params:xml:ns:" +
+                                  "xmpp-bind'/><session xmlns='urn:ietf:params:xml:ns:xmpp-session'><optional/></se" +
+                                  "ssion><ver xmlns='urn:xmpp:features:rosterver'/><sm xmlns='urn:xmpp:sm:2'/><sm x" +
+                                  "mlns='urn:xmpp:sm:3'/><csi xmlns='urn:xmpp:csi:0'/></stream:features>");
+                      }
+                  }
+                  if (message.startsWith("<auth")) {
+                      socket.send("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>cj1kNDFkOGNkOThmMDBiMjA0ZTk4" +
+                              "MDA5OThlY2Y4NDI3ZS93UzdkNlNDYmsyUXRFM0VUd251V0E9PSxzPU52NERxZ1dmb09ESG5YUlJCeWpE" +
+                              "REE9PSxpPTQwOTY=</challenge>");
+                      socket.send("<open xmlns=\"urn:ietf:params:xml:ns:xmpp-framing\" version=\"1.0\" default:lang" +
+                              "=\"en\" id=\"13260960624462208793\" from=\"openrainbow.net\"\/>");
+                  }
+                  if (message.startsWith("<response")) {
+                      socket.send("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>dj1KM3d3dTc2WWU4THVEM1FOWVNWZj" +
+                              "dTNUlHS3c9</success>");
+                      isAuthenticated = true;
+                  }
+                  if (message.startsWith("<iq type=\"set\"")) {
+                      var id = message.match(/id="(.*)" /);
+                      if (message.indexOf("bind") > -1) {
+                          let resource = message.match(/<resource>(.*)<\/resource>/);
+                          socket.send("<iq xmlns='jabber:client' id='" + id[1] + "' type='result'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>" + alice.loggedInUser.jid_im + "/" + resource[1] + "</jid></bind></iq>");
+                      } else if (message.indexOf("session") > -1) {
+                          socket.send("<iq xmlns='jabber:client' type='result' id='" + id[1] + "'/>");
+                      } else if (message.indexOf("carbon") > -1) {
+                          socket.send("<iq xmlns='jabber:client' from='" + alice.loggedInUser.jid_im + "' to='" + alice.loggedInUser.jid_im + "/" + resource[1] + "' id='" + id[1] + "' type='result'/>")
+                      }
+                  }
+                  if (message.startsWith("<presence")) {
+                      socket.send("<presence xmlns='jabber:client' from='" + alice.loggedInUser.jid_im + "/" + resource[1] + "' to='" + alice.loggedInUser.jid_im + "/" + resource[1] + "'><priority>5</priority></presence>");
+                  }
+             });
+             // */
+         });
+
+         /*
+         // read XMPP flow
+         const data = readFileSync('./config.json');
+         console.log(JSON.parse(String(data)));
+         // */
+
+         mockServer.on("message", message => {
+             logger.log("debug", "MAIN - (startMockXMPP) (on) message : ", message);
+         });
+
+         
+         rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
+             // do something when the SDK has been started
+             logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+         });
+         rainbowSDK1.events.on("rainbow_onerror", (data) => {
+             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+             rainbowSDK1 = undefined;
+         });
+         const path = './xmpp.txt';
+         writeFileSync(path, "", "utf8");
+
+         rainbowSDK1.events.on("rainbow_onxmmpeventreceived", (data) => {
+             logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow failed to start.");
+             try {
+                 appendFileSync(path, "in:" + data + "\n");
+                 console.log('Data successfully saved to disk');
+             } catch (error) {
+                 console.log('An error has occurred ', error);
+             }
+         });
+         rainbowSDK1.events.on("rainbow_onxmmprequestsent", (data) => {
+             logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow failed to start.");
+             try {
+                 appendFileSync(path, "out:" + data + "\n");
+                 console.log('Data successfully saved to disk');
+             } catch (error) {
+                 console.log('An error has occurred ', error);
+             }
+         });
+
+         
+         
+         
+         rainbowSDK1.start(token).then(async (result: any) => {
+//Promise.resolve({}).then(async(result: any) => {
+            try {
+                // Do something when the SDK is started
+                connectedUser = result.loggedInUser;
+                token = result.token;
+                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+
+                //let startDuration = Math.round(new Date() - startDate);
+                let startDuration = result.startDuration;
+                // that.stats.push({ service: "telephonyService", startDuration: startDuration });
+                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+            } catch (err) {
+                console.log("MAIN - Error during starting : ", inspect(err));
+            }
+        }).catch((err) => {
+            console.log("MAIN - Error during starting : ", inspect(err));
+        }); // */
+    }
+    
      start() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
