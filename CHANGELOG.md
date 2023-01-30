@@ -15,6 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
 -   Fix `BubblesService::startRecording`.
 -   Fix xmpp stanza for deleted or modified messages.
+-   Update to set useMessageEditionAndDeletionV2 to true by default.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
