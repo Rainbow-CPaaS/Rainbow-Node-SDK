@@ -214,7 +214,7 @@ let urlS2S;
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
-            "useMessageEditionAndDeletionV2": true
+            "useMessageEditionAndDeletionV2": false
         },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -1277,11 +1277,97 @@ let urlS2S;
                 type: "text/markdown"
             };
 
-            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+            // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, undefined, msgSentOrig.id, content).catch((err) => {
                 logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
             });
             logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
         }, 10000);
+    }
+
+    formatCard(msg, utc){
+            return JSON.stringify({
+                "version": "1.1",
+                "type": "AdaptiveCard",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [ { "type": "TextBlock", "text": msg + " Hey! How are you? " + utc, "wrap": "True" }]
+                    },
+                    {
+                        "type": "ActionSet", "actions": [
+                            { "title": "great", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_great" }, "text": "great" } } },
+                            { "title": "super sad", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_unhappy" }, "text": "super sad" } } }
+                        ]
+                    }
+                ],
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+            })
+    }
+    
+    formatCard2(msg, utc){
+            //return "<![CDATA[{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"large\",\"weight\":\"bolder\",\"text\":\" Welcome to the MCQ Test" + msg + ":" + utc + "\",\"horizontalAlignment\":\"center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"TextBlock\",\"size\":\"medium\",\"weight\":\"bolder\",\"text\":\" Are you ready ?\",\"horizontalAlignment\":\"left\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"MCQSelection\",\"label\":\"\",\"value\":\"\",\"size\":\"medium\",\"weight\":\"bolder\",\"style\":\"expanded\",\"isRequired\":false,\"errorMessage\":\"Selection is required\",\"choices\":[]},{\"type\":\"TextBlock\",\"id\":\"Information\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"MCQ Test started\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\",\"color\":\"Good\",\"isVisible\":false}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Go !\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\"},\"questionId\":\"00\"}}]}]]>";
+            return "{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"large\",\"weight\":\"bolder\",\"text\":\" Welcome to the MCQ Test" + msg + ":" + utc + "\",\"horizontalAlignment\":\"center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"TextBlock\",\"size\":\"medium\",\"weight\":\"bolder\",\"text\":\" Are you ready ?\",\"horizontalAlignment\":\"left\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"MCQSelection\",\"label\":\"\",\"value\":\"\",\"size\":\"medium\",\"weight\":\"bolder\",\"style\":\"expanded\",\"isRequired\":false,\"errorMessage\":\"Selection is required\",\"choices\":[]},{\"type\":\"TextBlock\",\"id\":\"Information\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"MCQ Test started\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\",\"color\":\"Good\",\"isVisible\":false}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Go !\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\"},\"questionId\":\"00\"}}]}";
+    }
+    
+    formatCard3(msg, utc){
+            //return "<![CDATA[{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"large\",\"weight\":\"bolder\",\"text\":\" Question 1/5\",\"horizontalAlignment\":\"center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"TextBlock\",\"size\":\"medium\",\"weight\":\"bolder\",\"text\":\" What was the first emoticon ever used?\",\"horizontalAlignment\":\"left\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"MCQSelection\",\"label\":\"\",\"value\":\"\",\"size\":\"medium\",\"weight\":\"bolder\",\"style\":\"expanded\",\"isRequired\":true,\"errorMessage\":\"Selection is required\",\"choices\":[{\"title\":\"ðŸ˜€\",\"value\":\"A\"},{\"title\":\"ðŸ™‚\",\"value\":\"B\"},{\"title\":\"ðŸ™\",\"value\":\"C\"},{\"title\":\"ðŸ˜›\",\"value\":\"D\"}]},{\"type\":\"TextBlock\",\"id\":\"Information\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"Answered\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\",\"color\":\"Good\",\"isVisible\":false}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\"},\"questionId\":\"01\"}}]}]]>";
+            return "{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"large\",\"weight\":\"bolder\",\"text\":\" Question 1/5\",\"horizontalAlignment\":\"center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"TextBlock\",\"size\":\"medium\",\"weight\":\"bolder\",\"text\":\" What was the first emoticon ever used? " +  msg + " : " + utc + " : \",\"horizontalAlignment\":\"left\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"MCQSelection\",\"label\":\"\",\"value\":\"\",\"size\":\"medium\",\"weight\":\"bolder\",\"style\":\"expanded\",\"isRequired\":true,\"errorMessage\":\"Selection is required\",\"choices\":[{\"title\":\"ðŸ˜€\",\"value\":\"A\"},{\"title\":\"ðŸ™‚\",\"value\":\"B\"},{\"title\":\"ðŸ™\",\"value\":\"C\"},{\"title\":\"ðŸ˜›\",\"value\":\"D\"}]},{\"type\":\"TextBlock\",\"id\":\"Information\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"Answered\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\",\"color\":\"Good\",\"isVisible\":false}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\"},\"questionId\":\"01\"}}]}";
+    }
+    
+   displayCard(message) {
+       let formattedMessage = this.formatCard("","");
+       /*rainbowSDK.im.sendMessageToJid(formattedMessage, message.fromJid, "en", {
+           "type": "form/json",
+           "message": formattedMessage
+       }).catch(error => {
+           logger.error("Error sending card: ", error);
+       }); //*/
+   }
+        
+    async  testsendCorrectedChatMessageWithContentAdaptiveCard() {
+        let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        let now = new Date().getTime();
+        let formattedMessage = that.formatCard2("original msg : ", now);
+        let content = {
+            "type": "form/json",
+            "message": formattedMessage
+        }
+        // Send message
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        msgsSent.push(msgSent);
+        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+        await until(() => {
+            return conversation.getMessageById(msgSent.id)!==undefined;
+        }, "Wait for message to be added in conversation.");
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+        setTimeout(async () => {
+
+            formattedMessage = that.formatCard3("modified msg : ", now);
+            content = {
+                "type": "form/json",
+                "message": formattedMessage
+            }
+
+            // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+            let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, "Question 1/5", msgSentOrig.id, content).catch((err) => {
+                logger.log("error", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);
+            });
+            logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
+        }, 20000);
     }
 
     async  testdeleteMessageFromConversation() {

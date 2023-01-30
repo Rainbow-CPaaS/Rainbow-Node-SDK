@@ -14,6 +14,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add use `applyMsTeamsPresence` in calculated presence.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
 -   Fix `BubblesService::startRecording`.
+-   Fix xmpp stanza for deleted or modified messages.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
