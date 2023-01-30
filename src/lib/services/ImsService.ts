@@ -372,13 +372,13 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
-        if (!message) {
+        /*if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
-        }
+        } // */
 
-        if (message.length > that._imOptions.messageMaxLength) {
+        if (message && message.length > that._imOptions.messageMaxLength) {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
@@ -521,28 +521,30 @@ class ImsService extends GenericService{
         if (!lang) {
             lang = "en";
         }
-        if (!message) {
+        /* if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
-        }
+        } // */ 
 
         // Check size of the message
-        let messageSize = message.length;
+        let messageSize = message?message.length:0;
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
+        
         if (messageSize > that._imOptions.messageMaxLength) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
+        // */
 
         if (!jid) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = shortnameToUnicode(message);
+        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 

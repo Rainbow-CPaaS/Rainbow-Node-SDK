@@ -853,11 +853,11 @@ class ConversationsService extends GenericService {
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        if (data==undefined) {
+        /*if (data==undefined) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter : ", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-        }
+        }*/
         if (!origMsgId) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : ", origMsgId);
@@ -880,7 +880,7 @@ class ConversationsService extends GenericService {
             throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified","(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
         }
 
-        let messageUnicode = shortnameToUnicode(data);
+        let messageUnicode = data === "" ?  "" : (data ? shortnameToUnicode(data) : undefined);
 
         try {
             let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content );
