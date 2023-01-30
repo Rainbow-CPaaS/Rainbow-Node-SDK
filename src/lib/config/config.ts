@@ -144,7 +144,7 @@ let conf =  {
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
         enableCarbon: true,
         enablesendurgentpushmessages: false,
-        useMessageEditionAndDeletionV2: false
+        useMessageEditionAndDeletionV2: true
     },
     mode:"xmpp",
     "concurrentRequests": 1000,

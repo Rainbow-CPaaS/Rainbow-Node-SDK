@@ -458,7 +458,7 @@ class Options {
             autoLoadContacts: true,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
-            useMessageEditionAndDeletionV2: false
+            useMessageEditionAndDeletionV2: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -484,7 +484,7 @@ class Options {
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
-        optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == true) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
+        optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
 
         return optionsIM;
     }
