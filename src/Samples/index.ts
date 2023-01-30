@@ -114,8 +114,8 @@ let urlS2S;
             "port": "443",
             "protocol": "wss",
             "timeBetweenXmppRequests": "20",
-            "raiseLowLevelXmppInEvent": true,
-            "raiseLowLevelXmppOutReq": true,
+            "raiseLowLevelXmppInEvent": false,
+            "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
             "xmppRessourceName": "vnagw"
