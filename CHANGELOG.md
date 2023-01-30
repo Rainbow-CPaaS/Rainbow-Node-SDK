@@ -10,6 +10,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
 -   Fix xmpp stanza for deleted or modified messages. => Adaptive card can be modified now.
+-   Update to set useMessageEditionAndDeletionV2 to true by default.
 
 ## [2.16.1-lts.5] - 2022-01-11
 -   Restore default Options for  "autoInitialBubbleFormat": "full", "autoInitialBubbleUnsubscribed": true.
