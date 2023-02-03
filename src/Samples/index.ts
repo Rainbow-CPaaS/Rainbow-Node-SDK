@@ -987,6 +987,28 @@ let urlS2S;
         });
     }
 
+     testsearchUserByPhonenumber() {
+         // To be used vith vincent05 on vberder.openrainbow.org
+        let contactphone = "23031" ; // 23031 is vincent01 +33298483031
+        //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+        rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
+            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+        });
+    }
+
+     testsearchUserByPhonenumberByDDI() {
+         // To be used vith vincent05 on vberder.openrainbow.org
+        let contactphone = "+33298483031" ; // 23031 is vincent01 +33298483031
+        //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+        rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
+            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+        });
+    }
+
     //endregion Contacts
 
     //region Messages
@@ -1361,7 +1383,8 @@ let urlS2S;
                 "type": "form/json",
                 "message": formattedMessage
             }
-
+           // content = "{ \"type\": \"form/json\", \"message\": \"{\\"\$schema\\":\\"http://adaptivecards.io/schemas/adaptive-card.json\\",\\"type\\":\\"AdaptiveCard\\",\\"version\\":\\"1.5\\",\\"body\\":[{\\"type\\":\\"TextBlock\\",\\"size\\":\\"large\\",\\"weight\\":\\"bolder\\",\\"text\\":\\" Question 1/5\\",\\"horizontalAlignment\\":\\"center\\",\\"wrap\\":true,\\"style\\":\\"heading\\"},{\\"type\\":\\"TextBlock\\",\\"size\\":\\"medium\\",\\"weight\\":\\"bolder\\",\\"text\\":\\" What was the first emoticon ever used? \" +  msg + \" : \" + utc + \" : \\",\\"horizontalAlignment\\":\\"left\\",\\"wrap\\":true,\\"style\\":\\"heading\\"},{\\"type\\":\\"Input.ChoiceSet\\",\\"id\\":\\"MCQSelection\\",\\"label\\":\\"\\",\\"value\\":\\"\\",\\"size\\":\\"medium\\",\\"weight\\":\\"bolder\\",\\"style\\":\\"expanded\\",\\"isRequired\\":true,\\"errorMessage\\":\\"Selection is required\\",\\"choices\\":[{\\"title\\":\\"ðŸ˜€\\",\\"value\\":\\"A\\"},{\\"title\\":\\"ðŸ™‚\\",\\"value\\":\\"B\\"},{\\"title\\":\\"ðŸ™\\",\\"value\\":\\"C\\"},{\\"title\\":\\"ðŸ˜›\\",\\"value\\":\\"D\\"}]},{\\"type\\":\\"TextBlock\\",\\"id\\":\\"Information\\",\\"size\\":\\"Medium\\",\\"weight\\":\\"Bolder\\",\\"text\\":\\"Answered\\",\\"horizontalAlignment\\":\\"Center\\",\\"wrap\\":true,\\"style\\":\\"heading\\",\\"color\\":\\"Good\\",\\"isVisible\\":false}],\\"actions\\":[{\\"type\\":\\"Action.Submit\\",\\"title\\":\\"Submit\\",\\"data\\":{\\"rainbow\\":{\\"type\\":\\"messageBack\\",\\"value\\":{},\\"text\\":\\"\\"},\\"questionId\\":\\"01\\"}}]}\" }" ;
+                
             // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, "Question 1/5", msgSentOrig.id, content).catch((err) => {
                 logger.log("error", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);

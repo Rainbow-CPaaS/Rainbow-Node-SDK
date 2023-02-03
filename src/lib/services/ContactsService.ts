@@ -1519,12 +1519,12 @@ class ContactsService extends GenericService {
      * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
      * | isTerminated | Boolean | Indicates if the user account has been deleted. |
      *
-     * @param {number} number number to search. The number can be: <br>
+     * @param {string} number number to search. The number can be: <br>
      *      - a system phone number being in the pbx group of logged in user's pbx <br>
      *      - a phone number entered manually by a user in his profile and being in the same organisation than logged in user's (in that case, provided number must be in E164 format) <br>
      *      
      */
-    searchUserByPhonenumber(number : number ){
+    searchUserByPhonenumber(number : string ){
         let that = this;
 
         return new Promise((resolve, reject) => {
