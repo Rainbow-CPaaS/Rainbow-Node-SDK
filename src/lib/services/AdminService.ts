@@ -6842,6 +6842,276 @@ class AdminService extends GenericService {
 
     //endregion Sites
 
+    //region systems
+
+    /**
+     * @public
+     * @method getASystemPhoneNumber
+     * @since 2.20.0
+     * @instance
+     * @category systems
+     * @async
+     * @param {string} systemId System unique identifier
+     * @param {string} phoneNumberId PhoneNumber unique identifier
+     * @description
+     *      This API allows to retrieve a specific phoneNumber associated to a given system (pbx).<br>
+     *      Users with superadmin or support role can retrieve phoneNumbers from any system.<br>
+     *      bp_admin can only retrieve phoneNumbers linked to systems of End Customer companies for which their bp_admin's company is the BP company.<br>
+     *      Users with admin role (and not having superadmin nor support role) can only retrieve phoneNumbers of systems that they manage.<br>
+     *      In a Multi-Layer organization that describes a hierarchy including ORGANIZATIONS/COMPANIES/SITES/SYSTEMS, an admin role of a upper layer is allowed to see systems within their's reach. <br>
+     *   
+     * @return {Promise<any>} An object of the result
+     * 
+     *
+     *    | Champ | Type | Description |
+     *    | --- | --- | --- |
+     *    | id  | String | Phone number unique identifier |
+     *    | shortNumber | String | Short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | internalNumber | String | Internal phone number.  <br>Usable within a PBX group.  <br>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | voiceMailNumber optionnel | String | Voice mail phone number  <br>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | number optionnel | String | DDI phone number |
+     *    | numberE164 optionnel | String | E.164 phone number (computed by server if number is set) |
+     *    | pbxUserId | String | Pbx's user Id |
+     *    | userId optionnel | String | Rainbow userId to which the phone number is linked |
+     *    | jid_im | String | jid_im of the Rainbow user to which the phone number is linked |
+     *    | jid_tel | String | jid_tel of the Rainbow user to which the phone number is linked |
+     *    | jid_password | String | jid_password of the Rainbow user to which the phone number is linked |
+     *    | rainbowNumber optionnel | String | Rainbow number of the Rainbow user to which the phone number is linked |
+     *    | country optionnel | String | Phone number country (ISO 3166-1 alpha3 format)  <br>Country field is automatically computed using the following algorithm:<br><br>* If `number` is provided and is in E164 format, `country` is computed from this E164 number<br>* Else if phoneNumber is assigned to a user, user's `country` is used<br>* Else, system's `country` is used |
+     *    | type optionnel | String | Phone number type, one of `home`, `work`, `other` |
+     *    | deviceType optionnel | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
+     *    | isFromSystem optionnel | String | Boolean indicating if the phoneNumber is linked to a system (pbx) |
+     *    | pbxId | String | pbx unique identifier |
+     *    | firstName | String | firstname |
+     *    | lastName | String | lastname |
+     *    | deviceName | String | devicename |
+     *    | systemId optionnel | String | System unique identifier |
+     *    | isMonitored | Boolean | Specifies if the PhoneNumber is monitored by agent (i.e. telephony events are notified to Rainbow user through XMPP) |
+     *    | isNomadic optionnel | Boolean | Specifies if Nomadic set is selected. |
+     *    | isVoipNomadic optionnel | Boolean | Specifies if Nomadic destination is VoIP. |
+     *    | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
+     *    | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
+     *
+     * 
+     */
+    getASystemPhoneNumber (systemId : string, phoneNumberId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getASystemPhoneNumber ( systemId, phoneNumberId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getASystemPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getASystemPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getASystemPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllSystemPhoneNumbers
+     * @since 2.20.0
+     * @instance
+     * @category systems
+     * @async
+     * @param {string} systemId System unique identifier
+     * @param {string} shortNumber Allow to filter phoneNumbers list on phoneNumbers having shortNumber field starting with the provided value.
+     * @param {string} internalNumber Allow to filter phoneNumbers list on phoneNumbers having internalNumber field starting with the provided value.
+     * @param {string} pbxUserId Allow to filter phoneNumbers list on phoneNumbers having pbxUserId field equal to provided value.
+     * @param {string} companyPrefix When the system is a centrex server (multi-tenant OXE or third_party), allow to filter phoneNumbers list on companyPrefix. </BR>
+     * The companyPrefix value to set is named 'tenantCallNumber' in companies data model. </BR>
+     * Example: companyPrefix=8210: return all phoneNumbers having the prefix 8210, then allocated to the company having the 'tenantCallNumber' 8210 (exact match) </BR>
+     * @param {boolean} isMonitored Allow to filter phoneNumbers list on phoneNumbers having isMonitored field equal to provided value. Possible values : true, false
+     * @param {string} name Allow to filter phoneNumbers list on phoneNumbers having firstName or lastName starting with the provided value.
+     * @param {string} deviceName Allow to filter phoneNumbers list on phoneNumbers having deviceName field equal to provided value.
+     * @param {boolean} isAssignedToUser Allow to filter phoneNumbers list on phoneNumbers being assigned or not to a Rainbow user, according to provided value. true: return all phoneNumbers having userId !== null. false: return all phoneNumbers having userId === null. Possible values : true, false
+     * @param {string} format Allows to retrieve more or less phone numbers details in response. </br>
+     *   - small: id shortNumber internalNumber numberE164 </br>
+     *   - medium: id shortNumber internalNumber voiceMailNumber number numberE164 isFromSystem pbxId systemId </br>
+     *   - full: all phone numbers fields </br>
+     *   </br>
+     *   Default value : small. Possible values : small, medium, full </br>
+     * @param {number} limit Allow to specify the number of phone numbers to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first phone number to retrieve (first phone number if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort phone numbers list based on the given field. Default value : shortNumber
+     * @param {number} sortOrder Specify order when sorting phone numbers list. Default value : 1 . Possible values : -1, 1 .
+     * @description
+     *  This API allows to list all phoneNumbers associated to a given system (pbx).<br>
+     *    
+     *  Users with superadmin or support role can retrieve phoneNumbers from any system.<br>
+     *  bp_admin can only retrieve phoneNumbers linked to systems of End Customer companies for which their bp_admin's company is the BP company.<br>
+     *  Users with admin role (and not having superadmin nor support role) can only retrieve phoneNumbers of systems that they manage.<br>
+     *  In a Multi-Layer organization that describes a hierarchy including ORGANIZATIONS/COMPANIES/SITES/SYSTEMS, an admin role of a upper layer is allowed to see systems within their's reach.<br>
+     *  :<br>
+     *  Notes:<br>
+     *  systemId field returned in response corresponds to portal's internal mongoDB id, while pbxId is the id handled by PCG.<br>
+     *  This API is paginated.<br>
+     *  phoneNumbers list can be filtered on the following fields:<br>
+     *  shortNumber: allow to retrieve only phoneNumbers starting by the provided value.<br>
+     *  Example: shortNumber=123<br>
+     *  internalNumber: allow to retrieve only phoneNumbers starting by the provided value.<br>
+     *  Example: internalNumber=123<br>
+     *  pbxUserId: allow to retrieve only phoneNumbers having the provided pbxUserId value.<br>
+     *  Example: pbxUserId=123<br>
+     *  isMonitored: allow to retrieve only phoneNumbers for which monitoring in Rainbow application is activated (true) or deactivated (false).<br>
+     *  Example: isMonitored=true<br>
+     *  isAssignedToUser: allow to retrieve only phoneNumbers being associated (true) or not (false) to a Rainbow user.<br>
+     *  Example: isAssignedToUser=true<br>
+     *  userId: allow to retrieve only phoneNumbers being associated to the requested Rainbow user id.<br>
+     *  Example: userId=57960e4fa1ab69c4243415b1<br>
+     *  companyPrefix: allow to retrieve only phoneNumbers having the provided companyPrefix value. See below 'Sharing a system between several companies'<br>
+     *  Example: companyPrefix=8210 This filter is not taken in account for role admin.<br>
+     *  Filters can be combined. <br>
+     *
+     * @return {Promise<any>} An object of the result
+     *
+     */
+    getAllSystemPhoneNumbers (systemId: string, shortNumber? : string, internalNumber ? :string, pbxUserId ? :string, companyPrefix? :string, isMonitored ? :boolean, name ? : string, deviceName ? : string, isAssignedToUser ? :boolean, format : string = "small", limit : number = 100, offset ? : number, sortField : string ="shortNumber", sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getAllSystemPhoneNumbers ( systemId, shortNumber , internalNumber , pbxUserId , companyPrefix, isMonitored , name , deviceName , isAssignedToUser , format , limit , offset , sortField , sortOrder ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllSystemPhoneNumbers) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllSystemPhoneNumbers) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateASystemPhoneNumber
+     * @since 2.20.0
+     * @instance
+     * @category systems
+     * @async
+     * @param {string} systemId System unique identifier
+     * @param {string} phoneNumberId PhoneNumber unique identifier
+     * @param {boolean} isMonitored Specifies if the PhoneNumber is monitored by agent (i.e. telephony events are notified to Rainbow user through XMPP)
+     * @param {string} userId Rainbow userId to which is linked the phoneNumber
+     * @param {string} internalNumber Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. </BR>
+     * internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group).
+     * @param {string} number Raw phone number (DDI) Note: If numberE164 can't be computed from number and computed country fields, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...)
+     * @param {string} type Phone number type. Default value : work. Possible values : home, work, other
+     * @param {string} deviceType Phone number device type. Default value : landline. Possible values : landline, mobile, fax, other
+     * @param {string} firstName first name
+     * @param {string} lastName last name
+     * @param {string} deviceName device name
+     * @param {boolean} isVisibleByOthers Allow user to choose if the phone number is visible by other users or not. </BR>
+     * Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. </BR>
+     * Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. </BR>
+     * @description
+     *   This API allows to update a phone number for a given system (pbx). <br>
+     *   It can be used to link a system phoneNumber to a Rainbow user by setting userId parameter. If userId parameter is provided, jid_im, jid_tel, jid_password and rainbowNumber of the corresponding user are automatically set in phoneNumber. <br>
+     *   It can also be used to enable monitoring of this phoneNumber by PCG (set isMonitored parameter to true). <br>
+     *   Note that pbxId, systemId, shortNumber and pbxUserId can't be modified. <br>
+     *
+     * @return {Promise<any>} An object of the result
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Phone number unique identifier |
+     * | shortNumber | String | Short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | internalNumber | String | Internal phone number.  <br>Usable within a PBX group.  <br>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | voiceMailNumber optionnel | String | Voice mail phone number  <br>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | number optionnel | String | DDI phone number |
+     * | numberE164 optionnel | String | E.164 phone number (computed by server if number is set) |
+     * | pbxUserId | String | Pbx's user Id |
+     * | userId optionnel | String | Rainbow userId to which the phone number is linked |
+     * | jid_im | String | jid_im of the Rainbow user to which the phone number is linked |
+     * | jid_tel | String | jid_tel of the Rainbow user to which the phone number is linked |
+     * | jid_password | String | jid_password of the Rainbow user to which the phone number is linked |
+     * | rainbowNumber optionnel | String | Rainbow number of the Rainbow user to which the phone number is linked |
+     * | country optionnel | String | Phone number country (ISO 3166-1 alpha3 format)  <br>Country field is automatically computed using the following algorithm:<br><br>* If `number` is provided and is in E164 format, `country` is computed from this E164 number<br>* Else if phoneNumber is assigned to a user, user's `country` is used<br>* Else, system's `country` is used |
+     * | type optionnel | String | Phone number type, one of `home`, `work`, `other` |
+     * | deviceType optionnel | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
+     * | isFromSystem optionnel | String | Boolean indicating if the phoneNumber is linked to a system (pbx) |
+     * | pbxId | String | pbx unique identifier |
+     * | firstName | String | firstname |
+     * | lastName | String | lastname |
+     * | deviceName | String | devicename |
+     * | systemId optionnel | String | System unique identifier |
+     * | isMonitored | Boolean | Specifies if the PhoneNumber is monitored by agent (i.e. telephony events are notified to Rainbow user through XMPP) |
+     * | isNomadic optionnel | Boolean | Specifies if Nomadic set is selected. |
+     * | isVoipNomadic optionnel | Boolean | Specifies if Nomadic destination is VoIP. |
+     * | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
+     * | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
+     * 
+     * 
+     */
+    updateASystemPhoneNumber(systemId : string, phoneNumberId : string, isMonitored ? : boolean, userId ? : string, internalNumber ? : string,
+                             number ? : string, type ? : string, deviceType ? : string, firstName ? : string, lastName ? : string, deviceName ? : string, isVisibleByOthers ? : boolean ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!systemId) {
+                    this._logger.log("warn", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!phoneNumberId) {
+                    this._logger.log("warn", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.updateASystemPhoneNumber ( systemId,  phoneNumberId , isMonitored , userId , internalNumber ,
+                        number , type , deviceType , firstName , lastName , deviceName , isVisibleByOthers  ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateASystemPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateASystemPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion systems
+    
     //region Rainbow Company Directory Portal 
     // https://api.openrainbow.org/directory/
     //region directory

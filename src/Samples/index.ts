@@ -946,6 +946,28 @@ let urlS2S;
         });
     }
     
+     testsearchUserByPhonenumber() {
+         // To be used vith vincent05 on vberder.openrainbow.org
+        let contactphone = "23031" ; // 23031 is vincent01 +33298483031
+        //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+        rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
+            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+        });
+    }
+
+     testsearchUserByPhonenumberByDDI() {
+         // To be used vith vincent05 on vberder.openrainbow.org
+        let contactphone = "+33298483031" ; // 23031 is vincent01 +33298483031
+        //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+        rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
+            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+        });
+    }
+
     //endregion Contacts
     
     //region Messages

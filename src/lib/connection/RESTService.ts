@@ -719,7 +719,7 @@ class RESTService extends GenericRESTService {
     }
     
     // users
-    searchUserByPhonenumber(number) {
+    searchUserByPhonenumber(number: string) {
         // API https://api.openrainbow.org/search/#api-users-search_phone-numbers_users
         // GET /api/rainbow/search/v1.0/phone-numbers/:number/users
 
@@ -10231,6 +10231,113 @@ Request Method: PUT
     
     //endregion sites
 
+    //region systems
+
+    getASystemPhoneNumber (systemId : string, phoneNumberId : string) {
+        // GET /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers/:phoneNumberId
+        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-GetSystemPhoneNumbersId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers/" + phoneNumberId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getASystemPhoneNumber) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getASystemPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(getASystemPhoneNumber) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getASystemPhoneNumber) error");
+                that.logger.log("internalerror", LOG_ID, "(getASystemPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllSystemPhoneNumbers (systemId: string, shortNumber? : string, internalNumber ? :string, pbxUserId ? :string, companyPrefix? :string, isMonitored ? :boolean, name ? : string, deviceName ? : string, isAssignedToUser ? :boolean, format : string = "small", limit : number = 100, offset ? : number, sortField : string ="shortNumber", sortOrder : number = 1) {
+        // GET /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers
+        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-GetSystemPhoneNumbers
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
+            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
+            addParamToUrl(urlParamsTab, "pbxUserId", pbxUserId);
+            addParamToUrl(urlParamsTab, "companyPrefix", companyPrefix);
+            addParamToUrl(urlParamsTab, "isMonitored", isMonitored);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "deviceName", deviceName);
+            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllSystemPhoneNumbers) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSystemPhoneNumbers) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSystemPhoneNumbers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateASystemPhoneNumber(systemId : string, phoneNumberId : string, isMonitored ? : boolean, userId ? : string, internalNumber ? : string,
+    number ? : string, type ? : string, deviceType ? : string, firstName ? : string, lastName ? : string, deviceName ? : string, isVisibleByOthers ? : boolean ) {
+        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-PutSystemPhoneNumbers
+        // PUT /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers/:phoneNumberId
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers/" + phoneNumberId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "tag", tag);
+            url = urlParamsTab[0];
+
+            let data : any = {
+                
+            };
+            if (isMonitored) data.isMonitored ; 
+            if (userId) data.userId ; 
+            if (internalNumber) data.internalNumber;
+            if (number) data.number; 
+            if (type) data.type;
+            if (deviceType) data.deviceType;
+            if (firstName) data.firstName;
+            if (lastName) data.lastName;
+            if (deviceName) data.deviceName;
+            if (isVisibleByOthers) data.isVisibleByOthers;
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateASystemPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateASystemPhoneNumber) error");
+                that.logger.log("internalerror", LOG_ID, "(updateASystemPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
+    //endregion systems
+    
     //region Rainbow Company Directory portal 
     // https://api.openrainbow.org/directory/
     //region directory
@@ -10629,7 +10736,7 @@ Request Method: PUT
                 newTagName
             };
 
-            that.http.put("/api/rainbow/directory/v1.0/entries/tags", that.getRequestHeader(), data, undefined).then(function (json) {
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) successfull");
                 that.logger.log("internal", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) REST result : ", json.data);
                 resolve(json.data);
