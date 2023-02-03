@@ -20,6 +20,8 @@ import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 import {Conference} from "../common/models/Conference";
 import {BubblesManager} from "../common/BubblesManager";
 import {GenericService} from "./GenericService";
+import {Conversation} from "../common/models/Conversation.js";
+import {ConversationsService} from "./ConversationsService.js";
 
 export {};
 
@@ -48,6 +50,7 @@ class Bubbles extends GenericService {
     private _bubbles: Bubble[];
     private avatarDomain: string;
     private _contacts: ContactsService;
+    private _conversations: ConversationsService;
     private _profileService: ProfilesService;
     private _presence: PresenceService;
     private _personalConferenceBubbleId: any;
@@ -124,6 +127,7 @@ class Bubbles extends GenericService {
                 that._rest = _core._rest;
                 that._bubbles = [];
                 that._contacts = _core.contacts;
+                that._conversations = _core.conversations;
                 that._profileService = _core.profiles;
                 that._presence = _core.presence;
                 that._options = _options;
@@ -4899,6 +4903,45 @@ class Bubbles extends GenericService {
     
     //endregion Manage Bubbles
 
+    //region Bubbles Messages
+
+    /**
+     *
+     * @public
+     * @since 2.20.0
+     * @method deleteAllMessagesInBubble
+     * @category Bubbles Messages
+     * @instance
+     * @async
+     * @description
+     *   Delete all messages in a Bubble for everybody or hide it definitively for a specific contact. <br>
+     * @param {Bubble} bubble bubble where im messages must be deleted.
+     * @param {string} forContactJid jid of the contact we want to delete the access to messages in the bubble. If not setted, then all bubble's messages are deleted for every contacts.
+     * @return Promise<any> Result of the API.
+     */
+    async deleteAllMessagesInBubble( bubble: Bubble, forContactJid: string = undefined) {
+        let that = this;
+
+        if (!bubble) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        // new to openconversation to send presence and activate the bubble if needed.
+        let conversationObj = await that._conversations.openConversationForBubble(bubble);
+
+        if (conversationObj.type!==Conversation.Type.ROOM) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter : ", conversationObj);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that._xmpp.deleteAllMessagesInRoomConversation(bubble.jid, forContactJid);
+    }
+
+    //endregion Bubbles Messages
+    
     //region Conference V2
 
     /**

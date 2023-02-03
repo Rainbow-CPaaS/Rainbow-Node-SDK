@@ -2873,7 +2873,84 @@ let urlS2S;
         logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
     }
 
-    async  testgetAvatarFromBubble() {
+     testdeleteAllMessagesInRoomConversationFromModerator() {
+         // to be used with vincent02 on .NET with bubble "test".
+        let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        if (result && result.length > 0 && result[0].name=="test") {
+            let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(result[0], undefined);
+            logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator - resultDelete : ", resultDelete);
+        } 
+    }
+
+     async testdeleteAllMessagesInRoomConversationFromMember() {
+         // to be used with vincent01 on .NET with bubble "test".
+        let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
+        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+        for (let i = 0 ; i < listOfBubblesJIDs.data.length ; i++) {
+            let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
+            //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
+            if (bubble && bubble.name == "test") {
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble name is test, so can delete all messages in bubble : ", bubble);
+                let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, undefined);
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember - resultDelete : ", resultDelete);
+            }
+        }
+    }
+
+     async testdeleteAllMessagesInRoomConversationFromMe() {
+         // to be used with vincent01 on .NET with bubble "test".
+        let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
+        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+        for (let i = 0 ; i < listOfBubblesJIDs.data.length ; i++) {
+            let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
+            //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
+            if (bubble && bubble.name == "test") {
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe bubble name is test, so can delete all messages in bubble : ", bubble);
+                let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, connectedUser.jid);
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe - resultDelete : ", resultDelete);
+            }
+        }
+    }
+
+     async testdeleteAllMessagesInRoomConversationFromMemberToContact() {
+         // to be used with vincent01 on .NET with bubble "test".
+         let loginEmail = "vincent02@vbe.test.openrainbow.net"
+         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+             let listOfBubblesJIDs: any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
+             logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+             for (let i = 0; i < listOfBubblesJIDs.data.length; i++) {
+                 let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
+                 //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
+                 if (bubble && bubble.name=="test") {
+                     logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact bubble name is test, so can delete all messages in bubble : ", bubble);
+                     let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, contact.jid);
+                     logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact - resultDelete : ", resultDelete);
+                 }
+             }
+         });
+    }
+
+     async testdeleteAllMessagesInRoomConversationFromContactNotInBubble() {
+         // to be used with vincent03 on .NET with bubble "test" jid room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net.
+         let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net"; 
+         let resultDelete = rainbowSDK._core._xmpp.deleteAllMessagesInRoomConversation(bubbleJid, undefined);
+         logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble - resultDelete : ", resultDelete);
+    }
+
+        async testdeleteAllMessagesInRoomConversationFromContactNotInBubble2() {
+            // to be used with vincent01 on .NET with bubble "test".
+            let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net";
+            let bubble = await rainbowSDK.bubbles.getBubbleByJid(bubbleJid);
+            //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
+            if (bubble && bubble.name=="test") {
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 bubble name is test, so can delete all messages in bubble : ", bubble);
+                let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, undefined);
+                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 - resultDelete : ", resultDelete);
+            }
+        }
+
+        async  testgetAvatarFromBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testgetAvatarFromBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let avatarBlob = await rainbowSDK.bubbles.getAvatarFromBubble(result[0]);
