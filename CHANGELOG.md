@@ -11,6 +11,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
 -   Fix xmpp stanza for deleted or modified messages. => Adaptive card can be modified now.
 -   Update to set useMessageEditionAndDeletionV2 to true by default.
+-   Add `AdminService::getASystemPhoneNumber` `AdminService::getAllSystemPhoneNumbers` `AdminService::updateASystemPhoneNumber` API to get/update phones numbers for a given system (pbx).
+-   Fix `RESTService::renameTagForAllAssignedDirectoryEntries` parameters.
+-   Fix `searchUserByPhonenumber` parameter type.
+-   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
 
 ## [2.16.1-lts.5] - 2022-01-11
 -   Restore default Options for  "autoInitialBubbleFormat": "full", "autoInitialBubbleUnsubscribed": true.

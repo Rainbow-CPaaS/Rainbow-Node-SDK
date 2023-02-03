@@ -864,7 +864,7 @@ class ConversationsService extends GenericService {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : ", data,  "origMsgId : ", origMsgId);
+        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : ", data,  "origMsgId : ", origMsgId, " content : ", content);
 
         let originalMessage = conversation.getMessageById(origMsgId);
         let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
@@ -888,6 +888,7 @@ class ConversationsService extends GenericService {
             newMsg.id = sentMessageId;
             newMsg.content = messageUnicode;
             newMsg.date = new Date();
+            newMsg.alternativeContent = content;
             newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
             originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
             that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);

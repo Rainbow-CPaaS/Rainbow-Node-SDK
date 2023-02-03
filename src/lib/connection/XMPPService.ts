@@ -1324,6 +1324,15 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.HintsNameSpace
                 }));
             }
+
+            if (content && content.message) {
+                let contentType = content.type || "text/markdown";
+                xmppMessage.append(xml("content", {
+                    "type": contentType,
+                    "xmlns": NameSpacesLabels.ContentNameSpace
+                }, content.message));
+            }
+            
         }
 
         // message = that.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
