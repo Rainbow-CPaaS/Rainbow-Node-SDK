@@ -16,10 +16,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `BubblesService::startRecording`.
 -   Fix xmpp stanza for deleted or modified messages.
 -   Update to set useMessageEditionAndDeletionV2 to true by default.
--   Add AdminService::getASystemPhoneNumber AdminService::getAllSystemPhoneNumbers AdminService::updateASystemPhoneNumber API to get/update phones numbers for a given system (pbx).
--   Fix RESTService::renameTagForAllAssignedDirectoryEntries parameters.
--   Fix searchUserByPhonenumber parameter type.
--   Fix alternativeContent in message for sendCorrectedChatMessage in bubble.
+-   Add `AdminService::getASystemPhoneNumber` `AdminService::getAllSystemPhoneNumbers` `AdminService::updateASystemPhoneNumber` API to get/update phones numbers for a given system (pbx).
+-   Fix `RESTService::renameTagForAllAssignedDirectoryEntries` parameters.
+-   Fix `searchUserByPhonenumber` parameter type.
+-   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
