@@ -20,6 +20,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `RESTService::renameTagForAllAssignedDirectoryEntries` parameters.
 -   Fix `searchUserByPhonenumber` parameter type.
 -   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
+-   Add `BubblesService::deleteAllMessagesInBubble` API to delete all messages in a Bubble for everybody or hide it definitively for a specific contact. Please be carefull with it.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
