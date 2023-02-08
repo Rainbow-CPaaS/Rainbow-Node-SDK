@@ -6808,6 +6808,31 @@ Request Method: PUT
         });
     }
 
+    getAnImportStatus(companyId? : string) : any {
+        // GET /api/rainbow/massprovisioning/v1.0/directories/imports/:companyId
+        // API https://api.openrainbow.org/mass-provisiong/#api-Directories-GetDirectoriesImportStatus
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/massprovisioning/v1.0/directories/imports/" + companyId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAnImportStatus) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAnImportStatus) successfull");
+                that.logger.log("internal", LOG_ID + "(getAnImportStatus) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAnImportStatus) error");
+                that.logger.log("internalerror", LOG_ID, "(getAnImportStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     getInformationOnImports(companyId? : string) : any {
         // GET /api/rainbow/massprovisioning/v1.0/users/imports
         // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-GetImports
