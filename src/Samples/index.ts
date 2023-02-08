@@ -200,8 +200,8 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             //"autoInitialGetBubbles": false,
             "autoInitialBubblePresence": true,
-            //"autoInitialBubbleFormat": "full",
-            //"autoInitialBubbleUnsubscribed": true,
+            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleUnsubscribed": true,
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
@@ -967,6 +967,24 @@ let urlS2S;
             logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
         });
     }
+    
+    // need Admin right :
+    async testgetAllSystemPhoneNumbers () {
+       // use on vberder.openrainbow.org with pbx.
+        // To be used vith vincent05 on vberder.openrainbow.org
+        let pbxId = 'PBXfa73-491b-e274-4e96-a0df-c6f4-e939-4bb2';
+        let shortNumber = "23031" ; // 23031 is vincent01 +33298483031
+        //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+        let systemInfos : any = await rainbowSDK.admin.getSystemDataByPbxId(pbxId);
+        rainbowSDK.admin.getAllSystemPhoneNumbers(systemInfos.id, shortNumber,undefined, undefined, undefined, undefined, undefined, undefined, undefined, "full" ).then(async infos => {
+            logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  infos : ", infos);
+            let contact = await rainbowSDK.contacts.getContactById(infos[0].userId);
+            logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetAllSystemPhoneNumbers    ] :: catch reject contact : ", err);
+        });
+
+    }     
 
     //endregion Contacts
     
