@@ -10252,6 +10252,265 @@ Request Method: PUT
 
     //region systems
 
+    // systems
+    createSystem (name : string, pbxId : string = undefined, pbxLdapId : string = undefined, siteId : string, type : string, country : string, version ? : string,
+    serverPingTimeout ? : number, pbxMainBundlePrefix ? : Array<string>, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>,
+    pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>, activationCode ? : string, isCentrex ? : boolean,
+    isShared ? : boolean, bpId ? : string, isOxoManaged ? : boolean ) {
+        // API https://api.openrainbow.org/admin/#api-systems-PostSystems
+        // POST /api/rainbow/admin/v1.0/systems
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(createSystem) name : ", name + ", pbxId : ", pbxId);
+            let data : any = {
+                name
+            } ;
+            if (pbxId) { data.pbxId = pbxId; }
+            if (pbxLdapId) { data.pbxLdapId = pbxLdapId; }
+            if (siteId) { data.siteId = siteId; }
+            if (type) { data.type = type; }
+            if (country) { data.country = country; }
+            if (version) { data.version = version; }
+            if (serverPingTimeout) { data.serverPingTimeout = serverPingTimeout; }
+            if (pbxMainBundlePrefix) { data.pbxMainBundlePrefix = pbxMainBundlePrefix; }
+            if (usePbxMainBundlePrefix) { data.usePbxMainBundlePrefix = usePbxMainBundlePrefix; }
+            if (pbxNumberingTranslator) { data.pbxNumberingTranslator = pbxNumberingTranslator; }
+            if (pbxNationalPrefix) { data.pbxNationalPrefix = pbxNationalPrefix; }
+            if (pbxInternationalPrefix) { data.pbxInternationalPrefix = pbxInternationalPrefix; }
+            if (searchResultOrder) { data.searchResultOrder = searchResultOrder; }
+            if (activationCode) { data.activationCode = activationCode; }
+            if (isCentrex) { data.isCentrex = isCentrex; }
+            if (isShared) { data.isShared = isShared; }
+            if (bpId) { data.bpId = bpId; }
+            if (isOxoManaged) { data.isOxoManaged = isOxoManaged; }
+            that.http.post("/api/rainbow/admin/v1.0/systems", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSystem) successfull");
+                that.logger.log("internal", LOG_ID + "(createSystem) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSystem) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSystem) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteSystem (systemId : string) {
+        // API https://api.openrainbow.org/admin/#api-systems-DeleteSystems
+        // DELETE /api/rainbow/admin/v1.0/systems/:systemId 
+        
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/admin/v1.0/systems/" + systemId, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deleteSystem) (" + systemId + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    getSystemConnectionState (systemId : string, format : string = "small", connectionHistory? : boolean) {
+        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsConnectionState
+        // GET /api/rainbow/admin/v1.0/systems/:systemId/state
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/state" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getSystemConnectionState) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getSystemConnectionState) successfull");
+                that.logger.log("internal", LOG_ID + "(getSystemConnectionState) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSystemConnectionState) error");
+                that.logger.log("internalerror", LOG_ID, "(getSystemConnectionState) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getSystemDataByPbxId (pbxId : string, connectionHistory? :boolean ) {
+        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsIdByPbxId
+        // GET /api/rainbow/admin/v1.0/systems/pbxid/:pbxId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/pbxid/" + pbxId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getSystemDataByPbxId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getSystemDataByPbxId) successfull");
+                that.logger.log("internal", LOG_ID + "(getSystemDataByPbxId) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSystemDataByPbxId) error");
+                that.logger.log("internalerror", LOG_ID, "(getSystemDataByPbxId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getSystemData (systemId : string, connectionHistory? :boolean ) {
+        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsId
+        // GET /api/rainbow/admin/v1.0/systems/:systemId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/" + systemId ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getSystemData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getSystemData) successfull");
+                that.logger.log("internal", LOG_ID + "(getSystemData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSystemData) error");
+                that.logger.log("internalerror", LOG_ID, "(getSystemData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllSystems (connectionHistory ? : boolean, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "pbxId", sortOrder : number=1,
+    name ? : string, type ? : string, status ? : string, siteId ? : string, companyId ? : string, bpId ? : string, isShared ? : boolean, isCentrex ? : boolean,
+    isSharedOrCentrex ? : boolean, isOxoManaged ? : boolean, fromCreationDate ? : string, toCreationDate ? : string ) {
+        // API https://api.openrainbow.org/admin/#api-systems-GetSystems
+        // GET /api/rainbow/admin/v1.0/systems
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
+            addParamToUrl(urlParamsTab, "format", connectionHistory);
+            addParamToUrl(urlParamsTab, "limit", connectionHistory);
+            addParamToUrl(urlParamsTab, "offset", connectionHistory);
+            addParamToUrl(urlParamsTab, "sortField", connectionHistory);
+            addParamToUrl(urlParamsTab, "sortOrder", connectionHistory);
+            addParamToUrl(urlParamsTab, "name", connectionHistory);
+            addParamToUrl(urlParamsTab, "type", connectionHistory);
+            addParamToUrl(urlParamsTab, "status", connectionHistory);
+            addParamToUrl(urlParamsTab, "siteId", connectionHistory);
+            addParamToUrl(urlParamsTab, "companyId", connectionHistory);
+            addParamToUrl(urlParamsTab, "bpId", connectionHistory);
+            addParamToUrl(urlParamsTab, "isShared", connectionHistory);
+            addParamToUrl(urlParamsTab, "isCentrex", connectionHistory);
+            addParamToUrl(urlParamsTab, "isSharedOrCentrex", connectionHistory);
+            addParamToUrl(urlParamsTab, "isOxoManaged", connectionHistory);
+            addParamToUrl(urlParamsTab, "fromCreationDate", connectionHistory);
+            addParamToUrl(urlParamsTab, "toCreationDate", connectionHistory);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllSystems) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllSystems) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSystems) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSystems) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSystems) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getListOfCountriesAllowedForSystems () {
+        // GET /api/rainbow/admin/v1.0/systems/countries
+        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsCountries
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/systems/countries" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getListOfCountriesAllowedForSystems) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getListOfCountriesAllowedForSystems) successfull");
+                that.logger.log("internal", LOG_ID + "(getListOfCountriesAllowedForSystems) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getListOfCountriesAllowedForSystems) error");
+                that.logger.log("internalerror", LOG_ID, "(getListOfCountriesAllowedForSystems) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    updateSystem (systemId : string, name ? : string, siteId ? : string, pbxLdapId ? : string, type ? : string, country ? : string, version ? : string,
+    serverPingTimeout : number = 100, pbxMainBundlePrefix ? : string, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>, pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>,
+    isShared ? : boolean, bpId ? : string ) {
+        // API https://api.openrainbow.org/admin/#api-systems-PutSystems
+        // PUT /api/rainbow/admin/v1.0/systems/:systemId
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/systems/" + systemId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "tag", tag);
+            url = urlParamsTab[0];
+
+            let data : any = {
+
+            };
+            if (name) data.name = name;
+            if (siteId) data.siteId = siteId;
+            if (pbxLdapId) data.pbxLdapId = pbxLdapId;
+            if (type) data.type = type;
+            if (country) data.country = country;
+            if (version) data.version = version;
+            if (serverPingTimeout) data.serverPingTimeout = serverPingTimeout;
+            if (pbxMainBundlePrefix) data.pbxMainBundlePrefix = pbxMainBundlePrefix;
+            if (usePbxMainBundlePrefix) data.usePbxMainBundlePrefix = usePbxMainBundlePrefix;
+            if (pbxNumberingTranslator) data.pbxNumberingTranslator = pbxNumberingTranslator;
+            if (pbxNationalPrefix) data.pbxNationalPrefix = pbxNationalPrefix;
+            if (pbxInternationalPrefix) data.pbxInternationalPrefix = pbxInternationalPrefix;
+            if (searchResultOrder) data.searchResultOrder = searchResultOrder;
+            if (isShared) data.isShared = isShared;
+            if (bpId) data.bpId = bpId;
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateASystemPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateASystemPhoneNumber) error");
+                that.logger.log("internalerror", LOG_ID, "(updateASystemPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    // systems phone numbers
     getASystemPhoneNumber (systemId : string, phoneNumberId : string) {
         // GET /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers/:phoneNumberId
         // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-GetSystemPhoneNumbersId
@@ -10331,16 +10590,16 @@ Request Method: PUT
             let data : any = {
                 
             };
-            if (isMonitored) data.isMonitored ; 
-            if (userId) data.userId ; 
-            if (internalNumber) data.internalNumber;
-            if (number) data.number; 
-            if (type) data.type;
-            if (deviceType) data.deviceType;
-            if (firstName) data.firstName;
-            if (lastName) data.lastName;
-            if (deviceName) data.deviceName;
-            if (isVisibleByOthers) data.isVisibleByOthers;
+            if (isMonitored) data.isMonitored = isMonitored; 
+            if (userId) data.userId = userId; 
+            if (internalNumber) data.internalNumber = internalNumber;
+            if (number) data.number = number; 
+            if (type) data.type = type;
+            if (deviceType) data.deviceType = deviceType;
+            if (firstName) data.firstName = firstName;
+            if (lastName) data.lastName = lastName;
+            if (deviceName) data.deviceName = deviceName;
+            if (isVisibleByOthers) data.isVisibleByOthers = isVisibleByOthers;
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(updateASystemPhoneNumber) successfull");
