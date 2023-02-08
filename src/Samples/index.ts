@@ -945,7 +945,7 @@ let urlS2S;
             logger.log("error", "MAIN - [testsearchUsers    ] :: catch reject contact : ", err);
         });
     }
-    
+    /*
      testsearchUserByPhonenumber() {
          // To be used vith vincent05 on vberder.openrainbow.org
         let contactphone = "23031" ; // 23031 is vincent01 +33298483031
@@ -985,7 +985,7 @@ let urlS2S;
         });
 
     }     
-
+// */
     //endregion Contacts
     
     //region Messages
