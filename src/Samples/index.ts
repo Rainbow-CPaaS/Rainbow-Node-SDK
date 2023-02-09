@@ -1012,7 +1012,7 @@ let urlS2S;
     // need Admin right :
     async testgetAllSystemPhoneNumbers () {
        // use on vberder.openrainbow.org with pbx.
-        // To be used vith vincent05 on vberder.openrainbow.org
+        // To be used vith vincentAdmin@vbe.test.openrainbow.net on vberder.openrainbow.org
         let pbxId = 'PBXfa73-491b-e274-4e96-a0df-c6f4-e939-4bb2';
         let shortNumber = "23031" ; // 23031 is vincent01 +33298483031
         //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
