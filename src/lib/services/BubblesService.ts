@@ -1357,7 +1357,6 @@ class Bubbles extends GenericService {
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @async
-         * @return {Promise<Bubble>}  return a promise with The result found or null.
          * @description
          *  Provide the list of room JIDs a user is a member of. <br>
          * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to join the room. </br>
@@ -1371,6 +1370,16 @@ class Bubbles extends GenericService {
          * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
          * @param {string} sortField Sort items list based on the given field.
          * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @return {Promise<Object>}  return a promise with The result found or null.
+         * 
+         * 
+         * | Champ | Type | Description |
+         * | --- | --- | --- |
+         * | data | String\[\] | List of room JIDs. |
+         * | limit | Number | Number of requested items |
+         * | offset | Number | Requested position of the first item to retrieve |
+         * | total | Number | Total number of items |
+         * 
          */
         getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
             let that = this;
@@ -1395,7 +1404,6 @@ class Bubbles extends GenericService {
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
-     * @return {Promise<Bubble>}  return a promise with The result found or null.
      * @description
      *  Display a list of short room description including: id - room identifier, name - room name </br>
      *  Get all rooms visible by the user requesting it (the private rooms the user is part of and the public rooms)</br>
@@ -1441,8 +1449,65 @@ class Bubbles extends GenericService {
      * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
      * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Valeurs autorisées : `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Valeurs autorisées : `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Valeurs autorisées : `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Valeurs autorisées : `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
      */
-        getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+     getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
             let that = this;
             return new Promise(async (resolve, reject) => {
@@ -1458,7 +1523,7 @@ class Bubbles extends GenericService {
                     reject (err);
                 }
             });
-        }
+     }
         
     /**
      * @public
@@ -1467,7 +1532,6 @@ class Bubbles extends GenericService {
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
-     * @return {Promise<Bubble>}  return a promise with The result found or null.
      * @description
      *  Display a list of short bubbles description including: id - room identifier, name - room name </br>
      *  Get Bubbles data by list of room ids </br>
@@ -1509,6 +1573,60 @@ class Bubbles extends GenericService {
      creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
      * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Valeurs autorisées : `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Valeurs autorisées : `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Valeurs autorisées : `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Valeurs autorisées : `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
      */
     getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
