@@ -692,6 +692,10 @@ let urlS2S;
     rainbowSDK.events.on("rainbow_oncontactremovedfromnetwork", async function (contact) {
         logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
     });
+
+    rainbowSDK.events.on("rainbow_onrbvoiceevent", async function (data) {
+        logger.log("debug", "MAIN - (rainbow_onrbvoiceevent) data : ", data);
+    });
     
     class Tests {
     
@@ -4076,7 +4080,7 @@ let urlS2S;
     //endregion MS Teams
 
     //region Rainbow Voice
-
+         
     async  testgetCloudPbxById() {
         // To use with 
         let systemId = "5cf7dd229fb99523e4de0ea9";
@@ -4089,7 +4093,46 @@ let urlS2S;
         let result = await rainbowSDK.admin.getCloudPbxs(100, 0, "companyId", 1, connectedUser.companyId, null);
         logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
     }
+    
+    async testmakeCall3PCC () {
+        // to use with user851@pqa.test.openrainbow.net
+        /* Data sent by Web UI : {
+        "deviceId":"9990130000168511",
+        "calleeExtNumber":"",
+        "calleeShortNumber":"840",
+        "calleePbxId":"PBX1117-d1e8-9eac-4a8d-8b87-6593-1f26-c528",
+        "callerAutoAnswer":true
+        }
+         */
 
+        let contactEmailToSearch = "dom1@pqa.test.openrainbow.net";
+        let contactDom1 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+
+        let userDevices : any = await rainbowSDK.rbvoice.getUserDevices();
+
+        let sipDeviceId = "";
+
+        for (let i = 0; userDevices && i < userDevices.length; i++) {
+            if (userDevices[i].type == "sip" ) {
+                sipDeviceId = userDevices[i].deviceId;
+            }
+        }
+        
+        let callData : any =  {
+            deviceId: sipDeviceId,
+            callerAutoAnswer: true,
+            anonymous: false,
+            calleeExtNumber: "",
+            calleePbxId: contactDom1.phoneNumbers[0].pbxId,
+            calleeShortNumber: contactDom1.phoneNumbers[0].shortNumber,
+            calleeCountry: contactDom1.phoneNumbers[0].country,
+            //dialPadCalleeNumber: string 
+            };
+        logger.log("debug", "MAIN - testmakeCall3PCC - callData : ", callData);
+        let result = await rainbowSDK.rbvoice.makeCall3PCC(callData);
+        logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
+    }
+    
     //endregion
 
     //region Company

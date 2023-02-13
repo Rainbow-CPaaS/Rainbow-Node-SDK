@@ -179,3 +179,4 @@ rainbowSDK.start().then(() => {
         .finally(() => rainbowSDK.stop());
     //});
 });
+//# sourceMappingURL=testStop.js.map

@@ -17,6 +17,7 @@ import {GenericService} from "./GenericService";
 //import {RBVoice} from "../common/models/rbvoice";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
 import {Channel} from "../common/models/Channel";
+import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/RBVoiceEventHandler.js";
 
 export {};
 
@@ -39,8 +40,9 @@ class RBVoiceService extends GenericService {
     private readonly _port: string = null;
     //private _rbvoice: Array<RBVoice>;
 
-    //private rbvoiceEventHandler: RBVoiceEventHandler;
+    private rbvoiceEventHandler: RBVoiceEventHandler;
     private rbvoiceHandlerToken: any;
+    private _core: Core;
 
 
     static getClassName() {
@@ -71,7 +73,7 @@ class RBVoiceService extends GenericService {
 
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
-        // this._eventEmitter.on("evt_internal_createrbvoice", this.onCreateRBVoice.bind(this));
+        this._eventEmitter.on("evt_internal_rbvoiceevent", this._onEventRBVoice.bind(this));
         // this._eventEmitter.on("evt_internal_deleterbvoice", this.onDeleteRBVoice.bind(this));
 
     }
@@ -81,6 +83,7 @@ class RBVoiceService extends GenericService {
 
         return new Promise(async function (resolve, reject) {
             try {
+                that._core = _core;
                 that._xmpp = _core._xmpp;
                 that._rest = _core._rest;
                 that._options = _options;
@@ -124,14 +127,26 @@ class RBVoiceService extends GenericService {
 
     attachHandlers() {
         let that = this;
-        //that.rbvoiceEventHandler = new RBVoiceEventHandler(that._xmpp, that);
+        that.rbvoiceEventHandler = new RBVoiceEventHandler(that._xmpp, that._core);
         that.rbvoiceHandlerToken = [
-            //PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE_MANAGEMENT, that.rbvoiceEventHandler.onManagementMessageReceived.bind(that.rbvoiceEventHandler)),
-            //PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE_ERROR, that.rbvoiceEventHandler.onErrorMessageReceived.bind(that.rbvoiceEventHandler))
+            PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE, that.rbvoiceEventHandler.onMessageReceived.bind(that.rbvoiceEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE_MANAGEMENT, that.rbvoiceEventHandler.onManagementMessageReceived.bind(that.rbvoiceEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE_HEADLINE, that.rbvoiceEventHandler.onHeadlineMessageReceived.bind(that.rbvoiceEventHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that.rbvoiceEventHandler.MESSAGE_ERROR, that.rbvoiceEventHandler.onErrorMessageReceived.bind(that.rbvoiceEventHandler))
         ];
     }
 
     //region Rainbow Voice
+
+    //region Rainbow Events
+
+    _onEventRBVoice (data) {
+        let that = this;
+        that._logger.log("internal", "(_onEventRBVoice) - data : ", data);
+        that._eventEmitter.emit("evt_internal_onrbvoiceevent", data);
+    }
+    
+    //endregion Rainbow Events
 
     //region Rainbow Voice CLI Options
 
@@ -2219,6 +2234,8 @@ class RBVoiceService extends GenericService {
      *  This api returns user devices information.<br>
      * @return {Promise<any>} the result.
      *
+     * Array of
+     * 
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | String | Device Unique Identifier |
