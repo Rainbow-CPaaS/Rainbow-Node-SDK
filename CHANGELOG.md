@@ -23,6 +23,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesService::deleteAllMessagesInBubble` API to delete all messages in a Bubble for everybody or hide it definitively for a specific contact. Please be carefull with it.
 -   Add methods to retrieve/update phone number in systems : `AdminService::getASystemPhoneNumber`, `AdminService::getAllSystemPhoneNumbers`, `AdminService::updateASystemPhoneNumber`.
 -   Add methods to manage `Systems` in Rainbow `AdminService::createSystem`, `AdminService::deleteSystem`, `AdminService::getSystemConnectionState`, `AdminService::getSystemDataByPbxId`, `AdminService::getSystemData`, `AdminService::getAllSystems`, `AdminService::getListOfCountriesAllowedForSystems`, `AdminService::updateSystem`.
+-   Add pcg2 presence (Rainbow HUB - Sipwize)
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
