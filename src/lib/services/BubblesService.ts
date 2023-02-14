@@ -5144,9 +5144,9 @@ class Bubbles extends GenericService {
                     resolve(null);
                 }
                 // */
-                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
                 let active: boolean = false;
                 active = confSnapshop["active"];
+                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - confSnapshop[\"active\"] : ", active);
 
                 let conference: ConferenceSession ;
 
@@ -5263,7 +5263,7 @@ class Bubbles extends GenericService {
 
                 // Finally add conference to the cache
                 await that.addOrUpdateConferenceToCache(conference, true);
-                return conference;
+                return resolve (conference);
             }).catch((err) => {
                 return reject(err);
             });
