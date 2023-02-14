@@ -11378,9 +11378,9 @@ Request Method: PUT
     }
 
 //Start a PSTN, WebRTC conference or a webinar in a room  () {
-    startConferenceOrWebinarInARoom(roomId : string) {
+    startConferenceOrWebinarInARoom(roomId : string, services ) {
         let that = this;
-        return that.restConferenceV2.startConferenceOrWebinarInARoom(roomId);
+        return that.restConferenceV2.startConferenceOrWebinarInARoom(roomId, services );
     }
 
     stopConferenceOrWebinar(roomId : string) {
