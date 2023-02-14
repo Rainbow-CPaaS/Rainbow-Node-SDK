@@ -352,7 +352,7 @@ class RESTConferenceV2 extends GenericRESTService{
     }
 
 //Start a PSTN, WebRTC conference or a webinar in a room  () {
-    startConferenceOrWebinarInARoom(roomId : string) {
+    startConferenceOrWebinarInARoom(roomId : string, services  : any = undefined) {
         // API https://api.openrainbow.org/conference/#api-conference_v2-startConferenceV2
         // POST  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/start
         let that = this;
@@ -365,9 +365,16 @@ class RESTConferenceV2 extends GenericRESTService{
             url = urlParamsTab[0];
             // */
 
-            let data = undefined;
-            that.logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) args : ", data);
-            that.http.post(url, that.getPostHeader(), data, undefined).then(function (json) {
+            //let data = undefined;
+            /* let data =
+                    {
+                        "services": [
+                            "video-compositor"
+                        ]
+                    }; 
+            // */
+            that.logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) services : ", services );
+            that.http.post(url, that.getRequestHeader(), services, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(startConferenceOrWebinarInARoom) successfull");
                 that.logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) REST leave bubble : ", json.data);
                 resolve(json);

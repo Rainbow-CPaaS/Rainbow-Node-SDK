@@ -6675,24 +6675,25 @@ getAllActiveBubbles
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the room.
+     * @param {Object} services  Requested service types. example : { "services": [ "video-compositor" ] }
      * @async
      * @description
      *       The start command initiates a conference in a room. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
-    startConferenceOrWebinarInARoom(roomId: string) {
+    startConferenceOrWebinarInARoom(bubbleId: string, services  : { "services": [] } = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.startConferenceOrWebinarInARoom(roomId).then(async (result) => {
+            that._rest.startConferenceOrWebinarInARoom(bubbleId, services ).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) result from server : ", result);
 
                 if (result) {
