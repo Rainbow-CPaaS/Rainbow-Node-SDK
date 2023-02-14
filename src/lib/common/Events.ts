@@ -177,7 +177,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorcommand <br>
  * @fires Events#rainbow_onconnectorconfig <br>
  * @fires Events#rainbow_onconnectorcommandended <br>
- * @fires Events#rainbow_onrbvoiceevent <br>
+ * @fires Events#rainbow_onrbvoicerawevent <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -286,7 +286,7 @@ class Events {
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
-        "rainbow_onrbvoiceevent"
+        "rainbow_onrbvoicerawevent"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1448,13 +1448,13 @@ class Events {
 
         this._evReceiver.on("evt_internal_onrbvoiceevent", function (data) {
             /**
-             * @event Events#rainbow_onrbvoiceevent
+             * @event Events#rainbow_onrbvoicerawevent
              * @public
              * @param { Object } data informations about rainbow voice events
              * @description
              *      This event is fired in case a of rainbow voice event.
              */
-            that.publishEvent("rbvoiceevent", data);
+            that.publishEvent("rbvoicerawevent", data);
         });
 
     }

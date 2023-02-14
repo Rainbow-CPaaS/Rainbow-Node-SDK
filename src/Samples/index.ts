@@ -693,8 +693,8 @@ let urlS2S;
         logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
     });
 
-    rainbowSDK.events.on("rainbow_onrbvoiceevent", async function (data) {
-        logger.log("debug", "MAIN - (rainbow_onrbvoiceevent) data : ", data);
+    rainbowSDK.events.on("rainbow_onrbvoicerawevent", async function (data) {
+        logger.log("debug", "MAIN - (rainbow_onrbvoicerawevent) data : ", data);
     });
     
     class Tests {
