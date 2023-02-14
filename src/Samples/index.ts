@@ -4703,6 +4703,11 @@ let urlS2S;
     async  testjoinConferenceV2_vincent01_WithStart() {
         // To be used with vincent01 NET
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
+
+
+        // To be used with vincent.berder COM
+        //let bubbleId = '5e56968c6f18201dde44fa7c'; // name: 'Bulle_NodeSDK',
+                
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: bubble : ", bubble);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
