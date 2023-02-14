@@ -5683,7 +5683,7 @@ class Bubbles extends GenericService {
      * @since 2.2.0
      * @category Conference V2
      * @param {string} bubbleId The id of the room.
-     * @param {Object} services  Requested service types. example : { "services": [ "video-compositor" ] }
+     * @param {Object} services Requested service types. example : { "services": [ "video-compositor" ] }
      * @async
      * @description
      *       The start command initiates a conference in a room. <br>
