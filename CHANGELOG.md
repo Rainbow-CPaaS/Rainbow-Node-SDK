@@ -25,7 +25,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add methods to manage `Systems` in Rainbow `AdminService::createSystem`, `AdminService::deleteSystem`, `AdminService::getSystemConnectionState`, `AdminService::getSystemDataByPbxId`, `AdminService::getSystemData`, `AdminService::getAllSystems`, `AdminService::getListOfCountriesAllowedForSystems`, `AdminService::updateSystem`.
 -   Add `pcg2` presence (Rainbow HUB - Sipwize)
 -   Add `RBVoiceEventHandler` to manage Rainbow Voice Events received from server.
--   Add `rainbow_onrbvoiceevent` event fired in case a of rainbow voice event.
+-   Add `rainbow_onrbvoicerawevent` event fired in case a of rainbow voice event.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
