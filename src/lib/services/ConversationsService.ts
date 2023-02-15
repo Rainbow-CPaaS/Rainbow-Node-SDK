@@ -853,55 +853,67 @@ class ConversationsService extends GenericService {
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        /*if (data==undefined) {
+        /*
+        if (data==undefined) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter : ", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-        }*/
+        }//*/
         if (!origMsgId) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : ", origMsgId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : ", data,  "origMsgId : ", origMsgId, " content : ", content);
+        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : \'", data,  "\', origMsgId : ", origMsgId, " content : ", content);
 
         let originalMessage = conversation.getMessageById(origMsgId);
-        let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
-        if (originalMessageFrom !== that._rest.loggedInUser.jid_im) {
-            that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified","(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-        }
+        that._logger.log("info", LOG_ID + "(sendCorrectedChatMessage) originalMessage : ", originalMessage);
+        if (originalMessage) {
+            let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
+            if (originalMessageFrom!==that._rest.loggedInUser.jid_im) {
+                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+                throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified", "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+            }
 
-        let lastEditableMsg = conversation.getlastEditableMsg();
+            let lastEditableMsg = conversation.getlastEditableMsg();
 
-        if (lastEditableMsg.id !== originalMessage.id) {
-            that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
-            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified","(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
-        }
+            if (lastEditableMsg.id!==originalMessage.id) {
+                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+                throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified", "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+            }
 
-        let messageUnicode = data === "" ?  "" : (data ? shortnameToUnicode(data) : undefined);
+            let messageUnicode = data==="" ? "":(data ? shortnameToUnicode(data):undefined);
 
-        try {
-            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content );
-            let newMsg = Object.assign({}, originalMessage);
-            newMsg.id = sentMessageId;
-            newMsg.content = messageUnicode;
-            newMsg.date = new Date();
-            newMsg.alternativeContent = content;
-            newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
-            originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
-            that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
-            this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
-            return newMsg;
-        } catch (err) {
-            that._logger.log("error", LOG_ID + "createFileDescriptor error");
-            let error = ErrorManager.getErrorManager().OTHERERROR(err.message,"(sendCorrectedChatMessage) error while sending corrected message : " + err );
+            try {
+                let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content);
+                let newMsg = Object.assign({}, originalMessage);
+                newMsg.id = sentMessageId;
+                newMsg.content = messageUnicode;
+                newMsg.date = new Date();
+                newMsg.alternativeContent = content;
+                newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
+                originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
+                that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
+                this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
+                return newMsg;
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "sendCorrectedChatMessage error");
+                let error = ErrorManager.getErrorManager().OTHERERROR(err.message, "(sendCorrectedChatMessage) error while sending corrected message : " + err);
+                // @ts-ignore
+                error.newMessageText = data;
+                // @ts-ignore
+                error.originaleMessageId = origMsgId;
+                throw  error;
+            }
+        } else {
+            that._logger.log("warn", LOG_ID + "(sendCorrectedChatMessage) error the original message was not found in conversation : ", conversation);
+            let error = ErrorManager.getErrorManager().OTHERERROR("sendCorrectedChatMessage error the original message was not found.", "sendCorrectedChatMessage error the original message was not found.");
             // @ts-ignore
             error.newMessageText = data;
             // @ts-ignore
             error.originaleMessageId = origMsgId;
-            throw  error ;
+            throw  error;
         }
     }
 
