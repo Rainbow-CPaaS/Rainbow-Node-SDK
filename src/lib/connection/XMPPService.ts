@@ -1241,8 +1241,9 @@ class XMPPService extends GenericService {
                         xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
                 );
             } else {
+                messageToSendID = origMsgId;
                 if (data === "") {
-                    xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                    xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
                             xml("body", {"xml:lang": lang}, data),
                             xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
@@ -1251,7 +1252,7 @@ class XMPPService extends GenericService {
                     );
                 } else {
                     if (data == undefined) {
-                        xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                        xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
                                 //xml("body", {"xml:lang": lang}, data),
                                 xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
@@ -1259,7 +1260,7 @@ class XMPPService extends GenericService {
                                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
                         );
                     } else {
-                        xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                        xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
                                 xml("body", {"xml:lang": lang}, data),
                                 xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
@@ -1295,8 +1296,9 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
             } else {
+                messageToSendID = origMsgId;
                 if (data==="") {
-                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: origMsgId},
+                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
                             xml("body", {"xml:lang": lang}, data),
                             xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
