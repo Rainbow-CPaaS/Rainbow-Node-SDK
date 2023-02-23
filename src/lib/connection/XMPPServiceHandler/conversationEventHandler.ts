@@ -863,6 +863,7 @@ class ConversationEventHandler extends GenericHandler {
                         deletedMsg = true;
                     }
                         break;
+                    case "modified": 
                     case "modify": {
                         modifiedMsg = true;
                     }
@@ -877,6 +878,8 @@ class ConversationEventHandler extends GenericHandler {
                                 conversation.reset();
                                 that.eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                             }
+                        } else {
+                            deletedMsg = true;
                         }
                     }
                         break;
