@@ -17,6 +17,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
 -   Fix `BubblesService::snapshotConference` return.
 -   Add services parameter of `BubblesService::startConferenceOrWebinarInARoom` Requested service types. 
+-   Fix of events of modified/deleted messages.
 
 ## [2.16.1-lts.5] - 2022-01-11
 -   Restore default Options for  "autoInitialBubbleFormat": "full", "autoInitialBubbleUnsubscribed": true.
