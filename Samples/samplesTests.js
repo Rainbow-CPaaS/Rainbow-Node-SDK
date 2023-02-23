@@ -14,7 +14,7 @@ var AsyncLock = require('async-lock');
 let LOG_ID = "SAMPLESTESTS";
 process.on('unhandledRejection', e => {
     //that.logger.log("error", LOG_ID + "(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace());
-    console.log("(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", Utils_1.stackTrace());
+    console.log("(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", (0, Utils_1.stackTrace)());
 });
 async function fn() {
     logger.log("debug", "MAIN - fn.");
@@ -54,7 +54,7 @@ class ItemForQueue {
             // */
             //return that.resolve(await that.itemFunction(that.defered.resolve, that.defered.reject));
             that.itemFunction(that.defered.resolve, that.defered.reject);
-            Utils_1.doWithinInterval({ promise: that.defered.promise, timeout: 5000, error: "Timeout raised." }).catch((err) => {
+            (0, Utils_1.doWithinInterval)({ promise: that.defered.promise, timeout: 5000, error: "Timeout raised." }).catch((err) => {
                 that.defered.reject(err);
             });
             return that.defered.promise;
@@ -126,7 +126,7 @@ class SamplesTests {
                 catch (err) {
                     that.logger.log("error", LOG_ID + "(add) - ", timestamp, " - CATCH Error !!! in lock, error : ", err);
                 }
-                await Utils_1.pause(that.timeBetweenXmppRequests);
+                await (0, Utils_1.pause)(that.timeBetweenXmppRequests);
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(add) lock succeed.");
             }).catch((error) => {
