@@ -28,6 +28,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onrbvoicerawevent` event fired in case a of rainbow voice event.
 -   Fix `BubblesService::snapshotConference` return.
 -   Add services parameter of `BubblesService::startConferenceOrWebinarInARoom` Requested service types. 
+-   Fix of events of modified/deleted messages.
 
 ## [2.19.0] - 2022-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
