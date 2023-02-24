@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.1-lts.6] - 2022-01-XX
+## [2.16.1-lts.6] - 2022-02-24
 -   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
 -   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
 -   Fix xmpp stanza for deleted or modified messages. => Adaptive card can be modified now.
