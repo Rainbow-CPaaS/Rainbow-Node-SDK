@@ -2094,6 +2094,7 @@ class ContactsService extends GenericService {
                 let is_online_mobile = false;
                 let auto_away = false;
                 let is_offline = false;
+                let calendar_dnd = false;
                 let teams_online = false;
                 let teams_dnd = false;
                 
@@ -2104,7 +2105,14 @@ class ContactsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(_onPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
+                        if (resource.type === PresenceStatus.Calendar) {
+                            //let presence = presences["calendar"];
+                            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
+                            if (resource.applyCalendarPresence && (resource.show == PresenceShow.Dnd) && (new Date(resource.until).getTime() > new Date().getTime())) {
+                                calendar_dnd = true;
+                                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar DND found. ");
+                            }
+                        } else if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
@@ -2145,6 +2153,7 @@ class ContactsService extends GenericService {
                 }
 
                 that._logger.log("internal", LOG_ID + "(_onPresenceChanged) result booleans of decoded presence : ", {
+                    calendar_dnd,
                     teams_online,
                     teams_dnd,
                     manual_invisible,
@@ -2200,6 +2209,10 @@ class ContactsService extends GenericService {
                      // */
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = webrtc_reason;
+                } else if (calendar_dnd ) {
+                    //return new Presence(presence.BasicNodeJid, presence.Resource, true, presence.Date, PresenceLevel.Dnd, PresenceDetails.Appointment);
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Calendar;   
                 } else if (teams_dnd && !teams_online) {
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Teams;
@@ -2343,6 +2356,7 @@ class ContactsService extends GenericService {
      *      Method called when the presence of a contact changed <br>
      */
     _onRosterPresenceChanged(presence : any) {
+        let that = this;
         this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
 
         try {
@@ -2376,6 +2390,7 @@ class ContactsService extends GenericService {
                 let is_online_mobile = false;
                 let auto_away = false;
                 let is_offline = false;
+                let calendar_dnd = false;
                 let teams_online = false;
                 let teams_dnd = false;
                 for (let resourceId in contact.resources) {
@@ -2385,7 +2400,14 @@ class ContactsService extends GenericService {
                     this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
-                        if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
+                        if (resource.type === PresenceStatus.Calendar) {
+                            //let presence = presences["calendar"];
+                            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
+                            if (resource.applyCalendarPresence && (resource.show == PresenceShow.Dnd) && (new Date(resource.until).getTime() > new Date().getTime())) {
+                                calendar_dnd = true;
+                                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar DND found. ");
+                            }
+                        } else if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
@@ -2430,6 +2452,7 @@ class ContactsService extends GenericService {
                 }
 
                 this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) result booleans of decoded presence : ", {
+                    calendar_dnd,
                     teams_online,
                     teams_dnd,
                     manual_invisible,
@@ -2485,6 +2508,10 @@ class ContactsService extends GenericService {
                      // */
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = webrtc_reason;
+                } else if (calendar_dnd ) {
+                    //return new Presence(presence.BasicNodeJid, presence.Resource, true, presence.Date, PresenceLevel.Dnd, PresenceDetails.Appointment);
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Calendar;
                 } else if (teams_dnd && !teams_online) {
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Teams;

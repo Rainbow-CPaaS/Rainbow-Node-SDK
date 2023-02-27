@@ -94,13 +94,19 @@ enum PresenceStatus {
     /** The contact is on phone */
     Phone = "phone",
 
+    /** The contact is in an appointment - used only in Presence Calendar context */
+    Appointment = "appointment",
+    
     /** The contact is on presentation */
     Presentation = "presentation",
 
     /** The contact is on mobile phone */
     Mobile = "mobile",
 
-    /** The contact is on mobile phone */
+    /** The is Teams presence */
+    Calendar = "calendar",
+
+    /** The is Teams presence */
     Teams = "teams",
 
     /** The status is empty string. */
