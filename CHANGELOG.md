@@ -6,7 +6,10 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.20.0] - 2022-02-24
+## [2.20.1] - 2023-03-XX
+- Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+
+## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
 -   Add treatment of presence received from ms-teams. Note that only "online" and "do not disturb" teams presences are relayed by rainbow.
 -   Add API MSTeams presence in `PresenceService`.
@@ -30,7 +33,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add services parameter of `BubblesService::startConferenceOrWebinarInARoom` Requested service types. 
 -   Fix of events of modified/deleted messages.
 
-## [2.19.0] - 2022-01-09
+## [2.19.0] - 2023-01-09
 -   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
 -   Add `BubblesService::updateBubbleData` This API allows to update room data.
 -   Update the `BubblesService::getBubbleById` with few parameters.
