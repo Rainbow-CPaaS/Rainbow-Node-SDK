@@ -5650,13 +5650,15 @@ let urlS2S;
 // */
 
     async  testStopAndStart() {
+        let result = await this.start();
+        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result)); 
         await rainbowSDK.stop();
         let token = undefined;
 
         logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK stopped.");
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+            logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started second time : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK.stop();
     }
