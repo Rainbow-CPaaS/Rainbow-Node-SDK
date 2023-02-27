@@ -538,6 +538,8 @@ class NodeSDK {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {
+            // Force to work without the REST API at startup :
+            that._core.options._restOptions.useRestAtStartup = false;
             return that._core.start( token).then(function() {
                 return that._core.signinWSOnly(false, token, userInfos);
             }).then(function(result : any) {

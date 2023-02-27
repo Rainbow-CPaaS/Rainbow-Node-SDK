@@ -562,11 +562,15 @@ class Core {
 
             if (that.options.useXMPP) {
                 try {
-                    if (that.options.imOptions.autoLoadContacts) {
-                        let result = await that._contacts.getRosters();
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                    if (that.options._restOptions.useRestAtStartup ) {
+                        if (that.options.imOptions.autoLoadContacts) {
+                            let result = await that._contacts.getRosters();
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                        } else {
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        }
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED because of useRestAtStartup : ", that.options._restOptions.useRestAtStartup);
                     }
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
