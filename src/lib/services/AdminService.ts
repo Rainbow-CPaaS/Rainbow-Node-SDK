@@ -133,6 +133,170 @@ class AdminService extends GenericService {
         that.setInitialized();
     }
 
+    // region Bots
+
+    /**
+     * @public
+     * @method getRainbowSupportBotService
+     * @instance
+     * @description
+     *      This API can be used to get Rainbow support bot service (Emily) </BR>
+     * @async
+     * @category Bots
+     * @return {Promise<Object, ErrorManager>} - result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Bot service unique identifier. |
+     * | name | String | Bot title, like 'Emily'. |
+     * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+     * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
+     * | capabilities | String\[\] | List of capabilities tags |
+     * | createdByUserId | String | Unique identifier of the bot service owner. |
+     * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+     * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
+     * 
+     * @fulfil {Object} - result
+     * @category async
+     */
+    getRainbowSupportBotService() : Promise<any> {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getRainbowSupportBotService) __ entering __");
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getRainbowSupportBotService().then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getRainbowSupportBotService) Success result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getRainbowSupportBotService) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getRainbowSupportBotService) Error error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getRainbowSupportBotService) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method getABotServiceData
+     * @instance
+     * @param {string} botId Bot Service unique identifier
+     * @description
+     *      This API can be used to get a bot service data. </BR>
+     * @async
+     * @category Bots
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Bot service unique identifier. |
+     * | name | String | Bot title, like 'Emily'. |
+     * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+     * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
+     * | capabilities | String\[\] | List of capabilities tags |
+     * | createdByUserId | String | Unique identifier of the bot service owner. |
+     * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+     * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */
+    getABotServiceData(botId : string) : Promise<any> {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getABotServiceData) __ entering __");
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getABotServiceData(botId).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getABotServiceData) Success result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getABotServiceData) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getABotServiceData) Error error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getABotServiceData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+     /**
+      * @public
+      * @method getAllBotServices
+      * @instance
+      * @description
+      *      This API can be used to retrieve the list of bot services. </BR>
+      * @async
+      * @param {string} format Allows to retrieve more or less bot services details in response. </br>
+      * - small: id, name, jid, capabilities
+      * - medium: id, name, jid, isRainbowSupportBot, capabilities
+      * - full: id, name, jid, isRainbowSupportBot, capabilities, createdByUserId, avatarId, lastAvatarUpdateDate
+      * Valeur par défaut : small. Valeurs autorisées : small, medium, full
+      * @param {number} limit Allow to specify the number of bot services to retrieve. Valeur par défaut : 100
+      * @param {number} offset Allow to specify the position of first bot to retrieve (first bot if not specified). Warning: if offset > total, no results are returned.
+      * @param {string} sortField Sort bots list based on the given field. Valeur par défaut : name
+      * @param {number} sortOrder Specify order when sorting bots list. Valeur par défaut : 1. Valeurs autorisées : -1, 1
+      * @category Bots
+      * @return {Promise<Object, ErrorManager>} - result
+      *
+      *
+      * | Champ | Type | Description |
+      * | --- | --- | --- |
+      * | id  | String | Bot service unique identifier. |
+      * | name | String | Bot title, like 'Emily'. |
+      * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+      * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
+      * | capabilities | String\[\] | List of capabilities tags |
+      * | createdByUserId | String | Unique identifier of the bot service owner. |
+      * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+      * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
+      *
+      * @fulfil {Object} - result
+      * @category async
+      */
+     getAllBotServices(format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) : any {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getAllBotServices) __ entering __");
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getAllBotServices(format, limit, offset, sortField, sortOrder).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getAllBotServices) Success result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllBotServices) Error.");
+                    that._logger.log("internalerror", LOG_ID + "(getAllBotServices) Error error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllBotServices) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    // endregion Bots    
+    
     // region Companies and users management
 
     /**

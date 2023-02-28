@@ -5502,6 +5502,31 @@ let urlS2S;
 
     // endregion Telephony Voice Messages
 
+    // region Bots
+
+    async  testgetRainbowSupportBotService() {
+        let that = this;
+        let res = await rainbowSDK.admin.getRainbowSupportBotService();
+        logger.log("debug", "MAIN - testgetRainbowSupportBotService, res : ", res);
+    }
+
+    async  testgetABotServiceData() {
+        let that = this;
+        let res = await rainbowSDK.admin.getRainbowSupportBotService();
+        logger.log("debug", "MAIN - testgetABotServiceData, getRainbowSupportBotService res : ", res);
+        let res2 = await rainbowSDK.admin.getABotServiceData(res.id);
+        logger.log("debug", "MAIN - testgetABotServiceData, getABotServiceData res2 : ", res2);
+        
+    }
+
+    async  testgetAllBotServices() {
+            let that = this;
+            let res = await rainbowSDK.admin.getAllBotServices();
+            logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
+    }
+
+        // endregion Bots    
+
     // region TimeOutManager
 
     async  testtimeOutManagersetTimeout() {
@@ -5579,7 +5604,7 @@ let urlS2S;
     }
 
     // endregion TimeOutManager
-
+        
      testresolveDns(url: string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result) => {
             logger.log("debug", "MAIN - testresolveDns, result : ", result);

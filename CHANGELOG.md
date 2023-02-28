@@ -7,7 +7,8 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.20.1] - 2023-03-XX
-- Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+-   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+-   Add `AdminService::getRainbowSupportBotService` `AdminService::getABotServiceData` `AdminService::getAllBotServices` to retrieve informations of bot services.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

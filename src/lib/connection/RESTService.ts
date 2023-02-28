@@ -645,6 +645,92 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    // region Bots
+
+    getRainbowSupportBotService () : any {
+        // GET /api/rainbow/enduser/v1.0/bots/rainbow-support
+        // API https://api.openrainbow.org/enduser/#api-bots-getRainbowSupport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots/rainbow-support";
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getRainbowSupportBotService) successfull");
+                that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getRainbowSupportBotService) error");
+                that.logger.log("internalerror", LOG_ID, "(getRainbowSupportBotService) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getABotServiceData(botId : string) : any {
+        // GET /api/rainbow/enduser/v1.0/bots/:botId
+        // API https://api.openrainbow.org/enduser/#api-bots-getBotById
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots/" + botId;
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getABotServiceData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getABotServiceData) successfull");
+                that.logger.log("internal", LOG_ID + "(getABotServiceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getABotServiceData) error");
+                that.logger.log("internalerror", LOG_ID, "(getABotServiceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllBotServices(format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) : any {
+        // GET /api/rainbow/enduser/v1.0/bots
+        // API https://api.openrainbow.org/enduser/#api-bots-getBots
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getAllBotServices) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllBotServices) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBotServices) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBotServices) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBotServices) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // endregion
+     
     //region Contacts API
     
     //region Contacts API - Search portal
