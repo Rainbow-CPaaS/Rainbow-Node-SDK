@@ -6,8 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.16.1-lts.7] - 2022-03-XX
-- Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+## [2.16.1-lts.7] - 2022-03-01
+-   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+-   Fix retrieveRainbowEntriesList
 
 ## [2.16.1-lts.6] - 2022-02-24
 -   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
