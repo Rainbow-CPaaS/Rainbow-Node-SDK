@@ -3571,7 +3571,7 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "bpType", bpType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
+            that.logger.log("internal", LOG_ID + "(getAllCompanies) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(getAllCompanies) successfull");
@@ -5505,7 +5505,7 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
+            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST url : ", url);
 
             that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
@@ -7430,6 +7430,7 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST url : ", url);
 
+            // it looks like the getRequestHeader is needed.
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveRainbowEntriesList) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST result : ", json);
