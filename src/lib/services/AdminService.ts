@@ -299,7 +299,11 @@ class AdminService extends GenericService {
     
     // region Companies and users management
 
-    /**
+    createCompanyFromDefault(name, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
+         
+    }
+
+        /**
      * @public
      * @method createCompany
      * @instance
