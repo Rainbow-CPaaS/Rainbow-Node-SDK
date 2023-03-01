@@ -4139,21 +4139,21 @@ let urlS2S;
 
     async  testgetAllCompanies() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
+        logger.log("debug", "MAIN - testgetAllCompanies. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - allCompanies : ", allCompanies.length);
+        logger.log("debug", "MAIN - testgetAllCompanies - allCompanies : ", allCompanies.length);
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                logger.log("debug", "MAIN - testgetAllCompanies vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+        logger.log("debug", "MAIN - testgetAllCompanies - companyId : ", companyId);
 
-        let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+        let result = await rainbowSDK.admin.testgetAllCompanies(companyId, "csv", true);
+        logger.log("debug", "MAIN - testgetAllCompanies - result : ", result);
         // */
 
     }
@@ -4191,14 +4191,14 @@ let urlS2S;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+                logger.log("debug", "MAIN - testgetAllCompaniesWithFilters vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - companyId : ", companyId);
 
         let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - result : ", result);
         // */
 
     }
@@ -4615,6 +4615,29 @@ let urlS2S;
 
         let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
         logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+
+    }
+
+    async  testretrieveRainbowEntriesList() {
+        // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
+        logger.log("debug", "MAIN - testretrieveRainbowEntriesList. ");
+        let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
+        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - allCompanies : ", allCompanies);
+        let companyId = connectedUser.companyId;
+        for (let company of allCompanies.data) {
+            //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+            if (company.name==="vbeCompanie") {
+                logger.log("debug", "MAIN - testretrieveRainbowEntriesList vbeCompanie found : ", company);
+                companyId = company.id;
+            }
+        }
+        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - companyId : ", companyId);
+
+        //companyId? : string, format : string = "json", ldap_id : boolean = true
+        
+        //let result = await rainbowSDK.admin.retrieveRainbowEntriesList(companyId, "json", true);
+        let result = await rainbowSDK.admin.retrieveRainbowEntriesList(null, "json", false);
+        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
 
     }
 
