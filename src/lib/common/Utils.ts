@@ -247,7 +247,7 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     if (paramValue == undefined || paramValue == null) {
         return;
     } 
-    if (paramValue && urlParams) {
+    if (paramName && urlParams) {
         if (urlParams[0].includes("?") ) {
             urlParams[0] += "&" ;
         } else {

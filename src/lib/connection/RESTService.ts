@@ -3448,6 +3448,68 @@ Request Method: PUT
 
     //region Company
     
+    //region Company from end user portal
+    
+    createCompanyFromDefault(name, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
+        // API https://api.openrainbow.org/enduser/#api-companies-createCompany
+        // URL post /api/rainbow/enduser/v1.0/companies
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let countryObj : any = {
+                name: name,
+                country: "Fr",
+                state: null,
+            };
+
+            if (visibility) {
+                countryObj.visibility = visibility;
+            }
+            if (country) {
+                countryObj.country = country;
+            }
+            if (state) {
+                countryObj.state = state;
+            }
+            if (slogan) {
+                countryObj.slogan = slogan
+            }
+            if (description) {
+                countryObj.description = description
+            }
+            if (size) {
+                countryObj.size = size
+            }
+            if (economicActivityClassification) {
+                countryObj.economicActivityClassification = economicActivityClassification
+            }
+            if (website) {
+                countryObj.website = website
+            }
+            if (avatarShape) {
+                countryObj.avatarShape = avatarShape
+            }
+            if (giphyEnabled) {
+                countryObj.slogan = giphyEnabled
+            }
+
+            that.http.post('/api/rainbow/enduser/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createCompanyFromDefault) successfull");
+                that.logger.log("internal", LOG_ID + "(createCompanyFromDefault) REST result : ", json);
+                if (json && json.data) {
+                    resolve(json.data);
+                } else {
+                    resolve(json);
+                }
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createCompanyFromDefault) error");
+                that.logger.log("internalerror", LOG_ID, "(createCompanyFromDefault) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Company from end user portal
+
     getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         // API https://api.openrainbow.org/admin/#api-companies-GetCompanies
         // URL get /api/rainbow/admin/v1.0/companies
@@ -7339,7 +7401,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/mass-provisiong/#api-Directories-SynchronizeDirectories
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url : string = "/api/rainbow/massprovisioning/v1.0/directories/synchronize/";
+            let url : string = "/api/rainbow/massprovisioning/v1.0/directories/synchronize";
             let urlParamsTab : string[]= [];
             urlParamsTab.push(url);
             addParamToUrl(urlParamsTab, "companyId", companyId);
@@ -7350,11 +7412,10 @@ Request Method: PUT
 
             that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST url : ", url);
 
-            // it looks like the getRequestHeader is needed.
-            that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(retrieveRainbowEntriesList) successfull");
                 that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST result : ", json);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(retrieveRainbowEntriesList) error");
                 that.logger.log("internalerror", LOG_ID, "(retrieveRainbowEntriesList) error : ", err);
@@ -8094,7 +8155,7 @@ Request Method: PUT
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/registrations/ 
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/registrations/";
+            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/registrations";
             //addParamToUrl(url, "systemId", systemId);
 
             that.logger.log("internal", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST url : ", url);
@@ -8306,7 +8367,7 @@ Request Method: PUT
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/registrations/    
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/registrations/";
+            let url : string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/registrations";
             //addParamToUrl(url, "systemId", systemId);
 
             that.logger.log("internal", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST url : ", url);
