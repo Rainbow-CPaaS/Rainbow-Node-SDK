@@ -3596,10 +3596,75 @@ Request Method: PUT
             });
         });
     }
-    
+
+    getAllCompaniesVisibleByUser ( format : string = "small", sortField : string = "name", limit  : number = 100, offset  : number = 0, sortOrder : number = 1, name ? : string, status ? : string, visibility ? : string, organisationId ? : string, isBP ? : boolean, hasBP ? : boolean, bpType ? : string) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanies
+        // URL get /api/rainbow/enduser/v1.0/companies
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/enduser/v1.0/companies';
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "visibility", visibility);
+            addParamToUrl(urlParamsTab, "organisationId", organisationId);
+            addParamToUrl(urlParamsTab, "isBP", isBP);
+            addParamToUrl(urlParamsTab, "hasBP", hasBP);
+            addParamToUrl(urlParamsTab, "bpType", bpType);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllCompaniesVisibleByUser) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllCompaniesVisibleByUser) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllCompaniesVisibleByUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCompanyAdministrators (companyId : string, format : string = "small", limit : number = 100, offset : number = 0) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanyAdministrators
+        // URL get /api/rainbow/enduser/v1.0/companies/:companyId/administrators
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/enduser/v1.0/companies/' + companyId + '/administrators' ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getCompanyAdministrators) successfull");
+                that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCompanyAdministrators) error");
+                that.logger.log("internalerror", LOG_ID, "(getCompanyAdministrators) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Company from end user portal
 
-    getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
+    getAllCompanies(format : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         // API https://api.openrainbow.org/admin/#api-companies-GetCompanies
         // URL get /api/rainbow/admin/v1.0/companies
 

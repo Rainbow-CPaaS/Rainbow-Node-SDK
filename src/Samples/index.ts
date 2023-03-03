@@ -4136,6 +4136,22 @@ let urlS2S;
     //endregion
 
     //region Company
+    
+    //region Company From enduser
+
+        async  testgetAllCompaniesVisibleByUser() {
+            logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser. ");
+            let allCompanies: any = await rainbowSDK.admin.getAllCompaniesVisibleByUser();
+            logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser - allCompanies : ", allCompanies.length);
+        }
+        
+        async  testgetCompanyAdministrators() {
+            logger.log("debug", "MAIN - testgetCompanyAdministrators. ");
+            let allCompanies: any = await rainbowSDK.admin.getCompanyAdministrators();
+            logger.log("debug", "MAIN - testgetCompanyAdministrators - allCompanies : ", allCompanies.length);
+        }
+        
+    //endregion Company From enduser
 
     async  testgetAllCompanies() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.

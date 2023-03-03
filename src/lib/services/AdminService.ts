@@ -467,7 +467,146 @@ class AdminService extends GenericService {
         });
     }
 
-        /**
+    /**
+     * @public
+     * @method getAllCompaniesVisibleByUser
+     * @instance
+     * @description
+     *   This API allows users to get all companies. </BR>
+     *   Users with user role can only retrieve their own company and companies they can see (companies with visibility=public, companies having user's companyId in visibleBy field, companies being in user's company organization and having visibility=organization, BP company of user's company). </BR>
+     *   Users with analytics can retrieve all companies, but only the following fields are returned: id, creationDate, status, statusUpdatedDate, visibility, visibleBy, organisationId </BR>
+     * @async
+     * @category Companies and users management
+     * @return {Promise<Object, ErrorManager>} - result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of company Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * 
+     * @fulfil {Object} - the result
+     * @category async
+     * @param {string} format Allows to retrieve more or less company details in response. </BR>
+     * * small: id, name </BR>
+     * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
+     * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
+     * Valeur par défaut : small. Valeurs autorisées : small, medium, full
+     * @param {string} sortField Sort items list based on the given field. Valeur par défaut : name
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100. Ordre de grandeur : 0-1000
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0
+     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1
+     * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
+     * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match).
+     * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
+     * @param {string} status Allows to filter companies list on the provided status(es). Valeurs autorisées : initializing, active, alerting, hold, terminated
+     * @param {string} visibility Allows to filter companies list on the provided visibility(ies). Valeurs autorisées : public, private, organization, closed, isolated
+     * @param {string} organisationId Allows to filter companies list on the organisationIds provided in this option. This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
+     * @param {boolean} isBP Allows to filter companies list on isBP field: </BR>
+     * * true returns only Business Partner companies, </BR>
+     * * false return only companies which are not Business Partner. </BR>
+     * This filter can only be used if user has role(s) superadmin, business_admin,customer_success_admin, support, bp_admin or admin. </BR>
+     * @param {boolean} hasBP Allows to filter companies list on companies being linked or not to a BP: </BR>
+     * * true returns only companies linked to a BP (BP IR companies are also returned), </BR>
+     * * false return only companies which are not linked to a BP. </BR>
+     * This filter can only be used if user has role(s) superadmin, business_admin,customer_success_admin, support or bp_admin. </BR>
+     * Users with role bp_admin can only use this filter with value false.
+     * @param {string} bpType Allows to filter companies list on bpType field. </BR>
+     * This filter allow to get all the Business Partner companies from a given bpType. </BR>
+     * Only users with role superadmin, business_admin,customer_success_admin, support or bp_admin can use this filter.
+     */
+    getAllCompaniesVisibleByUser ( format : string = "small", sortField : string = "name", limit  : number = 100, offset  : number = 0, sortOrder : number = 1, name ? : string, status ? : string, visibility ? : string, organisationId ? : string, isBP ? : boolean, hasBP ? : boolean, bpType ? : string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) parameters : strName : ", name);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAllCompaniesVisibleByUser(format, sortField, limit, offset, sortOrder, name, status, visibility, organisationId , isBP, hasBP, bpType).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) Successfully getted : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCompanyAdministrators
+     * @instance
+     * @description
+     *   This API allows users to list users being administrator of a company. </BR>
+     *   Users can only retrieve administrators of their own company and administrators of companies visible by their own company (companies being in user's company organisation and having visibility=organization, and companies having user's companyId in visibleBy). </BR>
+     *
+     *   This API implement pagination, using limit and offset options in query string arguments (default is limit on 100 users). Result sorting can also be done using sort and order options (default is sort on displayName on ascending order). </BR>
+     * @async
+     * @category Companies and users management
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | User Object. |
+     * | loginEmail | String | DEPRECATED (will be removed in a future release).  </br>User email address (used for login) |
+     * | id  | String | User unique identifier |
+     * | firstName | String | User first name |
+     * | lastName | String | User last name |
+     * | jid_im | String | User Jabber IM identifier |
+     * | companyId | String | User company unique identifier |
+     * | companyName | String | User company name |
+     * | lastUpdateDate | Date-Time | Date of last user update (whatever the field updated) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last user avatar create/update, null if no avatar |
+     * | isTerminated | Boolean | Indicates if the Rainbow account of this user has been deleted |
+     * | guestMode | Boolean | Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
+     *
+     * @fulfil {Object} - the result
+     * @category async
+     * @param {string} companyId Company for which list of administrators is requested.
+     * @param {string} format Allows to retrieve more or less user details in response. </BR>
+     * - small: id, firstName, lastName, displayName, companyId, companyName, isTerminated </BR>
+     * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
+     * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
+     * Valeur par défaut : small. Valeurs autorisées : small, medium, full
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100. Ordre de grandeur : 0-1000
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0
+     */
+    getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getCompanyAdministrators) parameters : companyId : ", companyId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId? companyId : that._rest.account.companyId;
+
+                that._rest.getCompanyAdministrators (companyId, format, limit, offset).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getCompanyAdministrators) Successfully getted : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCompanyAdministrators) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getCompanyAdministrators) ErrorManager : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
      * @public
      * @method createCompany
      * @instance
