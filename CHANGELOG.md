@@ -9,10 +9,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.20.1] - 2023-03-XX
 -   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
 -   Add `AdminService::getRainbowSupportBotService` `AdminService::getABotServiceData` `AdminService::getAllBotServices` to retrieve informations of bot services.
--   Fix retrieveRainbowEntriesList
+-   Fix `AdminService::retrieveRainbowEntriesList`
 -   Add `AdminService::createCompanyFromDefault` This API API allows to create a company for a user belonging to the 'Default' company is able to create his own company.
 -   Add `AdminService::getAllCompaniesVisibleByUser` This API allows users to get all companies.
 -   Add `AdminService::getCompanyAdministrators` This API allows users to list users being administrator of a company.
+-   Fix `BubblesService::disconnectParticipantFromConference` 
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
@@ -51,7 +52,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
 -   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
 -   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
-
 
 ## [2.18.0] - 2022-12-09
 -   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
