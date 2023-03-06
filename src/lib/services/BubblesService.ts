@@ -6353,7 +6353,7 @@ getAllActiveBubbles
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the room.
      * @param {string} userId User identifier.
      * @async
      * @description
@@ -6365,23 +6365,23 @@ getAllActiveBubbles
      * @return {Promise<any>} the result of the operation.
 
      */
-    disconnectParticipantFromConference(roomId: string, userId: string) {
+    disconnectParticipantFromConference(bubbleId: string, userId: string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(delegateConference) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!userId) {
-                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'userId' parameter : ", userId);
+                that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bad or empty 'userId' parameter : ", userId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.delegateConference(roomId, userId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(delegateConference) result from server : ", result);
+            that._rest.disconnectParticipantFromConference(bubbleId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disconnectParticipantFromConference) result from server : ", result);
 
                 if (result) {
                     resolve(result);
