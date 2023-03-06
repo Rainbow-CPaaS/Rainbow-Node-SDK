@@ -187,7 +187,7 @@ class RESTConferenceV2 extends GenericRESTService{
         });
     }
     
-    joinConference(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
+    joinConference(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined, resourceId : string  = undefined) {
         // API https://api.openrainbow.org/conference/#api-conference_v2-joinConferenceV2
         // POST /api/rainbow/conference/v1.0/rooms/:roomId/join 
         let that = this;

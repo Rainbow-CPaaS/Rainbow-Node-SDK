@@ -11415,9 +11415,9 @@ Request Method: PUT
         return that.restConferenceV2.getTalkingTimeForAllPparticipantsInConference(roomId, limit,  offset );
     }
 
-    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
+    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = undefined, mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined, resourceId : string  = undefined) {
         let that = this;
-        return that.restConferenceV2.joinConference(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media);
+        return that.restConferenceV2.joinConference(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media, resourceId) ;
     }
 
     pauseRecording(roomId : string) {

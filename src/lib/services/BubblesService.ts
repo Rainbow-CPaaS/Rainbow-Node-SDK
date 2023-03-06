@@ -6443,33 +6443,55 @@ getAllActiveBubbles
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
-     //* @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
+     * @param {string} bubbleId The id of the room.
      * @param {string} participantPhoneNumber Join through dial.
      * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
      * @param {string} deskphone User joins conference through his deskphone. Default value : false
-     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center).
+     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center). Default Value : ["rdeu"]
      * @param {string} mute Join as muted/unmuted.
      * @param {string} microphone Has client a microphone?
-     * @param {string} media Requested media. Default value : [audio,video] . Possible value : audio, video .
+     * @param {Array<string>} media Requested media. Default value : ["video"] to let the bot join without audio. Possible value : "audio", "video" .
+     * @param {string} resourceId Jabber resource identifier for webinar attendee. Default value : the internal xmpp resource used to connect server.
      * @async
      * @description
      *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
-     *           NOTE: The join can not be done without any audio/video media, because the server will close the connection after one minute.
+     *           NOTE: The join done with audio media, need a webrtc stack because the server will close the connection after one minute if the media session is not up.
      * @return {Promise<any>} the result of the operation.
-
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object |     |
+     * | jingleJid | String | WebRTC Gateway instance. |
+     * | transportTurn optionnel | Boolean | If true, client must use 'relay' for 'iceTransportPolicy'. |
+     * | gatewayPrefix optionnel | String | WebRTC Gateway prefix in case of deskphone. |
+     * | gatewaySessionId optionnel | String | WebRTC Gateway session id in case of deskphone. |
+     * | isAlreadyConnected optionnel | String | True if user is already connected. |
+     *  
      */
-    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["audio","video"], mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
+    joinConferenceV2(bubbleId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["rdeu"], mute: boolean = false, microphone: boolean = false, media : Array<string> = ["video"], resourceId : string  = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(joinConferenceV2) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(joinConferenceV2) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(joinConferenceV2) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(joinConferenceV2) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
+            
+            if (!resourceId) {
+                resourceId = that._xmpp.resourceId;
+            }
 
-            that._rest.joinConferenceV2(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media).then(async (result) => {
+            if (!dc) {
+                dc = ["rdeu"];
+            }
+            
+            if (!media) {
+                media = ["video"];
+            }
+
+            that._rest.joinConferenceV2(bubbleId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media, resourceId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(joinConferenceV2) result from server : ", result);
 
                 if (result) {

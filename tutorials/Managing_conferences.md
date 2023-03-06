@@ -110,8 +110,16 @@ rainbowSDK.bubbles.conferenceStart(myBubbleToConferenced).then((result) => {
     // the id of the conference is in the result of the start in confId properties. 
     // It allow to follow the life of the bubble with the `rainbow_onbubbleconferenceupdated` event (see bellow).
     // Note that only a first event is received with the `participant::connected` property to false.
-    // To get the events of conference's life, it is necessary to join the conference from a common UI (not possible with node SDK).   
     logger.log("debug", "(conferenceStart) result : ", result);
+    // To get the events of conference's life, it is necessary to join the conference.
+        rainbowSDK.bubbles.joinConferenceV2(bubbleId).then(async (result) => {
+                // to retrieve initial state of the conference ask a snapshot. Note that event should also give the informations.
+                rainbowSDK.bubbles.snapshotConference(bubbleId).then(async (result) => {
+                    ...
+                }).catch(err => {
+                });                
+            }).catch(err => {
+            });
 });
 
 ...
