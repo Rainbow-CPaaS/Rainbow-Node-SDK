@@ -1830,7 +1830,45 @@ let urlS2S;
         });
     }
 
-    //endregion Channels
+    async  testCreateGuestCreateChannelPublishItem() {
+         // To be used with vincent01 on .NET
+         
+        let firstname = "firstname_";
+        let lastname = "lastname_" + new Date().getTime() + "_";
+        let firstnameTemp = firstname;
+        let lastnameTemp = lastname;
+        let contact = await rainbowSDK.admin.createGuestUser(firstnameTemp, lastnameTemp, "fr", 10).catch((err) => {
+            logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
+        });
+
+        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannel = mychannels ? mychannels[0]:null;
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        //let contact = await rainbowSDK.contacts.getContactByLoginEmail(guestUser.loginEmail);
+        let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
+        logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
+        let tab: any = [{"id": contact.id}];
+        let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
+        logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
+        let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
+        logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
+        /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
+            logger.log("debug", "createItem - res : ", res);
+        }); // */
+
+
+        if (contact) {
+            logger.log("debug", "MAIN - [testCleanAGuest    ] :: contact : ", contact);
+            rainbowSDK.admin.deleteUser(contact.id).then(async (result) => {
+                logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
+            });
+        }
+    }
+
+
+        //endregion Channels
 
     //region Files
 
@@ -3561,7 +3599,7 @@ let urlS2S;
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubblesOfAUser(contact).catch((err) => {
-            logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubblesOfAUser) error while creating guest user :  ", err);
+            logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubblesOfAUser) error :  ", err);
         });
         logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubblesOfAUser] All PublicUrl Of Bubbles : ", result);
     }
@@ -3574,7 +3612,7 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetAllPublicUrlOfABubble - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
             for (let bubble of myBubbles) {
                 let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubble(bubble).catch((err) => {
-                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubble) error while creating guest user :  ", err);
+                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubble) error :  ", err);
                 });
                 logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubble] The PublicUrl ", result, " Of a Bubble : ", bubble);
             }
@@ -3590,7 +3628,7 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetAllPublicUrlOfABubbleOfAUser - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
             for (let bubble of myBubbles) {
                 let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubbleOfAUser(contact, bubble).catch((err) => {
-                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubbleOfAUser) error while creating guest user :  ", err);
+                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubbleOfAUser) error :  ", err);
                 });
                 logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubbleOfAUser] The PublicUrl ", result, " Of a Bubble : ", bubble);
             }
