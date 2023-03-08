@@ -1463,7 +1463,7 @@ class Bubbles extends GenericService {
      * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
      * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
      * | name | String | Room name. |
-     * | visibility | String | Public/private group visibility for search<br><br>Valeurs autorisées : `private`, `public` |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
      * | topic | String | Room topic |
      * | jid | String | Room MUC JID |
      * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
@@ -1473,13 +1473,13 @@ class Bubbles extends GenericService {
      * | userId | String | User identifier |
      * | jid_im | String | User jid |
      * | additionDate | String | Date when the user has been added in the room |
-     * | privilege | String | Privilege of the user in the room<br><br>Valeurs autorisées : `user`, `moderator` |
-     * | status | String | Status of the user in the room<br><br>Valeurs autorisées : `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
      * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
      * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
      * | userId | String | User identifier the user owning the confEndPoint |
      * | confEndPointId | String | Identifier of the conference end point |
-     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Valeurs autorisées : `pstnAudio`, `webrtc` |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
      * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
      * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
      * | scheduledStartDate | Date-Time | Scheduled meeting start date |
@@ -1587,7 +1587,7 @@ class Bubbles extends GenericService {
      * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
      * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
      * | name | String | Room name. |
-     * | visibility | String | Public/private group visibility for search<br><br>Valeurs autorisées : `private`, `public` |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
      * | topic | String | Room topic |
      * | jid | String | Room MUC JID |
      * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
@@ -1597,13 +1597,13 @@ class Bubbles extends GenericService {
      * | userId | String | User identifier |
      * | jid_im | String | User jid |
      * | additionDate | String | Date when the user has been added in the room |
-     * | privilege | String | Privilege of the user in the room<br><br>Valeurs autorisées : `user`, `moderator` |
-     * | status | String | Status of the user in the room<br><br>Valeurs autorisées : `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
      * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
      * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
      * | userId | String | User identifier the user owning the confEndPoint |
      * | confEndPointId | String | Identifier of the conference end point |
-     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Valeurs autorisées : `pstnAudio`, `webrtc` |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
      * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
      * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
      * | scheduledStartDate | Date-Time | Scheduled meeting start date |
