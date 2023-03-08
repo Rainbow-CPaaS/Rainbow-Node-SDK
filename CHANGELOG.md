@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-## [2.20.1] - 2023-03-XX
+## [2.21.0] - 2023-03-XX
 -   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
 -   Add `AdminService::getRainbowSupportBotService` `AdminService::getABotServiceData` `AdminService::getAllBotServices` to retrieve informations of bot services.
 -   Fix `AdminService::retrieveRainbowEntriesList`
