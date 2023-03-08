@@ -14,6 +14,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `AdminService::getAllCompaniesVisibleByUser` This API allows users to get all companies.
 -   Add `AdminService::getCompanyAdministrators` This API allows users to list users being administrator of a company.
 -   Fix `BubblesService::disconnectParticipantFromConference` 
+-   Add methods about Contacts Sources in ContactsService.
+-   Add methods about Contacts API from Enduser portal in ContactsService.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

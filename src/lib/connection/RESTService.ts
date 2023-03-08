@@ -872,6 +872,428 @@ class RESTService extends GenericRESTService {
     }
     
     //endregion Contacts API - Search portal
+    
+    //region Sources
+
+    async createSource (userId : string, sourceId : string, os : string ) {
+        // API https://api.openrainbow.org/enduser/#api-sources-createSource
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+            
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (os) {
+                data.os = os;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources" ;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteSource (userId : string, sourceId : string) {
+        // API https://api.openrainbow.org/enduser/#api-sources-deleteSource
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getSourceData (userId : string, sourceId : string) {
+        // API https://api.openrainbow.org/enduser/#api-sources-getSourceData
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(getSourceData) args : ", data );
+            that.http.get(url, that.getRequestHeader(), data).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getSourceData) successfull");
+                that.logger.log("internal", LOG_ID + "(getSourceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSourceData) error.");
+                that.logger.log("internalerror", LOG_ID, "(getSourceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllSourcesByUserId (userId : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-sources-getAllSourcesByUserId
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST userId : ", userId);
+            
+            userId = userId ? userId : that.account.id;
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllSourcesByUserId) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSourcesByUserId) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSourcesByUserId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async updateSourceData (userId : string, sourceId : string, os : string ) {
+        // API https://api.openrainbow.org/enduser/#api-sources-updateSourceData
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {};
+
+            userId = userId ? userId:that.account.id;
+
+            if (os) {
+                data.os = os;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(updateSourceData) args : ", data);
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateSourceData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateSourceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateSourceData) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateSourceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Sources
+    
+    //region Contacts API - Enduser portal
+    
+    async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> , emails : Array<any> ,addresses : Array<any> , groups : Array<string> , otherData : Array<any> ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-updateContact
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (!sourceId) {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!contactIddb) {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (contactId) {
+                data.contactId = contactId;
+            }
+
+            if (firstName) {
+                data.firstName = firstName;
+            }
+
+            if (lastName) {
+                data.lastName = lastName;
+            }
+
+            if (displayName) {
+                data.displayName = displayName;
+            }
+
+            if (company) {
+                data.company = company;
+            }
+
+            if (jobTitle) {
+                data.jobTitle = jobTitle;
+            }
+
+            if (phoneNumbers) {
+                data.phoneNumbers = phoneNumbers;
+            }
+
+            if (emails) {
+                data.emails = emails;
+            }
+
+            if (addresses) {
+                data.addresses = addresses;
+            }
+
+            if (groups) {
+                data.groups = groups;
+            }
+
+            if (otherData) {
+                data.otherData = otherData;
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactIddb ;
+            that.logger.log("internal", LOG_ID + "(updateContactData) args : ", data );
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateContactData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateContactData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateContactData) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateContactData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>, emails : Array<any>, addresses : Array<any>, groups : Array<string>, otherData : Array<any>) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-createContact
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (contactId) {
+                data.contactId = contactId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (firstName) {
+                data.firstName = firstName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (lastName) {
+                data.lastName = lastName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (displayName) {
+                data.displayName = displayName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (company) {
+                data.company = company;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (jobTitle) {
+                data.jobTitle = jobTitle;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (phoneNumbers) {
+                data.phoneNumbers = phoneNumbers;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (emails) {
+                data.emails = emails;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (addresses) {
+                data.addresses = addresses;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (groups) {
+                data.groups = groups;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (otherData) {
+                data.otherData = otherData;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts" ;
+            that.logger.log("internal", LOG_ID + "(createContact) args : ", data );
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createContact) successfull");
+                that.logger.log("internal", LOG_ID + "(createContact) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createContact) error.");
+                that.logger.log("internalerror", LOG_ID, "(createContact) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async getContactData (userId : string, sourceId : string, contactId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-getContact
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/"+sourceId+"/contacts/" + contactId ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getContactData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getContactData) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactData) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    async getContactsList (userId : string, sourceId : string, format : string = "small" ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-getContacts
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/"+sourceId+"/contacts" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getContactsList) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactsList) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactsList) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactsList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteContact (userId : string, sourceId : string, contactId: string) {
+        // API https://api.openrainbow.org/enduser/#api-contacts_deleteContact-DeleteApiRainbowEnduserV10UsersUseridSourcesSourceidContactsContactid
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (!sourceId) {
+                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            if (!contactId) {
+                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactId;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Contacts API - Enduser portal
 
     async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
         let that = this;

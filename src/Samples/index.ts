@@ -1029,9 +1029,171 @@ let urlS2S;
             logger.log("error", "MAIN - [testgetAllSystemPhoneNumbers    ] :: catch reject contact : ", err);
         });
 
-    }     
+    }
 
-    //endregion Contacts
+        //region Contacts Sources
+
+        async testSource () {
+            //async testcreateSource () {
+            let userId : string, sourceId : string, os :	string;
+            userId = connectedUser.id;
+            sourceId =  "mySrc_" + new Date().getTime();
+            os = "Node_" + process.version;
+            let srcInfos : any /* {
+                sourceId: string,
+                os: string,
+                id: string
+            } */ = await rainbowSDK.contacts.createSource(userId, sourceId, os).then(async infos => {
+                logger.log("debug", "MAIN - [testcreateSource    ] ::  infos : ", infos);
+                return infos;
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testcreateSource    ] :: catch reject contact : ", err);
+            });
+            //}
+
+            //testupdateSourceData () {
+            await rainbowSDK.contacts.updateSourceData(userId, srcInfos.id, os + "_UPDATED").then(async infos => {
+                logger.log("debug", "MAIN - [testupdateSourceData    ] ::  infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testupdateSourceData    ] :: catch reject contact : ", err);
+            });
+            //}
+
+            // testgetSourceData () {
+            await rainbowSDK.contacts.getSourceData(userId, srcInfos.id).then(async infos => {
+                logger.log("debug", "MAIN - [testgetSourceData    ] ::  infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testgetSourceData    ] :: catch reject contact : ", err);
+            });
+            //}
+
+            await rainbowSDK.contacts.getAllSourcesByUserId().then(async infos => {
+                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+            });
+
+            //testdeleteSource () {
+            await rainbowSDK.contacts.deleteSource(userId, srcInfos.id).then(async infos => {
+                logger.log("debug", "MAIN - [testdeleteSource    ] ::  infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
+            });
+        }
+
+        async testdeleteSource_All() {
+         let userId = connectedUser.id;
+
+            await rainbowSDK.contacts.getAllSourcesByUserId().then(async (infos: any) => {
+                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+                for (let i = 0; i < infos.data.length ; i++) {
+                    await rainbowSDK.contacts.deleteSource(userId, infos.data[i].id).then(async result => {
+                        logger.log("debug", "MAIN - [testdeleteSource    ] ::  result : ", result);
+                    }).catch((err) => {
+                        logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
+                    });
+                }
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+            });
+
+        }
+
+        testgetAllSourcesByUserId () {
+            rainbowSDK.contacts.getAllSourcesByUserId().then(async infos => {
+                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+            });
+        }
+
+
+        //endregion Contacts Sources
+
+        //region Contacts API - Enduser portal
+
+        async testcreateContact () {
+            //async testcreateSource () {
+            let userId: string, sourceIdName: string, os: string;
+            userId = connectedUser.id;
+            sourceIdName = "mySrc_" + new Date().getTime();
+            os = "Node_" + process.version;
+            let srcInfos: any /* {
+                sourceId: string,
+                os: string,
+                id: string
+            } */ = await rainbowSDK.contacts.createSource(userId, sourceIdName, os).then(async infos => {
+                logger.log("debug", "MAIN - [testcreateContact    ] :: testcreateSource infos : ", infos);
+                return infos;
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testcreateContact    ] :: testcreateSource catch reject contact : ", err);
+            });
+            //}
+            
+            let sourceId:string = srcInfos.id;
+            
+            let idgenerated = new Date().getTime();
+            let contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>, emails : Array<any>, addresses : Array<any>, groups : Array<string>, otherData : Array<any> ;
+
+            contactId = "id_" + idgenerated;
+            firstName = "firstname_" + idgenerated; 
+            lastName = "lastname_" + idgenerated;
+            displayName  = "displayname_" + idgenerated;
+            company  = "company_" + idgenerated;
+            jobTitle  = "jobtitle_" + idgenerated;
+            phoneNumbers = [];
+            emails = [];
+            addresses =[];
+            groups = [];
+            otherData = [];
+            let result = await rainbowSDK.contacts.createContact(userId, sourceId, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails, addresses, groups, otherData).then(async infos => {
+                logger.log("debug", "MAIN - [testcreateContact    ] :: createContact infos : ", infos);
+                return infos;
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testcreateContact    ] :: createContact catch reject contact : ", err);
+            });
+            //}
+
+            let result2 = await rainbowSDK.contacts.getContactsList(userId, sourceId, "full").then(async (infos:any) => {
+                logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos : ", infos);
+                for (let i = 0; i < infos.data.length ; i++) {
+                    logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos.data["+ i +"] : ", infos.data[i]);
+                    let result4 = await rainbowSDK.contacts.updateContactData(userId, sourceId, infos.data[i].id, undefined, "firstnameUpdated", "lastnameUpdated").then(async (infos3:any) => {
+                        logger.log("debug", "MAIN - [testcreateContact    ] :: updateContactData infos3 : ", infos3);
+                    });
+                    let result3 = await rainbowSDK.contacts.getContactData(userId, sourceId, infos.data[i].id).then(async (infos2:any) => {
+                        logger.log("debug", "MAIN - [testcreateContact    ] :: getContactData after update infos2 : ", infos2);
+                    });
+                    let result5 = await rainbowSDK.contacts.deleteContact(userId, sourceId, infos.data[i].id).then(async (infos4:any) => {
+                        logger.log("debug", "MAIN - [testcreateContact    ] :: deleteContact infos4 : ", infos4);
+                    });
+                    let result6 = await rainbowSDK.contacts.getContactsList(userId, sourceId, "full").then(async (infos5:any) => {
+                        logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList after delete infos5 : ", infos5);
+                    });
+                }
+                return infos;
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testcreateContact    ] :: getContactsList catch reject contact : ", err);
+            });
+            //}
+
+            //testdeleteSource () {
+            await rainbowSDK.contacts.deleteSource(userId, srcInfos.id).then(async infos => {
+                logger.log("debug", "MAIN - [testcreateContact    ] :: deleteSource infos : ", infos);
+            }).catch((err) => {
+                logger.log("error", "MAIN - [testcreateContact    ] :: deleteSource catch reject contact : ", err);
+            });
+        }
+        
+/*       
+         testupdateContactData () {}
+        testgetAContactData () {}
+        testgetContactsList () {
+        } */
+
+        //endregion Contacts API - Enduser portal
+
+        //endregion Contacts
 
     //region Messages
 
@@ -4791,7 +4953,7 @@ let urlS2S;
 
         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
             logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
-            rainbowSDK.bubbles.joinConferenceV2(bubbleId).then(async (result) => {
+            rainbowSDK.bubbles.joinConferenceV2(bubbleId, undefined, undefined, false,["rdeu"], false, false, ["video"], undefined).then(async (result) => {
                 logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request ok, result : ", result);
                 rainbowSDK.bubbles.snapshotConference(bubbleId).then(async (result) => {
                     logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request ok, result : ", result);

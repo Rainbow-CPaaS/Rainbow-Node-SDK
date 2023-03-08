@@ -8,7 +8,7 @@ import {Contact, NameUpdatePrio} from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
-import {isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
@@ -778,15 +778,15 @@ class ContactsService extends GenericService {
      * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * When a user wants data of his own company in 'full' mode, he gets all fields except subscriptions and fields related to a business partner managing this company. </BR>
-     * Valeur par défaut : full. Valeurs autorisées : small, medium, full
+     * Default value : full. Possibles values : small, medium, full
      * @param {boolean} selectedThemeObj Allows to return selectedTheme attribute as an object: </BR>
      * * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }), </BR>
      * * false return selectedTheme as a string. </BR>
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
      * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match). </BR>
      * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
-     * @param {string} status Allows to filter companies list on the provided status(es). Valeurs autorisées : initializing, active, alerting, hold, terminated
-     * @param {string} visibility Allows to filter companies list on the provided visibility(ies). Valeurs autorisées : public, private, organization, closed, isolated
+     * @param {string} status Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
+     * @param {string} visibility Allows to filter companies list on the provided visibility(ies). Possibles values public, private, organization, closed, isolated
      * @param {string} organisationId Allows to filter companies list on the organisationIds provided in this option. This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
      * @param {boolean} isBP Allows to filter companies list on isBP field: </BR>
      * * true returns only Business Partner companies, </BR>
@@ -813,7 +813,7 @@ class ContactsService extends GenericService {
      * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
      * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for Elearning progress.  <br>Defines if a user can earn badges for Elearning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for Elearning progress.<br>* `disabled`: The user can't earn badges for Elearning progress. |
      * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a Elearning training.  <br>Defines if a user can particapate on an Elearning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an Elearning training.<br>* `disabled`: The user can't participate on an Elearning training. |
-     * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled)<br><br>Valeur par défaut : `true` |
+     * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled)<br><br>Default value : `true` |
      * | dataLocation | Object | Information regarding the location where the company data and relative private data are stored (including users of the company and their own private data).  <br>Only returned if the requested company is the logged in user's company. |
      * | name | String | Name of the zone where the company data are stored. |
      * | location | String | Location of the zone where the company data are stored. Should usually be the country name (English) where the zone is located. |
@@ -824,13 +824,13 @@ class ContactsService extends GenericService {
      * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
      * | name | String | Company name |
      * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
-     * | street optionnel | String | Company street<br><br>Ordre de grandeur : `0..255` |
-     * | city optionnel | String | Company city<br><br>Ordre de grandeur : `0..255` |
-     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Valeurs autorisées : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
-     * | postalCode optionnel | String | Company postal code<br><br>Ordre de grandeur : `0..64` |
-     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Ordre de grandeur : `3`<br><br>Valeurs autorisées : `USD`, `EUR`, `CNY` |
-     * | status | String | Company status<br><br>Valeurs autorisées : `initializing`, `active`, `alerting`, `hold`, `terminated` |
-     * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Valeur par défaut : `private`<br><br>Valeurs autorisées : `public`, `private`, `organisation`, `closed`, `isolated` |
+     * | street optionnel | String | Company street<br> |
+     * | city optionnel | String | Company city<br> |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | postalCode optionnel | String | Company postal code<br> |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values `USD`, `EUR`, `CNY` |
+     * | status | String | Company status<br><br>Possibles values `initializing`, `active`, `alerting`, `hold`, `terminated` |
+     * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values `public`, `private`, `organisation`, `closed`, `isolated` |
      * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
      * | adminEmail optionnel | String | Company contact person email |
      * | supportEmail optionnel | String | Company support email |
@@ -843,17 +843,17 @@ class ContactsService extends GenericService {
      * | userSelfRegisterAllowedDomains | String\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
      * | slogan optionnel | String | A free string corresponding to the slogan of the company (255 char length) |
      * | description optionnel | String | A free string that describes the company (2000 char length) |
-     * | size | String | An overview of the number of employees<br><br>Valeurs autorisées : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
-     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Valeurs autorisées : `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
+     * | size | String | An overview of the number of employees<br><br>Possibles values `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
+     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
      * | giphyEnabled optionnel | Boolean | Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations) |
      * | website optionnel | String | Company website URL |
      * | organisationId | String | Optional identifier to indicate the company belongs to an organisation |
      * | catalogId | String | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
      * | bpId | String | Optional identifier which links the company to the corresponding Business partner company |
      * | adminHasRightToUpdateSubscriptions optionnel | Boolean | In the case the company is linked to a Business Partner company, indicates if the `bp_admin` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).  <br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company. |
-     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Valeurs autorisées : `all`, `increase_only` |
-     * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Valeur par défaut : `false` |
-     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Valeurs autorisées : `IR`, `VAD`, `DR` |
+     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values `all`, `increase_only` |
+     * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Default value : `false` |
+     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values `IR`, `VAD`, `DR` |
      * | bpBusinessModel optionnel | String | Indicates BP business model |
      * | bpApplicantNumber optionnel | String | Reference of the Business Partner in ALE Finance tools (SAP) |
      * | bpCRDid optionnel | String | Reference of the Business Partner in CDR |
@@ -863,12 +863,12 @@ class ContactsService extends GenericService {
      * | bpContractAcceptationInfo optionnel | Object | If the Business has accepted the contract, indicates who accepted the contract, Only visible by `superadmin` and `support`. |
      * | acceptationDate | Date-Time | Date of contract acceptation by the BP admin |
      * | bpAdminId | String | User Id of the BP admin who accepted the contract |
-     * | offerType | String | Allowed company offer types<br><br>Valeurs autorisées : `freemium`, `premium` |
+     * | offerType | String | Allowed company offer types<br><br>Possibles values `freemium`, `premium` |
      * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
-     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Valeurs autorisées : `HDS` |
-     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
-     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
-     * | avatarShape optionnel | String | Company's avatar customization<br><br>Valeurs autorisées : `square`, `circle` |
+     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values `HDS` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values `square`, `circle` |
      * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
      * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
      * | selectedTheme optionnel | Object | Set the selected theme(s) for users of the company. |
@@ -876,11 +876,11 @@ class ContactsService extends GenericService {
      * | dark optionnel | String | Set the selected theme dark for users of the company. |
      * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
      * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
-     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br><br>Ordre de grandeur : `0..256` |
-     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Valeurs autorisées : `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
-     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Valeurs autorisées : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br> |
+     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
+     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
      * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
-     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Valeurs autorisées : `directory`, `calendar` |
+     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values `directory`, `calendar` |
      * | mobilePermanentConnectionMode | Boolean | deactivate push mode for mobile devices.  <br>When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.  <br>For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company. |
      * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
      * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
@@ -1009,30 +1009,30 @@ class ContactsService extends GenericService {
      * @category Contacts INFORMATIONS
      * @param {Object} dataToUpdate : 
      * { 
-     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx) Ordre de grandeur : 1..32 
+     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx)  
      * {string} type 	String Phone number type Possible values : home, work, other
      * {string} deviceType 	String Phone number device type Possible values : landline, mobile, fax, other
      * {boolean} isVisibleByOthers optionnel 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
-     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
-     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). Ordre de grandeur : 1..32
-     * {string} internalNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group). Ordre de grandeur : 1..32 
+     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). 
+     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). 
+     * {string} internalNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group). 
      * {Array<string>} emails optionnel 	Object Array of user emails addresses objects
      * {Array<string>} phoneNumbers optionnel 	Object[] Array of user PhoneNumbers objects Notes: Provided PhoneNumbers data overwrite previous values: PhoneNumbers which are not known on server side are added, PhoneNumbers which are changed are updated, PhoneNumbers which are not provided but existed on server side are deleted. This does not applies to PhoneNumbers linked to a system(pbx), which can only be updated (addition and deletion of system PhoneNumbers are ignored). When number is present, the server tries to compute the associated E.164 number (numberE164 field) using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) PhoneNumber linked to a system (pbx) can also be updated. In that case, shortNumber and systemId of the existing system PhoneNumber must be provided with the fields to update (see example bellow).     * System phoneNumbers can't be created nor deleted using this API, only PCG can create/delete system PhoneNumbers.
      * {string} selectedTheme optionnel 	String Theme to be used by the user If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
-     * {string} firstName optionnel 	String User first name Ordre de grandeur : 1..255
-     * {string} lastName optionnel 	String User last name Ordre de grandeur : 1..255
-     * {string} nickName optionnel 	String User nickName Ordre de grandeur : 1..255
-     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) Ordre de grandeur : 1..40
-     * {string} jobTitle optionnel 	String User job title Ordre de grandeur : 1..255
+     * {string} firstName optionnel 	String User first name 
+     * {string} lastName optionnel 	String User last name 
+     * {string} nickName optionnel 	String User nickName 
+     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) 
+     * {string} jobTitle optionnel 	String User job title 
      * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Default value : same_than_company Possible values : same_than_company, public, private, closed, isolated, none
      * {boolean} isInitialized optionnel 	Boolean Is user initialized
      * {string} timezone optionnel 	String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
-     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. Ordre de grandeur : 2|5
+     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. 
      * {string} state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
-     * {string} country optionnel 	String User country (ISO 3166-1 alpha3 format) Ordre de grandeur : 3
-     * {string} department optionnel 	String User department Ordre de grandeur : 1..255
-     * {string} email 	String User email address Ordre de grandeur : 3..255
-     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. Ordre de grandeur : 3
+     * {string} country optionnel 	String User country (ISO 3166-1 alpha3 format) 
+     * {string} department optionnel 	String User department 
+     * {string} email 	String User email address 
+     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. 
      * {string} type 	String User email type Possible values : home, work, other
      * {string} customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
      * }
@@ -1074,6 +1074,755 @@ class ContactsService extends GenericService {
     }
     
     //endregion Contacts INFORMATIONS
+
+    //region Contacts Sources
+
+    /**
+     * @public
+     * @method createSource
+     * @instance
+     * @category Contacts SOURCES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Source unique identifier |
+     * | os  | String | Operating system name and version |
+     * | sourceId | String | Id of source that could be IMEI or factory number for mobiles, email for Outloock or account number for Facebook |
+     * 
+     * @description
+     *          A client could have one or more mobile devices as a source of contacts with his contacts stored in. </br>
+     *          Also a source of contacts could be Microsoft Outlook / Linkedin or Facebook. </br>
+     *          ontacts could be used for constructing recommendation rules. </br>
+     *          SourceId must be unique for a given user. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Id of source, that could be IMEI or factory number for mobiles , email for Outlook or account number for Facebook. Only one sourceId must exist by user.
+     * @param {string} os Operating system name and version.
+     */
+    async createSource (userId : string, sourceId : string, os :	string ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(createSource) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(createSource) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!os) {
+                    that._logger.log("error", LOG_ID + "(createSource) bad or empty 'os' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.createSource(meId, sourceId, os).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(createSource) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createSource) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(createSource) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createSource) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteSource
+     * @instance
+     * @category Contacts SOURCES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | Deletion status |
+     *  | data | Object\[\] | No data (empty Array) |
+     *  
+     * @description
+     *          This API is used to delete a source. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier.
+     */
+    async deleteSource (userId : string, sourceId : string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(deleteSource) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(deleteSource) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.deleteSource(meId, sourceId).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(deleteSource) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteSource) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(deleteSource) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteSource) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getSourceData
+     * @instance
+     * @category Contacts SOURCES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Source unique identifier |
+     * | os  | String | Operating system name and version |
+     * | sourceId | String | Id of source that could be IMEI or factory number for mobiles, email for Outloock or account number for Facebook |
+     *
+     * @description
+     *          This API is used to get a source data. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier.
+     */
+    async getSourceData(userId : string, sourceId : string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getSourceData) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(getSourceData) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.getSourceData(meId, sourceId).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getSourceData) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getSourceData) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getSourceData) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getSourceData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllSourcesByUserId
+     * @instance
+     * @category Contacts SOURCES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | sources id list is sent. |
+     * | id  | String |     |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     *
+     * @description
+     *          This API is used to get all sources by userId. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} format Allows to retrieve more or less source details in response. </BR>
+     * - small: id, sourceId </BR>
+     * - medium: id, sourceId, os </BR>
+     * - full: all source fields </BR>
+     * Default value : small. Possibles values : small, medium, full
+     * @param {string} sortField Sort items list based on the given field. Default value : name
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1.
+     */
+    async getAllSourcesByUserId (userId? : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getAllSourcesByUserId) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                that._rest.getAllSourcesByUserId(meId, format, sortField, limit, offset, sortOrder).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getAllSourcesByUserId) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllSourcesByUserId) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getAllSourcesByUserId) Error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllSourcesByUserId) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateSourceData
+     * @instance
+     * @category Contacts SOURCES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Source unique identifier |
+     * | os  | String | Operating system name and version |
+     * | sourceId | String | Id of source that could be IMEI or factory number for mobiles, email for Outloock or account number for Facebook |
+     *
+     * @description
+     *          This API is used to update a source data. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} os Operating system name and version.
+     */
+    async updateSourceData (userId : string, sourceId : string, os : string ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(updateSourceData) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(updateSourceData) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!os) {
+                    that._logger.log("error", LOG_ID + "(updateSourceData) bad or empty 'os' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.updateSourceData(meId, sourceId, os).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(updateSourceData) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateSourceData) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(updateSourceData) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateSourceData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Contacts Sources
+
+    //region Contacts API - Enduser portal
+
+    /**
+     * @public
+     * @method updateContactData
+     * @instance
+     * @category Contacts Contacts API - Enduser portal
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Contact unique identifier |
+     * | contactId | String | Id of the contact coming from the source who created it |
+     * | firstName | String | Contact firstName |
+     * | lastName | String | Contact lastName |
+     * | displayName | String | Contact displayName |
+     * | company | String | Contact company |
+     * | jobTitle | String | Contact jobTitle |
+     * | phoneNumbers | Object\[\] | Contact phone numbers |
+     * | type | String | Phone number type<br><br>Possibles values `home`, `work`, `other` |
+     * | number | String | Contact phone number |
+     * | emails | Object\[\] | Contact emails |
+     * | email | String | Contact email |
+     * | type | String | Contact email type<br><br>Possibles values `home`, `work`, `other` |
+     * | addresses | Object\[\] | Contact addresses |
+     * | type | String | Contact address type<br><br>Possibles values `home`, `work`, `other` |
+     * | address | String | Contact address |
+     * | street | String | Contact street |
+     * | city | String | Contact city |
+     * | state | String | Contact state |
+     * | postalCode | String | Contact postalCode |
+     * | country | String | Contact country |
+     * | groups | String\[\] | Contact groups type<br><br>Possibles values `home`, `work`, `other` |
+     * | otherData | Object\[\] | Other user data – may include birthday date, Skype/Facebook pseudo/profile |
+     * | key | String | Other user data key |
+     * | value | String | Other user data value |
+     *
+     * @description
+     *          This API is used to update a contact data. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} contactIddb Contact unique identifier
+     * @param {string} contactId Contact unique id used by target mobile
+     * @param {string} firstName First name
+     * @param {string} lastName Last name
+     * @param {string} displayName First/last name, some OS don’t mind to have it in two attribute
+     * @param {string} company Company name
+     * @param {string} jobTitle Job title
+     * @param {Array<Object>} phoneNumbers Contact phone numbers  </BR>
+     * { number : string // Contact phone number, type  : string // Phone number type. Possibles values home, work, other }
+     * @param {Array<Object>} emails Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
+     * @param {Array<Object>} addresses Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
+     * address  : string // Contact address , </BR>
+     * street  : string // Contact street , </BR>
+     * city  : string // Contact city , </BR>
+     * state  : string // Contact state , </BR>
+     * postalCode  : string // Contact postalCode , </BR>
+     * country  : string // Contact country  </BR>
+     * } </BR>
+     * @param {Array<Object>} groups Contact groups type. Possibles values home, work, other
+     * @param {Array<Object>} otherData Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
+     * { key  : string // Other user data key , value  : string // Other user data value }
+     */
+    async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> = undefined, emails : Array<any> = undefined,addresses : Array<any> = undefined, groups : Array<string> = undefined, otherData : Array<any> = undefined) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(updateContactData) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(updateContactData) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!contactIddb) {
+                    that._logger.log("error", LOG_ID + "(updateContactData) bad or empty 'contactIddb' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.updateContactData(meId, sourceId, contactIddb, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails,addresses, groups, otherData).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(updateContactData) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateContactData) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(updateContactData) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateContactData) error : ", err);
+                return reject(err);
+            }
+        }); 
+    }
+
+    /**
+     * @public
+     * @method createContact
+     * @instance
+     * @category Contacts Contacts API - Enduser portal
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Contact unique identifier |
+     * | contactId | String | Id of the contact coming from the source who created it |
+     * | firstName | String | Contact firstName |
+     * | lastName | String | Contact lastName |
+     * | displayName | String | Contact displayName |
+     * | company | String | Contact company |
+     * | jobTitle | String | Contact jobTitle |
+     * | phoneNumbers | Object\[\] | Contact phone numbers |
+     * | type | String | Phone number type<br><br>Possibles values `home`, `work`, `other` |
+     * | number | String | Contact phone number |
+     * | emails | Object\[\] | Contact emails |
+     * | email | String | Contact email |
+     * | type | String | Contact email type<br><br>Possibles values `home`, `work`, `other` |
+     * | addresses | Object\[\] | Contact addresses |
+     * | type | String | Contact address type<br><br>Possibles values `home`, `work`, `other` |
+     * | address | String | Contact address |
+     * | street | String | Contact street |
+     * | city | String | Contact city |
+     * | state | String | Contact state |
+     * | postalCode | String | Contact postalCode |
+     * | country | String | Contact country |
+     * | groups | String\[\] | Contact groups type<br><br>Possibles values `home`, `work`, `other` |
+     * | otherData | Object\[\] | Other user data – may include birthday date, Skype/Facebook pseudo/profile |
+     * | key | String | Other user data key |
+     * | value | String | Other user data value |
+     *
+     * @description
+     *          This API is used to create a contact for a given user's source. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} contactId Contact unique id used by target mobile
+     * @param {string} firstName First name
+     * @param {string} lastName Last name
+     * @param {string} displayName First/last name, some OS don’t mind to have it in two attribute
+     * @param {string} company Company name
+     * @param {string} jobTitle Job title
+     * @param {Array<Object>} phoneNumbers Contact phone numbers  </BR>
+     * { number : string // Contact phone number, type  : string // Phone number type. Possibles values home, work, other }
+     * @param {Array<Object>} emails Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
+     * @param {Array<Object>} addresses Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
+     * address  : string // Contact address , </BR>
+     * street  : string // Contact street , </BR>
+     * city  : string // Contact city , </BR>
+     * state  : string // Contact state , </BR>
+     * postalCode  : string // Contact postalCode , </BR>
+     * country  : string // Contact country  </BR>
+     * } </BR>
+     * @param {Array<Object>} groups Contact groups type. Possibles values home, work, other
+     * @param {Array<Object>} otherData Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
+     * { key  : string // Other user data key , value  : string // Other user data value }
+     */
+    async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>= [], emails : Array<any>= [], addresses : Array<any>= [], groups : Array<string>= [], otherData : Array<any> = []) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(createContact) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!contactId) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'contactId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!firstName) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'firstName' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!lastName) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'lastName' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!displayName) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'displayName' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!company) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'company' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!jobTitle) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'jobTitle' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!phoneNumbers) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'phoneNumbers' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!emails) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'emails' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!addresses) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'addresses' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!groups) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'groups' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                if (!otherData) {
+                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'otherData' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.createContact(meId, sourceId, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails, addresses, groups, otherData).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(createContact) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createContact) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(createContact) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createContact) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getContactData
+     * @instance
+     * @category Contacts Contacts API - Enduser portal
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Contact unique identifier |
+     * | contactId | String | Id of the contact coming from the source who created it |
+     * | firstName | String | Contact firstName |
+     * | lastName | String | Contact lastName |
+     * | displayName | String | Contact displayName |
+     * | company | String | Contact company |
+     * | jobTitle | String | Contact jobTitle |
+     * | phoneNumbers | Object\[\] | Contact phone numbers |
+     * | type | String | Phone number type<br><br>Possibles values `home`, `work`, `other` |
+     * | number | String | Contact phone number |
+     * | emails | Object\[\] | Contact emails |
+     * | email | String | Contact email |
+     * | type | String | Contact email type<br><br>Possibles values `home`, `work`, `other` |
+     * | addresses | Object\[\] | Contact addresses |
+     * | type | String | Contact address type<br><br>Possibles values `home`, `work`, `other` |
+     * | address | String | Contact address |
+     * | street | String | Contact street |
+     * | city | String | Contact city |
+     * | state | String | Contact state |
+     * | postalCode | String | Contact postalCode |
+     * | country | String | Contact country |
+     * | groups | String\[\] | Contact groups type<br><br>Possibles values `home`, `work`, `other` |
+     * | otherData | Object\[\] | Other user data – may include birthday date, Skype/Facebook pseudo/profile |
+     * | key | String | Other user data key |
+     * | value | String | Other user data value |
+     *
+     * @description
+     *          This API is used to get a contact data. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} contactId Contact unique identifier
+     */
+    async getContactData (userId : string, sourceId : string, contactId : string ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getContactData) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(getContactData) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!contactId) {
+                    that._logger.log("error", LOG_ID + "(getContactData) bad or empty 'contactId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.getContactData(meId, sourceId, contactId).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(getContactData) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getContactData) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getContactData) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getContactData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getContactsList
+     * @instance
+     * @category Contacts Contacts API - Enduser portal
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object[] | List of contact Objects. |
+     * | id  | String | Contact unique identifier |
+     * | contactId | String | Id of the contact coming from the source who created it |
+     * | firstName | String | Contact firstName |
+     * | lastName | String | Contact lastName |
+     * | displayName | String | Contact displayName |
+     * | company | String | Contact company |
+     * | jobTitle | String | Contact jobTitle |
+     * | phoneNumbers | Object\[\] | Contact phone numbers |
+     * | type | String | Phone number type<br><br>Possibles values `home`, `work`, `other` |
+     * | number | String | Contact phone number |
+     * | emails | Object\[\] | Contact emails |
+     * | email | String | Contact email |
+     * | type | String | Contact email type<br><br>Possibles values `home`, `work`, `other` |
+     * | addresses | Object\[\] | Contact addresses |
+     * | type | String | Contact address type<br><br>Possibles values `home`, `work`, `other` |
+     * | address | String | Contact address |
+     * | street | String | Contact street |
+     * | city | String | Contact city |
+     * | state | String | Contact state |
+     * | postalCode | String | Contact postalCode |
+     * | country | String | Contact country |
+     * | groups | String\[\] | Contact groups type<br><br>Possibles values `home`, `work`, `other` |
+     * | otherData | Object\[\] | Other user data – may include birthday date, Skype/Facebook pseudo/profile |
+     * | key | String | Other user data key |
+     * | value | String | Other user data value |
+     *
+     * @description
+     *          This API is used to get contacts list. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} format Allows to retrieve more or less contact details in response. </BR>
+     * - small: id, contactId </BR>
+     * - medium: id, contactId, firstName, lastName, displayName, company, jobTitle </BR>
+     * - full: all contact fields </BR>
+     * Default value : small. Possibles values : small, medium, full </BR>
+     */
+    async getContactsList (userId : string, sourceId : string, format : string = "small" ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getContactsList) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(getContactsList) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.getContactsList(meId, sourceId, format).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(getContactsList) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getContactsList) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getContactsList) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getContactsList) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteContact
+     * @instance
+     * @category Contacts Contacts API - Enduser portal
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Deletion status |
+     * | data | Object\[\] | No data (empty Array) |
+     *
+     * @description
+     *          This API is used to delete a contact from a source. </br>
+     * @param {string} userId User unique identifier
+     * @param {string} sourceId Source unique identifier
+     * @param {string} contactId Contact unique identifier
+     */
+    deleteContact (userId : string, sourceId : string, contactId: string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(deleteContact) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!sourceId) {
+                    that._logger.log("error", LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!contactId) {
+                    that._logger.log("error", LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.deleteContact(meId, sourceId, contactId).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(deleteContact) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteContact) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(deleteContact) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getContactsList) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    //endregion Contacts API - Enduser portal
 
     // ************************************************** //
     // **  jid utilities                               ** //
@@ -1991,23 +2740,23 @@ class ContactsService extends GenericService {
      * | companyId optionnel | String | Id of the company |
      * | userId optionnel | String | Id of the user |
      * | type | String | Type of the directory entry<br>* `user` if firstName and/or lastName are filled,<br>* `company` if only companyName is filled (firstName and lastName empty)<br>Possible values : `user`, `company` |
-     * | firstName optionnel | String | Contact First name<br>Ordre de grandeur : `0..255` |
-     * | lastName optionnel | String | Contact Last name<br>Ordre de grandeur : `0..255` |
-     * | companyName optionnel | String | Company Name of the contact<br>Ordre de grandeur : `0..255` |
-     * | department optionnel | String | Contact address: Department<br>Ordre de grandeur : `0..255` |
-     * | street optionnel | String | Contact address: Street<br>Ordre de grandeur : `0..255` |
-     * | city optionnel | String | Contact address: City<br>Ordre de grandeur : `0..255` |
+     * | firstName optionnel | String | Contact First name<br> |
+     * | lastName optionnel | String | Contact Last name<br> |
+     * | companyName optionnel | String | Company Name of the contact<br> |
+     * | department optionnel | String | Contact address: Department<br> |
+     * | street optionnel | String | Contact address: Street<br> |
+     * | city optionnel | String | Contact address: City<br> |
      * | state optionnel | String | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
-     * | postalCode optionnel | String | Contact address: postal code / ZIP<br>Ordre de grandeur : `0..64` |
+     * | postalCode optionnel | String | Contact address: postal code / ZIP<br> |
      * | country optionnel | String | Contact address: country (ISO 3166-1 alpha3 format) |
-     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br>Ordre de grandeur : `0..32` |
-     * | jobTitle optionnel | String | Contact Job title<br>Ordre de grandeur : `0..255` |
-     * | eMail optionnel | String | Contact Email address<br>Ordre de grandeur : `0..255` |
-     * | tags optionnel | String\[\] | An Array of free tags<br>Ordre de grandeur : `1..64` |
-     * | custom1 optionnel | String | Custom field 1<br>Ordre de grandeur : `0..255` |
-     * | custom2 optionnel | String | Custom field 2<br>Ordre de grandeur : `0..255` |
+     * | workPhoneNumbers optionnel | String\[\] | Work phone numbers (E164 format)<br> |
+     * | mobilePhoneNumbers optionnel | String\[\] | Mobile phone numbers (E164 format)<br> |
+     * | otherPhoneNumbers optionnel | String\[\] | other phone numbers (E164 format)<br> |
+     * | jobTitle optionnel | String | Contact Job title<br> |
+     * | eMail optionnel | String | Contact Email address<br> |
+     * | tags optionnel | String\[\] | An Array of free tags<br> |
+     * | custom1 optionnel | String | Custom field 1<br> |
+     * | custom2 optionnel | String | Custom field 2<br> |
      *
      *
      */
