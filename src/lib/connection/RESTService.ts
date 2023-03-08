@@ -1284,7 +1284,7 @@ class RESTService extends GenericRESTService {
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createSource) successfull");
                 that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
-                resolve(json.data);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createSource) error.");
                 that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
