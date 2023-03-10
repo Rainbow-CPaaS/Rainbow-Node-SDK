@@ -2653,9 +2653,9 @@ declare module 'lib/services/BubblesService' {
 	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
 	     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
 	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-	     * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+	     * Default value : small Possibles values : small, medium, full</br>
+	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
 	     * @description
@@ -2680,9 +2680,9 @@ declare module 'lib/services/BubblesService' {
 	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
 	     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
 	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-	     * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+	     * Default value : small Possibles values : small, medium, full</br>
+	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
 	     * @description
@@ -13517,7 +13517,7 @@ declare module 'lib/services/AdminService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | data | Object |     |
-	     * | state | String | Import state<br><br>Valeurs autorisées : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+	     * | state | String | Import state<br><br>Possibles values `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
 	     * | companyId | String | Id of the company of the directory |
 	     * | userId | String | Id of the requesting user |
 	     * | displayName | String | Display name of the requesting user |

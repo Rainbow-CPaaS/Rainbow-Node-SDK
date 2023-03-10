@@ -16,6 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `BubblesService::disconnectParticipantFromConference` 
 -   Add methods about Contacts Sources in ContactsService.
 -   Add methods about Contacts API from Enduser portal in ContactsService.
+-   Add ConversationsService::getTheNumberOfHitsOfASubstringInAllUsersconversations This API can be used to search a text substring in all conversations for a given user from recent to old messages.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

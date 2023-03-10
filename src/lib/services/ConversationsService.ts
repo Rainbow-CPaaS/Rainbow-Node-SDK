@@ -529,6 +529,59 @@ class ConversationsService extends GenericService {
     }
 
     /**
+     * @public
+     * @method getTheNumberOfHitsOfASubstringInAllUsersconversations
+     * @instance
+     * @category CONVERSATIONS
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | jid | String | the JID of the peer (P2P, BOT or ROOM) |
+     * | count | Integer | The number of hits |
+     *
+     * @description
+     *          This API can be used to search a text substring in all conversations for a given user from recent to old messages. </br>
+     *          For technical reasons, the same limit value applies on all peer to peer conversations but also on all room conversations. </br>
+     *          This API can only be used by user himself (i.e. userId of logged-in user). </br>
+     * @param {string} userId User unique identifier
+     * @param {string} substring Text to search
+     * @param {number} limit Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Valeur par défaut : 100
+     * @param {boolean} webinar Include webinars (excluded by default). Valeur par défaut : false
+     */
+    async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!substring) {
+                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                that._rest.getTheNumberOfHitsOfASubstringInAllUsersconversations(meId, substring, limit, webinar).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
      *
      * @public
      * @method getContactsMessagesFromConversationId
@@ -1148,8 +1201,8 @@ class ConversationsService extends GenericService {
 // endregion
     
 //region CONVERSATIONS
-
-    /**
+    
+        /**
      * @public
      * @method getAllConversations
      * @category CONVERSATIONS
@@ -1443,7 +1496,7 @@ class ConversationsService extends GenericService {
                 });
         });
     }
-
+    
     /**
      * @public
      * @method getConversationById
@@ -1837,15 +1890,16 @@ class ConversationsService extends GenericService {
      * @description
      *    Allow to create a conversations on server (p2p and bubbles) <br>
      * @param {Conversation} conversation of the conversation (dbId field)
+     * @param {boolean} mute : true if conversation is muted, false otherwise. Default value : false.
      * @return {Conversation} Created conversation object
      */
-    createServerConversation(conversation : Conversation) {
+    createServerConversation(conversation : Conversation, mute : boolean = false ) {
         let that = this;
         // Ignore already stored existing conversation
         if (conversation.dbId) { return Promise.resolve(conversation); }
 
         // Prepare global variables
-        let data = {peerId:null, type: null};
+        let data = {peerId:null, type: null, mute: null};
 
         // Handle one to one conversation
         if (conversation.type === Conversation.Type.ONE_TO_ONE) {
@@ -1879,6 +1933,8 @@ class ConversationsService extends GenericService {
             let avatarRoom = conversation.bubble.avatar;
         }
 
+        data.mute = mute;
+        
         return this._rest.createServerConversation( data ).then((result : any)=> {
             that._logger.log("info", LOG_ID + "createServerConversation success: " + conversation.id);
             conversation.dbId = result.id;

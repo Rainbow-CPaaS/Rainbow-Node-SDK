@@ -5155,8 +5155,37 @@ Request Method: PUT
 
     //endregion Telephony
     
-    ////////
     //region Conversations
+
+    async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-countTextInConversations 
+        // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "substring", substring);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "webinar", webinar);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) successfull");
+                that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error");
+                that.logger.log("internalerror", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     getServerConversations(format: string = "small") {
         let that = this;
         return new Promise((resolve, reject) => {
