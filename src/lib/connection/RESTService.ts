@@ -5186,10 +5186,23 @@ Request Method: PUT
         });
     }
     
-    getServerConversations(format: string = "small") {
+    getServerConversations(format: string = "small", maxCount : number = undefined, lastUpdateDate : string = undefined, limit : number = 1000, offset : number = 0, before : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
+            that.logger.log("internal", LOG_ID + "(getServerConversations) REST format : ", format);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "maxCount", maxCount);
+            addParamToUrl(urlParamsTab, "lastUpdateDate", lastUpdateDate);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "before", before);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getServerConversations) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerConversations) REST result : " + JSON.stringify(json) + " conversations");
                 resolve(json.data);
@@ -5272,12 +5285,16 @@ Request Method: PUT
         });
     }
 
-    ackAllMessages(conversationId) {
+    ackAllMessages(conversationId, maskRead : boolean = false) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function (json) {
+            
+            let data : any = {};
+            data.maskRead  = maskRead;
+            
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");

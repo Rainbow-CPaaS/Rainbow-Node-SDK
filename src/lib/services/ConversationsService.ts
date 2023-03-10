@@ -390,13 +390,14 @@ class ConversationsService extends GenericService {
      * @description
      *    Mark all unread messages in the conversation as read. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
+     * @param {boolean} maskRead if true Im won't be shown as read on peer conversation side. Valeur par défaut : false
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    ackAllMessages(conversationDbId) {
-        return this._rest.ackAllMessages(conversationDbId);
+    ackAllMessages(conversationDbId, maskRead : boolean = false) {
+        return this._rest.ackAllMessages(conversationDbId, maskRead );
     }
 
     resetHistoryPageForConversation(conversation : Conversation) {
