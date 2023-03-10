@@ -5248,12 +5248,21 @@ Request Method: PUT
     }
 
     // Send Conversation By Email
-    sendConversationByEmail(conversationId) {
+    sendConversationByEmail(conversationId, emails : Array<string> = undefined, lang : string = undefined ) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), undefined, undefined).then((json) => {
+            
+            let data : any = {};
+            if (emails) {
+                data.emails = emails;
+            }
+            if (lang) {
+                data.lang = lang;
+            }
+            
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST result : ", json);
                 resolve(json.data);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");

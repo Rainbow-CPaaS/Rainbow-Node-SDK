@@ -1435,13 +1435,15 @@ class ConversationsService extends GenericService {
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br>
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
+     * @param {Array<string>} emails Allows to send the backup to users from an emails list.</BR> When one email matchs with a Rainbow user loginEmail, the mail sent is localized using this user's language.
+     * @param {string} lang Language of the email notification if user language value is not available (for no Rainbow users). Valeur par défaut : en
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    sendConversationByEmail(conversationDbId) {
-        return this._rest.sendConversationByEmail(conversationDbId);
+    sendConversationByEmail(conversationDbId, emails : Array<string> = undefined, lang : string = "en"  ) {
+        return this._rest.sendConversationByEmail(conversationDbId, emails, lang);
     }
 
     /**

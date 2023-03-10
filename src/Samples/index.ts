@@ -1205,6 +1205,21 @@ let urlS2S;
 
     //region Messages
 
+    async  testsendConversationByEmail() {
+        // To use with vincent01 on .NET
+        //let that = this;
+        let contactEmailToSearch = "vincent03@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let destArray = ["vincent02@vbe.test.openrainbow.net", "blablabla@vbe.test.openrainbow.net"] ;
+        let sentConv = await rainbowSDK.conversations.sendConversationByEmail(conversation.dbId, destArray, "fr");
+        logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv);
+        let sentConv2 = await rainbowSDK.conversations.sendConversationByEmail(conversation.dbId, undefined, "fr");
+        logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv2);
+    }
+
     async  testgetContactsMessagesFromConversationId() {
         //let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
