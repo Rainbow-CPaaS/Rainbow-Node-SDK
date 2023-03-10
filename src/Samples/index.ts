@@ -777,6 +777,14 @@ let urlS2S;
         logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
     }
 
+    async  testgetContactByLoginEmailVincentBerder() {
+        let contactEmailToSearchVincent00 = "vincent.berder@al-enterprise.com";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00, true);
+        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+    }
+
      displayRoster() {
         let contacts = rainbowSDK.contacts.getAll();
         let roster = contacts.filter(contact => contact.roster).map(contact => contact.displayName)
@@ -3107,7 +3115,9 @@ let urlS2S;
 
      async testdeleteAllMessagesInRoomConversationFromMember() {
          // to be used with vincent01 on .NET with bubble "test".
-        let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
+        //let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
+        // @ts-ignore
+         let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
         logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
         for (let i = 0 ; i < listOfBubblesJIDs.data.length ; i++) {
             let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
@@ -4965,6 +4975,41 @@ let urlS2S;
             });
         }).catch(err => {
             logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+        });
+    }
+
+    async  testjoinConferenceV2_CreateBubble_WithStart() {
+        // To be used with vincent01 NET
+        logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart). ");
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        let loginEmail = "vincent02@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
+            if (contact) {
+                logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: getContactByLoginEmail contact : ", contact);
+                rainbowSDK.bubbles.createBubble("testConferenceV2" + utc, "testConferenceV2" + utc, true).then((bubble: any) => {
+                    logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: createBubble request ok, bubble : ", bubble);
+                    let bubbleId = bubble.id;
+                    rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
+
+                        rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
+                            logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+                            rainbowSDK.bubbles.joinConferenceV2(bubbleId, undefined, undefined, false, ["rdeu"], false, false, ["video"], undefined).then(async (result) => {
+                                logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request ok, result : ", result);
+                                rainbowSDK.bubbles.snapshotConference(bubbleId).then(async (result) => {
+                                    logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request ok, result : ", result);
+                                }).catch(err => {
+                                    logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request not ok, err : ", err);
+                                });
+                            }).catch(err => {
+                                logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request not ok, err : ", err);
+                            });
+                        }).catch(err => {
+                            logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+                        });
+
+                    });
+                });
+            }
         });
     }
 
