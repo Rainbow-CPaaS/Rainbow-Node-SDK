@@ -481,6 +481,32 @@ class ConversationsService extends GenericService {
     }
 
     /**
+     * @public
+     * @method getHistoryPage
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation. <br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages. 
+     * @async
+     * @return {Promise<Conversation[]>}
+     * @fulfil {Conversation[]} - Array of Conversation object
+     * @category async
+     */
+    loadConversationHistory(conversation, pageSize : number = 30) {
+        let that = this;
+        that._logger.log("debug", "(loadConversationHistory)");
+        return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
+            that._logger.log("debug", "(loadConversationHistory) getHistoryPage.");
+
+            let result = conversationUpdated.historyComplete ? conversationUpdated:that.loadConversationHistory(conversationUpdated);
+            //that._logger.log("internal", "(loadConversationHistory) getHistoryPage result : ", result);
+            return result;
+        });
+    }
+
+    /**
      *
      * @public
      * @method getOneMessageFromConversationId
@@ -594,7 +620,7 @@ class ConversationsService extends GenericService {
      * @async
      * @return {Promise<any>}
      */
-    getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
+    async getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
         let that = this;
 
         if (!conversationId) {
@@ -611,6 +637,15 @@ class ConversationsService extends GenericService {
         if (!conversation.messages) {
             that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' undefined!");
             return null;
+        }
+
+        if (conversation.historyComplete == false) {
+            that._logger.log("info", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' empty, load the history !");
+            await that.loadConversationHistory(conversation);
+            if (!conversation.messages) {
+                that._logger.log("warn", LOG_ID + "(getContactsMessagesFromConversationId) after load history 'conversation.messages' undefined!");
+                return null;
+            }
         }
 
         return conversation.messages.filter((msg) => {
@@ -1198,8 +1233,65 @@ class ConversationsService extends GenericService {
             }
         });
     }
+
+    /**
+     * @public
+     * @method updateConversationBookmark
+     * @instance
+     * @category MESSAGES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Status message. |
+     * | data | Object\[\] | No data (empty Array) |
+     * 
+     * @description
+     *          This API can be used to set or replace a bookmarked message in a conversation. This API can only be used by user himself. </br>
+     * @param {string} userId User unique identifier.
+     * @param {string} conversationId conversation unique identifier (the dbId property in Conversation).
+     * @param {string} messageId message unique identifier.
+     */
+    updateConversationBookmark (userId : string, conversationId	: string, messageId : string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(updateConversationBookmark) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!conversationId) {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'conversationId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!messageId) {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'messageId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.updateConversationBookmark(meId, conversationId, messageId).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(updateConversationBookmark) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(updateConversationBookmark) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateConversationBookmark) error : ", err);
+                return reject(err);
+            }
+        });
+    }
     
-// endregion
+// endregion MESSAGES
     
 //region CONVERSATIONS
     

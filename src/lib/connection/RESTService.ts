@@ -5304,6 +5304,30 @@ Request Method: PUT
         });
     }
 
+    updateConversationBookmark (userId : string, conversationId	: string, messageId : string) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-setBookmarkInConversation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
+
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/" + conversationId + "/bookmark";
+            let data : any = {};
+            if (messageId) {
+                data.messageId = messageId;
+            }
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateConversationBookmark) successfull");
+                that.logger.log("internal", LOG_ID + "(updateConversationBookmark) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(updateConversationBookmark) error");
+                that.logger.log("internalerror", LOG_ID, "(updateConversationBookmark) error : ", err);
+                return reject(err);
+            });
+        });       
+    }
+
     //endregion Conversations
 
     //region Generic HTTP VERB

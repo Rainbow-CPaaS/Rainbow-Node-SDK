@@ -75,6 +75,7 @@ import {inspect} from "util";
 const inquirer = require("inquirer");
 import jwt from "jwt-decode";
 import * as util from "util";
+import {Message} from "../lib/common/models/Message.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -1220,7 +1221,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv2);
     }
 
-    async  testgetContactsMessagesFromConversationId() {
+    async testupdateConversationBookmark() {
         //let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
         //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -1232,7 +1233,42 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+        logger.log("debug", "MAIN - testupdateConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents);
+        
+    }
+    
+    async  testupdateConversationBookmark() {
+        // To use with vincent00 on .Net
+        //let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        //let now = new Date().getTime();
+        // get messages which are not events
+        let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+        logger.log("debug", "MAIN - testupdateConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
+        if (msgNotEvents.length > 6) {
+            let messageToSetUnread = msgNotEvents[msgNotEvents.length - 5];
+            let result = await rainbowSDK.conversations.updateConversationBookmark(undefined, conversation.dbId, messageToSetUnread.id);
+            logger.log("debug", "MAIN - testupdateConversationBookmark - result updateConversationBookmark : ", result);
+        }
+        
+    }
+
+    async  testgetContactsMessagesFromConversationId() {
+        // To use with vincent00 on .Net
+        //let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        //let now = new Date().getTime();
+        // get messages which are not events
+        let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
     }
 
     async  testgetContactsMessagesFromConversationIdForGuest() {
@@ -3492,6 +3528,34 @@ let urlS2S;
                 logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
             });
             ;
+        });
+    }
+
+    async  testloadConversationHistory() {
+        let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+            //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
+            logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversation.messages.length);
+            rainbowSDK.conversations.loadConversationHistory(conversation).then(() => {
+                logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation.messages.length : ", conversation.messages.length);
+                logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation : ", conversation);
+                for (let i = 0; i < conversation.messages.length ; i++) {
+                    let msg = {
+                        "id" : conversation.messages[i].id,
+                        "from" : conversation.messages[i].from ? conversation.messages[i].from._displayName : "",
+                        "date" : conversation.messages[i].date,
+                        "side" : conversation.messages[i].side,
+                        "type" : conversation.messages[i].type,
+                        "content" : conversation.messages[i].content,
+                        "alternativeContent" : conversation.messages[i].alternativeContent,
+                        "deleted" : conversation.messages[i].deleted,
+                        "modified" : conversation.messages[i].modified
+                    }
+                    logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, iter : " + i + "], msg : ", msg);
+                }
+            });
         });
     }
 
