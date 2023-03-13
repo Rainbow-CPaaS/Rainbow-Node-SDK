@@ -1257,7 +1257,7 @@ let urlS2S;
         
     }
 
-    async  testgetContactsMessagesFromConversationId() {
+    async  testgetContactsMessagesFromConversationId_2() {
         // To use with vincent00 on .Net
         //let that = this;
         let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
