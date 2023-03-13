@@ -1221,7 +1221,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv2);
     }
 
-    async testupdateConversationBookmark() {
+    async testgetContactsMessagesFromConversationId() {
         //let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
         //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
