@@ -2331,8 +2331,10 @@ class Bubbles extends GenericService {
                         let bubbleObj = await that.getBubbleById(bubble.id);
                         if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid); 
                         
-                        let users = bubble.users;
-                        for (const user of users) {
+                        let users = bubble.users?bubble.users:[];
+                        //for (const user of users) {
+                        for(let i = 0; i < users.length; i++) {
+                            let user = users[i];
                             //users.forEach(function (user) {
                             if (user.userId===that._rest.userId && user.status==="accepted") {
                                 if (that._options._imOptions.autoInitialBubblePresence) {
