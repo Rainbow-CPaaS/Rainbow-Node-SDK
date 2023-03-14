@@ -2474,6 +2474,49 @@ let urlS2S;
 
     //region Bubbles
 
+     testgetContactById_aluno() {
+         rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
+             logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+         });
+     }
+     
+     testCreateBubble_Uniasselvi() {
+        let loginEmail = "vincent02@vbe.test.openrainbow.net" ;
+
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then((contact: any) => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail result : ", contact);
+                    let utc = new Date().toJSON().replace(/-/g, "_");
+                    let withHistory = false;
+                    rainbowSDK.bubbles.createBubble("TestBubbleBot" + utc , "TestBubbleBot" + utc, withHistory).then((bubble) => {
+                        logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble result : ", bubble);
+
+                        rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
+                            logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged.");
+                            if (bubbleAffiliated && bubbleAffiliated.users.filter((user) => {
+                                let res = false;
+                                if (user.userId===contact.id && user.status==="accepted") {
+                                    res = true;
+                                }
+                                return res;
+                            }).length===1) {
+                                let utcMsg = new Date().getTime();
+                                let message = "** Test message ** at " + utcMsg;
+                                await setTimeoutPromised(2000);
+                                await rainbowSDK.im.sendMessageToBubbleJid(message, bubbleAffiliated.jid, "en", {
+                                    "type": "text/markdown",
+                                    "message": message
+                                }, "subject", undefined);
+                            }
+                        });
+
+                        rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                        });
+                    });
+            }
+        }); // */
+    }
+
      testCreateBubbles() {
         let physician = {
             "name": "",
