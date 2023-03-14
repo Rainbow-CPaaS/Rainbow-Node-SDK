@@ -2375,7 +2375,7 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let conversationId = node.attrs.id;
-                let conversation = this._conversationService.getConversationById(conversationId);
+                let conversation : Conversation = this._conversationService.getConversationById(conversationId);
                 let action = node.attrs.action;
                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
@@ -2398,6 +2398,19 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "update":
                             conversation.isFavorite = (node.find("isFavorite").text() === "true");
+                            if (node.find("bookmark")) {
+                                /* <bookmark>
+                                <messageId>web_679434c5 - 1616 - 49e7 - ab10 - d346ec3f99ed0 < /messageId>
+                                < timestamp > 1678714877813903 < /timestamp>
+                                < unreadMessageNumber > 1 < /unreadMessageNumber>
+                                < /bookmark>
+                                // */
+                                conversation.bookmark = {
+                                    "messageId" : node.find("messageId").text(),
+                                    "timestamp" : node.find("timestamp").text(),
+                                    "unreadMessageNumber" : node.find("unreadMessageNumber").text()
+                                };
+                            }
                             //this.conversationService.orderConversations();
                             // Send conversations update event
                             that.eventEmitter.emit("evt_internal_conversationupdated", conversation);

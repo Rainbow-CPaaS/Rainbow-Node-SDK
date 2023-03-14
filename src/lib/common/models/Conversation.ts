@@ -63,6 +63,12 @@ class Conversation {
     private static messageId: string;
     preload: boolean;
     isFavorite: boolean;
+    bookmark : {
+        "messageId" : string,
+        "timestamp" : string,
+        "unreadMessageNumber" : string
+    };
+
 
     constructor(conversationId) {
         /**

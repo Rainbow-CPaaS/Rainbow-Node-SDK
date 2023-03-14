@@ -1608,8 +1608,13 @@ class ConversationsService extends GenericService {
         if (!this.conversations) {
             return null;
         }
-        that._logger.log("internal", LOG_ID + " (getConversationById) conversation : ", this.conversations[conversationId]);
-        return this.conversations[conversationId];
+        let conv =  this.conversations[conversationId];
+        that._logger.log("internal", LOG_ID + " (getConversationById) conversation by id result : ", conv);
+        if (!conv) {
+            conv = that.getConversationByDbId(conversationId);
+            that._logger.log("internal", LOG_ID + " (getConversationById) conversation not found by id, so searched by dbId result : ", conv);
+        } 
+        return conv;
     }
 
     /**
