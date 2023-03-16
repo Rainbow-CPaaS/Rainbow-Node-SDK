@@ -1233,7 +1233,7 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testupdateConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents);
+        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
         
     }
     
@@ -1254,6 +1254,30 @@ let urlS2S;
             let result = await rainbowSDK.conversations.updateConversationBookmark(undefined, conversation.dbId, messageToSetUnread.id);
             logger.log("debug", "MAIN - testupdateConversationBookmark - result updateConversationBookmark : ", result);
         }
+        
+    }
+
+    async  testdeleteConversationBookmark() {
+        // To use with vincent00 on .Net
+        //let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        //let now = new Date().getTime();
+        // get messages which are not events
+        let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+        logger.log("debug", "MAIN - testdeleteConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
+        if (msgNotEvents.length > 6) {
+            let messageToSetUnread = msgNotEvents[msgNotEvents.length - 5];
+            let result = await rainbowSDK.conversations.updateConversationBookmark(undefined, conversation.dbId, messageToSetUnread.id);
+            logger.log("debug", "MAIN - testdeleteConversationBookmark - result updateConversationBookmark : ", result);
+            await pause(2000);
+            let result2 = await rainbowSDK.conversations.deleteConversationBookmark(undefined, conversation.dbId);
+            logger.log("debug", "MAIN - testdeleteConversationBookmark - result deleteConversationBookmark : ", result2);
+        }
+
         
     }
 

@@ -5328,6 +5328,29 @@ Request Method: PUT
         });       
     }
 
+    deleteConversationBookmark (userId : string, conversationId	: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
+        // API https://api.openrainbow.org/enduser/#api-conversations-removeBookmarkInConversation
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/" + conversationId + "/bookmark";
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST ");
+
+            that.http.delete(url  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteConversationBookmark) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteConversationBookmark) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteConversationBookmark) error : ", err);
+                return reject(err);
+            });
+        });
+
+    }
+
     //endregion Conversations
 
     //region Generic HTTP VERB

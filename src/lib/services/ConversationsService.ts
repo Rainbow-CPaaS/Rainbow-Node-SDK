@@ -1293,6 +1293,56 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @method deleteConversationBookmark
+     * @instance
+     * @category MESSAGES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Status message. |
+     * | data | Object\[\] | No data (empty Array) |
+     * 
+     * @description
+     *          This API can be used to set or replace a bookmarked message in a conversation. This API can only be used by user himself. </br>
+     * @param {string} userId User unique identifier.
+     * @param {string} conversationId conversation unique identifier (the dbId property in Conversation).
+     */
+    deleteConversationBookmark (userId : string, conversationId	: string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!conversationId) {
+                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) bad or empty 'conversationId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.deleteConversationBookmark(meId, conversationId).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(deleteConversationBookmark) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteConversationBookmark) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
      * @method showAllMatchingMessagesForAPeer
      * @since 2.21.0
      * @instance
