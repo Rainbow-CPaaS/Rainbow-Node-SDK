@@ -25,6 +25,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update the `ConversationsService::getContactsMessagesFromConversationId` method to retrieve history from server if not yet loaded.
 -   Fix BubblesService::getBubbles when users property is empty in bubble.
 -   Add `ConversationsService::showAllMatchingMessagesForAPeer` API. It can be used to return all matching messages for one specific peer.
+-   Fix AdminService::retrieveLdapConnectorAllConfigTemplates (the last "s" was missing in doc).
+
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
