@@ -23,7 +23,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ConversationsService::updateConversationBookmark` API can be used to set or replace a bookmarked message in a conversation.
 -   Add `ConversationsService::loadConversationHistory` API to retrieve the remote history of a specific conversation.
 -   Update the `ConversationsService::getContactsMessagesFromConversationId` method to retrieve history from server if not yet loaded.
--   Fix BubblesService::getBubbles when users property is empty in bubble.   
+-   Fix BubblesService::getBubbles when users property is empty in bubble.
+-   Add `ConversationsService::showAllMatchingMessagesForAPeer` API. It can be used to return all matching messages for one specific peer.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
