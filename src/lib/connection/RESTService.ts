@@ -5813,6 +5813,35 @@ Request Method: PUT
     //endregion
 
     //region Messages
+    
+    showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search/hits
+        // API https://api.openrainbow.org/enduser/#api-conversations-searchTextInConversation
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/search/hits";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "substring", substring );
+            addParamToUrl(urlParamsTab, "peer", peer);
+            addParamToUrl(urlParamsTab, "isRoom", isRoom);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            url = urlParamsTab[0];
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(showAllMatchingMessagesForAPeer) REST success.");
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(showAllMatchingMessagesForAPeer) error");
+                that.logger.log("internalerror", LOG_ID, "(showAllMatchingMessagesForAPeer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    
     markMessageAsRead(conversationId, messageId) {
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{id}/read
         let that = this;

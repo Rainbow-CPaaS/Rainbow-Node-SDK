@@ -390,7 +390,7 @@ class ConversationsService extends GenericService {
      * @description
      *    Mark all unread messages in the conversation as read. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
-     * @param {boolean} maskRead if true Im won't be shown as read on peer conversation side. Valeur par défaut : false
+     * @param {boolean} maskRead if true Im won't be shown as read on peer conversation side. Default value : : false
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -576,8 +576,8 @@ class ConversationsService extends GenericService {
      *          This API can only be used by user himself (i.e. userId of logged-in user). </br>
      * @param {string} userId User unique identifier
      * @param {string} substring Text to search
-     * @param {number} limit Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Valeur par défaut : 100
-     * @param {boolean} webinar Include webinars (excluded by default). Valeur par défaut : false
+     * @param {number} limit Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Default value : : 100
+     * @param {boolean} webinar Include webinars (excluded by default). Default value : : false
      */
     async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
         let that = this;
@@ -1290,6 +1290,64 @@ class ConversationsService extends GenericService {
             }
         });
     }
+
+    /**
+     * @public
+     * @method showAllMatchingMessagesForAPeer
+     * @since 2.21.0
+     * @instance
+     * @category MESSAGES
+     * @description
+     * This API can be used to return all matching messages for one specific peer. This API can only be used by user himself. <br>
+     * @return {Promise<any>} An object of the result
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | timestamp | Integer | Message timestamp in microseconds |
+     * | msgId | String | The message ID |
+     *
+     * @param {string} userId User unique identifier
+     * @param {string} substring Text to search
+     * @param {string} peer Peer JID
+     * @param {boolean} isRoom Is the peer a room ?
+     * @param {number} limit Max number of matching messages references. Default value : : 20
+     */    
+    showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!substring) {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!peer) {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.showAllMatchingMessagesForAPeer(meId, substring, peer, isRoom, limit).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(showAllMatchingMessagesForAPeer) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(showAllMatchingMessagesForAPeer) error : ", err);
+                return reject(err);
+            }
+        });       
+    }
     
 // endregion MESSAGES
     
@@ -1529,7 +1587,7 @@ class ConversationsService extends GenericService {
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
      * @param {Array<string>} emails Allows to send the backup to users from an emails list.</BR> When one email matchs with a Rainbow user loginEmail, the mail sent is localized using this user's language.
-     * @param {string} lang Language of the email notification if user language value is not available (for no Rainbow users). Valeur par défaut : en
+     * @param {string} lang Language of the email notification if user language value is not available (for no Rainbow users). Default value : : en
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
