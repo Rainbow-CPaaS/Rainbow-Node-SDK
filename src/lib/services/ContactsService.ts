@@ -2278,7 +2278,7 @@ class ContactsService extends GenericService {
 
             that._rest.searchInAlldirectories (pbxId, systemId, numberE164, shortnumber, format, limit, offset, sortField, sortOrder) .then(function (result) {
                 that._logger.log("info", LOG_ID + "(searchInAlldirectories) contact searched from server.");
-                that._logger.log("internal", LOG_ID + "(searchInAlldirectories) REST result : ", result);
+                that._logger.log("internal", LOG_ID + "(searchInAlldirectories) result : ", result);
                 return resolve(result);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(searchInAlldirectories) failed.");
