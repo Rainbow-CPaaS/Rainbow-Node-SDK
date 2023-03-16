@@ -4362,6 +4362,19 @@ let urlS2S;
 
     //endregion    
 
+    //region Country        
+
+        async  testgetListOfCountries() {
+            try {
+                let result = await rainbowSDK.admin.getListOfCountries();
+                logger.log("debug", "MAIN - testgetListOfCountries - result : ", result);
+            } catch (e) {
+                logger.log("error", "MAIN - testgetListOfCountries - error : ", e);
+            }
+        }   
+        
+    //endregion Country        
+        
     //region MS Teams
 
     async  testcontrolMsteamsPresenceDisable() {

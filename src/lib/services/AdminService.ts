@@ -9386,11 +9386,60 @@ class AdminService extends GenericService {
             }
         });
     }
-
-
-    //endregion Clients Versions
     
-}
+    //endregion Clients Versions
+
+
+    //region Country
+
+    /**
+     * @public
+     * @method getListOfCountries
+     * @since 2.21.0
+     * @instance
+     * @async
+     * @category Country
+     * @description
+     *     This API allows to retrieve the list of countries supported by Rainbow Server.</BR>
+     *     For some countries (CAN and USA), a state can be configured. The list of supported states for these countries is returned in the states field.
+     * @return {Promise<any>} - result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | isoAlpha3Code | String | Country ISO 3166-1 alpha-2 code |
+     * | isoAlpha2Code | String | Country ISO 3166-1 alpha-3 code |
+     * | fullname | String | Country full name |
+     * | states optionnel | Object\[\] | List of states handled for this country.<br><br>Only available for countries `CAN`and `USA`. |
+     * | isoAlpha2Code | String | State ISO 3166-1 alpha-2 code |
+     * | fullname | String | State full name |
+     * 
+     */
+    getListOfCountries() {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfCountries().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfCountries) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfCountries) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfCountries) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfCountries) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfCountries) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    // endregion Country
+
+    }
 
 module.exports.AdminService = AdminService;
 module.exports.OFFERTYPES = OFFERTYPES;

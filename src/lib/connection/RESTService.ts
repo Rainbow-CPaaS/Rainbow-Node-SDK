@@ -5353,6 +5353,36 @@ Request Method: PUT
 
     //endregion Conversations
 
+    //region Country
+
+    getListOfCountries() {
+        // API https://api.openrainbow.org/enduser/#api-countries-getCountries
+        // GET /api/rainbow/enduser/v1.0/countries
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.logger.log("internal", LOG_ID + "(getListOfCountries) ");
+
+            let url: string = "/api/rainbow/enduser/v1.0/countries";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "maxCount", maxCount);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getListOfCountries) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getListOfCountries) successfull");
+                that.logger.log("internal", LOG_ID + "(getListOfCountries) REST result : ", JSON.stringify(json) );
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getListOfCountries) error");
+                that.logger.log("internalerror", LOG_ID, "(getListOfCountries) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Country
+
     //region Generic HTTP VERB
     get(url, token) {
         let that = this;
