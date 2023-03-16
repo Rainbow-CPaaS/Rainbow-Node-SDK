@@ -5059,7 +5059,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
-     * @method retrieveLdapConnectorAllConfigTemplate
+     * @method retrieveLdapConnectorAllConfigTemplates
      * @since 1.86.0
      * @instance
      * @async
