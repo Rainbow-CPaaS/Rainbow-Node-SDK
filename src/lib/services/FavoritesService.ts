@@ -223,10 +223,10 @@ class FavoritesService extends GenericService{
         }
     }
 
-    private async addServerFavorite(peerId: string, type: string) {
+    private async addServerFavorite(peerId: string, type: string, position : number= undefined) {
         let that = this;
         try {
-            let favorite = await that._rest.addServerFavorite(peerId, type);
+            let favorite = await that._rest.addServerFavorite(peerId, type, position);
             that._logger.log("internal", LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
             return favorite;
         }
