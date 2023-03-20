@@ -471,6 +471,45 @@ class FavoritesService extends GenericService{
         });
     }
 
+    /**
+     * @public
+     * @since 2.21.0
+     * @method getFavoriteById
+     * @category Favorites GET
+     * @instance
+     * @param {string} favoriteId Favorite unique identifier
+     * @description
+     *   This API can be used to retrieve a specific user's favorite by Id. <br>
+     * @return {Array<Favorite>} The result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Id of the favorite. |
+     * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
+     * | position | Integer | position of the favorite in favorite list (first position is 0). |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     * 
+     */
+    getFavoriteById(favoriteId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
+
+            if (!favoriteId) {
+                that._logger.log("debug", LOG_ID + "(getFavoriteById) bad or empty 'favoriteId' parameter : ", favoriteId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getFavoriteById(favoriteId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getFavoriteById) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Favorites GET
 
     // ******************* Event XMPP parsed in favoriteEventHandler ***************
