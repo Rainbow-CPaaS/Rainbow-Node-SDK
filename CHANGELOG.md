@@ -33,6 +33,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `BubblesSerice::resetDialInCodeForARoom` This API allows to reset dial in code for a room.
 -   Add `BubblesSerice::getDialInPhoneNumbersList` API that allows to retrieve the list of phone numbers to join conference by Dial In.
 -   Update `FavoritesService::fetchAllFavorites` with peerId parameter.
+-   Add `FavoritesService::checkIsPeerSettedAsFavorite` API that can be used to check if a given peerId is in user's favorites.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

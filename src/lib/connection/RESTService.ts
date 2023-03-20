@@ -1826,7 +1826,9 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    public async addServerFavorite(peerId: string, type: string) {
+    public async addServerFavorite(peerId: string, type: string, position : number) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-createFavorite
+        // POST /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!peerId) {
@@ -1835,9 +1837,17 @@ class RESTService extends GenericRESTService {
                 resolve(null);
             } else {
                 let data = {peerId, type};
-                that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), data, undefined).then(function (json) {
+
+                let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "position", position);
+                url = urlParamsTab[0];
+
+                that.logger.log("internal", LOG_ID + "(addServerFavorite) REST url : ", url);
+                that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(addServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json.data);
+                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
                     that.logger.log("error", LOG_ID, "(addServerFavorite) error");
@@ -1846,26 +1856,38 @@ class RESTService extends GenericRESTService {
                 });
             }
         });
+    }
 
-        /*
+    public async checkIsPeerSettedAsFavorite(peerId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-checkUserFavoritesPeerId
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/peers/:peerId/check
         let that = this;
-        try {
-            let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites`;
-            let data = { peerId, type };
-            await this.$http({ method: "POST", url, headers: this.authService.getRequestHeader(), data });
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST peerId : ", peerId);
 
-            that._logger.log("debug", LOG_ID +`[favoriteService] addServerFavorite(${peerId}, ${type}) -- SUCCESS`);
-        }
-        catch (error) {
-            let errorMessage = `addServerFavorite(${peerId}, ${type}) -- FAILURE -- ${error.message}`;
-            that._logger.log("error", LOG_ID + `[favoriteService] ${errorMessage}`);
-            throw new Error(errorMessage);
-        }
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/peers/" + peerId + "/check";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "types", types);
+            url = urlParamsTab[0];
 
-         */
+            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) successfull");
+                that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkIsPeerSettedAsFavorite) error");
+                that.logger.log("internalerror", LOG_ID, "(checkIsPeerSettedAsFavorite) error : ", err);
+                return reject(err);
+            });
+        });
     }
 
     public async removeServerFavorite(favoriteId: string) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-removeFavorites
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!favoriteId) {
@@ -1875,7 +1897,7 @@ class RESTService extends GenericRESTService {
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId, that.getRequestHeader()).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(removeServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json.data);
+                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
                     that.logger.log("error", LOG_ID, "(removeServerFavorite) error");
@@ -1884,11 +1906,6 @@ class RESTService extends GenericRESTService {
                 });
             }
         });
-
-        /*
-                   let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites/${favoriteId}`;
-                   await this.$http({ method: "DELETE", url: url, headers: this.authService.getRequestHeader() });
-                    */
     }
 
     //endregion Favorites

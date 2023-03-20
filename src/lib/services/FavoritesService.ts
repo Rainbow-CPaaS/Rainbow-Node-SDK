@@ -409,7 +409,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
-     * @method fetchAllFavorites()
+     * @method fetchAllFavorites
      * @category Favorites GET
      * @instance
      * @param {string} peerId Allows to retrieve only the requested peerId(s) from user's favorites
@@ -434,6 +434,42 @@ class FavoritesService extends GenericService{
                     })
         });
     };
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method checkIsPeerSettedAsFavorite
+     * @category Favorites GET
+     * @instance
+     * @param {string} peerId peerId unique identifier
+     * @description
+     *   This API can be used to check if a given peerId is in user's favorites. <br>
+     * @return {Array<Favorite>} The result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | isFavorite | Boolean | true if the requested peerId is in user's favorites, false otherwise. |
+     * 
+     */
+    checkIsPeerSettedAsFavorite(peerId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.checkIsPeerSettedAsFavorite(peerId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
 
     //endregion Favorites GET
 
