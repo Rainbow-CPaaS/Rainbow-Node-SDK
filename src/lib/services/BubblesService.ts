@@ -6197,6 +6197,124 @@ class Bubbles extends GenericService {
 
     //endregion Conference V2
 
+    //region Bubbles - dialIn
+
+    /**
+     * @public
+     * @method disableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to disable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     * 
+     */
+    disableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.disableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method enableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to enable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    enableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.enableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(enableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method resetDialInCodeForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to reset dial in code for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    resetDialInCodeForABubble(bubbleId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-ResetDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/reset
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.resetDialInCodeForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(resetDialInCodeForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubbles - dialIn
+
+
 }
 
 module.exports.BubblesService = Bubbles;

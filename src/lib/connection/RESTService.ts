@@ -6465,6 +6465,79 @@ Request Method: PUT
 
     //endregion Bubbles Tags
 
+    //region Bubbles - dialIn
+
+    disableDialInForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-DisableDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/disable
+        
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/disable" ; 
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(disableDialInForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(disableDialInForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(disableDialInForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    enableDialInForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-EnableDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/enable
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/enable" ;
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(enableDialInForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(enableDialInForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(enableDialInForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    resetDialInCodeForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-ResetDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/reset
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/reset" ;
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(resetDialInCodeForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(resetDialInCodeForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(resetDialInCodeForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubbles - dialIn
+
     //region Alerts - Notifications
 
     createDevice(data : Object) {

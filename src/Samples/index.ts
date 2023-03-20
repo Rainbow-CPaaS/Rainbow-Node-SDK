@@ -205,9 +205,9 @@ let urlS2S;
             "rateLimitPerHour": 100000,
 //        "messagesDataStore": DataStoreType.NoStore,
             "messagesDataStore": DataStoreType.StoreTwinSide,
-            //"autoInitialGetBubbles": false,
+            "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
-            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
@@ -4373,7 +4373,43 @@ let urlS2S;
             }
         }   
         
-    //endregion Country        
+    //endregion Country
+    
+    //region Bubble - dialIn
+
+        async testdialIn() {
+        // To be used with vincent00 on .Net
+            try {
+
+                logger.log("debug", "MAIN - testdialIn - getAll bubbles : ", rainbowSDK.bubbles.getAll());
+                
+                let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+                logger.log("debug", "MAIN - testdialIn - getAllOwnedBubbles bubble : ", bubbles);
+                let bubble = bubbles.find(element => element.name==="bulle1")
+                logger.log("debug", "MAIN - testdialIn -  bubble \"bulle1\" : ", bubble);
+                if ( bubble ) {
+                    let bubbleId = bubble.id;
+
+
+                    let result1 = await rainbowSDK.bubbles.enableDialInForABubble(bubbleId);
+                    logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result1 : ", result1);
+
+                    let result = await rainbowSDK.bubbles.disableDialInForABubble(bubbleId);
+                    logger.log("debug", "MAIN - testdialIn - disableDialInForABubble result : ", result);
+
+                    let result4 = await rainbowSDK.bubbles.enableDialInForABubble(bubbleId);
+                    logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result4 : ", result4);
+
+                    let result2 = await rainbowSDK.bubbles.resetDialInCodeForABubble(bubbleId);
+                    logger.log("debug", "MAIN - testdialIn - resetDialInCodeForABubble result2 : ", result2);
+                }
+            } catch (e) {
+                logger.log("error", "MAIN - testdialIn - error : ", e);
+            }
+        }
+
+
+        //endregion Bubble - dialIn
         
     //region MS Teams
 
