@@ -1799,11 +1799,22 @@ class RESTService extends GenericRESTService {
     
     //region Favorites
 
-    getServerFavorites() {
+    getServerFavorites(peerId: string = undefined) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
-            //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
+            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST peerId : ", peerId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "peerId", peerId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerFavorites) REST result : ", json.data);
                 resolve(json.data);

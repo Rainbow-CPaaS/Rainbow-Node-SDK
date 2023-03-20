@@ -179,11 +179,11 @@ class FavoritesService extends GenericService{
     }
 
 
-    private async getServerFavorites(): Promise<Favorite[]> {
+    private async getServerFavorites( peerId: string = undefined): Promise<Favorite[]> {
         try {
             let that = this;
             return new Promise(async (resolve, reject) => {
-                this._rest.getServerFavorites().then(async (favorite : []) => {
+                this._rest.getServerFavorites(peerId).then(async (favorite : []) => {
                     if (favorite) {
                         that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
@@ -412,15 +412,16 @@ class FavoritesService extends GenericService{
      * @method fetchAllFavorites()
      * @category Favorites GET
      * @instance
+     * @param {string} peerId Allows to retrieve only the requested peerId(s) from user's favorites
      * @description
      *   Fetch all the Favorites from the server in a form of an Array <br>
      * @return {Array<Favorite>} An array of Favorite objects
      */
-    public async fetchAllFavorites() : Promise<Array<Favorite>> {
+    public async fetchAllFavorites(peerId: string = undefined) : Promise<Array<Favorite>> {
         let that = this;
 
         return new Promise((resolve, reject) => {
-            that.getServerFavorites()
+            that.getServerFavorites(peerId)
                     .then(function(favorites) {
                         that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
                         that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
