@@ -6292,8 +6292,6 @@ class Bubbles extends GenericService {
      *
      */
     resetDialInCodeForABubble(bubbleId : string) {
-        // API https://api.openrainbow.org/enduser/#api-dialIn-ResetDialIn
-        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/reset
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
@@ -6312,7 +6310,57 @@ class Bubbles extends GenericService {
         });
     }
 
-    //endregion Bubbles - dialIn
+    /**
+     * @public
+     * @method getDialInPhoneNumbersList
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} shortList Allows to display phoneNumbers of the user's country in a separate list (default true).
+     * @async
+     * @description
+     *       This API allows to retrieve the list of phone numbers to join conference by Dial In. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | country | String | User country (ISO 3166-1 alpha3 format) |
+     * | language | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | shortList | Object\[\] | When the user's country is known, show when exist phoneNumbers located in this country |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     * | phoneNumberList | Object\[\] | List of phoneNumbers ranked by country in the user's language (default: en) |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     *
+     */
+    getDialInPhoneNumbersList ( shortList : boolean) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) shortList : " + shortList);
+
+            if (!shortList) {
+                that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) bad or empty 'shortList' parameter : ", shortList);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getDialInPhoneNumbersList(shortList).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+   //endregion Bubbles - dialIn
 
 
 }

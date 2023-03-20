@@ -6536,6 +6536,33 @@ Request Method: PUT
         });
     }
 
+    getDialInPhoneNumbersList ( shortList : boolean) {
+        // API https://api.openrainbow.org/enduser/#api-dial_in_phone_numbers-GetDialInPhoneNumbers 
+        // GET /api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST shortList : ", shortList );
+
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "shortList", shortList );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDialInPhoneNumbersList) successfull");
+                that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDialInPhoneNumbersList) error");
+                that.logger.log("internalerror", LOG_ID, "(getDialInPhoneNumbersList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     //endregion Bubbles - dialIn
 
     //region Alerts - Notifications

@@ -4408,6 +4408,18 @@ let urlS2S;
             }
         }
 
+        async testgetDialInPhoneNumbersList() {
+            // To be used with vincent00 on .Net
+            try {
+
+                let shortList = true;
+                //logger.log("debug", "MAIN - testgetDialInPhoneNumbersList - getAll bubbles : ", rainbowSDK.bubbles.getAll());
+
+                let result = rainbowSDK.bubbles.getDialInPhoneNumbersList(shortList);
+                logger.log("debug", "MAIN - testgetDialInPhoneNumbersList - result : ", result);
+            } catch (e) {
+            }
+        }
 
         //endregion Bubble - dialIn
         
