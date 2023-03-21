@@ -1912,6 +1912,34 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    public async getAllUserFavoriteList(peerId  : string) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST peerId  : ", peerId );
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "peerId ", peerId );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAllUserFavoriteList) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllUserFavoriteList) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllUserFavoriteList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
     public async removeServerFavorite(favoriteId: string) {
         // API https://api.openrainbow.org/enduser/#api-favorites-removeFavorites
         // DELETE /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
