@@ -173,7 +173,7 @@ class FavoriteEventHandler extends GenericHandler {
                     "id": favoriteElem.attr("id"),
                     "type": favoriteElem.attr("type"),
                     "peerId": favoriteElem.attr("peer_id"),
-                    "position": favoriteElem.attr("position"),
+                    "position": favoriteElem.attr("position") ? + favoriteElem.attr("position") : undefined
                 };
                 let action = favoriteElem.attr("action");
 
