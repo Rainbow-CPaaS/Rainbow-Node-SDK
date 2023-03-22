@@ -159,6 +159,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogupdated <br>
  * @fires Events#rainbow_oncalllogackupdated <br>
  * @fires Events#rainbow_onfavoritecreated <br>
+ * @fires Events#rainbow_onfavoriteupdated <br>
  * @fires Events#rainbow_onfavoritedeleted <br>
  * @fires Events#rainbow_onxmpperror <br>
  * @fires Events#rainbow_onalertmessagereceived <br>
@@ -268,6 +269,7 @@ class Events {
         "rainbow_oncalllogupdated",
         "rainbow_oncalllogackupdated",
         "rainbow_onfavoritecreated",
+        "rainbow_onfavoriteupdated",
         "rainbow_onfavoritedeleted",
         "rainbow_onxmpperror",
         "rainbow_onalertmessagereceived",
@@ -1215,6 +1217,17 @@ class Events {
              *      Fired when a favorite is added to the loggued in user.
              */
             that.publishEvent("favoritecreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_favoriteupdated", function (data) {
+            /**
+             * @event Events#rainbow_onfavoriteupdated
+             * @public
+             * @param { Favorite } favorite The favorite updated
+             * @description
+             *      Fired when a favorite is updated to the loggued in user.
+             */
+            that.publishEvent("favoriteupdated", data);
         });
 
         this._evReceiver.on("evt_internal_favoritedeleted", function (data) {

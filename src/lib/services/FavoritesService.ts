@@ -61,6 +61,7 @@ class FavoritesService extends GenericService{
         this._logger = logger;
 
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
+        this._eventEmitter.on("evt_internal_favoriteupdated_handle", this.onFavoriteUpdated.bind(this));
         this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
     }
 
@@ -187,7 +188,7 @@ class FavoritesService extends GenericService{
                     if (favorite) {
                         that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
-                            return this.createFavoriteObj(data.id, data.peerId, data.type);
+                            return this.createFavoriteObj(data.id, data.peerId, data.type, data.position);
                         });
                         let favorites = await Promise.all(promises);
                         this.favorites = favorites.filter((favorite) => {
@@ -281,10 +282,10 @@ class FavoritesService extends GenericService{
 
     //region Favorites MANAGEMENT
     
-    private async createFavoriteObj(id: string, peerId: string, type: string) {
+    private async createFavoriteObj(id: string, peerId: string, type: string, position: number) {
         let that = this;
         try {
-            let favorite: any = new Favorite(id, peerId, type);
+            let favorite: any = new Favorite(id, peerId, type, position);
 
             /*
             // Get peer object
@@ -638,11 +639,11 @@ class FavoritesService extends GenericService{
 
      */
 
-    public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string}): Promise<void> {
+    public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
         let that = this;
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
-            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type);
+            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
             this.favorites.push(favorite);
             //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
             //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
@@ -651,15 +652,29 @@ class FavoritesService extends GenericService{
         }
     }
 
-    public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string}): Promise<void> {
+    public async  onFavoriteUpdated(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
+        let that = this;
+        let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
+        if (!favorite) {
+            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
+            this.favorites.push(favorite);
+            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+        } else {
+            favorite.id = fav.id;
+            favorite.peerId = fav.peerId;
+            favorite.type = fav.type;
+            favorite.position = fav.position;
+            that._eventEmitter.emit("evt_internal_favoriteupdated", favorite);
+        }
+    }
+
+    public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
         let that = this;
         let index = this.favorites.findIndex((fav) => { return fav.id === fav.id; });
         if (index !== -1) {
             let favorite = this.favorites[index];
             if (favorite.conv) { favorite.conv.isFavorite = false; }
             this.favorites.splice(index, 1);
-            //that._logger.log("debug", LOG_ID + "[onFavoriteDeleted] send event : ", { favoriteId: favorite.id });
-            //this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
             that._eventEmitter.emit("evt_internal_favoritedeleted", fav);
         }
     }
