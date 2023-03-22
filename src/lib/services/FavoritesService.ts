@@ -516,7 +516,7 @@ class FavoritesService extends GenericService{
      * @method getAllUserFavoriteList
      * @category Favorites GET
      * @instance
-     * @param {string} favoriteId Favorite unique identifier
+     * @param {string} peerId Allows to retrieve only the requested peerId(s) from user's favorites.
      * @description
      *   This API can be used to retrieve the list of user's favorites. <br>
      * @return {Array<Favorite>} The result
@@ -532,18 +532,58 @@ class FavoritesService extends GenericService{
      * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
      *
      */
-    getAllUserFavoriteList(favoriteId : string) {
+    getAllUserFavoriteList(peerId : string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) favoriteId : ", favoriteId);
+            that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
 
-            if (!favoriteId) {
-                that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) bad or empty 'favoriteId' parameter : ", favoriteId);
+            if (!peerId) {
+                that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) bad or empty 'peerId' parameter : ", peerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.getAllUserFavoriteList(favoriteId).then(async (result) => {
+            that._rest.getAllUserFavoriteList(peerId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(getAllUserFavoriteList) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method moveFavoriteToPosition
+     * @category Favorites GET
+     * @instance
+     * @description
+     *   This API can be used to update a favorite's position in favorite list. <br>
+     * @return {Array<Favorite>} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Id of the favorite. |
+     * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
+     * | position | Integer | position of the favorite in favorite list (first position is 0). |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     *
+     * @param {string} favoriteId Favorite unique identifier
+     * @param {number} position new position in list. If position exceed favorites list size the favorite is moved to the end of the list
+     */
+    moveFavoriteToPosition (favoriteId : string, position : number = 1) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
+
+            if (!favoriteId) {
+                that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : ", favoriteId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.moveFavoriteToPosition(favoriteId, position).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(moveFavoriteToPosition) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);

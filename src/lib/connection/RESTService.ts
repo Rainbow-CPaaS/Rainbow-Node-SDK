@@ -1939,6 +1939,30 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    moveFavoriteToPosition (favoriteId : string, position : number) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-updateFavorite
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {};
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "position ", position );
+            url = urlParamsTab[0];
+            
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(moveFavoriteToPosition) successfull");
+                that.logger.log("internal", LOG_ID + "(moveFavoriteToPosition) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(moveFavoriteToPosition) error");
+                that.logger.log("internalerror", LOG_ID, "(moveFavoriteToPosition) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
 
     public async removeServerFavorite(favoriteId: string) {
         // API https://api.openrainbow.org/enduser/#api-favorites-removeFavorites

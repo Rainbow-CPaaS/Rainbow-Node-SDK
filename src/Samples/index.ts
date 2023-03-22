@@ -968,9 +968,13 @@ let urlS2S;
         logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
     }
 
+    //region Favorites
+        
     async  testgetServerFavorites() {
         let utc = new Date().toJSON().replace(/-/g, "_");
         let favorites = await rainbowSDK.favorites.fetchAllFavorites();
+        logger.log("debug", "MAIN - (testgetServerFavorites) favorites :  ", favorites);
+
         //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
         //let jid = contactVincent01.jid_im;
         //  let me = rainbowSDK.contacts.getConnectedUser();
@@ -979,7 +983,45 @@ let urlS2S;
         //await rainbowSDK.contacts.addToNetwork(contactVincent00);
     }
 
-    async  testcreateGuestUserError() {
+    async  testcreateFavorite() {
+         // To be USED with vincent01 on .Net
+        let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+        let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let contactEmailToSearch2 = "vincent02@vbe.test.openrainbow.net";
+        let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch2);
+        try {
+
+
+            let favoriteCreated: any = await rainbowSDK.favorites.createFavorite(contactVincent00.id, "user");
+            logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated :  ", favoriteCreated);
+            let favoriteCreated01: any = await rainbowSDK.favorites.createFavorite(contactVincent01.id, "user");
+            logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated01 :  ", favoriteCreated01);
+
+            let favoriteMoved: any = await rainbowSDK.favorites.moveFavoriteToPosition(favoriteCreated01.id, 0);
+            logger.log("debug", "MAIN - (testgetServerFavorites) moveFavoriteToPosition favoriteMoved :  ", favoriteMoved);
+
+            let favorites = await rainbowSDK.favorites.fetchAllFavorites();
+            logger.log("debug", "MAIN - (testgetServerFavorites) fetchAllFavorites favorites :  ", favorites);
+            let favoriteFoundInList = await rainbowSDK.favorites.getAllUserFavoriteList(contactVincent00.id);
+            logger.log("debug", "MAIN - (testgetServerFavorites) getAllUserFavoriteList favoriteFoundInList :  ", favoriteFoundInList);
+            let isPeerSettedAsFavorite = await rainbowSDK.favorites.checkIsPeerSettedAsFavorite(contactVincent00.id);
+            logger.log("debug", "MAIN - (testgetServerFavorites) checkIsPeerSettedAsFavorite isPeerSettedAsFavorite :  ", isPeerSettedAsFavorite);
+            let favoriteById = await rainbowSDK.favorites.getFavoriteById(favoriteCreated.id);
+            logger.log("debug", "MAIN - (testgetServerFavorites) getFavoriteById favoriteById :  ", favoriteById);
+            let favoriteDeleted = await rainbowSDK.favorites.deleteFavorite(favoriteCreated.id);
+            logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted :  ", favoriteDeleted);
+            let favoriteDeleted01 = await rainbowSDK.favorites.deleteFavorite(favoriteCreated01.id);
+            logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted01 :  ", favoriteDeleted01);
+
+        } catch (e) {
+                logger.log("error", "MAIN - (testgetServerFavorites) FAILED :  ", e);                
+        }
+    }
+
+   //endregion Favorites
+
+        async  testcreateGuestUserError() {
         let firstname = "firstname_";
         let lastname = "lastname_" + new Date().getTime() + "_";
         for (let iter = 0; iter < 1; iter++) {
