@@ -41,6 +41,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ImsService::retrieveXMPPMessagesByListOfMessageIds` This API allows user to retrieve it's ims by list of message Ids, peer and peer type.
 -   Update `InvitationsService::sendInvitationsByBulk` API with lang and comment parameters. 
 -   Add `InvitationsService::deleteAUserInvitation` API can be used to delete an invitation sent to/received from another Rainbow user. 
+-   Update `InvitationsService::reSendInvitation` API with customMessage parameters. 
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

@@ -1993,6 +1993,8 @@ class RESTService extends GenericRESTService {
     //region Invitations
 
     getAllSentInvitations() {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -2008,9 +2010,11 @@ class RESTService extends GenericRESTService {
     };
 
     getInvitationsSent(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
+            that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST sortField : ", sortField);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent";
             let urlParamsTab: string[] = [];
@@ -2038,6 +2042,8 @@ class RESTService extends GenericRESTService {
     };
 
     getAllReceivedInvitations() {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -2052,7 +2058,9 @@ class RESTService extends GenericRESTService {
         });
     };
     
-    getInvitationsReceived(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+    getInvitationsReceived(sortField : string = "lastNotificationDate", status : string = "pending", format : string = "small", limit : number = 500, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
         let that = this;
         return new Promise((resolve, reject) => {
             that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
@@ -2083,6 +2091,8 @@ class RESTService extends GenericRESTService {
     };
 
     getServerInvitation(invitationId) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getUserInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
@@ -2165,10 +2175,16 @@ class RESTService extends GenericRESTService {
         });
     };
 
-    reSendInvitation(invitationId) {
+    reSendInvitation(invitationId : string, customMessage  : string) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-resendUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/re-send
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
+            let data : any = {};
+            if (customMessage) {
+                data.customMessage = customMessage;
+            }
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
                 that.logger.log("internal", LOG_ID + "(reSendInvitation) REST result : ", json);
                 resolve(json);

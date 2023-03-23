@@ -472,11 +472,31 @@ class InvitationsService extends GenericService {
 	 * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
 	 * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
 	 * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
-	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+	 * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
 	 * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
 	 * @description
 	 *    retrieve the invites received from others Rainbow users from server.<br>
 	 * @return {any} The list of invite received
+	 * 
+	 * 
+	 * | Champ | Type | Description |
+	 * | --- | --- | --- |
+	 * | data | Object\[\] | List of user invitation Objects. |
+	 * | limit | Number | Number of requested items |
+	 * | offset | Number | Requested position of the first item to retrieve |
+	 * | total | Number | Total number of items |
+	 * | id  | String | Invitation unique Id |
+	 * | invitedUserId optionnel | String | Invited user unique Rainbow Id.  <br>Only available for the inviting user if the invited user has been invited from his userId (parameter invitedUserId in API POST /api/rainbow/enduser/v1.0/users/:userId/invitations) or if the invitation has been accepted. |
+	 * | invitedPhoneNumber optionnel | String | Invited user phoneNumber |
+	 * | invitedUserEmail optionnel | String | Invited user email |
+	 * | invitingUserId | String | Inviting user unique Rainbow Id |
+	 * | invitingUserEmail | String | Inviting user loginEmail |
+	 * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+	 * | invitingDate | Date-Time | Date the invitation was created |
+	 * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+	 * | status | String | Invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`<br><br>* `pending`: invitation has been sent by inviting user and not yet accepted by invited user<br>* `accepted`: invitation has been accepted by invited user<br>* `auto-accepted`: invitation has been auto-accepted (case of users in same company)<br>* `declined`: invitation has been declined by invited user. Only invited user can see that he has declined an invitation. Inviting user still see the invitation as `pending`<br>* `canceled`: invitation has been canceled by inviting user. If invited user does not have an account in Rainbow, he can still use this invitationId received by email to create his Rainbow account, but he will not be added to inviting user roster.<br>* `failed`: invitation email failed to be sent to invited user (determined by parsing SMTP server logs). It can be the case if the provided invited email address does not exists. |
+	 * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
+	 * 
 	 */
 	searchInvitationsReceivedFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
 		let that = this;
@@ -524,6 +544,17 @@ class InvitationsService extends GenericService {
 		return that.receivedInvitationsArray.length;
 	};
 
+	/**
+	 * @public
+	 * @since 1.65
+	 * @method getServerInvitation
+	 * @instance
+	 * @category Invitations RECEIVED
+	 * @description
+	 *    Get an invite by its id from server. <br>
+	 * @param {String} invitationId the id of the invite to retrieve
+	 * @return {Invitation} The invite if found
+	 */
 	getServerInvitation(invitationId) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
@@ -796,8 +827,29 @@ class InvitationsService extends GenericService {
 	 * @description
 	 *    retrieve the invites sent to others Rainbow users from server.<br>
 	 * @return {any} The list of invite sent
+	 * 
+	 * 
+	 * | Champ | Type | Description |
+	 * | --- | --- | --- |
+	 * | data | Object\[\] | List of user invitation Objects. |
+	 * | authorizedReSendInvitationDate optionnel | Date-Time | Date when the inviting user will be allowed to resend again the invitation to the invited user.  <br>authorizedReSendInvitationDate is only set if invitation still have the status pending. | 
+	 * | limit | Number | Number of requested items |
+	 * | offset | Number | Requested position of the first item to retrieve |
+	 * | total | Number | Total number of items |
+	 * | id  | String | Invitation unique Id |
+	 * | invitedUserId optionnel | String | Invited user unique Rainbow Id.  <br>Only available for the inviting user if the invited user has been invited from his userId (parameter invitedUserId in API POST /api/rainbow/enduser/v1.0/users/:userId/invitations) or if the invitation has been accepted. |
+	 * | invitedPhoneNumber optionnel | String | Invited user phoneNumber |
+	 * | invitedUserEmail optionnel | String | Invited user email |
+	 * | invitingUserId | String | Inviting user unique Rainbow Id |
+	 * | invitingUserEmail | String | Inviting user loginEmail |
+	 * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+	 * | invitingDate | Date-Time | Date the invitation was created |
+	 * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+	 * | status | String | Invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`<br><br>* `pending`: invitation has been sent by inviting user and not yet accepted by invited user<br>* `accepted`: invitation has been accepted by invited user<br>* `auto-accepted`: invitation has been auto-accepted (case of users in same company)<br>* `declined`: invitation has been declined by invited user. Only invited user can see that he has declined an invitation. Inviting user still see the invitation as `pending`<br>* `canceled`: invitation has been canceled by inviting user. If invited user does not have an account in Rainbow, he can still use this invitationId received by email to create his Rainbow account, but he will not be added to inviting user roster.<br>* `failed`: invitation email failed to be sent to invited user (determined by parsing SMTP server logs). It can be the case if the provided invited email address does not exists. |
+	 * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
+	 * 
 	 */
-	searchInvitationsSentFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
+	searchInvitationsSentFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number = 0, sortOrder : number = 1) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
 			return that._rest.getInvitationsSent(sortField, status, format, limit, offset, sortOrder).then(
@@ -993,15 +1045,40 @@ class InvitationsService extends GenericService {
 	 * @instance
 	 * @category Invitations SENT
 	 * @async
-	 * @param {Number} invitationId The invitation to re send
+	 * @param {string} invitationId The invitation to re send
+	 * @param {string} customMessage Custom message that inviting user can add in email body
 	 * @description
-	 *    Re send an invitation sent <br>
+	 *    This API can be used to re-send a user invitation which has already been sent. <br>
+	 *    Logged in user must be the one who sent the invitatio. <br>
+	 *    An invitation can only be re-sent after a given period since last notification (1 hour by default). <br>
+	 *    If invitation is canceled or failed, it is set back to pending and then re-sent. <br>
+	 *    If invitation is accepted or auto-accepted, error 409 is returned. <br>
+	 *    If invitation is declined, it is set back to pending and re-sent if the last notification was sent since a given period (1 week by default).  <br>
 	 * @return {Object} The SDK Ok object or an error
+	 * 
+	 * 
+	 * | Champ | Type | Description |
+	 * | --- | --- | --- |
+	 * | data | Object | User invitation Object. |
+	 * | authorizedReSendInvitationDate | Date-Time | Date when the inviting user will be allowed to resend again the invitation to the invited user. |
+	 * | invitationUrl optionnel | String | Invitation URL to be sent to the invited user.  <br>Only returned for invitations sent using `invitedPhoneNumber`, as invitation URL link is sent by SMS on client side. |
+	 * | id  | String | Invitation unique Id |
+	 * | invitedUserId optionnel | String | Invited user unique Rainbow Id.  <br>Only available for the inviting user if the invited user has been invited from his userId (parameter invitedUserId in API POST /api/rainbow/enduser/v1.0/users/:userId/invitations) or if the invitation has been accepted. |
+	 * | invitedPhoneNumber optionnel | String | Invited user phoneNumber |
+	 * | invitedUserEmail optionnel | String | Invited user email |
+	 * | invitingUserId | String | Inviting user unique Rainbow Id |
+	 * | invitingUserEmail | String | Inviting user loginEmail |
+	 * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+	 * | invitingDate | Date-Time | Date the invitation was created |
+	 * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+	 * | status | String | Invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`<br><br>* `pending`: invitation has been sent by inviting user and not yet accepted by invited user<br>* `accepted`: invitation has been accepted by invited user<br>* `auto-accepted`: invitation has been auto-accepted (case of users in same company)<br>* `declined`: invitation has been declined by invited user. Only invited user can see that he has declined an invitation. Inviting user still see the invitation as `pending`<br>* `canceled`: invitation has been canceled by inviting user. If invited user does not have an account in Rainbow, he can still use this invitationId received by email to create his Rainbow account, but he will not be added to inviting user roster.<br>* `failed`: invitation email failed to be sent to invited user (determined by parsing SMTP server logs). It can be the case if the provided invited email address does not exists. |
+	 * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
+	 * 
 	 */
-	async reSendInvitation(invitationId) {
+	async reSendInvitation(invitationId: string, customMessage  : string) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that._rest.reSendInvitation(invitationId).then(
+			that._rest.reSendInvitation(invitationId, customMessage).then(
 					function success() {
 						that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
 						resolve(undefined);
@@ -1119,6 +1196,23 @@ class InvitationsService extends GenericService {
 	 * @description
 	 *    This API can be used to delete an invitation sent to/received from another Rainbow user. <br>
 	 * @return {Object} The SDK Ok object or an error
+	 * 
+	 * 
+	 * | Champ | Type | Description |
+	 * | --- | --- | --- |
+	 * | data | Object | User invitation Object. |
+	 * | id  | String | Invitation unique Id |
+	 * | invitedUserId optionnel | String | Invited user unique Rainbow Id.  <br>Only available for the inviting user if the invited user has been invited from his userId (parameter invitedUserId in API POST /api/rainbow/enduser/v1.0/users/:userId/invitations) or if the invitation has been accepted. |
+	 * | invitedPhoneNumber optionnel | String | Invited user phoneNumber |
+	 * | invitedUserEmail optionnel | String | Invited user email |
+	 * | invitingUserId | String | Inviting user unique Rainbow Id |
+	 * | invitingUserEmail | String | Inviting user loginEmail |
+	 * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+	 * | invitingDate | Date-Time | Date the invitation was created |
+	 * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+	 * | status | String | Invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`<br><br>* `pending`: invitation has been sent by inviting user and not yet accepted by invited user<br>* `accepted`: invitation has been accepted by invited user<br>* `auto-accepted`: invitation has been auto-accepted (case of users in same company)<br>* `declined`: invitation has been declined by invited user. Only invited user can see that he has declined an invitation. Inviting user still see the invitation as `pending`<br>* `canceled`: invitation has been canceled by inviting user. If invited user does not have an account in Rainbow, he can still use this invitationId received by email to create his Rainbow account, but he will not be added to inviting user roster.<br>* `failed`: invitation email failed to be sent to invited user (determined by parsing SMTP server logs). It can be the case if the provided invited email address does not exists. |
+	 * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
+	 *
 	 */
 	async deleteAUserInvitation(invitation) {
 		let that = this;
