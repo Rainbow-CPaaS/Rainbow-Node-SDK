@@ -446,7 +446,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
              that._logger.log("internal", LOG_ID + "(setGroupAsFavorite) param group : ", group);
 
-             that._rest.updateGroupFavorite(group, true).then((groupRetrieved: any) => {
+             that._rest.updateGroupFavorite(group.id, true).then((groupRetrieved: any) => {
                  that._logger.log("debug", LOG_ID + "(setGroupAsFavorite) set favorite group successfull");
                  that._logger.log("internal", LOG_ID + "(setGroupAsFavorite) set favorite group successfull, group : ", groupRetrieved);
                  resolve(groupRetrieved);
@@ -482,7 +482,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
             that._logger.log("internal", LOG_ID + "(unsetGroupAsFavorite) param group : ", group);
 
-            that._rest.updateGroupFavorite(group, false).then((groupRetrieved: any) => {
+            that._rest.updateGroupFavorite(group.id, false).then((groupRetrieved: any) => {
                 that._logger.log("debug", LOG_ID + "(unsetGroupAsFavorite) unset favorite group successfull");
                 that._logger.log("internal", LOG_ID + "(unsetGroupAsFavorite) unset favorite group successfull, group : ", groupRetrieved);
                 resolve(groupRetrieved);

@@ -2345,7 +2345,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    updateGroupFavorite(group : any, favorite : boolean) {
+    updateGroupFavorite(groupId : string, favorite : boolean) {
         /*
         Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
 Request Method: PUT
@@ -2356,7 +2356,7 @@ Request Method: PUT
         let data = {
             isFavorite: favorite
         };
-        let groupId = group.id;
+        //let groupId = group.id;
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
