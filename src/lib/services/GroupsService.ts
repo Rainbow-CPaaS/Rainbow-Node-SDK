@@ -142,6 +142,18 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @async
      * @category Groups MANAGEMENT
      * @return {Promise<Object, ErrorManager>}
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Group unique identifier. |
+     * | name | String | Group name. |
+     * | comment | String | Group comment. |
+     * | isFavorite | Boolean | Is group flagged as favorite. |
+     * | owner | String | Rainbow Id of group owner. |
+     * | creationDate | Date-Time | Creation date of the group (read only, set automatically during group creation). |
+     * | users | String\[\] | List of Rainbow users being in the group. |
+     * 
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
@@ -173,18 +185,25 @@ const LOG_ID = "GROUPS/SVCE - ";
      }
 
      /**
-     * @public
-     * @method deleteGroup
-     * @instance
-     * @param {Object} group The group to delete
-     * @description
-     *    Delete an owned group <br>
-     * @async
+      * @public
+      * @method deleteGroup
+      * @instance
+      * @param {Object} group The group to delete
+      * @description
+      *    Delete an owned group <br>
+      * @async
       * @category Groups MANAGEMENT
       * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Group} - Deleted group object or an error object depending on the result
-     * @category async
-     */
+      *
+      * 
+      * | Champ | Type | Description |
+      * | --- | --- | --- |
+      * | status | String | Deletion status |
+      * | data | Object\[\] | No data (empty Array) |
+      *  
+      * @fulfil {Group} - Deleted group object or an error object depending on the result
+      * @category async
+      */
      async deleteGroup(group) {
          let that = this;
 
@@ -311,6 +330,58 @@ const LOG_ID = "GROUPS/SVCE - ";
      }
 
     /**
+     * @public
+     * @method updateGroupComment
+     * @instance
+     * @async
+     * @category Groups MANAGEMENT
+     * @param {Object} group The group to update
+     * @param {string} comment The new comment of the group
+     * @description
+     * 		Update the comment of a group <br>
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Group} - Updated group object or an error object depending on the result
+     * @category async
+     */
+     async updateGroupComment(group, comment) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+            if (!group || !comment) {
+                if (!group) {
+                    that._logger.log("warn", LOG_ID + "(updateGroupComment) bad or empty 'group' parameter");
+                    that._logger.log("internalerror", LOG_ID + "(updateGroupComment) bad or empty 'group' parameter : ", group);
+                }
+                if (!comment) {
+                    that._logger.log("warn", LOG_ID + "(updateGroupComment) bad or empty 'comment' parameter.");
+                    that._logger.log("internalerror", LOG_ID + "(updateGroupComment) bad or empty 'comment' parameter : ", comment);
+                }
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            } else if (group.comment === comment) {
+                that._logger.log("debug", LOG_ID + "(updateGroupComment) name of group is already defined, nothing is done");
+                resolve(group);
+            } else {
+                that._rest.updateGroupComment(group.id, comment).then((group : any) => {
+                    let foundIndex = that._groups.findIndex(el => {
+                        return el.id === group.id;
+                    });
+
+                    if (foundIndex > -1) {
+                        that._groups[foundIndex].comment = group.comment;
+                        that._logger.log("internal", LOG_ID + "(updateGroupComment) update comment to " + group.comment + " of group with id " + group.id + " successfully");
+                        resolve(that._groups[foundIndex]);
+                    } else {
+                        resolve(null);
+                    }
+                }).catch(function(err) {
+                    that._logger.log("error", LOG_ID + "(updateGroupComment) error");
+                    return reject(err);
+                });
+            }
+        });
+     }
+
+    /**
      * @private
      * @category Groups MANAGEMENT
      * @description
@@ -375,7 +446,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
              that._logger.log("internal", LOG_ID + "(setGroupAsFavorite) param group : ", group);
 
-             that._rest.setFavoriteGroup(group, true).then((groupRetrieved: any) => {
+             that._rest.updateGroupFavorite(group, true).then((groupRetrieved: any) => {
                  that._logger.log("debug", LOG_ID + "(setGroupAsFavorite) set favorite group successfull");
                  that._logger.log("internal", LOG_ID + "(setGroupAsFavorite) set favorite group successfull, group : ", groupRetrieved);
                  resolve(groupRetrieved);
@@ -399,8 +470,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
-    async 
-    unsetGroupAsFavorite(group) {
+    async unsetGroupAsFavorite(group) {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!group) {
@@ -412,7 +482,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
             that._logger.log("internal", LOG_ID + "(unsetGroupAsFavorite) param group : ", group);
 
-            that._rest.setFavoriteGroup(group, false).then((groupRetrieved: any) => {
+            that._rest.updateGroupFavorite(group, false).then((groupRetrieved: any) => {
                 that._logger.log("debug", LOG_ID + "(unsetGroupAsFavorite) unset favorite group successfull");
                 that._logger.log("internal", LOG_ID + "(unsetGroupAsFavorite) unset favorite group successfull, group : ", groupRetrieved);
                 resolve(groupRetrieved);
@@ -582,6 +652,19 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @description
      * 		Add a contact in a group <br>
      * @return {Promise<Object, ErrorManager>}
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Group Object. |
+     * | id  | String | Group unique identifier. |
+     * | name | String | Group name. |
+     * | comment | String | Group comment. |
+     * | isFavorite | Boolean | Is group flagged as favorite. |
+     * | owner | String | Rainbow Id of group owner. |
+     * | creationDate | Date-Time | Creation date of the group (read only, set automatically during group creation). |
+     * | users | String\[\] | List of Rainbow users being in the group. |
+     * 
      * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
      * @category async
      */
