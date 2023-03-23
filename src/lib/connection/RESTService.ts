@@ -2148,6 +2148,23 @@ class RESTService extends GenericRESTService {
         });
     };
 
+    deleteAUserInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-deleteUserInvitation
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAUserInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAUserInvitation) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(deleteAUserInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAUserInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
     reSendInvitation(invitationId) {
         let that = this;
         return new Promise(function (resolve, reject) {

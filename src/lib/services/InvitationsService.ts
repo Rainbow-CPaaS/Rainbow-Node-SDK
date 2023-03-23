@@ -1109,6 +1109,35 @@ class InvitationsService extends GenericService {
 	};
 
 	/**
+	 * @public
+	 * @since 2.21.0
+	 * @method deleteAUserInvitation
+	 * @instance
+	 * @category Invitations SENT
+	 * @async
+	 * @param {Invitation} invitation The invitation to delete.
+	 * @description
+	 *    This API can be used to delete an invitation sent to/received from another Rainbow user. <br>
+	 * @return {Object} The SDK Ok object or an error
+	 */
+	async deleteAUserInvitation(invitation) {
+		let that = this;
+		return new Promise(function (resolve, reject) {
+			that._rest.deleteAUserInvitation(invitation).then(
+					function success(data) {
+						that._logger.log("info", LOG_ID + "(deleteAUserInvitation) success");
+						that._logger.log("internal", LOG_ID + "(deleteAUserInvitation) success : ", data);
+						resolve(data);
+					},
+					function failure(err) {
+						that._logger.log("error", LOG_ID + "(deleteAUserInvitation) error ");
+						that._logger.log("internalerror", LOG_ID + "(deleteAUserInvitation) error : ", err);
+						reject(err);
+					});
+		});
+	};
+
+	/**
 	 * @private
 	 */
 	updateContactInvitationStatus(contactDBId, status, invitation) {
