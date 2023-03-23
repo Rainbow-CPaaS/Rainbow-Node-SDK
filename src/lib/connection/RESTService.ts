@@ -26,6 +26,7 @@ import {RESTWebinar} from "./RestServices/RESTWebinar";
 import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
+import {Group} from "ts-generic-collections-linq";
 
 const jwt : any = jwtDecode;
 
@@ -2344,7 +2345,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    updateGroupFavorite(group : string, favorite : boolean) {
+    updateGroupFavorite(group : any, favorite : boolean) {
         /*
         Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
 Request Method: PUT
