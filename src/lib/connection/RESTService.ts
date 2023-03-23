@@ -5990,6 +5990,33 @@ Request Method: PUT
     }
     //endregion
 
+    //region IMS
+
+    retrieveXMPPMessagesByListOfMessageIds(ims : Array<any>) {
+        // API https://api.openrainbow.org/enduser/#api-ims
+        // POST /api/rainbow/enduser/v1.0/users/:userId/ims
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/ims" ;
+            let param = {
+                "ims" : ims
+            };
+            that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST ims : ", ims);
+
+            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion IMS
+    
     //region Messages
     
     showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {

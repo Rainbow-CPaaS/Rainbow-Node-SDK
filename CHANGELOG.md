@@ -37,7 +37,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `FavoritesService::getFavoriteById` API that can be used to retrieve a specific user's favorite by Id. 
 -   Add `FavoritesService::getAllUserFavoriteList` API that can be used to retrieve the list of user's favorites. 
 -   Add `FavoritesService::moveFavoriteToPosition` API that can be used to update a favorite's position in favorite list.
--   Add `GroupsService::updateGroupComment` to Update the comment of a group. 
+-   Add `GroupsService::updateGroupComment` to Update the comment of a group.
+-   Add `ImsService::retrieveXMPPMessagesByListOfMessageIds` This API allow user to retrieve it's ims by list of message Ids, peer and peer type. 
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

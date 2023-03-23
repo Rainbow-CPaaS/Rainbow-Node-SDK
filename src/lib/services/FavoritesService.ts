@@ -489,7 +489,7 @@ class FavoritesService extends GenericService{
      * | id  | String | Id of the favorite. |
      * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
      * | position | Integer | position of the favorite in favorite list (first position is 0). |
-     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
      * 
      */
     getFavoriteById(favoriteId : string) {
@@ -530,7 +530,7 @@ class FavoritesService extends GenericService{
      * | id  | String | Id of the favorite. |
      * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
      * | position | Integer | position of the favorite in favorite list (first position is 0). |
-     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
      *
      */
     getAllUserFavoriteList(peerId : string) {
@@ -568,7 +568,7 @@ class FavoritesService extends GenericService{
      * | id  | String | Id of the favorite. |
      * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
      * | position | Integer | position of the favorite in favorite list (first position is 0). |
-     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Valeurs autorisées : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
      *
      * @param {string} favoriteId Favorite unique identifier
      * @param {number} position new position in list. If position exceed favorites list size the favorite is moved to the end of the list

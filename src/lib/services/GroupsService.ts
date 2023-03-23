@@ -141,19 +141,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      *      Create a new group <br>
      * @async
      * @category Groups MANAGEMENT
-     * @return {Promise<Object, ErrorManager>}
-     * 
-     * 
-     * | Champ | Type | Description |
-     * | --- | --- | --- |
-     * | id  | String | Group unique identifier. |
-     * | name | String | Group name. |
-     * | comment | String | Group comment. |
-     * | isFavorite | Boolean | Is group flagged as favorite. |
-     * | owner | String | Rainbow Id of group owner. |
-     * | creationDate | Date-Time | Creation date of the group (read only, set automatically during group creation). |
-     * | users | String\[\] | List of Rainbow users being in the group. |
-     * 
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
@@ -193,14 +181,7 @@ const LOG_ID = "GROUPS/SVCE - ";
       *    Delete an owned group <br>
       * @async
       * @category Groups MANAGEMENT
-      * @return {Promise<Object, ErrorManager>}
-      *
-      * 
-      * | Champ | Type | Description |
-      * | --- | --- | --- |
-      * | status | String | Deletion status |
-      * | data | Object\[\] | No data (empty Array) |
-      *  
+      * @return {Promise<Object, ErrorManager>} The result
       * @fulfil {Group} - Deleted group object or an error object depending on the result
       * @category async
       */
@@ -287,7 +268,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {string} name The new name of the group
      * @description
      * 		Update the name of a group <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
@@ -339,7 +320,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {string} comment The new comment of the group
      * @description
      * 		Update the comment of a group <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
@@ -430,7 +411,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Object} group The group
      * @description
      * 		Set a group as a favorite one of the curent loggued in user. <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -466,7 +447,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Object} group The group
      * @description
      * 		Remove the favorite state of a group of the curent loggued in user. <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
@@ -651,7 +632,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Object} group The group
      * @description
      * 		Add a contact in a group <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * 
      * 
      * | Champ | Type | Description |
@@ -716,7 +697,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      * @param {Object} group The destination group
      * @description
      *		Remove a contact from a group <br>
-     * @return {Promise<Object, ErrorManager>}
+     * @return {Promise<Object, ErrorManager>} The result
      * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
      * @category async
      */
