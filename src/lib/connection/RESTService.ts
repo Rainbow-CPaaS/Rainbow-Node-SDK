@@ -2098,6 +2098,8 @@ class RESTService extends GenericRESTService {
     };
 
     sendInvitationByCriteria(email : string, lang : string, customMessage : string, invitedPhoneNumber : string, invitedUserId : string) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
         let that = this;
         return new Promise((resolve, reject) => {
             let params : any = {};
@@ -2130,6 +2132,8 @@ class RESTService extends GenericRESTService {
     };
 
     cancelOneSendInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-cancelUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/cancel
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
@@ -2159,19 +2163,28 @@ class RESTService extends GenericRESTService {
         });
     };
 
-    sendInvitationsParBulk(listOfMails) {
+    sendInvitationsByBulk(listOfMails, lang : string = undefined, customMessage : string = undefined ) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserBulkInvitations
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/bulk
         let that = this;
-        let data = {
+        let data :any = {
             emails: listOfMails
         };
+        if (lang) {
+            data.lang = lang;
+        }
+        if (customMessage) {
+            data.customMessage = customMessage;
+        }
+        
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST result : ", json);
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendInvitationsByBulk) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationsByBulk) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
+                that.logger.log("error", LOG_ID, "(sendInvitationsByBulk) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationsByBulk) error : ", err);
                 return reject(err);
             });
         });
@@ -2181,12 +2194,15 @@ class RESTService extends GenericRESTService {
      * ACCEPT INVITATION
      */
     acceptInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-acceptUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/accept
+        
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(acceptInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(acceptInvitation) error");
@@ -2218,6 +2234,8 @@ class RESTService extends GenericRESTService {
      * SEND INVITATION
      */
     joinContactInvitation(contact) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(joinContactInvitation) contact : ", contact);
@@ -3043,20 +3061,22 @@ Request Method: PUT
     }
 
     inviteContactsByEmailsToBubble(contactsEmails, bubbleId) {
+        // API https://api.openrainbow.org/enduser/#api-rooms_invitation-sendUsersJoinRoomInvitation
+        // POST /api/rainbow/enduser/v1.0/rooms/:roomId/invitations
         let that = this;
         const data = {
             scenario: "chat",
-            emails: contactsEmails // ["philippe.torrelli@gmail.com"]
+            emails: contactsEmails 
         };
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/invitations", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(inviteContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) successfull");
+                that.logger.log("internal", LOG_ID + "(inviteContactsByEmailsToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
+                that.logger.log("error", LOG_ID, "(inviteContactsByEmailsToBubble) error");
+                that.logger.log("internalerror", LOG_ID, "(inviteContactsByEmailsToBubble) error : ", err);
                 return reject(err);
             });
         });

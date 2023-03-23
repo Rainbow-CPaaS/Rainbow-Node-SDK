@@ -281,7 +281,7 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Changes**
 
--   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+-   Rename `InvitationsService::sendInvitationsByBulk` to `InvitationsService::sendInvitationsByBulk` 
 
 **Others Changes**
 

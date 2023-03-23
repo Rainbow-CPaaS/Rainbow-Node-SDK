@@ -38,7 +38,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `FavoritesService::getAllUserFavoriteList` API that can be used to retrieve the list of user's favorites. 
 -   Add `FavoritesService::moveFavoriteToPosition` API that can be used to update a favorite's position in favorite list.
 -   Add `GroupsService::updateGroupComment` to Update the comment of a group.
--   Add `ImsService::retrieveXMPPMessagesByListOfMessageIds` This API allow user to retrieve it's ims by list of message Ids, peer and peer type. 
+-   Add `ImsService::retrieveXMPPMessagesByListOfMessageIds` This API allows user to retrieve it's ims by list of message Ids, peer and peer type.
+-   Update `InvitationsService::sendInvitationsByBulk` API with lang and comment parameters. 
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
@@ -303,7 +304,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ContactsService::deletePersonalDirectoryEntry` This API allows connected user to delete an entry from his personal directory.
 -   Fix logs when a restart of the SDK is done.
 -   Fix default typescript export.
--   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+-   Rename `InvitationsService::sendInvitationsByBulk` to `InvitationsService::sendInvitationsByBulk` 
 -   Fix documentation of `InvitationsService::sendInvitationsByBulk` and `InvitationsService::sendInvitationByEmail`  
 -   Add `InvitationsService::sendInvitationByCriteria` This API allows logged in user to invite another user by criteria.
 -   Add `InvitationsService::searchInvitationsReceivedFromServer` This API is to retrieve the invites received from others Rainbow users from server. 
