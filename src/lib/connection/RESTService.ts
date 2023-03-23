@@ -2221,7 +2221,7 @@ class RESTService extends GenericRESTService {
             that.logger.log("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
-                resolve(undefined);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(declineInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitation) error : ", err);

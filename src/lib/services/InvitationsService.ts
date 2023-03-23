@@ -691,6 +691,23 @@ class InvitationsService extends GenericService {
 	 *    Return a promise <br>
 	 * @param {Invitation} invitation The invitation to decline
 	 * @return {Promise<Object>} A promise that contains SDK.OK in case of success or an object that describes the error
+	 * 
+	 * 
+	 * | Champ | Type | Description |
+	 * | --- | --- | --- |
+	 * | data | Object | User invitation Object. |
+	 * | id  | String | Invitation unique Id |
+	 * | invitedUserId optionnel | String | Invited user unique Rainbow Id.  <br>Only available for the inviting user if the invited user has been invited from his userId (parameter invitedUserId in API POST /api/rainbow/enduser/v1.0/users/:userId/invitations) or if the invitation has been accepted. |
+	 * | invitedPhoneNumber optionnel | String | Invited user phoneNumber |
+	 * | invitedUserEmail optionnel | String | Invited user email |
+	 * | invitingUserId | String | Inviting user unique Rainbow Id |
+	 * | invitingUserEmail | String | Inviting user loginEmail |
+	 * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+	 * | invitingDate | Date-Time | Date the invitation was created |
+	 * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+	 * | status | String | Invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`<br><br>* `pending`: invitation has been sent by inviting user and not yet accepted by invited user<br>* `accepted`: invitation has been accepted by invited user<br>* `auto-accepted`: invitation has been auto-accepted (case of users in same company)<br>* `declined`: invitation has been declined by invited user. Only invited user can see that he has declined an invitation. Inviting user still see the invitation as `pending`<br>* `canceled`: invitation has been canceled by inviting user. If invited user does not have an account in Rainbow, he can still use this invitationId received by email to create his Rainbow account, but he will not be added to inviting user roster.<br>* `failed`: invitation email failed to be sent to invited user (determined by parsing SMTP server logs). It can be the case if the provided invited email address does not exists. |
+	 * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
+	 * 
 	 */
 	async declineInvitation(invitation) {
 		let that = this;
