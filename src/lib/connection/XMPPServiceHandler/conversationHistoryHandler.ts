@@ -175,6 +175,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let originalMessageReplaced : any = null;
                         let isForwarded : boolean = false;
                         let forwardedMsg : any;
+                        let deletedMsg : boolean;
+                        let modifiedMsg : boolean;
                         let mentions : Array<Object> = [];
 
 
@@ -389,6 +391,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     }
 
+                                    deletedMsg = stanzaMessage.find("delete").length > 0;
+                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
+                                    modifiedMsg = stanzaMessage.find("modify").length > 0;
+                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
+                                        
                                     let mentionElmt = stanzaMessage.find("mention");
                                     // stanzaData.mentions = [];
                                         
@@ -405,7 +412,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 if (mention['jid'] && mention['size']) {
                                                     mentions.push(mention);
                                                 }
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                                if (that.jid_im == mention['jid']) {
+                                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                    attention = true;
+                                                }
+                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                             });
                                         } else {
                                             const mention = {};
@@ -416,7 +427,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             if (mention['jid'] && mention['size']) {
                                                 mentions.push(mention);
                                             }
-                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                            if (that.jid_im == mention['jid']) {
+                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                attention = true;
+                                            }
+                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                         }
                                     }
                                     //message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
@@ -494,7 +509,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             null, //data.confOwnerDisplayName,
                                             null,  //data.confOwnerJid,
                                             isForwarded,
-                                            forwardedMsg
+                                            forwardedMsg,
+                                            deletedMsg,
+                                            modifiedMsg                                            
                                     );
 
                                     that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) with dataMessage Message : ", dataMessage);
@@ -512,7 +529,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                             // message.updateMessage(message);
                             // that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", message);
-                            conversation.historyMessages.push(message);
+                            let hasATextMessage = false;
+                            if (message.subject || message.alternativeContent || message.content ) {
+                                hasATextMessage = true;
+                            }
+                            if (!hasATextMessage && !isForwarded && ! (deletedMsg) && !modifiedMsg) {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with No message text, so ignore it! hasATextMessage : ", hasATextMessage, ", message : ", message);
+                            } else {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with message text, message : ", message);
+                                conversation.historyMessages.push(message);
+                            }
                             return Promise.resolve(undefined);
                         }
                     });
@@ -539,15 +565,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                             // Handle very particular case of historyIndex == -1
                             if (conversation.historyIndex === -1) {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) Handle very particular case of historyIndex == -1, concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
 
                                 if (conversation.chatRenderer) {
                                     conversation.chatRenderer.prependMessages(conversation.messages, conversation.bubble);
                                 }
                             }
-
                             // Classic case
                             else {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
 
                                 if (conversation.chatRenderer) {

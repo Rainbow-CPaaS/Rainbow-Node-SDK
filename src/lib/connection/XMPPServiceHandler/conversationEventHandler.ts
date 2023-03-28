@@ -1239,7 +1239,7 @@ class ConversationEventHandler extends GenericHandler {
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
                     if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg) {
-                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with No message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);

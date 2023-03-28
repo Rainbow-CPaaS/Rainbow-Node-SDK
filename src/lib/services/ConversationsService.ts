@@ -401,6 +401,12 @@ class ConversationsService extends GenericService {
     }
 
     resetHistoryPageForConversation(conversation : Conversation) {
+        let that = this;
+        if (!conversation) {
+            that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) undefined conversation.id so no reset done.");
+            return;
+        }
+        that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) id : ", conversation.id, ", dbid : ", conversation.dbId);
         conversation.reset();
     }
 

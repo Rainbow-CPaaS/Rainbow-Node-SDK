@@ -346,6 +346,10 @@ class BubblesManager {
         return new Promise((resolve, reject) => {
             that.lock(() => {
                 // Treatment in the lock
+                if (!bubble) {
+                    that._logger.log("warn", LOG_ID + "(removeBubbleToJoinInProgress) empty bubble, so ignore it.");
+                    return;
+                }
                 let roomJid = bubble.jid;
                 if ( that.poolBubbleJoinInProgress.containsKey(roomJid) )
                 {
