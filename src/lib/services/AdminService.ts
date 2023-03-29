@@ -1760,6 +1760,217 @@ class AdminService extends GenericService {
         });
     }
 
+    //region Company join company invitations
+
+    /**
+     * @public
+     * @method acceptJoinCompanyInvitation
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company invitations
+     * @param {string} invitationId Join company invitation unique identifier.
+     * @async
+     * @description
+     *       This API allows to accept a join company invitation received by the user (invitation sent by admin ). <br>
+     *       To accept the join company invitation, the user must be in default company (may evolve in the future) <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company invitation unique Id |
+     * | companyId | String | Id of the company for which the join company invitation is |
+     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | invitationDate | Date-Time | Date the join company invitation was created |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
+     * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
+     *
+     */
+    acceptJoinCompanyInvitation (invitationId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(acceptJoinCompanyInvitation) invitationId : " + invitationId);
+
+            if (!invitationId) {
+                that._logger.log("debug", LOG_ID + "(acceptJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.acceptJoinCompanyInvitation(invitationId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(acceptJoinCompanyInvitation) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method declineJoinCompanyInvitation
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company invitations
+     * @param {string} invitationId Join company invitation unique identifier.
+     * @async
+     * @description
+     *       This API allows to decline a join company invitation received by the user (invitation sent by admin ). <br>
+     *       Invitation must be pending (otherwise error 409 is returned). <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company invitation unique Id |
+     * | companyId | String | Id of the company for which the join company invitation is |
+     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | invitationDate | Date-Time | Date the join company invitation was created |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
+     * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
+     *
+     */
+    declineJoinCompanyInvitation (invitationId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(declineJoinCompanyInvitation) invitationId : " + invitationId);
+
+            if (!invitationId) {
+                that._logger.log("debug", LOG_ID + "(declineJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.declineJoinCompanyInvitation(invitationId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(declineJoinCompanyInvitation) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getJoinCompanyInvitation
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company invitations
+     * @param {string} invitationId Join company invitation unique identifier.
+     * @async
+     * @description
+     *       This API allows to get a join company invitation received by the user using its invitationId (invitation sent by admin ). <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company invitation unique Id |
+     * | companyId | String | Id of the company for which the join company invitation is |
+     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | invitationDate | Date-Time | Date the join company invitation was created |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
+     * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
+     *
+     */
+    getJoinCompanyInvitation (invitationId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getJoinCompanyInvitation) invitationId : " + invitationId);
+
+            if (!invitationId) {
+                that._logger.log("debug", LOG_ID + "(getJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getJoinCompanyInvitation(invitationId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllJoinCompanyInvitations
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company invitations
+     * @async
+     * @description
+     *       This API allows to list all join company invitations received by the user (invitation sent by admin ). <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of join company invitation Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | id  | String | Join company invitation unique Id |
+     * | companyId | String | Id of the company for which the join company invitation is |
+     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | invitationDate | Date-Time | Date the join company invitation was created |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
+     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
+     * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
+     *
+     * @param {string} sortField Sort items list based on the given field. Valeur par défaut : `lastNotificationDate`
+     * @param {string} status List all join company invitations having the provided status(es). Valeurs autorisées : `=pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`
+     * @param {string} format Allows to retrieve more or less invitation details in response.
+     * - `small`: id, companyId, invitedUserId, invitedUserLoginEmail, invitingAdminId, status
+     * - `medium`: id, companyId, companyName, invitedUserId, invitedUserLoginEmail, invitingAdminId, invitingAdminLoginEmail, status, lastNotificationDate, invitingDate, acceptationDate, declinationDate
+     * - `full`: all join company invitation fields
+     * Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : `100`
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : `0`
+     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : `1`. Valeurs autorisées : `-1`, `1`
+     */
+    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number ) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getAllJoinCompanyInvitations) . ");
+
+ 
+            that._rest.getAllJoinCompanyInvitations(sortField, status, format, limit, offset, sortOrder ).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Company join company invitations
+    
     //endregion Companies and users management
 
     //region Customisation Template

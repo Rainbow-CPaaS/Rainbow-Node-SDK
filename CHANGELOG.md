@@ -45,6 +45,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add deleted and modified property in messages retrieved with history.
 -   Fix attention when user's jid_im is in mention array of an history message.
 -   Fix completion of Conversation.messages array with history's messages.
+-   Add `AdminService::acceptJoinCompanyInvitation` API. It allows to accept a join company invitation received by the user (invitation sent by admin ).
+-   Add `AdminService::declineJoinCompanyInvitation` API. It allows to decline a join company invitation received by the user (invitation sent by admin ).
+-   Add `AdminService::getJoinCompanyInvitation` API. It allows to get a join company invitation received by the user using its invitationId (invitation sent by admin ).
+-   Add `AdminService::getAllJoinCompanyInvitations` API. It allows to list all join company invitations received by the user (invitation sent by admin ).
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

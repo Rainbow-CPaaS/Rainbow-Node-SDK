@@ -4442,6 +4442,107 @@ Request Method: PUT
 
     //endregion Company visibility
     
+    //region Company join company invitations
+    
+    acceptJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-acceptJoinCompanyInvitation
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId/accept
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId + "/accept";
+            let data = {};
+            
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(acceptJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(acceptJoinCompanyInvitation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(acceptJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(acceptJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    declineJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-declineJoinCompanyInvitation
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId/decline
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId + "/decline";
+            let data = {};
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(declineJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(declineJoinCompanyInvitation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(declineJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(declineJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-getJoinCompanyInvitationById
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });        
+    }
+    
+    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number ) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-getJoinCompanyInvitations
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Company join company invitations
+    
     //endregion Company
     
     //region Customisation Template 
