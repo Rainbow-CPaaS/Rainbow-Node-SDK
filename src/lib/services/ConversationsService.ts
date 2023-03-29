@@ -68,7 +68,6 @@ class ConversationsService extends GenericService {
 	public waitingBotConversations: any;
 	public botServiceReady: any;
     private _conversationHistoryHandler: ConversationHistoryHandler;
-    private chatRenderer: any;
     private conversationsRetrievedFormat: string = "small";
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
@@ -407,7 +406,7 @@ class ConversationsService extends GenericService {
             return;
         }
         that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) id : ", conversation.id, ", dbid : ", conversation.dbId);
-        conversation.reset();
+        conversation.resetHistory();
     }
 
     /**
@@ -447,7 +446,7 @@ class ConversationsService extends GenericService {
 
         if (conversation.historyComplete) {
             that._logger.log("debug", LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
-            defered.reject();
+            defered.resolve(conversation);
             return defered.promise;
         }
 
@@ -786,9 +785,6 @@ class ConversationsService extends GenericService {
                     } */)
                         .then(function successCallback(fileDesc) {
                                 that._logger.log("debug", LOG_ID + "uploadAFileByChunk success");
-                                if (that.chatRenderer) {
-                                    that.chatRenderer.updateFileTransferState(message, fileDesc);
-                                }
                                // resolve(fileDescriptor);
                                 return Promise.resolve(fileDesc);
                             },

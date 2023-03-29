@@ -68,6 +68,7 @@ class Conversation {
         "timestamp" : string,
         "unreadMessageNumber" : string
     };
+    pendingPromise: Array<any>;
 
 
     constructor(conversationId) {
@@ -319,6 +320,8 @@ class Conversation {
         //is conversation muted
         this.muted = false;
 
+        this.pendingPromise = undefined;
+        
         //message ID
         let randomBase = this.generateRandomID();
         let messageId = 0;
@@ -434,12 +437,19 @@ class Conversation {
     /*************************************************************/
     reset() {
         this.messages = [];
+        this.lastMessageText = null;
+        this.resetHistory();
+    }
+
+    resetHistory() {
+        //this.messages = [];
+        //this.lastMessageText = null;
         this.historyIndex = -1;
         this.historyMessages = [];
         this.historyComplete = false;
         this.currentHistoryId = null;
-        this.lastMessageText = null;
     }
+
 
     getMessageById(messId) {
         return this

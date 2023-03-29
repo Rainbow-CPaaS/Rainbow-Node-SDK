@@ -206,7 +206,7 @@ class ImsService extends GenericService{
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
     
      */
-    async getMessagesFromConversation(conversation, intNbMessage) {
+    async getMessagesFromConversation(conversation, intNbMessage : number = 30) {
         if (!conversation) {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
