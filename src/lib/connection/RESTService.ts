@@ -6,7 +6,7 @@ import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {addParamToUrl, logEntryExit, makeId} from "../common/Utils.js";
+import {addParamToUrl, addPropertyToObj, logEntryExit, makeId} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -1628,6 +1628,7 @@ class RESTService extends GenericRESTService {
         }
     }
 
+    /*
     createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -1662,6 +1663,111 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createUser) successfull");
+                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createUser) error");
+                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    // */    
+
+    //createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
+    createUser(sendInvitationEmail : boolean = false, doNotAssignPaidLicense : boolean = false, mandatoryDefaultSubscription : boolean = false, companyId : string = undefined, loginEmail : string = undefined, customData : any= undefined, password : string= undefined, firstName : string= undefined, lastName : string= undefined,
+    nickName : string= undefined, title : string= undefined, jobTitle : string= undefined, department : string= undefined, tags : Array<string>= undefined, emails : Array<any>= undefined, phoneNumbers : Array<any>= undefined, country : string= undefined, state : string= undefined, language : string= undefined,
+    timezone : string= undefined, accountType : string= "free", roles : Array<string>= ["user"], adminType : string= undefined, isActive : boolean = true, isInitialized : boolean = false, visibility : string= undefined, timeToLive : number= -1, authenticationType : string= undefined,
+    authenticationExternalUid : string= undefined, userInfo1 : string= undefined, selectedTheme : string= undefined, userInfo2 : string= undefined, isAdmin : boolean = false) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/users"
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            /*if (!companyId) {
+                companyId = that.account.companyId;
+            } // */
+
+            addParamToUrl(urlParamsTab, "sendInvitationEmail", sendInvitationEmail);
+            addParamToUrl(urlParamsTab, "doNotAssignPaidLicense", doNotAssignPaidLicense);
+            addParamToUrl(urlParamsTab, "mandatoryDefaultSubscription", mandatoryDefaultSubscription);
+            url = urlParamsTab[0];
+
+            let user :any = { };
+            addPropertyToObj(user, "companyId", companyId, false);
+            addPropertyToObj(user, "loginEmail", loginEmail, false);
+            addPropertyToObj(user, "customData", customData, false);
+            addPropertyToObj(user, "password", password, false);
+            addPropertyToObj(user, "firstName", firstName, false);
+            addPropertyToObj(user, "lastName", lastName, false);
+            addPropertyToObj(user, "nickName", nickName, false);
+            addPropertyToObj(user, "title", title, false);
+            addPropertyToObj(user, "jobTitle", jobTitle, false);
+            addPropertyToObj(user, "department", department, false);
+            addPropertyToObj(user, "tags", tags, false);
+            addPropertyToObj(user, "emails", emails, false);
+            addPropertyToObj(user, "phoneNumbers", phoneNumbers, false);
+            addPropertyToObj(user, "country", country, false);
+            addPropertyToObj(user, "state", state, false);
+            addPropertyToObj(user, "language", language, false);
+            addPropertyToObj(user, "timezone", timezone, false);
+            addPropertyToObj(user, "accountType", accountType, false);
+            addPropertyToObj(user, "roles", roles, false);
+            addPropertyToObj(user, "adminType", adminType, false);
+            addPropertyToObj(user, "isActive", isActive, false);
+            addPropertyToObj(user, "isInitialized", isInitialized, false);
+            addPropertyToObj(user, "visibility", visibility, false);
+            addPropertyToObj(user, "timeToLive", timeToLive, false);
+            addPropertyToObj(user, "authenticationType", authenticationType, false);
+            addPropertyToObj(user, "authenticationExternalUid", authenticationExternalUid, false);
+            addPropertyToObj(user, "userInfo1", userInfo1, false);
+            addPropertyToObj(user, "userInfo2", userInfo2, false);
+            addPropertyToObj(user, "selectedTheme", selectedTheme, false);
+            
+            
+            /*
+                loginEmail: loginEmail,
+                password: password,
+                firstName: firstname,
+                lastName: lastname,
+                isActive: true,
+                isInitialized: false,
+                language: language,
+                adminType: "undefined",
+                roles: ["user"],
+                accountType: "free",
+                companyId: null,
+            }; 
+
+            if (companyId) {
+                user.companyId = companyId;
+            } else {
+                user.companyId = that.account.companyId
+            }
+
+            if (roles != null) {
+                user.roles = roles;
+            }
+
+            if (isAdmin) {
+                user.roles.push("admin");
+                //user.adminType = ["company_admin"];
+                user.adminType = "company_admin";
+            }
+            // */
+
+            if (isAdmin) {
+                if (user.roles && user.roles.some("admin") ) {
+                    user.roles.push("admin");
+                }
+                //user.adminType = ["company_admin"];
+                user.adminType = user.adminType ? user.adminType : "company_admin";
+            }
+
+            that.logger.log("internal", LOG_ID + "(createUser) REST url : ", url, ", user : ", user);
+
+            that.http.post(url, that.getRequestHeader(), user, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createUser) successfull");
                 that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
                 resolve(json.data);

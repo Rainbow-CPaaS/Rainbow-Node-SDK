@@ -1118,7 +1118,7 @@ class InvitationsService extends GenericService {
 	 * | Champ | Type | Description |
 	 * | --- | --- | --- |
 	 * | report | Object | Report of the bulk operation |
-	 * | status | String | Status of the bulk operation.  <br>`ongoing`: there is at least 1 email to send  <br>`failed`: there is no email to send and errors occurred with the synchronous validation of the provided emails<br><br>Valeurs autorisées : `ongoing`, `failed` |
+	 * | status | String | Status of the bulk operation.  <br>`ongoing`: there is at least 1 email to send  <br>`failed`: there is no email to send and errors occurred with the synchronous validation of the provided emails<br><br>Possibles values : `ongoing`, `failed` |
 	 * | ongoing | Object\[\] | List of emails which will be treated |
 	 * | email | String | Email address to invite |
 	 * | index | Number | Position of the email address to invite in the input emails array |

@@ -6,7 +6,7 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
-import {pause, setTimeoutPromised, until, getRandomInt} from "../lib/common/Utils";
+import {pause, setTimeoutPromised, until, getRandomInt, addPropertyToObj} from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
@@ -4032,6 +4032,20 @@ let urlS2S;
 
     }
 
+    async testaddPropertyToObj() {
+
+        let user :any = { };
+        let companyId = "12345678";
+        let loginEmail = "vincent01@vbe.test.openrainbow.net";
+        let companyName = undefined;
+        let phoneNumber = undefined;
+        addPropertyToObj(user, "companyId", companyId, false);
+        addPropertyToObj(user, "loginEmail", loginEmail, false);
+        addPropertyToObj(user, "companyName", companyName, true);
+        addPropertyToObj(user, "phoneNumber", phoneNumber, false);
+        logger.log("debug", "MAIN - testaddPropertyToObj - user : ", user);
+    }
+    
     async  testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);

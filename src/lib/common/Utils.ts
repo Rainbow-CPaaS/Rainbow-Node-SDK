@@ -258,6 +258,15 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     }
 }
 
+function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+    if (!addEmptyProperty && ( methodValue === null || methodValue === undefined )) {
+        return;
+    } 
+    if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
+        objetToUpdate[methodName] = methodValue;
+    }
+}
+
 function cleanEmptyMembersFromObject(objParams : Object) {
     if (objParams) {
         for (let objParamsKey in objParams) {
@@ -575,7 +584,8 @@ export let objToExport = {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj
 };
 
 module.exports = objToExport;
@@ -604,7 +614,8 @@ export {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj
 };
 
 export default {
@@ -632,5 +643,6 @@ export default {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj
 };

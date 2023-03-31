@@ -716,14 +716,14 @@ class AdminService extends GenericService {
      * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null
      * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
      * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
-     * @param {Array<string>} [roles] The roles the created user.
+     * @param {Array<string>} [roles] The roles the created user. Default value : ["user"].
      * @async
      * @category Companies and users management
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
      * @category async
      */
-    createUserInCompany(email, password, firstname, lastname, companyId, language, isCompanyAdmin, roles)  : Promise<Contact> {
+    createUserInCompany(email: string, password : string, firstname : string, lastname : string, companyId : string, language : string, isCompanyAdmin: boolean = false, roles: Array<string> = ["user"])  : Promise<Contact> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -757,7 +757,25 @@ class AdminService extends GenericService {
                     return;
                 }
 
-                that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user : any) => {
+                //that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user : any) => {
+                let p_sendInvitationEmail : boolean = false, p_doNotAssignPaidLicense : boolean = false, p_mandatoryDefaultSubscription : boolean = false,
+                        p_companyId : string = companyId, p_loginEmail : string = email, p_customData : any= undefined, p_password : string= password,
+                        p_firstName : string= firstname, p_lastName : string= lastname,
+                        p_nickName : string= undefined, p_title : string= undefined, p_jobTitle : string= undefined, p_department : string= undefined,
+                        p_tags : Array<string>= undefined, p_emails : Array<any>= undefined, p_phoneNumbers : Array<any>= undefined, p_country : string= undefined,
+                        p_state : string= undefined, p_language : string= language,
+                        p_timezone : string= undefined, p_accountType : string= "free", p_roles : Array<string> = roles,
+                        p_adminType : string= undefined, p_isActive : boolean = true, p_isInitialized : boolean = false, p_visibility : string= undefined,
+                        p_timeToLive : number= -1, p_authenticationType : string= undefined,
+                        p_authenticationExternalUid : string= undefined, p_userInfo1 : string= undefined,
+                        p_selectedTheme : string= undefined, p_userInfo2 : string= undefined, p_isAdmin : boolean = isCompanyAdmin;
+                if (!p_companyId) {
+                    p_companyId = that._rest.account.companyId;
+                } // */
+                that._rest.createUser(p_sendInvitationEmail , p_doNotAssignPaidLicense , p_mandatoryDefaultSubscription , p_companyId , p_loginEmail , p_customData , p_password , p_firstName , p_lastName ,
+                        p_nickName , p_title , p_jobTitle , p_department , p_tags , p_emails , p_phoneNumbers , p_country , p_state , p_language ,
+                        p_timezone , p_accountType , p_roles , p_adminType , p_isActive , p_isInitialized , p_visibility, p_timeToLive , p_authenticationType ,
+                        p_authenticationExternalUid , p_userInfo1 , p_selectedTheme , p_userInfo2 , p_isAdmin ).then((user : any) => {
                     that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account : ", email);
                     let contact = that._contacts.createBasicContact(user.jid_im, undefined);
                     //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
@@ -772,6 +790,289 @@ class AdminService extends GenericService {
 
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(createUserInCompany) error : ", err);
+                reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method createUser
+     * @since 2.21.0
+     * @instance
+     *      Create a new user in providen company, else in Rainbow default companie. </BR>
+     * @param {boolean} sendInvitationEmail Indicates if an email will be sent or not to the created user. </br>
+     * If enabled, the created user will receive an email to its `loginEmail` address. This email contains a link allowing the user to connect to Rainbow and initialize his account. User will be requested to set his password during this phase - so that the password provided by the administrator is only temporary and changed by the user. </br>
+     * To be noted that if no password is provided by the administrator and `sendInvitationEmail` is enabled, a user password is randomly generated. </br>
+     * Default value : `false`
+     * @param doNotAssignPaidLicense Indicates if a default paid license should be assigned to newly created user. Default value : `false`
+     * @param mandatoryDefaultSubscription Indicates if a default paid license must be assigned to newly created user. Default value : `false`
+     * @param {string} customData User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). </BR>
+     * Restrictions on customData Object: </BR>
+     * * max 20 keys, </BR>
+     * * max key length: 64 characters, </BR>
+     * * max value length: 4096 characters. </BR>
+     * User customData can only be created/updated by: </BR>
+     * * the user himself </BR>
+     * * \`company\_admin\` or \`organization\_admin\` of his company, </BR>
+     * * \`bp\_admin\` and \`bp\_finance\` of his company, </BR>
+     * * \`superadmin\`. </BR>
+     * @param {string} password optionnel String User password. Rules: more than 8 characters, </BR>
+     * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) at least 1 capital letter, 1 number, 1 special character. </BR>
+     * If password is not set, the user will have to use the reset-password feature to define his password so that he can login to Rainbow (except if the user is configured to use a Single Sign On method (SAML or OIDC)). </BR>
+     * @param {string} companyId User company unique identifier (like 569ce8c8f9336c471b98eda1). If not provided, users are attached to a "Default" company. companyName field is automatically filled on server side based on companyId.
+     * @param {boolean} isInitialized Is user initialized If isInitialized is set to true and sendInvitationEmail query parameter is set to true, the user receives an email "Your Rainbow account has been activated". Default value : `false`
+     * @param {string} loginEmail User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
+     * @param {string} firstName User first name
+     * @param {string} lastName User last name
+     * @param {string} nickName User nickName
+     * @param {string} title User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+     * @param {string} jobTitle User job title
+     * @param {string} department User department
+     * @param {Array<string>} tags An Array of free tags associated to the user. </BR>
+     * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. </BR>
+     * `tags` can only be set by users who have administrator rights on the user. The user can't modify the tags. </BR>
+     * The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. </BR>
+     * @param {Array<Object>} emails Array of user emails addresses objects :  </BR>
+     * * {string} email User email address </BR>
+     * * {string} type User email type. Possibles values : `home`, `work`, `other` </BR>
+     * @param {Array<Object>} phoneNumbers Array of user phone numbers objects </BR>
+     * * {string} number User phone number (as entered by user). </br>
+     * If `number` field is not provided in E164 format, associated `numberE164` field is computed using phoneNumber's `country` field (see below how country field is computed). </br>
+     * `number` and `country` fields must match so that `numberE164` can be computed, otherwise an error 400 is returned. </BR>
+     * * {string} country Phone number country (ISO 3166-1 alpha3 format). </BR>
+     * `country` field is automatically computed using the following algorithm when creating a phoneNumber entry: </BR>
+     * * If provided `number` is in E164 format, `country` is computed from E164 number </BR>
+     * * Else if `country` field is provided in the phoneNumber entry, this one is used </BR>
+     * * Else user `country` field is used (or company `country` if country is not provided for the user creation) </BR>
+     * Note that in the case provided `number` is not in E164 format, associated `numberE164` field is computed using phoneNumber's `country` field. `number` and `country` field must match so that `numberE164` can be computed, otherwise an error 400 is returned. </BR>
+     * * {string} type Phone number type. Note that the `type` of phoneNumbers linked to a PBX (`isFromSystem`=true) can't be changed (their value must be `work`) Possibles values : `home`, `work`, `other`
+     * * {string} deviceType Phone number device type. Note that the `deviceType` of phoneNumbers linked to a PBX (`isFromSystem`=true) can't be changed (their value must be `landline`). Possibles values : `landline`, `mobile`, `fax`, `other`
+     * * {string} isVisibleByOthers Allow user to choose if the phone number is visible by other users or not. </BR>
+     * Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false. </BR>
+     * Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. </BR>
+     * Default value : `true` </BR>
+     *  </BR>
+     * For each provided phoneNumber Object, the server tries to compute the associated E.164 number (`numberE164` field): </BR>
+     * If `number` is already in E.164 format, the value is simply duplicated as is in `numberE164` field, and `country` field is computed from this E.164 number, </BR>
+     * Otherwise `numberE164` is computed using provided `number` and `country` field (if `country` is provided this value is used, otherwise user's `country` is set in `country` field). </BR>
+     * If `numberE164` can't be computed from `number` and `country` fields, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) </BR>
+     * System phoneNumbers can't be created using this API, only PCG can create system PhoneNumbers </BR>
+     * @param {string} country User country (ISO 3166-1 alpha3 format) The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries)
+     * @param {string} state When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). </BR>
+     * The list of allowed states can be obtained using the API getListOfCountries() for the associated countries. </BR>
+     * Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` </BR>
+     * @param {string} language User language Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen). </BR>
+     * Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... </BR>
+     * More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes). </BR>
+     * Possibles values : `"/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"` </BR>
+     * @param {string} timezone User timezone name Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones) Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...)
+     * @param {string} accountType User subscription type Default value : `free`. Possibles values : `free`, `basic`, `advanced`
+     * @param {Array<string>} roles List of user roles The general rule is that a user must have the roles that the wants to assign to someone else. </BR>
+     * Examples: </BR>
+     * * an `admin` can add or remove the role `admin` to another user of the company(ies) he manages, </BR>
+     * * an `bp_admin` can add or remove the role `bp_admin` to another user of the company(ies) he manages, </BR>
+     * * an `app_superadmin` can add or remove the role `app_superadmin` to another user... </BR>
+     * Here are some explanations regarding the roles available in Rainbow: </BR>
+     * * `admin`, `bp_admin` and `bp_finance` roles are related to company management (and resources linked to companies, such as users, systems, subscriptions, ...). </BR>
+     * * `bp_admin` and `bp_finance` roles can only be set to users of a BP company (company with isBP=true). </BR>
+     * * `app_admin`, `app_support` and `app_superadmin` roles are related to application management. </BR>
+     * * `all_company_channels_admin`, `public_channels_admin` and `closed_channels_admin` roles are related to channels management. </BR>
+     * * `supervisor` allows users to supervise (telephony) other users from their company. </BR>
+     * * This role can be assigned manually to a user using this API, otherwise it is automatically set when a user is a added to a supervision group as supervisor. </BR>
+     * * This role can be removed manually to a user using the updateInformationForUser() API, in that case the user is automatically removed from all the supervision groups in which he was supervisor. </BR>
+     * * This role is automatically removed from a user when he is removed from the last supervision group in which he was supervisor. </BR>
+     * * A user with `webinar_host` role will be able to create webinars. Note: to be able to give this role, company should first subscribe to a webinar offer. </BR>
+     * * A user with `attendant` role will be the attendant of the Cloud PBX of its company. Note : to be able to give this role, feature TELEPHONY\_BASIC\_ATTENDANT_CONSOLE must be available for the user , as so this role cannot be assigned during User creation </BR>
+     * * A user with admin rights (`admin`, `bp_admin`, `superadmin`) can't change his own roles, except for roles related to channels (`all_company_channels_admin`, `public_channels_admin` and `closed_channels_admin`). </BR>
+     * * Only `superadmin` can set `superadmin` and `support` roles to a user. </BR>
+     * Default value : `["user"]` </BR>
+     * Possibles values : `guest`, `user`, `admin`, `bp_admin`, `bp_finance`, `company_support`, `all_company_channels_admin`, `public_channels_admin`, `closed_channels_admin`, `all_organization_channels_admin`, `organization_public_channels_admin`, `organization_closed_channels_admin`, `app_admin`, `app_support`, `app_superadmin`, `directory_admin`, `supervisor`, `support`, `superadmin`, `webinar_host`, `attendant` </BR>
+     * @param {string} adminType Mandatory if roles array contains `admin` role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS Possibles values : `organization_admin`, `company_admin`, `site_admin`
+     * @param {boolean} isActive Is user active. Default value : `true`.
+     * @param {string} visibility User visibility. Define if the user can be searched by users being in other company and if the user can search users being in other companies. </BR>
+     * Visibility can be: </BR>
+     * * `same_than_company`: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. </BR>
+     * * `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users </BR>
+     * * `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users </BR>
+     * * `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users </BR>
+     * * `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users </BR>
+     * * `hotspot`: User can be searched by hotspot attached company's users (users from any company if the user belong to the default company) / can't search any users (even in their company) | user can't invite external users / can be invited by hotspot attached company's users (users from any company if the user belong to the default company) </BR>
+     * * `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. </BR>
+     * Possibles values : `same_than_company`, `public`, `private`, `closed`, `isolated`, `hotspot`, `none` </BR>
+     * @param {number} timeToLive Duration in second to wait before automatically starting a user deletion from the creation date. </BR>
+     * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. </BR>
+     * Value -1 means timeToLive is disable (i.e. user account will not expire). </BR>
+     * If created user has role `guest` and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). </BR>
+     * If created user does not have role `guest` and no timeToLive is provided, a default value of -1 is set (no expiration). </BR>
+     * @param {string} authenticationType User authentication type (if not set company default authentication will be used) Possibles values : `DEFAULT`, `RAINBOW`, `SAML`, `OIDC` </BR>
+     * @param {string} authenticationExternalUid User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType)
+     * @param {string} userInfo1 Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+     * @param {string} selectedTheme Set the selected theme for the user.
+     * @param {string} userInfo2 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+     * @async
+     * @category Companies and users management
+     * @return {Promise<Object, ErrorManager>} The result :
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | selectedAppCustomisationTemplate | String | To log the last template applied to the user. |
+     * | useSpeakingTimeStatistics | String | Activate/Deactivate the capability for a user to see speaking time statistics.  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `same_than_company`: The same useSpeakingTimeStatistics setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's useSpeakingTimeStatistics will use this company new setting.<br>* `enabled`: The user can use meeting speaking time statistics.<br>* `disabled`: The user can't use meeting speaking time statistics. |
+     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `same_than_company`: The same readReceiptsCustomisation setting than the user's company's is applied to the user. if the readReceiptsCustomisation of the company is changed the user's readReceiptsCustomisation will use this company new setting.<br>* `enabled`: The user allows the sender to check if an IM is read.<br>* `disabled`: The user doesn't allow the sender to check if an IM is read. |
+     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `same_than_company`: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting.<br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the capability for a user to loose the ownership on one file..  <br>One user can drop the ownership to another Rainbow user of the same company.  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `same_than_company`: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting.<br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | fileTransferCustomisation | String | Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation.  <br>The file cannot be re-shared.  <br>fileTransferCustomisation can be:<br><br>* `same_than_company`: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting.<br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | fileCopyCustomisation | String | Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space  <br>fileCopyCustomisation can be:<br><br>* `same_than_company`: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting.<br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `same_than_company`: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting.<br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | recordingConversationCustomisation | String | Activate/Deactivate the capability for a user to record a conversation.  <br>Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>recordingConversationCustomisation can be:<br><br>* `same_than_company`: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting.<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `same_than_company`: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting.<br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. |
+     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify telephony settings.  <br>Define if a user has the right to modify some telephony settigs like forward activation...  <br>changeTelephonyCustomisation can be:<br><br>* `same_than_company`: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting.<br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `same_than_company`: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting.<br>* `enabled`: The user can change his presence.<br>* `disabled`: The user can't change his presence. |
+     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage..  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `same_than_company`: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting.<br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
+     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `same_than_company`: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting.<br>* `enabled`: The user can modify his profile.<br>* `disabled`: The user can't modify his profile. |
+     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `same_than_company`: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting.<br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
+     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `same_than_company`: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `same_than_company`: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `same_than_company`: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting.<br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
+     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `same_than_company`: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting.<br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
+     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `same_than_company`: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting.<br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName)  <br>Define if the user can change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `same_than_company`: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting.<br>* `enabled`: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data.<br>* `disabled`: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. |
+     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `same_than_company`: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting.<br>* `enabled`: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service.<br>* `disabled`: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. |
+     * | data | Object | User Object. |
+     * | id  | String | User unique identifier |
+     * | loginEmail | String | User email address (used for login) |
+     * | firstName | String | User first name |
+     * | lastName | String | User last name |
+     * | displayName | String | User display name (firstName + lastName concatenated on server side) |
+     * | nickName optionnel | String | User nickName |
+     * | title optionnel | String | User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) |
+     * | jobTitle optionnel | String | User job title |
+     * | department optionnel | String | User department |
+     * | tags optionnel | String\[\] | An Array of free tags associated to the user.  <br>A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters.  <br>`tags` can only be set by users who have administrator rights on the user. The user can't modify the tags.  <br>The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. |
+     * | emails | Object\[\] | Array of user emails addresses objects |
+     * | email | String | User email address |
+     * | type | String | Email type, one of `home`, `work`, `other` |
+     * | phoneNumbers | Object\[\] | Array of user phone numbers objects.  <br>Phone number objects can:<br><br>* be created by user (information filled by user),<br>* come from association with a system (pbx) device (association is done by admin). |
+     * | phoneNumberId | String | Phone number unique id in phone-numbers directory collection. |
+     * | number optionnel | String | User phone number (as entered by user) |
+     * | numberE164 optionnel | String | User E.164 phone number, computed by server from `number` and `country` fields |
+     * | country | String | Phone number country (ISO 3166-1 alpha3 format)  <br>`country` field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:<br><br>* If `number` is provided and is in E164 format, `country` is computed from E164 number<br>* Else if `country` field is provided in the phoneNumber entry, this one is used<br>* Else user `country` field is used |
+     * | isFromSystem | Boolean | Boolean indicating if phone is linked to a system (pbx). |
+     * | shortNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>Only PCG can set this field. |
+     * | internalNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), internal phone number.  <br>Usable within a PBX group.  <br>Admins and users can modify this internalNumber field. |
+     * | systemId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. |
+     * | pbxId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that pbx. |
+     * | type | String | Phone number type, one of `home`, `work`, `other`. |
+     * | deviceType | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
+     * | isVisibleByOthers | Boolean | Allow user to choose if the phone number is visible by other users or not.  <br>Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false.  <br>Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. |
+     * | country | String | User country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | language | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | timezone | String | User timezone name |
+     * | jid_im | String | User Jabber IM identifier |
+     * | jid_tel | String | User Jabber TEL identifier |
+     * | jid_password | String | User Jabber IM and TEL password |
+     * | roles | String\[\] | List of user roles (Array of String)  <br>Note: `company_support` role is only used for support redirection. If a user writes a #support ticket and have the role `company_support`, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's `supportEmail` address is set, ALE otherwise). |
+     * | adminType | String | In case of user's is 'admin', define the subtype (organisation\_admin, company\_admin, site_admin (default undefined) |
+     * | companyId | String | User company unique identifier |
+     * | organisationId | String | In addition to User companyId, optional identifier to indicate the user belongs also to an organization |
+     * | siteId | String | In addition to User companyId, optional identifier to indicate the user belongs also to a site |
+     * | companyName | String | User company name |
+     * | isInDefaultCompany | Boolean | Is user in default company | 
+     * | isActive | Boolean | Is user active |
+     * | isInitialized | Boolean | Is user initialized |
+     * | initializationDate | Date-Time | User initialization date |
+     * | activationDate | Date-Time | User activation date |
+     * | creationDate | Date-Time | User creation date |
+     * | lastUpdateDate | Date-Time | Date of last user update (whatever the field updated) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last user avatar create/update, null if no avatar |
+     * | createdBySelfRegister | Boolean | true if user has been created using self register |
+     * | createdByAdmin | Object | If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user |
+     * | userId | String | userId of the admin who created this user |
+     * | loginEmail | String | loginEmail of the admin who created this user |
+     * | invitedBy | Object | If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user |
+     * | userId | String | userId of the user who invited this user |
+     * | firstLoginDate | Date-Time | Date of first user login (only set the first time user logs in, null if user never logged in) |
+     * | loginEmail | String | loginEmail of the user who invited this user |
+     * | lastLoginDate | Date-Time | Date of last user login (defined even if user is logged out) |
+     * | loggedSince | Date-Time | Date of last user login (null if user is logged out) |
+     * | lastSeenDate | Date-Time | Approximate date when the user has been seen on Rainbow (null if user never logged in)  <br>This date is updated:<br><br>* When the user logs in (either from login API, SAML/OIDC SSO, OAuth)<br>* When the token of the user is refreshed (using the API GET /api/rainbow/authentication/v1.0/renew, done automatically by the clients before the token expires and not visible by the user)<br>* When the user logs out |
+     * | authenticationType optionnel | String | User authentication type (if not set company default authentication will be used)<br><br>Possibles values : `DEFAULT`, `RAINBOW`, `SAML`, `OIDC` |
+     * | authenticationExternalUid optionnel | String | User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) |
+     * | isTerminated | Boolean | Indicates if the Rainbow account of this user has been deleted |
+     * | timeToLive | Number | Duration in second to wait before automatically starting a user deletion from the creation date.  <br>Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment.  <br>Value -1 means timeToLive is disable (i.e. user account will not expire). |
+     * | guestMode | Boolean | Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
+     * | userInfo1 | String | Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | userInfo2 | String | 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | profiles | Object\[\] | User profile Objects. |
+     * | subscriptionId | String | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | String | Id of the Rainbow offer to which company subscription is attached |
+     * | offerName | String | Name of the Rainbow offer to which company subscription is attached |
+     * | profileId | String | Id of the Rainbow profile to which company subscription is attached |
+     * | profileName | String | Name of the Rainbow profile to which company subscription is attached |
+     * | status | String | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+     * | assignationDate | String | Date when the subscription was attached to user profile |
+     * | canBeSold | Boolean | Indicates if the offer is billed.  <br>Some offers will not be billed (Essential, Demo, ...). |
+     * | offerTechnicalDescription optionnel | string | Offer technical description.<br><br>Ordre de grandeur : `1..512` |
+     * | businessModel optionnel | string | Indicates the business model associated to this offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Subscriptions having this business model are billed according to the number of users bought for it.<br>* `usage`: Subscriptions having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer).<br>* `flat_fee`: Subscriptions having this business model are billed based on a flat fee (same price each month for the company which subscribe to this offer).<br>* `none`: no business model. Should be used for offers which are not sold (like Essential...).<br><br>Default value : `none`<br><br>Possibles values : `nb_users`, `usage`, `flat_fee`, `none` |
+     * | businessSpecific optionnel | String\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Default value : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
+     * | isExclusive optionnel | Boolean | Indicates if the offer is exclusive for assignation to a user profile (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer). |
+     * | isPrepaid optionnel | Boolean | Indicates if the profile is linked to a prepaid subscription |
+     * | prepaidDuration optionnel | Number | Prepaid subscription duration (in month).  <br>Only set if `isPrepaid` is true. |
+     * | provisioningNeeded optionnel | Object\[\] | Array of Objects which indicates if account must be provisioned on other internal components when subscribing to this offer. |
+     * | providerType | String | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the internal component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when the subscription is created).<br><br>Possibles values : `PGI`, `JANUS` |
+     * | pgiEnterpriseId optionnel | String | Only set if provisioningNeeded is set and the element of the array has providerType `PGI`. Corresponds to an enterpriseId to use when provisioning the company account on PSTN Conferencing component.<br><br>Possibles values : `testEnterpriseId`, `internalEnterpriseId`, `genericEnterpriseId` |
+     * | mediaType optionnel | String | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on WebRTC Conferencing component.<br><br>Possibles values : `webrtc` |
+     * | zuoraOfferId optionnel | string | ID of the related offer in Zuora (if offer can be sold) |
+     * | zuoraProductRatePlanId optionnel | string | ID of the ProductRatePlanId to used in Zuora (if offer can be sold) |
+     * | zuoraProductRatePlanChargeId optionnel | string | ID of the ProductRatePlanChargeId used in Zuora (if offer can be sold) |
+     * | hasConference optionnel | Boolean | Indicates if the profile contains conference services |
+     * | isDemo optionnel | Boolean | Indicates if the profile is linked to a demo subscription |
+     * | customData optionnel | Object | User's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the user's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 4096 characters. |
+     *
+     * @category async
+     */
+    createUser(sendInvitationEmail: boolean = false, doNotAssignPaidLicense: boolean = false, mandatoryDefaultSubscription: boolean = false,
+               companyId: string = undefined, loginEmail: string = undefined, customData: any = undefined, password: string = undefined,
+               firstName: string = undefined, lastName: string = undefined,
+               nickName: string = undefined, title: string = undefined, jobTitle: string = undefined, department: string = undefined,
+               tags: Array<string> = undefined, emails: Array<any> = undefined, phoneNumbers: Array<any> = undefined, country: string = undefined,
+               state: string = undefined, language: string = "en-US",
+               timezone: string = undefined, accountType: string = "free", roles: Array<string> = ["user"],
+               adminType: string = undefined, isActive: boolean = true, isInitialized: boolean = false, visibility: string = undefined,
+               timeToLive: number = -1, authenticationType: string = undefined,
+               authenticationExternalUid: string = undefined, userInfo1: string = undefined,
+               selectedTheme: string = undefined, userInfo2: string = undefined, isAdmin: boolean = false): Promise<Contact> {
+        
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.createUser(sendInvitationEmail, doNotAssignPaidLicense, mandatoryDefaultSubscription, companyId, loginEmail, customData, password, firstName, lastName,
+                        nickName, title, jobTitle, department, tags, emails, phoneNumbers, country, state, language,
+                        timezone, accountType, roles, adminType, isActive, isInitialized, visibility, timeToLive, authenticationType,
+                        authenticationExternalUid, userInfo1, selectedTheme, userInfo2, isAdmin).then((user: any) => {
+                    that._logger.log("debug", LOG_ID + "(createUser) Successfully created user for account : ", loginEmail);
+                    /* let contact = that._contacts.createBasicContact(user.jid_im, undefined);
+                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                    contact.updateFromUserData(user);
+                    contact.avatar = that._contacts.getAvatarByContactId(user.id, user.lastAvatarUpdateDate);
+                    resolve(contact);
+                    // */
+                    resolve(user);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createUser) ErrorManager when creating user for account ");
+                    that._logger.log("internalerror", LOG_ID + "(createUser) ErrorManager when creating user for account : ", loginEmail);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createUser) error : ", err);
                 reject(err);
             }
         });
@@ -1943,16 +2244,16 @@ class AdminService extends GenericService {
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
-     * @param {string} sortField Sort items list based on the given field. Valeur par défaut : `lastNotificationDate`
-     * @param {string} status List all join company invitations having the provided status(es). Valeurs autorisées : `=pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`
+     * @param {string} sortField Sort items list based on the given field. Default value : `lastNotificationDate`
+     * @param {string} status List all join company invitations having the provided status(es). Possibles values : `=pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`
      * @param {string} format Allows to retrieve more or less invitation details in response.
      * - `small`: id, companyId, invitedUserId, invitedUserLoginEmail, invitingAdminId, status
      * - `medium`: id, companyId, companyName, invitedUserId, invitedUserLoginEmail, invitingAdminId, invitingAdminLoginEmail, status, lastNotificationDate, invitingDate, acceptationDate, declinationDate
      * - `full`: all join company invitation fields
-     * Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : `100`
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : `0`
-     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : `1`. Valeurs autorisées : `-1`, `1`
+     * Default value : `small`. Possibles values : `small`, `medium`, `full`
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : `100`
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : `0`
+     * @param {number} sortOrder Specify order when sorting items list. Default value : `1`. Possibles values : `-1`, `1`
      */
     getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number ) {
         let that = this;
