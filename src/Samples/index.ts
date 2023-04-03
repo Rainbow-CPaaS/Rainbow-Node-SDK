@@ -4011,22 +4011,86 @@ let urlS2S;
     }
 
     async  testsubscribeCompanyToDemoOffer() {
+        // To use with rford@westworld.com
 
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
-        let newCompany = await rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM);
-        let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id);
+        let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createCompany Error : ", e);
+        })) ;
+        await pause(2000);
+        let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeCompanyToDemoOffer Error : ", e);
+        }) ;
         logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeResult : ", subscribeResult);
         let email = "vincentTest01@vbe.test.openrainbow.com";
         let password = "Password_123";
         let firstname = "vincentTest01";
         let lastname = "berderTest01";
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id));
+        await pause(2000);
+        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+        }));
+        await pause(2000);
 
-        let newUser = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]);
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id));
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id));
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id));
+        let newUser : any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createUserInCompany Error : ", e);
+        }) ;
+        await pause(10000);
+        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Error : ", e);
+        }));
+        let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
+        let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
+
+    }
+    async  testJoinCompanyInvitations() {
+        // To use with rford@westworld.com
+
+        let utc = new Date().toJSON().replace(/-/g, '_');
+        let companyName = "MyVberderCompany_" + utc;
+        let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createCompany Error : ", e);
+        })) ;
+        await pause(2000);
+        let email = "vincentTest01@vbe.test.openrainbow.com";
+        let password = "Password_123";
+        let firstname = "vincentTest01";
+        let lastname = "berderTest01";
+        await pause(2000);
+        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+        }));
+        await pause(2000);
+
+//        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
+        let p_sendInvitationEmail : boolean = false, p_doNotAssignPaidLicense : boolean = false, p_mandatoryDefaultSubscription : boolean = false,
+                p_companyId : string = undefined, p_loginEmail : string = email, p_customData : any= undefined, p_password : string= password,
+                p_firstName : string= firstname, p_lastName : string= lastname,
+                p_nickName : string= undefined, p_title : string= undefined, p_jobTitle : string= undefined, p_department : string= undefined,
+                p_tags : Array<string>= undefined, p_emails : Array<any>= undefined, p_phoneNumbers : Array<any>= undefined, p_country : string= undefined,
+                p_state : string= undefined, p_language : string= "en-US",
+                p_timezone : string= undefined, p_accountType : string= "free", p_roles : Array<string> = ["user"],
+                p_adminType : string= undefined, p_isActive : boolean = true, p_isInitialized : boolean = false, p_visibility : string= undefined,
+                p_timeToLive : number= -1, p_authenticationType : string= undefined,
+                p_authenticationExternalUid : string= undefined, p_userInfo1 : string= undefined,
+                p_selectedTheme : string= undefined, p_userInfo2 : string= undefined, p_isAdmin : boolean = false;
+        let newUser : any = await rainbowSDK.admin.createUser(p_sendInvitationEmail , p_doNotAssignPaidLicense , p_mandatoryDefaultSubscription , p_companyId , p_loginEmail , p_customData , p_password , p_firstName , p_lastName ,
+                p_nickName , p_title , p_jobTitle , p_department , p_tags , p_emails , p_phoneNumbers , p_country , p_state , p_language ,
+                p_timezone , p_accountType , p_roles , p_adminType , p_isActive , p_isInitialized , p_visibility, p_timeToLive , p_authenticationType ,
+                p_authenticationExternalUid , p_userInfo1 , p_selectedTheme , p_userInfo2 , p_isAdmin ).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createUser Error : ", e);
+        }) ;
+        await pause(10000);
+        /* logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - getAllJoinCompanyInvitations Result : ", await rainbowSDK.admin.getAllJoinCompanyInvitations(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - getAllJoinCompanyInvitations Error : ", e);
+        })); // */ 
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
 

@@ -1758,7 +1758,8 @@ class RESTService extends GenericRESTService {
             // */
 
             if (isAdmin) {
-                if (user.roles && user.roles.some("admin") ) {
+                if (user.roles && !user.roles.some((element) => element === "admin") ) {
+                    that.logger.log("internal", LOG_ID + "(createUser) add \"admin\" role.");
                     user.roles.push("admin");
                 }
                 //user.adminType = ["company_admin"];
