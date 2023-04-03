@@ -70,6 +70,7 @@ class InvitationsService extends GenericService {
 		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
 		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
+		this._eventEmitter.on("evt_internal_joinCompanyInvitationManagementUpdate", that.onJoinCompanyInviteManagementMessageReceived.bind(this));
 		this._eventEmitter.on("evt_internal_openinvitationManagementUpdate", that.onOpenInvitationManagementUpdate.bind(this));
 	}
 
@@ -225,6 +226,41 @@ class InvitationsService extends GenericService {
         that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.receivedInvitations : ", that.receivedInvitations);
         that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
         that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.sentInvitations : ", that.sentInvitations);
+		return true;
+	};
+
+	async onJoinCompanyInviteManagementMessageReceived(joincompanyinvite) {
+		let that = this;
+        that._logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite : ", joincompanyinvite);
+		that._logger.log("debug", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) join company invite event received");
+		that._eventEmitter.emit("evt_internal_joincompanyinvitereceived", joincompanyinvite);
+		//let userInviteElem = stanza.find("userinvite");
+		/* if (userInvite) {
+			let id = userInvite.id;
+			let type = userInvite.type;
+			let action = userInvite.action;
+			switch (type) {
+				case "received":
+                    that._logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) received");
+					await that.handleReceivedInvitation(id, action);
+                    that._logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) received after");
+					break;
+				case "sent":
+                    that._logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) sent");
+					await that.handleSentInvitation(id, action);
+                    that._logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) sent after");
+					break;
+				default:
+					that._logger.log("warn", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) - received unexpected type - " + type);
+					break;
+			}
+		} else {
+			that._logger.log("warn", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) userInvite undefined!");
+		}
+        that._logger.log("info", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) that.receivedInvitations : ", that.receivedInvitations);
+        that._logger.log("info", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+        that._logger.log("info", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) that.sentInvitations : ", that.sentInvitations);
+        // */
 		return true;
 	};
 

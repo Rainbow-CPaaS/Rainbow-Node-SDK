@@ -2255,7 +2255,7 @@ class AdminService extends GenericService {
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : `0`
      * @param {number} sortOrder Specify order when sorting items list. Default value : `1`. Possibles values : `-1`, `1`
      */
-    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number ) {
+    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getAllJoinCompanyInvitations) . ");

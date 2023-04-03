@@ -76,6 +76,7 @@ const inquirer = require("inquirer");
 import jwt from "jwt-decode";
 import * as util from "util";
 import {Message} from "../lib/common/models/Message.js";
+import {catchError} from "rxjs";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -4056,41 +4057,87 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
         let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createCompany Error : ", e);
-        })) ;
+            logger.log("error", "MAIN - testJoinCompanyInvitations - createCompany Error : ", e);
+        }));
         await pause(2000);
         let email = "vincentTest01@vbe.test.openrainbow.com";
         let password = "Password_123";
         let firstname = "vincentTest01";
         let lastname = "berderTest01";
         await pause(2000);
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+        /*logger.log("debug", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Error : ", e);
         }));
         await pause(2000);
+        // */
 
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
-        let p_sendInvitationEmail : boolean = false, p_doNotAssignPaidLicense : boolean = false, p_mandatoryDefaultSubscription : boolean = false,
-                p_companyId : string = undefined, p_loginEmail : string = email, p_customData : any= undefined, p_password : string= password,
-                p_firstName : string= firstname, p_lastName : string= lastname,
-                p_nickName : string= undefined, p_title : string= undefined, p_jobTitle : string= undefined, p_department : string= undefined,
-                p_tags : Array<string>= undefined, p_emails : Array<any>= undefined, p_phoneNumbers : Array<any>= undefined, p_country : string= undefined,
-                p_state : string= undefined, p_language : string= "en-US",
-                p_timezone : string= undefined, p_accountType : string= "free", p_roles : Array<string> = ["user"],
-                p_adminType : string= undefined, p_isActive : boolean = true, p_isInitialized : boolean = false, p_visibility : string= undefined,
-                p_timeToLive : number= -1, p_authenticationType : string= undefined,
-                p_authenticationExternalUid : string= undefined, p_userInfo1 : string= undefined,
-                p_selectedTheme : string= undefined, p_userInfo2 : string= undefined, p_isAdmin : boolean = false;
-        let newUser : any = await rainbowSDK.admin.createUser(p_sendInvitationEmail , p_doNotAssignPaidLicense , p_mandatoryDefaultSubscription , p_companyId , p_loginEmail , p_customData , p_password , p_firstName , p_lastName ,
-                p_nickName , p_title , p_jobTitle , p_department , p_tags , p_emails , p_phoneNumbers , p_country , p_state , p_language ,
-                p_timezone , p_accountType , p_roles , p_adminType , p_isActive , p_isInitialized , p_visibility, p_timeToLive , p_authenticationType ,
-                p_authenticationExternalUid , p_userInfo1 , p_selectedTheme , p_userInfo2 , p_isAdmin ).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createUser Error : ", e);
-        }) ;
+        let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
+                p_mandatoryDefaultSubscription: boolean = false,
+                p_companyId: string = undefined, p_loginEmail: string = email, p_customData: any = undefined,
+                p_password: string = password,
+                p_firstName: string = firstname, p_lastName: string = lastname,
+                p_nickName: string = undefined, p_title: string = undefined, p_jobTitle: string = undefined,
+                p_department: string = undefined,
+                p_tags: Array<string> = undefined, p_emails: Array<any> = undefined,
+                p_phoneNumbers: Array<any> = undefined, p_country: string = undefined,
+                p_state: string = undefined, p_language: string = "en-US",
+                p_timezone: string = undefined, p_accountType: string = "free", p_roles: Array<string> = ["user"],
+                p_adminType: string = undefined, p_isActive: boolean = true, p_isInitialized: boolean = false,
+                p_visibility: string = undefined,
+                p_timeToLive: number = -1, p_authenticationType: string = undefined,
+                p_authenticationExternalUid: string = undefined, p_userInfo1: string = undefined,
+                p_selectedTheme: string = undefined, p_userInfo2: string = undefined, p_isAdmin: boolean = false;
+        let newUser: any = await rainbowSDK.admin.createUser(p_sendInvitationEmail, p_doNotAssignPaidLicense, p_mandatoryDefaultSubscription, p_companyId, p_loginEmail, p_customData, p_password, p_firstName, p_lastName,
+                p_nickName, p_title, p_jobTitle, p_department, p_tags, p_emails, p_phoneNumbers, p_country, p_state, p_language,
+                p_timezone, p_accountType, p_roles, p_adminType, p_isActive, p_isInitialized, p_visibility, p_timeToLive, p_authenticationType,
+                p_authenticationExternalUid, p_userInfo1, p_selectedTheme, p_userInfo2, p_isAdmin).catch((e) => {
+            logger.log("error", "MAIN - testJoinCompanyInvitations - createUser Error : ", e);
+        });
         await pause(10000);
-        /* logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - getAllJoinCompanyInvitations Result : ", await rainbowSDK.admin.getAllJoinCompanyInvitations(newUser.id, subscribeResult.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - getAllJoinCompanyInvitations Error : ", e);
-        })); // */ 
+        try {
+
+
+            let invitation: any = await rainbowSDK.admin.inviteUserInCompany(newUser.loginEmail,newCompany.id,"en-US","Hello !!!");
+            logger.log("debug", "MAIN - (testJoinCompanyInvitations) invitation : ", invitation); 
+            
+            let options1: any = {};
+
+            Object.assign(options1, options);
+            options1.credentials.login = email;
+            options1.credentials.password = password;
+            options1.logs.customLabel = options1.credentials.login + "_1";
+            options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
+            let rainbowSDK1 = new RainbowSDK(options1);
+            rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
+                // do something when the SDK has been started
+                logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+            });
+            rainbowSDK1.events.on("rainbow_onerror", (data) => {
+                logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+                rainbowSDK1 = undefined;
+            });
+
+
+            await rainbowSDK1.start(undefined).then(async (result2) => {
+                // Do something when the SDK is started
+                logger.log("debug", "MAIN - (testJoinCompanyInvitations) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+            });
+
+            let allInvitations : any = await rainbowSDK1.admin.getAllJoinCompanyInvitations("lastNotificationDate", undefined, "small", 100, 0, 1).catch((e) => {
+                logger.log("error", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Error : ", e);
+            })
+            logger.log("debug", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Result : ", allInvitations); // */
+
+            logger.log("debug", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Result : ", await rainbowSDK1.admin.acceptJoinCompanyInvitation(allInvitations.data[0].id).catch((e) => {
+                logger.log("error", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Error : ", e);
+            })); // */
+
+            } catch (e) {
+
+        }
+
+
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
 

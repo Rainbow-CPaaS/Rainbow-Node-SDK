@@ -109,6 +109,9 @@ class InvitationEventHandler extends GenericHandler {
                     case "poll":
                         // treated in conversationEventHandler
                         break;
+                    case "joincompanyinvite":
+                        that.onJoinCompanyInviteManagementMessageReceived(node);
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -241,6 +244,37 @@ class InvitationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : ", err);
+            return true;
+        }
+    }
+    
+    onJoinCompanyInviteManagementMessageReceived (stanza) {
+        let that = this;
+        that.logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+
+        try {
+            let joincompanyinviteElem = stanza; //.find("userinvite");
+            if (joincompanyinviteElem && joincompanyinviteElem.attrs) {
+                let id = joincompanyinviteElem.attrs.id;
+                let type = joincompanyinviteElem.attrs.type;
+                let action = joincompanyinviteElem.attrs.action;
+                let status = joincompanyinviteElem.attrs.status;
+
+                let invitation = {
+                    id,
+                    type,
+                    action,
+                    status
+                };
+                that.eventEmitter.emit("evt_internal_joinCompanyInvitationManagementUpdate", invitation);
+                return true;
+            } else {
+                that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty.");
+                that.logger.log("internalerror", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty : ", stanza);
+            }
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }

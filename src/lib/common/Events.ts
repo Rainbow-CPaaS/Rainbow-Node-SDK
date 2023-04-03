@@ -288,7 +288,8 @@ class Events {
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
-        "rainbow_onrbvoicerawevent"
+        "rainbow_onrbvoicerawevent",
+        "rainbow_onjoincompanyinvitereceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1468,6 +1469,17 @@ class Events {
              *      This event is fired in case a of rainbow voice event.
              */
             that.publishEvent("rbvoicerawevent", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyinvitereceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyinvitereceived
+             * @public
+             * @param { Object } data informations about rainbow join company invite events
+             * @description
+             *      This event is fired in case a of rainbow join company invite event.
+             */
+            that.publishEvent("joincompanyinvitereceived", data);
         });
 
     }

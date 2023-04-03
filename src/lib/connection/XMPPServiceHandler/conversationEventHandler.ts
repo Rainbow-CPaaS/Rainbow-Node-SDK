@@ -2176,6 +2176,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "command_ended":
                         that.onConnectorCommandEndedMessageReceived(node);
                         break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
