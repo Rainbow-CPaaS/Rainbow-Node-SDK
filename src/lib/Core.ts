@@ -37,6 +37,7 @@ import {TimeOutManager} from "./common/TimeOutManager";
 export {};
 
 const packageVersion = require("../package.json");
+import * as Utils from "./common/Utils"
 
 /*let _signin;
 let _retrieveInformation;
@@ -83,6 +84,7 @@ class Core {
     public _httpoverxmpp: HTTPoverXMPP;
 	public _botsjid: any;
     public _s2s: S2SService;
+    public _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
     private _timeOutManager : TimeOutManager;
 
@@ -97,6 +99,8 @@ class Core {
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
 
+        self._Utils = Utils;
+        
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);
@@ -1209,6 +1213,11 @@ class Core {
     get calllog() {
         return this._calllog;
     }
+
+    get Utils() {
+        return this._Utils;
+    }
+
 }
 
 //module.exports = Core;

@@ -6,7 +6,14 @@
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
-import {pause, setTimeoutPromised, until, getRandomInt, addPropertyToObj} from "../lib/common/Utils";
+import {
+    pause,
+    setTimeoutPromised,
+    until,
+    getRandomInt,
+    addPropertyToObj,
+    generateRamdomEmail
+} from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
@@ -4070,11 +4077,13 @@ let urlS2S;
         }));
         await pause(2000);
         // */
-
+            
+        let loginEmail = rainbowSDK.Utils.generateRamdomEmail(email);
+        
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
         let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
                 p_mandatoryDefaultSubscription: boolean = false,
-                p_companyId: string = undefined, p_loginEmail: string = email, p_customData: any = undefined,
+                p_companyId: string = undefined, p_loginEmail: string = loginEmail, p_customData: any = undefined,
                 p_password: string = password,
                 p_firstName: string = firstname, p_lastName: string = lastname,
                 p_nickName: string = undefined, p_title: string = undefined, p_jobTitle: string = undefined,
@@ -4098,13 +4107,13 @@ let urlS2S;
         try {
 
 
-            let invitation: any = await rainbowSDK.admin.inviteUserInCompany(newUser.loginEmail,newCompany.id,"en-US","Hello !!!");
-            logger.log("debug", "MAIN - (testJoinCompanyInvitations) invitation : ", invitation); 
-            
+            let invitation: any = await rainbowSDK.admin.inviteUserInCompany(newUser.loginEmail, newCompany.id, "en-US", "Hello !!!");
+            logger.log("debug", "MAIN - (testJoinCompanyInvitations) invitation : ", invitation);
+
             let options1: any = {};
 
             Object.assign(options1, options);
-            options1.credentials.login = email;
+            options1.credentials.login = loginEmail;
             options1.credentials.password = password;
             options1.logs.customLabel = options1.credentials.login + "_1";
             options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
@@ -4114,7 +4123,11 @@ let urlS2S;
                 logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
             });
             rainbowSDK1.events.on("rainbow_onerror", (data) => {
-                logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+                logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " should destroy and recreate the SDK.");
+                rainbowSDK1 = undefined;
+            });
+            rainbowSDK1.events.on("rainbow_onjoincompanyinvitereceived", (data) => {
+                logger.log("debug", "MAIN - (rainbow_onjoincompanyinvitereceived)  - rainbow event received. data", data);
                 rainbowSDK1 = undefined;
             });
 
@@ -4124,7 +4137,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - (testJoinCompanyInvitations) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
             });
 
-            let allInvitations : any = await rainbowSDK1.admin.getAllJoinCompanyInvitations("lastNotificationDate", undefined, "small", 100, 0, 1).catch((e) => {
+            let allInvitations: any = await rainbowSDK1.admin.getAllJoinCompanyInvitations("lastNotificationDate", undefined, "small", 100, 0, 1).catch((e) => {
                 logger.log("error", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Error : ", e);
             })
             logger.log("debug", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Result : ", allInvitations); // */
@@ -4133,10 +4146,9 @@ let urlS2S;
                 logger.log("error", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Error : ", e);
             })); // */
 
-            } catch (e) {
+        } catch (e) {
 
         }
-
 
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});

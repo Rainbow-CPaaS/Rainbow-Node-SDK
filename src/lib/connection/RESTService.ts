@@ -1680,6 +1680,8 @@ class RESTService extends GenericRESTService {
     nickName : string= undefined, title : string= undefined, jobTitle : string= undefined, department : string= undefined, tags : Array<string>= undefined, emails : Array<any>= undefined, phoneNumbers : Array<any>= undefined, country : string= undefined, state : string= undefined, language : string= undefined,
     timezone : string= undefined, accountType : string= "free", roles : Array<string>= ["user"], adminType : string= undefined, isActive : boolean = true, isInitialized : boolean = false, visibility : string= undefined, timeToLive : number= -1, authenticationType : string= undefined,
     authenticationExternalUid : string= undefined, userInfo1 : string= undefined, selectedTheme : string= undefined, userInfo2 : string= undefined, isAdmin : boolean = false) {
+        // POST /api/rainbow/admin/v1.0/users
+        // API https://api.openrainbow.org/admin/#api-users-PostUsers
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/admin/v1.0/users"

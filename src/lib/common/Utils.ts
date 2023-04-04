@@ -559,6 +559,20 @@ const resolveDns = (cname) => {
     });
 }
 
+function randomString(length, chars) {
+    let result = "";
+    for (let i = length; i > 0; --i) {
+        result += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+    return result;
+}
+
+function generateRamdomEmail(email){
+    let randomId = randomString(16, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    let emailGenerated = randomId + "_" + email;
+    return emailGenerated.toLowerCase();
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -585,7 +599,8 @@ export let objToExport = {
     resolveDns,
     isPromise,
     doWithinInterval,
-    addPropertyToObj
+    addPropertyToObj,
+    generateRamdomEmail
 };
 
 module.exports = objToExport;
@@ -615,7 +630,8 @@ export {
     resolveDns,
     isPromise,
     doWithinInterval,
-    addPropertyToObj
+    addPropertyToObj,
+    generateRamdomEmail
 };
 
 export default {
@@ -644,5 +660,6 @@ export default {
     resolveDns,
     isPromise,
     doWithinInterval,
-    addPropertyToObj
+    addPropertyToObj,
+    generateRamdomEmail
 };
