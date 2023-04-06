@@ -52,6 +52,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `AdminService::createUserInCompany` to use low layer updated.
 -   Add `AdminService::createUser` to Create a new user in providen company, else in Rainbow default companie.
 -   Add event `rainbow_onjoincompanyinvitereceived` fired in case a of rainbow join company invite event.
+-   Add `AdminService::cancelJoinCompanyRequest` This API can be used by logged in user to cancel a request to join a company he sent.
+-   Add `AdminService::getJoinCompanyRequest` This API allows to get a join company request sent by the user.
+-   Add `AdminService::getAllJoinCompanyRequests` This API allows to list all join company requests sent by the user.
+-   Add `AdminService::resendJoinCompanyRequest` This API can be used by logged in user to re-send a request to join a company.
+-   Add `AdminService::requestToJoinCompany` This API allows logged in user to send a request to join a company.
+-   Add event `rainbow_onjoincompanyrequestreceived` fired in case a of rainbow join company request event.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.

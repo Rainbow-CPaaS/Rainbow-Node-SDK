@@ -71,6 +71,7 @@ class InvitationsService extends GenericService {
 		this._eventEmitter.on("evt_internal_onrosters", that.onRosterChanged.bind(this));
 		this._eventEmitter.on("evt_internal_invitationsManagementUpdate", that.onInvitationsManagementUpdate.bind(this));
 		this._eventEmitter.on("evt_internal_joinCompanyInvitationManagementUpdate", that.onJoinCompanyInviteManagementMessageReceived.bind(this));
+		this._eventEmitter.on("evt_internal_joinCompanyRequestManagementUpdate", that.onJoinCompanyRequestManagementMessageReceived.bind(this));
 		this._eventEmitter.on("evt_internal_openinvitationManagementUpdate", that.onOpenInvitationManagementUpdate.bind(this));
 	}
 
@@ -261,6 +262,14 @@ class InvitationsService extends GenericService {
         that._logger.log("info", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
         that._logger.log("info", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) that.sentInvitations : ", that.sentInvitations);
         // */
+		return true;
+	};
+
+	async onJoinCompanyRequestManagementMessageReceived(joincompanyrequest) {
+		let that = this;
+        that._logger.log("internal", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite : ", joincompanyrequest);
+		that._logger.log("debug", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) join company invite event received");
+		that._eventEmitter.emit("evt_internal_joincompanyrequestreceived", joincompanyrequest);
 		return true;
 	};
 

@@ -154,6 +154,9 @@ class WebinarEventHandler extends GenericHandler {
                     case "joincompanyinvite":
                         // treated in invitationEventHandler
                         break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

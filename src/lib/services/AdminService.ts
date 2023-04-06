@@ -6,7 +6,7 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
-import {addParamToUrl, Deferred, isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, addPropertyToObj, Deferred, isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -2271,7 +2271,313 @@ class AdminService extends GenericService {
     }
 
     //endregion Company join company invitations
-    
+
+    //region Company join company requests
+
+    /**
+     * @public
+     * @method cancelJoinCompanyRequest
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company requests
+     * @async
+     * @description
+     *       This API can be used by logged in user to cancel a request to join a company he sent. <br>
+     *       Request must be pending or declined (otherwise error 409 is returned). <br>
+     *       Once request has been canceled, administrators won't be able to accept or decline it anymore.  <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company request unique Id |
+     * | requestingUserId | String | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | String | Requesting user email |
+     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
+     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | requestingDate | Date-Time | Date the request was created |
+     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
+     * | companyAdminId | String |     |
+     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | String |     |
+     *
+     * @param {string} joinCompanyRequestId Join company request unique identifier
+     */
+    cancelJoinCompanyRequest (joinCompanyRequestId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.cancelJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(cancelJoinCompanyRequest) Successfully.");
+                    that._logger.log("internal", LOG_ID + "(cancelJoinCompanyRequest) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(cancelJoinCompanyRequest) ErrorManager. ");
+                    that._logger.log("internalerror", LOG_ID + "(cancelJoinCompanyRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(cancelJoinCompanyRequest) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getJoinCompanyRequest
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company requests
+     * @async
+     * @description
+     *       This API allows to get a join company request sent by the user. </br>
+     *       This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL). </br>
+     *       User must be the one who sent the request (requestingUserId).   </br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company request unique Id |
+     * | requestingUserId | String | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | String | Requesting user email |
+     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
+     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | requestingDate | Date-Time | Date the request was created |
+     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
+     * | companyAdminId | String |     |
+     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | String |     |
+     *
+     * @param {string} joinCompanyRequestId Join company request unique identifier
+     */
+    getJoinCompanyRequest (joinCompanyRequestId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(getJoinCompanyRequest) Successfully get Contact Infos");
+                    that._logger.log("internal", LOG_ID + "(getJoinCompanyRequest) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getJoinCompanyRequest) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getJoinCompanyRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getJoinCompanyRequest) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllJoinCompanyRequests
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company requests
+     * @async
+     * @description
+     *       This API allows to list all join company requests sent by the user. </br>
+     *       This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL). </br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company request unique Id |
+     * | requestingUserId | String | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | String | Requesting user email |
+     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
+     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | requestingDate | Date-Time | Date the request was created |
+     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
+     * | data | Object\[\] | List of join company request Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | companyAdminId | String |     |
+     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | String |     |
+     *
+     * @param {string} sortField Sort items list based on the given field<br><br>Valeur par défaut : `lastNotificationDate`
+     * @param {string} status List all join company requests having the provided status(es). Valeurs autorisées : `=pending`, `accepted`, `declined`
+     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Valeur par défaut : `small`<br>Valeurs autorisées : `small`, `medium`, `full`
+     * @param {number} limit Allow to specify the number of items to retrieve.<br>Valeur par défaut : `100`
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Valeur par défaut : `0`
+     * @param {number} sortOrder Specify order when sorting items list.<br>Valeur par défaut : `1`. Valeurs autorisées : `-1`, `1`
+     */
+    getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.getAllJoinCompanyRequests(sortField , status, format, limit, offset, sortOrder ).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(getAllJoinCompanyRequests) Successfully get Contact Infos");
+                    that._logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(getAllJoinCompanyRequests) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyRequests) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getAllJoinCompanyRequests) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method resendJoinCompanyRequest
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company requests
+     * @async
+     * @description
+     *       This API can be used by logged in user to re-send a request to join a company. </br>
+     *       This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL). </br>
+     *       User must be in Default company and have only user role. </br>
+     *       If request is canceled or declined, it is set back to pending and then re-sent. </br>
+     *       If request is accepted or auto-accepted, error 409 is returned.  </br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company request unique Id |
+     * | requestingUserId | String | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | String | Requesting user email |
+     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
+     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | requestingDate | Date-Time | Date the request was created |
+     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
+     * | companyAdminId | String |     |
+     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | String |     |
+     *
+     * @param {string} joinCompanyRequestId Join company request unique identifier
+     */
+    resendJoinCompanyRequest (joinCompanyRequestId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.resendJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(resendJoinCompanyRequest) Successfully get Contact Infos");
+                    that._logger.log("internal", LOG_ID + "(resendJoinCompanyRequest) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(resendJoinCompanyRequest) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(resendJoinCompanyRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(resendJoinCompanyRequest) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method requestToJoinCompany
+     * @instance
+     * @since 2.21.0
+     * @category Company - Join company requests
+     * @async
+     * @description
+     *       This API allows logged in user to send a request to join a company. </br>
+     *       This API can only be used by user himself. </br>
+     *       User must be in **Default** company and have only `user` role. </br>
+     *       This API can be called with one of these three parameters, depending of the use case: </br>
+     *       * `requestedCompanyId`: in the case the company can be found by the user (public company), the user can send the join company request directly using the companyId of the requested company. </br>
+     *       In that case, all users having role/admin type company_admin for the requested company will be notified (they will receive an email and a XMPP message (see below)). </br>
+     *       * `requestedCompanyAdminId`: in the case the company can not be found by the user (private company), the user must know the loginEmail of a company_admin of the company he wants to join. </br>
+     *       He will first have to invite this company_admin by email (invite user process. </br>
+     *       Once the company\_admin will be in user's contact, he will be able to request to join company\_admin's company using company_admin id. </br>
+     *       All users having role/admin type company\_admin for the requested company\_admin's company will be notified (they will receive an email and a XMPP message (see below)). </br>
+     *       * `requestedCompanyLinkId`: in the case the user received a joinCompanyLink Id from a company admin, he can use it to send the join company request to the associated company. </br>
+     *       All users having role/admin type company_admin for the company associated to the joinCompanyInvite will be notified (they will receive an email and a XMPP message (see below)). </br> </br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company request unique Id |
+     * | requestingUserId | String | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | String | Requesting user email |
+     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
+     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | requestingDate | Date-Time | Date the request was created |
+     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
+     * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
+     * | companyAdminId | String |     |
+     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | String |     |
+     *
+     * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
+     * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory. 
+     * @param {string} requestedCompanyLinkId  Id of the join company invite associated to the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
+     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Valeur par défaut : `en`
+     */
+    requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.requestToJoinCompany(requestedCompanyId, requestedCompanyAdminId, requestedCompanyLinkId, lang).then((result : any) => {
+                    that._logger.log("debug", LOG_ID + "(requestToJoinCompany) Successfully get Contact Infos");
+                    that._logger.log("internal", LOG_ID + "(requestToJoinCompany) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log("error", LOG_ID + "(requestToJoinCompany) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(requestToJoinCompany) ErrorManager : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(requestToJoinCompany) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Company join company requests
+
     //endregion Companies and users management
 
     //region Customisation Template

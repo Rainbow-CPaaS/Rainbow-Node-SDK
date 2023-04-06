@@ -4619,7 +4619,7 @@ Request Method: PUT
         });        
     }
     
-    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number ) {
+    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         // API https://api.openrainbow.org/enduser/#api-join_company_invitations-getJoinCompanyInvitations
         // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations
         let that = this;
@@ -4651,6 +4651,131 @@ Request Method: PUT
     }
     
     //endregion Company join company invitations
+    
+    //region Company join company requests
+
+    cancelJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-cancelJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId/cancel
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId + "/cancel";
+            let data = {};
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(cancelJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(cancelJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(cancelJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(cancelJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-getJoinCompanyRequestById
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-getJoinCompanyRequests
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyRequests) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyRequests) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyRequests) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    resendJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-resendJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId/re-send
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId + "/re-send";
+            let data = {};
+            
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(resendJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(resendJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(resendJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(resendJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-sendJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/";
+            let data :any = { };
+            addPropertyToObj(data, "requestedCompanyId", requestedCompanyId, false);
+            addPropertyToObj(data, "requestedCompanyAdminId", requestedCompanyAdminId, false);
+            addPropertyToObj(data, "requestedCompanyLinkId", requestedCompanyLinkId, false);
+            addPropertyToObj(data, "lang", lang, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(requestToJoinCompany) successfull");
+                that.logger.log("internal", LOG_ID + "(requestToJoinCompany) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(requestToJoinCompany) error");
+                that.logger.log("internalerror", LOG_ID, "(requestToJoinCompany) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Company join company requests
     
     //endregion Company
     

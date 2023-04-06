@@ -179,6 +179,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorconfig <br>
  * @fires Events#rainbow_onconnectorcommandended <br>
  * @fires Events#rainbow_onrbvoicerawevent <br>
+ * @fires Events#rainbow_onjoincompanyinvitereceived <br>
+ * @fires Events#rainbow_onjoincompanyrequestreceived <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -289,7 +291,8 @@ class Events {
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
         "rainbow_onrbvoicerawevent",
-        "rainbow_onjoincompanyinvitereceived"
+        "rainbow_onjoincompanyinvitereceived",
+        "rainbow_onjoincompanyrequestreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1480,6 +1483,17 @@ class Events {
              *      This event is fired in case a of rainbow join company invite event.
              */
             that.publishEvent("joincompanyinvitereceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyrequestreceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyrequestreceived
+             * @public
+             * @param { Object } data informations about rainbow join company request events
+             * @description
+             *      This event is fired in case a of rainbow join company request event.
+             */
+            that.publishEvent("joincompanyrequestreceived", data);
         });
 
     }
