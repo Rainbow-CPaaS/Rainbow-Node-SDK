@@ -298,7 +298,356 @@ class AdminService extends GenericService {
     // endregion Bots    
     
     // region Companies and users management
+    //region Company join companies links
 
+    /**
+     * @public
+     * @method createAJoinCompanyLink
+     * @instance
+     * @description
+     *      This API can be used by company admin users to create a join company link for his company. </BR>
+     *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
+     * @async
+     * @param {string} companyId Company unique identifier. Default value is the current logued in user's company. </br>
+     * @param {string} description Join company link description.
+     * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
+     * * if the link is enabled, users can register using it, </BR>
+     * * if the link is disabled, users can't register using it. </BR>
+     * Valeur par défaut : `true`
+     * @param {string} expirationDate Date of expiration of the Join company link </BR>
+     * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
+     * * `expirationDate` has to be provided in UTC timezone. </BR>
+     * * `expirationDate` must be greater than the current date (not possible to set expirationDate to a passed date). </BR>
+     * @param {number} maxNumberUsers  Maximum number of users allowed to register in the company using this join company link. </BR> If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied.
+     * @category Company join companies links
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Join company link unique Id |
+     * | companyId | String | Company related to the join company link |
+     * | creationDate | Date-Time | Creation date of the join company link |
+     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
+     * | description optionnel | String | Join company link description |
+     * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
+     * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
+     * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
+     * | nbUsersRegistered | Number | Number of users that used this join company link to register in the company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */
+    createAJoinCompanyLink(companyId : string = undefined, description : string = undefined, isEnabled : boolean = true,
+                           expirationDate : string = undefined, maxNumberUsers : number= undefined ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(createAJoinCompanyLink) parameters : companyId : ", companyId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+                
+                that._rest.createAJoinCompanyLink( companyId, description, isEnabled, expirationDate, maxNumberUsers ).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createAJoinCompanyLink) Successfully created.");
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createAJoinCompanyLink) ErrorManager .");
+                    that._logger.log("internalerror", LOG_ID + "(createAJoinCompanyLink) ErrorManager  : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createAJoinCompanyLink) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAJoinCompanyLink
+     * @instance
+     * @description
+     *      This API can be used by company `admin` users to delete a join company link by id </BR>
+     *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
+     *      Join company links can't be deleted if they have been used by users to register in the related company (in that case they can only be disabled, by updating `isEnabled` value to false). </BR>
+     * @async
+     * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
+     * @param {string} joinCompanyLinkId Join company link unique identifier.
+     * @category Company join companies links
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Join company link Object |
+     * | status | String | Deletion status |
+     * | id  | String | Join company link unique Id |
+     * | companyId | String | Company related to the join company link |
+     * | creationDate | Date-Time | Creation date of the join company link |
+     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
+     * | description optionnel | String | Join company link description |
+     * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
+     * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
+     * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
+     * | nbUsersRegistered | Number | Number of users that used this join company link to register in the company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */
+    deleteAJoinCompanyLink(companyId : string, joinCompanyLinkId : string ) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(deleteAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+                
+                if (!joinCompanyLinkId) {
+                    that._logger.log("error", LOG_ID + "(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.deleteAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
+                    that._logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) Successfully done.");
+                    resolve(company);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteAJoinCompanyLink) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(deleteAJoinCompanyLink) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteAJoinCompanyLink) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAJoinCompanyLink
+     * @instance
+     * @description
+     *      This API can be used by company admin users to get a join company link by id. </BR>
+     *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
+     * @async
+     * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
+     * @param {string} joinCompanyLinkId Join company link unique identifier.
+     * @category Company join companies links
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Join company link Object |
+     * | id  | String | Join company link unique Id |
+     * | companyId | String | Company related to the join company link |
+     * | creationDate | Date-Time | Creation date of the join company link |
+     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
+     * | description optionnel | String | Join company link description |
+     * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
+     * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
+     * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
+     * | nbUsersRegistered | Number | Number of users that used this join company link to register in the company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */
+    getAJoinCompanyLink(companyId : string, joinCompanyLinkId : string) {
+        let that = this;
+        
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+                that._logger.log("internal", LOG_ID + "(getAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
+
+                if (!joinCompanyLinkId) {
+                    that._logger.log("error", LOG_ID + "(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.getAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
+                    that._logger.log("internal", LOG_ID + "(getAJoinCompanyLink) Successfully done.");
+                    resolve(company);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAJoinCompanyLink) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getAJoinCompanyLink) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAJoinCompanyLink) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllJoinCompanyLinks
+     * @instance
+     * @description
+     *      This API can be used by company admin users to list existing join company links for his company. </BR>
+     *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
+     * @async
+     * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
+     * @param {string} format Allows to retrieve more or less join company links details in response.
+     * > * `small`: id, companyId, isEnabled
+     * > * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
+     * > * `full`: all join company links fields
+     * Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`.
+     * @param {string} createdByAdminId List join company links created by the specified administrator id(s).
+     * @param {boolean} isEnabled List join company links with the specified isEnabled value (true/false).
+     * @param {string} fromExpirationDate List join company links expiring after the given date.
+     * @param {string} toExpirationDate List join company links expiring before the given date.
+     * @param {string} fromNbUsersRegistered List join company links that have been used by at least the given number (nbUsersRegistered greater than or equal to the requested toNbUsersRegistered number).
+     * @param {string} toNbUsersRegistered List join company links that have been used by at less than the given number (nbUsersRegistered lower than or equal to the requested toNbUsersRegistered number).
+     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1 .
+     * @category Company join companies links
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Join company link Object |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | id  | String | Join company link unique Id |
+     * | companyId | String | Company related to the join company link |
+     * | creationDate | Date-Time | Creation date of the join company link |
+     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
+     * | description optionnel | String | Join company link description |
+     * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
+     * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
+     * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
+     * | nbUsersRegistered | Number | Number of users that used this join company link to register in the company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */   
+    getAllJoinCompanyLinks(companyId, format : string = "small", createdByAdminId : string = undefined, isEnabled : boolean = undefined, fromExpirationDate : string = undefined, toExpirationDate : string = undefined,
+                           fromNbUsersRegistered : string = undefined, toNbUsersRegistered : string = undefined, limit : number = 100, offset : number = 0, sortField : string = undefined, sortOrder : number = 1 ) {
+        let that = this;
+
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+
+                that._logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) parameters : companyId : ", companyId);
+                
+                /* if (!name) {
+                    that._logger.log("error", LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                } // */
+
+                that._rest.getAllJoinCompanyLinks(companyId, format, createdByAdminId, isEnabled, fromExpirationDate, toExpirationDate,
+                        fromNbUsersRegistered, toNbUsersRegistered, limit, offset, sortField, sortOrder).then((company) => {
+                    that._logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) Successfully.");
+                    resolve(company);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllJoinCompanyLinks) ErrorManager.");
+                    that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyLinks) ErrorManager : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyLinks) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateAJoinCompanyLink
+     * @instance
+     * @description
+     *      This API can be used by company admin users to update a join company link for his company. </BR>
+     *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
+     * @async
+     * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
+     * @param {string} joinCompanyLinkId Join company link unique identifier.
+     * @param {string} description Join company link description.
+     * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
+     * * if the link is enabled, users can register using it, </BR>
+     * * if the link is disabled, users can't register using it. </BR>
+     * Valeur par défaut : `true` </BR>
+     * @param {string} expirationDate Date of expiration of the Join company link </BR>
+     * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
+     * `expirationDate` has to be provided in UTC timezone. </BR>
+     * `expirationDate` must be greater than the current date (not possible to set expirationDate to a passed date). </BR>
+     * @param {string} maxNumberUsers Maximum number of users allowed to register in the company using this join company link. </BR>
+     * If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied.
+     * @category Company join companies links
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Join company link Object |
+     * | id  | String | Join company link unique Id |
+     * | companyId | String | Company related to the join company link |
+     * | creationDate | Date-Time | Creation date of the join company link |
+     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
+     * | description optionnel | String | Join company link description |
+     * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
+     * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
+     * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
+     * | nbUsersRegistered | Number | Number of users that used this join company link to register in the company. |
+     *
+     * @fulfil {Object} - result
+     * @category async
+     */   
+    updateAJoinCompanyLink(companyId : string, joinCompanyLinkId : string, description : string, isEnabled : boolean = true,
+                           expirationDate : string, maxNumberUsers : number ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                companyId = companyId ? companyId : that._rest.account.companyId;
+
+                that._logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) parameters : companyId : ", companyId);
+
+                /*if (!name) {
+                    that._logger.log("error", LOG_ID + "(updateAJoinCompanyLink) bad or empty 'name' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                } // */
+
+                that._rest.updateAJoinCompanyLink(companyId, joinCompanyLinkId, description, isEnabled, expirationDate, maxNumberUsers ).then((result) => {
+                    that._logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) Successfully.");
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateAJoinCompanyLink) ErrorManager when creating");
+                    that._logger.log("internalerror", LOG_ID + "(updateAJoinCompanyLink) ErrorManager : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateAJoinCompanyLink) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Company join companies links
+    
     /**
      * @public
      * @method createCompanyFromDefault
@@ -8882,6 +9231,7 @@ class AdminService extends GenericService {
     }
     
     // endregion systems systems
+    
 
     // region systems phone numbers    
 

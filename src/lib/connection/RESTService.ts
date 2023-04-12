@@ -4246,6 +4246,142 @@ Request Method: PUT
 
     //region Company
     
+    //region Company join companies links
+
+    createAJoinCompanyLink(companyId : string, description : string = undefined, isEnabled : boolean = true, expirationDate : string = undefined, maxNumberUsers : number = undefined) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-PostJoinCompaniesLinks
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let data :any = { };
+            addPropertyToObj(data, "description", description, false);
+            addPropertyToObj(data, "isEnabled", isEnabled, false);
+            addPropertyToObj(data, "expirationDate", expirationDate, false);
+            addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(createAJoinCompanyLink) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(createAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteAJoinCompanyLink(companyId : string, joinCompanyLinkId : string ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-DeleteJoinCompaniesLinksById
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) companyId", companyId);
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links/" + joinCompanyLinkId
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAJoinCompanyLink(companyId : string, joinCompanyLinkId : string) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-GetJoinCompaniesLinksById
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links/" + joinCompanyLinkId';
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "joinCompanyLinkId", joinCompanyLinkId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(getAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllJoinCompanyLinks(companyId, format : string = "small", createdByAdminId : string = undefined, isEnabled : boolean = undefined, fromExpirationDate : string = undefined, toExpirationDate : string = undefined,
+    fromNbUsersRegistered : string = undefined, toNbUsersRegistered : string = undefined, limit : number = 100, offset : number = 0, sortField : string = undefined, sortOrder : number = 1 ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-GetJoinCompaniesLinks
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "createdByAdminId", createdByAdminId);
+            addParamToUrl(urlParamsTab, "isEnabled", isEnabled);
+            addParamToUrl(urlParamsTab, "fromExpirationDate", fromExpirationDate);
+            addParamToUrl(urlParamsTab, "toExpirationDate", toExpirationDate);
+            addParamToUrl(urlParamsTab, "fromNbUsersRegistered", fromNbUsersRegistered);
+            addParamToUrl(urlParamsTab, "toNbUsersRegistered", toNbUsersRegistered);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyLinks) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyLinks) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyLinks) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    updateAJoinCompanyLink(companyId : string, joinCompanyLinkId : string, description : string, isEnabled : boolean = true,
+                           expirationDate : string, maxNumberUsers : number ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-PutJoinCompaniesLinks
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let data :any = { };
+            addPropertyToObj(data, "description", description, false);
+            addPropertyToObj(data, "isEnabled", isEnabled, false);
+            addPropertyToObj(data, "expirationDate", expirationDate, false);
+            addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
+            
+            that.http.put(url , that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(updateAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Company join companies links
+    
     //region Company from end user portal
     
     createCompanyFromDefault(name, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
