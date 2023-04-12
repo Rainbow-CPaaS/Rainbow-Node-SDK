@@ -12185,6 +12185,51 @@ Request Method: PUT
         });
     }
 
+    //region pcg pbxs
+    
+    getAllPbxs(format : string = "small", sortField : string = "id", limit : number =  100, offset : number = 0, sortOrder : number = 1, name : string = undefined, type : string = undefined, status: string = undefined, siteId : string = undefined, companyId : string = undefined,
+    bpId : string = undefined, isShared : boolean = undefined, isCentrex : boolean = undefined, isSharedOrCentrex : boolean = undefined, isOxoManaged : boolean = undefined, fromCreationDate : string = undefined, toCreationDate : string = undefined) {
+        // GET /api/rainbow/pcg/v1.0/pbxs
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs-GetPbxs
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/pcg/v1.0/pbxs" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "type", type);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "siteId", siteId);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "bpId", bpId);
+            addParamToUrl(urlParamsTab, "isShared", isShared);
+            addParamToUrl(urlParamsTab, "isCentrex", isCentrex);
+            addParamToUrl(urlParamsTab, "isSharedOrCentrex", isSharedOrCentrex);
+            addParamToUrl(urlParamsTab, "isOxoManaged", isOxoManaged);
+            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate);
+            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllPbxs) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllPbxs) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllPbxs) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllPbxs) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllPbxs) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion pcg pbxs 
 
     //endregion systems
     

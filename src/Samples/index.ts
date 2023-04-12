@@ -6293,7 +6293,17 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
     }
 
-        // endregion Bots    
+    // endregion Bots    
+    
+    //region PBXS
+    
+    async  testgetAllPbxs() {
+       let that = this;
+       let res = await rainbowSDK.admin.getAllPbxs();
+       logger.log("debug", "MAIN - testgetAllPbxs, res : ", res);
+    }
+
+    //endregion PBXS    
 
     // region TimeOutManager
 
