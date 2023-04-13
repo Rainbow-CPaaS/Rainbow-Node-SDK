@@ -170,7 +170,7 @@ class Core {
                 });
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
-                if (!self._stateManager.isCONNECTED()) {
+                if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self._stateManager.transitTo(self._stateManager.FAILED);
