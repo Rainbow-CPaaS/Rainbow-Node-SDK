@@ -26,7 +26,7 @@ class Emitter extends EventEmitter {
     emit(type, ...args): boolean {
         let that = this;
         try {
-        that._logger.log("internal", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        that._logger.log("debug", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
         } catch (e) {
             that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
         }
@@ -39,9 +39,7 @@ class Emitter extends EventEmitter {
         let that = this;
         let listenerWithLog = (...args: any[]) => {
             try {
-                if (args.length === 0) {
-                    that._logger.log("internal", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
-                }
+                that._logger.log("debug", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
                 let iter = 0;
                 [...params] = args;
                 let data = "";
@@ -1549,6 +1547,21 @@ class Events {
      */
     on(event, callback): EventEmitter {
         return this._evPublisher.on(event, callback);
+    }
+
+    /**
+     * @method emit
+     * @private
+     * @memberof Events
+     * @instance
+     * @param {string} eventName name for the event
+     * @param {any} data arguments for the event
+     * @return nothing
+     * @description
+     *      Emit an event.
+     */
+    emit(eventName, data) : void {
+        this.iee.emit(eventName, data);
     }
 
     /**
