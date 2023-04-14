@@ -101,7 +101,8 @@ const NameSpacesLabels = {
     "IncidentCap" : "http://www.incident.com/cap/1.0",
     "MonitoringNS" : "urn:xmpp:monitoring:0",
     "XmppHttpNS" : "urn:xmpp:http",
-    "protocolShimNS" : "http://jabber.org/protocol/shim"
+    "protocolShimNS" : "http://jabber.org/protocol/shim",
+    "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing"
 };
 
 @logEntryExit(LOG_ID)
@@ -668,9 +669,10 @@ class XMPPService extends GenericService {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 default:
-                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", stanza.getName());
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
                     break;
             }
         });
@@ -799,6 +801,12 @@ class XMPPService extends GenericService {
 
         that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+            let stanza = xml("close", {
+                "xmlns": NameSpacesLabels.XmppFraming
+            });
+
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            return that.xmppClient.send(stanza);
         });
 
         that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
@@ -1029,6 +1037,11 @@ class XMPPService extends GenericService {
 
     //endregion Carbon
 
+    sendStanza (stanza) {
+        let that = this;
+        return that.xmppClient.send(stanza);
+    }
+    
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
