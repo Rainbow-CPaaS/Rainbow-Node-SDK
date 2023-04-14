@@ -128,10 +128,20 @@ class Core {
 
         self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
 
-
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
-            await self.signin(true, undefined);
+            let that = this;
+            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
+            await self.stop().then(function(result) {
+            }).catch(function(err) {
+                let error = ErrorManager.getErrorManager().ERROR;
+                error.msg = err;
+                self.events.publish("stopped", error);
+            });
+            await self.start(undefined).then(async function() {
+                await self.signin(true, undefined);
+            })
         });
+
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
             self._rest.applicationToken = token;
         });
@@ -139,7 +149,6 @@ class Core {
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
-            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
             }).catch(function(err) {
@@ -147,6 +156,7 @@ class Core {
                 error.msg = err;
                 self.events.publish("stopped", error);
             });
+            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -173,6 +183,9 @@ class Core {
                 if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
+                    await self.stop().then(function(result) {
+                    }).catch(function(err) {
+                    });
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
