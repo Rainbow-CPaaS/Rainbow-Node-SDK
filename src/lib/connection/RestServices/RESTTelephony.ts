@@ -2,7 +2,7 @@
 
 
 
-import {logEntryExit} from "../../common/Utils";
+import {addParamToUrl, logEntryExit} from "../../common/Utils";
 
 const ErrorCase = require('../../common/ErrorManager');
 const util = require('util');
@@ -476,8 +476,134 @@ class RESTTelephony {
         });
     }
     
-    // GET /api/rainbow/telephony/v1.0/voicemessages
+    // region Voice Messages
     
+    deleteAllMyVoiceMessagesFromPbx (postHeader) {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) REST .");
+
+            that.http.delete("/api/rainbow/telephony/v1.0/voicemessages/all"  , postHeader, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAllMyVoiceMessagesFromPbx) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAllMyVoiceMessagesFromPbx) error : ", err);
+                return reject(err);
+            });
+        });
+
+    }
+    
+    deleteAVoiceMessageFromPbx (postHeader, messageId) {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAVoiceMessageFromPbx) REST messageId : ", messageId);
+
+            that.http.delete("/api/rainbow/telephony/v1.0/voicemessages/" + messageId  , postHeader, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAVoiceMessageFromPbx) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAVoiceMessageFromPbx) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAVoiceMessageFromPbx) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAVoiceMessageFromPbx) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAVoiceMessageFromPbx (requestHeader, messageId : string, messageDate : string, messageFrom : string) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAVoiceMessageFromPbx) REST messageId : ", messageId);
+
+            let url: string = "/api/rainbow/telephony/v1.0/voicemessages/" + messageId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "messageDate", messageDate);
+            addParamToUrl(urlParamsTab, "messageFrom", messageFrom);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAVoiceMessageFromPbx) REST url : ", url);
+
+            that.http.get(url, requestHeader, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAVoiceMessageFromPbx) successfull");
+                that.logger.log("internal", LOG_ID + "(getAVoiceMessageFromPbx) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAVoiceMessageFromPbx) error");
+                that.logger.log("internalerror", LOG_ID, "(getAVoiceMessageFromPbx) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getDetailedListOfVoiceMessages (requestHeader) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // GET /api/rainbow/telephony/v1.0/voicemessages
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getDetailedListOfVoiceMessages) REST .");
+
+            let url: string = "/api/rainbow/telephony/v1.0/voicemessages";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getDetailedListOfVoiceMessages) REST url : ", url);
+
+            that.http.get(url, requestHeader, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDetailedListOfVoiceMessages) successfull");
+                that.logger.log("internal", LOG_ID + "(getDetailedListOfVoiceMessages) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDetailedListOfVoiceMessages) error");
+                that.logger.log("internalerror", LOG_ID, "(getDetailedListOfVoiceMessages) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getNumbersOfVoiceMessages (requestHeader) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
+        // GET /api/rainbow/telephony/v1.0/voicemessages/counters
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getNumbersOfVoiceMessages) REST .");
+
+            let url: string = "/api/rainbow/telephony/v1.0/voicemessages/counters";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getNumbersOfVoiceMessages) REST url : ", url);
+
+            that.http.get(url, requestHeader, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getNumbersOfVoiceMessages) successfull");
+                that.logger.log("internal", LOG_ID + "(getNumbersOfVoiceMessages) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getNumbersOfVoiceMessages) error");
+                that.logger.log("internalerror", LOG_ID, "(getNumbersOfVoiceMessages) error : ", err);
+                return reject(err);
+            });
+        });       
+    }
+
+    // endregion Voice Messages
     
 }
 

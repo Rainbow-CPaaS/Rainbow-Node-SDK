@@ -44,6 +44,7 @@ const myFormatNoColors = winston.format.printf(info => {
 
 class Logger {
     private enableEncryptedLogs: boolean = false;
+    public logLevel: string;
     get logEventEmitter(): NodeJS.EventEmitter {
         return this._logEventEmitter;
     }
@@ -62,6 +63,7 @@ class Logger {
 
     constructor(config) {
 
+        let self = this;
         const cryptr = new Cryptr('rainbow-node-sdk-1654341354345486797943542318461318730123013');
         
         this.colors = colors;
@@ -99,7 +101,7 @@ class Logger {
         let logs = defaultConfig.logs;
 
         let logDir = logs.path;
-        let logLevel = logs.level;
+        self.logLevel = logs.level;
         let logColor = logs.color;
         let logHttp = logs["system-dev"].http;
         let logInternals = logs["system-dev"].internals;
@@ -181,7 +183,7 @@ class Logger {
         }
 
         if (("logs" in config) && ("level" in config.logs)) {
-            logLevel = config.logs.level;
+            self.logLevel = config.logs.level;
         }
 
         if (("logs" in config) && ("internals" in config.logs)) {
@@ -191,7 +193,7 @@ class Logger {
         if (enableFileLog) {
             //Set the Level for log file
             if (("logs" in config) && ("file" in config.logs) && ("level" in config.logs.file)) {
-                logLevel = config.logs.file.level;
+                self.logLevel = config.logs.file.level;
             }
             //Set the zippedArchive for log file
             if (("logs" in config) && ("file" in config.logs) && ("zippedArchive" in config.logs.file)) {
@@ -368,7 +370,7 @@ class Logger {
 
                 transports: [
                     new (winston.transports.Console)({
-                        level: logLevel
+                        level: self.logLevel
                     }),
                     new (DailyRotateFile)({
                         name: 'logs',
@@ -379,7 +381,7 @@ class Logger {
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
                         prepend: true,
-                        level: logLevel
+                        level: self.logLevel
                     })
                 ]
             });
@@ -404,7 +406,7 @@ class Logger {
                 ),
                 transports: [
                     new (winston.transports.Console)({
-                        level: logLevel
+                        level: self.logLevel
                     })
                 ]
             });
@@ -434,7 +436,7 @@ class Logger {
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
                         prepend: true,
-                        level: logLevel
+                        level: self.logLevel
                     })
         ]
             });
@@ -477,8 +479,9 @@ class Logger {
         } else {
         }
 
-        if (this._logger) {
-            this._logger.colors = this.colors ;
+        if (self._logger) {
+            self._logger.colors = self.colors ;
+            self._logger.logLevel = self.logLevel ;
         }
 
     }
@@ -487,7 +490,7 @@ class Logger {
         return this._logger;
     }
 
-    argumentsToStringReduced (v){
+    argumentsToStringReduced (v, delemiter : string = " "){
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
         for(let k in args){
@@ -502,11 +505,11 @@ class Logger {
                 args[k] = util.inspect(args[k], options);
             }
         }
-        let str = args.join(" ");
+        let str = args.join(delemiter);
         return str;
     }
 
-    argumentsToStringFull (v) {
+    argumentsToStringFull (v, delemiter : string = " ") {
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
         for(let k in args){
@@ -515,7 +518,7 @@ class Logger {
                 args[k] = util.inspect(args[k], false, null, true);
             }
         } // */
-        let str = args.join(" ");
+        let str = args.join(delemiter);
         return str;
     }
 

@@ -6,7 +6,7 @@ import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {addParamToUrl, logEntryExit, makeId} from "../common/Utils.js";
+import {addParamToUrl, addPropertyToObj, logEntryExit, makeId} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -25,6 +25,8 @@ import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
 import {RESTWebinar} from "./RestServices/RESTWebinar";
 import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
+import {TimeOutManager} from "../common/TimeOutManager";
+import {Group} from "ts-generic-collections-linq";
 
 const jwt : any = jwtDecode;
 
@@ -310,6 +312,7 @@ class RESTService extends GenericRESTService {
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
     private _options: any;
+    private timeOutManager : TimeOutManager;
 
     static getClassName(){ return 'RESTService'; }
     getClassName(){ return RESTService.getClassName(); }
@@ -324,6 +327,7 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(evtEmitter, _logger);
 
+        this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
         this.app = null;
@@ -593,10 +597,10 @@ class RESTService extends GenericRESTService {
                    clearTimeout(that.renewTokenInterval);
                }
                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
-               that.renewTokenInterval = setTimeout(function () {
+               that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
                    that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
                    that._renewAuthToken();
-               }, usedExpirationDuration);
+               }, usedExpirationDuration, "startTokenSurvey 1");
            }
        } else if (decodedToken) { // token is from oauth external login, so we can not refresh it by ourself.
            usedExpirationDuration = halftokenExpirationDuration ;
@@ -615,11 +619,11 @@ class RESTService extends GenericRESTService {
                    clearTimeout(that.renewTokenInterval);
                }
                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
-               that.renewTokenInterval = setTimeout(function () {
+               that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
                    //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
                    that.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
                    //that.startTokenSurvey()
-               }, usedExpirationDuration);
+               }, usedExpirationDuration, "startTokenSurvey 2");
            }
        } else {
            that.logger.log("info", LOG_ID + "(startTokenSurvey) decodedToken undefined.");
@@ -642,6 +646,92 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    // region Bots
+
+    getRainbowSupportBotService () : any {
+        // GET /api/rainbow/enduser/v1.0/bots/rainbow-support
+        // API https://api.openrainbow.org/enduser/#api-bots-getRainbowSupport
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots/rainbow-support";
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getRainbowSupportBotService) successfull");
+                that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getRainbowSupportBotService) error");
+                that.logger.log("internalerror", LOG_ID, "(getRainbowSupportBotService) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getABotServiceData(botId : string) : any {
+        // GET /api/rainbow/enduser/v1.0/bots/:botId
+        // API https://api.openrainbow.org/enduser/#api-bots-getBotById
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots/" + botId;
+            /*let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "commandId", commandId);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getABotServiceData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getABotServiceData) successfull");
+                that.logger.log("internal", LOG_ID + "(getABotServiceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getABotServiceData) error");
+                that.logger.log("internalerror", LOG_ID, "(getABotServiceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllBotServices(format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) : any {
+        // GET /api/rainbow/enduser/v1.0/bots
+        // API https://api.openrainbow.org/enduser/#api-bots-getBots
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/bots";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+            // */
+
+            that.logger.log("internal", LOG_ID + "(getAllBotServices) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllBotServices) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllBotServices) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllBotServices) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllBotServices) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // endregion
+     
     //region Contacts API
     
     //region Contacts API - Search portal
@@ -783,6 +873,428 @@ class RESTService extends GenericRESTService {
     }
     
     //endregion Contacts API - Search portal
+    
+    //region Sources
+
+    async createSource (userId : string, sourceId : string, os : string ) {
+        // API https://api.openrainbow.org/enduser/#api-sources-createSource
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+            
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (os) {
+                data.os = os;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources" ;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteSource (userId : string, sourceId : string) {
+        // API https://api.openrainbow.org/enduser/#api-sources-deleteSource
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getSourceData (userId : string, sourceId : string) {
+        // API https://api.openrainbow.org/enduser/#api-sources-getSourceData
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(getSourceData) args : ", data );
+            that.http.get(url, that.getRequestHeader(), data).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getSourceData) successfull");
+                that.logger.log("internal", LOG_ID + "(getSourceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getSourceData) error.");
+                that.logger.log("internalerror", LOG_ID, "(getSourceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllSourcesByUserId (userId : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-sources-getAllSourcesByUserId
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST userId : ", userId);
+            
+            userId = userId ? userId : that.account.id;
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllSourcesByUserId) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllSourcesByUserId) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllSourcesByUserId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async updateSourceData (userId : string, sourceId : string, os : string ) {
+        // API https://api.openrainbow.org/enduser/#api-sources-updateSourceData
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {};
+
+            userId = userId ? userId:that.account.id;
+
+            if (os) {
+                data.os = os;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
+            that.logger.log("internal", LOG_ID + "(updateSourceData) args : ", data);
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateSourceData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateSourceData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateSourceData) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateSourceData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Sources
+    
+    //region Contacts API - Enduser portal
+    
+    async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> , emails : Array<any> ,addresses : Array<any> , groups : Array<string> , otherData : Array<any> ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-updateContact
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (!sourceId) {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!contactIddb) {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (contactId) {
+                data.contactId = contactId;
+            }
+
+            if (firstName) {
+                data.firstName = firstName;
+            }
+
+            if (lastName) {
+                data.lastName = lastName;
+            }
+
+            if (displayName) {
+                data.displayName = displayName;
+            }
+
+            if (company) {
+                data.company = company;
+            }
+
+            if (jobTitle) {
+                data.jobTitle = jobTitle;
+            }
+
+            if (phoneNumbers) {
+                data.phoneNumbers = phoneNumbers;
+            }
+
+            if (emails) {
+                data.emails = emails;
+            }
+
+            if (addresses) {
+                data.addresses = addresses;
+            }
+
+            if (groups) {
+                data.groups = groups;
+            }
+
+            if (otherData) {
+                data.otherData = otherData;
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactIddb ;
+            that.logger.log("internal", LOG_ID + "(updateContactData) args : ", data );
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateContactData) successfull");
+                that.logger.log("internal", LOG_ID + "(updateContactData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateContactData) error.");
+                that.logger.log("internalerror", LOG_ID, "(updateContactData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>, emails : Array<any>, addresses : Array<any>, groups : Array<string>, otherData : Array<any>) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-createContact
+        // POST /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (sourceId) {
+                data.sourceId = sourceId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (contactId) {
+                data.contactId = contactId;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (firstName) {
+                data.firstName = firstName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (lastName) {
+                data.lastName = lastName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (displayName) {
+                data.displayName = displayName;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (company) {
+                data.company = company;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (jobTitle) {
+                data.jobTitle = jobTitle;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (phoneNumbers) {
+                data.phoneNumbers = phoneNumbers;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (emails) {
+                data.emails = emails;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (addresses) {
+                data.addresses = addresses;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (groups) {
+                data.groups = groups;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (otherData) {
+                data.otherData = otherData;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts" ;
+            that.logger.log("internal", LOG_ID + "(createContact) args : ", data );
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createContact) successfull");
+                that.logger.log("internal", LOG_ID + "(createContact) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createContact) error.");
+                that.logger.log("internalerror", LOG_ID, "(createContact) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async getContactData (userId : string, sourceId : string, contactId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-getContact
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/"+sourceId+"/contacts/" + contactId ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getContactData) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getContactData) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactData) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactData) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactData) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    async getContactsList (userId : string, sourceId : string, format : string = "small" ) {
+        // API https://api.openrainbow.org/enduser/#api-contacts-getContacts
+        // GET /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/"+sourceId+"/contacts" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getContactsList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getContactsList) successfull");
+                that.logger.log("internal", LOG_ID + "(getContactsList) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getContactsList) error");
+                that.logger.log("internalerror", LOG_ID, "(getContactsList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteContact (userId : string, sourceId : string, contactId: string) {
+        // API https://api.openrainbow.org/enduser/#api-contacts_deleteContact-DeleteApiRainbowEnduserV10UsersUseridSourcesSourceidContactsContactid
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/sources/:sourceId/contacts/:contactId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            userId = userId ? userId : that.account.id;
+
+            if (!sourceId) {
+                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+
+            if (!contactId) {
+                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactId;
+            that.logger.log("internal", LOG_ID + "(createSource) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createSource) successfull");
+                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createSource) error.");
+                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Contacts API - Enduser portal
 
     async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
         let that = this;
@@ -1116,6 +1628,7 @@ class RESTService extends GenericRESTService {
         }
     }
 
+    /*
     createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -1150,6 +1663,114 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createUser) successfull");
+                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createUser) error");
+                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    // */    
+
+    //createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
+    createUser(sendInvitationEmail : boolean = false, doNotAssignPaidLicense : boolean = false, mandatoryDefaultSubscription : boolean = false, companyId : string = undefined, loginEmail : string = undefined, customData : any= undefined, password : string= undefined, firstName : string= undefined, lastName : string= undefined,
+    nickName : string= undefined, title : string= undefined, jobTitle : string= undefined, department : string= undefined, tags : Array<string>= undefined, emails : Array<any>= undefined, phoneNumbers : Array<any>= undefined, country : string= undefined, state : string= undefined, language : string= undefined,
+    timezone : string= undefined, accountType : string= "free", roles : Array<string>= ["user"], adminType : string= undefined, isActive : boolean = true, isInitialized : boolean = false, visibility : string= undefined, timeToLive : number= -1, authenticationType : string= undefined,
+    authenticationExternalUid : string= undefined, userInfo1 : string= undefined, selectedTheme : string= undefined, userInfo2 : string= undefined, isAdmin : boolean = false) {
+        // POST /api/rainbow/admin/v1.0/users
+        // API https://api.openrainbow.org/admin/#api-users-PostUsers
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/users"
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            /*if (!companyId) {
+                companyId = that.account.companyId;
+            } // */
+
+            addParamToUrl(urlParamsTab, "sendInvitationEmail", sendInvitationEmail);
+            addParamToUrl(urlParamsTab, "doNotAssignPaidLicense", doNotAssignPaidLicense);
+            addParamToUrl(urlParamsTab, "mandatoryDefaultSubscription", mandatoryDefaultSubscription);
+            url = urlParamsTab[0];
+
+            let user :any = { };
+            addPropertyToObj(user, "companyId", companyId, false);
+            addPropertyToObj(user, "loginEmail", loginEmail, false);
+            addPropertyToObj(user, "customData", customData, false);
+            addPropertyToObj(user, "password", password, false);
+            addPropertyToObj(user, "firstName", firstName, false);
+            addPropertyToObj(user, "lastName", lastName, false);
+            addPropertyToObj(user, "nickName", nickName, false);
+            addPropertyToObj(user, "title", title, false);
+            addPropertyToObj(user, "jobTitle", jobTitle, false);
+            addPropertyToObj(user, "department", department, false);
+            addPropertyToObj(user, "tags", tags, false);
+            addPropertyToObj(user, "emails", emails, false);
+            addPropertyToObj(user, "phoneNumbers", phoneNumbers, false);
+            addPropertyToObj(user, "country", country, false);
+            addPropertyToObj(user, "state", state, false);
+            addPropertyToObj(user, "language", language, false);
+            addPropertyToObj(user, "timezone", timezone, false);
+            addPropertyToObj(user, "accountType", accountType, false);
+            addPropertyToObj(user, "roles", roles, false);
+            addPropertyToObj(user, "adminType", adminType, false);
+            addPropertyToObj(user, "isActive", isActive, false);
+            addPropertyToObj(user, "isInitialized", isInitialized, false);
+            addPropertyToObj(user, "visibility", visibility, false);
+            addPropertyToObj(user, "timeToLive", timeToLive, false);
+            addPropertyToObj(user, "authenticationType", authenticationType, false);
+            addPropertyToObj(user, "authenticationExternalUid", authenticationExternalUid, false);
+            addPropertyToObj(user, "userInfo1", userInfo1, false);
+            addPropertyToObj(user, "userInfo2", userInfo2, false);
+            addPropertyToObj(user, "selectedTheme", selectedTheme, false);
+            
+            
+            /*
+                loginEmail: loginEmail,
+                password: password,
+                firstName: firstname,
+                lastName: lastname,
+                isActive: true,
+                isInitialized: false,
+                language: language,
+                adminType: "undefined",
+                roles: ["user"],
+                accountType: "free",
+                companyId: null,
+            }; 
+
+            if (companyId) {
+                user.companyId = companyId;
+            } else {
+                user.companyId = that.account.companyId
+            }
+
+            if (roles != null) {
+                user.roles = roles;
+            }
+
+            if (isAdmin) {
+                user.roles.push("admin");
+                //user.adminType = ["company_admin"];
+                user.adminType = "company_admin";
+            }
+            // */
+
+            if (isAdmin) {
+                if (user.roles && !user.roles.some((element) => element === "admin") ) {
+                    that.logger.log("internal", LOG_ID + "(createUser) add \"admin\" role.");
+                    user.roles.push("admin");
+                }
+                //user.adminType = ["company_admin"];
+                user.adminType = user.adminType ? user.adminType : "company_admin";
+            }
+
+            that.logger.log("internal", LOG_ID + "(createUser) REST url : ", url, ", user : ", user);
+
+            that.http.post(url, that.getRequestHeader(), user, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(createUser) successfull");
                 that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
                 resolve(json.data);
@@ -1288,11 +1909,22 @@ class RESTService extends GenericRESTService {
     
     //region Favorites
 
-    getServerFavorites() {
+    getServerFavorites(peerId: string = undefined) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
-            //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
+            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST peerId : ", peerId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "peerId", peerId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerFavorites) REST result : ", json.data);
                 resolve(json.data);
@@ -1304,7 +1936,9 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    public async addServerFavorite(peerId: string, type: string) {
+    public async addServerFavorite(peerId: string, type: string, position : number) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-createFavorite
+        // POST /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!peerId) {
@@ -1313,9 +1947,17 @@ class RESTService extends GenericRESTService {
                 resolve(null);
             } else {
                 let data = {peerId, type};
-                that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites", that.getRequestHeader(), data, undefined).then(function (json) {
+
+                let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "position", position);
+                url = urlParamsTab[0];
+
+                that.logger.log("internal", LOG_ID + "(addServerFavorite) REST url : ", url);
+                that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(addServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json.data);
+                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
                     that.logger.log("error", LOG_ID, "(addServerFavorite) error");
@@ -1324,26 +1966,117 @@ class RESTService extends GenericRESTService {
                 });
             }
         });
-
-        /*
-        let that = this;
-        try {
-            let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites`;
-            let data = { peerId, type };
-            await this.$http({ method: "POST", url, headers: this.authService.getRequestHeader(), data });
-
-            that._logger.log("debug", LOG_ID +`[favoriteService] addServerFavorite(${peerId}, ${type}) -- SUCCESS`);
-        }
-        catch (error) {
-            let errorMessage = `addServerFavorite(${peerId}, ${type}) -- FAILURE -- ${error.message}`;
-            that._logger.log("error", LOG_ID + `[favoriteService] ${errorMessage}`);
-            throw new Error(errorMessage);
-        }
-
-         */
     }
 
+    public async checkIsPeerSettedAsFavorite(peerId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-checkUserFavoritesPeerId
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/peers/:peerId/check
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST peerId : ", peerId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/peers/" + peerId + "/check";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "types", types);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) successfull");
+                that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkIsPeerSettedAsFavorite) error");
+                that.logger.log("internalerror", LOG_ID, "(checkIsPeerSettedAsFavorite) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    public async getFavoriteById(favoriteId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-getUserFavoritesById
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getFavoriteById) REST favoriteId : ", favoriteId);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "types", types);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getFavoriteById) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getFavoriteById) successfull");
+                that.logger.log("internal", LOG_ID + "(getFavoriteById) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getFavoriteById) error");
+                that.logger.log("internalerror", LOG_ID, "(getFavoriteById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    public async getAllUserFavoriteList(peerId  : string) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST peerId  : ", peerId );
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "peerId ", peerId );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getAllUserFavoriteList) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllUserFavoriteList) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllUserFavoriteList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    moveFavoriteToPosition (favoriteId : string, position : number) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-updateFavorite
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {};
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "position ", position );
+            url = urlParamsTab[0];
+            
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(moveFavoriteToPosition) successfull");
+                that.logger.log("internal", LOG_ID + "(moveFavoriteToPosition) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(moveFavoriteToPosition) error");
+                that.logger.log("internalerror", LOG_ID, "(moveFavoriteToPosition) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+
     public async removeServerFavorite(favoriteId: string) {
+        // API https://api.openrainbow.org/enduser/#api-favorites-removeFavorites
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!favoriteId) {
@@ -1353,7 +2086,7 @@ class RESTService extends GenericRESTService {
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId, that.getRequestHeader()).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(removeServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json.data);
+                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
                     that.logger.log("error", LOG_ID, "(removeServerFavorite) error");
@@ -1362,11 +2095,6 @@ class RESTService extends GenericRESTService {
                 });
             }
         });
-
-        /*
-                   let url = `${config.restServerUrl}/api/rainbow/enduser/v1.0/users/${this.contactService.userContact.dbId}/favorites/${favoriteId}`;
-                   await this.$http({ method: "DELETE", url: url, headers: this.authService.getRequestHeader() });
-                    */
     }
 
     //endregion Favorites
@@ -1374,6 +2102,8 @@ class RESTService extends GenericRESTService {
     //region Invitations
 
     getAllSentInvitations() {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -1389,9 +2119,11 @@ class RESTService extends GenericRESTService {
     };
 
     getInvitationsSent(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
+            that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST sortField : ", sortField);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent";
             let urlParamsTab: string[] = [];
@@ -1419,6 +2151,8 @@ class RESTService extends GenericRESTService {
     };
 
     getAllReceivedInvitations() {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -1433,7 +2167,9 @@ class RESTService extends GenericRESTService {
         });
     };
     
-    getInvitationsReceived(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number = 1) {
+    getInvitationsReceived(sortField : string = "lastNotificationDate", status : string = "pending", format : string = "small", limit : number = 500, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
         let that = this;
         return new Promise((resolve, reject) => {
             that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
@@ -1464,6 +2200,8 @@ class RESTService extends GenericRESTService {
     };
 
     getServerInvitation(invitationId) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-getUserInvitation
+        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
@@ -1479,6 +2217,8 @@ class RESTService extends GenericRESTService {
     };
 
     sendInvitationByCriteria(email : string, lang : string, customMessage : string, invitedPhoneNumber : string, invitedUserId : string) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
         let that = this;
         return new Promise((resolve, reject) => {
             let params : any = {};
@@ -1511,6 +2251,8 @@ class RESTService extends GenericRESTService {
     };
 
     cancelOneSendInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-cancelUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/cancel
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
@@ -1525,10 +2267,33 @@ class RESTService extends GenericRESTService {
         });
     };
 
-    reSendInvitation(invitationId) {
+    deleteAUserInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-deleteUserInvitation
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id, that.getRequestHeader()).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAUserInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAUserInvitation) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(deleteAUserInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAUserInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    reSendInvitation(invitationId : string, customMessage  : string) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-resendUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/re-send
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), undefined, undefined).then((json) => {
+            let data : any = {};
+            if (customMessage) {
+                data.customMessage = customMessage;
+            }
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(reSendInvitation) successfull");
                 that.logger.log("internal", LOG_ID + "(reSendInvitation) REST result : ", json);
                 resolve(json);
@@ -1540,19 +2305,28 @@ class RESTService extends GenericRESTService {
         });
     };
 
-    sendInvitationsParBulk(listOfMails) {
+    sendInvitationsByBulk(listOfMails, lang : string = undefined, customMessage : string = undefined ) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserBulkInvitations
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/bulk
         let that = this;
-        let data = {
+        let data :any = {
             emails: listOfMails
         };
+        if (lang) {
+            data.lang = lang;
+        }
+        if (customMessage) {
+            data.customMessage = customMessage;
+        }
+        
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendInvitationsParBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsParBulk) REST result : ", json);
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(sendInvitationsByBulk) successfull");
+                that.logger.log("internal", LOG_ID + "(sendInvitationsByBulk) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationsParBulk) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationsParBulk) error : ", err);
+                that.logger.log("error", LOG_ID, "(sendInvitationsByBulk) error");
+                that.logger.log("internalerror", LOG_ID, "(sendInvitationsByBulk) error : ", err);
                 return reject(err);
             });
         });
@@ -1562,12 +2336,15 @@ class RESTService extends GenericRESTService {
      * ACCEPT INVITATION
      */
     acceptInvitation(invitation) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-acceptUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/accept
+        
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(acceptInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(acceptInvitation) error");
@@ -1586,7 +2363,7 @@ class RESTService extends GenericRESTService {
             that.logger.log("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
-                resolve(undefined);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(declineInvitation) error");
                 that.logger.log("internalerror", LOG_ID, "(declineInvitation) error : ", err);
@@ -1599,6 +2376,8 @@ class RESTService extends GenericRESTService {
      * SEND INVITATION
      */
     joinContactInvitation(contact) {
+        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
         let that = this;
         return new Promise(function (resolve, reject) {
             that.logger.log("internal", LOG_ID + "(joinContactInvitation) contact : ", contact);
@@ -1711,7 +2490,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    getGroup(groupId) {
+    getGroup(groupId : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), undefined).then(function (json) {
@@ -1726,7 +2505,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    setFavoriteGroup(group, favorite) {
+    updateGroupFavorite(groupId : string, favorite : boolean) {
         /*
         Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
 Request Method: PUT
@@ -1737,22 +2516,22 @@ Request Method: PUT
         let data = {
             isFavorite: favorite
         };
-        let groupId = group.id;
+        //let groupId = group.id;
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(setFavoriteGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(setFavoriteGroup) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(updateGroupFavorite) successfull");
+                that.logger.log("internal", LOG_ID + "(updateGroupFavorite) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setFavoriteGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(setFavoriteGroup) error : ", err);
+                that.logger.log("error", LOG_ID, "(updateGroupFavorite) error");
+                that.logger.log("internalerror", LOG_ID, "(updateGroupFavorite) error : ", err);
                 return reject(err);
             });
         });
     }
 
-    createGroup(name, comment, isFavorite) {
+    createGroup(name : string, comment : string, isFavorite : boolean) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups", that.getRequestHeader(), {
@@ -1771,13 +2550,13 @@ Request Method: PUT
         });
     }
 
-    deleteGroup(groupId) {
+    deleteGroup(groupId : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader()).then(function (json) {
                 that.logger.log("info", LOG_ID + "(deleteGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteGroup) REST result : ", json.data);
-                resolve(json.data);
+                that.logger.log("internal", LOG_ID + "(deleteGroup) REST result : ", json);
+                resolve(json);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(deleteGroup) error");
                 that.logger.log("internalerror", LOG_ID, "(deleteGroup) error : ", err);
@@ -1786,7 +2565,7 @@ Request Method: PUT
         });
     }
 
-    updateGroupName(groupId, name) {
+    updateGroupName(groupId : string, name : string ) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
@@ -1803,7 +2582,24 @@ Request Method: PUT
         });
     }
 
-    addUserInGroup(contactId, groupId) {
+    updateGroupComment(groupId : string, comment : string) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
+                comment: comment
+            }, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateGroupComment) successfull");
+                that.logger.log("internal", LOG_ID + "(updateGroupComment) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateGroupComment) error");
+                that.logger.log("internalerror", LOG_ID, "(updateGroupComment) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    addUserInGroup(contactId : string, groupId : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader(), undefined, undefined).then(function (json) {
@@ -1818,12 +2614,12 @@ Request Method: PUT
         });
     }
 
-    removeUserFromGroup(contactId, groupId) {
+    removeUserFromGroup(contactId : string, groupId : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader()).then(function (json) {
                 that.logger.log("info", LOG_ID + "(removeUserFromGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(removeUserFromGroup) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(removeUserFromGroup) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID + "(removeUserFromGroup) error");
@@ -2407,20 +3203,22 @@ Request Method: PUT
     }
 
     inviteContactsByEmailsToBubble(contactsEmails, bubbleId) {
+        // API https://api.openrainbow.org/enduser/#api-rooms_invitation-sendUsersJoinRoomInvitation
+        // POST /api/rainbow/enduser/v1.0/rooms/:roomId/invitations
         let that = this;
         const data = {
             scenario: "chat",
-            emails: contactsEmails // ["philippe.torrelli@gmail.com"]
+            emails: contactsEmails 
         };
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/invitations", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(inviteContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) successfull");
+                that.logger.log("internal", LOG_ID + "(inviteContactsByEmailsToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
+                that.logger.log("error", LOG_ID, "(inviteContactsByEmailsToBubble) error");
+                that.logger.log("internalerror", LOG_ID, "(inviteContactsByEmailsToBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3448,6 +4246,142 @@ Request Method: PUT
 
     //region Company
     
+    //region Company join companies links
+
+    createAJoinCompanyLink(companyId : string, description : string = undefined, isEnabled : boolean = true, expirationDate : string = undefined, maxNumberUsers : number = undefined) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-PostJoinCompaniesLinks
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let data :any = { };
+            addPropertyToObj(data, "description", description, false);
+            addPropertyToObj(data, "isEnabled", isEnabled, false);
+            addPropertyToObj(data, "expirationDate", expirationDate, false);
+            addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(createAJoinCompanyLink) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(createAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteAJoinCompanyLink(companyId : string, joinCompanyLinkId : string ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-DeleteJoinCompaniesLinksById
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) companyId", companyId);
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links/" + joinCompanyLinkId
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAJoinCompanyLink(companyId : string, joinCompanyLinkId : string) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-GetJoinCompaniesLinksById
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links/" + joinCompanyLinkId';
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "joinCompanyLinkId", joinCompanyLinkId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(getAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllJoinCompanyLinks(companyId, format : string = "small", createdByAdminId : string = undefined, isEnabled : boolean = undefined, fromExpirationDate : string = undefined, toExpirationDate : string = undefined,
+    fromNbUsersRegistered : string = undefined, toNbUsersRegistered : string = undefined, limit : number = 100, offset : number = 0, sortField : string = undefined, sortOrder : number = 1 ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-GetJoinCompaniesLinks
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "createdByAdminId", createdByAdminId);
+            addParamToUrl(urlParamsTab, "isEnabled", isEnabled);
+            addParamToUrl(urlParamsTab, "fromExpirationDate", fromExpirationDate);
+            addParamToUrl(urlParamsTab, "toExpirationDate", toExpirationDate);
+            addParamToUrl(urlParamsTab, "fromNbUsersRegistered", fromNbUsersRegistered);
+            addParamToUrl(urlParamsTab, "toNbUsersRegistered", toNbUsersRegistered);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyLinks) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyLinks) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyLinks) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    updateAJoinCompanyLink(companyId : string, joinCompanyLinkId : string, description : string, isEnabled : boolean = true,
+                           expirationDate : string, maxNumberUsers : number ) {
+        // API https://api.openrainbow.org/admin/#api-join_companies_links-PutJoinCompaniesLinks
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links";
+            let data :any = { };
+            addPropertyToObj(data, "description", description, false);
+            addPropertyToObj(data, "isEnabled", isEnabled, false);
+            addPropertyToObj(data, "expirationDate", expirationDate, false);
+            addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
+            
+            that.http.put(url , that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updateAJoinCompanyLink) successfull");
+                that.logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updateAJoinCompanyLink) error");
+                that.logger.log("internalerror", LOG_ID, "(updateAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Company join companies links
+    
     //region Company from end user portal
     
     createCompanyFromDefault(name, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
@@ -3507,10 +4441,75 @@ Request Method: PUT
             });
         });
     }
-    
+
+    getAllCompaniesVisibleByUser ( format : string = "small", sortField : string = "name", limit  : number = 100, offset  : number = 0, sortOrder : number = 1, name ? : string, status ? : string, visibility ? : string, organisationId ? : string, isBP ? : boolean, hasBP ? : boolean, bpType ? : string) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanies
+        // URL get /api/rainbow/enduser/v1.0/companies
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/enduser/v1.0/companies';
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "visibility", visibility);
+            addParamToUrl(urlParamsTab, "organisationId", organisationId);
+            addParamToUrl(urlParamsTab, "isBP", isBP);
+            addParamToUrl(urlParamsTab, "hasBP", hasBP);
+            addParamToUrl(urlParamsTab, "bpType", bpType);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getAllCompaniesVisibleByUser) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllCompaniesVisibleByUser) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllCompaniesVisibleByUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCompanyAdministrators (companyId : string, format : string = "small", limit : number = 100, offset : number = 0) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanyAdministrators
+        // URL get /api/rainbow/enduser/v1.0/companies/:companyId/administrators
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = '/api/rainbow/enduser/v1.0/companies/' + companyId + '/administrators' ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(getCompanyAdministrators) successfull");
+                that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getCompanyAdministrators) error");
+                that.logger.log("internalerror", LOG_ID, "(getCompanyAdministrators) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Company from end user portal
 
-    getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
+    getAllCompanies(format : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         // API https://api.openrainbow.org/admin/#api-companies-GetCompanies
         // URL get /api/rainbow/admin/v1.0/companies
 
@@ -3687,6 +4686,232 @@ Request Method: PUT
     }
 
     //endregion Company visibility
+    
+    //region Company join company invitations
+    
+    acceptJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-acceptJoinCompanyInvitation
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId/accept
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId + "/accept";
+            let data = {};
+            
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(acceptJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(acceptJoinCompanyInvitation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(acceptJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(acceptJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    declineJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-declineJoinCompanyInvitation
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId/decline
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId + "/decline";
+            let data = {};
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(declineJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(declineJoinCompanyInvitation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(declineJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(declineJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getJoinCompanyInvitation (invitationId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-getJoinCompanyInvitationById
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations/:invitationId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations/" + invitationId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getJoinCompanyInvitation) successfull");
+                that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getJoinCompanyInvitation) error");
+                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyInvitation) error : ", err);
+                return reject(err);
+            });
+        });        
+    }
+    
+    getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_invitations-getJoinCompanyInvitations
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/invitations
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/invitations";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyInvitations) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyInvitations) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyInvitations) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Company join company invitations
+    
+    //region Company join company requests
+
+    cancelJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-cancelJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId/cancel
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId + "/cancel";
+            let data = {};
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(cancelJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(cancelJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(cancelJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(cancelJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-getJoinCompanyRequestById
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-getJoinCompanyRequests
+        // URL get /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that.logger.log("info", LOG_ID + "(getAllJoinCompanyRequests) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllJoinCompanyRequests) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyRequests) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    resendJoinCompanyRequest (joinCompanyRequestId : string) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-resendJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests/:joinCompanyRequestId/re-send
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/" + joinCompanyRequestId + "/re-send";
+            let data = {};
+            
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(resendJoinCompanyRequest) successfull");
+                that.logger.log("internal", LOG_ID + "(resendJoinCompanyRequest) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(resendJoinCompanyRequest) error");
+                that.logger.log("internalerror", LOG_ID, "(resendJoinCompanyRequest) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
+        // API https://api.openrainbow.org/enduser/#api-join_company_requests-sendJoinCompanyRequest
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/join-companies/requests
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/join-companies/requests/";
+            let data :any = { };
+            addPropertyToObj(data, "requestedCompanyId", requestedCompanyId, false);
+            addPropertyToObj(data, "requestedCompanyAdminId", requestedCompanyAdminId, false);
+            addPropertyToObj(data, "requestedCompanyLinkId", requestedCompanyLinkId, false);
+            addPropertyToObj(data, "lang", lang, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(requestToJoinCompany) successfull");
+                that.logger.log("internal", LOG_ID + "(requestToJoinCompany) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(requestToJoinCompany) error");
+                that.logger.log("internalerror", LOG_ID, "(requestToJoinCompany) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Company join company requests
     
     //endregion Company
     
@@ -4418,6 +5643,7 @@ Request Method: PUT
 
     ////////
     //region Telephony
+    
     makeCall(contact, phoneInfo) {
         let that = this;
         return that.restTelephony.makeCall(that.getRequestHeader(), contact, phoneInfo);
@@ -4537,14 +5763,95 @@ Request Method: PUT
         });
     }
 
+    // region Telephony Voice Messages
+
+    deleteAllMyVoiceMessagesFromPbx () {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
+        let that = this;
+        return that.restTelephony.deleteAllMyVoiceMessagesFromPbx(that.getPostHeader());
+    }
+
+    deleteAVoiceMessageFromPbx (messageId) {
+        // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
+        let that = this;
+        return that.restTelephony.deleteAVoiceMessageFromPbx(that.getPostHeader(), messageId);
+    }
+
+    getAVoiceMessageFromPbx (messageId : string, messageDate : string, messageFrom : string) {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
+        let that = this;
+        return that.restTelephony.getAVoiceMessageFromPbx(that.getRequestHeader(), messageId , messageDate, messageFrom);
+    }
+
+    getDetailedListOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // GET /api/rainbow/telephony/v1.0/voicemessages
+        let that = this;
+        return that.restTelephony.getDetailedListOfVoiceMessages(that.getRequestHeader());
+    }
+
+    getNumbersOfVoiceMessages () {
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
+        // GET /api/rainbow/telephony/v1.0/voicemessages/counters
+        let that = this;
+        return that.restTelephony.getNumbersOfVoiceMessages(that.getRequestHeader());
+    }
+
+    // endregion Telephony Voice Messages
+
     //endregion Telephony
     
-    ////////
     //region Conversations
-    getServerConversations(format: string = "small") {
+
+    async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-countTextInConversations 
+        // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST userId : ", userId);
+
+            let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "substring", substring);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "webinar", webinar);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) successfull");
+                that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error");
+                that.logger.log("internalerror", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getServerConversations(format: string = "small", maxCount : number = undefined, lastUpdateDate : string = undefined, limit : number = 1000, offset : number = 0, before : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
+            that.logger.log("internal", LOG_ID + "(getServerConversations) REST format : ", format);
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "maxCount", maxCount);
+            addParamToUrl(urlParamsTab, "lastUpdateDate", lastUpdateDate);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "before", before);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getServerConversations) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
                 that.logger.log("internal", LOG_ID + "(getServerConversations) REST result : " + JSON.stringify(json) + " conversations");
                 resolve(json.data);
@@ -4603,12 +5910,21 @@ Request Method: PUT
     }
 
     // Send Conversation By Email
-    sendConversationByEmail(conversationId) {
+    sendConversationByEmail(conversationId, emails : Array<string> = undefined, lang : string = undefined ) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), undefined, undefined).then((json) => {
+            
+            let data : any = {};
+            if (emails) {
+                data.emails = emails;
+            }
+            if (lang) {
+                data.lang = lang;
+            }
+            
+            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), data, undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST result : ", json);
                 resolve(json.data);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
@@ -4618,12 +5934,16 @@ Request Method: PUT
         });
     }
 
-    ackAllMessages(conversationId) {
+    ackAllMessages(conversationId, maskRead : boolean = false) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), undefined, undefined).then(function (json) {
+            
+            let data : any = {};
+            data.maskRead  = maskRead;
+            
+            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), data, undefined).then(function (json) {
                 that.logger.log("info", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST result : ", json.data);
+                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(ackAllMessages) error");
@@ -4633,7 +5953,84 @@ Request Method: PUT
         });
     }
 
+    updateConversationBookmark (userId : string, conversationId	: string, messageId : string) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-setBookmarkInConversation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
+
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/" + conversationId + "/bookmark";
+            let data : any = {};
+            if (messageId) {
+                data.messageId = messageId;
+            }
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(updateConversationBookmark) successfull");
+                that.logger.log("internal", LOG_ID + "(updateConversationBookmark) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID, "(updateConversationBookmark) error");
+                that.logger.log("internalerror", LOG_ID, "(updateConversationBookmark) error : ", err);
+                return reject(err);
+            });
+        });       
+    }
+
+    deleteConversationBookmark (userId : string, conversationId	: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
+        // API https://api.openrainbow.org/enduser/#api-conversations-removeBookmarkInConversation
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/" + conversationId + "/bookmark";
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST ");
+
+            that.http.delete(url  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteConversationBookmark) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteConversationBookmark) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteConversationBookmark) error : ", err);
+                return reject(err);
+            });
+        });
+
+    }
+
     //endregion Conversations
+
+    //region Country
+
+    getListOfCountries() {
+        // API https://api.openrainbow.org/enduser/#api-countries-getCountries
+        // GET /api/rainbow/enduser/v1.0/countries
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.logger.log("internal", LOG_ID + "(getListOfCountries) ");
+
+            let url: string = "/api/rainbow/enduser/v1.0/countries";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "maxCount", maxCount);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getListOfCountries) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getListOfCountries) successfull");
+                that.logger.log("internal", LOG_ID + "(getListOfCountries) REST result : ", JSON.stringify(json) );
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getListOfCountries) error");
+                that.logger.log("internalerror", LOG_ID, "(getListOfCountries) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Country
 
     //region Generic HTTP VERB
     get(url, token) {
@@ -4733,7 +6130,7 @@ Request Method: PUT
 
             that.http.get("/api/rainbow/ping", that.getRequestHeader(), undefined).then(function (JSON) {
                 that.logger.log("info", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
-                setTimeout(() => {
+                that.timeOutManager.setTimeout(() => {
                     that.checkEveryPortals().then(() => {
                         that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection succeeded for currentAttempt : ", currentAttempt);
                         resolve(JSON);
@@ -4741,7 +6138,7 @@ Request Method: PUT
                         that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection failed! for currentAttempt : ", currentAttempt);
                         return reject(err);
                     });
-                }, 1000 * 10);
+                }, 1000 * 10, "checkPortalHealth");
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager for currentAttempt : ", currentAttempt);
                 that.logger.log("internalerror", LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
@@ -4775,7 +6172,7 @@ Request Method: PUT
             that.logger.log("info", LOG_ID + "(attemptToReconnect) set reconnectInProgress for the currentAttempt : ", currentAttempt);
             that.reconnectInProgress = true;
             that.logger.log("info", LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + " ms, this.currentAttempt : ", currentAttempt);
-            setTimeout(() => {
+            that.timeOutManager.setTimeout(() => {
                 that.checkPortalHealth(currentAttempt).then(() => {
                     //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
                     that.logger.log("info", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after succeeded for the currentAttempt : ", currentAttempt);
@@ -4787,7 +6184,7 @@ Request Method: PUT
                     that.reconnectInProgress = false;
                     that.eventEmitter.emit("attempt_failed");
                 });
-            }, reconnectDelay);
+            }, reconnectDelay, "attemptToReconnect");
         } else {
             that.logger.log("debug", LOG_ID + "(attemptToReconnect) reconnect in progress, so ignore this call for this.currentAttempt : ", currentAttempt);
         }
@@ -5117,7 +6514,63 @@ Request Method: PUT
     }
     //endregion
 
+    //region IMS
+
+    retrieveXMPPMessagesByListOfMessageIds(ims : Array<any>) {
+        // API https://api.openrainbow.org/enduser/#api-ims
+        // POST /api/rainbow/enduser/v1.0/users/:userId/ims
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/ims" ;
+            let param = {
+                "ims" : ims
+            };
+            that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST ims : ", ims);
+
+            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) successfull");
+                that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error");
+                that.logger.log("internalerror", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion IMS
+    
     //region Messages
+    
+    showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search/hits
+        // API https://api.openrainbow.org/enduser/#api-conversations-searchTextInConversation
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/search/hits";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "substring", substring );
+            addParamToUrl(urlParamsTab, "peer", peer);
+            addParamToUrl(urlParamsTab, "isRoom", isRoom);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            url = urlParamsTab[0];
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(showAllMatchingMessagesForAPeer) REST success.");
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(showAllMatchingMessagesForAPeer) error");
+                that.logger.log("internalerror", LOG_ID, "(showAllMatchingMessagesForAPeer) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    
     markMessageAsRead(conversationId, messageId) {
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{id}/read
         let that = this;
@@ -5326,249 +6779,8 @@ Request Method: PUT
     //endregion Public url
 
     //region Conference
-
-    joinConference(webPontConferenceId, role = "moderator") {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let muted = "unmuted";
-            let params = {participant: {role: role, type: muted}, mediaType: MEDIATYPE.WEBRTC};
-            that.logger.log("internal", LOG_ID + "(joinConference) REST params : ", params);
-
-            that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/snapshot?mediaType=webrtc", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(joinConference) successfull");
-                that.logger.log("internal", LOG_ID + "(joinConference) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinConference) error");
-                that.logger.log("internalerror", LOG_ID, "(joinConference) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getRoomByConferenceEndpointId (conferenceEndpointId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getRoomByConferenceEndpointId) REST.");
-
-            that.http.get("/api/rainbow/enduser/v1.0/rooms?userId=" + that.userId + "&confId=" + conferenceEndpointId + "&format=full", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getRoomByConferenceEndpointId) successfull");
-                that.logger.log("internal", LOG_ID + "(getRoomByConferenceEndpointId) REST result : ", json.data);
-                that.logger.log("info", LOG_ID + "(getRoomFromConferenceEndpointId) -- " + conferenceEndpointId + " -- success");
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getRoomByConferenceEndpointId) error");
-                that.logger.log("internalerror", LOG_ID, "(getRoomByConferenceEndpointId) error : ", err);
-                return reject(err);
-            });
-        });
-
-
-        /*$log.info("[roomService] getRoomFromConferenceEndpointId");
-
-        return $q(function(resolve, reject) {
-            $http({
-                method: "GET",
-                url: service.portalURL + "rooms?userId=" + contactService.userContact.dbId + "&confId=" + conferenceEndpointId + "&format=full",
-                headers: authService.getRequestHeader()
-            }).then(
-                function success(response) {
-                    $log.info("[roomService] getRoomFromConferenceEndpointId -- " + conferenceEndpointId + " -- success");
-                    var roomData = response.data.data;
-                    if (roomData.length) {
-                        if (service.getRoomById(roomData[0].id)) {
-                            resolve(service.getRoomById(roomData[0].id));
-                        } else {
-                            service.createRoomFromData(roomData[0]);
-                            resolve(service.getRoomById(roomData[0].id));
-                        }
-                    }
-                    else {
-                        $log.info("[roomService] getRoomFromConferenceEndpointId -- no room with confId " + conferenceEndpointId);
-                        reject();
-                    }
-                },
-                function failure(response) {
-                    var errorMessage = "getRoomFromConferenceEndpointId -- " + conferenceEndpointId + " -- failure: " + response.data.errorDetails;
-                    $log.error("[roomService] " + errorMessage);
-                    reject(new Error(errorMessage));
-                });
-        }); // */
-    };
-
-    conferenceStart(roomId: string, conferenceId : string, mediaType : MEDIATYPE) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {roomId : roomId,  mediaType : mediaType};
-            that.logger.log("internal", LOG_ID + "(conferenceStart) REST params : ", params);
-
-            that.http.put("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/start", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceStart) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceStart) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceStart) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceStart) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    conferenceStop(conferenceId: string, mediaType : MEDIATYPE, roomId : string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params : any = {
-                mediaType
-            };
-            if (mediaType === MEDIATYPE.WEBRTC) {
-                params.roomId = roomId;
-            }
-            that.logger.log("internal", LOG_ID + "(conferenceStop) REST params : ", params);
-
-            that.http.put("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/stop", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceStop) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceStop) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceStop) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceStop) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    conferenceJoin(conferenceId, mediaType , asModerator : boolean, muted : boolean, phoneNumber : string, country : string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let phoneNumberToUse : string = phoneNumber;
-            if (phoneNumberToUse === null) {
-                phoneNumberToUse = "joinWithoutAudio";
-            }
-            let params : any = {
-                "participantPhoneNumber": phoneNumberToUse,
-                "participant": {
-                    "role":  asModerator ? "moderator" : "member",
-                    "type":  muted ? "muted" : "unmuted"
-                },
-                mediaType,
-                "country": country
-            };
-
-            that.logger.log("internal", LOG_ID + "(conferenceJoin) REST params : ", params);
-
-            that.http.post("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/stop", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceJoin) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceJoin) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceJoin) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceJoin) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    conferenceDropParticipant(conferenceId, mediaType, participantId ) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(conferenceDropParticipant) REST mediaType : ", mediaType);
-
-            that.http.delete("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/participants/" + participantId + "?mediaType=" + mediaType, that.getRequestHeader()).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceDropParticipant) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceDropParticipant) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceDropParticipant) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceDropParticipant) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    personalConferenceGetPhoneNumbers( ) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(personalConferenceGetPhoneNumbers) REST.");
-
-            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences/audio/phonenumbers?shortList=true" , that.getRequestHeader(), undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(personalConferenceGetPhoneNumbers) successfull");
-                that.logger.log("internal", LOG_ID + "(personalConferenceGetPhoneNumbers) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(personalConferenceGetPhoneNumbers) error");
-                that.logger.log("internalerror", LOG_ID, "(personalConferenceGetPhoneNumbers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    personalConferenceGetPassCodes( personalConferenceConfEndpointId ) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(personalConferenceGetPhoneNumbers) REST personalConferenceConfEndpointId : ", personalConferenceConfEndpointId);
-
-            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences/" + personalConferenceConfEndpointId + "?format=full" , that.getRequestHeader(), undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(personalConferenceGetPassCodes) successfull");
-                that.logger.log("internal", LOG_ID + "(personalConferenceGetPassCodes) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(personalConferenceGetPassCodes) error");
-                that.logger.log("internalerror", LOG_ID, "(personalConferenceGetPassCodes) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    personalConferenceResetPassCodes( personalConferenceConfEndpointId ) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let param = {
-                "resetPasswords":true
-            };
-            that.logger.log("internal", LOG_ID + "(personalConferenceResetPassCodes) REST personalConferenceConfEndpointId : ", personalConferenceConfEndpointId);
-
-            that.http.put("/api/rainbow/confprovisioning/v1.0/conferences/" + personalConferenceConfEndpointId, that.getRequestHeader(), param, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(personalConferenceResetPassCodes) successfull");
-                that.logger.log("internal", LOG_ID + "(personalConferenceResetPassCodes) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(personalConferenceResetPassCodes) error");
-                that.logger.log("internalerror", LOG_ID, "(personalConferenceResetPassCodes) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    personalConferenceRename( personalConferenceConfEndpointId : string, name : string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let param = {
-                "name":name
-            };
-            that.logger.log("internal", LOG_ID + "(personalConferenceRename) REST personalConferenceConfEndpointId : ", personalConferenceConfEndpointId);
-
-            that.http.put("/api/rainbow/confprovisioning/v1.0/conferences/" + personalConferenceConfEndpointId, that.getRequestHeader(), param, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(personalConferenceRename) successfull");
-                that.logger.log("internal", LOG_ID + "(personalConferenceRename) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(personalConferenceRename) error");
-                that.logger.log("internalerror", LOG_ID, "(personalConferenceRename) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    askConferenceSnapshot(conferenceId : string, type : MEDIATYPE, limit : number = 100, offset : number = 0) {
+    
+/*    askConferenceSnapshot(conferenceId : string, type : MEDIATYPE, limit : number = 100, offset : number = 0) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {};
@@ -5584,46 +6796,8 @@ Request Method: PUT
                 return reject(err);
             });
         });
-    }
-
-    conferenceModeratorAction(conferenceId : string, mediaType : MEDIATYPE, action: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {"option":action, "mediaType": mediaType};
-            that.logger.log("internal", LOG_ID + "(conferenceModeratorAction) REST params : ", params);
-
-            that.http.put("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/update", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceModeratorAction) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceModeratorAction) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceModeratorAction) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceModeratorAction) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    conferenceModeratorActionOnParticipant(conferenceId : string, mediaType : MEDIATYPE, participantId : string, action: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {"option":action, "mediaType": mediaType};
-            that.logger.log("internal", LOG_ID + "(conferenceModeratorActionOnParticipant) REST params : ", params);
-
-            that.http.put("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/participants/" + participantId, that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(conferenceModeratorActionOnParticipant) successfull");
-                that.logger.log("internal", LOG_ID + "(conferenceModeratorActionOnParticipant) REST result : ", json.data);
-                resolve(json.data);
-            }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(conferenceModeratorActionOnParticipant) error");
-                that.logger.log("internalerror", LOG_ID, "(conferenceModeratorActionOnParticipant) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    } 
+    // */
     retrieveAllConferences(scheduled) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -5685,7 +6859,7 @@ Request Method: PUT
                             });
         });
     };
-
+    
     //endregion conference
 
     //region Offers and subscriptions
@@ -5966,6 +7140,106 @@ Request Method: PUT
     }
 
     //endregion Bubbles Tags
+
+    //region Bubbles - dialIn
+
+    disableDialInForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-DisableDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/disable
+        
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/disable" ; 
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(disableDialInForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(disableDialInForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(disableDialInForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    enableDialInForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-EnableDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/enable
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/enable" ;
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(enableDialInForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(enableDialInForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(enableDialInForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    resetDialInCodeForARoom(roomId : string) {
+        // API https://api.openrainbow.org/enduser/#api-dialIn-ResetDialIn
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/reset
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/reset" ;
+            let params = {};
+            that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST params : ", params);
+
+            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
+                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(resetDialInCodeForARoom) successfull");
+                that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(resetDialInCodeForARoom) error");
+                that.logger.log("internalerror", LOG_ID, "(resetDialInCodeForARoom) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getDialInPhoneNumbersList ( shortList : boolean) {
+        // API https://api.openrainbow.org/enduser/#api-dial_in_phone_numbers-GetDialInPhoneNumbers 
+        // GET /api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST shortList : ", shortList );
+
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "shortList", shortList );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getDialInPhoneNumbersList) successfull");
+                that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getDialInPhoneNumbersList) error");
+                that.logger.log("internalerror", LOG_ID, "(getDialInPhoneNumbersList) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion Bubbles - dialIn
 
     //region Alerts - Notifications
 
@@ -6689,7 +7963,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params : any = {};
 
-            that.logger.log("internal", LOG_ID + "(getReportDetails) REST params : ", params);
+            that.logger.log("internal", LOG_ID + "(getCalendarState) REST params : ", params);
 
             that.http.get("/api/rainbow/calendar/v1.0", that.getRequestHeader(), undefined).then((json) => {
                 that.logger.log("info", LOG_ID + "(getCalendarState) successfull");
@@ -6772,6 +8046,7 @@ Request Method: PUT
         });
     }
 
+    // @deprecated 
     enableOrNotCalendar(disable : boolean) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -6793,8 +8068,237 @@ Request Method: PUT
         });
     }
 
+    controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
+        // API https://api.openrainbow.org/calendar/#api-Calendar-ControlCalendar
+        // PUT /api/rainbow/calendar/v1.0/control
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let that = this;
+            let urlParams = "/api/rainbow/calendar/v1.0/control";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(urlParams);
+            addParamToUrl(urlParamsTab, "disable", disable);
+            addParamToUrl(urlParamsTab, "ignore", ignore);
+            urlParams = urlParamsTab[0];  
+            that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST url : ", urlParams);
+            
+            let params = {};
+          
+            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(controlCalendarOrIgnoreAnEntry) successfull");
+                that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error");
+                that.logger.log("internalerror", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    unregisterCalendar () {
+        // DELETE /api/rainbow/calendar/v1.0
+        // API https://api.openrainbow.org/calendar/#api-Calendar-UnregisterCalendar
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST ");
+
+            that.http.delete("/api/rainbow/calendar/v1.0"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("info", LOG_ID + "(deleteAnImportStatusReport) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAnImportStatusReport) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteAnImportStatusReport) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
     //endregion
     
+    //region MSTeams
+
+    controlMsteamsPresence (disable? : boolean, ignore? : string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-ControlPresence
+        // PUT /api/rainbow/msteamspresence/v1.0/control
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let that = this;
+            let urlParams = "/api/rainbow/msteamspresence/v1.0/control";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(urlParams);
+            addParamToUrl(urlParamsTab, "disable", disable);
+            addParamToUrl(urlParamsTab, "ignore", ignore);
+            urlParams = urlParamsTab[0];
+            that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST url : ", urlParams);
+
+            let params = {};
+
+            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(controlMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(controlMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(controlMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getMsteamsPresenceState(userId  : string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresence
+        // GET /api/rainbow/msteamspresence/v1.0 
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/msteamspresence/v1.0";
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "userid", userId );
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceState) successfull");
+                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMsteamsPresenceState) error");
+                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceState) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getMsteamsPresenceStates( users : Array<string> = []) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresences
+        // POST /api/rainbow/msteamspresence/v1.0/states
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/states";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+        
+        let data = {users};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceStates) successfull");
+                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceStates) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMsteamsPresenceStates) error");
+                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceStates) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    registerMsteamsPresenceSharing( redirect? : boolean, callback? : string) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-registerPresence
+        // POST /api/rainbow/msteamspresence/v1.0/register
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/register";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+
+        let data = {redirect, callback};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(registerMsteamsPresenceSharing) successfull");
+                that.logger.log("internal", LOG_ID + "(registerMsteamsPresenceSharing) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(registerMsteamsPresenceSharing) error");
+                that.logger.log("internalerror", LOG_ID, "(registerMsteamsPresenceSharing) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    unregisterMsteamsPresenceSharing() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-unregisterPresence
+        // DELETE /api/rainbow/msteamspresence/v1.0
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+
+            that.http.delete("/api/rainbow/msteamspresence/v1.0"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("debug", LOG_ID + "(unregisterMsteamsPresenceSharing) successfull");
+                that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(unregisterMsteamsPresenceSharing) error");
+                that.logger.log("internalerror", LOG_ID, "(unregisterMsteamsPresenceSharing) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    activateMsteamsPresence() {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-activatePresence
+        // POST /api/rainbow/msteamspresence/v1.0/activate
+        let that = this;
+        let urlParams = "/api/rainbow/msteamspresence/v1.0/activate";
+        let urlParamsTab : string[]= [];
+        urlParamsTab.push(urlParams);
+        //addParamToUrl(urlParamsTab, "users", users);
+        urlParams = urlParamsTab[0];
+
+        let data = {};
+
+        return new Promise(function (resolve, reject) {
+
+            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(activateMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(activateMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(activateMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(activateMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deactivateMsteamsPresence() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-deactivatePresence
+        // DELETE /api/rainbow/msteamspresence/v1.0/activate
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {};
+
+            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+
+            that.http.delete("/api/rainbow/msteamspresence/v1.0/activate"  , that.getPostHeader(), JSON.stringify(params)).then((json) => {
+                that.logger.log("debug", LOG_ID + "(deactivateMsteamsPresence) successfull");
+                that.logger.log("internal", LOG_ID + "(deactivateMsteamsPresence) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deactivateMsteamsPresence) error");
+                that.logger.log("internalerror", LOG_ID, "(deactivateMsteamsPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion MSTeams
+
     //region AD/LDAP
     //region AD/LDAP Massprovisioning
 
@@ -10681,6 +12185,51 @@ Request Method: PUT
         });
     }
 
+    //region pcg pbxs
+    
+    getAllPbxs(format : string = "small", sortField : string = "id", limit : number =  100, offset : number = 0, sortOrder : number = 1, name : string = undefined, type : string = undefined, status: string = undefined, siteId : string = undefined, companyId : string = undefined,
+    bpId : string = undefined, isShared : boolean = undefined, isCentrex : boolean = undefined, isSharedOrCentrex : boolean = undefined, isOxoManaged : boolean = undefined, fromCreationDate : string = undefined, toCreationDate : string = undefined) {
+        // GET /api/rainbow/pcg/v1.0/pbxs
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs-GetPbxs
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/pcg/v1.0/pbxs" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "type", type);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "siteId", siteId);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "bpId", bpId);
+            addParamToUrl(urlParamsTab, "isShared", isShared);
+            addParamToUrl(urlParamsTab, "isCentrex", isCentrex);
+            addParamToUrl(urlParamsTab, "isSharedOrCentrex", isSharedOrCentrex);
+            addParamToUrl(urlParamsTab, "isOxoManaged", isOxoManaged);
+            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate);
+            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllPbxs) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllPbxs) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllPbxs) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllPbxs) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllPbxs) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion pcg pbxs 
 
     //endregion systems
     

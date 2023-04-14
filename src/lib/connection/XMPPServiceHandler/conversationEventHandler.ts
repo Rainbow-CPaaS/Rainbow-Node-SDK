@@ -181,23 +181,13 @@ class ConversationEventHandler extends GenericHandler {
             let updatedDatasForEvent = {};
             if (conferenceInfo.hasOwnProperty("conference-id")) {
                 conferenceId = conferenceInfo["conference-id"];
-                //                              bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                //                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo in bubble : ", bubble);
-                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
             }
             if (conferenceInfo.hasOwnProperty("room-id")) {
                 conferenceId = conferenceInfo["room-id"];
-                //                              bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                //                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo in bubble : ", bubble);
-                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
             }
             let webConferenceSession: WebConferenceSession = null;
 
             let stanzaElem = node;
-            //                                    conferenceSession = new ConferenceSession(conferenceId, new List(), MEDIATYPE.WEBRTC);
-            //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferenceendinvitation stanza : ", stanzaElem);
-            //that.eventEmitter.emit("evt_internal_bubbleconferenceendinvitation", {"bubble": bubble});
-
 
             let conference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(conferenceId);
             if (conference===null) {
@@ -224,12 +214,9 @@ class ConversationEventHandler extends GenericHandler {
                 try {
                     
                     if (conferenceId !== newConferenceId) {
-                        let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints:"");
-                        let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints:"");
+                        let bubbleUpdated = await that._bubbleService.getBubbleById(conferenceId, true);
+                        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated);
 
-                        await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
                         let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
                         if (newConference==null) {
                             that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
@@ -398,360 +385,13 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             // Finally add conference to the cache
-            await this._bubbleService.addOrUpdateConferenceToCache(conference, true, updatedDatasForEvent);
+            await this._bubbleService.addOrUpdateConferenceToCache(conference, updatedDatasForEvent);
 
             // */
         } else {
             that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) xmlnsNode is not jabber:iq:conference:2 id : ", id);
         }
-
-        /*
-                                    
-                            if (node.children.length) {
-
-                                webConferenceSession =  WebConferenceSession.create(conferenceId, bubble);
-
-                                // Handle conference-state
-                                const conferenceStateElems = node.find('conference-state');
-                                if (conferenceStateElems.length) {
-                                    const activeConference = conferenceStateElems.find('active').text() === 'true';
-                                    if (!activeConference) {
-                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", onConferenceMessage : " + webConferenceSession.id + " has ended");
-                                        // todo : this.removeActiveConferenceSession(webConferenceSession);
-                                        return 1;
-                                    }
-
-                                    const talkerActiveElem = conferenceStateElems.find("talker-active");
-                                    const isTalkerActive = (talkerActiveElem.text() === "true");
-
-                                    const lockElem = conferenceStateElems.find("lock");
-                                    const isLock = (lockElem.text() === "true");
-
-                                    const recordingElem = conferenceStateElems.find("recording-state");
-                                    const recordingText = recordingElem.text();
-
-                                    let lockedBy = conferenceStateElems.find("locked-by").text();
-                                    if (!lockedBy) { lockedBy = conferenceStateElems.find("unlocked-by").text(); }
-
-                                    if (recordingText === "on" || recordingText === "pause") {
-                                        webConferenceSession.recordingStarted = true;
-                                        webConferenceSession.currentRecordingState = recordingText;
-
-                                        //this.eventService.publish(recordingText === "on" ? "ON_CONFERENCE_RECORDING_STARTED" : "ON_CONFERENCE_RECORDING_PAUSED", webConferenceSession);
-                                        if (recordingText === "on") {
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferencerecordingstarted stanza : ", stanzaElem);
-                                            that.eventEmitter.emit("evt_internal_bubbleconferencerecordingstarted", webConferenceSession);
-                                        } else {
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferencerecordingpaused stanza : ", stanzaElem);
-                                            that.eventEmitter.emit("evt_internal_bubbleconferencerecordingpaused", webConferenceSession);
-                                        }
-
-                                    }
-
-                                    if (webConferenceSession.isLocked() !== isLock) {
-                                        webConferenceSession.setLocked(isLock);
-                                        if (lockedBy)  {
-                                            //this.sendEvent(this.RAINBOW_ONWEBCONFERENCELOCKSTATEUPDATED, {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferencelockstateupdated stanza : ", stanzaElem);
-                                            that.eventEmitter.emit("evt_internal_bubbleconferencelockstateupdated", {"roomDbId": webConferenceSession.id, isLock : isLock, lockedBy: lockedBy});
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Handle session add/update participants event
-                            let participantAction: string = 'newParticipant';
-                            let participantsElems = stanzaElem.find('participants');
-                            if (participantsElems.length) {
-                                let participantElems = participantsElems.find('participant');
-                                if (participantElems.length===0) {
-                                    let addedparticipantElems = stanzaElem.find('added-participants');
-                                    if (addedparticipantElems.length) {
-                                        participantElems = addedparticipantElems.find('participant');
-                                        participantAction = 'addParticipant';
-                                    }
-                                }
-                                if (participantElems.length===0) {
-                                    let updatedparticipantElems = stanzaElem.find('updated-participants');
-                                    if (updatedparticipantElems.length) {
-                                        participantElems = updatedparticipantElems.find('participant');
-                                        participantAction = 'updateParticipant';
-                                    }
-                                }
-
-                                if (participantElems.length) {
-                                    const participantsPromise = [];
-                                    //participantElems.each((__i: number, participantElem: Element) => { participantsPromise.push(this.createSessionParticipantFromElem(participantElem)); });
-                                    if (participantElems.length===1) {
-                                        participantsPromise.push(this.createSessionParticipantFromElem(participantElems));
-                                    } else {
-                                        for (let i = 0; i < participantElems.length; i++) {
-                                            participantsPromise.push(this.createSessionParticipantFromElem(participantElems[i]));
-                                        }
-                                    }
-                                    // for (let participantElem of participantElems) {
-                                    //     participantsPromise.push(this.createSessionParticipantFromElem(participantElem));
-                                    // }
-                                    const participants: WebConferenceParticipant[] = await Promise.all(participantsPromise);
-                                    participants.forEach((participant: WebConferenceParticipant) => {
-                                        if (participant) {
-                                            if (that._contactsService.isUserContact(participant.contact) && !webConferenceSession.localParticipant) {
-                                                webConferenceSession.localParticipant = participant;
-                                            } else {
-                                                webConferenceSession.addOrUpdateParticipant(participant);
-                                            }
-                                            const participantId = participant.id===webConferenceSession.localParticipant.id ? 'local':participant.id;
-                                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + `[WebConferenceServiceV2] onConferenceMessage ${participantAction} -- ${participantId} -- ${webConferenceSession.id}`);
-                                        }
-                                    });
-
-                                    if (participantAction==="newParticipant" || participantAction==="addParticipant") {
-                                        // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
-                                        that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
-                                    }
-                                    // if (participantAction === "newParticipant" || participantAction === "addParticipant") {
-                                    //     this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
-                                    // }
-                                }
-                            }
-                            
-                            // Handle session remove participant event
-                            const removedParticipantElems : Element = stanzaElem.find('removed-participants');
-                            if (removedParticipantElems.length) {
-                                const participantIdElems : any = removedParticipantElems.find('user-id');
-
-                                /*
-                                    participantIdElems.each((__i: number, participantIdElem: Element) => {
-                                    const participantId = participantIdElem.text();
-                                    const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
-                                    if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
-
-                                    if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
-                                    that.logger.log("internalerror", LOG_ID + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
-                                });
-                                // */
-        /*        if (participantIdElems.length === 1) {
-                    let participantIdElem = participantIdElems;
-                    const participantId = participantIdElem.text();
-                    const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
-                    if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
-        
-                    if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
-                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
-                } else {
-                    for (let i = 0; i < participantIdElems.length; i++) {
-                        //for (let participantIdElem of participantIdElems) {
-                        let participantIdElem = participantIdElems [i];
-                        const participantId = participantIdElem.text();
-                        const participantIndex = webConferenceSession.participants.findIndex((participant: WebConferenceParticipant) => { return participant.id === participantId; });
-                        if (participantIndex !== -1) webConferenceSession.participants.splice(participantIndex, 1);
-        
-                        if (webConferenceSession.localParticipant && participantId === webConferenceSession.localParticipant.id) { webConferenceSession.localParticipant = null; }
-                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + `[WebConferenceServiceV2] onConferenceMessage removedParticipant -- ${participantId} -- ${webConferenceSession.id}`);
-                    }
-                }
-        
-        
-                if (!webConferenceSession.localParticipant) {
-                    // todo : that.removeActiveConferenceSession(webConferenceSession);
-                    //remove the web conf session
-                    // webinar.session = null; 
-                }
-                else {
-                    //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPARTICIPANTLISTUPDATED, {"roomDbId": webConferenceSession.id});
-                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferenceparticipantlistupdated stanza : ", stanzaElem);
-                    that.eventEmitter.emit("evt_internal_bubbleconferenceparticipantlistupdated", {"roomDbId": webConferenceSession.id});
-        
-                }
-            }
-        
-            // // Handle publishers
-            let publisherMode: string = 'publishers';
-            let publisherElems = stanzaElem.find('publishers');
-            if (publisherElems.length === 0) {
-            publisherElems = stanzaElem.find('added-publishers');
-            publisherMode = 'addPublisher';
-        }
-        
-        if (publisherElems.length) {
-            let publishers = publisherElems.find('publisher');
-            //.each((__index: number, publisher: any) => {
-            for (let i = 0; i < publishers.length; i++) {
-                const publisherElem = publishers[i];
-                const publisherId = publisherElem.find('user-id').text();
-                const mediaType = publisherElem.find('media-type').text();
-                if (publisherId === webConferenceSession.localParticipant.id) {
-                    if (mediaType === "video") { webConferenceSession.localParticipant.isVideoAvailable = true; }
-                    else if (mediaType === "sharing") { webConferenceSession.hasLocalSharing = true; }
-                }
-                else {
-                    const participant = webConferenceSession.getParticipantById(publisherId);
-                    if (mediaType === "video") {
-                        participant.isVideoAvailable = true;
-                    }
-                    else if (mediaType === "sharing") {
-                        //create sharing participant
-                        const sharingParticipant = new WebConferenceParticipant(participant.id);
-                        sharingParticipant.contact = participant.contact;
-                        sharingParticipant.isSharingParticipant = true;
-                        webConferenceSession.setSharingParticipant(sharingParticipant);
-                    }
-                }
-        
-                // if (publisherMode === 'addPublisher') { this.subscribeToPublisher(webinar, participant, mediaType === 'sharing' ? 'sharing' : 'audioVideo'); }
-                // mediaType.split('+').forEach((media: string) => { participant.medias[media] = true; });
-                // if (participant.role === 'attendee') { 
-                //     if (webinar.session.speakerParticipants.find((speaker: WebinarSessionParticipant) => { return speaker.id === participant.id; }) === undefined) {
-                //         webinar.session.speakerParticipants.push(participant); 
-                //     }
-                // }
-                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + `[WebConferenceServiceV2] onConferenceMessage -- ${webConferenceSession.id} -- ${publisherMode} -- ${publisherId} -- ${mediaType}`);
-            };
-        
-            // this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSADDED, {"roomDbId": webConferenceSession.id});
-            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferencepublishersadded stanza : ", stanzaElem);
-            that.eventEmitter.emit("evt_internal_bubbleconferencepublishersadded", {"roomDbId": webConferenceSession.id});
-        }
-        
-        console.error(webConferenceSession);
-        const removedPublisherElems = stanzaElem.find('removed-publishers');
-        if (removedPublisherElems.length) {
-            removedPublisherElems.find('publisher').each((__index: number, publisher: any) => {
-                const publisherElem = publisher;
-                const publisherId = publisherElem.find('user-id').length ? publisherElem.find('user-id').text() : "";
-                const mediaType = publisherElem.find('media-type').length ? publisherElem.find('media-type').text() : "";
-                if (publisherId === webConferenceSession.localParticipant.id) {
-                    if (mediaType === "video") {
-                        webConferenceSession.localParticipant.isVideoAvailable = false;
-                        if (webConferenceSession.localParticipant.videoSession) {
-                            webConferenceSession.localParticipant.videoSession.terminate();
-                            webConferenceSession.localParticipant.videoSession = null;
-                        }
-                    }
-                    else if (mediaType === "sharing") {
-                        webConferenceSession.hasLocalSharing = false;
-                        let sharingSession = webConferenceSession.getLocalSharingSession();
-                        if (sharingSession) {
-                            sharingSession.terminate();
-                            sharingSession = null;
-                        }
-                    }
-                }
-                else {
-                    const participant = webConferenceSession.getParticipantById(publisherId);
-                    if (mediaType === "video") {
-                        participant.isVideoAvailable = false;
-                        if (participant.videoSession) {
-                            participant.videoSession.terminate();
-                            participant.videoSession = null;
-                        }
-                    }
-                    else if (mediaType === "sharing") {
-                        //remove sharing participant
-                        webConferenceSession.setSharingParticipant(null);
-                    }
-                }
-        
-                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + `[WebinarConferenceService] onConferenceMessage -- ${webConferenceSession.id} -- removePublisher -- ${publisherId} -- ${mediaType}`);
-            });
-        
-            //this.sendEvent(this.RAINBOW_ONWEBCONFERENCEPUBLISHERSREMOVED, {"roomDbId": webConferenceSession.id});
-            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferencepublisherremoved stanza : ", stanzaElem);
-            that.eventEmitter.emit("evt_internal_bubbleconferencepublisherremoved", {"roomDbId": webConferenceSession.id});
-        }
-        // */
     }
-
-    /*
-    async onMessageReceived(msg, stanza: Element) {
-        let that = this;
-        try {
-            that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
-            let content = "";
-            let lang = "";
-            let alternativeContent: Array<{ "message": string, "type": string }> = [];
-            let subject = "";
-            let eventName = undefined;
-            let roomid = "";
-            let pollid = "";
-            let questions = undefined;
-            let eventJid = "";
-            let hasATextMessage = false;
-            let oob = null;
-            let geoloc = null;
-            let messageType = stanza.attrs.type;
-            let timestamp = new Date();
-            let replaceMessageId = null;
-            let attention = false;
-            let confOwnerId = null;
-            let confOwnerDisplayName = null;
-            let confOwnerJid = null;
-            let conference = false;
-            let conferencebubbleId = undefined;
-            let conferencebubbleJid = undefined;
-            let answeredMsgId = undefined;
-            let answeredMsgStamp = undefined;
-            let answeredMsgDate = undefined;
-            let urgency = "std";
-            let urgencyAck: boolean = false;
-            let urgencyHandler: any = undefined;
-            let voiceMessage = undefined;
-            let isForwarded: boolean = false;
-            let forwardedMsg: any = undefined;
-            let historyIndex: string;
-            let attachedMsgId: string;
-            let attachIndex: number;
-            let attachNumber: number;
-
-            let fromJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
-            let resource = xu.getResourceFromFullJID(stanza.attrs.from);
-            let toJid = stanza.attrs.to;
-            let id = stanza.attrs.id;
-            let children = stanza.children;
-
-            let mentions = [];
-
-            voiceMessage = stanza.find("voicemessage").text();
-            historyIndex = id;
-            for (const node of children) {
-                switch (node.getName()) {
-                    case "discover": {
-                        that.logger.log("internal", LOG_ID + "(onMessageReceived) discover to : ", fromJid);
-
-                        let msg = xml("message", {
-                            "from": that.fullJid,
-                            //"from": to,
-                            "to": fromJid ? fromJid : that.jid_im,
-                            "id": stanza.attrs.id
-                            //"xmlns" : "jabber:iq:http"
-                        });
-
-                        let stanzaReq = xml("resource", {xmlns: NameSpacesLabels.XmppHttpNS, "version" : "1.1"}, that.resourceId);
-                        msg.append(stanzaReq, undefined);
-
-                        //that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", discover - msg : ", msg);
-
-                        that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", discover - send result : ", stanzaReq.root().toString());
-                        await that.xmppClient.send(msg);
-
-                        break;
-                    }
-                    case "nac": 
-                        that.logger.log("internal", LOG_ID + "(onMessageReceived) id : ", id, ", ignore nac tag.");
-                        break;
-                    default:
-                        that.logger.log("error", LOG_ID + "(onMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
-                        that.logger.log("internalerror", LOG_ID + "(onMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
-                        break;
-                }
-            }
-
-        } catch (err) {
-            that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onMessageReceived) CATCH Error !!! : ", err);
-        }
-    }; // */
 
     async onChatMessageReceived(msg, stanza: Element) {
         let that = this;
@@ -1336,207 +976,9 @@ class ConversationEventHandler extends GenericHandler {
                             let conferenceId = undefined;
                             if (conferenceInfo.hasOwnProperty("conference-id")) {
                                 conferenceId = conferenceInfo["conference-id"];
-                                //                              bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                                //                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo in bubble : ", bubble);
-                                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
-                            }
-                            let webConferenceSession: WebConferenceSession = null;
-
-                            let stanzaElem = node;
-                            //                                    conferenceSession = new ConferenceSession(conferenceId, new List(), MEDIATYPE.WEBRTC);
-                            //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", evt_internal_bubbleconferenceendinvitation stanza : ", stanzaElem);
-                            //that.eventEmitter.emit("evt_internal_bubbleconferenceendinvitation", {"bubble": bubble});
-
-
-                            let conference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(conferenceId);
-                            if (conference===null) {
-                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. conferenceId : ", conferenceId);
-                                conference = new ConferenceSession(conferenceId);
-                            } else {
-                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. conference : ", conference);
                             }
 
-                            // We consider always conference as active expect if we receive the opposite information
-                            conference.active = true;
-
-                            let newConferenceId = undefined;
-                            if (conferenceInfo.hasOwnProperty("new-conference-id")) {
-                                newConferenceId = conferenceInfo["new-conference-id"];
-                                /* let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
-                                if (newConference==null) {
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
-                                    newConference = new ConferenceSession(newConferenceId);
-                                } else {
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
-                                } // */
-
-                                try {
-                                    if (newConferenceId!==conferenceId) {
-                                        let bubbleByOldConf = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleByOldConf : ", bubbleByOldConf, " : bubble.confEndpoints : ", bubbleByOldConf ? bubbleByOldConf.confEndpoints:"");
-                                        let bubbleUpdated = await that._bubbleService.getBubbleById(bubbleByOldConf.id, true);
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated, " : bubble.confEndpoints : ", bubbleUpdated ? bubbleUpdated.confEndpoints:"");
-
-                                        await this._bubbleService.askConferenceSnapshot(newConferenceId, MEDIATYPE.WEBRTC);
-                                        let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
-                                        if (newConference==null) {
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
-                                            newConference = new ConferenceSession(newConferenceId);
-                                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
-                                        } else {
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
-                                            // Attention : The conference is replaced by newConference, so List of Particpants, Publishers, Talkers, Silents are transfered to the newConference and these lists are reseted in original conference.
-                                        } // */
-                                        newConference.replaceConference = conference;
-                                        await this._bubbleService.addOrUpdateConferenceToCache(newConference);
-                                    } else {
-                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " egals to conferenceId : ", conferenceId, ", so no new conference need to be created, but reset the existing one.");
-                                        conference = new ConferenceSession(conferenceId);
-                                        // We consider always conference as active expect if we receive the opposite information
-                                        conference.active = true;
-                                        let newOwnerJidIm = conferenceInfo["new-owner-jid-im"];
-                                        conference.ownerJidIm = newOwnerJidIm;
-                                    }
-                                } catch (err) {
-                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " CATCH Error !!! ConferenceSession with newConferenceId : ", newConferenceId, ", error : ", err);
-                                }
-                            }
-
-                            if (conferenceInfo.hasOwnProperty("conference-state")) {
-                                // conference-state
-                                let conferenceState = conferenceInfo["conference-state"];
-                                if (conferenceState) {
-                                    // We consider always conference as active expect if we receive the opposite information
-                                    if (conferenceState.hasOwnProperty("active"))
-                                        conference.active = !(conferenceState["active"]=="false");
-
-                                    if (conferenceState.hasOwnProperty("mute"))
-                                        conference.muted = (conferenceState["mute"]=="true")
-                                                || (conferenceState["mute"]._=="on");
-
-                                    if (conferenceState.hasOwnProperty("lock"))
-                                        conference.locked = (conferenceState["lock"]=="true")
-                                                || (conferenceState["lock"]._=="on");
-
-                                    if (conferenceState.hasOwnProperty("recording-started"))
-                                        conference.recordStarted = (conferenceState["recording-started"]=="true")
-                                                || (conferenceState["recording-started"]._=="on");
-
-                                    if (conferenceState.hasOwnProperty("talker-active"))
-                                        conference.talkerActive = (conferenceState["talker-active"]=="true")
-                                                || (conferenceState["talker-active"]._=="true");
-
-                                    if (conferenceState.hasOwnProperty("reason"))
-                                        conference.reason = conferenceState["reason"];
-                                    /*
-                                                                        if (conferenceState.hasOwnProperty("participant-count"))
-                                                                            conference.participantCount =  parseInt((conferenceState["participant-count"]) , 10);
-                                    
-                                                                        if (conferenceState.hasOwnProperty("publisher-count"))
-                                                                            conference.publisherCount =  parseInt((conferenceState["publisher-count"]) , 10);
-                                    */
-                                }
-                            }
-
-                            // media-state
-                            if (conferenceInfo.hasOwnProperty("media-type"))
-                                conference.mediaType = conferenceInfo["media-type"]._;
-
-                            // added-participants
-                            if (conferenceInfo.hasOwnProperty("added-participants")) {
-                                let addedParticipants = conferenceInfo["added-participants"];
-                                await that.parseParticipantsFromConferenceUpdatedEvent(conference, addedParticipants);
-                            }
-
-                            // updated-participants
-                            if (conferenceInfo.hasOwnProperty("updated-participants")) {
-                                let updatedParticipants = conferenceInfo["updated-participants"];
-                                await that.parseParticipantsFromConferenceUpdatedEvent(conference, updatedParticipants);
-                            }
-
-                            // participants
-                            if (conferenceInfo.hasOwnProperty("participants")) {
-                                let participants = conferenceInfo["participants"];
-                                await that.parseParticipantsFromConferenceUpdatedEvent(conference, participants);
-                            }
-
-                            let amIRemoved = false;
-
-                            // removed-participants
-                            if (conferenceInfo.hasOwnProperty("removed-participants")) {
-                                let removedParticipants = conferenceInfo["removed-participants"];
-                                let removedIdList: List<string> = that.parseIdFromConferenceUpdatedEvent(removedParticipants, "participant");
-                                if (conference.participants!=null) {
-                                    let list: List<Participant> = conference.participants;
-                                    let myParticipant = conference.participants.where((item: Participant) => {
-                                        return item.jid_im===that.jid_im
-                                    });
-                                    for (let id of removedIdList.asEnumerable().toArray()) {
-                                        if (id===(myParticipant.elementAt(0)).id) {
-                                            amIRemoved = true;
-                                        }
-
-                                        list.remove((item: Participant) => {
-                                            return id===item.id;
-                                        });
-                                        /*for(let participant of list.asEnumerable().toArray())
-                                        {
-                                            if (participant.id == id)
-                                            {
-                                                list.remove(participant);
-                                                break;
-                                            }
-                                        }
-                                        // */
-                                    }
-                                    conference.participants = list;
-                                } // */
-                            }
-
-                            // talkers
-                            //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
-                            if (conferenceInfo.hasOwnProperty("talkers")) {
-                                let talkers = conferenceInfo["talkers"];
-                                //let talkersId = that.parseParticipantsIdFromConferenceUpdatedEvent(talkers);
-                                that.parseTalkersFromConferenceUpdatedEvent(conference, talkers);
-                            }
-
-                            // silents
-                            //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
-                            if (conferenceInfo.hasOwnProperty("silents")) {
-                                let silents = conferenceInfo["silents"];
-                                that.parsSilentsFromConferenceUpdatedEvent(conference, silents);
-                            }
-
-                            // publishers
-                            if (conferenceInfo.hasOwnProperty("publishers")) {
-                                let publishers = conferenceInfo["publishers"];
-                                await that.parsePublishersFromConferenceUpdatedEvent(conference, publishers, true);
-                            }
-
-                            // added-publishers
-                            if (conferenceInfo.hasOwnProperty("added-publishers")) {
-                                let addedPublishers = conferenceInfo["added-publishers"];
-                                await that.parsePublishersFromConferenceUpdatedEvent(conference, addedPublishers, true);
-                            }
-
-                            // removed-publishers
-                            if (conferenceInfo.hasOwnProperty("removed-publishers")) {
-                                let removedPublishers = conferenceInfo["removed-publishers"];
-                                await that.parsePublishersFromConferenceUpdatedEvent(conference, removedPublishers, false);
-                            }
-
-                            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference : ", conference);
-
-                            if (amIRemoved) {
-                                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", " + ", conference : ", conference, " i am removed from conference, so reset the conference.");
-                                conference.reset();
-                            }
-
-                            // Finally add conference to the cache
-                            await this._bubbleService.addOrUpdateConferenceToCache(conference);
-
-                            // */
+                            that.logger.log("warn", LOG_ID + "(onChatMessageReceived) id : ", id, ", an old event of conference V1 conference-info received JSON conference-info : ", "\n", jsonNode);
                         } else {
 
                         }
@@ -1547,9 +989,6 @@ class ConversationEventHandler extends GenericHandler {
                             let conferenceId = undefined;
                             if (conferenceInfo.hasOwnProperty("conference-id")) {
                                 conferenceId = conferenceInfo["conference-id"];
-                                //bubble = await that._bubbleService.getBubbleByConferenceIdFromCache(conferenceId);
-                                //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conferenceInfo in bubble : ", bubble);
-                                //that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                             }
                             let webConferenceSession: WebConferenceSession = null;
 
@@ -1800,7 +1239,7 @@ class ConversationEventHandler extends GenericHandler {
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
                     if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg) {
-                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with No message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);
@@ -2737,6 +2176,12 @@ class ConversationEventHandler extends GenericHandler {
                     case "command_ended":
                         that.onConnectorCommandEndedMessageReceived(node);
                         break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -2936,7 +2381,7 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let conversationId = node.attrs.id;
-                let conversation = this._conversationService.getConversationById(conversationId);
+                let conversation : Conversation = this._conversationService.getConversationById(conversationId);
                 let action = node.attrs.action;
                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
@@ -2959,6 +2404,19 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "update":
                             conversation.isFavorite = (node.find("isFavorite").text() === "true");
+                            if (node.find("bookmark")) {
+                                /* <bookmark>
+                                <messageId>web_679434c5 - 1616 - 49e7 - ab10 - d346ec3f99ed0 < /messageId>
+                                < timestamp > 1678714877813903 < /timestamp>
+                                < unreadMessageNumber > 1 < /unreadMessageNumber>
+                                < /bookmark>
+                                // */
+                                conversation.bookmark = {
+                                    "messageId" : node.find("messageId").text(),
+                                    "timestamp" : node.find("timestamp").text(),
+                                    "unreadMessageNumber" : node.find("unreadMessageNumber").text()
+                                };
+                            }
                             //this.conversationService.orderConversations();
                             // Send conversations update event
                             that.eventEmitter.emit("evt_internal_conversationupdated", conversation);

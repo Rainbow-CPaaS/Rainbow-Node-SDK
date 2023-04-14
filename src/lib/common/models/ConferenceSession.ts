@@ -63,6 +63,10 @@ class Participant {
     private _connected: boolean // { get; set; }
 
     private _contact: Contact;
+    
+    private _associatedUserId : string;
+    private _associatedGroupName : string;
+    private _isOwner : boolean;
 
     constructor(id: string) {
         this._id = id;
@@ -176,6 +180,30 @@ class Participant {
 
     set delegateCapability(value: boolean) {
         this._delegateCapability = value;
+    }
+
+    get associatedUserId(): string {
+        return this._associatedUserId;
+    }
+
+    set associatedUserId(value: string) {
+        this._associatedUserId = value;
+    }
+
+    get associatedGroupName(): string {
+        return this._associatedGroupName;
+    }
+
+    set associatedGroupName(value: string) {
+        this._associatedGroupName = value;
+    }
+
+    get isOwner(): boolean {
+        return this._isOwner;
+    }
+
+    set isOwner(value: boolean) {
+        this._isOwner = value;
     }
 
     /// <summary>

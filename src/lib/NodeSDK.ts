@@ -3,7 +3,7 @@
 import {Core} from "./Core";
 import {Appreciation} from "./common/models/Channel";
 import {ErrorManager} from "./common/ErrorManager";
-import {setTimeoutPromised} from "./common/Utils";
+import Utils, {setTimeoutPromised} from "./common/Utils";
 import {ImsService} from "./services/ImsService";
 import {ChannelsService} from "./services/ChannelsService";
 import {S2SService} from "./services/S2SService";
@@ -1010,6 +1010,10 @@ class NodeSDK {
         return DataStoreType;
     }
 
+    get Utils() {
+        return this._core.Utils;
+    }
+    
     /**
      * @public
      * @method getConnectionStatus
@@ -1047,7 +1051,7 @@ class NodeSDK {
     static get Appreciation() {
         return Appreciation;
     }
-
+    
 }
 
 module.exports = NodeSDK;

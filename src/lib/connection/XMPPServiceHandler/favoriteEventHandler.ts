@@ -149,6 +149,12 @@ class FavoriteEventHandler extends GenericHandler {
                     case "poll":
                         // treated in conversationEventHandler
                         break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -173,11 +179,16 @@ class FavoriteEventHandler extends GenericHandler {
                     "id": favoriteElem.attr("id"),
                     "type": favoriteElem.attr("type"),
                     "peerId": favoriteElem.attr("peer_id"),
+                    "position": favoriteElem.attr("position") ? + favoriteElem.attr("position") : undefined
                 };
                 let action = favoriteElem.attr("action");
 
                 if (action === 'create') {
                     that.eventEmitter.emit("evt_internal_favoritecreated_handle", fav);
+                }
+
+                if (action === 'update') {
+                    that.eventEmitter.emit("evt_internal_favoriteupdated_handle", fav);
                 }
 
                 if (action === 'delete') {

@@ -258,6 +258,15 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     }
 }
 
+function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+    if (!addEmptyProperty && ( methodValue === null || methodValue === undefined )) {
+        return;
+    } 
+    if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
+        objetToUpdate[methodName] = methodValue;
+    }
+}
+
 function cleanEmptyMembersFromObject(objParams : Object) {
     if (objParams) {
         for (let objParamsKey in objParams) {
@@ -388,9 +397,9 @@ function logEntryExit(LOG_ID) : any {
                         logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
                     } catch (err) {
                         logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
-                        let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
+                        // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
                         if (err.code == 400) {
-                            returnValue = Promise.reject(error);
+                            returnValue = Promise.reject(err);
                         }
                     }
                 }
@@ -550,6 +559,20 @@ const resolveDns = (cname) => {
     });
 }
 
+function randomString(length, chars) {
+    let result = "";
+    for (let i = length; i > 0; --i) {
+        result += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+    return result;
+}
+
+function generateRamdomEmail(email){
+    let randomId = randomString(16, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    let emailGenerated = randomId + "_" + email;
+    return emailGenerated.toLowerCase();
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -575,7 +598,9 @@ export let objToExport = {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail
 };
 
 module.exports = objToExport;
@@ -604,7 +629,9 @@ export {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail
 };
 
 export default {
@@ -632,5 +659,7 @@ export default {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail
 };

@@ -20,6 +20,8 @@ import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
 import {Conference} from "../common/models/Conference";
 import {BubblesManager} from "../common/BubblesManager";
 import {GenericService} from "./GenericService";
+import {Conversation} from "../common/models/Conversation.js";
+import {ConversationsService} from "./ConversationsService.js";
 
 export {};
 
@@ -48,15 +50,14 @@ class Bubbles extends GenericService {
     private _bubbles: Bubble[];
     private avatarDomain: string;
     private _contacts: ContactsService;
+    private _conversations: ConversationsService;
     private _profileService: ProfilesService;
     private _presence: PresenceService;
     private _personalConferenceBubbleId: any;
     private _personalConferenceConfEndpointId: any;
     //private _conferencesSessionById: { [id: string] : any; } = {};     // <Conference Id, Conference>
-    //private _linkConferenceAndBubble: { [id: string] : any; } = {}; // <Conference Id, Bubble Id>
     private _conferenceEndpoints: IDictionary<string, Conference> = new Dictionary();     // <Conference Id, Conference>
     private _conferencesSessionById: IDictionary<string, ConferenceSession> = new Dictionary();     // <Conference Id, Conference>
-    private _linkConferenceAndBubble: IDictionary<string, string> = new Dictionary(); // <Conference Id, Bubble Id>
     private _webrtcConferenceId: string;
     _webConferenceRoom: any;
     private readonly _protocol: string = null;
@@ -83,7 +84,7 @@ class Bubbles extends GenericService {
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-        this._bubbles = null;
+        this._bubbles = [];
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this._startConfig = _startConfig;
@@ -126,6 +127,7 @@ class Bubbles extends GenericService {
                 that._rest = _core._rest;
                 that._bubbles = [];
                 that._contacts = _core.contacts;
+                that._conversations = _core.conversations;
                 that._profileService = _core.profiles;
                 that._presence = _core.presence;
                 that._options = _options;
@@ -141,6 +143,7 @@ class Bubbles extends GenericService {
                                 that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
                                 that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
                 */
+                await that.bubblesManager.reset();
                 that.setStarted();
                 resolve(undefined);
             } catch (err) {
@@ -161,7 +164,7 @@ class Bubbles extends GenericService {
             try {
                 that._xmpp = null;
                 that._rest = null;
-                that._bubbles = null;
+                that._bubbles = [];
                 /*that._eventEmitter.removeListener("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
                 that._eventEmitter.removeListener("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
                 that._eventEmitter.removeListener("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
@@ -187,21 +190,31 @@ class Bubbles extends GenericService {
     async init(useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that.bubblesManager.reset();
+//            await that.bubblesManager.reset();
             if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
                 await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed);
-                for (const bubble of that.getAll()) {
-                    if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
-                        that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
-                        that.snapshotConference(bubble.id);
-                    }
+                let bubbles = that.getAll();
+                if (bubbles && bubbles.length > 1) {
+                    for (const bubble of bubbles) {
+                        if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                            that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                            that.snapshotConference(bubble.id);
+                        }
 
+                    }
+                } else {
+                    that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
                 }
             } else {
                 that._logger.log("warn", LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
             }
         }
         that.setInitialized();
+    }
+    
+    async reset() {
+        let that = this ; 
+        return await that.bubblesManager.reset();
     }
 
     //region Events
@@ -355,7 +368,9 @@ class Bubbles extends GenericService {
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                     await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) Error while sendInitialBubblePresenceSync : ", errOfSent);                                       
+                                    }); 
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -374,7 +389,9 @@ class Bubbles extends GenericService {
                         if (that._options._imOptions.autoInitialBubblePresence) {
                             if (bubble.isActive) {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                await that._presence.sendInitialBubblePresenceSync(bubble);
+                                await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                    that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                });
                             } else {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                             }
@@ -600,7 +617,8 @@ class Bubbles extends GenericService {
     _onBubblePresenceSent(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
+        //this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
+        this._rest.getBubble(data.id).then(async (bubbleUpdated: any) => {
             that._logger.log("debug", LOG_ID + "(_onBubblePresenceSent) Presence sent to bubble : " + data.id);
 
             let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
@@ -635,7 +653,9 @@ class Bubbles extends GenericService {
                     that._presence.sendInitialBubblePresenceSync(bubbleInfo).then(() => {
                         bubbleInMemory.isActive = true;
                         that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
-                    });
+                    }).catch((errOfSent) => {
+                        that._logger.log("warn", LOG_ID + "(_onbubblepresencechanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                    }); 
                 } else {
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 }
@@ -652,8 +672,10 @@ class Bubbles extends GenericService {
                         bubbleInMemory.initialPresence.initPresenceInterval.unsubscribe();
                         bubbleInMemory.initialPresence.initPresenceInterval = null;
                     }
+                    /* do not reset the initPresencePromise to avoid any request of sendInitialBubblePresence to not receive the result
                     bubbleInMemory.initialPresence.initPresencePromise = null;
                     bubbleInMemory.initialPresence.initPresencePromiseResolve = null;
+                    // */
                     //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
                     //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
@@ -821,286 +843,17 @@ class Bubbles extends GenericService {
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onBubbleConferenceStoppedReceived) bubble : ", bubble);
         if (bubble) {
-            for (let conferenceId of that.getConferencesIdByBubbleIdFromCache(bubble.id)) {
-                let conference = that.getConferenceByIdFromCache(conferenceId);
-                that.removeConferenceFromCache(conferenceId, true);
+                let conference = that.getConferenceByIdFromCache(bubble.id);
+                that.removeConferenceFromCache(bubble.id);
                 //conference.
                 conference.active = false;
                 that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference, {});
-            }
         }
     }
 
     //endregion Events
 
 //region CONFERENCE SPECIFIC
-
-    /**
-     * @method askConferenceSnapshot
-     * @public
-     * @instance
-     * @since 2.8.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @param {string} conferenceId The id of the conference.
-     * @param {MEDIATYPE} type Conference type: PSTN or WebRTC. Possible values : pstnAudio, webrtc. Default : webrtc.
-     * @param {number} limit Allows to specify the number of participants to retrieve. Default : 100.
-     * @param {number} offset Allows to specify the position of first participant to retrieve. Default : 0.
-     * @deprecated
-     * @description
-     * The snapshot command returns global information about conference and a set of participants engaged in the conference. <br>
-     * If conference isn't started, 'active' will be 'false' and the participants list empty.  <br>
-     * If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
-     * @return {Promise<ConferenceSession>}
-     */
-    async askConferenceSnapshot(conferenceId: string, type: MEDIATYPE = MEDIATYPE.WEBRTC, limit : number = 100, offset : number = 0): Promise<ConferenceSession> {
-        let that = this;
-
-        if (!conferenceId) {
-            that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) bad or empty 'conferenceId' parameter : ", conferenceId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-        }
-
-        let confSnapshop = await that._rest.askConferenceSnapshot(conferenceId, type, limit, offset);
-
-        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
-        let active: boolean = false;
-        active = confSnapshop["active"];
-        
-        let conference: ConferenceSession ;
-
-        // Do something only if conference is active
-        if (active) {
-            // Get conference form cache (if any)
-            conference = await that.getConferenceByIdFromCache(conferenceId);
-            if (conference==null) {
-                conference = new ConferenceSession(conferenceId);
-            }
-
-            conference.active = true;
-
-            // Clear participants since this server request give all info about them
-            conference.participants = new List<Participant>();
-
-            try {
-                // Loop on participants found
-                let jArray = confSnapshop["participants"];
-
-                if ((jArray!=null)) {
-                    //jArray.forEach(async (jParticipant: any) => {
-                    for (const jParticipant of jArray) {
-                        let participant: Participant = null;
-                        if (jParticipant.hasOwnProperty("participantId")) {
-                            // Id
-                            let participantId = jParticipant["participantId"];
-
-                            // Create Participant object
-                            participant = new Participant(participantId);
-
-                            // Muted
-                            if (jParticipant.hasOwnProperty("mute"))
-                                participant.muted = (jParticipant["mute"]=="true");
-                            else
-                                participant.muted = false;
-
-                            // Hold
-                            if (jParticipant.hasOwnProperty("held"))
-                                participant.hold = (jParticipant["held"]=="true");
-                            else
-                                participant.hold = false;
-
-                            // IsModerator
-                            if (jParticipant.hasOwnProperty("participantRole"))
-                                participant.moderator = (jParticipant["participantRole"]=="moderator");
-                            else
-                                participant.moderator = false;
-
-                            // IsConnected
-                            if (jParticipant.hasOwnProperty("participantState"))
-                                participant.connected = (jParticipant["participantState"]=="connected");
-                            else
-                                participant.connected = false;
-
-                            // Jid_im
-                            if (jParticipant.hasOwnProperty("jid_im")) {
-                                participant.jid_im = jParticipant["jid_im"];
-                                participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err) => {
-                                    that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
-                                    return null;
-                                });
-                            }
-
-                            // PhoneNumber
-                            if (jParticipant.hasOwnProperty("phoneNumber"))
-                                participant.phoneNumber = jParticipant["phoneNumber"];
-
-                            // Finally add participant to the list
-                            conference.participants.add(participant);
-                        }
-                    }
-                }
-            } catch (e) {
-                that._logger.log("error", LOG_ID + "(askConferenceSnapshot) - CATCH Error !!! Error : ", e);
-            }
-        } else {
-            conference = new ConferenceSession(conferenceId);
-            conference.active = false;
-
-            // Clear participants since this server request give all info about them
-            conference.participants = new List<Participant>();
-        }
-        that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - will add the built Conference : ", conference);
-
-        // Finally add conference to the cache
-        await that.addOrUpdateConferenceToCache(conference);
-        return conference;
-    }
-
-    /**
-     * @method joinConference
-     * @private
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param bubble
-     * @return {Promise<unknown>}
-     * @description
-     *  private for ale rainbow team's tests only
-     */
-    joinConference(bubble) {
-        let that = this;
-
-        return new Promise(async function (resolve, reject) {
-            that._logger.log("internal", LOG_ID + "(joinConference) arguments : ", ...arguments);
-
-            if (!bubble || !bubble.id) {
-                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble' parameter : ", bubble);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                return;
-            }
-
-            /*let isActive = false;
-            let isInvited = false;
-            bubble.users.forEach(function(user) {
-                if (user.userId === contact.id) {
-                    switch (user.status) {
-                        case "invited":
-                            isInvited = true;
-                            break;
-                        case "accepted":
-                            isActive = true;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            });
-getAllActiveBubbles
-            if (isActive || isInvited) {
-                that._logger.log("warn", LOG_ID + "(joinConference) Contact has been already invited or is already a member of the bubble");
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                return;
-            } // */
-
-            if (!bubble || !bubble.confEndpoints) {
-                that._logger.log("warn", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(joinConference) bad or empty 'bubble.confEndpoints' parameter : ", bubble);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                return;
-            }
-
-            let mediaType = bubble.mediaType;
-            if (!that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) && mediaType!==MEDIATYPE.WEBRTCSHARINGONLY) {
-                that._logger.log("warn", LOG_ID + "(BubblesService) retrieveWebConferences - user is not allowed");
-                reject(new Error("notAllowed"));
-                return;
-            }
-
-            let endpoint = await that._rest.retrieveWebConferences(mediaType);
-            let confEndPoints: Array<any>;
-            confEndPoints = endpoint;
-            let confEndPointId = null;
-            if (confEndPoints.length===1 && confEndPoints[0].mediaType===MEDIATYPE.WEBRTC) {
-                confEndPointId = confEndPoints[0].id;
-            }
-
-            that._rest.joinConference(confEndPointId, "moderator").then(function (joinResult: any) {
-                resolve(joinResult);
-            }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(joinConference) error");
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @public
-     * @method getBubbleByConferenceIdFromCache
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @description
-     * To get a bubble from the cache using a conference Id
-     * @return {Bubble} A bubble object or NULL if not found
-     */
-    getBubbleByConferenceIdFromCache(conferenceId: string): Bubble {
-        let result: Bubble = null;
-        let that = this;
-        if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-            let bubbleId = that._linkConferenceAndBubble.tryGetValue(conferenceId);
-            result = that.getBubbleFromCache(bubbleId);
-        }
-        return result;
-    }
-
-    /**
-     * @public
-     * @method getBubbleIdByConferenceIdFromCache
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @return {string}
-     * @description
-     * To get ID of the bubble from the cache using a conference Id
-     */
-    getBubbleIdByConferenceIdFromCache(conferenceId: string): string {
-        let result: string = null;
-        let that = this;
-        if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-            that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) FOUND conferenceId : ", conferenceId, " in that._linkConferenceAndBubble.");
-            result = that._linkConferenceAndBubble.tryGetValue(conferenceId);
-        }
-        that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) conferenceId : ", conferenceId, " bubble : ", result, " from that._linkConferenceAndBubble : ", that._linkConferenceAndBubble);
-        return result;
-    }
-
-    /**
-     * @public
-     * @method getConferencesIdByBubbleIdFromCache
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} bubbleId
-     * @return {Array<string>}
-     * @description
-     *      to get the list of conferences id linked to a specified bubble.
-     */
-    getConferencesIdByBubbleIdFromCache(bubbleId: string): Array<string> {
-        let result: Array<string> = [];
-        let that = this;
-        if (that._linkConferenceAndBubble.containsValue(bubbleId)) {
-            that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) FOUND bubbleId : ", bubbleId, " in that._linkConferenceAndBubble.");
-            let confsIdByBulleId = that._linkConferenceAndBubble.where((item: KeyValuePair<string, string>) => {
-                return item.value==bubbleId
-            });
-            for (const iterConfsIdByBulleId of confsIdByBulleId.toArray()) {
-                result.push(iterConfsIdByBulleId.key);
-            }
-        }
-        that._logger.log("internal", LOG_ID + "(getBubbleIdByConferenceIdFromCache) bubbleId : ", bubbleId, " conferencesId : ", result, " from that._linkConferenceAndBubble : ", that._linkConferenceAndBubble);
-        return result;
-    }
 
     /**
      * @public
@@ -1214,7 +967,7 @@ getAllActiveBubbles
                             break;
                         case MEDIATYPE.WEBRTC:
                         case MEDIATYPE.WEBRTCSHARINGONLY:
-                            that.updateOrCreateWebConferenceEndpoint(conferenceData);
+                            //that.updateOrCreateWebConferenceEndpoint(conferenceData);
                             break;
                         default:
                             break;
@@ -1224,382 +977,12 @@ getAllActiveBubbles
             }).catch(() => {
                 resolve(undefined);
             });
-            /*
-            this.$http({
-                method: "GET",
-                url: this.confProvPortalURL + urlParameters,
-                headers: this.authService.getRequestHeader()
-            })
-                // Handle success response
-                .then((response: ng.IHttpPromiseCallbackArg<any>) => {
-                        let conferencesProvisionData = response.data.data;
-                        for (let conferenceData of conferencesProvisionData) {
-                            switch (conferenceData.mediaType) {
-                                case this.MEDIATYPE.PSTNAUDIO:
-                                    this.pstnConferenceService.updateOrCreatePstnConferenceEndpoint(conferenceData);
-                                    break;
-                                case this.MEDIATYPE.WEBRTC:
-                                case this.MEDIATYPE.WEBRTCSHARINGONLY:
-                                    this.BubblesService.updateOrCreateWebConferenceEndpoint(conferenceData);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        this.$log.info("[ConferenceService] retrieveConferences successfully");
-                        resolve(conferencesProvisionData);
-                    },
-                    (response: ng.IHttpPromiseCallbackArg<any>) => {
-                        let msg = response.data ? response.data.errorDetails : response.data;
-                        let errorMessage = "retrieveConferences failure: " + msg;
-                        this.$log.error("[ConferenceService] " + errorMessage);
-                        reject(new Error(errorMessage));
-                    });
-                    // */
         });
     };
 
-    /**
-     * @Method updateOrCreateWebConferenceEndpoint
-     * @private
-     * @since 2.6.0
-     * @instance
-     * @category CONFERENCE SPECIFIC
-     * @param {any} conferenceData [required] conference data for the update / creation
-     * @returns {any} the updated conferenceEndpoint or null on error
-     * @memberof BubblesService
-     */
-    public updateOrCreateWebConferenceEndpoint(conferenceData: any): any {
-        let that = this;
-        that._logger.log("internal", LOG_ID + "(updateOrCreateWebConferenceEndpoint for " + conferenceData.id);
-
-        if (!conferenceData) {
-            that._logger.log("internalerror", LOG_ID + "(updateOrCreateWebConferenceEndpoint) - no conference data !");
-            return null;
-        }
-
-        if (conferenceData.mediaType!==MEDIATYPE.WEBRTC && conferenceData.mediaType!==MEDIATYPE.WEBRTCSHARINGONLY) {
-            that._logger.log("internalerror", LOG_ID + "(updateOrCreateWebConferenceEndpoint) - wrong mediaType:" + conferenceData.mediaType);
-            return null;
-        }
-
-        let conference: Conference = Conference.createFromData(conferenceData);
-        that._conferenceEndpoints[conferenceData.id] = conference;
-        if (conference.mediaType===MEDIATYPE.WEBRTC) {
-            that.updateWebConferenceInfos([conference]);
-        } else {
-            //this.updateWebSharingOnlyConferenceInfos([conference]);
-        }
-        return this._conferenceEndpoints[conferenceData.id];
-    }
-
-    /**
-     * @method updateWebConferenceInfos
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @private
-     * @param {any[]} endpoints
-     */
-    public updateWebConferenceInfos(endpoints: any[]): void {
-        let that = this;
-        that._logger.log("debug", LOG_ID + "(updateWebConferenceInfos)");
-        // Get webConference info
-
-        Object.assign(this._conferenceEndpoints, endpoints);
-
-        that._webrtcConferenceId = that.getWebRtcConfEndpointId();
-        if (that._webrtcConferenceId) {
-            this._rest.getRoomByConferenceEndpointId(that._webrtcConferenceId).then(async (roomData: any) => {
-                let conferenceRoom: any;
-                if (roomData.length) {
-                    conferenceRoom = await that.getBubbleById(roomData[0].id);
-                    if (conferenceRoom) {
-
-                    } else {
-                        //service.createRoomFromData(roomData[0]);
-                        conferenceRoom = await that.addOrUpdateBubbleToCache(roomData[0]);
-                        // conferenceRoom = that.getBubbleById(roomData[0].id);
-                    }
-                } else {
-                    that._logger.log("debug", LOG_ID + "(getRoomFromConferenceEndpointId) -- no room with confId ", that._webrtcConferenceId);
-                    conferenceRoom = null;
-                }
-                let name = "nothing";
-                if (conferenceRoom) {
-                    name = conferenceRoom.name;
-                }
-
-                that._webConferenceRoom = conferenceRoom;
-                that._logger.log("debug", LOG_ID + "(updateWebConferenceInfos) : webrtcConferenceId is currently attached to ", name);
-
-            }).catch(
-                    () => {
-                        that._logger.log("debug", LOG_ID + "(updateWebConferenceInfos) FAILURE ===");
-                    }
-            );
-        }
-    }
-
-
-    /**
-     * @Method getWebRtcConfEndpointId
-     * @private
-     * @since 2.6.0
-     * @instance
-     * @category CONFERENCE SPECIFIC
-     * @deprecated
-     * @returns {string} the user unique webrtc conference enpoint id
-     * @memberof BubblesService
-     */
-    public getWebRtcConfEndpointId(): string {
-        for (let property in this._conferenceEndpoints) {
-            if (this._conferenceEndpoints.hasOwnProperty(property) && this._conferenceEndpoints[property].mediaType===MEDIATYPE.WEBRTC) {
-                return this._conferenceEndpoints[property].id;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @Method getWebRtcSharingOnlyConfEndpointId
-     * @private
-     * @since 2.6.0
-     * @instance
-     * @category CONFERENCE SPECIFIC
-     * @deprecated
-     * @returns {string} the user unique webrtcSharingOnly  conference enpoint id
-     * @memberof BubblesService
-     */
-    public getWebRtcSharingOnlyConfEndpointId(): string {
-        for (let property in this._conferenceEndpoints) {
-            if (this._conferenceEndpoints.hasOwnProperty(property) && this._conferenceEndpoints[property].mediaType===MEDIATYPE.WEBRTCSHARINGONLY) {
-                return this._conferenceEndpoints[property].id;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @private
-     * @method conferenceStart
-     * @since 2.6.0
-     * @instance
-     * @category CONFERENCE SPECIFIC
-     * @deprecated
-     * @description
-     *     To start a conference. <br>
-     *     Only a moderator can start a conference. It also need to be a premium account. <br>
-     * @param {Bubble} bubble   The bubble where the conference should start
-     * @param {string} conferenceId The id of the conference that should start. Optional, if not provided then the webrtc conference is used.
-     * @return {Promise<any>} The result of the starting.
-     */
-    async conferenceStart(bubble, conferenceId?: string): Promise<any> {
-        let that = this;
-        /* let bubbleId = null;
-         if (bubble) {
-             bubbleId = bubble.id;
-         }*/
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Start_conference
-
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-        if (!conferenceId) {
-            return that._rest.conferenceStart(bubble.id, that.getWebRtcConfEndpointId(), MEDIATYPE.WEBRTC);
-        } else {
-            return that._rest.conferenceStart(bubble.id, conferenceId, mediaType);
-        }
-    }
-
-    /**
-     * @private
-     * @method conferenceStop
-     * @since 2.6.0
-     * @instance
-     * @category CONFERENCE SPECIFIC
-     * @deprecated
-     * @description
-     *     To stop a conference. <br>
-     *     Only a moderator can stop a conference. It also need to be a premium account. <br>
-     * @param {string} conferenceId The id of the conference that should stop
-     * @return {Promise<any>} return undefined.
-     */
-    async conferenceStop(conferenceId?: string) //, Action<SdkResult<Boolean>> callback = null)
-    {
-        let that = this;
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Stop_conference
-
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-        let roomId = null;
-        if (mediaType===MEDIATYPE.WEBRTC) {
-            roomId = that.getBubbleIdByConferenceIdFromCache(conferenceId);
-        }
-        return that._rest.conferenceStop(conferenceId, mediaType, roomId);
-
-    }
-
-    /**
-     * @private
-     * @method conferenceJoin
-     * @since 2.6.0
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @param {boolean} asModerator To join conference as operator or not
-     * @param {boolean} muted To join conference as muted or not
-     * @param {string} phoneNumber The phone number used to join the conference - it can be null or empty
-     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-     * @category CONFERENCE SPECIFIC
-     * @deprecated
-     * @description
-     * To join a conference.  <br>
-     * NOTE: The conference must be first started before to join it.
-     * @return {Promise<any>}
-     */
-    async conferenceJoin(conferenceId: string, asModerator: boolean, muted: boolean, phoneNumber: string, country: string)//, Action<SdkResult<Boolean>> callback = null)
-    {
-        let that = this;
-        /*
-        if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-        // */
-
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Join_conference
-
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-        /*        let roomId = null;
-                if (mediaType === MEDIATYPE.WEBRTC) {
-                    roomId = that.getBubbleIdByConferenceIdFromCache(conferenceId);
-                }*/
-        return that._rest.conferenceJoin(conferenceId, mediaType, asModerator, muted, phoneNumber, country);
-
-        /*
-        String mediaType = (conferenceId == personalConferenceConfEndpointId) ? Bubble.MediaType.PstnAudio : Bubble.MediaType.Webrtc;
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("conference", $"conferences/{conferenceId}/join");
-
-
-        String phoneNumberToUse = phoneNumber;
-        if (String.IsNullOrEmpty(phoneNumberToUse))
-            phoneNumberToUse = "joinWithoutAudio";
-
-        String body = String.Format(@"{{""participantPhoneNumber"": ""{0}"", ""participant"": {{""role"": ""{1}"", ""type"": ""{2}""}}, ""mediaType"": ""{3}""{4}}}",
-        phoneNumberToUse, asModerator ? "moderator" : "member", muted ? "muted" : "unmuted",
-        mediaType,
-        String.IsNullOrEmpty(country) ? "" : String.Format(@", ""country"": ""{0}""", country));
-
-        log.DebugFormat("[PersonalConferenceJoin] - body:[{0}]", body);
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.POST);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                //log.DebugFormat("[PersonalConferenceJoin] - response.Content:\r\n{0}", response.Content);
-                callback?.Invoke(new SdkResult<Boolean>(true));
-            }
-            else
-                callback?.Invoke(new SdkResult<Boolean>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
-    }
-
-    /**
-     * @private
-     * @method conferenceMuteOrUnmute
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @param {boolean} mute True to mute, False to unmute
-     * @deprecated
-     * @description
-     * Mute or Unmute the conference - If muted only the moderator can speak.  <br>
-     * Only the moderator of the conference can use this method
-     * @return {Promise<any>}
-     */
-    conferenceMuteOrUnmute(conferenceId: string, mute: boolean)//, Action<SdkResult<Boolean>> callback = null)
-    {
-        let that = this;
-        return that.conferenceModeratorAction(conferenceId, mute ? "mute":"unmute");
-    }
-
-    /**
-     * @private
-     * @method conferenceMuteOrUnmutParticipant
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @param {string} participantId ID of the participant to mute/unmute
-     * @param {boolean} mute True to mute, False to unmute
-     * @deprecated
-     * @description
-     * Mute or Unmute the specified participant in the conference.<br>
-     * Only the moderator of the conference can use this method
-     * @return {Promise<any>}
-     */
-    conferenceMuteOrUnmutParticipant(conferenceId: string, participantId: string, mute: boolean) {
-        let that = this;
-        return that.conferenceModeratorActionOnParticipant(conferenceId, participantId, mute ? "mute":"unmute");
-    }
-
-    /**
-     * @private
-     * @method conferenceDropParticipant
-     * @since 2.6.0
-     * @category CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} conferenceId ID of the conference
-     * @param {string} participantId ID of the participant to drop
-     * @deprecated
-     * @description
-     * Drop the specified participant in the conference. <br>
-     * Only the moderator of the conference can use this method
-     * @return {Promise<any>}
-     */
-    async conferenceDropParticipant(conferenceId: string, participantId: string) {
-        let that = this;
-        /*
-        if(!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-        // */
-
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Drop_participant
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-        return that._rest.conferenceDropParticipant(conferenceId, mediaType, participantId);
-    }
-
-//endregion CONFERENCE SPECIFIC
+ //endregion CONFERENCE SPECIFIC
 
 //region PERSONAL CONFERENCE SPECIFIC
-
-    /**
-     * @public
-     * @method personalConferenceAllowed
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @return {boolean}
-     * @deprecated
-     * @description
-     * To know if the current user has the permission to start its own Personal Conference
-     */
-    personalConferenceAllowed(): boolean {
-        let that = this;
-        return that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().PERSONAL_CONFERENCE_ALLOWED);
-
-        //return application.IsFeatureEnabled(Feature.PERSONAL_CONFERENCE_ALLOWED);
-    }
 
     /**
      * @private
@@ -1636,238 +1019,6 @@ getAllActiveBubbles
             return await that.getBubbleById(that._personalConferenceBubbleId);
         }
         return null;
-    }
-
-    /**
-     * @private
-     * @method personalConferenceGetBubbleIdFromCache
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To get the ID of the bubble which contains the Personal Meeting of the end-user (if he has the permission)
-     * @return {string} The Bubble which contains the Personal Meeting or null
-     */
-    personalConferenceGetBubbleIdFromCache(): string {
-        // if (!String.IsNullOrEmpty(personalConferenceBubbleId))
-        //   return personalConferenceBubbleId;
-        let that = this;
-//    if (!String.IsNullOrEmpty(personalConferenceBubbleId))
-        //      return GetBubbleByIdFromCache(personalConferenceBubbleId);
-        if (that._personalConferenceBubbleId!=null) {
-            return that._personalConferenceBubbleId;
-        }
-        return null;
-    }
-
-    /**
-     * @private
-     * @method personalConferenceGetPhoneNumbers
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To get the list of phone numbers used to reach the Personal Meeting
-     * @return {Promise<any>}
-     */
-    async personalConferenceGetPhoneNumbers(): Promise<any> {
-        let that = this;
-        /*
-        if(!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<Boolean>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-        // */
-
-        // Cf. https://api.openrainbow.org/conference/#api-conference-Drop_participant
-        //let mediaType = (conferenceId == that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio : MEDIATYPE.WEBRTC;
-        return that._rest.personalConferenceGetPhoneNumbers();
-        /*
-        if (!application.IsCapabilityAvailable(Contact.Capability.BubbleParticipate))
-        {
-            callback?.Invoke(new SdkResult<PersonalConferencePhoneNumbers>("Current user has not the capability [BubbleParticipate]"));
-            return;
-        }
-
-        if (personalConferencePhoneNumbers != null)
-        {
-            callback?.Invoke(new SdkResult<PersonalConferencePhoneNumbers>(personalConferencePhoneNumbers));
-            return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("confprovisioning", "conferences/audio/phonenumbers");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-        restRequest.AddQueryParameter("shortList", "true");
-
-        restClient.ExecuteAsync<PersonalConferencePhoneNumbersData>(restRequest, (response) =>
-        {
-            //Do we have a correct answer
-            if (response.IsSuccessful)
-            {
-                //log.DebugFormat("[GetPersonalConferencePhoneNumbers] - response.Content:\r\n{0}", response.Content);
-
-                PersonalConferencePhoneNumbersData personalConferenceAudioPhoneNumbersData = response.Data;
-                personalConferencePhoneNumbers = new PersonalConferencePhoneNumbers();
-                personalConferencePhoneNumbers.NearEndUser = personalConferenceAudioPhoneNumbersData.Data.ShortList;
-                personalConferencePhoneNumbers.Others = personalConferenceAudioPhoneNumbersData.Data.PhoneNumberList;
-
-                callback?.Invoke(new SdkResult<PersonalConferencePhoneNumbers>(personalConferencePhoneNumbers));
-            }
-            else
-                callback?.Invoke(new SdkResult<PersonalConferencePhoneNumbers>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
-    }
-
-    /**
-     * @private
-     * @method personalConferenceGetPassCodes
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To retrieve the pass codes of the Personal Meeting of the current user
-     * @return {Promise<ConferencePassCodes>}
-     */
-    async personalConferenceGetPassCodes(): Promise<ConferencePassCodes> {
-// Cf. https://api.openrainbow.org/conf-provisioning/#api-conferences-GetConference
-        let that = this;
-        let result = new ConferencePassCodes();
-
-        let passCodes = await that._rest.personalConferenceGetPassCodes(that._personalConferenceConfEndpointId);
-        that._logger.log("debug", LOG_ID + "(personalConferenceGetPassCodes) need to fill the ConferencePassCodes with the server's returned passCodes : ", passCodes);
-        return result;
-        /*
-    if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-    {
-        callback?.Invoke(new SdkResult<ConferencePassCodes>("You don't have a Personal Meeting", false));
-        return;
-    }
-
-    RestClient restClient = rest.GetClient();
-    string resource = rest.GetResource("confprovisioning", $"conferences/{personalConferenceConfEndpointId}");
-
-    RestRequest restRequest = rest.GetRestRequest(resource, Method.GET);
-    restRequest.AddQueryParameter("format", "full");
-
-    restClient.ExecuteAsync(restRequest, (response) =>
-    {
-        //Do we have a correct answer
-        if (response.IsSuccessful)
-        {
-            //log.DebugFormat("[PersonalConferenceGetPassCodes] - response.Content:\r\n{0}", response.Content);
-
-            var json = JsonConvert.DeserializeObject<dynamic>(response.Content);
-
-            ConferencePassCodes meetingPassCodes = null;
-
-            JObject jObject = json["data"];
-            if (jObject != null)
-            {
-                JArray jArray = (JArray)jObject.GetValue("passCodes");
-                if (jArray != null)
-                {
-                    meetingPassCodes = new ConferencePassCodes();
-                    foreach (JObject passCode in jArray)
-                    {
-                        if (passCode.GetValue("name").ToString() == "ModeratorPassCode")
-                            meetingPassCodes.ModeratorPassCode = passCode.GetValue("value").ToString();
-
-                        else if (passCode.GetValue("name").ToString() == "ParticipantPassCode")
-                            meetingPassCodes.ParticipantPassCode = passCode.GetValue("value").ToString();
-                    }
-                }
-            }
-
-            if (meetingPassCodes != null)
-                callback?.Invoke(new SdkResult<ConferencePassCodes>(meetingPassCodes));
-            else
-                callback?.Invoke(new SdkResult<ConferencePassCodes>("Cannot get pass codes of the meeting"));
-
-        }
-        else
-            callback?.Invoke(new SdkResult<ConferencePassCodes>(Sdk.ErrorFromResponse(response)));
-    });
-    // */
-    }
-
-    /**
-     * @private
-     * @method personalConferenceResetPassCodes
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To reset and get new pass codes of the Personal Meeting of the current user
-     * @return {Promise<any>}
-     */
-    async personalConferenceResetPassCodes(): Promise<any> {
-// Cf. https://api.openrainbow.org/conf-provisioning/#api-conferences-PutConference
-        let that = this;
-
-        return that._rest.personalConferenceResetPassCodes(that._personalConferenceConfEndpointId);
-        /*
-
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<ConferencePassCodes>("You don't have an Personal Meeting", false));
-        return;
-        }
-
-        RestClient restClient = rest.GetClient();
-        string resource = rest.GetResource("confprovisioning", $"conferences/{personalConferenceConfEndpointId}");
-
-        String body = String.Format(@"{{""resetPasswords"":true}}");
-
-        RestRequest restRequest = rest.GetRestRequest(resource, Method.PUT);
-        restRequest.AddParameter("body", body, ParameterType.RequestBody);
-
-        restClient.ExecuteAsync(restRequest, (response) =>
-        {
-        //Do we have a correct answer
-        if (response.IsSuccessful)
-        {
-            //log.DebugFormat("[PersonalConferenceResetPassCodes] - response.Content:\r\n{0}", response.Content);
-
-            var json = JsonConvert.DeserializeObject<dynamic>(response.Content);
-
-            ConferencePassCodes meetingPassCodes = null;
-
-            JObject jObject = json["data"];
-            if (jObject != null)
-            {
-                JArray jArray = (JArray)jObject.GetValue("passCodes");
-                if (jArray != null)
-                {
-                    meetingPassCodes = new ConferencePassCodes();
-                    foreach (JObject passCode in jArray)
-                    {
-                        if (passCode.GetValue("name").ToString() == "ModeratorPassCode")
-                            meetingPassCodes.ModeratorPassCode = passCode.GetValue("value").ToString();
-
-                        else if (passCode.GetValue("name").ToString() == "ParticipantPassCode")
-                            meetingPassCodes.ParticipantPassCode = passCode.GetValue("value").ToString();
-                    }
-                }
-            }
-
-            if (meetingPassCodes != null)
-                callback?.Invoke(new SdkResult<ConferencePassCodes>(meetingPassCodes));
-            else
-                callback?.Invoke(new SdkResult<ConferencePassCodes>("Cannot get pass codes of the meeting"));
-
-        }
-        else
-            callback?.Invoke(new SdkResult<ConferencePassCodes>(Sdk.ErrorFromResponse(response)));
-        });
-        // */
     }
 
     /**
@@ -1915,280 +1066,11 @@ getAllActiveBubbles
         return that.generateNewPublicUrl(that._personalConferenceBubbleId);
     }
 
-    /**
-     * @private
-     * @method personalConferenceStart
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To start a Personal Conference. <br>
-     * Only a moderator can start a Personal Conference.
-     * @return {Promise<any>}
-     */
-    async personalConferenceStart(): Promise<any> {
-        let that = this;
-        return that.conferenceStart(null, that._personalConferenceConfEndpointId);
-    }
-
-    /**
-     * @private
-     * @method personalConferenceStop
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @deprecated
-     * @description
-     * To stop the Personal Conference.<br>
-     * Only a moderator can stop a Personal Conference
-     * @return {Promise<any>}
-     */
-    async personalConferenceStop(): Promise<any> {
-        let that = this;
-        return that.conferenceStop(that._personalConferenceConfEndpointId);
-
-        /*
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-        {
-        callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-        return;
-        }
-
-        ConferenceStop(personalConferenceConfEndpointId, callback);
-        // */
-    }
-
-    /**
-     * @private
-     * @method personalConferenceJoin
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @param {boolean} asModerator To join Personal Conference as operator or not
-     * @param {boolean} muted To join Personal Conference as muted or not
-     * @param {string} phoneNumber The phone number used to join the Personal Conference - it can be null or empty
-     * @param {string} country Country of the phone number used (ISO 3166-1 alpha3 format) - if not specified used the country of the current user
-     * @deprecated
-     * @description
-     * To join the Personal Conference.
-     * NOTE: The Personal Conference must be first started before to join it.
-     * @return {Promise<any>}
-     */
-    async personalConferenceJoin(asModerator: boolean, muted: boolean, phoneNumber: string, country: string): Promise<any> {
-        let that = this;
-        return that.conferenceJoin(that._personalConferenceConfEndpointId, asModerator, muted, phoneNumber, country);
-
-        /*
-        if (String.IsNullOrEmpty(personalConferenceConfEndpointId))
-    {
-    callback?.Invoke(new SdkResult<Boolean>("You don't have a Personal Conference"));
-    return;
-    }
-
-    ConferenceJoin(personalConferenceConfEndpointId, asModerator, muted, phoneNumber, country, callback);
-    // */
-    }
-
-    /**
-     * @private
-     * @method personalConferenceMuteOrUnmute
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @param {boolean} mute
-     * @deprecated
-     * @description
-     * Mute or Unmute the Personal Conference - If muted only the moderator can speak.<br>
-     * Only the moderator of the Personal Conference can use this method
-     * @return {Promise<any>}
-     */
-    async personalConferenceMuteOrUnmute(mute: boolean) {
-        let that = this;
-        return that.conferenceModeratorAction(that._personalConferenceConfEndpointId, mute ? "mute":"unmute");
-    }
-
-    /**
-     * @private
-     * @method personalConferenceLockOrUnlock
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @param {boolean} toLock  True to lock, False to unlock
-     * @deprecated
-     * @description
-     * Lock or Unlock the Personal Conference - If locked, no more participant can join the Personal Conference. <br>
-     * Lock / Unlock is only possible for PSTN Conference. <br>
-     * Only a moderator can use this method
-     * @return {Promise<any>}
-     */
-    async personalConferenceLockOrUnlock(toLock: boolean) {
-        let that = this;
-        return that.conferenceModeratorAction(that._personalConferenceConfEndpointId, toLock ? "lock":"unlock");
-    }
-
-    /**
-     * @private
-     * @method personalConferenceMuteOrUnmuteParticipant
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} participantId ID of the participant to mute/unmute
-     * @param {boolean} mute True to mute, False to unmute
-     * @deprecated
-     * @description
-     * Mute or Unmute the specified participant in the Personal Conference.<br>
-     * Only the moderator of the Personal Conference can use this method.
-     * @return {Promise<any>}
-     */
-    async personalConferenceMuteOrUnmuteParticipant(participantId: string, mute: boolean): Promise<any> {
-        let that = this;
-        return that.conferenceModeratorActionOnParticipant(that._personalConferenceConfEndpointId, participantId, mute ? "mute":"unmute");
-    }
-
-    /**
-     * @private
-     * @method personalConferenceDropParticipant
-     * @since 2.6.0
-     * @category PERSONAL CONFERENCE SPECIFIC
-     * @instance
-     * @param {string} participantId ID of the participant to drop
-     * @deprecated
-     * @description
-     * Drop the specified participant in the Personal Conference. <br>
-     * Only the moderator of the Personal Conference can use this method.
-     * @return {Promise<any>}
-     */
-    async personalConferenceDropParticipant(participantId: string): Promise<any> {
-        let that = this;
-        return that.conferenceDropParticipant(that._personalConferenceConfEndpointId, participantId);
-    }
-
 //endregion PERSONAL CONFERENCE SPECIFIC
 
 //region CONFERENCE / Personal Conference SPECIFIC
 
 // Internal
-
-    /**
-     * @method conferenceEndedForBubble
-     * @private
-     * @instance
-     * @param {string} bubbleJid
-     * @return {Promise<void>}
-     */
-    async conferenceEndedForBubble(bubbleJid: string) {
-        let that = this;
-        //let bubbleId : string = GetBubbleIdFromBubbleJidFromCache(bubbleJid);
-        //let bubble : Bubble= GetBubbleByIdFromCache(bubbleId);
-        let bubble: Bubble = await that.getBubbleByJid(bubbleJid);
-
-
-        if (bubble.confEndpoints!=null) {
-            //foreach(Bubble.ConfEndpoint confEndpoint in bubble.confEndpoints)
-            //bubble.confEndpoints.forEach((confEndpoint: any) => {
-            for (const confEndpoint of bubble.confEndpoints) {
-
-                // Create a non active conference and "add it to the cache" - in consequence the conference will be removed and ConfrenceUpdated event raised if necessary
-                let conference: ConferenceSession = new ConferenceSession(confEndpoint.ConfEndpointId, new List(), MEDIATYPE.WEBRTC);
-                //conference.id = confEndpoint.ConfEndpointId;
-                conference.active = false;
-                that._logger.log("debug", LOG_ID + "(ConferenceEndedForBubble) Add inactive conference to the cache - conferenceId: ", conference.id, ", bubbleJid:", bubbleJid);
-                await that.addOrUpdateConferenceToCache(conference);
-                //});
-            }
-        }
-    }
-
-    /**
-     * @method askBubbleForConferenceDetails
-     * @private
-     * @instance
-     * @param {string} bubbleJid
-     */
-    askBubbleForConferenceDetails(bubbleJid: string) {
-        /*
-            GetBubbleByJid(bubbleJid, callback =>
-            {
-                if(!callback.Result.Success)
-                {
-                    log.WarnFormat("[AskBubbleForConferenceDetails] - Impossible to get details about this bubble - Error:[{0}]", Util.SerialiseSdkError(callback.Result) );
-                }
-                else
-                {
-                    Bubble bubble = callback.Data;
-                    if ( (bubble.ConfEndpoints != null)
-                        && (bubble.ConfEndpoints.Count > 0) )
-                    {
-                        foreach (Bubble.ConfEndpoint confEndpoint in bubble.ConfEndpoints)
-                        {
-                            log.DebugFormat("[AskBubbleForConferenceDetails] - ConfEndPoint related to this bubble:[{0}]", confEndpoint.ToString());
-                        }
-                    }
-                    else
-                    {
-                        log.WarnFormat("[AskBubbleForConferenceDetails] - No Conf End Points provided for this bubble !");
-                    }
-                }
-            });
-        */
-    }
-
-    /**
-     * @method personalConferenceRename
-     * @private
-     * @instance
-     * @param {string} name
-     * @return {Promise<unknown>}
-     */
-    async personalConferenceRename(name: string) {
-        let that = this;
-        return that._rest.personalConferenceRename(that._personalConferenceConfEndpointId, name);
-    }
-
-    /**
-     * @method conferenceModeratorAction
-     * @private
-     * @instance
-     * @param {string} conferenceId
-     * @param {string} action
-     * @return {Promise<unknown>}
-     */
-    async conferenceModeratorAction(conferenceId: string, action: string) //, Action<SdkResult<Boolean>> callback = null
-    {
-
-
-        let that = this;
-
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-        if ((mediaType===MEDIATYPE.WEBRTC) && ((action=="lock") || (action=="unlock"))) {
-            // CRRAINB - 8132: API To Lock a Conference doesn't work
-            //      Lock only available for PSTN Conference (not webRTC)
-            return Promise.reject({
-                code: -1,
-                "label": "API To Lock a Conference doesn't work. Lock only available for PSTN Conference (not webRTC)"
-            });
-        }
-
-        return that._rest.conferenceModeratorAction(conferenceId, mediaType, action);
-    }
-
-    /**
-     * @method conferenceMuteOrUnmutParticipant
-     * @private
-     * @instance
-     * @param {string} conferenceId
-     * @param {string} participantId
-     * @param {string} action
-     * @return {Promise<unknown>}
-     */
-    async conferenceModeratorActionOnParticipant(conferenceId: string, participantId: string, action: string) {
-        let that = this;
-
-        let mediaType = (conferenceId==that._personalConferenceConfEndpointId) ? MEDIATYPE.PstnAudio:MEDIATYPE.WEBRTC;
-
-        return that._rest.conferenceModeratorActionOnParticipant(conferenceId, mediaType, participantId, action);
-    }
 
 //endregion CONFERENCE / Personal Conference SPECIFIC
 
@@ -2200,7 +1082,7 @@ getAllActiveBubbles
      * @param {string} conferenceId
      * @param {boolean} deleteLinkWithBubble
      */
-    removeConferenceFromCache(conferenceId: string, deleteLinkWithBubble: boolean) {
+    removeConferenceFromCache(conferenceId: string) {
         let that = this;
         that._logger.log("debug", LOG_ID + "(removeConferenceFromCache) remove conference : ", conferenceId);
         if (that._conferencesSessionById.containsKey(conferenceId)) {
@@ -2209,13 +1091,6 @@ getAllActiveBubbles
             });
         }
 
-        if (deleteLinkWithBubble) {
-            if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-                that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
-                    return conferenceId===item.key;
-                });
-            }
-        }
     }
 
     /**
@@ -2226,22 +1101,19 @@ getAllActiveBubbles
      * @param {boolean} useConferenceV2 do a specific treatment if the conference V2 model is used.
      * @param {Object} updatedDatasForEvent participants added or removed
      */
-    async addOrUpdateConferenceToCache(conference: ConferenceSession, useConferenceV2: boolean = false, updatedDatasForEvent: any = {}) {
+    async addOrUpdateConferenceToCache(conference: ConferenceSession, updatedDatasForEvent: any = {}) {
         let that = this;
         if (conference!=null) {
             let needToRaiseEvent: boolean = false;
             // Does this conference is linked to a known bubble ?
             let linkedWithBubble: boolean;
-            linkedWithBubble = that._linkConferenceAndBubble.containsKey(conference.id);
 
-            if (useConferenceV2) {
-                let bubble = await that.getBubbleById(conference.id);
-                linkedWithBubble = bubble.id == conference.id;
-                conference.bubble = bubble;
-            }
+            let bubble = await that.getBubbleById(conference.id);
+            linkedWithBubble = bubble.id == conference.id;
+            conference.bubble = bubble;
 
             // Remove conference from cache
-            that.removeConferenceFromCache(conference.id, !conference.active);
+            that.removeConferenceFromCache(conference.id);
 
             // Add conference - only if still active
             if (conference.active) {
@@ -2338,9 +1210,9 @@ getAllActiveBubbles
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
@@ -2375,7 +1247,9 @@ getAllActiveBubbles
                                 //that._bubbles.push(bubble);
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                    await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(getBubbleById) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                    });                                    
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -2416,9 +1290,9 @@ getAllActiveBubbles
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Valeur par défaut : small Valeurs autorisées : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Valeur par défaut : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Valeur par défaut : 100
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
@@ -2454,7 +1328,9 @@ getAllActiveBubbles
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                    await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(getBubbleByJid) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                    });
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -2481,7 +1357,6 @@ getAllActiveBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @async
-         * @return {Promise<Bubble>}  return a promise with The result found or null.
          * @description
          *  Provide the list of room JIDs a user is a member of. <br>
          * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to join the room. </br>
@@ -2490,11 +1365,21 @@ getAllActiveBubbles
          * isActive=false : inactive rooms only </br>
          * isActive=true : active rooms only </br>
          * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
-         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Valeur par défaut : true
-         * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100
-         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Default value : true
+         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100
+         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
          * @param {string} sortField Sort items list based on the given field.
-         * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
+         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @return {Promise<Object>}  return a promise with The result found or null.
+         * 
+         * 
+         * | Champ | Type | Description |
+         * | --- | --- | --- |
+         * | data | String\[\] | List of room JIDs. |
+         * | limit | Number | Number of requested items |
+         * | offset | Number | Requested position of the first item to retrieve |
+         * | total | Number | Total number of items |
+         * 
          */
         getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
             let that = this;
@@ -2519,7 +1404,6 @@ getAllActiveBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
-     * @return {Promise<Bubble>}  return a promise with The result found or null.
      * @description
      *  Display a list of short room description including: id - room identifier, name - room name </br>
      *  Get all rooms visible by the user requesting it (the private rooms the user is part of and the public rooms)</br>
@@ -2539,7 +1423,7 @@ getAllActiveBubbles
      * </br>
      *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
      *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
-     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
      * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
      * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
@@ -2556,17 +1440,74 @@ getAllActiveBubbles
      * isActive=true : all active rooms </br>
      * @param {string} name Allow to search room which name includes a word beginning by ...
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
      * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
      */
-        getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+     getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
             let that = this;
             return new Promise(async (resolve, reject) => {
@@ -2582,7 +1523,7 @@ getAllActiveBubbles
                     reject (err);
                 }
             });
-        }
+     }
         
     /**
      * @public
@@ -2591,7 +1532,6 @@ getAllActiveBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @async
-     * @return {Promise<Bubble>}  return a promise with The result found or null.
      * @description
      *  Display a list of short bubbles description including: id - room identifier, name - room name </br>
      *  Get Bubbles data by list of room ids </br>
@@ -2612,7 +1552,7 @@ getAllActiveBubbles
      * </br>
      *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
      *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
-     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Valeur par défaut : small. Valeurs autorisées : small, medium, full. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
      * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
      * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
@@ -2623,16 +1563,70 @@ getAllActiveBubbles
      * hasConf=false : all rooms never used for a meeting </br>
      * hasConf=true : all rooms used for a meeting </br>
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Valeur par défaut : 1. Valeurs autorisées : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Valeur par défaut : false.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Valeur par défaut : 100.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
 
      creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Valeur par défaut : true.
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
      */
     getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
@@ -2768,16 +1762,15 @@ getAllActiveBubbles
                         that._eventEmitter.removeListener("evt_internal_bubblepresencechanged", fn_onbubblepresencechanged);
                         resolve(bubble);
                     }); // */
-    
                     that._presence.sendInitialBubblePresenceSync(bubbleObj).then(async () => {
-                        /*// Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
+                        /* // Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
                         await until(() => {
                                 return (that._bubbles.find((bubbleIter: any) => {
                                     return (bubbleIter.jid === bubble.jid);
                                 }) !== undefined);
                             },
                             "Waiting for the initial presence of a creation of bubble : " + bubble.jid);
-                         */
+                         // */
                         //that._bubbles.push(Object.assign( new Bubble(), bubble));
                         that._logger.log("debug", LOG_ID + "(createBubble) bubble successfully created and presence sent : ", bubbleObj.jid);
                         resolve(bubble);
@@ -3338,8 +2331,10 @@ getAllActiveBubbles
                         let bubbleObj = await that.getBubbleById(bubble.id);
                         if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid); 
                         
-                        let users = bubble.users;
-                        for (const user of users) {
+                        let users = bubble.users?bubble.users:[];
+                        //for (const user of users) {
+                        for(let i = 0; i < users.length; i++) {
+                            let user = users[i];
                             //users.forEach(function (user) {
                             if (user.userId===that._rest.userId && user.status==="accepted") {
                                 if (that._options._imOptions.autoInitialBubblePresence) {
@@ -3366,12 +2361,8 @@ getAllActiveBubbles
                             that._logger.log("debug", LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not treatAllBubblesToJoin");
                         }
     
-                        return that.retrieveConferences(undefined, false, false).then((conferences) => {
-                            that._logger.log("info", LOG_ID + "(getBubbles) retrieveAllConferences : ", conferences);
-                            resolve(undefined);
-                        }).catch(() => {
-                            resolve(undefined);
-                        });
+                        return resolve(undefined);
+                        
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(getBubbles) error");
                         that._logger.log("internalerror", LOG_ID + "(getBubbles) error : ", err);
@@ -3543,35 +2534,6 @@ getAllActiveBubbles
             }
             //this.updateChannelsList();
     
-            // Link conference and bubble
-            let conferenceId: string = null;
-            if (bubble.confEndpoints!=null) {
-                for (const confEndpoint of bubble.confEndpoints) {
-                    //bubble.confEndpoints.forEach((confEndpoint: any) => {
-                    if (confEndpoint!=null) {
-                        conferenceId = confEndpoint.confEndpointId;
-                        if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-                            this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) remove before update link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
-                            that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
-                                return item.key===conferenceId;
-                            });
-                        }
-
-                        this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) Link conferenceId : ", conferenceId, " to bubbleId : ", bubble.id);
-                        that._linkConferenceAndBubble.add(conferenceId, bubble.id);
-
-                        if (that._conferencesSessionById.containsKey(conferenceId)) {
-                            //needToRaiseEvent = true;
-                            //conference = that.getConferenceByIdFromCache(conferenceId);
-                            //break;
-                        } else {
-                            // Since we have no information about this conference, we ask the servrr
-                            that.askConferenceSnapshot(confEndpoint.confEndpointId, confEndpoint.mediaType);
-                        }
-                    }
-                    //});
-                }
-            }
             return bubbleObj;
         }
     
@@ -3592,25 +2554,6 @@ getAllActiveBubbles
                 if (bubbleToRemove) {
                     // Remove from channels
                     let bubbleIdToRemove : any = bubbleToRemove.id;
-                    // Remove link between conference and bubble
-                    let conferenceId: string = null;
-                    if (bubbleToRemove.confEndpoints!=null) {
-                        for (const confEndpoint of bubbleToRemove.confEndpoints)
-                        {
-                            //bubbleToRemove.confEndpoints.forEach((confEndpoint: any) => {
-                            if (confEndpoint!=null) {
-                                conferenceId = confEndpoint.confEndpointId;
-                                if (that._linkConferenceAndBubble.containsKey(conferenceId)) {
-                                    that._linkConferenceAndBubble.remove((item: KeyValuePair<string, string>) => {
-                                        return item.key===conferenceId;
-                                    });
-                                }
-
-                                this._logger.log("internal", LOG_ID + "(addOrUpdateBubbleToCache) remove link conferenceId : ", conferenceId, " to bubbleId : ", bubbleToRemove.id);
-                            }
-                            //});
-                        }
-                    }
     
                     that._logger.log("internal", LOG_ID + "(removeBubbleFromCache) remove from cache bubbleId : ", bubbleIdToRemove);
                     that._bubbles = this._bubbles.filter(function (chnl: any) {
@@ -4900,10 +3843,10 @@ getAllActiveBubbles
         }
     
     //endregion Bubbles FIELDS    
-    
+
     //region Bubbles TAGS
     
-        /**
+    /**
          * @public
          * @method retrieveAllBubblesByTags
          * @instance
@@ -6080,6 +5023,45 @@ getAllActiveBubbles
     
     //endregion Manage Bubbles
 
+    //region Bubbles Messages
+
+    /**
+     *
+     * @public
+     * @since 2.20.0
+     * @method deleteAllMessagesInBubble
+     * @category Bubbles Messages
+     * @instance
+     * @async
+     * @description
+     *   Delete all messages in a Bubble for everybody or hide it definitively for a specific contact. <br>
+     * @param {Bubble} bubble bubble where im messages must be deleted.
+     * @param {string} forContactJid jid of the contact we want to delete the access to messages in the bubble. If not setted, then all bubble's messages are deleted for every contacts.
+     * @return Promise<any> Result of the API.
+     */
+    async deleteAllMessagesInBubble( bubble: Bubble, forContactJid: string = undefined) {
+        let that = this;
+
+        if (!bubble) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        // new to openconversation to send presence and activate the bubble if needed.
+        let conversationObj = await that._conversations.openConversationForBubble(bubble);
+
+        if (conversationObj.type!==Conversation.Type.ROOM) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter : ", conversationObj);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that._xmpp.deleteAllMessagesInRoomConversation(bubble.jid, forContactJid);
+    }
+
+    //endregion Bubbles Messages
+    
     //region Conference V2
 
     /**
@@ -6193,10 +5175,23 @@ getAllActiveBubbles
                             //jArray.forEach(async (jParticipant: any) => {
                             for (const jParticipant of jArray) {
                                 let participant: Participant = null;
+                                let participantId = null;
                                 if (jParticipant.hasOwnProperty("participantId")) {
-                                    // Id
-                                    let participantId = jParticipant["participantId"];
+                                    participantId = jParticipant["participantId"];
+                                }
+                                // Id
+                                participantId = jParticipant["participantId"];
+                                if (jParticipant.hasOwnProperty("participant-id")) {
+                                    participantId = jParticipant["participant-id"];
+                                }
+                                if (jParticipant.hasOwnProperty("user-id")) {
+                                    participantId = jParticipant["user-id"];
+                                }
+                                if (jParticipant.hasOwnProperty("userId")) {
+                                    participantId = jParticipant["userId"];
+                                }
 
+                                if (participantId) {
                                     // Create Participant object
                                     participant = new Participant(participantId);
 
@@ -6206,11 +5201,12 @@ getAllActiveBubbles
                                     else
                                         participant.muted = false;
 
-                                    // Hold
+                                    /* // Hold
                                     if (jParticipant.hasOwnProperty("held"))
                                         participant.hold = (jParticipant["held"]=="true");
                                     else
                                         participant.hold = false;
+                                        // */
 
                                     // IsModerator
                                     if (jParticipant.hasOwnProperty("participantRole"))
@@ -6218,11 +5214,12 @@ getAllActiveBubbles
                                     else
                                         participant.moderator = false;
 
-                                    // IsConnected
+                                    /*// IsConnected
                                     if (jParticipant.hasOwnProperty("participantState"))
                                         participant.connected = (jParticipant["participantState"]=="connected");
                                     else
                                         participant.connected = false;
+                                        // */
 
                                     // Jid_im
                                     if (jParticipant.hasOwnProperty("jid_im")) {
@@ -6237,9 +5234,21 @@ getAllActiveBubbles
                                     if (jParticipant.hasOwnProperty("phoneNumber"))
                                         participant.phoneNumber = jParticipant["phoneNumber"];
 
+                                    if (jParticipant.hasOwnProperty("delegateCapability"))
+                                        participant.delegateCapability = jParticipant["delegateCapability"];
+                                    if (jParticipant.hasOwnProperty("associatedUserId"))
+                                        participant.associatedUserId = jParticipant["associatedUserId"];
+                                    if (jParticipant.hasOwnProperty("associatedGroupName"))
+                                        participant.associatedGroupName = jParticipant["associatedGroupName"];
+                                    if (jParticipant.hasOwnProperty("isOwner"))
+                                        participant.isOwner = jParticipant["isOwner"];
+
                                     // Finally add participant to the list
                                     conference.participants.add(participant);
+                                } else {
+                                    that._logger.log("warn", LOG_ID + "(askConferenceSnapshot) - no participantId found for conference, jParticipant : ", jParticipant);
                                 }
+
                             }
                         }
                     } catch (e) {
@@ -6602,7 +5611,7 @@ getAllActiveBubbles
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.pauseRecording(roomId).then(async (result) => {
+            that._rest.startRecording(roomId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(startRecording) result from server : ", result);
 
                 if (result) {
@@ -6698,7 +5707,7 @@ getAllActiveBubbles
      * @since 2.2.0
      * @category Conference V2
      * @param {string} bubbleId The id of the room.
-     * @param {Object} services  Requested service types. example : { "services": [ "video-compositor" ] }
+     * @param {Object} services Requested service types. example : { "services": [ "video-compositor" ] }
      * @async
      * @description
      *       The start command initiates a conference in a room. <br>
@@ -7187,6 +6196,172 @@ getAllActiveBubbles
     }
 
     //endregion Conference V2
+
+    //region Bubbles - dialIn
+
+    /**
+     * @public
+     * @method disableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to disable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     * 
+     */
+    disableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.disableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method enableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to enable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    enableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.enableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(enableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method resetDialInCodeForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to reset dial in code for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    resetDialInCodeForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.resetDialInCodeForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(resetDialInCodeForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getDialInPhoneNumbersList
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} shortList Allows to display phoneNumbers of the user's country in a separate list (default true).
+     * @async
+     * @description
+     *       This API allows to retrieve the list of phone numbers to join conference by Dial In. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | country | String | User country (ISO 3166-1 alpha3 format) |
+     * | language | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | shortList | Object\[\] | When the user's country is known, show when exist phoneNumbers located in this country |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     * | phoneNumberList | Object\[\] | List of phoneNumbers ranked by country in the user's language (default: en) |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     *
+     */
+    getDialInPhoneNumbersList ( shortList : boolean) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) shortList : " + shortList);
+
+            if (!shortList) {
+                that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) bad or empty 'shortList' parameter : ", shortList);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getDialInPhoneNumbersList(shortList).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+   //endregion Bubbles - dialIn
+
 
 }
 

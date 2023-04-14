@@ -155,14 +155,16 @@ class BubblesManager {
         return new Promise((resolve, reject) => {
             that.lock(() => {
                 // Treatment in the lock
-                let roomJid = bubble.jid;
-                if ( (!that.poolBubbleToJoin.containsKey(roomJid)) && (!that.poolBubbleAlreadyJoined.containsKey(roomJid)) )
+                let roomJid = bubble.jid ? bubble.jid : bubble.roomJid;
+                if ( (!that.poolBubbleToJoin.containsKey(roomJid)) && (!that.poolBubbleAlreadyJoined.containsKey(roomJid)) && (bubble.initialPresence == undefined || ((bubble.initialPresence) && (!bubble.initialPresence.initPresenceAck))) )
                 {
                     that.nbBubbleAdded++;
                     that._logger.log("debug", LOG_ID + "(addBubbleToJoin) We add the Bubble in the pool poolBubbleToJoin to join it as soon as possible - Jid : ", roomJid,", nbBubbleAdded : ", that.nbBubbleAdded);
                     that.poolBubbleToJoin.add(roomJid, bubble);
                     //needToAsk = true;
                     return bubble
+                } else {
+                    that._logger.log("debug", LOG_ID + "(addBubbleAlreadyJoined) The Bubble is Already Joined - for " + bubble.getNameForLogs + " -- Jid : ", roomJid);
                 }
                 return ;
             }).then((result) => {
@@ -246,7 +248,9 @@ class BubblesManager {
                             let test = false;
                             if (getRandomInt(2) == 1 || !test) {
                                 that._logger.log("debug", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubble : ", bubble.jid);
-                                await that._presence.sendInitialBubblePresenceSync(bubble);
+                                await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                    that._logger.log("warn", LOG_ID + "(treatAllBubblesToJoin) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                });
                             } else {
                                 that._logger.log("debug", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", because of random test do not send the initial presence to bubble : ", bubble.jid);
                             }
@@ -276,7 +280,7 @@ class BubblesManager {
                 });
                 that._logger.log("debug", LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
             } else {
-                that._logger.log("error", LOG_ID + "(treatAllBubblesToJoin) FAILED join already in progress.");
+                that._logger.log("error", LOG_ID + "(treatAllBubblesToJoin) No bubble to join, and no bublle already in progress to join.");
             }
             resolve("done");
         });
@@ -342,6 +346,10 @@ class BubblesManager {
         return new Promise((resolve, reject) => {
             that.lock(() => {
                 // Treatment in the lock
+                if (!bubble) {
+                    that._logger.log("warn", LOG_ID + "(removeBubbleToJoinInProgress) empty bubble, so ignore it.");
+                    return;
+                }
                 let roomJid = bubble.jid;
                 if ( that.poolBubbleJoinInProgress.containsKey(roomJid) )
                 {
@@ -407,9 +415,11 @@ class BubblesManager {
                 let roomJid = bubble.jid;
                 if ( (!that.poolBubbleAlreadyJoined.containsKey(roomJid)) )
                 {
-                    that._logger.log("debug", LOG_ID + "(addBubbleAlreadyJoined) We add the Bubble in poolBubbleAlreadyJoined - Jid : ", roomJid);
+                    that._logger.log("debug", LOG_ID + "(addBubbleAlreadyJoined) We add the Bubble in poolBubbleAlreadyJoined - for " + bubble.getNameForLogs + " -- Jid : ", roomJid);
                     that.poolBubbleAlreadyJoined.add(roomJid, bubble);
                     //needToAsk = true;
+                } else {
+                    that._logger.log("debug", LOG_ID + "(addBubbleAlreadyJoined) The Bubble is Already Joined - for " + bubble.getNameForLogs + " -- Jid : ", roomJid);
                 }
             }).then((result) => {
                 that._logger.log("internal", LOG_ID + "(addBubbleAlreadyJoined) Succeed - Jid : ", result);

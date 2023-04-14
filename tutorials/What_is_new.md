@@ -6,7 +6,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.16.1-lts.4 - LTS Version - january 2023
+### SDK for Node.JS 2.19.0 - STS Version - December 2022
 
 ---
 
@@ -18,24 +18,68 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Breaking Changes**
 
--   None
+-   None    
 
 **API Changes**
 
+-   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
 -   Update the `BubblesService::getBubbleById` with few parameters.
 -   Update the `BubblesService::getBubbleByJid` with few parameters.
--   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true. (before the value was "full")
 
 **Others Changes**
 
--   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
--   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true. 
+-   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
 -   Add `BubblesService::updateBubbleData` This API allows to update room data.
 -   Add `BubblesService::getABubblePublicLinkAsModerator` api allow to get the openInviteId bound with the given bubble.
 -   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
 -   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
 -   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
+-   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
+
+
+### SDK for Node.JS 2.18.0 - STS Version - December 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
+-   Remove Conference V1 methods in BubblesService : 
+-   methods `askConferenceSnapshot` `joinConference` `getBubbleByConferenceIdFromCache` `getBubbleIdByConferenceIdFromCache` 
+-   methods `getConferencesIdByBubbleIdFromCache` `getConferenceByIdFromCache` `conferenceGetListFromCache` 
+-   methods `updateOrCreateWebConferenceEndpoint` `updateWebConferenceInfos` `getWebRtcConfEndpointId` `getWebRtcSharingOnlyConfEndpointId` 
+-   methods `conferenceStart` `conferenceStop` `conferenceJoin` `conferenceMuteOrUnmute` `conferenceMuteOrUnmutParticipant` 
+-   methods `conferenceDropParticipant` `personalConferenceAllowed` `personalConferenceGetId` 
+-   methods `personalConferenceGetBubbleFromCache` `personalConferenceGetBubbleIdFromCache` `personalConferenceGetPhoneNumbers`
+-   methods `personalConferenceGetPassCodes` `personalConferenceResetPassCodes` `personalConferenceGetPublicUrl` `personalConferenceStart`
+-   methods `personalConferenceStop` `personalConferenceJoin` `personalConferenceMuteOrUnmute` `personalConferenceLockOrUnlock` 
+-   methods `personalConferenceMuteOrUnmuteParticipant` `personalConferenceDropParticipant` `conferenceEndedForBubble` `askBubbleForConferenceDetails` 
+-   methods `personalConferenceRename` `conferenceModeratorAction` `conferenceMuteOrUnmutParticipant` 
+
+**API Changes**
+
+-   None
+
+**Others Changes**
+
+-   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
+-   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
+-   Fix to initialize the contacts service before the telephony service.
+-   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed.
+-   Add a `TimeOutManager` manager to be able to control every setTimeout from one tool. Useful for stopping setTimeout when a stop of SDK occured.
+-   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
+-   Add `AdminService::getAnImportStatus` API to provide a short status of the last import (completed or pending) of a company directory.
+-   Add `PresenceService::controlCalendarOrIgnoreAnEntry` API to Enable/disable a calendar sharing or ignore a calendar entry.
+-   Add `PresenceService::unregisterCalendar` API to Delete a calendar sharing.
+
 
 ### SDK for Node.JS 2.16.1 - LTS Version - october 2022
 
@@ -237,7 +281,7 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Changes**
 
--   Rename `InvitationsService::sendInvitationsParBulk` to `InvitationsService::sendInvitationsByBulk` 
+-   Rename `InvitationsService::sendInvitationsByBulk` to `InvitationsService::sendInvitationsByBulk` 
 
 **Others Changes**
 

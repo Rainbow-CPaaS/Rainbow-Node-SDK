@@ -7,7 +7,6 @@ import {ErrorManager} from "./ErrorManager";
 import {EventEmitter} from "events";
 import {Core} from "../Core";
 import {Logger} from "./Logger";
-import {setTimeoutPromised} from "./Utils";
 
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
@@ -27,7 +26,7 @@ class Emitter extends EventEmitter {
     emit(type, ...args): boolean {
         let that = this;
         try {
-        that._logger.log("internal", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        that._logger.log("debug", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
         } catch (e) {
             that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
         }
@@ -40,20 +39,18 @@ class Emitter extends EventEmitter {
         let that = this;
         let listenerWithLog = (...args: any[]) => {
             try {
-                if (args.length === 0) {
-                    that._logger.log("internal", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
-                }
+                that._logger.log("debug", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
                 let iter = 0;
                 [...params] = args;
-                params.forEach((dataIter) => {
-                    //console.log("EVENT dataIter : ", dataIter);
-                    //that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
-                    let data = that._logger.argumentsToString(["", dataIter]);
-                    //console.log("EVENT data : ", data);
-                    that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));
+                let data = "";
+                if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){
+                    params.unshift("");
+                    data = that._logger.argumentsToString(params, " ,\n");
+                    params.shift();
+                }
+                that._logger.log("internal", LOG_ID + "EventEmitter(on) param ", iter++, " for event ", that._logger.colors.eventsEmitter(event), " data : ", that._logger.colors.data(data));
 
-                });
-            } catch (e) {
+        } catch (e) {
                 that._logger.log("error", LOG_ID + "EventEmitter(on) Catch Error !!! error : ", e);
             }
 
@@ -142,6 +139,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontelephonystatuschanged <br>
  * @fires Events#rainbow_onnomadicstatusevent <br>
  * @fires Events#rainbow_onvoicemessageupdated <br>
+ * @fires Events#rainbow_onvoicemessagesinfo <br>
  * @fires Events#rainbow_oncallforwarded <br>
  * @fires Events#rainbow_onchannelmessagereceived <br>
  * @fires Events#rainbow_onchannelmyappreciationreceived <br>
@@ -159,6 +157,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogupdated <br>
  * @fires Events#rainbow_oncalllogackupdated <br>
  * @fires Events#rainbow_onfavoritecreated <br>
+ * @fires Events#rainbow_onfavoriteupdated <br>
  * @fires Events#rainbow_onfavoritedeleted <br>
  * @fires Events#rainbow_onxmpperror <br>
  * @fires Events#rainbow_onalertmessagereceived <br>
@@ -177,6 +176,9 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorcommand <br>
  * @fires Events#rainbow_onconnectorconfig <br>
  * @fires Events#rainbow_onconnectorcommandended <br>
+ * @fires Events#rainbow_onrbvoicerawevent <br>
+ * @fires Events#rainbow_onjoincompanyinvitereceived <br>
+ * @fires Events#rainbow_onjoincompanyrequestreceived <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -249,6 +251,7 @@ class Events {
         "rainbow_ontelephonystatuschanged",
         "rainbow_onnomadicstatusevent",
         "rainbow_onvoicemessageupdated",
+        "rainbow_onvoicemessagesinfo",
         "rainbow_oncallforwarded",
         "rainbow_onchannelmessagereceived",
         "rainbow_onchannelmyappreciationreceived",
@@ -266,6 +269,7 @@ class Events {
         "rainbow_oncalllogupdated",
         "rainbow_oncalllogackupdated",
         "rainbow_onfavoritecreated",
+        "rainbow_onfavoriteupdated",
         "rainbow_onfavoritedeleted",
         "rainbow_onxmpperror",
         "rainbow_onalertmessagereceived",
@@ -283,7 +287,10 @@ class Events {
         "rainbow_onbubblepollvoted",
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
-        "rainbow_onconnectorcommandended"
+        "rainbow_onconnectorcommandended",
+        "rainbow_onrbvoicerawevent",
+        "rainbow_onjoincompanyinvitereceived",
+        "rainbow_onjoincompanyrequestreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -638,7 +645,6 @@ class Events {
                             if (that._core.options._imOptions.autoInitialBubblePresence) {
                                 if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
                                     // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
                                     await that._core._presence.sendInitialBubblePresenceSync(bubble);
                                 }
                             } else {
@@ -1024,6 +1030,17 @@ class Events {
             that.publishEvent("voicemessageupdated", data);
         });
 
+        this._evReceiver.on("evt_internal_voicemessagesinfo", function (data) {
+            /**
+             * @event Events#rainbow_onvoicemessagesinfo
+             * @public
+             * @param { data }
+             * @description
+             *      Fired when voice messages infos updated event is received
+             */
+            that.publishEvent("voicemessagesinfo", data);
+        });
+
         this._evReceiver.on("evt_internal_callforwarded", function (data) {
             /**
              * @event Events#rainbow_oncallforwarded
@@ -1202,6 +1219,17 @@ class Events {
              *      Fired when a favorite is added to the loggued in user.
              */
             that.publishEvent("favoritecreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_favoriteupdated", function (data) {
+            /**
+             * @event Events#rainbow_onfavoriteupdated
+             * @public
+             * @param { Favorite } favorite The favorite updated
+             * @description
+             *      Fired when a favorite is updated to the loggued in user.
+             */
+            that.publishEvent("favoriteupdated", data);
         });
 
         this._evReceiver.on("evt_internal_favoritedeleted", function (data) {
@@ -1433,6 +1461,39 @@ class Events {
             that.publishEvent("connectorcommand_ended", data);
         });
 
+        this._evReceiver.on("evt_internal_onrbvoiceevent", function (data) {
+            /**
+             * @event Events#rainbow_onrbvoicerawevent
+             * @public
+             * @param { Object } data informations about rainbow voice events
+             * @description
+             *      This event is fired in case a of rainbow voice event.
+             */
+            that.publishEvent("rbvoicerawevent", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyinvitereceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyinvitereceived
+             * @public
+             * @param { Object } data informations about rainbow join company invite events
+             * @description
+             *      This event is fired in case a of rainbow join company invite event.
+             */
+            that.publishEvent("joincompanyinvitereceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyrequestreceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyrequestreceived
+             * @public
+             * @param { Object } data informations about rainbow join company request events
+             * @description
+             *      This event is fired in case a of rainbow join company request event.
+             */
+            that.publishEvent("joincompanyrequestreceived", data);
+        });
+
     }
 
     get iee(): EventEmitter {
@@ -1486,6 +1547,21 @@ class Events {
      */
     on(event, callback): EventEmitter {
         return this._evPublisher.on(event, callback);
+    }
+
+    /**
+     * @method emit
+     * @private
+     * @memberof Events
+     * @instance
+     * @param {string} eventName name for the event
+     * @param {any} data arguments for the event
+     * @return nothing
+     * @description
+     *      Emit an event.
+     */
+    emit(eventName, data) : void {
+        this.iee.emit(eventName, data);
     }
 
     /**
@@ -1619,15 +1695,22 @@ class Events {
 
         that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
         let iter = 0;
-        params.forEach((dataIter) => {
-            //console.log("EVENT dataIter : ", dataIter);
-            //that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
-            let data = that._logger.argumentsToString(["", dataIter]);
-            //console.log("EVENT data : ", data);
-            that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", that._logger.colors.data(data));
-
-        });
-
+        let data = "";
+        if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){
+            params.unshift("");
+            data = that._logger.argumentsToString(params, " ,\n");
+            /*params.forEach((dataIter) => {
+                //console.log("EVENT dataIter : ", dataIter);
+                //that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", dataIter);
+                let data = that._logger.argumentsToString(["", dataIter]);
+                //console.log("EVENT data : ", data);
+                that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.events(eventName), " data : ", that._logger.colors.data(data));
+    
+            }); //  */
+            params.shift();
+        }
+        that._logger.log("internal", LOG_ID + "(publishEvent) param ", iter++, " for event ", that._logger.colors.eventsEmitter(eventName), " data : ", that._logger.colors.data(data));
+        
         that._evPublisher.emit(eventName, ...params);
     }
 

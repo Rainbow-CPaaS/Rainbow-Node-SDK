@@ -1,4 +1,6 @@
 "use strict";
+import {TimeOutManager} from "./TimeOutManager";
+
 export {};
 
 
@@ -23,10 +25,12 @@ class StateManager {
 	public eventEmitter: any;
 	public logger: any;
 	public state: any;
+    private timeOutManager: TimeOutManager;
 
-    constructor(_eventEmitter, logger) {
+    constructor(_eventEmitter, logger, timeOutManager : TimeOutManager) {
         this.eventEmitter = _eventEmitter;
         this.logger = logger;
+        this.timeOutManager = timeOutManager;
 
         // Initial state
         this.state = SDKSTATUSENUM.STOPPED;
@@ -86,6 +90,7 @@ class StateManager {
                 this.state = state;
                 if (this.isSTOPPED() || this.isREADY()) {
                     await utils.setTimeoutPromised(1500).then(() => {
+                    // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
                         this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
                         this.eventEmitter.publish(state, data);
                         resolve(undefined);

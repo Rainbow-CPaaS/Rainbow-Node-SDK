@@ -101,7 +101,8 @@ const NameSpacesLabels = {
     "IncidentCap" : "http://www.incident.com/cap/1.0",
     "MonitoringNS" : "urn:xmpp:monitoring:0",
     "XmppHttpNS" : "urn:xmpp:http",
-    "protocolShimNS" : "http://jabber.org/protocol/shim"
+    "protocolShimNS" : "http://jabber.org/protocol/shim",
+    "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing"
 };
 
 @logEntryExit(LOG_ID)
@@ -299,6 +300,7 @@ class XMPPService extends GenericService {
                 that.fullJid = "";
                 that.userId = "";
                 that.initialPresence = true;
+                that.logger.log("info", LOG_ID + "(stop) __ entering __ stop XMPP connection");
                 if (that.useXMPP && forceStop) {
                     that.stopIdleTimer();
 
@@ -332,10 +334,12 @@ class XMPPService extends GenericService {
 
                         that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
-                        that.xmppClient.send(stanza);
+                        that.xmppClient.send(stanza).catch((err) => {
+                            that.logger.log("warn", LOG_ID + "(stop) send failed to send Unavailable Presence, error : ", err);
+                        });
 
                         that.xmppClient.stop().then(() => {
-                            that.logger.log("debug", LOG_ID + "(stop) stop XMPP connection");
+                            that.logger.log("debug", LOG_ID + "(stop) stopped XMPP connection");
                             that.xmppClient = null;
                             //that.setStopped();
                             resolve(undefined);
@@ -665,9 +669,10 @@ class XMPPService extends GenericService {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 default:
-                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", stanza.getName());
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
                     break;
             }
         });
@@ -725,19 +730,25 @@ class XMPPService extends GenericService {
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                         case "conflict":
                         case "policy-violation":
-                            if (err.text!="has been kicked") {
+                            if (err.condition == "policy-violation" && err.text!="has been kicked") {
                                 that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
                                 that.eventEmitter.emit("evt_internal_xmpperror", err);
                                 break;
                             }
                         case "resource-constraint":
-                            if (err.text!="Max sessions reached") {
+                            if (err.condition == "resource-constraint" && err.text!="Max sessions reached") {
                                 that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not Fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
                                 that.eventEmitter.emit("evt_internal_xmpperror", err);
                                 break;
                             }
                         case "unsupported-version":
                             that.stopIdleTimer();
+                            // Disconnect the auto-reconnect mode
+                            if (that.reconnect) {
+                                that.logger.log("debug", LOG_ID + "(stop) stop XMPP auto-reconnect mode");
+                                that.reconnect.stop();
+                                that.reconnect = null;
+                            }
                             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                             that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                             break;
@@ -790,6 +801,12 @@ class XMPPService extends GenericService {
 
         that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+            let stanza = xml("close", {
+                "xmlns": NameSpacesLabels.XmppFraming
+            });
+
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            return that.xmppClient.send(stanza);
         });
 
         that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
@@ -1020,6 +1037,11 @@ class XMPPService extends GenericService {
 
     //endregion Carbon
 
+    sendStanza (stanza) {
+        let that = this;
+        return that.xmppClient.send(stanza);
+    }
+    
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
@@ -2031,10 +2053,70 @@ class XMPPService extends GenericService {
         rsmx.append(rsmField2,  undefined);
         rsmDelete.append(rsmx,  undefined);
         rsmDelete.append(rsmset,  undefined);
-        let msg = message.append(rsmDelete, undefined);
+        message.append(rsmDelete, undefined);
+        let msg = message;
         //return Promise.resolve(message);
         return await that.xmppClient.sendIq(msg);
         //xmppService.sendIQ(msg);
+    }
+
+    async deleteAllMessagesInRoomConversation(roomJid, forContactJid = null) {
+        let that = this;
+        /*
+ <iq to="room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net" type="set" id="node_d00f1a17-c17b-4c48-9d18-977709bb82e831" 
+  xmlns="jabber:client">
+  <delete 
+    xmlns="urn:xmpp:mam:1" queryid="43aec78d-5fbe-483e-96c5-93a02a91219b">
+    <x 
+      xmlns="jabber:x:data" type="submit">
+      <field var="FORM_TYPE" type="hidden">
+        <value>urn:xmpp:mam:1</value>
+      </field>
+    </x>
+    <set 
+      xmlns="http://jabber.org/protocol/rsm"/>
+    </delete>
+  </iq>
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+        let rsmField2 = null;
+        let rsmvalue2 = null;
+
+        let message = xml("iq", {
+            //"from": that.jid_im,
+            "to": roomJid,
+            "type": "set",
+            "id": uniqMessageId
+        });
+
+        let rsmDelete = xml("delete", {xmlns: NameSpacesLabels.MamNameSpace, queryid: uniqId});
+        let rsmx = xml("x",{xmlns: NameSpacesLabels.DataNameSpace, type: "submit"});
+        let rsmField1 = xml("field",{var: "FORM_TYPE", type: "hidden"});
+        let rsmvalue1 = xml("value",{}, NameSpacesLabels.MamNameSpace);
+        if (forContactJid) {
+            rsmField2 = xml("field",{var: "with"});
+            rsmvalue2 = xml("value",{}, forContactJid);
+        }
+        let rsmset = xml("set", {xmlns:NameSpacesLabels.RsmNameSpace});
+        rsmField1.append(rsmvalue1, undefined);
+        if (forContactJid && rsmField2) {
+            rsmField2.append(rsmvalue2, undefined);
+        }
+        rsmx.append(rsmField1,  undefined);
+        if (forContactJid) {
+            rsmx.append(rsmField2, undefined);
+        }
+        rsmDelete.append(rsmx,  undefined);
+        rsmDelete.append(rsmset,  undefined);
+        message.append(rsmDelete, undefined);
+        let msg = message;
+        return await that.xmppClient.sendIq(msg);
     }
 
     getErrorMessage (data, actionLabel) {

@@ -32,10 +32,12 @@ import {S2SService} from "./services/S2SService";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
+import {TimeOutManager} from "./common/TimeOutManager";
 
 export {};
 
 const packageVersion = require("../package.json");
+import * as Utils from "./common/Utils"
 
 /*let _signin;
 let _retrieveInformation;
@@ -45,6 +47,13 @@ const LOG_ID = "CORE - ";
 
 @logEntryExit(LOG_ID)
 class Core {
+    get timeOutManager(): TimeOutManager {
+        return this._timeOutManager;
+    }
+
+    set timeOutManager(value: TimeOutManager) {
+        this._timeOutManager = value;
+    }
 	public logger: any;
 	public _rest: RESTService;
 	public _eventEmitter: Events;
@@ -75,7 +84,9 @@ class Core {
     public _httpoverxmpp: HTTPoverXMPP;
 	public _botsjid: any;
     public _s2s: S2SService;
+    public _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
+    private _timeOutManager : TimeOutManager;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -88,6 +99,8 @@ class Core {
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
 
+        self._Utils = Utils;
+        
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);
@@ -96,6 +109,8 @@ class Core {
 
         loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
 
+        self._timeOutManager = new TimeOutManager(self.logger);
+        
         self.logger.log("debug", LOG_ID + "(constructor) _entering_");
         self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
@@ -113,10 +128,20 @@ class Core {
 
         self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
 
-
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
-            await self.signin(true, undefined);
+            let that = this;
+            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
+            await self.stop().then(function(result) {
+            }).catch(function(err) {
+                let error = ErrorManager.getErrorManager().ERROR;
+                error.msg = err;
+                self.events.publish("stopped", error);
+            });
+            await self.start(undefined).then(async function() {
+                await self.signin(true, undefined);
+            })
         });
+
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
             self._rest.applicationToken = token;
         });
@@ -124,7 +149,6 @@ class Core {
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
-            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
             }).catch(function(err) {
@@ -132,6 +156,7 @@ class Core {
                 error.msg = err;
                 self.events.publish("stopped", error);
             });
+            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -140,9 +165,10 @@ class Core {
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
-                return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
+                return self._stateManager.transitTo(self._stateManager.CONNECTED).then(async (data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
+                    await that._bubbles.reset() ;
                     return self._retrieveInformation();
                 });
             }).then((data3) => {
@@ -154,9 +180,12 @@ class Core {
                 });
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
-                if (!self._stateManager.isCONNECTED()) {
+                if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
+                    await self.stop().then(function(result) {
+                    }).catch(function(err) {
+                    });
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
@@ -210,7 +239,7 @@ class Core {
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
-        self._stateManager = new StateManager(self._eventEmitter, self.logger);
+        self._stateManager = new StateManager(self._eventEmitter, self.logger, this._timeOutManager );
 
         // Instantiate others Services
         self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
@@ -943,6 +972,8 @@ class Core {
         
         return new Promise(async function (resolve, reject) {
 
+            that.timeOutManager.clearEveryTimeout();
+            
             if (that._stateManager.isSTOPPED()) {
                 return resolve ("core already stopped !");
             }
@@ -1030,6 +1061,9 @@ class Core {
                 that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
+            
+            that.timeOutManager.clearEveryTimeout();
+            
             // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
             that.logger.stop();
             //that.logger = null;
@@ -1192,6 +1226,11 @@ class Core {
     get calllog() {
         return this._calllog;
     }
+
+    get Utils() {
+        return this._Utils;
+    }
+
 }
 
 //module.exports = Core;

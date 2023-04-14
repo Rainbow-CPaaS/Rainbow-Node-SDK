@@ -251,10 +251,10 @@ v<br>
 <small>STATE</small><br>`ready`<br>
 |<br>
 v<br>
-**rainbow_onstopped**<br><small>EVENT</small><br>
+**rainbow_onstopped** or **rainbow_onfailed** or **rainbow_onerror**<br><small>EVENTs</small><br>
 |<br>
 v<br>
-<small>STATE</small><br>`stopped`<br>
+<small>STATE</small><br>`stopped` or `failed` or `error`<br>
 <br>
 
 </center>
@@ -275,6 +275,8 @@ Here is the list of state managed by the SDK for Node.JS:
 | **disconnected** | The SDK for Node.JS is disconnected from Rainbow |
 | **reconnecting** | The SDK for Node.JS tries to reconnect to Rainbow |
 | **failed** | The SDK for Node.JS has failed to reconnect to Rainbow |
+| **error** | The SDK for Node.JS has failed to reconnect to Rainbow |
+
 
 
 #### State stopped

@@ -356,13 +356,33 @@ class PresenceService extends GenericService{
         });
     }
 
+    /**
+     * @public
+     * @method setApplyMsTeamsPresenceSettings
+     * @instance
+     * @async
+     * @category Presence CONNECTED USER
+     * @description
+     *    Allow to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.<br>
+     * @param {boolean} connectTeams The boolean to activate or not the feature.
+     * @return {Promise<any>}
+     */
+    async setApplyMsTeamsPresenceSettings(connectTeams : boolean= false) {
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that._logger.log("internal", LOG_ID + "(setApplyMsTeamsPresenceSettings) connectTeams : ", connectTeams);
+
+            resolve( that._settings.updateUserSettings({applyMsTeamsPresence: connectTeams}));
+        });
+    }
+    
     //endregion Presence CONNECTED USER
 
     //region Presence Bubbles
 
     /**
      * @private
-     * @method sendInitialBubblePresence
+     * @method sendInitialBubblePresenceSync
      * @instance
      * @async
      * @category Presence Bubbles
@@ -374,7 +394,10 @@ class PresenceService extends GenericService{
     async sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
         return new Promise(async function (resolve, reject) {
-            let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay);
+            let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay).catch((errOfSent) => {
+                that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) Error while sendInitialBubblePresenceSyncFn : ", errOfSent);
+                return errOfSent;
+            });
             if (initialPresenceSent) {
                 that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent initialized.");
                 resolve (initialPresenceSent);
@@ -448,7 +471,7 @@ class PresenceService extends GenericService{
 
     /**
      * @private
-     * @method sendInitialBubblePresenceSync
+     * @method sendInitialBubblePresenceSyncFn
      * @instance
      * @async
      * @category Presence Bubbles
@@ -460,16 +483,17 @@ class PresenceService extends GenericService{
     public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
         if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter.");
-            //that._logger.log("internalerror", LOG_ID + "(sendInitialBubblePresenceSync) bad or empty 'bubble' parameter : ", bubble);
+            that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
+            //that._logger.log("internalerror", LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        that._logger.log("info", LOG_ID + "(sendInitialBubblePresenceSync) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
+        that._logger.log("info", LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id + " -- " + bubble.jid);
         if (bubble.initialPresence.initPresencePromise) {
+            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble activation in progress.");
             return bubble.initialPresence.initPresencePromise;
         }
         if (bubble.initialPresence.initPresenceAck) {
-            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSync) -- ${bubble.getNameForLogs} -- ${bubble.id} -- bubble already activated`);
+            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble already activated.");
             return Promise.resolve();
         }
 //                    bubble.initialPresence.initPresencePromise()
@@ -486,12 +510,13 @@ class PresenceService extends GenericService{
                 if (attemptNumber < maxAttemptNumber) {
                     // up to <maxAttemptNumber> retries
                     attemptNumber += 1;
+                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) : re sendInitialBubblePresence, attemptNumber : " + attemptNumber + " retries for " + bubble.getNameForLogs + " -- " + bubble.jid + ", bubble.initialPresence : ", bubble.initialPresence);
                     that.sendInitialBubblePresence(bubble, attemptNumber);
                 } else {
                     // if no response after <maxAttemptNumber> retries, we clean the presence promise in the bubble 
                     // (to make it possible for further trials to re-establish presence state and chat history access)
-                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
-                    reject("(sendInitialBubblePresenceSync) : no response");
+                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
+                    reject("(sendInitialBubblePresenceSyncFn) : no response");
                     bubble.initialPresence.initPresencePromise = null;
                     if (bubble.initialPresence.initPresenceInterval) {
                         bubble.initialPresence.initPresenceInterval.unsubscribe();
@@ -563,6 +588,7 @@ class PresenceService extends GenericService{
      *    until: string // Date until the current presence is valid <br> 
      *    }  <br>
      *    <br>
+     *        Note : "applyCalendarPresence" boolean is not return by this api, so you can not know if the presence should be used in general calculated presence. </br>
      * @async
      * @return {Promise<{  
      *    busy: boolean, 
@@ -612,6 +638,7 @@ class PresenceService extends GenericService{
      *    until: string // Date until the current presence is valid <br> 
      *    }  <br>
      *    <br>
+     *        Note : "applyCalendarPresence" boolean is not return by this api, so you can not know if the presence should be used in general calculated presence. </br>
      * @async
      * @return {Promise< { 
      *    busy: boolean, 
@@ -730,10 +757,11 @@ class PresenceService extends GenericService{
     }
     
     /**
-     * @public
+     * @private
      * @method enableCalendar
      * @instance
      * @category Presence CALENDAR
+     * @deprecated
      * @description
      *    Allow to enable the calendar. <br>
      *    return promise with { <br>
@@ -747,7 +775,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      
      */
-    async enableCalendar( ) {
+    private async enableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -768,10 +796,11 @@ class PresenceService extends GenericService{
     }
     
     /**
-     * @public
+     * @private
      * @method disableCalendar
      * @instance
      * @category Presence CALENDAR
+     * @deprecated
      * @description
      *    Allow to disable the calendar. <br>
      *    return promise with { <br>
@@ -785,7 +814,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      
      */
-    async disableCalendar( ) {
+  private async disableCalendar( ) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -804,8 +833,289 @@ class PresenceService extends GenericService{
             });
         });
     }
-    
+
+    /**
+     * @public
+     * @method controlCalendarOrIgnoreAnEntry
+     * @instance
+     * @category Presence CALENDAR
+     * @param {boolean} disable disable calendar, true to re-enable
+     * @param {string} ignore ignore the current calendar entry, false resumes the entry. Possible values : current, false
+     * @description
+     *    Enable/disable a calendar sharing or ignore a calendar entry. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("enabled" or "disabled") <br>
+     *    }  <br>
+     *    <br>
+     * @async
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+     */
+    controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.controlCalendarOrIgnoreAnEntry(disable, ignore).then((result : any) => {
+                that._logger.log("info", LOG_ID + "(controlCalendarOrIgnoreAnEntry) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error");
+                that._logger.log("internalerror", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to control calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+     /**
+     * @public
+     * @method unregisterCalendar
+     * @instance
+     * @category Presence CALENDAR
+     * @description
+     *    Delete a calendar sharing. <br>
+     *    return promise with { <br>
+     *       Status : string // Operation status ("deleted") <br>
+     *    }  <br>
+     *    <br>
+     * @async
+     * @return {Promise< { 
+     *       Status : string 
+     *    }, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+
+     */
+    async unregisterCalendar ( ) {
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.unregisterCalendar().then((result : any) => {
+                that._logger.log("info", LOG_ID + "(unregisterCalendar) result : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(unregisterCalendar) error");
+                that._logger.log("internalerror", LOG_ID + "(unregisterCalendar) error : ", err);
+                let error : any = ErrorManager.getErrorManager().OTHERERROR;
+                error.label = "Catch Error while trying to unregister calendar.";
+                error.msg = err.message;
+                return reject(error);
+                //return reject(err);
+            });
+        });
+    }
+
+
     // endregion Presence CALENDAR
+    
+    // region Presence MSTeams
+
+    /**
+     * @public
+     * @method controlMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {boolean} disable disable presence, true to re-enable
+     * @param {string} ignore ignore the current rainbow presence sharing
+     * @async
+     * @description
+     *     Enable/disable a presence sharing or ignore rainbow presence sharing. <br>
+     *     When disabled or enabled, a message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}
+     */
+    async controlMsteamsPresence (disable? : boolean, ignore? : string) {
+        let that = this;
+        return that._rest.controlMsteamsPresence(disable, ignore);
+    }
+
+    /**
+     * @public
+     * @method getMsteamsPresenceState
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {string} userId The Rainbow user id, his jid or the email of his attached Microsoft teams presence. Default value is the current connected user's id
+     * @async
+     * @description
+     *     Get a MS-teams presence state <br>
+     * @return {Promise<any>} </br> </br>
+     * 
+     * enabled
+     * -------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | busy | Boolean | presence busy flag. |
+     *  | status | String | presence status (one of "chat", "busy" or "dnd") |
+     *
+     *  disabled
+     *  --------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing is disabled (status = 'disabled') |
+     *
+     *  subscription_error
+     *  ------------------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing with a expired subscription |
+     *
+     *  none
+     *  ----
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | status | String | presence sharing is not defined (status = 'none') |
+     *  
+     *  
+     *  */
+    async getMsteamsPresenceState(userId?  : string) {
+        let that = this;
+        if (!userId) {
+            userId = that._rest.account.id;
+        }
+        return that._rest.getMsteamsPresenceState(userId);
+    }
+
+    /**
+     * @public
+     * @method getMsteamsPresenceStates
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {Array<string>} users The Rainbow user references (can be email or id). Default value is an Array with the current connected user's id.
+     * @async
+     * @description
+     *     Get a MS-teams presence states of several users <br>
+     * @return {Promise<any>}  </br> </br>
+     * 
+     * enabled
+     * -------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | users | Object\[\] | list of presence user states. |
+     *  | busy | Boolean | presence busy flag. |
+     *  | status | String | presence status (one of "chat", "busy" or "dnd"). |
+     *  
+     *  others
+     *  ------
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | users | Object\[\] | list of presence user states. |
+     *  | status | String | presence status (one of "disabled", "subscription_error", "none"). |
+     *
+     */
+    async getMsteamsPresenceStates( users : Array<string> = []) {
+        let that = this;
+        if (users.length == 0) {
+            users.push(that._rest.account.id);
+        }
+        return that._rest.getMsteamsPresenceStates(users);
+    }
+
+    /**
+     * @public
+     * @method registerMsteamsPresenceSharing
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @param {boolean} redirect Immediately redirect to login page (OAuth2) or generate an HTML page.
+     * @param {string} callback Redirect URL to the requesting client.
+     * @async
+     * @description
+     *     The requesting client get a redirection URL or could be redirected immediately to the provider login page to gather user consent. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | url | String | Microsoft Teams Presence OAuth URL |
+     * 
+     * */
+    async registerMsteamsPresenceSharing( redirect? : boolean, callback? : string) {
+        let that = this;
+        return that._rest.registerMsteamsPresenceSharing(redirect, callback);
+    }
+
+    /**
+     * @public
+     * @method unregisterMsteamsPresenceSharing
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     Delete a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async unregisterMsteamsPresenceSharing() {
+        let that = this;
+        return that._rest.unregisterMsteamsPresenceSharing();
+    }
+
+    /**
+     * @public
+     * @method activateMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     activate a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async activateMsteamsPresence() {
+        let that = this;
+        return that._rest.activateMsteamsPresence();
+    }
+
+    /**
+     * @public
+     * @method deactivateMsteamsPresence
+     * @since 2.20.0
+     * @instance
+     * @category Manage Presence MSTeams
+     * @async
+     * @description
+     *     desactivate a MS Teams presence sharing. <br>
+     *     A message stanza is sent to the user for multi-devices constraints. <br>
+     * @return {Promise<any>}  </br> </br>
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | Status | String | Operation status |
+     *
+     * */
+    async deactivateMsteamsPresence() {
+        let that = this;
+        return that._rest.deactivateMsteamsPresence();
+    }
+
+    // endregion Presence MSTeams
+
     // region Presence Contact
 
     /**

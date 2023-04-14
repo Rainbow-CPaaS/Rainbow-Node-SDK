@@ -1,26 +1,24 @@
 "use strict";
 import {XMPPService} from "../XMPPService";
 import {XMPPUTils} from "../../common/XMPPUtils";
+//const Conversation = require("../../common/models/Conversation");
+//const Call = require("../../common/models/Call");
+import {Call} from "../../common/models/Call";
+import {logEntryExit} from "../../common/Utils";
+//const config = require("../../config/config");
+import {config} from "../../config/config";
+import {GenericHandler} from "./GenericHandler";
 
 export {};
 
 
 const Utils = require("../../common/Utils");
-//const Conversation = require("../../common/models/Conversation");
-//const Call = require("../../common/models/Call");
-import {Call} from "../../common/models/Call";
-import {type} from "os";
-import {logEntryExit} from "../../common/Utils";
 const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 
 const xml = require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
 
 const prettydata = require("../pretty-data").pd;
-
-//const config = require("../../config/config");
-import {config} from "../../config/config";
-import {GenericHandler} from "./GenericHandler";
 
 const LOG_ID = "XMPP/HNDL/TEL - ";
 
@@ -282,6 +280,11 @@ class TelephonyEventHandler extends GenericHandler {
                     case "nomadicstatus":
                         this.promiseQueue.add(function () {
                             return that.onNomadicStatusEvent(actionElem);
+                        });
+                        break; 
+                    case "voicemessages":
+                        this.promiseQueue.add(function () {
+                            return that.onVoiceMessagesEvent(actionElem);
                         });
                         break;
                     // */
@@ -1242,6 +1245,44 @@ class TelephonyEventHandler extends GenericHandler {
          // */
     };
 
+    /*********************************************************************/
+    /** VOICE MESSAGES
+     /*********************************************************************/
+    async onVoiceMessagesEvent(eventElem) {
+        let that = this;
+        /*
+        <message 
+  xmlns="jabber:client" xml:lang="en" to="a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" from="tel_a9b77288b939470b8da4611cc2af1ed1@openrainbow.com/phone" type="headline" id="974771">
+  <callservice 
+    xmlns="urn:xmpp:pbxagent:callservice:1">
+    <voiceMessages>
+      <voiceMessagesCounters unreadVoiceMessages="0"/>
+    </voiceMessages>
+  </callservice>
+</message>
+         */
+        //that.logger.log("internal", LOG_ID + "(onVoiceMessagesEvent) _entering_ : ", eventElem);
+
+        let infos : any = {};
+
+        that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", eventElem.root ? prettydata.xml(eventElem.root().toString()):eventElem);
+        let xmlNodeStr = eventElem ? eventElem.toString():"<xml></xml>";
+        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+        that.logger.log("debug", LOG_ID + "(onVoiceMessagesEvent) JSON : ", jsonNode);
+        infos.voiceMessagesCounters = jsonNode["voiceMessages"]?jsonNode["voiceMessages"]["voiceMessagesCounters"]?jsonNode["voiceMessages"]["voiceMessagesCounters"]['$attrs']:undefined:undefined;
+
+        /* let nomadicstate = {
+            "featureActivated": eventElem.attr("featureActivated"),
+            "modeActivated": eventElem.attr("modeActivated"),
+            "destination": eventElem.attr("destination"),
+            "makeCallInitiatorIsMain": eventElem.attr("makeCallInitiatorIsMain")
+        }; // */
+
+//        that.telephonyService.updateNomadicData(nomadicstate);
+        //that.logger.log("debug", LOG_ID + "(onFailCallEvent) send onNomadicStatusEvent ", call);
+        that.eventEmitter.emit("evt_internal_voicemessagesinfo", infos);
+    };
+    
     /*********************************************************************/
     /** PRIVATE UTILITY METHODS                                         **/
     /*********************************************************************/
