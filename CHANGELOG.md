@@ -63,6 +63,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `AdminService::getAJoinCompanyLink` This API can be used by company admin users to get a join company link by id.
 -   Add `AdminService::getAllJoinCompanyLinks` This API can be used by company admin users to list existing join company links for his company.
 -   Add `AdminService::updateAJoinCompanyLink` This API can be used by company admin users to update a join company link for his company.
+-   Fix to send "close" stanza back to server when a "close" is received. It allows the reconnection without the "Replaced by new connection" error.
 
 ## [2.20.0] - 2023-02-24
 -   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
