@@ -6,6 +6,130 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.21.0-lts.0 - LTS Version - April 2023
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
+
+**API Changes**
+
+-   Update `ConversationsService::sendConversationByEmail` with parameters to send it to custom email, and set the language.
+-   Update `ConversationsService::ackAllMessages` with parameter `maskRead` if true Im won't be shown as read on peer conversation side.
+-   Update the `ConversationsService::getContactsMessagesFromConversationId` method to retrieve history from server if not yet loaded.
+-   Update `FavoritesService::fetchAllFavorites` with peerId parameter.
+-   Update `InvitationsService::sendInvitationsByBulk` API with lang and comment parameters. 
+-   Update `InvitationsService::reSendInvitation` API with customMessage parameters. 
+-   Update to set useMessageEditionAndDeletionV2 to true by default.
+-   Fix `RESTService::renameTagForAllAssignedDirectoryEntries` parameters.
+-   Fix `searchUserByPhonenumber` parameter type.
+-   Fix `BubblesService::snapshotConference` return.
+-   Update the `BubblesService::getBubbleById` with few parameters.
+-   Update the `BubblesService::getBubbleByJid` with few parameters.
+
+**Others Changes**
+
+-   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.
+-   Add `AdminService::getRainbowSupportBotService` `AdminService::getABotServiceData` `AdminService::getAllBotServices` to retrieve informations of bot services.
+-   Fix `AdminService::retrieveRainbowEntriesList`
+-   Add `AdminService::createCompanyFromDefault` This API API allows to create a company for a user belonging to the 'Default' company is able to create his own company.
+-   Add `AdminService::getAllCompaniesVisibleByUser` This API allows users to get all companies.
+-   Add `AdminService::getCompanyAdministrators` This API allows users to list users being administrator of a company.
+-   Fix `BubblesService::disconnectParticipantFromConference` 
+-   Add methods about Contacts Sources in ContactsService.
+-   Add methods about Contacts API from Enduser portal in ContactsService.
+-   Add `ConversationsService::getTheNumberOfHitsOfASubstringInAllUsersconversations` This API can be used to search a text substring in all conversations for a given user from recent to old messages.
+-   Update low layer `RESTService::getServerConversations` method's parameters.
+-   Add `ConversationsService::updateConversationBookmark` API can be used to set or replace a bookmarked message in a conversation.
+-   Add `ConversationsService::loadConversationHistory` API to retrieve the remote history of a specific conversation.
+-   Fix `BubblesService::getBubbles` when users property is empty in bubble.
+-   Add `ConversationsService::showAllMatchingMessagesForAPeer` API. It can be used to return all matching messages for one specific peer.
+-   Fix `AdminService::retrieveLdapConnectorAllConfigTemplates` (the last "s" was missing in doc).
+-   Add `ConversationsService::deleteConversationBookmark` API. It can be used to set or replace a bookmarked message in a conversation.
+-   Add `AdminService::getListOfCountries` API. It allows to retrieve the list of countries supported by Rainbow Server.
+-   Add `BubblesSerice::disableDialInForARoom` This API allows to disable dial in for a room. 
+-   Add `BubblesSerice::enableDialInForARoom` This API allows to enable dial in for a room.
+-   Add `BubblesSerice::resetDialInCodeForARoom` This API allows to reset dial in code for a room.
+-   Add `BubblesSerice::getDialInPhoneNumbersList` API that allows to retrieve the list of phone numbers to join conference by Dial In.
+-   Add `FavoritesService::checkIsPeerSettedAsFavorite` API that can be used to check if a given peerId is in user's favorites.
+-   Add `FavoritesService::getFavoriteById` API that can be used to retrieve a specific user's favorite by Id. 
+-   Add `FavoritesService::getAllUserFavoriteList` API that can be used to retrieve the list of user's favorites. 
+-   Add `FavoritesService::moveFavoriteToPosition` API that can be used to update a favorite's position in favorite list.
+-   Add `GroupsService::updateGroupComment` to Update the comment of a group.
+-   Add `ImsService::retrieveXMPPMessagesByListOfMessageIds` This API allows user to retrieve it's ims by list of message Ids, peer and peer type.
+-   Add `InvitationsService::deleteAUserInvitation` API can be used to delete an invitation sent to/received from another Rainbow user. 
+-   Add deleted and modified property in messages retrieved with history.
+-   Fix attention when user's jid_im is in mention array of an history message.
+-   Fix completion of Conversation.messages array with history's messages.
+-   Add `AdminService::acceptJoinCompanyInvitation` API. It allows to accept a join company invitation received by the user (invitation sent by admin ).
+-   Add `AdminService::declineJoinCompanyInvitation` API. It allows to decline a join company invitation received by the user (invitation sent by admin ).
+-   Add `AdminService::getJoinCompanyInvitation` API. It allows to get a join company invitation received by the user using its invitationId (invitation sent by admin ).
+-   Add `AdminService::getAllJoinCompanyInvitations` API. It allows to list all join company invitations received by the user (invitation sent by admin ).
+-   Update `AdminService::createUserInCompany` to use low layer updated.
+-   Add `AdminService::createUser` to Create a new user in providen company, else in Rainbow default companie.
+-   Add event `rainbow_onjoincompanyinvitereceived` fired in case a of rainbow join company invite event.
+-   Add `AdminService::cancelJoinCompanyRequest` This API can be used by logged in user to cancel a request to join a company he sent.
+-   Add `AdminService::getJoinCompanyRequest` This API allows to get a join company request sent by the user.
+-   Add `AdminService::getAllJoinCompanyRequests` This API allows to list all join company requests sent by the user.
+-   Add `AdminService::resendJoinCompanyRequest` This API can be used by logged in user to re-send a request to join a company.
+-   Add `AdminService::requestToJoinCompany` This API allows logged in user to send a request to join a company.
+-   Add event `rainbow_onjoincompanyrequestreceived` fired in case a of rainbow join company request event.
+-   Add `AdminService::createAJoinCompanyLink` This API can be used by company admin users to create a join company link for his company.
+-   Add `AdminService::deleteAJoinCompanyLink` This API can be used by company `admin` users to delete a join company link by id.
+-   Add `AdminService::getAJoinCompanyLink` This API can be used by company admin users to get a join company link by id.
+-   Add `AdminService::getAllJoinCompanyLinks` This API can be used by company admin users to list existing join company links for his company.
+-   Add `AdminService::updateAJoinCompanyLink` This API can be used by company admin users to update a join company link for his company.
+-   Fix to send "close" stanza back to server when a "close" is received. It allows the reconnection without the "Replaced by new connection" error.
+-   Fix `evt_internal_signinrequired` callback to restart the SDK before the signin.
+-   Fix `rainbow_xmppreconnected` to stop the SDK before switching to FAILED state.
+-   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
+-   Add treatment of presence received from ms-teams. Note that only "online" and "do not disturb" teams presences are relayed by rainbow.
+-   Add API MSTeams presence in `PresenceService`.
+-   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
+-   Add use `applyMsTeamsPresence` in calculated presence.
+-   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
+-   Fix `BubblesService::startRecording`.
+-   Fix xmpp stanza for deleted or modified messages.
+-   Add `AdminService::getASystemPhoneNumber` `AdminService::getAllSystemPhoneNumbers` `AdminService::updateASystemPhoneNumber` API to get/update phones numbers for a given system (pbx).
+-   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
+-   Add `BubblesService::deleteAllMessagesInBubble` API to delete all messages in a Bubble for everybody or hide it definitively for a specific contact. Please be carefull with it.
+-   Add methods to retrieve/update phone number in systems : `AdminService::getASystemPhoneNumber`, `AdminService::getAllSystemPhoneNumbers`, `AdminService::updateASystemPhoneNumber`.
+-   Add methods to manage `Systems` in Rainbow `AdminService::createSystem`, `AdminService::deleteSystem`, `AdminService::getSystemConnectionState`, `AdminService::getSystemDataByPbxId`, `AdminService::getSystemData`, `AdminService::getAllSystems`, `AdminService::getListOfCountriesAllowedForSystems`, `AdminService::updateSystem`.
+-   Add `pcg2` presence (Rainbow HUB - Sipwize)
+-   Add `RBVoiceEventHandler` to manage Rainbow Voice Events received from server.
+-   Add `rainbow_onrbvoicerawevent` event fired in case a of rainbow voice event.
+-   Add services parameter of `BubblesService::startConferenceOrWebinarInARoom` Requested service types. 
+-   Fix of events of modified/deleted messages.
+-   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
+-   Add `BubblesService::updateBubbleData` This API allows to update room data.
+-   Add `BubblesService::getABubblePublicLinkAsModerator` api allow to get the openInviteId bound with the given bubble.
+-   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
+-   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
+-   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
+-   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
+-   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
+-   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
+-   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
+-   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
+-   Fix to initialize the contacts service before the telephony service.
+-   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed.
+-   Add a `TimeOutManager` manager to be able to control every setTimeout from one tool. Useful for stopping setTimeout when a stop of SDK occured.
+-   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
+-   Add `AdminService::getAnImportStatus` API to provide a short status of the last import (completed or pending) of a company directory.
+-   Add `PresenceService::controlCalendarOrIgnoreAnEntry` API to Enable/disable a calendar sharing or ignore a calendar entry.
+-   Add `PresenceService::unregisterCalendar` API to Delete a calendar sharing.
+-   Catch when getBubble failed.
+
+
 ### SDK for Node.JS 2.19.0 - STS Version - December 2022
 
 ---
