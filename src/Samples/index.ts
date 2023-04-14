@@ -30,6 +30,9 @@ import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
 import { Server as MockServer, WebSocket as WS } from 'mock-socket';
+
+const xml = require("@xmpp/xml");
+
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
 
@@ -84,6 +87,7 @@ import jwt from "jwt-decode";
 import * as util from "util";
 import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";
+import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -707,7 +711,30 @@ let urlS2S;
     });
     
     class Tests {
-    
+
+        testEventsRainbow_tokenexpired() {
+            rainbowSDK._core._rest.p_decodedtokenRest = undefined;
+            rainbowSDK.events.emit("evt_internal_tokenexpired", {});
+        }
+
+        async test_renewAuthToken() {
+            for (let i = 0; i < 6; i++) {
+                logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  i : ", i);
+                rainbowSDK._core._rest._renewAuthToken();
+                await pause(1000);
+            }
+            await rainbowSDK.stop().then(()=>{}).catch(()=>{});
+            logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
+            rainbowSDK._core._rest._renewAuthToken();            
+        }
+        
+        testCloseXMPP() {
+            let stanza = xml("close", {
+                "xmlns": NameSpacesLabels.XmppFraming
+            });
+            rainbowSDK._core._xmpp.sendStanza(stanza);
+        }
+        
     //region Contacts
 
      testupdateMyInformations() {
