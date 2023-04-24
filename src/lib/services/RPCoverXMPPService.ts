@@ -21,7 +21,7 @@ import {RpcoverxmppEventHandler} from "../connection/XMPPServiceHandler/rpcoverx
 
 export {};
 
-const LOG_ID = "HTTPoverXMPP/SVCE - ";
+const LOG_ID = "RPCoverXMPP/SVCE - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -149,6 +149,7 @@ class RPCoverXMPP extends GenericService {
      * @param {string} RPCoverXMPPserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
+    /*
     get(urlToGet : string, headers: any = {}, rpcoverXMPPserver_jid? : string) {
         let that = this;
 
@@ -177,12 +178,13 @@ class RPCoverXMPP extends GenericService {
                 return reject(err);
             }
         });
-    }
+    } 
+    // */
 
     /**
      * @public
      * @method discoverRPCoverXMPP
-     * @since 2.10.0
+     * @since 2.22.0
      * @instance
      * @async
      * @category Rainbow RPCoverXMPP
@@ -212,6 +214,45 @@ class RPCoverXMPP extends GenericService {
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(discoverRPCoverXMPP) Error.");
                 that._logger.log("internalerror", LOG_ID + "(discoverRPCoverXMPP) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    /**
+     * @public
+     * @method methodCallRPCoverXMPP
+     * @since 2.22.0
+     * @instance
+     * @async
+     * @category Rainbow RPCoverXMPP
+     * @description
+     *    This API allows to send a request to call a rpc method to a bare jid to find the resources availables. <br>
+     * @param {string} rpcoverxmppserver_jid the jid of the rpc over xmpp server used to retrieve the request. default value is the jid of the account running the SDK.
+     * @param {string} methodName method name of the rpc over xmpp shared method on server used to retrieve the request. default value is "" for listing the available methods on server.
+     * @param {Object} params Object with the parameters for the RPC request.
+     * @return {Promise<any>} An object of the result
+     */
+    methodCallRPCoverXMPP( rpcoverxmppserver_jid? : string, methodName : string = "system.listMethods", params : Array<any> = []) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            if (!rpcoverxmppserver_jid) {
+                rpcoverxmppserver_jid = that._rest.account.jid;
+            }
+
+            try {
+                
+                let node = await that._xmpp.methodCallRPCoverXMPP(rpcoverxmppserver_jid, methodName ,params);
+                that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
+                that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", node);
+                let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+
+                resolve(reqObj);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(methodCallRPCoverXMPP) Error.");
+                that._logger.log("internalerror", LOG_ID + "(methodCallRPCoverXMPP) Error : ", err);
                 return reject(err);
             }
         });
@@ -275,6 +316,7 @@ class RPCoverXMPP extends GenericService {
      * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
+    /*
     head(urlToHead : string, headers: any = {}, rpcoverxmppserver_jid? : string) {
         let that = this;
 
@@ -304,6 +346,7 @@ class RPCoverXMPP extends GenericService {
             }
         });
     }
+    // */
 
     /**
      * @public
@@ -320,6 +363,7 @@ class RPCoverXMPP extends GenericService {
      * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */    
+    /*
     post(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
         let that = this;
 
@@ -349,6 +393,7 @@ class RPCoverXMPP extends GenericService {
             }
         });
     }
+    // */
 
     /**
      * @public
@@ -365,6 +410,7 @@ class RPCoverXMPP extends GenericService {
      * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
+    /*
     put(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
         let that = this;
 
@@ -394,6 +440,7 @@ class RPCoverXMPP extends GenericService {
             }
         });
     }
+    // */
 
     /**
      * @public
@@ -410,6 +457,7 @@ class RPCoverXMPP extends GenericService {
      * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
+    /*
     delete(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
         let that = this;
 
@@ -439,6 +487,7 @@ class RPCoverXMPP extends GenericService {
             }
         });
     }
+    // */
 
     /**
      * @private

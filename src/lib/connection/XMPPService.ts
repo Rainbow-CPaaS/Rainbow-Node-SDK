@@ -1,7 +1,15 @@
 "use strict";
 
 import * as util from "util";
-import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
+import {
+    equalIgnoreCase,
+    isNullOrEmpty,
+    isNumber,
+    isStarted,
+    logEntryExit,
+    makeId,
+    setTimeoutPromised
+} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 import {XMPPUTils} from "../common/XMPPUtils";
@@ -103,7 +111,8 @@ const NameSpacesLabels = {
     "MonitoringNS" : "urn:xmpp:monitoring:0",
     "XmppHttpNS" : "urn:xmpp:http",
     "protocolShimNS" : "http://jabber.org/protocol/shim",
-    "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing"
+    "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing",
+    "RPC": "jabber:iq:rpc"
 };
 
 @logEntryExit(LOG_ID)
@@ -3100,6 +3109,243 @@ WHERE  { ?x dc:title ?title .
     }
     
     //endregion HTTPoverXMPP
+
+    //region RPCoverXMPP 
+    
+    async discoverRPCoverXMPP( to, headers = {}) {
+        let that = this;
+        /*
+<iq type='get'
+    from='requester@company-b.com/jrpc-client'
+    to='responder@company-a.com/jrpc-server'
+    id='disco1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'/>
+</iq>
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverRPCoverXMPP) to : ", to);
+
+        let msg = xml("iq", {
+            "type":"get",
+            "from": that.fullJid,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+        });
+
+        let stanzaQuery = xml("query", {xmlns: "http://jabber.org/protocol/disco#info"});
+        msg.append(stanzaQuery, undefined);
+        that.logger.log("internal", LOG_ID + "(discover) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
+    arrayToStanza(arrayOfParams, stanzaData) {
+        let that = this;
+        for (const param of arrayOfParams) {
+            if (typeof(param) === 'undefined' || typeof(param) === null) {
+                that.logger.log("debug", LOG_ID + "(arrayToStanza) a param is undefined/null, so ignore it.");
+                continue;
+            }
+
+            if (isNumber(param)) {
+                /*
+          <value><int>6</int></value>
+                 */
+                let stanzaInt = xml("int", {}, param);
+                let stanzaValue = xml("value", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaData.append(stanzaValue, undefined);
+            }
+
+            if(typeof(param) === 'string') {
+                /*
+          <value><string>6</string></value>
+                 */
+                let stanzaInt = xml("int", {}, param);
+                let stanzaValue = xml("value", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaData.append(stanzaValue, undefined);
+            }
+
+            if(typeof(param) === 'object') {
+                if (Array.isArray(param)) {
+                    let stanzaData2 = xml("data", {});
+                    let stanzaArray = xml("array", {});
+                    let stanzaValue = xml("value", {});
+                    stanzaArray.append(stanzaData2, undefined);
+                    stanzaValue.append(stanzaArray, undefined);
+                    stanzaData.append(stanzaValue, undefined);
+                    that.arrayToStanza(param,stanzaData2);
+                }
+            }
+        }
+    }
+    
+    paramToStanza(params, stanzaParams) {
+        let that = this;
+        for (const param of params) {
+            if (typeof(param) === 'undefined' || typeof(param) === null) {
+                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so ignore it.");
+                continue;
+            }
+
+            if (isNumber(param)) {
+                /*
+                 <param>
+          <value><int>6</int></value>
+        </param>
+                 */
+                let stanzaInt = xml("int", {}, param);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+
+            if(typeof(param) === 'string') {
+                /*
+                 <param>
+          <value><string>6</string></value>
+        </param>
+                 */
+                let stanzaInt = xml("int", {}, param);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+
+            if(typeof(param) === 'object') {
+                if (Array.isArray(param)) {
+                    let stanzaData = xml("data", {});
+                    let stanzaArray = xml("array", {});
+                    let stanzaValue = xml("value", {});
+                    let stanzaParam = xml("param", {});
+                    stanzaArray.append(stanzaData, undefined);
+                    stanzaValue.append(stanzaArray, undefined);
+                    stanzaParam.append(stanzaValue, undefined);
+                    stanzaParams.append(stanzaParam, undefined);
+                    that.arrayToStanza(param,stanzaData);
+                }
+            }
+        }
+    }
+    
+    async methodCallRPCoverXMPP( to, methodName ,params : Array<any> = [] ) {
+        let that = this;
+        /*
+<iq type='set'
+    from='requester@company-b.com/jrpc-client'
+    to='responder@company-a.com/jrpc-server'
+    id='rpc1'>
+  <query xmlns='jabber:iq:rpc'>
+    <methodCall>
+      <methodName>examples.getStateName</methodName>
+      <params>
+        <param>
+          <value><int>6</int></value>
+        </param>
+      </params>
+    </methodCall>
+  </query>
+</iq>
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(methodCallRPCoverXMPP) to : ", to);
+
+        let msg = xml("iq", {
+            "type":"set",
+            "from": that.fullJid,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+        });
+
+        let stanzaQuery = xml("query", {xmlns: NameSpacesLabels.RPC});
+        msg.append(stanzaQuery, undefined);
+
+        let stanzaMethodCall = xml("methodCall", {});
+        stanzaQuery.append(stanzaMethodCall, undefined);
+
+        let stanzaMethodName = xml("methodName", {}, methodName);
+        stanzaMethodCall.append(stanzaMethodName, undefined);
+        
+        let stanzaParams = xml("params", {});
+        stanzaMethodCall.append(stanzaParams, undefined);
+
+        that.paramToStanza(params, stanzaParams);
+        
+        that.logger.log("internal", LOG_ID + "(methodCallRPCoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
+    async traceRPCoverXMPP(urlToGet, to, headers = {}) {
+        let that = this;
+        /*
+    <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='7'>
+      <req xmlns='urn:xmpp:http' method='TRACE' resource='/rdf/ex1.turtle' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+          </headers>
+      </req>
+   </iq>   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(traceRPCoverXMPP) opt : ", opt);
+        let method = "TRACE";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to":  to? to : that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(traceRPCoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
+    //endregion RPCoverXMPP
 
 }
 

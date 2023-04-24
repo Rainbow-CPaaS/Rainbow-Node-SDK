@@ -6331,7 +6331,27 @@ let urlS2S;
     }
 
     //endregion PBXS    
-
+        
+    //region RPC
+        
+        async testmethodCallRPCoverXMPP_listMethods () {
+            let that = this;
+            let res = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP();
+            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_listMethods, res : ", res);
+        }
+        
+        async testmethodCallRPCoverXMPP_withParams () {
+            let that = this;
+            let param = [];
+            param.push("hello array of number and array of string");
+            param.push([1,2,["arg1", "arg2"]]);
+            param.push("param3");
+            let res = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"example.trace", param);
+            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_withParams, res : ", res);
+        }
+        
+    //endregion RPC
+        
     // region TimeOutManager
 
     async  testtimeOutManagersetTimeout() {

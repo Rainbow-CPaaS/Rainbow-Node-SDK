@@ -55,10 +55,14 @@ class RpcoverxmppEventHandler extends GenericHandler {
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "req":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        // treatement in iqEventHandler
+                        /*that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
                         that._onIqGetSetReqReceived(stanza, node);
+                        // */
                         break;
                     case "query":
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        that._onIqGetSetQueryReceived(stanza, node);
                         // treatement in iqEventHandler
                         break;
                     case "ping":
@@ -120,7 +124,64 @@ class RpcoverxmppEventHandler extends GenericHandler {
             that.logger.log("internalerror", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
+    
+    async _onIqGetSetQueryReceived (stanza, node) {
+        let that = this;
+        // treatment of the XEP 0332.
+        try {
+            if (!that.options._httpoverxmppserver) {
+                that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) rpcoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+                await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
+                return (0);
+            }
 
+            that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
+            /*
+            <iq type='result'
+    from='responder@company-a.com/jrpc-server'
+    to='requester@company-b.com/jrpc-client'
+    id='rpc1'>
+  <query xmlns='jabber:iq:rpc'>
+    <methodResponse>
+      <params>
+        <param>
+          <value><string>Colorado</string></value>
+        </param>
+      </params>
+    </methodResponse>
+  </query>
+</iq>
+// */
+            let stanzaResp = xml("query", {
+                "xmlns": "jabber:iq:rpc",
+            })
+
+            let stanzaMethodResponse = xml("methodResponse", {});
+
+            //let encodedData = encodeURIComponent(resultOfHttp);
+            let stanzaParams = xml("params", {});
+            let stanzaParam = xml("param", {});
+            let stanzaValue = xml("value", {});
+            let stanzaString = xml("string", {}, "result OK");
+
+            stanzaValue.append(stanzaString, undefined);
+            stanzaParam.append(stanzaValue, undefined);
+            stanzaParams.append(stanzaParam, undefined);
+            stanzaMethodResponse.append(stanzaParams, undefined);
+
+
+            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
+
+            await that.xmppClient.resolvPendingRequest(stanza.attrs.id, stanzaResp);
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that.logger.log("internalerror", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+        }
+    }
+    
     async _onIqGetSetReqReceived(stanza, node) {
         let that = this;
         // treatment of the XEP 0332.

@@ -88,6 +88,7 @@ class XmppClient  {
         that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
         that.client.setQuery('urn:xmpp:http', 'req', that.iqSetEventHttp.bind(that));
+        that.client.setQuery('jabber:iq:rpc', 'query', that.iqSetEventRpc.bind(that));
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
@@ -191,6 +192,28 @@ class XmppClient  {
             that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp prom result : ", result);
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventHttp CATCH Error !!! error : ", e);
+        }
+        
+        return result;
+    };
+
+    async  iqSetEventRpc (ctx) {
+        let that = this;
+        let result = true;
+        //that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRpc set iq receiv - :", ctx);
+        // return {};
+        try {
+            let stanza = ctx.stanza;
+            //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
+            //let reqObj = await that.getJsonFromXML(xmlstanzaStr);
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc ctx.stanza : ", ctx.stanza);
+            //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
+            let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
+            that.pendingRequests.push(eventWaited);
+            result = await eventWaited.prom.promise;
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc prom result : ", result);
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventRpc CATCH Error !!! error : ", e);
         }
         
         return result;

@@ -97,6 +97,10 @@ let isNullOrEmpty = function(value) {
     return _isNullOrEmpty;
 }
 
+let isNumber = function  isNumber(data) {
+    return (typeof data === 'number' && !(isNaN(data)));
+}
+
 let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
@@ -580,6 +584,7 @@ export let objToExport = {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -611,6 +616,7 @@ export {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -641,6 +647,7 @@ export default {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
