@@ -242,7 +242,11 @@ let conf =  {
                 start_up:true,
                 optional:true
             }, //need services : ( )
-        httpoverxmpp:  {
+            httpoverxmpp:  {
+                start_up:true,
+                optional:true
+            }, //need services : ( )
+            rpcoverxmpp:  {
                 start_up:true,
                 optional:true
             } //need services : ( )

@@ -13,6 +13,7 @@ import {DataStoreType} from "../config/config";
 import {GenericService} from "../services/GenericService";
 import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
+import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -139,6 +140,7 @@ class XMPPService extends GenericService {
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
 	public httpoverxmppEventHandler: HttpoverxmppEventHandler;
+	public rpcoverxmppEventHandler: RpcoverxmppEventHandler;
 	public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
@@ -266,6 +268,7 @@ class XMPPService extends GenericService {
 
                 that.IQEventHandler = new IQEventHandler(that);
                 that.httpoverxmppEventHandler = new HttpoverxmppEventHandler(that, that._rest, that._options);
+                that.rpcoverxmppEventHandler = new RpcoverxmppEventHandler(that, that._rest, that._options);
 
                 that.IQEventHandlerToken = [
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
@@ -277,9 +280,14 @@ class XMPPService extends GenericService {
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler)));
+                
+
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_GET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_SET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_RESULT, that.rpcoverxmppEventHandler.onIqResultReceived.bind(that.rpcoverxmppEventHandler)));
                 
                 
                 that.startOrResetIdleTimer();

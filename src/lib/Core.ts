@@ -38,6 +38,7 @@ export {};
 
 const packageVersion = require("../package.json");
 import * as Utils from "./common/Utils"
+import {RPCoverXMPP} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;
 let _retrieveInformation;
@@ -82,6 +83,7 @@ class Core {
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
     public _httpoverxmpp: HTTPoverXMPP;
+    public _rpcoverxmpp: RPCoverXMPP;
 	public _botsjid: any;
     public _s2s: S2SService;
     public _Utils: any;
@@ -260,6 +262,7 @@ class Core {
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
         self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
         self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
@@ -570,6 +573,8 @@ class Core {
                 }).then(() => {
                     return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    return that._rpcoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
                     return that._invitations.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     if (that.options._restOptions.useRestAtStartup) {
@@ -671,6 +676,8 @@ class Core {
                 }).then(() => {
                     return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    return that._rpcoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
                     return that._invitations.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     resolve(undefined);
@@ -748,6 +755,7 @@ class Core {
             that._alerts.cleanMemoryCache();
             that._rbvoice.cleanMemoryCache();
             that._httpoverxmpp.cleanMemoryCache();
+            that._rpcoverxmpp.cleanMemoryCache();
             that._webinars.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
@@ -886,6 +894,8 @@ class Core {
                         return that._webinars.start(that.options, that) ;
                     }).then(() => {
                         return that._httpoverxmpp.start(that.options, that) ;
+                    }).then(() => {
+                        return that._rpcoverxmpp.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -1050,6 +1060,9 @@ class Core {
                 return that._httpoverxmpp.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped httpoverxmpp");
+                return that._rpcoverxmpp.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped rpcoverxmpp");
                 return that._invitations.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped invitations");
