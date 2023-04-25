@@ -6343,9 +6343,17 @@ let urlS2S;
         async testmethodCallRPCoverXMPP_withParams () {
             let that = this;
             let param = [];
+            let obj = {
+                "firstName":"vincent",
+                "lastName":"berder",
+                "age":20,
+                "isEmployed":true,
+            };
             param.push("hello array of number and array of string");
-            param.push([1,2,["arg1", "arg2"]]);
+            param.push([1,2,["arg1", "arg2", {"propertyOfObjInTab1":"mypropertyOfObjInTab1", "propertyOfObjInTab2" : "mypropertyOfObjInTab2"}]]);
+            // param.push([1,2,["arg1", "arg2"]]);
             param.push("param3");
+            param.push(obj);
             let res = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"example.trace", param);
             logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_withParams, res : ", res);
         }

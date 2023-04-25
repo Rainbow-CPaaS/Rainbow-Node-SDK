@@ -62,8 +62,9 @@ class RpcoverxmppEventHandler extends GenericHandler {
                         break;
                     case "query":
                         that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
-                        that._onIqGetSetQueryReceived(stanza, node);
-                        // treatement in iqEventHandler
+                        if (node.attrs.xmlns === "jabber:iq:rpc") {
+                            that._onIqGetSetQueryReceived(stanza, node);
+                        }
                         break;
                     case "ping":
                         // treatement in iqEventHandler
@@ -139,22 +140,93 @@ class RpcoverxmppEventHandler extends GenericHandler {
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await that.getJsonFromXML(xmlNodeStr);
             that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
-            /*
-            <iq type='result'
-    from='responder@company-a.com/jrpc-server'
-    to='requester@company-b.com/jrpc-client'
-    id='rpc1'>
-  <query xmlns='jabber:iq:rpc'>
-    <methodResponse>
-      <params>
-        <param>
-          <value><string>Colorado</string></value>
-        </param>
-      </params>
-    </methodResponse>
-  </query>
-</iq>
-// */
+            
+            if (reqObj.query && reqObj.query.methodCall) {
+                let methodName = reqObj.query.methodCall.methodName ;
+                let params = reqObj.query.methodCall.params ;
+
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodName : ", methodName);
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
+
+                function valueTypeToValue (param) {
+                    that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValuev param.value : ", param);
+                    let result = undefined;
+                    if (param) {
+                        Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
+                            let data = param[val];
+                            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
+
+                            if (val === "boolean" ) {
+                                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean with number, so transform it to real boolean.");
+                                result = ((data === "1" || data === 1) ? true : false);
+                            }
+
+                            if (val==="string" || val==="base64" || val==="dateTime.iso8601") {
+                                result = "" + data;
+                            }
+                            if (val==="int" || val==="double" || val==="i4") {
+                                result = Number.parseInt(data);
+                            }
+                            if (val==="array") {
+
+                                let arr = [];
+                                console.log("array : ", data);
+
+                                for (const valTab of data.data.value) {
+                                    arr.push(valueTypeToValue(valTab));
+                                }
+
+                                result = arr;
+                                //return Number.parseInt(param.value.val);
+                            }
+                            if (val==="struct") {
+                                let obj = {};
+                                console.log("struct : ", data);
+                                for (const member of data.member) {
+                                    obj[member.name] = valueTypeToValue(member.value);
+                                }
+                                result = obj;
+                                //return Number.parseInt(param.value.val);
+                            }
+                        });
+                    }
+                    return result;
+                }
+                
+                function decodeRPCParam (param) {
+                    that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
+                    if (param.value) {
+                        return valueTypeToValue(param.value);
+                    }
+                }
+                let methodParams = [];
+                for (const param of params.param) {
+                    let param1 = decodeRPCParam(param);
+                    that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) param1 : ", param1);
+                    methodParams.push(param1);
+                }
+
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+                console.log( LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+
+                /*
+                <iq type='result'
+        from='responder@company-a.com/jrpc-server'
+        to='requester@company-b.com/jrpc-client'
+        id='rpc1'>
+      <query xmlns='jabber:iq:rpc'>
+        <methodResponse>
+          <params>
+            <param>
+              <value><string>Colorado</string></value>
+            </param>
+          </params>
+        </methodResponse>
+      </query>
+    </iq>
+    // */
+            }
+            
             let stanzaResp = xml("query", {
                 "xmlns": "jabber:iq:rpc",
             })
@@ -171,6 +243,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
             stanzaParam.append(stanzaValue, undefined);
             stanzaParams.append(stanzaParam, undefined);
             stanzaMethodResponse.append(stanzaParams, undefined);
+            stanzaResp.append(stanzaMethodResponse, undefined);
 
 
             that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);

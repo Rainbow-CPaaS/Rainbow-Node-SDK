@@ -3146,41 +3146,71 @@ WHERE  { ?x dc:title ?title .
     arrayToStanza(arrayOfParams, stanzaData) {
         let that = this;
         for (const param of arrayOfParams) {
-            if (typeof(param) === 'undefined' || typeof(param) === null) {
+            if (typeof (param)==='undefined' || typeof (param)===null) {
                 that.logger.log("debug", LOG_ID + "(arrayToStanza) a param is undefined/null, so ignore it.");
                 continue;
             }
+            that.valueTypeToStanza(param,  stanzaData);
+        }
+    }
 
-            if (isNumber(param)) {
-                /*
-          <value><int>6</int></value>
-                 */
-                let stanzaInt = xml("int", {}, param);
+    valueTypeToStanza(param, stanzaData) {
+        let that = this;
+        if (typeof (param)==='undefined' || typeof (param)===null) {
+            that.logger.log("debug", LOG_ID + "(arrayToStanza) a param is undefined/null, so ignore it.");
+            return;
+        }
+
+        if (param === true || param === false ) {
+            that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean, so transform it to numbers.");
+            let stanzaInt = xml("boolean", {}, param === true ? 1 : 0);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (isNumber(param)) {
+            /*
+      <value><int>6</int></value>
+             */
+            let stanzaInt = xml("double", {}, param);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (typeof (param)==='string') {
+            /*
+      <value><string>6</string></value>
+             */
+            let stanzaInt = xml("string", {}, param);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (typeof (param)==='object') {
+            if (Array.isArray(param)) {
+                let stanzaData2 = xml("data", {});
+                let stanzaArray = xml("array", {});
                 let stanzaValue = xml("value", {});
-                stanzaValue.append(stanzaInt, undefined);
+                stanzaArray.append(stanzaData2, undefined);
+                stanzaValue.append(stanzaArray, undefined);
                 stanzaData.append(stanzaValue, undefined);
-            }
-
-            if(typeof(param) === 'string') {
-                /*
-          <value><string>6</string></value>
-                 */
-                let stanzaInt = xml("int", {}, param);
+                that.arrayToStanza(param, stanzaData2);
+            } else {
+                let stanzaStruct = xml("struct", {});
                 let stanzaValue = xml("value", {});
-                stanzaValue.append(stanzaInt, undefined);
-                stanzaData.append(stanzaValue, undefined);
-            }
 
-            if(typeof(param) === 'object') {
-                if (Array.isArray(param)) {
-                    let stanzaData2 = xml("data", {});
-                    let stanzaArray = xml("array", {});
-                    let stanzaValue = xml("value", {});
-                    stanzaArray.append(stanzaData2, undefined);
-                    stanzaValue.append(stanzaArray, undefined);
-                    stanzaData.append(stanzaValue, undefined);
-                    that.arrayToStanza(param,stanzaData2);
-                }
+                Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
+                    let stanzaMember = xml("member", {});
+                    let stanzaName = xml("name", {}, val);
+                    stanzaMember.append(stanzaName, undefined);
+                    that.valueTypeToStanza(param[val], stanzaMember);
+                    stanzaStruct.append(stanzaMember, undefined);
+                });
+                stanzaValue.append(stanzaStruct, undefined);
+                stanzaData.append(stanzaValue, undefined);
             }
         }
     }
@@ -3193,13 +3223,23 @@ WHERE  { ?x dc:title ?title .
                 continue;
             }
 
+            if (param === true || param === false ) {
+                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean, so transform it to numbers.");
+                let stanzaInt = xml("boolean", {}, param === true ? 1 : 0);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+            
             if (isNumber(param)) {
                 /*
                  <param>
           <value><int>6</int></value>
         </param>
                  */
-                let stanzaInt = xml("int", {}, param);
+                let stanzaInt = xml("doubles", {}, param);
                 let stanzaValue = xml("value", {});
                 let stanzaParam = xml("param", {});
                 stanzaValue.append(stanzaInt, undefined);
@@ -3213,7 +3253,7 @@ WHERE  { ?x dc:title ?title .
           <value><string>6</string></value>
         </param>
                  */
-                let stanzaInt = xml("int", {}, param);
+                let stanzaInt = xml("string", {}, param);
                 let stanzaValue = xml("value", {});
                 let stanzaParam = xml("param", {});
                 stanzaValue.append(stanzaInt, undefined);
@@ -3232,6 +3272,21 @@ WHERE  { ?x dc:title ?title .
                     stanzaParam.append(stanzaValue, undefined);
                     stanzaParams.append(stanzaParam, undefined);
                     that.arrayToStanza(param,stanzaData);
+                } else {
+                    let stanzaStruct = xml("struct", {});
+                    let stanzaValue = xml("value", {});
+                    let stanzaParam = xml("param", {});
+
+                    Object.getOwnPropertyNames(param).forEach( (val, idx, array) => {
+                        let stanzaMember = xml("member", {});
+                        let stanzaName = xml("name", {}, val);
+                        stanzaMember.append(stanzaName, undefined);
+                        that.valueTypeToStanza(param[val],stanzaMember);
+                        stanzaStruct.append(stanzaMember, undefined);                        
+                    });
+                    stanzaValue.append(stanzaStruct, undefined);
+                    stanzaParam.append(stanzaValue, undefined);
+                    stanzaParams.append(stanzaParam, undefined);
                 }
             }
         }
@@ -3250,6 +3305,9 @@ WHERE  { ?x dc:title ?title .
       <params>
         <param>
           <value><int>6</int></value>
+        </param>
+        <param>
+          <value><struct><member><name>phonenumber</name><value><string>55566622</string></value></member></struct></value>
         </param>
       </params>
     </methodCall>

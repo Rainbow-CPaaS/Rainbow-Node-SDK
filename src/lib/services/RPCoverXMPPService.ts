@@ -238,7 +238,7 @@ class RPCoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
+                rpcoverxmppserver_jid = that._xmpp.fullJid;//that._rest.account.jid;
             }
 
             try {
