@@ -18,6 +18,7 @@ import {GenericService} from "./GenericService";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
 import {Channel} from "../common/models/Channel";
 import {RpcoverxmppEventHandler} from "../connection/XMPPServiceHandler/rpcoverxmppEventHandler";
+import {RPCManager, RPCmethod} from "../common/RPCManager.js";
 
 export {};
 
@@ -27,13 +28,13 @@ const LOG_ID = "RPCoverXMPP/SVCE - ";
 @isStarted([])
     /**
      * @module
-     * @name HTTPoverXMPP
+     * @name RPCoverXMPPService
      * @version SDKVERSION
      * @public
      * @description
-     *      This service manages an HTTP over XMPP requests system.<br>
+     *      This service manages an RPC over XMPP requests system.<br>
      */
-class RPCoverXMPP extends GenericService {
+class RPCoverXMPPService extends GenericService {
     private avatarDomain: string;
     private readonly _protocol: string = null;
     private readonly _host: string = null;
@@ -43,14 +44,14 @@ class RPCoverXMPP extends GenericService {
     //private rbvoiceEventHandler: RBVoiceEventHandler;
     //private RPCoverXMPPEventHandler : RPCoverXMPPEventHandler;
     private RPCoverXMPPHandlerToken: any;
-
+    public rpcManager: RPCManager;
 
     static getClassName() {
-        return 'RPCoverXMPP';
+        return 'RPCoverXMPPService';
     }
 
     getClassName() {
-        return RPCoverXMPP.getClassName();
+        return RPCoverXMPPService.getClassName();
     }
 
     constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
@@ -70,6 +71,8 @@ class RPCoverXMPP extends GenericService {
         this._protocol = _http.protocol;
         this._host = _http.host;
         this._port = _http.port;
+        
+        this.rpcManager = new RPCManager(this._logger);
 
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
@@ -121,6 +124,17 @@ class RPCoverXMPP extends GenericService {
 
     async init(useRestAtStartup : boolean) {
         let that = this;
+        
+        // Maybe it should not be reset for reconnection.
+        await that.rpcManager.reset();
+        
+        let rpcMethod = new RPCmethod();
+        rpcMethod.methodName = "system.listMethods";
+        rpcMethod.methodHelp = "system.listMethods";
+        rpcMethod.methodDescription = "system.listMethods";
+        rpcMethod.methodCallback = () => { return that.rpcManager.listMethods();};
+        that.rpcManager.add(rpcMethod);
+        
         that.setInitialized();
     }
 
@@ -133,53 +147,86 @@ class RPCoverXMPP extends GenericService {
         ];
     }
 
-    //region Rainbow RPCoverXMPP
+    //region Rainbow RPCoverXMPP RPC Server
 
     /**
      * @public
-     * @method get
-     * @since 2.10.0
+     * @method addRPCMethod
+     * @since 2.22.0
      * @instance
      * @async
-     * @category Rainbow RPCoverXMPP
+     * @category Rainbow RPCoverXMPP RPC Server
      * @description
-     *    This API allows to send a GET http request to an XMPP server supporting Xep0332. <br>
-     * @param {string} urlToGet The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} RPCoverXMPPserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+     *    This API allows to expose an RPC method to requests from an XMPP party. <br>
+     * @param {string} methodName The name of the method to be added from RPC server
+     * @param {string} methodCallback The callback of the method to be added from RPC server
+     * @param {string} methodDescription The description of the method to be added from RPC server
+     * @param {string} methodHelp The help of the method to be added from RPC server
      * @return {Promise<any>} An object of the result
-     */
-    /*
-    get(urlToGet : string, headers: any = {}, rpcoverXMPPserver_jid? : string) {
+     */    
+    addRPCMethod(methodName : string = undefined, methodCallback : any = undefined, methodDescription : string = undefined, methodHelp : string = undefined ) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
-            if (!urlToGet) {
-                that._logger.log("error", LOG_ID + "(get) Parameter 'urlToGet' is missing or null");
+            if (!methodName) {
+                that._logger.log("error", LOG_ID + "(addRPCMethod) Parameter 'methodName' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
-            if (!rpcoverXMPPserver_jid) {
-                rpcoverXMPPserver_jid = that._rest.account.jid;
+            if (!methodCallback) {
+                that._logger.log("error", LOG_ID + "(addRPCMethod) Parameter 'callback' is missing or null");
+                throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
             try {
-                
-                let node = await that._xmpp.getHTTPoverXMPP(urlToGet, rpcoverXMPPserver_jid, headers);
-                that._logger.log("debug", "(get) - sent.");
-                that._logger.log("internal", "(get) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
+                let rpcMethod = new RPCmethod(methodName, methodCallback, methodDescription , methodHelp );
+                let result = await that.rpcManager.add(rpcMethod);
+                that._logger.log("debug", LOG_ID + "(addRPCMethod) add done : ", result);
+                resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(get) Error.");
-                that._logger.log("internalerror", LOG_ID + "(get) Error : ", err);
+                that._logger.log("error", LOG_ID + "(addRPCMethod) Error.");
+                that._logger.log("internalerror", LOG_ID + "(addRPCMethod) Error : ", err);
                 return reject(err);
             }
         });
-    } 
-    // */
+    }
+
+    /**
+     * @public
+     * @method removeRPCMethod
+     * @since 2.22.0
+     * @instance
+     * @async
+     * @category Rainbow RPCoverXMPP RPC Server
+     * @description
+     *    This API allows to remove an RPC method from RPC Server. <br>
+     * @param {string} methodName The name of the method to be removed from RPC server
+     * @return {Promise<any>} An object of the result
+     */    
+    removeRPCMethod(methodName : string = undefined ) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            if (!methodName) {
+                that._logger.log("error", LOG_ID + "(get) Parameter 'methodName' is missing or null");
+                throw ErrorManager.getErrorManager().BAD_REQUEST();
+            }
+
+            try {
+                let result = await that.rpcManager.remove(methodName);
+                that._logger.log("debug", LOG_ID + "(removeRPCMethod) remove done : ", result);
+                resolve(result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(removeRPCMethod) Error.");
+                that._logger.log("internalerror", LOG_ID + "(removeRPCMethod) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Rainbow RPCoverXMPP RPC Server
+
+    //region Rainbow RPCoverXMPP RPC Client
 
     /**
      * @public
@@ -187,7 +234,7 @@ class RPCoverXMPP extends GenericService {
      * @since 2.22.0
      * @instance
      * @async
-     * @category Rainbow RPCoverXMPP
+     * @category Rainbow RPCoverXMPP RPC Client
      * @description
      *    This API allows to send a discover presence to a bare jid to find the resources availables. <br>
      * @param {Object} headers The Http Headers used to web request.
@@ -225,7 +272,7 @@ class RPCoverXMPP extends GenericService {
      * @since 2.22.0
      * @instance
      * @async
-     * @category Rainbow RPCoverXMPP
+     * @category Rainbow RPCoverXMPP RPC Client
      * @description
      *    This API allows to send a request to call a rpc method to a bare jid to find the resources availables. <br>
      * @param {string} rpcoverxmppserver_jid the jid of the rpc over xmpp server used to retrieve the request. default value is the jid of the account running the SDK.
@@ -242,14 +289,23 @@ class RPCoverXMPP extends GenericService {
             }
 
             try {
-                
+
+                /*
                 let node = await that._xmpp.methodCallRPCoverXMPP(rpcoverxmppserver_jid, methodName ,params);
                 that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
                 that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
 
+                let methodResponse = ( reqObj && reqObj.iq && reqObj.iq.query ) ? reqObj.iq.query.methodResponse : undefined;                 
                 resolve(reqObj);
+                // */
+                
+                let result = await that._xmpp.methodCallRPCoverXMPP(rpcoverxmppserver_jid, methodName ,params);
+                that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
+                that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", result);
+                
+                resolve(result);
             } catch (err) {
                 that._logger.log("error", LOG_ID + "(methodCallRPCoverXMPP) Error.");
                 that._logger.log("internalerror", LOG_ID + "(methodCallRPCoverXMPP) Error : ", err);
@@ -259,243 +315,12 @@ class RPCoverXMPP extends GenericService {
     }
 
     /**
-     * @public
-     * @method trace
-     * @since 2.10.0
-     * @instance
-     * @async
-     * @category Rainbow RPCoverXMPP
-     * @description
-     *    This API allows to send a TRACE http request to an XMPP server supporting Xep0332. TRACE is only used for debugging <br>
-     * @param {string} urlToTrace The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
-     * @return {Promise<any>} An object of the result
-     */
-    trace(urlToTrace : string, headers: any = {}, rpcoverxmppserver_jid? : string) {
-        let that = this;
-
-        return new Promise(async (resolve, reject) => {
-            if (!urlToTrace) {
-                that._logger.log("error", LOG_ID + "(trace) Parameter 'urlToTrace' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
-            }
-
-            if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
-            }
-
-            try {
-                
-                let node = await that._xmpp.traceRPCoverXMPP(urlToTrace, rpcoverxmppserver_jid, headers);
-                that._logger.log("debug", "(trace) - sent.");
-                that._logger.log("internal", "(trace) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
-            } catch (err) {
-                that._logger.log("error", LOG_ID + "(trace) Error.");
-                that._logger.log("internalerror", LOG_ID + "(trace) Error : ", err);
-                return reject(err);
-            }
-        });
-    }
-
-    /**
-     * @public
-     * @method head
-     * @since 2.10.0
-     * @instance
-     * @async
-     * @category Rainbow RPCoverXMPP
-     * @description
-     *    This API allows to send a HEAD http request to an XMPP server supporting Xep0332. <br>
-     * @param {string} urlToHead The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
-     * @return {Promise<any>} An object of the result
-     */
-    /*
-    head(urlToHead : string, headers: any = {}, rpcoverxmppserver_jid? : string) {
-        let that = this;
-
-        return new Promise(async (resolve, reject) => {
-            if (!urlToHead) {
-                that._logger.log("error", LOG_ID + "(head) Parameter 'urlToGet' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
-            }
-
-            if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
-            }
-
-            try {
-                
-                let node = await that._xmpp.headRPCoverXMPP(urlToHead, rpcoverxmppserver_jid, headers);
-                that._logger.log("debug", "(head) - sent.");
-                that._logger.log("internal", "(head) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
-            } catch (err) {
-                that._logger.log("error", LOG_ID + "(head) Error.");
-                that._logger.log("internalerror", LOG_ID + "(head) Error : ", err);
-                return reject(err);
-            }
-        });
-    }
-    // */
-
-    /**
-     * @public
-     * @method post
-     * @since 2.10.0
-     * @instance
-     * @async
-     * @category Rainbow RPCoverXMPP
-     * @description
-     *    This API allows to send a POST http request to an XMPP server supporting Xep0332. <br>
-     * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} data The body data of the http request.
-     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
-     * @return {Promise<any>} An object of the result
-     */    
-    /*
-    post(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
-        let that = this;
-
-        return new Promise(async (resolve, reject) => {
-            if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(post) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
-            }
-
-            if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
-            }
-
-            try {
-                
-                let node = await that._xmpp.postRPCoverXMPP(urlToPost, rpcoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(post) - sent.");
-                that._logger.log("internal", "(post) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
-            } catch (err) {
-                that._logger.log("error", LOG_ID + "(post) Error.");
-                that._logger.log("internalerror", LOG_ID + "(post) Error : ", err);
-                return reject(err);
-            }
-        });
-    }
-    // */
-
-    /**
-     * @public
-     * @method put
-     * @since 2.10.0
-     * @instance
-     * @async
-     * @category Rainbow RPCoverXMPP
-     * @description
-     *    This API allows to send a PUT http request to an XMPP server supporting Xep0332. <br>
-     * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} data The body data of the http request.
-     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
-     * @return {Promise<any>} An object of the result
-     */
-    /*
-    put(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
-        let that = this;
-
-        return new Promise(async (resolve, reject) => {
-            if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(put) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
-            }
-
-            if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
-            }
-
-            try {
-                
-                let node = await that._xmpp.putRPCoverXMPP(urlToPost, rpcoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(put) - sent.");
-                that._logger.log("internal", "(put) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
-            } catch (err) {
-                that._logger.log("error", LOG_ID + "(put) Error.");
-                that._logger.log("internalerror", LOG_ID + "(put) Error : ", err);
-                return reject(err);
-            }
-        });
-    }
-    // */
-
-    /**
-     * @public
-     * @method delete
-     * @since 2.10.0
-     * @instance
-     * @async
-     * @category Rainbow RPCoverXMPP
-     * @description
-     *    This API allows to send a DELETE http request to an XMPP server supporting Xep0332. <br>
-     * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
-     * @param {string} data The body data of the http request.
-     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
-     * @return {Promise<any>} An object of the result
-     */
-    /*
-    delete(urlToPost : string, headers: any = {}, data : any, rpcoverxmppserver_jid? : string) {
-        let that = this;
-
-        return new Promise(async (resolve, reject) => {
-            if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(delete) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
-            }
-
-            if (!rpcoverxmppserver_jid) {
-                rpcoverxmppserver_jid = that._rest.account.jid;
-            }
-
-            try {
-                
-                let node = await that._xmpp.deleteRPCoverXMPP(urlToPost, rpcoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(delete) - sent.");
-                that._logger.log("internal", "(delete) - result : ", node);
-                let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
-
-                resolve(reqObj);
-            } catch (err) {
-                that._logger.log("error", LOG_ID + "(delete) Error.");
-                that._logger.log("internalerror", LOG_ID + "(delete) Error : ", err);
-                return reject(err);
-            }
-        });
-    }
-    // */
-
-    /**
      * @private
      * @method discover
      * @since 2.10.0
      * @instance
      * @async
-     * @category Rainbow RPCoverXMPP
+     * @category Rainbow RPCoverXMPP RPC Client
      * @description
      *    This API allows to get the supported XMPP services. <br>
      * @return {Promise<any>} An object of the result
@@ -520,10 +345,10 @@ class RPCoverXMPP extends GenericService {
         });
     }
 
-    //endregion Rainbow RPCoverXMPP
+    //endregion Rainbow RPCoverXMPP RPC Client
 
 }
 
-module.exports.RPCoverXMPP = RPCoverXMPP;
-export {RPCoverXMPP as RPCoverXMPP};
+module.exports.RPCoverXMPPService = RPCoverXMPPService;
+export {RPCoverXMPPService as RPCoverXMPPService};
 

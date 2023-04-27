@@ -38,7 +38,7 @@ export {};
 
 const packageVersion = require("../package.json");
 import * as Utils from "./common/Utils"
-import {RPCoverXMPP} from "./services/RPCoverXMPPService.js";
+import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;
 let _retrieveInformation;
@@ -83,7 +83,7 @@ class Core {
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
     public _httpoverxmpp: HTTPoverXMPP;
-    public _rpcoverxmpp: RPCoverXMPP;
+    public _rpcoverxmpp: RPCoverXMPPService;
 	public _botsjid: any;
     public _s2s: S2SService;
     public _Utils: any;
@@ -237,7 +237,7 @@ class Core {
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
         self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
         self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options);
+        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options, self);
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
@@ -262,7 +262,7 @@ class Core {
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
         self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
-        self._rpcoverxmpp = new RPCoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPPService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
         self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 

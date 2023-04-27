@@ -916,6 +916,43 @@ let urlS2S;
         });
     }
 
+    /**
+     * need to be administrator of the company. Here vincent02 is ok.
+     */
+     testupdateContactInfos_loginEmail() {
+        let loginEmail = "vincent++@vbe.test.openrainbow.net";
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
+            if (contact) {
+                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactByLoginEmail contact : ", contact);
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                let infos = {
+                    "loginEmail" : "vincent++updated@vbe.test.openrainbow.net"
+                };
+                rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
+                    if (result) {
+                        logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
+                    } else {
+                        logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
+                    }
+                    rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
+                        if (contactInfos) {
+                            logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos contactInfos : ", contactInfos);
+                        } else {
+                            logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos no infos found");
+                        }
+                        rainbowSDK.admin.updateContactInfos(contact.id, { loginEmail }).then(result => {
+                            if (result) {
+                                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
+                            } else {
+                                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    }
+
     async  testjoinContacts_AddContactToRoster() {
         let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
         let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
@@ -6340,9 +6377,46 @@ let urlS2S;
             logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_listMethods, res : ", res);
         }
         
+        async testaddRPCMethod () {
+            let that = this;
+            
+            await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
+                logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
+                logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
+                logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
+                logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
+                logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
+                let result = {
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5                    
+                }
+                return result;
+            });        
+        }
+        
         async testmethodCallRPCoverXMPP_withParams () {
             let that = this;
             let param = [];
+
+            await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
+                logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
+                logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
+                logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
+                logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
+                logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
+                let result = {
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5
+                }
+                return result;
+            });
+
             let obj = {
                 "firstName":"vincent",
                 "lastName":"berder",

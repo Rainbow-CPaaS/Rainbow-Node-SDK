@@ -31,7 +31,7 @@ import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
 import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
-import {RPCoverXMPP} from "./services/RPCoverXMPPService.js";
+import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -1002,12 +1002,12 @@ class NodeSDK {
     
     /**
      * @public
-     * @property {RPCoverXMPP} rpcoverxmpp
+     * @property {RPCoverXMPPService} rpcoverxmpp
      * @description
      *    Get access to the rpcoverxmpp module
-     * @return {RPCoverXMPP}
+     * @return {RPCoverXMPPService}
      */
-    get rpcoverxmpp() : RPCoverXMPP {
+    get rpcoverxmpp() : RPCoverXMPPService {
         return this._core._rpcoverxmpp;
     }
     

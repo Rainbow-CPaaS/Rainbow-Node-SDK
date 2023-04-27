@@ -22,6 +22,7 @@ import {GenericService} from "../services/GenericService";
 import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
 import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
+import {Core} from "../Core.js";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -164,12 +165,13 @@ class XMPPService extends GenericService {
     private maxPingAnswerTimer: number;
     private company: any;
     private xmppRessourceName: string;
+    private _core: Core;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
 
-    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
+    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options, _core) {
         super(_logger, LOG_ID);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -188,6 +190,7 @@ class XMPPService extends GenericService {
         that._rest = _rest;
         that.logger = _logger;
         that.proxy = _proxy;
+        that._core = _core;
         that.shouldSendReadReceipt = _im.sendReadReceipt;
         that.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         that.storeMessages = _im.storeMessages;
@@ -277,7 +280,7 @@ class XMPPService extends GenericService {
 
                 that.IQEventHandler = new IQEventHandler(that);
                 that.httpoverxmppEventHandler = new HttpoverxmppEventHandler(that, that._rest, that._options);
-                that.rpcoverxmppEventHandler = new RpcoverxmppEventHandler(that, that._rest, that._options);
+                that.rpcoverxmppEventHandler = new RpcoverxmppEventHandler(that, that._rest, that._options, that._core._rpcoverxmpp);
 
                 that.IQEventHandlerToken = [
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
@@ -3142,7 +3145,9 @@ WHERE  { ?x dc:title ?title .
         //return Promise.resolve(message);
         return await that.xmppClient.sendIq(msg);
     }
-    
+
+    //region RPC encode stanza
+
     arrayToStanza(arrayOfParams, stanzaData) {
         let that = this;
         for (const param of arrayOfParams) {
@@ -3291,6 +3296,66 @@ WHERE  { ?x dc:title ?title .
             }
         }
     }
+
+    //endregion RPC encode stanza
+
+    //region RPC decode stanza
+
+    valueTypeToValue(param) {
+        let that = this;
+        // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValuev param.value : ", param);
+        let result = undefined;
+        if (param) {
+            Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
+                let data = param[val];
+                // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
+
+                if (val==="boolean") {
+                    // that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean with number, so transform it to real boolean.");
+                    result = ((data==="1" || data===1) ? true:false);
+                }
+
+                if (val==="string" || val==="base64" || val==="dateTime.iso8601") {
+                    result = "" + data;
+                }
+                if (val==="int" || val==="double" || val==="i4") {
+                    result = Number.parseInt(data);
+                }
+                if (val==="array") {
+
+                    let arr = [];
+                    console.log("array : ", data);
+
+                    for (const valTab of data.data.value) {
+                        arr.push(that.valueTypeToValue(valTab));
+                    }
+
+                    result = arr;
+                    //return Number.parseInt(param.value.val);
+                }
+                if (val==="struct") {
+                    let obj = {};
+                    console.log("struct : ", data);
+                    for (const member of data.member) {
+                        obj[member.name] = that.valueTypeToValue(member.value);
+                    }
+                    result = obj;
+                    //return Number.parseInt(param.value.val);
+                }
+            });
+        }
+        return result;
+    }
+
+    decodeRPCParam(param) {
+        let that = this;
+        //that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
+        if (param.value) {
+            return that.valueTypeToValue(param.value);
+        }
+    }
+
+    //endregion RPC decode stanza
     
     async methodCallRPCoverXMPP( to, methodName ,params : Array<any> = [] ) {
         let that = this;
@@ -3344,7 +3409,16 @@ WHERE  { ?x dc:title ?title .
         that.logger.log("internal", LOG_ID + "(methodCallRPCoverXMPP) msg : ", msg);
 
         //return Promise.resolve(message);
-        return await that.xmppClient.sendIq(msg);
+        let result = await that.xmppClient.sendIq(msg);
+
+        that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
+        that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", result);
+        let xmlNodeStr = result ? result.toString():"<xml></xml>";
+        let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+
+        let methodResponseParams = ( reqObj && reqObj.iq && reqObj.iq.query && reqObj.iq.query.methodResponse.params ) ? reqObj.iq.query.methodResponse.params : undefined;
+        let res = that.decodeRPCParam(methodResponseParams); 
+        return res;
     }
     
     async traceRPCoverXMPP(urlToGet, to, headers = {}) {
