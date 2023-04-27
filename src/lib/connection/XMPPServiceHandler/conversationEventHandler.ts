@@ -3,7 +3,7 @@ import {xu} from "../../common/XMPPUtils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {Conversation} from "../../common/models/Conversation";
 import {Element} from "ltx";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {FileStorageService} from "../../services/FileStorageService";
 import {FileServerService} from "../../services/FileServerService";
 import {BubblesService} from "../../services/BubblesService";
@@ -169,7 +169,7 @@ class ConversationEventHandler extends GenericHandler {
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, ", node : ", node);
 
         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+        let jsonNode = await getJsonFromXML(xmlNodeStr);
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
         let conferenceInfo = jsonNode["conference-info"];
         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -694,7 +694,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "questions":
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        questions = await that.getJsonFromXML(xmlNodeStr);
+                        questions = await getJsonFromXML(xmlNodeStr);
                         break;
                     case "body":
                         content = node.getText();
@@ -965,7 +965,7 @@ class ConversationEventHandler extends GenericHandler {
                         let ignoreConferenceInfo = false;
 
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+                        let jsonNode = await getJsonFromXML(xmlNodeStr);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
                         let conferenceInfo = jsonNode["conference-info"];
                         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -2686,7 +2686,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) JSON : ", jsonNode);
             let roomscontainer = jsonNode["roomscontainer"];
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) roomscontainer : ", roomscontainer);
@@ -2763,7 +2763,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let connectorcommand = jsonNode["connectorcommand"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand : ", connectorcommand);
@@ -2785,7 +2785,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandEndedMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let command_ended  = jsonNode["command_ended"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) command_ended : ", command_ended );
@@ -2806,7 +2806,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorConfigManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
             let connectorconfig = jsonNode["connectorconfig"];
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig : ", connectorconfig);

@@ -6,6 +6,7 @@ import {atob} from "atob";
 const Jimp = require('jimp');
 const dns = require('dns')
 const utilTypes = require('util').types
+const xml2js = require('xml2js');
 
 let makeId = (n) => {
   let text = "";
@@ -563,6 +564,19 @@ const resolveDns = (cname) => {
     });
 }
 
+async function getJsonFromXML(xml : string) {
+    try {
+        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+        // convert it to a JSON string
+        return result;
+        //return JSON.stringify(result, null, 4);
+    } catch (err) {
+        //console.log(err);
+        return {};
+    }
+}
+
 function randomString(length, chars) {
     let result = "";
     for (let i = length; i > 0; --i) {
@@ -605,7 +619,8 @@ export let objToExport = {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML
 };
 
 module.exports = objToExport;
@@ -637,7 +652,8 @@ export {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML
 };
 
 export default {
@@ -668,5 +684,6 @@ export default {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML
 };

@@ -1,7 +1,7 @@
 "use strict";
 
 import {XMPPService} from "../XMPPService";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {GenericHandler} from "./GenericHandler";
 import {RESTService} from "../RESTService";
 
@@ -133,7 +133,7 @@ class HttpoverxmppEventHandler extends GenericHandler {
 
             that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
             
             let host = "";
@@ -366,7 +366,7 @@ class HttpoverxmppEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
            /* 
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("internal", LOG_ID + "(_onIqGetReqReceived) (handleXMPPConnection) reqObj : ", reqObj);
             
             
