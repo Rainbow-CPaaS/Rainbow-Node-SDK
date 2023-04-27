@@ -2,7 +2,7 @@
 
 import * as util from "util";
 import {
-    equalIgnoreCase,
+    equalIgnoreCase, getJsonFromXML,
     isNullOrEmpty,
     isNumber,
     isStarted,
@@ -3162,8 +3162,8 @@ WHERE  { ?x dc:title ?title .
     valueTypeToStanza(param, stanzaData) {
         let that = this;
         if (typeof (param)==='undefined' || typeof (param)===null) {
-            that.logger.log("debug", LOG_ID + "(arrayToStanza) a param is undefined/null, so ignore it.");
-            return;
+            that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so set it to false (boolean type) to be ignored with if on the other side.");
+            param = false;
         }
 
         if (param === true || param === false ) {
@@ -3223,14 +3223,15 @@ WHERE  { ?x dc:title ?title .
     paramToStanza(params, stanzaParams) {
         let that = this;
         for (const param of params) {
-            if (typeof(param) === 'undefined' || typeof(param) === null) {
-                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so ignore it.");
-                continue;
+            let paramToEncode = param;
+            if (typeof(paramToEncode) === 'undefined' || typeof(paramToEncode) === null) {
+                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so set it to false (boolean type) to be ignored with if on the other side.");
+                paramToEncode = false;
             }
 
-            if (param === true || param === false ) {
+            if (paramToEncode === true || paramToEncode === false ) {
                 that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean, so transform it to numbers.");
-                let stanzaInt = xml("boolean", {}, param === true ? 1 : 0);
+                let stanzaInt = xml("boolean", {}, paramToEncode === true ? 1 : 0);
                 let stanzaValue = xml("value", {});
                 let stanzaParam = xml("param", {});
                 stanzaValue.append(stanzaInt, undefined);
@@ -3238,13 +3239,13 @@ WHERE  { ?x dc:title ?title .
                 stanzaParams.append(stanzaParam, undefined);
             }
             
-            if (isNumber(param)) {
+            if (isNumber(paramToEncode)) {
                 /*
                  <param>
           <value><int>6</int></value>
         </param>
                  */
-                let stanzaInt = xml("doubles", {}, param);
+                let stanzaInt = xml("doubles", {}, paramToEncode);
                 let stanzaValue = xml("value", {});
                 let stanzaParam = xml("param", {});
                 stanzaValue.append(stanzaInt, undefined);
@@ -3252,13 +3253,13 @@ WHERE  { ?x dc:title ?title .
                 stanzaParams.append(stanzaParam, undefined);
             }
 
-            if(typeof(param) === 'string') {
+            if(typeof(paramToEncode) === 'string') {
                 /*
                  <param>
           <value><string>6</string></value>
         </param>
                  */
-                let stanzaInt = xml("string", {}, param);
+                let stanzaInt = xml("string", {}, paramToEncode);
                 let stanzaValue = xml("value", {});
                 let stanzaParam = xml("param", {});
                 stanzaValue.append(stanzaInt, undefined);
@@ -3266,8 +3267,8 @@ WHERE  { ?x dc:title ?title .
                 stanzaParams.append(stanzaParam, undefined);
             }
 
-            if(typeof(param) === 'object') {
-                if (Array.isArray(param)) {
+            if(typeof(paramToEncode) === 'object') {
+                if (Array.isArray(paramToEncode)) {
                     let stanzaData = xml("data", {});
                     let stanzaArray = xml("array", {});
                     let stanzaValue = xml("value", {});
@@ -3276,17 +3277,17 @@ WHERE  { ?x dc:title ?title .
                     stanzaValue.append(stanzaArray, undefined);
                     stanzaParam.append(stanzaValue, undefined);
                     stanzaParams.append(stanzaParam, undefined);
-                    that.arrayToStanza(param,stanzaData);
+                    that.arrayToStanza(paramToEncode,stanzaData);
                 } else {
                     let stanzaStruct = xml("struct", {});
                     let stanzaValue = xml("value", {});
                     let stanzaParam = xml("param", {});
 
-                    Object.getOwnPropertyNames(param).forEach( (val, idx, array) => {
+                    Object.getOwnPropertyNames(paramToEncode).forEach( (val, idx, array) => {
                         let stanzaMember = xml("member", {});
                         let stanzaName = xml("name", {}, val);
                         stanzaMember.append(stanzaName, undefined);
-                        that.valueTypeToStanza(param[val],stanzaMember);
+                        that.valueTypeToStanza(paramToEncode[val],stanzaMember);
                         stanzaStruct.append(stanzaMember, undefined);                        
                     });
                     stanzaValue.append(stanzaStruct, undefined);
@@ -3307,27 +3308,34 @@ WHERE  { ?x dc:title ?title .
         let result = undefined;
         if (param) {
             Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
-                let data = param[val];
+                let child = param[val];
                 // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
 
                 if (val==="boolean") {
                     // that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean with number, so transform it to real boolean.");
-                    result = ((data==="1" || data===1) ? true:false);
+                    result = ((child==="1" || child===1) ? true:false);
                 }
 
                 if (val==="string" || val==="base64" || val==="dateTime.iso8601") {
-                    result = "" + data;
+                    result = "" + child;
                 }
                 if (val==="int" || val==="double" || val==="i4") {
-                    result = Number.parseInt(data);
+                    result = Number.parseInt(child);
                 }
                 if (val==="array") {
 
                     let arr = [];
-                    console.log("array : ", data);
+                    // console.log("array : ", data);
 
-                    for (const valTab of data.data.value) {
-                        arr.push(that.valueTypeToValue(valTab));
+                    /* if (data.data.value) {
+                        
+                    } // */
+                    if ( child && child.data && child.data.value && Array.isArray(child.data.value)) {
+                        for (const valTab of child.data.value) {
+                            arr.push(that.valueTypeToValue(valTab));
+                        }
+                    } else {
+                        arr.push(that.valueTypeToValue(child.data.value));
                     }
 
                     result = arr;
@@ -3335,9 +3343,13 @@ WHERE  { ?x dc:title ?title .
                 }
                 if (val==="struct") {
                     let obj = {};
-                    console.log("struct : ", data);
-                    for (const member of data.member) {
-                        obj[member.name] = that.valueTypeToValue(member.value);
+                    // console.log("struct : ", data);
+                    if ( child && child.member && Array.isArray(child.member)) {
+                        for (const member of child.member) {
+                            obj[member.name] = that.valueTypeToValue(member.value);
+                        }
+                    } else {
+                            obj[child.member.name] = that.valueTypeToValue(child.member.value);                        
                     }
                     result = obj;
                     //return Number.parseInt(param.value.val);
@@ -3350,8 +3362,10 @@ WHERE  { ?x dc:title ?title .
     decodeRPCParam(param) {
         let that = this;
         //that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
-        if (param.value) {
+        if (param && param.value) {
             return that.valueTypeToValue(param.value);
+        } else {
+            return undefined;
         }
     }
 
@@ -3414,10 +3428,10 @@ WHERE  { ?x dc:title ?title .
         that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
         that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", result);
         let xmlNodeStr = result ? result.toString():"<xml></xml>";
-        let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+        let reqObj = await getJsonFromXML(xmlNodeStr);
 
-        let methodResponseParams = ( reqObj && reqObj.iq && reqObj.iq.query && reqObj.iq.query.methodResponse.params ) ? reqObj.iq.query.methodResponse.params : undefined;
-        let res = that.decodeRPCParam(methodResponseParams); 
+        let methodResponseParam = ( reqObj && reqObj.iq && reqObj.iq.query && reqObj.iq.query.methodResponse.params && reqObj.iq.query.methodResponse.params.param ) ? reqObj.iq.query.methodResponse.params.param : undefined;
+        let res = that.decodeRPCParam(methodResponseParam); 
         return res;
     }
     

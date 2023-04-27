@@ -6401,18 +6401,22 @@ let urlS2S;
             let that = this;
             let param = [];
 
-            await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
+            await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5, arg6, arg7) => {
                 logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
                 logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
                 logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
                 logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
                 logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
+                logger.log("debug", "MAIN - example.trace, arg6 : ", arg6);
+                logger.log("debug", "MAIN - example.trace, arg7 : ", arg7);
                 let result = {
                     arg1,
                     arg2,
                     arg3,
                     arg4,
-                    arg5
+                    arg5,
+                    arg6,
+                    arg7
                 }
                 return result;
             });
@@ -6427,7 +6431,11 @@ let urlS2S;
             param.push([1,2,["arg1", "arg2", {"propertyOfObjInTab1":"mypropertyOfObjInTab1", "propertyOfObjInTab2" : "mypropertyOfObjInTab2"}]]);
             // param.push([1,2,["arg1", "arg2"]]);
             param.push("param3");
+            param.push(undefined);
             param.push(obj);
+            param.push({"propertyOne":"valueproperty"});
+            param.push(["valArrayOne"]);
+            
             let res = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"example.trace", param);
             logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_withParams, res : ", res);
         }

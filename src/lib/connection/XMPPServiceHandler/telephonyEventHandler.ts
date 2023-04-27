@@ -4,7 +4,7 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 //const config = require("../../config/config");
 import {config} from "../../config/config";
 import {GenericHandler} from "./GenericHandler";

@@ -156,14 +156,15 @@ class RpcoverxmppEventHandler extends GenericHandler {
                 that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodName : ", methodName);
                 that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
 
-                for (const param of params.param) {
-                    let param1 = that.xmppService.decodeRPCParam(param);
-                    that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) param1 : ", param1);
-                    methodParams.push(param1);
+                if (params) {
+                    for (const param of params.param) {
+                        let paramDecoded = that.xmppService.decodeRPCParam(param);
+                        that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                        methodParams.push(paramDecoded);
+                    }
                 }
-
                 that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
-                console.log(LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+                //console.log(LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
 
                 /*
                 <iq type='result'
@@ -464,7 +465,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
            /* 
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("internal", LOG_ID + "(_onIqGetReqReceived) (handleXMPPConnection) reqObj : ", reqObj);
             
             

@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -132,7 +132,9 @@ class RPCoverXMPPService extends GenericService {
         rpcMethod.methodName = "system.listMethods";
         rpcMethod.methodHelp = "system.listMethods";
         rpcMethod.methodDescription = "system.listMethods";
-        rpcMethod.methodCallback = () => { return that.rpcManager.listMethods();};
+        rpcMethod.methodCallback = () => { 
+            return that.rpcManager.listMethods();
+        };
         that.rpcManager.add(rpcMethod);
         
         that.setInitialized();
@@ -255,7 +257,7 @@ class RPCoverXMPPService extends GenericService {
                 that._logger.log("debug", "(discoverRPCoverXMPP) - sent.");
                 that._logger.log("internal", "(discoverRPCoverXMPP) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -295,7 +297,7 @@ class RPCoverXMPPService extends GenericService {
                 that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
                 that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", node);
                  let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.rpcoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 let methodResponse = ( reqObj && reqObj.iq && reqObj.iq.query ) ? reqObj.iq.query.methodResponse : undefined;                 
                 resolve(reqObj);
