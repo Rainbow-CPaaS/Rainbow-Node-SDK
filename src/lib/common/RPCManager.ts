@@ -1,5 +1,5 @@
 "use strict";
-import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
+import {Deferred, doWithinInterval, functionSignature, pause, setTimeoutPromised} from "./Utils";
 import {Dictionary, IDictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
@@ -12,7 +12,7 @@ export {};
 
 let AsyncLock = require('async-lock');
 
-let LOG_ID = 'TIMEOUTQUEUE';
+let LOG_ID = 'RPC/MGR - ';
 
 let xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -165,7 +165,44 @@ class RPCManager{
     }
 
     listMethods () {
-        return this.rpcMethods.toArray().keys();
+        let that = this;
+        let result = this.rpcMethods.toArray().map((rpcMethodIter)=>{
+            return rpcMethodIter.value.methodName;
+        });
+        that.logger.log("internal", LOG_ID + "(listMethods) - result : ", result);
+        return result;
+    }
+
+    methodSignature (methodName) {
+        let that = this;
+        //let result = that.rpcMethods[methodName]?that.rpcMethods[methodName].callback?that.rpcMethods[methodName].callback.toString():"":"";
+        let rpcMethod = that.rpcMethods.tryGetValue(methodName);
+        let methodCallback = rpcMethod?rpcMethod.methodCallback.toString():undefined;                //
+        let result = functionSignature(methodCallback) ;
+        that.logger.log("internal", LOG_ID + "(methodSignature) - result : ", result);
+        return result;
+    }
+
+    methodHelp (methodName) {
+        let that = this;
+        let rpcMethod = that.rpcMethods.tryGetValue(methodName);
+        let result = rpcMethod?rpcMethod.methodHelp?rpcMethod.methodHelp:"":"";
+        that.logger.log("internal", LOG_ID + "(methodHelp) - result : ", result);
+        return result;
+    }
+
+    multicall (param1) {
+        let that = this;
+        let result = "multicall not implemented. " + param1 + " ignored!" ;
+        that.logger.log("internal", LOG_ID + "(multicall) - result : ", result);
+        return result;
+    }
+
+    shutdown () {
+        let that = this;
+        let result = "shutdown not implemented";
+        that.logger.log("internal", LOG_ID + "(shutdown) - result : ", result);
+        return result;
     }
     
     private lockEngine: any;

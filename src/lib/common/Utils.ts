@@ -591,6 +591,32 @@ function generateRamdomEmail(email){
     return emailGenerated.toLowerCase();
 }
 
+function functionName(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0]  : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    result = result.substr('function '.length);
+    result = result.substr(0, result.indexOf('('));
+    return result;
+}
+
+function functionSignature(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] + "...}" : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0] + "...}" : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    return result;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -620,7 +646,9 @@ export let objToExport = {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
-    getJsonFromXML
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };
 
 module.exports = objToExport;
@@ -653,7 +681,9 @@ export {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
-    getJsonFromXML
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };
 
 export default {
@@ -685,5 +715,7 @@ export default {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
-    getJsonFromXML
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };

@@ -125,17 +125,7 @@ class RPCoverXMPPService extends GenericService {
     async init(useRestAtStartup : boolean) {
         let that = this;
         
-        // Maybe it should not be reset for reconnection.
-        await that.rpcManager.reset();
-        
-        let rpcMethod = new RPCmethod();
-        rpcMethod.methodName = "system.listMethods";
-        rpcMethod.methodHelp = "system.listMethods";
-        rpcMethod.methodDescription = "system.listMethods";
-        rpcMethod.methodCallback = () => { 
-            return that.rpcManager.listMethods();
-        };
-        that.rpcManager.add(rpcMethod);
+        await that.initRPCSystemMethods()
         
         that.setInitialized();
     }
@@ -151,6 +141,69 @@ class RPCoverXMPPService extends GenericService {
 
     //region Rainbow RPCoverXMPP RPC Server
 
+    async initRPCSystemMethods() {
+        let that = this;
+             
+        // Maybe it should not be reset for reconnection.
+        await that.rpcManager.reset();
+
+        // system.listMethods
+        let rpcMethod = new RPCmethod( 
+                "system.listMethods",
+                () => {
+                    return that.rpcManager.listMethods();
+                },
+                "This method returns a list of the methods the server has, by name.",
+                "This method returns a list of the methods the server has, by name. There are no parameters."
+        );
+        that.rpcManager.add(rpcMethod);
+
+        // system.methodSignature
+        rpcMethod = new RPCmethod(
+                "system.methodSignature",
+                (methodName) => {
+                    return that.rpcManager.methodSignature(methodName);
+                },
+                "This method returns a description of the argument format a particular method expects.",
+                "This method returns a description of the argument format a particular method expects. The method takes one parameter, an XML-RPC string. Its value is the name of the XML-RPC method about which information is being requested."
+        );
+        that.rpcManager.add(rpcMethod);
+
+        // system.methodHelp
+        rpcMethod = new RPCmethod(
+                "system.methodHelp",
+                (methodName) => {
+                    return that.rpcManager.methodHelp(methodName);
+                },
+                "This method returns a text description of a particular method.",
+                "This method returns a text description of a particular method. The method takes one parameter, an XML-RPC string. Its value is the name of the XML-RPC method about which information is being requested."
+        );
+        that.rpcManager.add(rpcMethod);
+
+        // system.multicall
+        rpcMethod = new RPCmethod(
+                "system.multicall",
+                function multicall (param1) {
+                    return that.rpcManager.multicall(param1);
+                },
+        "system.multicall",
+        "system.multicall"
+        );
+        that.rpcManager.add(rpcMethod);
+
+        // system.shutdown
+        rpcMethod = new RPCmethod(
+                "system.shutdown",
+                () => {
+                    return that.rpcManager.shutdown();
+                },
+                "system.shutdown",
+                "system.shutdown"
+        );
+        that.rpcManager.add(rpcMethod);
+    }
+    
+    
     /**
      * @public
      * @method addRPCMethod

@@ -157,8 +157,14 @@ class RpcoverxmppEventHandler extends GenericHandler {
                 that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
 
                 if (params) {
-                    for (const param of params.param) {
-                        let paramDecoded = that.xmppService.decodeRPCParam(param);
+                    if (params.param && Array.isArray(params.param)) {
+                        for (const param of params.param) {
+                            let paramDecoded = that.xmppService.decodeRPCParam(param);
+                            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                            methodParams.push(paramDecoded);
+                        }
+                    } else {
+                        let paramDecoded = that.xmppService.decodeRPCParam(params.param);
                         that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
                         methodParams.push(paramDecoded);
                     }
