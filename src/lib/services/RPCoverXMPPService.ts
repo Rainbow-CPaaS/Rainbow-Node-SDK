@@ -32,7 +32,7 @@ const LOG_ID = "RPCoverXMPP/SVCE - ";
      * @version SDKVERSION
      * @public
      * @description
-     *      This service manages an RPC over XMPP requests system.<br>
+     *      This service manages and use an RPC over XMPP requests system.<br>
      */
 class RPCoverXMPPService extends GenericService {
     private avatarDomain: string;
