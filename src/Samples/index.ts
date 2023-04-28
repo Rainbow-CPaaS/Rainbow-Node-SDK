@@ -6419,7 +6419,7 @@ let urlS2S;
                     arg5                    
                 }
                 return result;
-            });
+            }, "example.trace description", "example.trace help");
             logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
         }
         
@@ -6445,7 +6445,7 @@ let urlS2S;
                     arg7
                 }
                 return result;
-            });
+            }, "example.trace description", "example.trace help");
 
             let obj = {
                 "firstName":"vincent",

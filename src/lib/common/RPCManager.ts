@@ -88,6 +88,7 @@ class RPCManager{
     add( rpcMethod : RPCmethod){
         let that = this;
         let id = (new Date()).getTime();
+        let resultOfAdd =  rpcMethod.methodName + " not added.";
 
         that.logger.log("internal", LOG_ID + "(add) - id : ", id, " - will lock.");
         that.lock(() => {
@@ -95,16 +96,17 @@ class RPCManager{
             if (!that.rpcMethods.containsKey(rpcMethod.methodName))  {
                 that.logger.log("debug", LOG_ID + "(add) We add the RPCMethod in the Dictionary : ", rpcMethod.methodName);
                 that.rpcMethods.add(rpcMethod.methodName, rpcMethod);
-                return ;
+                resultOfAdd = rpcMethod.methodName + " added." ;
             } else {
                 that.logger.log("debug", LOG_ID + "(add) The rpcMethod is Already stored : ", rpcMethod.methodName);
+                resultOfAdd = rpcMethod.methodName + " is already present, so you need to remove it before add." ;
             }
-            return;
         }, id).then(() => {
             that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
             that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
         });
+        return resultOfAdd;
     }
 
     treatRPCMethod(methodName, params) {
@@ -129,6 +131,7 @@ class RPCManager{
     remove(methodName) {
         let that = this;
         let id = (new Date()).getTime();
+        let resultOfRemove =  methodName + " not removed.";
 
         that.lock(() => {
             let currentDate = Date.now();
@@ -138,12 +141,16 @@ class RPCManager{
                 that.rpcMethods.remove((item: KeyValuePair<string, RPCmethod>) => {
                     return methodName === item.key;
                 });
+                resultOfRemove =  methodName + " removed.";
+            } else {
+                resultOfRemove =  methodName + " is not present, so it is not removed.";
             }
         }, id).then(() => {
             that.logger.log("debug", LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
             that.logger.log("error", LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
         });
+        return resultOfRemove;
     }
 
     async reset(): Promise<any> {
