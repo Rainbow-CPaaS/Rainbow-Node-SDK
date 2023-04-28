@@ -6375,30 +6375,30 @@ let urlS2S;
             let fn1 = function (arg1) {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, function name of fn1 : ", functionName(fn1));
+            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn1 : ", functionName(fn1));
             
             let fn2 = function fn2(arg1) {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, function name of fn2 : ", functionName(fn2));
+            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn2 : ", functionName(fn2));
             
             let fn3 = (arg1) => {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, function name of fn3 : ", functionName(fn3));
+            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn3 : ", functionName(fn3));
         }
         
         
-        async testmethodCallRPCoverXMPP_system () {
+        async testcallRPCMethod_system () {
             let that = this;
-            let methodNames : any = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP();
-            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, methodNames : ", methodNames);
+            let methodNames : any = await rainbowSDK.rpcoverxmpp.callRPCMethod();
+            logger.log("debug", "MAIN - testcallRPCMethod_system, methodNames : ", methodNames);
             for (const methodName of methodNames) {
-                logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, methodName : ", methodName);
-                let methodHelp : any = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"system.methodHelp", [methodName]);
-                logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, methodName : ", methodName, ", methodHelp : ", methodHelp);
-                let methodSignature : any = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"system.methodSignature", [methodName]);
-                logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
+                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName);
+                let methodHelp : any = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"system.methodHelp", [methodName]);
+                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodHelp : ", methodHelp);
+                let methodSignature : any = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"system.methodSignature", [methodName]);
+                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
             }
         }
         
@@ -6423,7 +6423,7 @@ let urlS2S;
             logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
         }
         
-        async testmethodCallRPCoverXMPP_withParams () {
+        async testcallRPCMethod_withParams () {
             let that = this;
             let param = [];
 
@@ -6462,8 +6462,8 @@ let urlS2S;
             param.push({"propertyOne":"valueproperty"});
             param.push(["valArrayOne"]);
             
-            let res = await rainbowSDK.rpcoverxmpp.methodCallRPCoverXMPP(undefined,"example.trace", param);
-            logger.log("debug", "MAIN - testmethodCallRPCoverXMPP_withParams, res : ", res);
+            let res = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"example.trace", param);
+            logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
         }
         
     //endregion RPC

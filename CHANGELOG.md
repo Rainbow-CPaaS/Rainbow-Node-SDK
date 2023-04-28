@@ -8,6 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ## [2.22.0] - 2023-05-XX
 -   Add RPCoverXMPPService to manages and use an RPC over XMPP requests system.
+-   Add RPCoverXMPPService documentation.
 
 ## [2.21.0] - 2023-04-14
 -   Fix startup when use startWSOnly() : to force set useRestAtStartup=false, and to use it for the load of getRosters.

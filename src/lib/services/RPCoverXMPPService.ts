@@ -213,10 +213,10 @@ class RPCoverXMPPService extends GenericService {
      * @category Rainbow RPCoverXMPP RPC Server
      * @description
      *    This API allows to expose an RPC method to requests from an XMPP party. <br>
-     * @param {string} methodName The name of the method to be added from RPC server
-     * @param {string} methodCallback The callback of the method to be added from RPC server
-     * @param {string} methodDescription The description of the method to be added from RPC server
-     * @param {string} methodHelp The help of the method to be added from RPC server
+     * @param {string} methodName The name of the method to be added in RPC server
+     * @param {string} methodCallback The callback of the method to be added in RPC server. </BR>It is this method which is called when the SDK receives an RPC request for the linked methodName.</BR> The method signature is built from this parameter.
+     * @param {string} methodDescription The description of the method to be added in RPC server
+     * @param {string} methodHelp The help of the method to be added in RPC server
      * @return {Promise<any>} An object of the result
      */    
     addRPCMethod(methodName : string = undefined, methodCallback : any = undefined, methodDescription : string = undefined, methodHelp : string = undefined ) {
@@ -293,7 +293,7 @@ class RPCoverXMPPService extends GenericService {
      * @description
      *    This API allows to send a discover presence to a bare jid to find the resources availables. <br>
      * @param {Object} headers The Http Headers used to web request.
-     * @param {string} rpcoverXMPPserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
+     * @param {string} rpcoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
     discoverRPCoverXMPP(headers: any = {}, rpcoverxmppserver_jid? : string) {
@@ -323,19 +323,19 @@ class RPCoverXMPPService extends GenericService {
     
     /**
      * @public
-     * @method methodCallRPCoverXMPP
+     * @method callRPCMethod
      * @since 2.22.0
      * @instance
      * @async
      * @category Rainbow RPCoverXMPP RPC Client
      * @description
-     *    This API allows to send a request to call a rpc method to a bare jid to find the resources availables. <br>
-     * @param {string} rpcoverxmppserver_jid the jid of the rpc over xmpp server used to retrieve the request. default value is the jid of the account running the SDK.
-     * @param {string} methodName method name of the rpc over xmpp shared method on server used to retrieve the request. default value is "" for listing the available methods on server.
-     * @param {Object} params Object with the parameters for the RPC request.
+     *    This API allows to send a request to call a rpc method to a bare jid. The result is the result of the method called on RPC server.<br>
+     * @param {string} rpcoverxmppserver_jid the jid of the rpc server used to retrieve the request. default value is the jid of the account running the SDK.</BR> **Note :** only a full JID (with resource) is possible to used.
+     * @param {string} methodName method name of the rpc shared method on server used to retrieve the request. </BR> default value is `system.listMethods` for listing the available methods on RPC server. </BR> use `system.methodHelp` with the name of a method as parameter to get informations about it. </BR> Use `system.methodSignature`   with the name of a method as parameter to get it's signature.
+     * @param {Array<any>} params Array with the parameters for the RPC request. This Array will be splitted in each parameters to the method shared on RPC Server when it is ran.
      * @return {Promise<any>} An object of the result
      */
-    methodCallRPCoverXMPP( rpcoverxmppserver_jid? : string, methodName : string = "system.listMethods", params : Array<any> = []) {
+    callRPCMethod( rpcoverxmppserver_jid? : string, methodName : string = "system.listMethods", params : Array<any> = []) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -346,9 +346,9 @@ class RPCoverXMPPService extends GenericService {
             try {
 
                 /*
-                let node = await that._xmpp.methodCallRPCoverXMPP(rpcoverxmppserver_jid, methodName ,params);
-                that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
-                that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", node);
+                let node = await that._xmpp.callRPCMethod(rpcoverxmppserver_jid, methodName ,params);
+                that._logger.log("debug", "(callRPCMethod) - sent.");
+                that._logger.log("internal", "(callRPCMethod) - result : ", node);
                  let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
@@ -356,14 +356,14 @@ class RPCoverXMPPService extends GenericService {
                 resolve(reqObj);
                 // */
                 
-                let result = await that._xmpp.methodCallRPCoverXMPP(rpcoverxmppserver_jid, methodName ,params);
-                that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
-                that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", result);
+                let result = await that._xmpp.callRPCMethod(rpcoverxmppserver_jid, methodName ,params);
+                that._logger.log("debug", "(callRPCMethod) - sent.");
+                that._logger.log("internal", "(callRPCMethod) - result : ", result);
                 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(methodCallRPCoverXMPP) Error.");
-                that._logger.log("internalerror", LOG_ID + "(methodCallRPCoverXMPP) Error : ", err);
+                that._logger.log("error", LOG_ID + "(callRPCMethod) Error.");
+                that._logger.log("internalerror", LOG_ID + "(callRPCMethod) Error : ", err);
                 return reject(err);
             }
         });

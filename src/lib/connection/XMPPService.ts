@@ -3371,7 +3371,7 @@ WHERE  { ?x dc:title ?title .
 
     //endregion RPC decode stanza
     
-    async methodCallRPCoverXMPP( to, methodName ,params : Array<any> = [] ) {
+    async callRPCMethod( to, methodName ,params : Array<any> = [] ) {
         let that = this;
         /*
 <iq type='set'
@@ -3397,7 +3397,7 @@ WHERE  { ?x dc:title ?title .
         let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
         let uniqId=  that.xmppUtils.getUniqueId(undefined);
 
-        that.logger.log("internal", LOG_ID + "(methodCallRPCoverXMPP) to : ", to);
+        that.logger.log("internal", LOG_ID + "(callRPCMethod) to : ", to);
 
         let msg = xml("iq", {
             "type":"set",
@@ -3420,13 +3420,13 @@ WHERE  { ?x dc:title ?title .
 
         that.paramToStanza(params, stanzaParams);
         
-        that.logger.log("internal", LOG_ID + "(methodCallRPCoverXMPP) msg : ", msg);
+        that.logger.log("internal", LOG_ID + "(callRPCMethod) msg : ", msg);
 
         //return Promise.resolve(message);
         let result = await that.xmppClient.sendIq(msg);
 
-        that._logger.log("debug", "(methodCallRPCoverXMPP) - sent.");
-        that._logger.log("internal", "(methodCallRPCoverXMPP) - result : ", result);
+        that._logger.log("debug", "(callRPCMethod) - sent.");
+        that._logger.log("internal", "(callRPCMethod) - result : ", result);
         let xmlNodeStr = result ? result.toString():"<xml></xml>";
         let reqObj = await getJsonFromXML(xmlNodeStr);
 
