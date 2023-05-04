@@ -1,0 +1,13 @@
+flowchart TD
+    RBS{fa:fa-sellsy Rainbow Server }            
+    subgraph Your Bot Application
+        subgraph SDK
+    RPCS[fa:fa-server RPC Server ]
+        end
+        BOT[Bot ] --> |Add/remove method to share| RPCS
+
+    end
+    RPCS[fa:fa-server RPC Server ] <--> |request/response to XMPP|RBS
+    CLI[RPC Client ] <--> |Call RPC Method/Result of Call RPC Method|RBS
+
+    

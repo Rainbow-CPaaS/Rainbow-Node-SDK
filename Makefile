@@ -19,6 +19,8 @@ doc:
 	cp build/*.xml doc/sdk/node/api && \
 	mkdir -p doc/sdk/node/guides && \
 	cp tutorials/*.md doc/sdk/node/guides && \
+	mkdir -p doc/sdk/node/imgs && \
+	cp build/resources/*.png doc/sdk/node/imgs && \
 	cp index.yml doc/sdk/node && \
 	cp sitemap.xml doc/sdk/node
 
@@ -31,6 +33,8 @@ docsts:
 	cp build/*.xml doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/sts/guides && \
 	cp tutorials/*.md doc/sdk/node/sts/guides && \
+	mkdir -p doc/sdk/node/sts/imgs && \
+	cp build/resources/*.png doc/sdk/node/sts/imgs && \
 	cp index.yml doc/sdk/node/sts && \
 	cp lts_version.json doc/sdk/node/sts && \
 	cp sitemap.xml doc/sdk/node/sts
@@ -45,6 +49,8 @@ doclts:
 	cp build/*.xml doc/sdk/node/lts/api && \
 	mkdir -p doc/sdk/node/lts/guides && \
 	cp tutorials/*.md doc/sdk/node/lts/guides && \
+	mkdir -p doc/sdk/node/lts/imgs && \
+	cp build/resources/*.png doc/sdk/node/lts/imgs && \
 	cp index.yml doc/sdk/node/lts && \
 	cp lts_version.json doc/sdk/node/lts && \
 	cp sitemap.xml doc/sdk/node/lts  

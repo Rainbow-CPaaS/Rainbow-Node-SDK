@@ -213,7 +213,7 @@ class RPCoverXMPPService extends GenericService {
      * @category Rainbow RPCoverXMPP RPC Server
      * @description
      *    This API allows to expose an RPC method to requests from an XMPP party. <br>
-     * @param {string} methodName The name of the method to be added in RPC server
+     * @param {string} methodName The name of the method to be added in RPC server. This is the name used by the RPC Client to call it.
      * @param {string} methodCallback The callback of the method to be added in RPC server. </BR>It is this method which is called when the SDK receives an RPC request for the linked methodName.</BR> The method signature is built from this parameter.
      * @param {string} methodDescription The description of the method to be added in RPC server
      * @param {string} methodHelp The help of the method to be added in RPC server
