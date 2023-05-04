@@ -39,8 +39,8 @@ The RPC Server provide already shared methods :
 rainbowSDK.events.on("rainbow_onready", async () => {
     
     // Add method to RPC Server
-    let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
-           let result = undefined ;
+    let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5, arg6, arg7) => {
+           let result = undefined;
             // code to be done on server which will return the result to RPC Client.
            ... 
            return result;
@@ -75,7 +75,7 @@ Once started, you can use SDK has a RPC client.
 rainbowSDK.events.on("rainbow_onready", async () => {
    ... 
    // Build an Array of parameters for the RPC method on RPC Server.
-   let param = [];
+   let rpcParams = [];
 
    let obj = {
     "firstName":"Alice",
@@ -83,16 +83,18 @@ rainbowSDK.events.on("rainbow_onready", async () => {
     "age":20,
     "isEmployed":true,
    };
-   param.push("hello array of number and array of string");
-   param.push([1,2,["arg1", "arg2", {"propertyOfObjInTab1":"mypropertyOfObjInTab1", "propertyOfObjInTab2" : "mypropertyOfObjInTab2"}]]);
-   param.push("param3");
-   param.push(undefined);
-   param.push(obj);
-   param.push({"propertyOne":"valueproperty"});
-   param.push(["valArrayOne"]);
+   rpcParams.push("hello array of number and array of string");
+   rpcParams.push([1,2,["arg1", "arg2", {"propertyOfObjInTab1":"mypropertyOfObjInTab1", "propertyOfObjInTab2" : "mypropertyOfObjInTab2"}]]);
+   rpcParams.push("param3");
+   rpcParams.push(undefined);
+   rpcParams.push(obj);
+   rpcParams.push({"propertyOne":"valueproperty"});
+   rpcParams.push(["valArrayOne"]);
             
+   let rpcoverxmppserver_jid="JID OF RPC Server BOT"; // Warning : You need to spot on a resource, so the full jid must be used.
+
     // Request the run of the method on RPC Server
-   let resultOfRpcMethodRun = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"example.trace", param);
+   let resultOfRpcMethodRun = await rainbowSDK.rpcoverxmpp.callRPCMethod(rpcoverxmppserver_jid,"example.trace", rpcParams);
    ...    
 });
 
