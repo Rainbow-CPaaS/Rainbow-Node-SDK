@@ -35,7 +35,7 @@ docsts:
 	mkdir -p doc/sdk/node/sts/guides && \
 	cp tutorials/*.md doc/sdk/node/sts/guides && \
 	ls ./jsdoc/diagramsMermaid/*
-	grunt generatemermaid
+	grunt generatemermaid -V
 	mkdir -vp ./build/resources
 	touch ./build/resources/filetest.txt
 	ls ./build/resources/*
