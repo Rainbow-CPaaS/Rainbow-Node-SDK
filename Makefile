@@ -41,7 +41,7 @@ docsts:
 	touch ./build/resources/filetest.txt
 	ls ./build/resources/*
 	mkdir -p doc/sdk/node/sts/imgs && \
-	./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/RPCoverXMPPFlow1.mmd -o ./build/resources/RPCoverXMPPFlow1.mmd.png
+	./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/RPCoverXMPPFlow1.mmd -o ./build/resources/RPCoverXMPPFlow1.mmd.png --no-sandbox
 	cp -r ./build/resources/. doc/sdk/node/sts/imgs && \
 	cp index.yml doc/sdk/node/sts && \
 	cp lts_version.json doc/sdk/node/sts && \
