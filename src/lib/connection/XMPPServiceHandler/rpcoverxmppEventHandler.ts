@@ -136,12 +136,6 @@ class RpcoverxmppEventHandler extends GenericHandler {
         let that = this;
         // treatment of the XEP 0332.
         try {
-            if (!that.options._httpoverxmppserver) {
-                that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) rpcoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
-                await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
-                return (0);
-            }
-
             that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
