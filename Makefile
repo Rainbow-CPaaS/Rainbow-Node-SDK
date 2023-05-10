@@ -34,7 +34,6 @@ docsts:
 	cp build/*.xml doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/sts/guides && \
 	cp tutorials/*.md doc/sdk/node/sts/guides && \
-	mkdir ./build/resources/
 	grunt generatemermaid
 	ls ./build/resources/
 	mkdir -p doc/sdk/node/sts/imgs && \
