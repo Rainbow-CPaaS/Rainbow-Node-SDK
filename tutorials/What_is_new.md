@@ -6,6 +6,31 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.22.0 - STS Version - May 2023
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None    
+
+**API Changes**
+
+-   None    
+
+**Others Changes**
+
+-   Add RPCoverXMPPService to manages and use an RPC over XMPP requests system.
+-   Add RPCoverXMPPService documentation.
+-   Add documentation about guide Remote Procedure Call in SDK in `Managing_RPCoverXMPP.md`.
+
+
 ### SDK for Node.JS 2.21.0 - STS Version - April 2022
 
 ---
