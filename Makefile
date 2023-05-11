@@ -36,14 +36,14 @@ docsts:
 	cp tutorials/*.md doc/sdk/node/sts/guides && \
 	ls ./jsdoc/diagramsMermaid/*
 	ls -ls ./node_modules/.bin/*
-	grunt generatemermaid -v
-	mkdir -vp ./build/resources
-	touch ./build/resources/filetest.txt
-	ls ./build/resources/*
-	mkdir -p doc/sdk/node/sts/imgs && \
-	npm install mermaid-cli --save
-	./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/RPCoverXMPPFlow1.mmd -o ./build/resources/RPCoverXMPPFlow1.mmd.png
-	cp -r ./build/resources/. doc/sdk/node/sts/imgs && \
+	# grunt generatemermaid -v
+	# mkdir -vp ./build/resources
+	# touch ./build/resources/filetest.txt
+	# ls ./build/resources/*
+	# mkdir -p doc/sdk/node/sts/imgs && \
+	# npm install mermaid-cli --save
+	# ./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/RPCoverXMPPFlow1.mmd -o ./build/resources/RPCoverXMPPFlow1.mmd.png
+	# cp -r ./build/resources/. doc/sdk/node/sts/imgs && \
 	cp index.yml doc/sdk/node/sts && \
 	cp lts_version.json doc/sdk/node/sts && \
 	cp sitemap.xml doc/sdk/node/sts

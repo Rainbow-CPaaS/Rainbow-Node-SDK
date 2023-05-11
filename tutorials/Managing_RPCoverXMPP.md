@@ -9,7 +9,7 @@ The SDK for Node.JS lets you share RPC methods to other XMPP client. It also let
 
 This guide helps you understanding the API for managing and to use the SDK's RPC Service.
 
-<img src="/doc/sdk/node/imgs/RPCoverXMPPFlow1.mmd.png">
+<!-- img src="/doc/sdk/node/imgs/RPCoverXMPPFlow1.mmd.png" -->
 
 ### RPC Server
 ---
