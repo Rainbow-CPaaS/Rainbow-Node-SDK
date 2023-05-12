@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.22.1] - 2023-05-XX
+-   Add  "userId" and "description" when creating AlertDevice.
+
 ## [2.22.1] - 2023-05-11
 -   Fix `RpcoverxmppEventHandler::_onIqGetSetQueryReceived`.
 
