@@ -9235,13 +9235,33 @@ class AdminService extends GenericService {
     //region pcg pbxs
 
     // API Private because the PCG role is need.
+    getPbxData(pbxId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {              
+                that._rest.getPbxData ( pbxId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getPbxData) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getPbxData) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getPbxData) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getPbxData) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+    
+    // API Private because the PCG role is need.
     getAllPbxs(format : string = "small", sortField : string = "id", limit : number =  100, offset : number = 0, sortOrder : number = 1, name : string = undefined, type : string = undefined, status: string = undefined, siteId : string = undefined, companyId : string = undefined,
                bpId : string = undefined, isShared : boolean = undefined, isCentrex : boolean = undefined, isSharedOrCentrex : boolean = undefined, isOxoManaged : boolean = undefined, fromCreationDate : string = undefined, toCreationDate : string = undefined) {
         let that = this;
 
         return new Promise(function (resolve, reject) {
-            try {
-              
+            try {              
                 that._rest.getAllPbxs ( format, sortField, limit, offset, sortOrder, name, type, status, siteId, companyId, bpId, isShared, isCentrex, isSharedOrCentrex, isOxoManaged, fromCreationDate, toCreationDate).then((result) => {
                     that._logger.log("debug", LOG_ID + "(getAllPbxs) Successfully - sent. ");
                     that._logger.log("internal", LOG_ID + "(getAllPbxs) Successfully - sent : ", result);
@@ -9250,7 +9270,6 @@ class AdminService extends GenericService {
                     that._logger.log("error", LOG_ID + "(getAllPbxs) ErrorManager error : ", err);
                     return reject(err);
                 });
-
             } catch (err) {
                 that._logger.log("internalerror", LOG_ID + "(getAllPbxs) error : ", err);
                 return reject(err);
