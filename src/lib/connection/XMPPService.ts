@@ -2762,7 +2762,7 @@ xmlns="urn:xmpp.http" version="1.1"/>
         let uniqId=  that.xmppUtils.getUniqueId(undefined);
 
         let opt = url.parse(urlToGet);
-        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) opt : ", opt);
+        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) opt : ", opt, ...arguments);
         let method = "TRACE";
         let host = opt.protocol + "//" + opt.host;
         let resource = opt.path;

@@ -245,7 +245,8 @@ class HTTPoverXMPP extends GenericService {
             }
 
             try {
-                
+                that._logger.log("internal", LOG_ID + "(trace) Parameter urlToTrace : ", urlToTrace, ", headers : ", headers, ", httpoverxmppserver_jid : ", httpoverxmppserver_jid);
+
                 let node = await that._xmpp.traceHTTPoverXMPP(urlToTrace, httpoverxmppserver_jid, headers);
                 that._logger.log("debug", "(trace) - sent.");
                 that._logger.log("internal", "(trace) - result : ", node);
