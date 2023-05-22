@@ -12255,6 +12255,198 @@ Request Method: PUT
     }
 
     //endregion pcg pbxs 
+    
+    //region pcg pbxs phone numbers 
+
+    createPbxPhoneNumber( pbxId : string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string){
+        // POST https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PostPcgPbxPhoneNb
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            if (shortNumber) {
+                data.shortNumber = shortNumber;
+            }
+            if (voiceMailNumber) {
+                data.voiceMailNumber = voiceMailNumber;
+            }
+            if (pbxUserId) {
+                data.lastName = pbxUserId;
+            }
+            if (companyPrefix) {
+                data.companyPrefix = companyPrefix;
+            }
+            if (internalNumber) {
+                data.internalNumber = internalNumber;
+            }
+            if (type) {
+                data.type = type;
+            }
+            if (deviceType) {
+                data.deviceType = deviceType;
+            }
+            if (firstName) {
+                data.firstName = firstName;
+            }
+            if (lastName) {
+                data.lastName = lastName;
+            }
+            if (deviceName) {
+                data.deviceName = deviceName;
+            }
+            that.logger.log("internal", LOG_ID + "(createPbxPhoneNumber) args : ", data );
+            that.http.post("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers", that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(createPbxPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(createPbxPhoneNumber) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createPbxPhoneNumber) error.");
+                that.logger.log("internalerror", LOG_ID, "(createPbxPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deletePbxPhoneNumber(pbxId : string, shortNumber : string) {
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-DeletePcgPbxPhoneNbShortNb
+        // DELETE https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber      
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that.http.delete("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader())
+                    .then((response) => {
+                        that.logger.log("info", LOG_ID + "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- success");
+                        resolve(response);
+                    })
+                    .catch((err) => {
+                        that.logger.log("error", LOG_ID, "(deletePbxPhoneNumber) (" + pbxId +  ", " + shortNumber + ") -- failure -- ");
+                        that.logger.log("internalerror", LOG_ID, "(deletePbxPhoneNumber) (" + pbxId +  ", " + shortNumber + ") -- failure -- ", err.message);
+                        return reject(err);
+                    });
+        });
+    }
+
+    getPbxPhoneNumber(pbxId : string, shortNumber : string) {
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNbShortNb
+        // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getPbxPhoneNumber) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getPbxPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(getPbxPhoneNumber) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getPbxPhoneNumber) error");
+                that.logger.log("internalerror", LOG_ID, "(getPbxPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getAllPbxPhoneNumbers(pbxId : string, format : string = "small", shortNumber : string, internalNumber : string, pbxUserId : string,
+    companyPrefix : string, isMonitored : boolean, name : string, nameOrShortNumber : string, deviceName : string,
+    isAssignedToUser : boolean, limit : number = 100, offset : number, sortField : string = "shortNumber", sortOrder : number = 1) {
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNb
+        // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers 
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url : string = "/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers" ;
+            let urlParamsTab : string[]= [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
+            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
+            addParamToUrl(urlParamsTab, "pbxUserId", pbxUserId);
+            addParamToUrl(urlParamsTab, "companyPrefix", companyPrefix);
+            addParamToUrl(urlParamsTab, "isMonitored", isMonitored);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "nameOrShortNumber", nameOrShortNumber);
+            addParamToUrl(urlParamsTab, "deviceName", deviceName);
+            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getAllPbxPhoneNumbers) successfull");
+                that.logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getAllPbxPhoneNumbers) error");
+                that.logger.log("internalerror", LOG_ID, "(getAllPbxPhoneNumbers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updatepbxPhoneNumber(pbxId: string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, companyName : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string ) {
+        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PutPcgPbxPhoneNbShortNb
+        // PUT https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber
+        let that = this;
+        let data : any = {};
+
+        if (shortNumber) {
+            data.shortNumber = shortNumber;
+        }
+        if (voiceMailNumber) {
+            data.voiceMailNumber = voiceMailNumber;
+        }
+        if (pbxUserId) {
+            data.pbxUserId = pbxUserId;
+        }
+        if (companyPrefix) {
+            data.companyPrefix = companyPrefix;
+        }
+        if (companyName) {
+            data.companyName = companyName;
+        }
+        if (internalNumber) {
+            data.internalNumber = internalNumber;
+        }
+        if (type) {
+            data.type = type;
+        }
+        if (deviceType) {
+            data.deviceType = deviceType;
+        }
+        if (firstName) {
+            data.firstName = firstName;
+        }
+        if (lastName) {
+            data.lastName = lastName;
+        }
+        if (deviceName) {
+            data.deviceName = deviceName;
+        }
+
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
+
+            that.http.put("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(updatepbxPhoneNumber) successfull");
+                that.logger.log("internal", LOG_ID + "(updatepbxPhoneNumber) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(updatepbxPhoneNumber) error");
+                that.logger.log("internalerror", LOG_ID, "(updatepbxPhoneNumber) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion pcg pbxs phone numbers
 
     //endregion systems
     

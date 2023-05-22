@@ -9278,6 +9278,115 @@ class AdminService extends GenericService {
     }
     
     //endregion pcg pbxs 
+
+
+    //region pcg pbxs phone numbers 
+
+    createPbxPhoneNumber( pbxId : string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string){
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.createPbxPhoneNumber (  pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, internalNumber, type, deviceType, firstName, lastName, deviceName).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createPbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createPbxPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createPbxPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(createPbxPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    deletePbxPhoneNumber(pbxId : string, shortNumber : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deletePbxPhoneNumber (pbxId, shortNumber).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deletePbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deletePbxPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deletePbxPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deletePbxPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    getPbxPhoneNumber(pbxId : string, shortNumber : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getPbxPhoneNumber (pbxId, shortNumber).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getPbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getPbxPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getPbxPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getPbxPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    getAllPbxPhoneNumbers(pbxId : string, format : string = "small", shortNumber : string, internalNumber : string, pbxUserId : string,
+                          companyPrefix : string, isMonitored : boolean, name : string, nameOrShortNumber : string, deviceName : string,
+                          isAssignedToUser : boolean, limit : number = 100, offset : number, sortField : string = "shortNumber", sortOrder : number = 1) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAllPbxPhoneNumbers ( pbxId, format, shortNumber, internalNumber, pbxUserId,
+                        companyPrefix, isMonitored, name, nameOrShortNumber, deviceName,
+                        isAssignedToUser, limit, offset, sortField, sortOrder).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getAllPbxPhoneNumbers) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getAllPbxPhoneNumbers) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    updatepbxPhoneNumber(pbxId: string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, companyName : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.updatepbxPhoneNumber ( pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, companyName, internalNumber, type, deviceType, firstName, lastName, deviceName).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updatepbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updatepbxPhoneNumber) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updatepbxPhoneNumber) ErrorManager error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updatepbxPhoneNumber) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion pcg pbxs phone numbers
     
     // region systems phone numbers    
 
