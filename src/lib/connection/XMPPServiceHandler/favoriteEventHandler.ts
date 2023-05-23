@@ -149,6 +149,18 @@ class FavoriteEventHandler extends GenericHandler {
                     case "poll":
                         // treated in conversationEventHandler
                         break;
+                    case "connectorcommand":
+                        // treated in conversationEventHandler
+                        break;
+                    case "connectorconfig":
+                        // treated in conversationEventHandler
+                        break;
+                    case "command_ended":
+                        // treated in conversationEventHandler
+                        break;
+                    case "import_status":
+                        // treated in conversationEventHandler
+                        break;
                     case "joincompanyinvite":
                         // treated in invitationEventHandler
                         break;

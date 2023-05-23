@@ -2176,6 +2176,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "command_ended":
                         that.onConnectorCommandEndedMessageReceived(node);
                         break;
+                    case "import_status":
+                        that.onConnectorImportStatusMessageReceived(node);
+                        break;
                     case "joincompanyinvite":
                         // treated in invitationEventHandler
                         break;
@@ -2755,6 +2758,32 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onConnectorImportStatusMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorImportStatusMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
+            let importstatus = jsonNode["import_status"];
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) importstatus : ", importstatus);
+            let reqId = importstatus["$attrs"]["reqId"];
+            let seq = importstatus["$attrs"]["seq"];
+            let failed = importstatus["$attrs"]["failed"];
+            let warnings = importstatus["$attrs"]["warnings"];
+            let succeeded = importstatus["$attrs"]["succeeded"];
+            let total = importstatus["$attrs"]["total"];
+
+            if (importstatus.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) connectorcommand.");
+                that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, failed, warnings, succeeded, total});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! : ", err);
         }
     };
     

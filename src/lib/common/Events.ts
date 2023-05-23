@@ -176,6 +176,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorcommand <br>
  * @fires Events#rainbow_onconnectorconfig <br>
  * @fires Events#rainbow_onconnectorcommandended <br>
+ * @fires Events#rainbow_onconnectorimportstatus <br>
  * @fires Events#rainbow_onrbvoicerawevent <br>
  * @fires Events#rainbow_onjoincompanyinvitereceived <br>
  * @fires Events#rainbow_onjoincompanyrequestreceived <br>
@@ -288,6 +289,7 @@ class Events {
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
+        "rainbow_onconnectorimportstatus",
         "rainbow_onrbvoicerawevent",
         "rainbow_onjoincompanyinvitereceived",
         "rainbow_onjoincompanyrequestreceived"
@@ -1459,6 +1461,17 @@ class Events {
              *      This event is fired in case a query parameter commandId is added to the AdminService::checkCSVdataForSynchronizeDirectory method.
              */
             that.publishEvent("connectorcommand_ended", data);
+        });
+
+        this._evReceiver.on("evt_internal_connectorimportstatus", function (data) {
+            /**
+             * @event Events#rainbow_onconnectorimportstatus
+             * @public
+             * @param { Object } data informations about connector import status
+             * @description
+             *      This event is fired in case an import is requested.
+             */
+            that.publishEvent("connectorimportstatus", data);
         });
 
         this._evReceiver.on("evt_internal_onrbvoiceevent", function (data) {
