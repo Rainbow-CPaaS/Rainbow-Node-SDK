@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.22.1] - 2023-05-XX
 -   Add "userId" and "description" when creating AlertDevice.
 -   Add private API for PBX : `AdminService::createPbxPhoneNumber`, `AdminService::deletePbxPhoneNumber`, `AdminService::getPbxPhoneNumber`, `AdminService::getAllPbxPhoneNumbers`, `AdminService::updatepbxPhoneNumber`
+-   Add `rainbow_onconnectorimportstatus` event.
 
 ## [2.22.1] - 2023-05-11
 -   Fix `RpcoverxmppEventHandler::_onIqGetSetQueryReceived`.
