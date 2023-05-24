@@ -2772,6 +2772,7 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) importstatus : ", importstatus);
             let reqId = importstatus["$attrs"]["reqId"];
             let seq = importstatus["$attrs"]["seq"];
+            let status = importstatus["$attrs"]["status"];
             let failed = importstatus["$attrs"]["failed"];
             let warnings = importstatus["$attrs"]["warnings"];
             let succeeded = importstatus["$attrs"]["succeeded"];
@@ -2779,7 +2780,7 @@ class ConversationEventHandler extends GenericHandler {
 
             if (importstatus.$attrs.xmlns==="jabber:iq:configuration") {
                 that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) connectorcommand.");
-                that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, failed, warnings, succeeded, total});
+                that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, status, failed, warnings, succeeded, total});
             } // */
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
