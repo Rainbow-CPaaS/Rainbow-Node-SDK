@@ -646,7 +646,7 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    // region Bots
+    //region Bots
 
     getRainbowSupportBotService () : any {
         // GET /api/rainbow/enduser/v1.0/bots/rainbow-support
@@ -730,8 +730,195 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    // endregion
+    //endregion
      
+    //region multifactor rainbow authentication
+    
+    deleteTrustedApplication (appId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication 
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/trusted/:appId
+        
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            //let userId = userId ? userId : that.account.id;
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted/" + appId;
+            that.logger.log("internal", LOG_ID + "(deleteTrustedApplication) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteTrustedApplication) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteTrustedApplication) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteTrustedApplication) error.");
+                that.logger.log("internalerror", LOG_ID, "(deleteTrustedApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    deleteAllTrustedApplications () {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-DeleteAllTrustedApp 
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/trusted
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            //let userId = userId ? userId : that.account.id;
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted";
+            that.logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(deleteAllTrustedApplications) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteAllTrustedApplications) error.");
+                that.logger.log("internalerror", LOG_ID, "(deleteAllTrustedApplications) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    disableMultifactorAuthentication () {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-DisableMFA 
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            //let userId = userId ? userId : that.account.id;
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
+            that.logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(disableMultifactorAuthentication) successfull");
+                that.logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(disableMultifactorAuthentication) error.");
+                that.logger.log("internalerror", LOG_ID, "(disableMultifactorAuthentication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    enableMultifactorAuthentication () {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-PutMFA
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/mfa
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {};
+
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
+            that.logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) args : ", data);
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(enableMultifactorAuthentication) successfull");
+                that.logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(enableMultifactorAuthentication) error.");
+                that.logger.log("internalerror", LOG_ID, "(enableMultifactorAuthentication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    getMultifactorInformation () {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-GetMFA 
+        // GET /api/rainbow/enduser/v1.0/users/:userId/mfa
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            //that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
+            let userId = that.account.id;
+
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "pbxId", pbxId);
+            url = urlParamsTab[0];
+
+            that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(getMultifactorInformation) successfull");
+                that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(getMultifactorInformation) error");
+                that.logger.log("internalerror", LOG_ID, "(getMultifactorInformation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    verifyMultifactorInformation (token) {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-VerifyMFA 
+        // POST /api/rainbow/enduser/v1.0/users/:userId/mfa/verify
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            let userId = that.account.id;
+
+            if (token) {
+                data.token = token;
+            } else {
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/verify" ;
+            that.logger.log("internal", LOG_ID + "(verifyMultifactorInformation) args : ", data );
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(verifyMultifactorInformation) successfull");
+                that.logger.log("internal", LOG_ID + "(verifyMultifactorInformation) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(verifyMultifactorInformation) error.");
+                that.logger.log("internalerror", LOG_ID, "(verifyMultifactorInformation) error : ", err);
+                return reject(err);
+            });
+        });        
+    }
+    
+    resetRecoveryCodeForMultifactorAuthentication () {
+        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-ResetRecoveryCode 
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/recovery
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data : any = {};
+
+            //let userId = userId ? userId : that.account.id;
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/recovery" ;
+            that.logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) args : ", data );
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that.logger.log("info", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) successfull");
+                that.logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error.");
+                that.logger.log("internalerror", LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    //endregion multifactor rainbow authentication
+    
     //region Contacts API
     
     //region Contacts API - Search portal
@@ -740,7 +927,6 @@ class RESTService extends GenericRESTService {
     searchInAlldirectories (pbxId? : string, systemId? : string, numberE164? : string, shortnumber? : string, format : string = "small", limit : number = 100, offset? : number, sortField : string = "reverseDisplayName", sortOrder : number = 1) {
         // API https://api.openrainbow.org/search/#api-phonebook-search_alldirectories_by_GET
         // GET /api/rainbow/search/v1.0/alldirectories
-
 
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -6777,6 +6963,62 @@ Request Method: PUT
     }
 
     //endregion Public url
+
+    //region Bubble Open Invites
+
+    checkOpenInviteIdValidity(openInviteId : string) {
+        // GET /api/rainbow/enduser/v1.0/rooms/open-invites/validate
+        // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-checkRoomInvitationUsingOpenInviteiId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/rooms/open-invites/validate";
+            if (openInviteId === undefined) {
+                that.logger.log("info", LOG_ID + "(checkOpenInviteIdValidity) bad request paramater openInviteId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "openInviteId", openInviteId);
+            url = urlParamsTab[0];
+
+            that.http.get(url , that.getRequestHeader(), undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(checkOpenInviteIdValidity) successfull");
+                that.logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(checkOpenInviteIdValidity) REST success.");
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(checkOpenInviteIdValidity) error");
+                that.logger.log("internalerror", LOG_ID, "(checkOpenInviteIdValidity) error : ", err);
+                return reject(err);
+            });
+        });       
+    }
+
+    joinBubbleByOpenInviteId (openInviteId : string ) {
+        // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-sendJoinRoomInvitationUsingOpenInviteiId
+        // POST /api/rainbow/enduser/v1.0/rooms/open-invites
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let params : any = {
+                openInviteId //, // Id 
+            };
+
+            that.logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) REST params : ", params);
+
+            that.http.post("/api/rainbow/enduser/v1.0/rooms/open-invites", that.getRequestHeader(), params, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(joinBubbleByOpenInviteId) successfull");
+                that.logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) REST result : ", json.data);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(joinBubbleByOpenInviteId) error");
+                that.logger.log("internalerror", LOG_ID, "(joinBubbleByOpenInviteId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubble Open Invites
 
     //region Conference
     
@@ -13268,6 +13510,20 @@ Request Method: PUT
     }
 
     //endregion Conference v2
+
+    //region meetings - PGI => to be removed.
+
+    deletePersonalMeetingBubble () {
+        // API https://api.openrainbow.org/enduser/#api-meetings-DeleteMeetings
+        // DELETE /api/rainbow/enduser/v1.0/meetings/delete
+    }
+    getCurrentMeetingBubble () {}
+    getPersonalMeetingBubble () {}
+    reuseAFormerMeetingBubble () {}
+    savePersonalMeetingBubble () {}
+    startAnAdHocConference () {}
+    
+    //endregion meetings
     
     //region Webinar
 

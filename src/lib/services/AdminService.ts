@@ -10762,6 +10762,283 @@ class AdminService extends GenericService {
     
     // endregion Country
 
+    //region multifactor rainbow authentication
+
+    /**
+     * @public
+     * @method deleteTrustedApplication
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to delete a trusted application. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | trusted app delete status message. |
+     *
+     */
+    deleteTrustedApplication (appId : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteTrustedApplication(appId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteTrustedApplication) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteTrustedApplication) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteTrustedApplication) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteTrustedApplication) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteTrustedApplication) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAllTrustedApplications
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to delete all trusted applications. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Trusted applications delete status message. |
+     *
+     */
+    deleteAllTrustedApplications () {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteAllTrustedApplications().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteAllTrustedApplications) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteAllTrustedApplications) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAllTrustedApplications) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAllTrustedApplications) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method disableMultifactorAuthentication
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to disable multifactor authentication. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | status message. |
+     *
+     */
+    disableMultifactorAuthentication () {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.disableMultifactorAuthentication().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(disableMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(disableMultifactorAuthentication) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(disableMultifactorAuthentication) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(disableMultifactorAuthentication) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method enableMultifactorAuthentication
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to enable Multifactor Authentication in order to finalize activation process. </BR>
+     * @return {Promise<any>} - result
+     *
+     */
+    enableMultifactorAuthentication () {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.enableMultifactorAuthentication().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(enableMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(enableMultifactorAuthentication) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(enableMultifactorAuthentication) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(enableMultifactorAuthentication) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getMultifactorInformation
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to retrive multifactor information in order to start activation process. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfaType | String | type of multifactor |
+     * | mfaSecret | String | secret of TOTP multifactor |
+     * | otpAuthUrl | String | OTP auth url computed from secret (see https://github.com/google/google-authenticator/wiki/Key-Uri-Format) |
+     * | qrcode | String | QR code generated from OTP Url |
+     *
+     */
+    getMultifactorInformation () {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getMultifactorInformation().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getMultifactorInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getMultifactorInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getMultifactorInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getMultifactorInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getMultifactorInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method verifyMultifactorInformation
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @param {string} token 6-digits TOTP code
+     * @description
+     *     This API allows Rainbow users to verify that rainbow multifcator authentication is operational. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfaType | String | type of multifactor |
+     * | mfaRecoveryCode | String | recovery code used as default multifactor authentication |
+     *
+     */
+    verifyMultifactorInformation (token : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.verifyMultifactorInformation(token).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(verifyMultifactorInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(verifyMultifactorInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(verifyMultifactorInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(verifyMultifactorInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(verifyMultifactorInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method resetRecoveryCodeForMultifactorAuthentication
+     * @since 2.22.4
+     * @instance
+     * @async
+     * @category Multifactor Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to reset recovery code for multifactor authentication. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | status message |
+     * | mfaRecoveryCode | String | new recovery code |
+     *
+     */
+    resetRecoveryCodeForMultifactorAuthentication () {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.resetRecoveryCodeForMultifactorAuthentication().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion multifactor rainbow authentication
     }
 
 module.exports.AdminService = AdminService;
