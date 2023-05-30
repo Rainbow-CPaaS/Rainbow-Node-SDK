@@ -1507,7 +1507,7 @@ class RESTService extends GenericRESTService {
     }
 
     //async getAllUsersByFilter(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId? : string, searchEmail? : string) {
-    async getAllUsersByFilter(searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string, 
+    async getAllUsersByFilter(phoneNumbers : number,  phoneNumber : number = undefined,searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string, 
                               useRoomCustomisation : string,  phoneMeetingCustomisation : string,
                               useChannelCustomisation : string, useScreenSharingCustomisation : string, useWebRTCVideoCustomisation : string, useWebRTCAudioCustomisation : string, instantMessagesCustomisation : string, userProfileCustomisation : string, fileStorageCustomisation : string, 
                               overridePresenceCustomisation : string, alert : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, recordingConversationCustomisation : string,
@@ -1524,6 +1524,8 @@ class RESTService extends GenericRESTService {
                 companyId = that.account.companyId;
             } // */           
 
+            addParamToUrl(urlParamsTab, "phoneNumbers", phoneNumbers);
+            addParamToUrl(urlParamsTab, "phoneNumber", phoneNumber);
             addParamToUrl(urlParamsTab, "searchEmail", searchEmail);
             addParamToUrl(urlParamsTab, "companyId", companyId);
             addParamToUrl(urlParamsTab, "roles", roles);

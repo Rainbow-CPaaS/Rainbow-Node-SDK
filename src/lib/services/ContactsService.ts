@@ -288,7 +288,7 @@ class ContactsService extends GenericService {
                     });
                 }
                 if (that._rest.account.jid_im) {
-                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,

@@ -1954,6 +1954,12 @@ class AdminService extends GenericService {
      * @async
      * @return {Promise<any, ErrorManager>}
      * @fulfil {any} - Found users or null or an error object depending on the result
+     * @param {number} phoneNumbers Allows to filter users list on the given number(s) on their phoneNumbers on the following fields (exact match): </br>
+     * * shortNumber
+     * * internalNumber
+     * * number
+     * * numberE164
+     * @param {number} phoneNumber Allows to filter users list on the given number(s) on field phoneNumbers.internalNumber (number starts with requested string).
      * @param {string} searchEmail Allows to filter users list on the loginEmail field using the word provided in this option.
      * @param {string} companyId Allows to filter users list on the companyIds provided in this option.
      * @param {string} roles Allows to filter users list on the role(s) provided in this option. Default value is "user".
@@ -2008,7 +2014,7 @@ class AdminService extends GenericService {
      * @param {string} jid_im Allows to filter users list on the jid_ims provided in this option.
      * @param {string} jid_tel Allows to filter users list on the jid_tels provided in this option.
      */
-    getAllUsersByFilter(searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string,
+    getAllUsersByFilter(phoneNumbers : number,  phoneNumber : number = undefined, searchEmail :string, companyId : string , roles : string ="user", excludeRoles : string, tags : string, departments : string, isTerminated  : string = "false", isActivated : string, fileSharingCustomisation : string, userTitleNameCustomisation : string, softphoneOnlyCustomisation : string,
                         useRoomCustomisation : string,  phoneMeetingCustomisation : string,
                         useChannelCustomisation : string, useScreenSharingCustomisation : string, useWebRTCVideoCustomisation : string, useWebRTCAudioCustomisation : string, instantMessagesCustomisation : string, userProfileCustomisation : string, fileStorageCustomisation : string,
                         overridePresenceCustomisation : string, alert : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, recordingConversationCustomisation : string,
@@ -2020,7 +2026,7 @@ class AdminService extends GenericService {
 
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getAllUsersByFilter) contact, Ask the server...");
-            that._rest.getAllUsersByFilter(searchEmail , companyId , roles , excludeRoles , tags , departments , isTerminated  , isActivated , fileSharingCustomisation , userTitleNameCustomisation , softphoneOnlyCustomisation ,
+            that._rest.getAllUsersByFilter(phoneNumbers,  phoneNumber, searchEmail , companyId , roles , excludeRoles , tags , departments , isTerminated  , isActivated , fileSharingCustomisation , userTitleNameCustomisation , softphoneOnlyCustomisation ,
                     useRoomCustomisation ,  phoneMeetingCustomisation ,
                     useChannelCustomisation , useScreenSharingCustomisation , useWebRTCVideoCustomisation , useWebRTCAudioCustomisation , instantMessagesCustomisation , userProfileCustomisation , fileStorageCustomisation ,
                     overridePresenceCustomisation , alert , changeTelephonyCustomisation , changeSettingsCustomisation , recordingConversationCustomisation ,
