@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.23.0] - 2023-06-XX
+-    Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
+
 ## [2.22.4] - 2023-05-26
 -   Add `Administrator::deleteTrustedApplication` `Administrator::deleteAllTrustedApplications` `Administrator::disableMultifactorAuthentication` `Administrator::enableMultifactorAuthentication` `Administrator::getMultifactorInformation` `Administrator::verifyMultifactorInformation` `Administrator::resetRecoveryCodeForMultifactorAuthentication` to manage Multifactor Rainbow Authentication
 -   Add `BubblesService::checkOpenInviteIdValidity` `BubblesService::joinBubbleByOpenInviteId` to use Bubbles Open Invites.
