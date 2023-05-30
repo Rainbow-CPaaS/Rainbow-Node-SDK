@@ -779,7 +779,7 @@ let urlS2S;
         }).catch((err) => {
             logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
         });
-        rainbowSDK.admin.getAllUsersByFilter(usershouldbeUnkown, undefined, "vna_location", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+        rainbowSDK.admin.getAllUsersByFilter(undefined, undefined, usershouldbeUnkown, undefined, "vna_location", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(contact => {
@@ -1013,7 +1013,7 @@ let urlS2S;
 
     async  testgetAllUsersByFilter() {
         // let utc = new Date().toJSON().replace(/-/g, '_');
-        let users = await rainbowSDK.admin.getAllUsersByFilter("vincent02@vbe.test.openrainbow.net", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
+        let users = await rainbowSDK.admin.getAllUsersByFilter(undefined, undefined, "vincent02@vbe.test.openrainbow.net", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
