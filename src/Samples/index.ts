@@ -6633,6 +6633,28 @@ let urlS2S;
         await rainbowSDK.stop();
     }
     
+    async  testsend429Appid() {
+
+        logger.log("debug", "MAIN - (testsend429Appid) rainbow SDK stopped.");
+        let headers = rainbowSDK._core._rest.getLoginHeader();
+        headers["x-rainbow-client-id"] = "098b3333e3f254ddbce01e2311edb8dec";
+        await rainbowSDK._core._rest.http.get("/api/rainbow/authentication/v1.0/login", headers, undefined).then(
+                async (result) => {
+                    logger.log("debug", "MAIN - (testsend429Appid) rainbow get result : ", logger.colors.green(result));
+                }
+        ).catch(async error => {
+            logger.log("error", "MAIN - (testsend429Appid) CATCH Error !!! : ", logger.colors.green(error));
+            let res = await rainbowSDK.admin.getAllBotServices().then(() => {
+                logger.log("debug", "MAIN - (testsend429Appid), getAllBotServices res : ", res);
+            }).catch((error2) => {
+                logger.log("error", "MAIN - (testsend429Appid), getAllBotServices error2 : ", error2);
+            });
+            let connectionStatus = await rainbowSDK.getConnectionStatus().catch(err => { return err; } );
+            logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+
+        });
+    }
+    
     async  test5Start() {
         logger.log("debug", "MAIN - (test5Start) __ begin __.");
         let options1: any={};

@@ -1135,7 +1135,10 @@ class Core {
                 httpQueueSize: 0,
                 nbRunningReq: 0,
                 maxSimultaneousRequests: 0,
-                nbReqInQueue: 0
+                nbReqInQueue: 0,
+                retryAfterTime : 0,
+                retryAfterEndTime : 0,
+                retryAfterStartTime : 0
             };
 
             try {
@@ -1144,7 +1147,10 @@ class Core {
                     httpQueueSize: 0,
                     nbRunningReq: 0,
                     maxSimultaneousRequests: 0,
-                    nbReqInQueue: 0
+                    nbReqInQueue: 0,
+                    retryAfterTime : 0,
+                    retryAfterEndTime : 0,
+                    retryAfterStartTime : 0
                 };
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing http status : ", err);
