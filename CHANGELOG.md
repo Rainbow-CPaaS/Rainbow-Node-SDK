@@ -11,6 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add treatment of Http Status Code 429 while occurs.
 -   Add random delay (between 1 and 5000ms) to delay provided in headers RetryAfter on Http Status Code 429.
 -   Add `ContactsService::getContactIdByLoginEmail` to retrieve the Id of a contact by its email. 
+-   Remove deprecated methods form ChannelsService : getChannelById, createPrivateChannel, getChannels, getAllOwnedChannel, getMessagesFromChannel, deleteMessageFromChannel, getAllSubscribedChannel, getUsersFromChannel, removeAllUsersFromChannel, removeUsersFromChannel1
 
 ## [2.22.4] - 2023-05-26
 -   Add `Administrator::deleteTrustedApplication` `Administrator::deleteAllTrustedApplications` `Administrator::disableMultifactorAuthentication` `Administrator::enableMultifactorAuthentication` `Administrator::getMultifactorInformation` `Administrator::verifyMultifactorInformation` `Administrator::resetRecoveryCodeForMultifactorAuthentication` to manage Multifactor Rainbow Authentication

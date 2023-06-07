@@ -230,9 +230,10 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
+    *
      * @public
-     * @method createClosedChannel (ex: createPrivateChannel)
+     * @method createPrivateChannel (ex: createPrivateChannel)
      * @instance
      * @async
      * @category Channels MANAGEMENT
@@ -244,12 +245,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} New Channel
      * @description
      *  Create a new private channel <br>
-     */
     createPrivateChannel(name : string, description : string) {
         let that = this;
         
         return that.createClosedChannel(name, description, "globalnews");
     }
+     // */
 
     /**
      * @public
@@ -262,6 +263,7 @@ class ChannelsService extends GenericService {
      * @param {string} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
+     * (old createPrivateChannel)
      *  Create a new closed channel <br>
      */
     createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
@@ -423,7 +425,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method getChannelById
      * @instance
@@ -437,12 +439,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel found
      * @description
      * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
-     */
     getChannelById(id : string, force? : boolean) : Promise <Channel> {
         let that = this;
         
         return that.fetchChannel(id,  force);
     }
+     // */
 
     /**
      * @public
@@ -454,6 +456,7 @@ class ChannelsService extends GenericService {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
+     * (old getChannelById)
      * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
      */
     async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
@@ -548,7 +551,7 @@ class ChannelsService extends GenericService {
         });
     };
 
-    /**
+    /*
      * @public
      * @method getChannels
      * @since 1.38
@@ -561,12 +564,12 @@ class ChannelsService extends GenericService {
      *    Get the channels you own, are subscribed to, are publisher<br>
      *    Return a promise. <br>
      * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
-     */
     getChannels() {
         let that = this;
         
         return that.fetchMyChannels();
     }
+     */
 
     /**
      * @public
@@ -576,6 +579,7 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @param {boolean} force Boolean to force the get of channels's informations from server. 
      * @description
+     * (old getChannels)
      *    Get the channels you own, are subscribed to, are publisher<br>
      *    Return a promise. <br>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
@@ -659,7 +663,7 @@ class ChannelsService extends GenericService {
         return that._channels;
     }
 
-    /**
+    /*
      * @public
      * @method getAllOwnedChannel
      * @instance
@@ -670,11 +674,11 @@ class ChannelsService extends GenericService {
      * @return {Channel[]} An array of channels (owned only)
      * @description
      *  Return the list of owned channels only <br>
-     */
     getAllOwnedChannel(){
         let that = this;
         return that.getAllOwnedChannels();
     }
+     */
 
     /**
      * @public
@@ -683,6 +687,7 @@ class ChannelsService extends GenericService {
      * @instance
      * @return {Channel[]} An array of channels (owned only)
      * @description
+     * (old getAllOwnedChannel)
      *  Return the list of owned channels only <br>
      */
     getAllOwnedChannels() : [Channel] {
@@ -1273,7 +1278,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method getMessagesFromChannel
      * @instance
@@ -1286,11 +1291,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Object[]>} The list of messages received
      * @description
      *  Retrieve the last messages from a channel <br>
-     */
     getMessagesFromChannel (channel : Channel) {
         let that = this;
         return that.fetchChannelItems(channel);
     }
+    // */     
 
     /**
      * @public
@@ -1304,6 +1309,7 @@ class ChannelsService extends GenericService {
      * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
      * @return {Promise<Object[]>} The list of messages received
      * @description
+     * (old getChannels)
      *  Retrieve the last maxMessages messages from a channel <br>
      */
     public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
@@ -1361,7 +1367,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method deleteMessageFromChannel
      * @instance
@@ -1375,11 +1381,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Delete a message from a channel <br>
-     */
     deleteMessageFromChannel(channelId : string, messageId : string) {
         let that = this;
         return that.deleteItemFromChannel(channelId, messageId);
     }
+    // */
 
     /**
      * @public
@@ -1391,6 +1397,7 @@ class ChannelsService extends GenericService {
      * @param  {string} itemId The Id of the item
      * @return {Promise<Channel>} The channel updated
      * @description
+     * (old deleteMessageFromChannel)
      *  Delete a message from a channel <br>
      */
     public deleteItemFromChannel (channelId : string, itemId : string) : Promise<Channel> {
@@ -1536,7 +1543,7 @@ class ChannelsService extends GenericService {
 
     //region Channels SUBSCRIPTION
 
-    /**
+    /*
      * @public
      * @method getAllSubscribedChannel
      * @instance
@@ -1547,11 +1554,11 @@ class ChannelsService extends GenericService {
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
      *  Return the list of subscribed channels only <br>
-     */
     getAllSubscribedChannel() {
         let that = this;
         return that.getAllSubscribedChannels();
     }
+     // */
 
     /**
      * @public
@@ -1560,6 +1567,7 @@ class ChannelsService extends GenericService {
      * @category Channels SUBSCRIPTION
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
+     * (old getAllSubscribedChannel)
      *  Return the list of subscribed channels only <br>
      */
     getAllSubscribedChannels() : [Channel] {
@@ -1700,7 +1708,7 @@ class ChannelsService extends GenericService {
 
     //region Channels USERS
 
-    /**
+    /*
      * @public
      * @method fetchChannelUsers
      * @instance
@@ -1718,11 +1726,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
      *  Get a pagined list of users who belongs to a channel <br>
-     */
     getUsersFromChannel(channel: Channel, options: any) {
         let that = this;
         return that.fetchChannelUsers(channel, options);
     }
+    // */
 
     /**
      * @public
@@ -1738,6 +1746,7 @@ class ChannelsService extends GenericService {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
+     * (old getUsersFromChannel)
      *  Get a pagined list of users who belongs to a channel <br>
      */
     public fetchChannelUsers(channel : Channel, options : any) : Promise<Array<{}>> {
@@ -1786,7 +1795,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method removeAllUsersFromChannel
      * @instance
@@ -1799,11 +1808,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Remove all users from a channel <br>
-     */
     removeAllUsersFromChannel(channel : Channel) {
         let that = this;
         return that.deleteAllUsersFromChannel(channel);
     }
+    // */
+    
     /**
      * @public
      * @method deleteAllUsersFromChannel
@@ -1813,6 +1823,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
+     * (old removeAllUsersFromChannel)
      *  Remove all users from a channel <br>
      */
     public deleteAllUsersFromChannel(channel : Channel) : Promise<Channel> {
@@ -2007,7 +2018,7 @@ class ChannelsService extends GenericService {
         return that.updateChannelUsers(channel, usersId);
     }
 
-    /**
+    /*
      * @public
      * @method removeUsersFromChannel1
      * @instance
@@ -2020,12 +2031,13 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel <br>
-     */
+     *  Remove a list of users from a channel <br>    
     removeUsersFromChannel1(channel : Channel, users: Array<Contact>) {
         let that = this;
         return that.deleteUsersFromChannel(channel, users);
     }
+     // */
+    
     /**
      * @public
      * @method deleteUsersFromChannel
@@ -2036,6 +2048,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
+     * (old removeUsersFromChannel1)
      *  Remove a list of users from a channel <br>
      */
     public deleteUsersFromChannel(channel : Channel, users : Array<Contact>) : Promise<Channel> {

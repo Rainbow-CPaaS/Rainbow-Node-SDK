@@ -2028,7 +2028,7 @@ let urlS2S;
     // region Channels
 
      testChannelImage() {
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((result) => {
             logger.log("debug", "MAIN - retrieveFileDescriptorsListPerOwner - result : ", result);
@@ -2050,7 +2050,7 @@ let urlS2S;
     }
 
     async  testPublishChannel() {
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         if (mychannel) {
             for (let i = 0; i < 100; i++) {
@@ -2067,7 +2067,7 @@ let urlS2S;
 
     async  testgetDetailedAppreciationsChannel() {
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
         if (mychannel) {
@@ -2087,7 +2087,7 @@ let urlS2S;
 
     async  testfetchChannelItems() {
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
         if (mychannel) {
@@ -2144,7 +2144,7 @@ let urlS2S;
     }
 
     async  testcreateChannel() {
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         let utc = new Date().toJSON().replace(/-/g, "/");
         let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
@@ -2163,15 +2163,15 @@ let urlS2S;
     }
 
      testChannelDeleteMessage() {
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
-        rainbowSDK.channels.getMessagesFromChannel(mychannel).then((result) => {
+        rainbowSDK.channels.fetchChannelItems(mychannel).then((result) => {
             logger.log("debug", "MAIN - getMessagesFromChannel - result : ", result);
             if (result && result.length > 0) {
                 let now = new Date().getTime();
                 let idToDelete = result.length - 1;
                 logger.log("debug", "MAIN - getMessagesFromChannel - idToDelete : ", idToDelete);
-                rainbowSDK.channels.deleteMessageFromChannel(mychannel.id, result[idToDelete].id).then((result) => {
+                rainbowSDK.channels.deleteItemFromChannel(mychannel.id, result[idToDelete].id).then((result) => {
                     logger.log("debug", "MAIN - deleteMessageFromChannel - result : ", result);
                 });
                 /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, null).then((res) => {
@@ -2182,7 +2182,7 @@ let urlS2S;
     }
 
      testChannelupdateChannelDescription() {
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         let utc = new Date().toJSON().replace(/-/g, "_");
         rainbowSDK.channels.updateChannelDescription(mychannel, "desc_" + utc).then((result) => {
@@ -2208,7 +2208,7 @@ let urlS2S;
             logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
         });
 
-        let mychannels = rainbowSDK.channels.getAllOwnedChannel();
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         let utc = new Date().toJSON().replace(/-/g, "/");
         //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
