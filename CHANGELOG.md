@@ -9,7 +9,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ## [2.23.0] - 2023-06-XX
 -   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
 -   Add treatment of Http Status Code 429 while occurs.
--   Add random delay (between 1 and 5000ms) to delay provided in header RetryAfter on Http Status Code 429. 
+-   Add random delay (between 1 and 5000ms) to delay provided in headers RetryAfter on Http Status Code 429.
+-   Add `ContactsService::getContactIdByLoginEmail` to retrieve the Id of a contact by its email. 
 
 ## [2.22.4] - 2023-05-26
 -   Add `Administrator::deleteTrustedApplication` `Administrator::deleteAllTrustedApplications` `Administrator::disableMultifactorAuthentication` `Administrator::enableMultifactorAuthentication` `Administrator::getMultifactorInformation` `Administrator::verifyMultifactorInformation` `Administrator::resetRecoveryCodeForMultifactorAuthentication` to manage Multifactor Rainbow Authentication

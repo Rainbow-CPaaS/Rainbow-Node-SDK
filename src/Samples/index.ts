@@ -92,7 +92,7 @@ import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
     input: process.stdin,
     output: process.stdout
 }); // */
-//let rainbowMode = "s2s" ;
+// let rainbowMode = "s2s" ;
 let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
@@ -819,6 +819,14 @@ let urlS2S;
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00, true);
         logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+    }
+
+    async  testgetContactIdByLoginEmailVincentBerder() {
+        let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
+        //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+        //let utc = new Date().toJSON().replace(/-/g, "_");
+        let contactId = await rainbowSDK.contacts.getContactIdByLoginEmail(contactEmailToSearchVincent00, true);
+        logger.log("debug", "MAIN - [testgetContactIdByLoginEmailVincentBerder] after getContactIdByLoginEmail contactId : ", contactId);
     }
 
      displayRoster() {

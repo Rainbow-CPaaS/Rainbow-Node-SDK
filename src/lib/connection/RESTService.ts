@@ -1737,7 +1737,10 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    async getContactInformationByLoginEmail(email): Promise<[any]> {
+    async getContactInformationByLoginEmail(email, sortOrder : number = 1, limit : number = 100, offset : number = 0): Promise<[any]> {
+        // API https://api.openrainbow.org/enduser/#api-users-getUsersByloginEmails
+        // POST "/api/rainbow/enduser/v1.0/users/loginEmails" 
+        
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!email) {
@@ -1745,8 +1748,23 @@ class RESTService extends GenericRESTService {
                 that.logger.log("info", LOG_ID + "(getContactInformationByLoginEmail) No email provided");
                 resolve(null);
             } else {
+                let url = "/api/rainbow/enduser/v1.0/users/loginEmails" ;
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                /*if (!companyId) {
+                    companyId = that.account.companyId;
+                } // */
+
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+                addParamToUrl(urlParamsTab, "limit", limit);
+                addParamToUrl(urlParamsTab, "offset", offset);
+                url = urlParamsTab[0];
+
+                let filter :any = { };
+                addPropertyToObj(filter, "loginEmail", email, false);
+
                 //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
-                await that.http.post("/api/rainbow/enduser/v1.0/users/loginEmails", that.getRequestHeader(), {"loginEmail": email}, undefined).then(function (json) {
+                await that.http.post(url , that.getRequestHeader(), filter, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) REST result : ", json.data);
                     resolve(json.data);
