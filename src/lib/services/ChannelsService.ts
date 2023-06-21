@@ -15,6 +15,7 @@ import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
+import {ContactsService} from "./ContactsService.js";
 
 export {};
 
@@ -46,6 +47,8 @@ class ChannelsService extends GenericService {
     private channelEventHandler: ChannelEventHandler;
     private channelHandlerToken: any;
     public invitationCounter: number = 0;
+    private _contacts: ContactsService;
+
 
     static getClassName(){ return 'ChannelsService'; }
     getClassName(){ return ChannelsService.getClassName(); }
@@ -82,6 +85,7 @@ class ChannelsService extends GenericService {
         this._useS2S = false;
         this._channels = null;
         this._channelsList = null;
+        this._contacts = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.MAX_ITEMS = 100;
@@ -111,6 +115,7 @@ class ChannelsService extends GenericService {
                 that._rest = _core._rest;
                 that._options = _options;
                 that._s2s = _core._s2s;
+                that._contacts = _core._contacts;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that._channels = [];
@@ -1865,7 +1870,15 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel 
-     * @param {Array<any>} users The users of the channel
+     * @param {Array<any>} users The users of the channel.
+     * collection of users to update
+     * [     
+     *  {
+     *  id : string, // Rainbow user Id
+     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  } 
+     *  ]
+     *  
      * @return {Promise<Channel>} Update Channel Users status
      * @description
      *  Update a collection of channel users
@@ -1881,6 +1894,75 @@ class ChannelsService extends GenericService {
         let channelId = channel.id;
         return new Promise((resolve, reject) => {
             //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
+            that._rest.updateChannelUsers(channelId, users).then((res) => {
+                that._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated");
+                that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel users updated : ", res);
+
+                that._rest.getChannel(channelId).then((updatedChannel : any) => {
+                    // Update local channel
+                    let channelObj = that.addOrUpdateChannelToCache(updatedChannel);
+
+                    /*let foundIndex = that._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, that._rest.http.serverURL);
+                    that._channels[foundIndex] = channelObj;
+                     */
+                    that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel updated : ", channelObj);
+                    resolve(channelObj);
+                });
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(updateChannelUsers) error ");
+                that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
+     * @method updateChannelUsersByLoginEmails
+     * @instance
+     * @since 2.23.0
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel 
+     * @param {Array<any>} users The users of the channel.
+     * collection of users to update
+     * [     
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  } 
+     *  ]
+     *  
+     * @return {Promise<Channel>} Update Channel Users status
+     * @description
+     *  Update a collection of channel users
+     */
+    public updateChannelUsersByLoginEmails(channel : Channel, users: Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let channelId = channel.id;
+        return new Promise((resolve, reject) => {
+            //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
+            let userId = [];
+            if (Array.isArray(users)) {
+                userId = users.map(async (value , index, arr) => {  
+                    let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                        that._logger.log("warn", LOG_ID + "(updateChannelUsers) Id not found for user loginEmail parameter. Index : ", index);
+                    });
+                    return {
+                        id : usersIndex, 
+                        type : value.type 
+                    }
+                });
+            }
+            
+            
             that._rest.updateChannelUsers(channelId, users).then((res) => {
                 that._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated");
                 that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel users updated : ", res);

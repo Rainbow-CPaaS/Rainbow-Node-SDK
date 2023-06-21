@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ContactsService::getContactIdByLoginEmail` to retrieve the Id of a contact by its email. 
 -   Remove deprecated methods form ChannelsService : getChannelById, createPrivateChannel, getChannels, getAllOwnedChannel, getMessagesFromChannel, deleteMessageFromChannel, getAllSubscribedChannel, getUsersFromChannel, removeAllUsersFromChannel, removeUsersFromChannel1
 -   Add ability to log the call of API methods and parameters sent to it. It is an API module scoped feature. It is the `logEntryParameters` property in each services of the servicesToStart start options of the SDK.
+-   Add `ChannelsService::updateChannelUsersByLoginEmails` to Update a collection of channel users
 
 ## [2.22.4] - 2023-05-26
 -   Add `Administrator::deleteTrustedApplication` `Administrator::deleteAllTrustedApplications` `Administrator::disableMultifactorAuthentication` `Administrator::enableMultifactorAuthentication` `Administrator::getMultifactorInformation` `Administrator::verifyMultifactorInformation` `Administrator::resetRecoveryCodeForMultifactorAuthentication` to manage Multifactor Rainbow Authentication
