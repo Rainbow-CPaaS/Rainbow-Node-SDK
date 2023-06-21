@@ -21,7 +21,6 @@ import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "ALERTS/SVCE - ";
-
 @logEntryExit(LOG_ID)
 @isStarted([])
     /**

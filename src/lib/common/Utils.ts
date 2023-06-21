@@ -1,12 +1,15 @@
 "use strict";
 
 
+//import util from "util";
+
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
 const dns = require('dns')
 const utilTypes = require('util').types
 const xml2js = require('xml2js');
+const util = require("util");
 
 let makeId = (n) => {
   let text = "";
@@ -391,7 +394,13 @@ function logEntryExit(LOG_ID) : any {
                         /* if (!this.getClassName) {
                              this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
                          } // */
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        let logParameters = this.startConfig?this.startConfig.logEntryParameters: false;
+                        if (logParameters) {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_ with : " + util.inspect(arguments, false, 4, true)));
+                            
+                        } else {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        }
                         /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
                             //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
                             logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
