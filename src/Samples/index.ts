@@ -6558,6 +6558,15 @@ let urlS2S;
 
     // endregion TimeOutManager
         
+        testundefined() {
+            try {
+                // @ts-ignore
+                logger.log("debug", "MAIN - testundefined, start at : ", undefined.settings);
+            } catch (err) {
+                logger.log("debug", "MAIN - testundefined, CATCH Error !!! : ", err);
+            }
+        }
+        
      testresolveDns(url: string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result) => {
             logger.log("debug", "MAIN - testresolveDns, result : ", result);
