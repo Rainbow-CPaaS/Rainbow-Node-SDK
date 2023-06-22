@@ -159,7 +159,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -241,7 +241,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -285,7 +285,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -330,7 +330,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -375,7 +375,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -420,7 +420,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {

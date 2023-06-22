@@ -5941,8 +5941,12 @@ let urlS2S;
         let res: any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers, jidHTTPoverXMPPBot);
         logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
         let resp = res.iq.resp;
-        let bodyResult = decodeURIComponent(resp.data.text);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
+        if (resp.data) {
+            let bodyResult = decodeURIComponent(resp.data.text);
+            logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
+        } else {
+            logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP failed : ", resp);
+        }
     }
 
     async  testheadHTTPoverXMPP(urlToGet: string = "https://moncompte.laposte.fr/hello") {
@@ -7179,6 +7183,9 @@ let urlS2S;
                                 if (rainbowSDK) {
                                     rainbowSDK.stop().then(() => {
                                         process.exit(0);
+                                }).catch((err)=>{
+                                    logger.log("debug", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                                    process.exit(0);
                                     });
                                 } else {
                                     process.exit(0);
