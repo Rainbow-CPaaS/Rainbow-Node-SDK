@@ -6,6 +6,11 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.21.0-lts.1] - 2023-06-22
+-   fix HTTPoverXMPPService.
+-   Add treatment of Http Status Code 429 while occurs.
+-   Add random delay (between 1 and 5000ms) to delay provided in header RetryAfter on Http Status Code 429.  
+
 ## [2.21.0-lts.0] - 2023-04-14
 -   LTS version of 2.21.0
 
