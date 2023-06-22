@@ -124,7 +124,10 @@ safeJsonParse(str) {
         httpQueueSize: number,
         nbRunningReq: number,
         maxSimultaneousRequests : number,
-        nbReqInQueue : number
+        nbReqInQueue : number,
+        retryAfterTime : number,
+        retryAfterEndTime :number,
+        retryAfterStartTime : number
     }> {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
@@ -133,13 +136,19 @@ safeJsonParse(str) {
             httpQueueSize: number,
             nbRunningReq: number,
             maxSimultaneousRequests : number,
-            nbReqInQueue : number
+            nbReqInQueue : number,
+            retryAfterTime : number,
+            retryAfterEndTime :number,
+            retryAfterStartTime : number
         } = {
             nbHttpAdded : 0,
             httpQueueSize : 0,
             nbRunningReq : 0,
             maxSimultaneousRequests : 0,
-            nbReqInQueue : 0
+            nbReqInQueue : 0,
+            retryAfterTime : 0,
+            retryAfterEndTime : 0,
+            retryAfterStartTime : 0
         };
 
         try {
@@ -239,7 +248,8 @@ safeJsonParse(str) {
                         return reject({
                             code: -1,
                             msg: "ErrorManager while requesting",
-                            details: error
+                            details: error,
+                            headers: response ? response.headers:undefined
                         });
                     } else {
                         if (response) {
@@ -298,7 +308,8 @@ safeJsonParse(str) {
                         return reject({
                             code: -1,
                             msg: "ErrorManager while requesting",
-                            details: error
+                            details: error,
+                            headers: response ? response.headers:undefined
                         });
                     } else {
                         if (response) {
@@ -369,7 +380,8 @@ safeJsonParse(str) {
                     return reject({
                         code: -1,
                         msg: "ErrorManager while posting",
-                        details: error
+                        details: error,
+                        headers: response ? response.headers:undefined
                     });
                 } else {
                     if (response) {
@@ -438,7 +450,8 @@ safeJsonParse(str) {
                         return reject({
                             code: -1,
                             msg: "ErrorManager while posting",
-                            details: error
+                            details: error,
+                            headers: response ? response.headers:undefined
                         });
                     } else {
                         if (response) {
@@ -504,7 +517,8 @@ safeJsonParse(str) {
                         return reject({
                             code: -1,
                             msg: "ErrorManager while posting",
-                            details: error
+                            details: error,
+                            headers: response ? response.headers:undefined
                         });
                     } else {
                         if (response) {
@@ -563,7 +577,8 @@ safeJsonParse(str) {
                         return reject({
                             code: -1,
                             msg: "ErrorManager while requesting",
-                            details: error
+                            details: error,
+                            headers: response ? response.headers:undefined
                         });
                     } else {
                         if (response) {
@@ -582,7 +597,8 @@ safeJsonParse(str) {
                                         return reject({
                                             code: -1,
                                             msg: "Bad content, please check your host",
-                                            details: ""
+                                            details: "",
+                                            headers: response ? response.headers:undefined
                                         });
                                     }
                                 } else {
@@ -602,7 +618,8 @@ safeJsonParse(str) {
                                         code: response.statusCode,
                                         msg: msg,
                                         details: errorMsgDetail,
-                                        error: bodyjs
+                                        error: bodyjs,
+                                        headers: response ? response.headers:undefined
                                     });
 
                                 }
@@ -667,13 +684,14 @@ safeJsonParse(str) {
                     for (let i = 0; i < nbTryBeforeFailed ; i++) {
                         let responsePromRequest : any = new Promise(function(resolve2, reject2) {
                             let request = Request(req, (error, response, body) => {
-                                that.logger.log("info", LOG_ID + "(get) successfull");
+                                that.logger.log("info", LOG_ID + "(get) done.");
                                 if (error) {
                                     responseRequest = {
                                         code: -1,
                                         url: urlEncoded,
                                         msg: "ErrorManager while requesting",
-                                        details: error
+                                        details: error,
+                                        headers: response ? response.headers:undefined
                                     };
                                     resolve2({statusCode: -100, id:2});
                                 } else {
@@ -701,13 +719,15 @@ safeJsonParse(str) {
                                                         code: -1,
                                                         url: urlEncoded,
                                                         msg: "Bad content, please check your host",
-                                                        details: ""
+                                                        details: "",
+                                                        headers: response ? response.headers:undefined
                                                     };
                                                     resolve2({statusCode: response.statusCode, id:4});
                                                 }
                                             } else {
                                                 that.logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
                                                 that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
+                                                that.logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , response.headers : ", response.headers, ", error : ", error, ", body : ", body);
                                                 let bodyjs: any = {};
                                                 if (that.hasJsonStructure(response.body)) {
                                                     bodyjs = JSON.parse(response.body);
@@ -723,7 +743,8 @@ safeJsonParse(str) {
                                                     url: urlEncoded,
                                                     msg: msg,
                                                     details: errorMsgDetail,
-                                                    error: bodyjs
+                                                    error: bodyjs,
+                                                    headers: response ? response.headers:undefined
                                                 };
                                                 resolve2({statusCode: response.statusCode, id:5});
                                             }
@@ -734,7 +755,8 @@ safeJsonParse(str) {
                                                     code: -1,
                                                     url: urlEncoded,
                                                     msg: response.error.reason,
-                                                    details: ""
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
                                                 };
                                                 resolve2({statusCode: -100, id:6});
                                             } else {
@@ -745,7 +767,8 @@ safeJsonParse(str) {
                                                     code: -1,
                                                     url: urlEncoded,
                                                     msg: "Unknown error",
-                                                    details: response
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
                                                 };
                                                 resolve2({statusCode: -100, id:7});
                                             }
@@ -755,7 +778,8 @@ safeJsonParse(str) {
                                             code: -1,
                                             url: urlEncoded,
                                             msg: "ErrorManager while requesting",
-                                            details: "error"
+                                            details: "error",
+                                            headers: response ? response.headers:undefined
                                         };
                                         resolve2({statusCode: -100, id:8});
                                     }
@@ -911,7 +935,8 @@ safeJsonParse(str) {
                                         code: -1,
                                         url: urlEncoded,
                                         msg: "Bad content, please check your host",
-                                        details: ""
+                                        details: "",
+                                        headers: response ? response.headers:undefined
                                     });
                                 }
                             } else {
@@ -941,7 +966,8 @@ safeJsonParse(str) {
                                     url: urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
-                                    error: bodyjs
+                                    error: bodyjs,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         } else {
@@ -951,7 +977,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: response.error.reason,
-                                    details: ""
+                                    details: "",
+                                    headers: response ? response.headers:undefined
                                 });
                             } else {
                                 that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
@@ -961,7 +988,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: "Unknown error",
-                                    details: response
+                                    details: response,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         }
@@ -1030,7 +1058,8 @@ safeJsonParse(str) {
                                         code: -1,
                                         url: urlEncoded,
                                         msg: "Bad content, please check your host",
-                                        details: ""
+                                        details: "",
+                                        headers: response ? response.headers:undefined
                                     });
                                 }
                             } else {
@@ -1053,7 +1082,8 @@ safeJsonParse(str) {
                                     url: urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
-                                    error: bodyjs
+                                    error: bodyjs,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         } else {
@@ -1063,7 +1093,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: response.error.reason,
-                                    details: ""
+                                    details: "",
+                                    headers: response ? response.headers:undefined
                                 });
                             } else {
                                 that.logger.warn("error", LOG_ID + "(head) HTTP other issue.");
@@ -1073,7 +1104,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: "Unknown error",
-                                    details: response
+                                    details: response,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         }
@@ -1153,7 +1185,8 @@ safeJsonParse(str) {
                                         code: -1,
                                         url: urlEncoded,
                                         msg: "Bad content, please check your host",
-                                        details: ""
+                                        details: "",
+                                        headers: response ? response.headers:undefined
                                     });
                                 }
                             } else {
@@ -1175,7 +1208,8 @@ safeJsonParse(str) {
                                     url: urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
-                                    error: bodyjs
+                                    error: bodyjs,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         } else {
@@ -1185,7 +1219,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: response.error.reason,
-                                    details: ""
+                                    details: "",
+                                    headers: response ? response.headers:undefined
                                 });
                             } else {
                                 that.logger.warn("warn", LOG_ID + "(patch) HTTP other issue ");
@@ -1195,7 +1230,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: "Unknown error",
-                                    details: response
+                                    details: response,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         }
@@ -1275,7 +1311,8 @@ safeJsonParse(str) {
                                         code: -1,
                                         url: urlEncoded,
                                         msg: "Bad content, please check your host",
-                                        details: ""
+                                        details: "",
+                                        headers: response ? response.headers:undefined
                                     });
                                 }
                             } else {
@@ -1297,7 +1334,8 @@ safeJsonParse(str) {
                                     url: urlEncoded,
                                     msg: msg,
                                     details: errorMsgDetail,
-                                    error: bodyjs
+                                    error: bodyjs,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         } else {
@@ -1307,7 +1345,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: response.error.reason,
-                                    details: ""
+                                    details: "",
+                                    headers: response ? response.headers:undefined
                                 });
                             } else {
                                 that.logger.warn("warn", LOG_ID + "(put) HTTP other issue ");
@@ -1317,7 +1356,8 @@ safeJsonParse(str) {
                                     code: -1,
                                     url: urlEncoded,
                                     msg: "Unknown error",
-                                    details: response
+                                    details: response,
+                                    headers: response ? response.headers:undefined
                                 });
                             }
                         }
@@ -1451,7 +1491,8 @@ safeJsonParse(str) {
                         code: -1,
                         url: urlEncoded,
                         msg: "ErrorManager while requesting",
-                        details: error
+                        details: error,
+                        headers: response ? response.headers:undefined
                     });
                 } else {
                     if (response) {
@@ -1475,7 +1516,8 @@ safeJsonParse(str) {
                                 url: urlEncoded,
                                 msg: response.body ? response.body.errorMsg || "" : "",
                                 details: response.body ? response.body.errorDetails || "" : "",
-                                error: bodyjs
+                                error: bodyjs,
+                                headers: response ? response.headers:undefined
                             });
                         }
                     }
