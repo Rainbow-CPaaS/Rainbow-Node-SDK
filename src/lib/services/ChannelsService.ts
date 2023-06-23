@@ -1925,7 +1925,7 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel 
-     * @param {Array<any>} users The users of the channel.
+     * @param {Array<any>} users Array of users loginEmail of the channel.
      * collection of users to update
      * [     
      *  {
@@ -1936,24 +1936,25 @@ class ChannelsService extends GenericService {
      *  
      * @return {Promise<Channel>} Update Channel Users status
      * @description
-     *  Update a collection of channel users
+     *  Update a collection of channel users by loginEmail
+     *  
      */
     public updateChannelUsersByLoginEmails(channel : Channel, users: Array<any>) : Promise<Channel> {
         let that = this;
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
+            that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let channelId = channel.id;
         return new Promise((resolve, reject) => {
             //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
-            let userId = [];
+            let usersId = [];
             if (Array.isArray(users)) {
-                userId = users.map(async (value , index, arr) => {  
+                usersId = users.map(async (value , index, arr) => {  
                     let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                        that._logger.log("warn", LOG_ID + "(updateChannelUsers) Id not found for user loginEmail parameter. Index : ", index);
+                        that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                     });
                     return {
                         id : usersIndex, 
@@ -1963,9 +1964,9 @@ class ChannelsService extends GenericService {
             }
             
             
-            that._rest.updateChannelUsers(channelId, users).then((res) => {
-                that._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated");
-                that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel users updated : ", res);
+            that._rest.updateChannelUsers(channelId, usersId).then((res) => {
+                that._logger.log("info", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
+                that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
@@ -1975,12 +1976,12 @@ class ChannelsService extends GenericService {
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, that._rest.http.serverURL);
                     that._channels[foundIndex] = channelObj;
                      */
-                    that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel updated : ", channelObj);
+                    that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel updated : ", channelObj);
                     resolve(channelObj);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelUsers) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) error : ", err);
+                that._logger.log("error", LOG_ID + "(updateChannelUsersByLoginEmails) error ");
+                that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) error : ", err);
                 return reject(err);
             });
         });
@@ -2023,6 +2024,64 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @method addOwnersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} owners Array of loginEmail of owners.
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of owners to the channel by loginEmail<br>
+     *      
+     */
+    public addOwnersToChannelByLoginEmails(channel : Channel, owners: any[]) : Promise<Channel>  {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!owners) {
+            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", owners);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*
+        let usersId = [];
+
+        owners.forEach((user) => {
+            usersId.push({"id": user.id, "type": "owner"});
+        });
+        // */
+
+        let usersId = [];
+        if (Array.isArray(owners)) {
+            usersId = owners.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "owner"
+                }
+            });
+        }
+        
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
      * @method addPublishersToChannel
      * @instance
      * @async
@@ -2031,7 +2090,8 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} publishers The list of Contacts to add as publisher to channel.
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of publishers to the channel <br>
+     *  Add a list of publishers to the channel<br>
+     *      
      */
     public addPublishersToChannel(channel : Channel, publishers : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -2058,6 +2118,63 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @method addPublishersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} publishers The list of Contacts loginEmails to add as publisher to channel.
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of publishers to the channel by loginEmail<br>
+     *      
+     */
+    public addPublishersToChannelByLoginEmails(channel : Channel, publishers : Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id ) {
+            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!publishers || !(publishers.length > 0)) {
+            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", publishers);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*let usersId = [];
+
+        publishers.forEach((user) => {
+            usersId.push({"id": user.id, "type": "publisher"});
+        });
+        // */
+
+        let usersId = [];
+        if (Array.isArray(publishers)) {
+            usersId = publishers.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "publisher"
+                }
+            });
+        }
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
      * @method addMembersToChannel
      * @instance
      * @async
@@ -2066,7 +2183,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} members array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of members to the channel <br>
+     *  Add a list of members to the channel  by loginEmail<br>
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -2094,6 +2211,73 @@ class ChannelsService extends GenericService {
         if (!(usersId.length > 0)) {
             that._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
             that._logger.log("internalerror", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
+     * @method addMembersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} members array of users loginEmail to add
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of members to the channel by loginEmail<br>
+     *      
+     */
+    public async addMembersToChannelByLoginEmails(channel : Channel, members : Array<any>) : Promise<Channel> {
+        let that = this;
+        //that._logger.log("internal", LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!members) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*
+        let usersId: Array<any> = [];
+
+        members.forEach((user) => {
+            if (user) {
+                usersId.push({"id": user.id, "type": "member"});
+            }
+        });
+        // */
+        
+        let usersId = [];
+        if (Array.isArray(members)) {
+            usersId = members.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "member"
+                }
+            });
+        }
+        
+        if (!(usersId.length > 0)) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2152,6 +2336,65 @@ class ChannelsService extends GenericService {
         users.forEach((user) => {
             usersId.push({"id": user.id, "type": "none"});
         });
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
+     * @method deleteUsersFromChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} users An array of loginEmail of users to remove
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     * (old removeUsersFromChannel1)
+     *  Remove a list of users from a channel by loginEmail <br>
+     *      
+     */
+    public deleteUsersFromChannelByLoginEmails(channel : Channel, users : Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!users) {
+            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter : ", users);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        
+        /*
+        let usersId = [];
+
+        users.forEach((user) => {
+            usersId.push({"id": user.id, "type": "none"});
+        });
+        // */
+        
+        let usersId = [];
+        if (Array.isArray(users)) {
+            usersId = users.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "none"
+                }
+            });
+        }
 
         return that.updateChannelUsers(channel, usersId);
     }
