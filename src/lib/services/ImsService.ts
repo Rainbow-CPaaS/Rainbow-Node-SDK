@@ -206,7 +206,7 @@ class ImsService extends GenericService{
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
     
      */
-    async getMessagesFromConversation(conversation, intNbMessage) {
+    async getMessagesFromConversation(conversation, intNbMessage : number = 30) {
         if (!conversation) {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
@@ -372,13 +372,13 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
-        if (!message) {
+        /*if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
-        }
+        } // */
 
-        if (message.length > that._imOptions.messageMaxLength) {
+        if (message && message.length > that._imOptions.messageMaxLength) {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
@@ -521,28 +521,30 @@ class ImsService extends GenericService{
         if (!lang) {
             lang = "en";
         }
-        if (!message) {
+        /* if (!message) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
             this._logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
-        }
+        } // */ 
 
         // Check size of the message
-        let messageSize = message.length;
+        let messageSize = message?message.length:0;
         if (content && content.message && typeof content.message === "string") {
             messageSize += content.message.length;
         }
+        
         if (messageSize > that._imOptions.messageMaxLength) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
+        // */
 
         if (!jid) {
             this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = shortnameToUnicode(message);
+        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
@@ -885,6 +887,60 @@ class ImsService extends GenericService{
                 return Promise.reject({message: "The sending message process failed!", error: err});
             }
         }
+    }
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method retrieveXMPPMessagesByListOfMessageIds
+     * @category Ims MESSAGES
+     * @instance
+     * @description
+     *   This API allow user to retrieve it's ims by list of message Ids, peer and peer type <br> 
+     *       If message cannot be retrieved response will return status not found. <br>
+     * @return {Promise<any>} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | list of retrieved message |
+     * | msgId | String | xmpp id of the message |
+     * | peer | String | peer jid with which message has been exchanged |
+     * | status optionnel | String | request status<br><br>* unchanged: When XMPP server message copy has the same hash,<br>* not_found: When message was not found, |
+     * | xml optionnel | String | message content if message has been successfully retrieved (not present if message was status unchanged) |
+     * | hash optionnel | String | message hash if message has been successfully retrieved (not present if message was status unchanged) |
+     * | timestamp optionnel | String | message timestamp if message has been successfully retrieved (not present if message was status unchanged) |
+     *
+     * @param {Array<any>} ims     list of object that contains the following: </BR>
+     * [{ </BR>
+     * **peer** : string jid with which message has been exchanged </BR>
+     * **msgId** : string xmpp message id of the message to retrieve </BR>
+     * **hash** optionnel : string md5 hash of the message to retrieve If hash is specified response will return status unchanged if XMPP message copy has the same hash Client should use hash whenever possible to reduce response size </BR>
+     * **type** : string Conversation type: </BR>
+     * - user: User to user, </BR>
+     * - room: User to room, </BR>
+     * - bot: User to bot </BR>
+     * Possibles values : "user", "room", "bot" </BR>
+     * }] </BR>
+     * 
+     */
+    retrieveXMPPMessagesByListOfMessageIds(ims : Array<any>) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) ims : ", ims);
+
+            if (!ims) {
+                that._logger.log("debug", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) bad or empty 'ims' parameter : ", ims);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.retrieveXMPPMessagesByListOfMessageIds(ims).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
     }
 
     //endregion Ims MESSAGES

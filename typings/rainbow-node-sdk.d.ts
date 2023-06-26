@@ -2642,12 +2642,27 @@ declare module 'lib/services/BubblesService' {
 	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {string} id the id of the bubble
 	     * @param {boolean} [force=false] True to force a request to the server
+	     * @param {string} context
+	     * @param {string} format Allows to retrieve more or less room details in response. </br>
+	     * small: id, name, jid, isActive</br>
+	     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+	     * full: all room fields</br>
+	     * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+	     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+	     * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+	     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+	     * Default value : small Possibles values : small, medium, full</br>
+	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
 	     * @description
 	     *  Get a bubble by its ID in memory and if it is not found in server. <br>
+	     *  Get a bubble data visible by the user requesting it (a private room the user is part of or a public room)
 	     */
-	    getBubbleById(id: any, force?: boolean): Promise<Bubble>;
+	    getBubbleById(id: any, force?: boolean, context?: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<Bubble>;
 	    /**
 	     * @public
 	     * @method getBubbleByJid
@@ -2655,12 +2670,26 @@ declare module 'lib/services/BubblesService' {
 	     * @category Manage Bubbles - Bubbles MANAGEMENT
 	     * @param {string} jid the JID of the bubble
 	     * @param {boolean} [force=false] True to force a request to the server
+	     * @param {string} format Allows to retrieve more or less room details in response. </br>
+	     * small: id, name, jid, isActive</br>
+	     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+	     * full: all room fields</br>
+	     * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+	     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+	     * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+	     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+	     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+	     * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+	     * Default value : small Possibles values : small, medium, full</br>
+	     * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+	     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
 	     * @async
 	     * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
 	     * @description
 	     *  Get a bubble by its JID in memory and if it is not found in server. <br>
+	     *  Get a rooms data visible by the user requesting it (a private room the user is part of or a public room)
 	     */
-	    getBubbleByJid(jid: any, force?: boolean): Promise<Bubble>;
+	    getBubbleByJid(jid: any, force?: boolean, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<Bubble>;
 	    /**
 	     * @public
 	     * @method getAllPendingBubbles
@@ -3020,6 +3049,50 @@ declare module 'lib/services/BubblesService' {
 
 	     */
 	    inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
+	    /**
+	     * @public
+	     * @method updateBubbleData
+	     * @instance
+	     * @category Manage Bubbles - Bubbles FIELDS
+	     * @param {string} bubbleId The id of the Bubble to update
+	     * @param {string} visibility Public/private group visibility for search. Default value : private. Possible values : private, public.
+	     * @param {string} topic Room topic.
+	     * @param {string} name Room name.
+	     * @param {string} owner User unique identifier; New room owner must be a moderator and current owner must have valid licence (feature BUBBLE_PROMOTE_MEMBER).
+	     * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link). <br>
+	     * According with autoRegister value, if another person uses the link to join the room: <br>
+	     * autoRegister = 'unlock': <br>
+	     * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. <br>
+	     * autoRegister = 'lock': <br>
+	     * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room. <br>
+	     * autoRegister = 'unlock_ack' (value not authorized yet): <br>
+	     * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock. <br>
+	     *
+	     * @param {boolean} autoAcceptInvitation When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room)
+	     * @param {boolean} muteUponEntry When participant enters the conference, he is automatically muted.
+	     * @param {boolean} playEntryTone Play an entry tone each time a participant enters the conference.
+	     * @param {boolean} disableTimeStats When set to true, clients will hide the Time Stats tab from bubble meetings.
+	     * @param {Object} phoneNumbers : Array of object with : {  <br>
+	     * location : string location of the Dial In phone number <br>
+	     * locationcode : string location code of the Dial In phone number <br>
+	     * number : string Dial In phone number <br>
+	     * numberE164 : string Dial In phone number in E164 format <br>
+	     * } <br>
+	     * @param {boolean} includeAllPhoneNumbers Indicates if user chooses to include all Dial In phone numbers.
+	     * @description
+	     *  This API allows to update room data. <br>
+	     *
+	     * @async
+	     * @return {Promise<Bubble, ErrorManager>}
+	     * @fulfil {Bubble} - The bubble updated with the data
+
+	     */
+	    updateBubbleData(bubbleId: string, visibility?: string, topic?: string, name?: string, owner?: string, autoRegister?: string, autoAcceptInvitation?: boolean, muteUponEntry?: boolean, playEntryTone?: boolean, disableTimeStats?: boolean, phoneNumbers?: Array<{
+	        location?: string;
+	        locationcode?: string;
+	        number?: string;
+	        numberE164?: string;
+	    }>, includeAllPhoneNumbers?: boolean): Promise<unknown>;
 	    /**
 	     * @public
 	     * @method setBubbleCustomData
@@ -3424,6 +3497,20 @@ declare module 'lib/services/BubblesService' {
 
 	     */
 	    removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
+	    /**
+	     * @private
+	     * @method getABubblePublicLinkAsModerator
+	     * @since 1.72
+	     * @instance
+	     * @category Manage Bubbles - Bubbles PUBLIC URL
+	     * @param {string} bubbleId
+	     * @param {boolean} emailContent
+	     * @param {string} language
+	     * @description
+	     *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>
+	     * @return {Promise<any>}
+	     */
+	    getABubblePublicLinkAsModerator(bubbleId?: string, emailContent?: boolean, language?: string): Promise<any>;
 	    /**
 	     * @private
 	     * @method getInfoForPublicUrlFromOpenInvite
@@ -6696,13 +6783,14 @@ declare module 'lib/connection/RESTService' {
 	     */
 	    getMediaPillarInfo(): Promise<unknown>;
 	    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+	    updateRoomData(bubbleId: string, data: any): Promise<unknown>;
 	    setBubbleVisibility(bubbleId: any, visibility: any): Promise<unknown>;
 	    setBubbleAutoRegister(bubbleId: string, autoRegister?: string): Promise<unknown>;
 	    setBubbleTopic(bubbleId: any, topic: any): Promise<unknown>;
 	    setBubbleName(bubbleId: any, name: any): Promise<unknown>;
 	    getBubbles(): Promise<unknown>;
-	    getBubble(bubbleId: any): Promise<unknown>;
-	    getBubbleByJid(bubbleJid: any): Promise<unknown>;
+	    getBubble(bubbleId: string, context?: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<unknown>;
+	    getBubbleByJid(bubbleJid: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<unknown>;
 	    setBubbleCustomData(bubbleId: any, customData: any): Promise<unknown>;
 	    inviteContactToBubble(contactId: any, bubbleId: any, asModerator: any, withInvitation: any, reason: any): Promise<unknown>;
 	    inviteContactsByEmailsToBubble(contactsEmails: any, bubbleId: any): Promise<unknown>;
@@ -6856,6 +6944,7 @@ declare module 'lib/connection/RESTService' {
 	     */
 	    joinS2SRoom(roomid: any, role: ROOMROLE): Promise<any>;
 	    markMessageAsRead(conversationId: any, messageId: any): Promise<unknown>;
+	    getABubblePublicLinkAsModerator(bubbleId?: string, emailContent?: boolean, language?: string): Promise<any>;
 	    /**
 	     *
 	     * @param {string} userId id of to get all openInviteId belonging to this user. If not setted the connected user is used.
@@ -7359,6 +7448,7 @@ declare module 'lib/common/models/FileDescriptor' {
 
 }
 declare module 'lib/services/FileServerService' {
+	/// <reference types="node" />
 	/// <reference types="node" />
 	import { Observable } from 'rxjs';
 	export {};
@@ -13427,7 +13517,7 @@ declare module 'lib/services/AdminService' {
 	     * | Champ | Type | Description |
 	     * | --- | --- | --- |
 	     * | data | Object |     |
-	     * | state | String | Import state<br><br>Valeurs autorisées : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+	     * | state | String | Import state<br><br>Possibles values `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
 	     * | companyId | String | Id of the company of the directory |
 	     * | userId | String | Id of the requesting user |
 	     * | displayName | String | Display name of the requesting user |

@@ -4,6 +4,15 @@ import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTime
 import {default as PubSub} from "pubsub-js";
 import {Conversation} from "../common/models/Conversation.js";
 import {XMPPUTils} from "../common/XMPPUtils.js";
+import {
+    equalIgnoreCase, getJsonFromXML,
+    isNullOrEmpty,
+    isNumber,
+    isStarted,
+    logEntryExit,
+    makeId,
+    setTimeoutPromised
+} from "../common/Utils";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler.js";
 import {XmppClient} from "../common/XmppQueue/XmppClient.js";
@@ -12,6 +21,8 @@ import {DataStoreType} from "../config/config.js";
 import {GenericService} from "../services/GenericService.js";
 import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler.js";
+import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
+import {Core} from "../Core.js";
 
 //const packageVersion = require("../../package");
 let packageVersion = {
@@ -117,7 +128,9 @@ const NameSpacesLabels = {
     "IncidentCap" : "http://www.incident.com/cap/1.0",
     "MonitoringNS" : "urn:xmpp:monitoring:0",
     "XmppHttpNS" : "urn:xmpp:http",
-    "protocolShimNS" : "http://jabber.org/protocol/shim"
+    "protocolShimNS" : "http://jabber.org/protocol/shim",
+    "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing",
+    "RPC": "jabber:iq:rpc"
 };
 
 @logEntryExit(LOG_ID)
@@ -154,6 +167,7 @@ class XMPPService extends GenericService {
 	public IQEventHandlerToken: any;
 	public IQEventHandler: any;
 	public httpoverxmppEventHandler: HttpoverxmppEventHandler;
+	public rpcoverxmppEventHandler: RpcoverxmppEventHandler;
 	public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
@@ -168,12 +182,13 @@ class XMPPService extends GenericService {
     private maxPingAnswerTimer: number;
     private company: any;
     private xmppRessourceName: string;
+    private _core: Core;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
 
-    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
+    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options, _core) {
         super(_logger, LOG_ID);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -192,6 +207,7 @@ class XMPPService extends GenericService {
         that._rest = _rest;
         that.logger = _logger;
         that.proxy = _proxy;
+        that._core = _core;
         that.shouldSendReadReceipt = _im.sendReadReceipt;
         that.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         that.storeMessages = _im.storeMessages;
@@ -281,6 +297,7 @@ class XMPPService extends GenericService {
 
                 that.IQEventHandler = new IQEventHandler(that);
                 that.httpoverxmppEventHandler = new HttpoverxmppEventHandler(that, that._rest, that._options);
+                that.rpcoverxmppEventHandler = new RpcoverxmppEventHandler(that, that._rest, that._options, that._core._rpcoverxmpp);
 
                 that.IQEventHandlerToken = [
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
@@ -292,9 +309,14 @@ class XMPPService extends GenericService {
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler));
-                PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler)));
+                
+
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_GET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_SET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_RESULT, that.rpcoverxmppEventHandler.onIqResultReceived.bind(that.rpcoverxmppEventHandler)));
                 
                 
                 that.startOrResetIdleTimer();
@@ -349,7 +371,9 @@ class XMPPService extends GenericService {
 
                         that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
                         //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
-                        that.xmppClient.send(stanza);
+                        that.xmppClient.send(stanza).catch((err) => {
+                            that.logger.log("warn", LOG_ID + "(stop) send failed to send Unavailable Presence, error : ", err);
+                        });
 
                         that.xmppClient.stop().then(() => {
                             that.logger.log("debug", LOG_ID + "(stop) stopped XMPP connection");
@@ -683,9 +707,10 @@ class XMPPService extends GenericService {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 default:
-                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza'", stanza.getName());
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
                     break;
             }
         });
@@ -697,63 +722,83 @@ class XMPPService extends GenericService {
             that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | condition : ", err.condition, " | error : ", err);
             //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : " + ERROR_EVENT + " | ", util.inspect(err.condition || err));
             if (that.reconnect && err) {
-                // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
-                switch (err.condition) {
-                    // Conditions which need a reconnection
-                    case "remote-connection-failed":
-                    case "reset":
-                    case "resource-constraint":
-                    case "connection-timeout":
-                    case "system-shutdown":
-                        that.stopIdleTimer();
-                        let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime," seconds before try to reconnect");
-                        await setTimeoutPromised(waitime);
-                        if (!that.isReconnecting) {
-                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
-                            await that.reconnect.reconnect().catch((err) => {
-                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
-                            });
-                        } else {
-                            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
-                        }
-                        break;
-                    // Conditions which need to only raise an event to inform up layer.
-                    case "bad-format":
-                    case "bad-namespace-prefix":
-                    case "host-gone":
-                    case "host-unknown":
-                    case "improper-addressing":
-                    case "internal-server-error":
-                    case "invalid-from":
-                    case "invalid-namespace":
-                    case "invalid-xml":
-                    case "not-authorized":
-                    case "not-well-formed":
-                    case "policy-violation":
-                    case "restricted-xml":
-                    case "undefined-condition":
-                    case "unsupported-encoding":
-                    case "unsupported-feature":
-                    case "unsupported-stanza-type":
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmpperror", err);
-                        break;
-                    // Conditions which are fatal errors and then need to stop the SDK.
-                    case "see-other-host":
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
-                    case "conflict":
-                    case "unsupported-version":
-                        that.stopIdleTimer();
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                        break;
-                    // Default condition, we do not know what to do, so to avoid wrong stop of SDK, we only send an event.
-                    default:
-                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
-                        that.eventEmitter.emit("evt_internal_xmpperror", err);
-                        break;
-                }
+                try {
+                    // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
+                    switch (err.condition) {
+                            // Conditions which need a reconnection
+                        case "remote-connection-failed":
+                        case "reset":
+                        case "connection-timeout":
+                        case "system-shutdown":
+                            that.stopIdleTimer();
+                            let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime, " seconds before try to reconnect");
+                            await setTimeoutPromised(waitime);
+                            if (!that.isReconnecting) {
+                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : try to reconnect...");
+                                await that.reconnect.reconnect().catch((err) => {
+                                    that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                                });
+                            } else {
+                                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Do nothing, already trying to reconnect...");
+                            }
+                            break;
+                            // Conditions which need to only raise an event to inform up layer.
+                        case "bad-format":
+                        case "bad-namespace-prefix":
+                        case "host-gone":
+                        case "host-unknown":
+                        case "improper-addressing":
+                        case "internal-server-error":
+                        case "invalid-from":
+                        case "invalid-namespace":
+                        case "invalid-xml":
+                        case "not-authorized":
+                        case "not-well-formed":
+                        case "restricted-xml":
+                        case "undefined-condition":
+                        case "unsupported-encoding":
+                        case "unsupported-feature":
+                        case "unsupported-stanza-type":
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                            // Conditions which are fatal errors and then need to stop the SDK.
+                        case "see-other-host":
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
+                        case "conflict":
+                        case "policy-violation":
+                            if (err.condition == "policy-violation" && err.text!="has been kicked") {
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
+                                that.eventEmitter.emit("evt_internal_xmpperror", err);
+                                break;
+                            }
+                        case "resource-constraint":
+                            if (err.condition == "resource-constraint" && err.text!="Max sessions reached") {
+                                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not Fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
+                                that.eventEmitter.emit("evt_internal_xmpperror", err);
+                                break;
+                            }
+                        case "unsupported-version":
+                            that.stopIdleTimer();
+                            // Disconnect the auto-reconnect mode
+                            if (that.reconnect) {
+                                that.logger.log("debug", LOG_ID + "(stop) stop XMPP auto-reconnect mode");
+                                that.reconnect.stop();
+                                that.reconnect = null;
+                            }
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                            break;
+                            // Default condition, we do not know what to do, so to avoid wrong stop of SDK, we only send an event.
+                        default:
+                            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : default condition, IGNORED. for condition : ", err.condition, ", error : ", err);
+                            that.eventEmitter.emit("evt_internal_xmpperror", err);
+                            break;
+                    }
+                } catch (err2) {
+                    that.logger.log("error", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : CATCH Error  error : ", err2, ", err received : ", err);
+                } 
             } else {
                 that.stopIdleTimer();
                 that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
@@ -794,6 +839,12 @@ class XMPPService extends GenericService {
 
         that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+            let stanza = xml("close", {
+                "xmlns": NameSpacesLabels.XmppFraming
+            });
+
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            return that.xmppClient.send(stanza);
         });
 
         that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
@@ -1024,6 +1075,11 @@ class XMPPService extends GenericService {
 
     //endregion Carbon
 
+    sendStanza (stanza) {
+        let that = this;
+        return that.xmppClient.send(stanza);
+    }
+    
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
         if (that.useXMPP) {
@@ -1047,9 +1103,9 @@ class XMPPService extends GenericService {
                 "xml:lang": lang
             }, message), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
-                }, xml("active", {
+            }), xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
-                })
+                }
             ));
 
             if (that.copyMessage == false) {
@@ -1091,7 +1147,7 @@ class XMPPService extends GenericService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
                     that.logger.log("debug", LOG_ID + "(sendChatMessage) sent");
-                    resolve({from: that.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
+                    resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, urgency: urgency});
                 }).catch((err) => {
                     return reject(err);
                 });
@@ -1236,22 +1292,33 @@ class XMPPService extends GenericService {
                         xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
                 );
             } else {
+                messageToSendID = origMsgId;
                 if (data === "") {
-                    xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
+                    xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
                             xml("body", {"xml:lang": lang}, data),
-                            xml("delete", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                             xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                             xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
                     );
                 } else {
-                    xmppMessage = xml("message", {to: to, type: "chat", id: origMsgId, "xml:lang": lang},
-                            xml("body", {"xml:lang": lang}, data),
-                            xml("modify", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
-                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
-                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
-                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
-                    );
+                    if (data == undefined) {
+                        xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
+                                //xml("body", {"xml:lang": lang}, data),
+                                xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                                xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                                xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
+                        );
+                    } else {
+                        xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
+                                xml("body", {"xml:lang": lang}, data),
+                                xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                                xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                                xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS})
+                        );
+                    }
                 }
             }
 
@@ -1280,20 +1347,38 @@ class XMPPService extends GenericService {
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                 xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
             } else {
+                messageToSendID = origMsgId;
                 if (data==="") {
-                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: origMsgId},
+                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
                             xml("body", {"xml:lang": lang}, data),
-                            xml("delete", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                            xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                             xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
                             xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
                 } else {
-                    xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
-                            xml("body", {"xml:lang": lang}, data),
-                            xml("modify", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
-                            xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
-                            xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
-                            xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));                    
+                    if (data == undefined) {
+                        xmppMessage = xml("message", {
+                                    to: conversation.bubble.jid,
+                                    type: "groupchat",
+                                    id: messageToSendID
+                                },
+                                //xml("body", {"xml:lang": lang}, data),
+                                xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                                xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                                xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
+                    } else {
+                        xmppMessage = xml("message", {
+                                    to: conversation.bubble.jid,
+                                    type: "groupchat",
+                                    id: messageToSendID
+                                },
+                                xml("body", {"xml:lang": lang}, data),
+                                xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
+                                xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
+                                xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
+                                xml("active", {"xmlns": NameSpacesLabels.ChatstatesNS}));
+                    }
                 }
             }
             if (that.copyMessage==false) {
@@ -1301,6 +1386,15 @@ class XMPPService extends GenericService {
                     "xmlns": NameSpacesLabels.HintsNameSpace
                 }));
             }
+
+            if (content && content.message) {
+                let contentType = content.type || "text/markdown";
+                xmppMessage.append(xml("content", {
+                    "type": contentType,
+                    "xmlns": NameSpacesLabels.ContentNameSpace
+                }, content.message));
+            }
+            
         }
 
         // message = that.addChatReplaceMessage(contactService.userContact, new Date(), unicodeData, messageToSendID, true);
@@ -1997,10 +2091,70 @@ class XMPPService extends GenericService {
         rsmx.append(rsmField2,  undefined);
         rsmDelete.append(rsmx,  undefined);
         rsmDelete.append(rsmset,  undefined);
-        let msg = message.append(rsmDelete, undefined);
+        message.append(rsmDelete, undefined);
+        let msg = message;
         //return Promise.resolve(message);
         return await that.xmppClient.sendIq(msg);
         //xmppService.sendIQ(msg);
+    }
+
+    async deleteAllMessagesInRoomConversation(roomJid, forContactJid = null) {
+        let that = this;
+        /*
+ <iq to="room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net" type="set" id="node_d00f1a17-c17b-4c48-9d18-977709bb82e831" 
+  xmlns="jabber:client">
+  <delete 
+    xmlns="urn:xmpp:mam:1" queryid="43aec78d-5fbe-483e-96c5-93a02a91219b">
+    <x 
+      xmlns="jabber:x:data" type="submit">
+      <field var="FORM_TYPE" type="hidden">
+        <value>urn:xmpp:mam:1</value>
+      </field>
+    </x>
+    <set 
+      xmlns="http://jabber.org/protocol/rsm"/>
+    </delete>
+  </iq>
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+        let rsmField2 = null;
+        let rsmvalue2 = null;
+
+        let message = xml("iq", {
+            //"from": that.jid_im,
+            "to": roomJid,
+            "type": "set",
+            "id": uniqMessageId
+        });
+
+        let rsmDelete = xml("delete", {xmlns: NameSpacesLabels.MamNameSpace, queryid: uniqId});
+        let rsmx = xml("x",{xmlns: NameSpacesLabels.DataNameSpace, type: "submit"});
+        let rsmField1 = xml("field",{var: "FORM_TYPE", type: "hidden"});
+        let rsmvalue1 = xml("value",{}, NameSpacesLabels.MamNameSpace);
+        if (forContactJid) {
+            rsmField2 = xml("field",{var: "with"});
+            rsmvalue2 = xml("value",{}, forContactJid);
+        }
+        let rsmset = xml("set", {xmlns:NameSpacesLabels.RsmNameSpace});
+        rsmField1.append(rsmvalue1, undefined);
+        if (forContactJid && rsmField2) {
+            rsmField2.append(rsmvalue2, undefined);
+        }
+        rsmx.append(rsmField1,  undefined);
+        if (forContactJid) {
+            rsmx.append(rsmField2, undefined);
+        }
+        rsmDelete.append(rsmx,  undefined);
+        rsmDelete.append(rsmset,  undefined);
+        message.append(rsmDelete, undefined);
+        let msg = message;
+        return await that.xmppClient.sendIq(msg);
     }
 
     getErrorMessage (data, actionLabel) {
@@ -2626,7 +2780,7 @@ xmlns="urn:xmpp.http" version="1.1"/>
         let uniqId=  that.xmppUtils.getUniqueId(undefined);
 
         let opt = url.parse(urlToGet);
-        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) opt : ", opt);
+        that.logger.log("internal", LOG_ID + "(traceHTTPoverXMPP) opt : ", opt, ...arguments);
         let method = "TRACE";
         let host = opt.protocol + "//" + opt.host;
         let resource = opt.path;
@@ -2976,6 +3130,386 @@ WHERE  { ?x dc:title ?title .
     }
     
     //endregion HTTPoverXMPP
+
+    //region RPCoverXMPP 
+    
+    async discoverRPCoverXMPP( to, headers = {}) {
+        let that = this;
+        /*
+<iq type='get'
+    from='requester@company-b.com/jrpc-client'
+    to='responder@company-a.com/jrpc-server'
+    id='disco1'>
+  <query xmlns='http://jabber.org/protocol/disco#info'/>
+</iq>
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(discoverRPCoverXMPP) to : ", to);
+
+        let msg = xml("iq", {
+            "type":"get",
+            "from": that.fullJid,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+        });
+
+        let stanzaQuery = xml("query", {xmlns: "http://jabber.org/protocol/disco#info"});
+        msg.append(stanzaQuery, undefined);
+        that.logger.log("internal", LOG_ID + "(discover) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+
+    //region RPC encode stanza
+
+    arrayToStanza(arrayOfParams, stanzaData) {
+        let that = this;
+        for (const param of arrayOfParams) {
+            if (typeof (param)==='undefined' || typeof (param)===null) {
+                that.logger.log("debug", LOG_ID + "(arrayToStanza) a param is undefined/null, so ignore it.");
+                continue;
+            }
+            that.valueTypeToStanza(param,  stanzaData);
+        }
+    }
+
+    valueTypeToStanza(param, stanzaData) {
+        let that = this;
+        if (typeof (param)==='undefined' || typeof (param)===null) {
+            that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so set it to false (boolean type) to be ignored with if on the other side.");
+            param = false;
+        }
+
+        if (param === true || param === false ) {
+            that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean, so transform it to numbers.");
+            let stanzaInt = xml("boolean", {}, param === true ? 1 : 0);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (isNumber(param)) {
+            /*
+      <value><int>6</int></value>
+             */
+            let stanzaInt = xml("double", {}, param);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (typeof (param)==='string') {
+            /*
+      <value><string>6</string></value>
+             */
+            let stanzaInt = xml("string", {}, param);
+            let stanzaValue = xml("value", {});
+            stanzaValue.append(stanzaInt, undefined);
+            stanzaData.append(stanzaValue, undefined);
+        }
+
+        if (typeof (param)==='object') {
+            if (Array.isArray(param)) {
+                let stanzaData2 = xml("data", {});
+                let stanzaArray = xml("array", {});
+                let stanzaValue = xml("value", {});
+                stanzaArray.append(stanzaData2, undefined);
+                stanzaValue.append(stanzaArray, undefined);
+                stanzaData.append(stanzaValue, undefined);
+                that.arrayToStanza(param, stanzaData2);
+            } else {
+                let stanzaStruct = xml("struct", {});
+                let stanzaValue = xml("value", {});
+
+                Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
+                    let stanzaMember = xml("member", {});
+                    let stanzaName = xml("name", {}, val);
+                    stanzaMember.append(stanzaName, undefined);
+                    that.valueTypeToStanza(param[val], stanzaMember);
+                    stanzaStruct.append(stanzaMember, undefined);
+                });
+                stanzaValue.append(stanzaStruct, undefined);
+                stanzaData.append(stanzaValue, undefined);
+            }
+        }
+    }
+    
+    paramToStanza(params, stanzaParams) {
+        let that = this;
+        for (const param of params) {
+            let paramToEncode = param;
+            if (typeof(paramToEncode) === 'undefined' || typeof(paramToEncode) === null) {
+                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is undefined/null, so set it to false (boolean type) to be ignored with if on the other side.");
+                paramToEncode = false;
+            }
+
+            if (paramToEncode === true || paramToEncode === false ) {
+                that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean, so transform it to numbers.");
+                let stanzaInt = xml("boolean", {}, paramToEncode === true ? 1 : 0);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+            
+            if (isNumber(paramToEncode)) {
+                /*
+                 <param>
+          <value><int>6</int></value>
+        </param>
+                 */
+                let stanzaInt = xml("doubles", {}, paramToEncode);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+
+            if(typeof(paramToEncode) === 'string') {
+                /*
+                 <param>
+          <value><string>6</string></value>
+        </param>
+                 */
+                let stanzaInt = xml("string", {}, paramToEncode);
+                let stanzaValue = xml("value", {});
+                let stanzaParam = xml("param", {});
+                stanzaValue.append(stanzaInt, undefined);
+                stanzaParam.append(stanzaValue, undefined);
+                stanzaParams.append(stanzaParam, undefined);
+            }
+
+            if(typeof(paramToEncode) === 'object') {
+                if (Array.isArray(paramToEncode)) {
+                    let stanzaData = xml("data", {});
+                    let stanzaArray = xml("array", {});
+                    let stanzaValue = xml("value", {});
+                    let stanzaParam = xml("param", {});
+                    stanzaArray.append(stanzaData, undefined);
+                    stanzaValue.append(stanzaArray, undefined);
+                    stanzaParam.append(stanzaValue, undefined);
+                    stanzaParams.append(stanzaParam, undefined);
+                    that.arrayToStanza(paramToEncode,stanzaData);
+                } else {
+                    let stanzaStruct = xml("struct", {});
+                    let stanzaValue = xml("value", {});
+                    let stanzaParam = xml("param", {});
+
+                    Object.getOwnPropertyNames(paramToEncode).forEach( (val, idx, array) => {
+                        let stanzaMember = xml("member", {});
+                        let stanzaName = xml("name", {}, val);
+                        stanzaMember.append(stanzaName, undefined);
+                        that.valueTypeToStanza(paramToEncode[val],stanzaMember);
+                        stanzaStruct.append(stanzaMember, undefined);                        
+                    });
+                    stanzaValue.append(stanzaStruct, undefined);
+                    stanzaParam.append(stanzaValue, undefined);
+                    stanzaParams.append(stanzaParam, undefined);
+                }
+            }
+        }
+    }
+
+    //endregion RPC encode stanza
+
+    //region RPC decode stanza
+
+    valueTypeToValue(param) {
+        let that = this;
+        // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValuev param.value : ", param);
+        let result = undefined;
+        if (param) {
+            Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
+                let child = param[val];
+                // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
+
+                if (val==="boolean") {
+                    // that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean with number, so transform it to real boolean.");
+                    result = ((child==="1" || child===1) ? true:false);
+                }
+
+                if (val==="string" || val==="base64" || val==="dateTime.iso8601") {
+                    result = "" + child;
+                }
+                if (val==="int" || val==="double" || val==="i4") {
+                    result = Number.parseInt(child);
+                }
+                if (val==="array") {
+
+                    let arr = [];
+                    // console.log("array : ", data);
+
+                    /* if (data.data.value) {
+                        
+                    } // */
+                    if ( child && child.data && child.data.value && Array.isArray(child.data.value)) {
+                        for (const valTab of child.data.value) {
+                            arr.push(that.valueTypeToValue(valTab));
+                        }
+                    } else {
+                        arr.push(that.valueTypeToValue(child.data.value));
+                    }
+
+                    result = arr;
+                    //return Number.parseInt(param.value.val);
+                }
+                if (val==="struct") {
+                    let obj = {};
+                    // console.log("struct : ", data);
+                    if ( child && child.member && Array.isArray(child.member)) {
+                        for (const member of child.member) {
+                            obj[member.name] = that.valueTypeToValue(member.value);
+                        }
+                    } else {
+                            obj[child.member.name] = that.valueTypeToValue(child.member.value);                        
+                    }
+                    result = obj;
+                    //return Number.parseInt(param.value.val);
+                }
+            });
+        }
+        return result;
+    }
+
+    decodeRPCParam(param) {
+        let that = this;
+        //that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
+        if (param && param.value) {
+            return that.valueTypeToValue(param.value);
+        } else {
+            return undefined;
+        }
+    }
+
+    //endregion RPC decode stanza
+    
+    async callRPCMethod( to, methodName ,params : Array<any> = [] ) {
+        let that = this;
+        /*
+<iq type='set'
+    from='requester@company-b.com/jrpc-client'
+    to='responder@company-a.com/jrpc-server'
+    id='rpc1'>
+  <query xmlns='jabber:iq:rpc'>
+    <methodCall>
+      <methodName>examples.getStateName</methodName>
+      <params>
+        <param>
+          <value><int>6</int></value>
+        </param>
+        <param>
+          <value><struct><member><name>phonenumber</name><value><string>55566622</string></value></member></struct></value>
+        </param>
+      </params>
+    </methodCall>
+  </query>
+</iq>
+         */
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        that.logger.log("internal", LOG_ID + "(callRPCMethod) to : ", to);
+
+        let msg = xml("iq", {
+            "type":"set",
+            "from": that.fullJid,
+            "to": to ? to : that.jid_im,
+            "id": uniqMessageId
+        });
+
+        let stanzaQuery = xml("query", {xmlns: NameSpacesLabels.RPC});
+        msg.append(stanzaQuery, undefined);
+
+        let stanzaMethodCall = xml("methodCall", {});
+        stanzaQuery.append(stanzaMethodCall, undefined);
+
+        let stanzaMethodName = xml("methodName", {}, methodName);
+        stanzaMethodCall.append(stanzaMethodName, undefined);
+        
+        let stanzaParams = xml("params", {});
+        stanzaMethodCall.append(stanzaParams, undefined);
+
+        that.paramToStanza(params, stanzaParams);
+        
+        that.logger.log("internal", LOG_ID + "(callRPCMethod) msg : ", msg);
+
+        //return Promise.resolve(message);
+        let result = await that.xmppClient.sendIq(msg);
+
+        that._logger.log("debug", "(callRPCMethod) - sent.");
+        that._logger.log("internal", "(callRPCMethod) - result : ", result);
+        let xmlNodeStr = result ? result.toString():"<xml></xml>";
+        let reqObj = await getJsonFromXML(xmlNodeStr);
+
+        let methodResponseParam = ( reqObj && reqObj.iq && reqObj.iq.query && reqObj.iq.query.methodResponse.params && reqObj.iq.query.methodResponse.params.param ) ? reqObj.iq.query.methodResponse.params.param : undefined;
+        let res = that.decodeRPCParam(methodResponseParam); 
+        return res;
+    }
+    
+    async traceRPCoverXMPP(urlToGet, to, headers = {}) {
+        let that = this;
+        /*
+    <iq type='set'
+       from='httpclient@example.org/browser'
+       to='httpserver@example.org'
+       id='7'>
+      <req xmlns='urn:xmpp:http' method='TRACE' resource='/rdf/ex1.turtle' version='1.1'>
+          <headers xmlns='http://jabber.org/protocol/shim'>
+              <header name='Host'>example.org</header>
+          </headers>
+      </req>
+   </iq>   
+         */
+
+
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        let uniqMessageId=  that.xmppUtils.getUniqueMessageId();
+        let uniqId=  that.xmppUtils.getUniqueId(undefined);
+
+        let opt = url.parse(urlToGet);
+        that.logger.log("internal", LOG_ID + "(traceRPCoverXMPP) opt : ", opt);
+        let method = "TRACE";
+        let host = opt.protocol + "//" + opt.host;
+        let resource = opt.path;
+
+        let msg = xml("iq", {
+            "from": that.fullJid,
+            //"from": to,
+            "to":  to? to : that.fullJid,
+            "type": "set",
+            "id": uniqMessageId
+            //"xmlns" : "jabber:iq:http"
+        });
+
+        let stanzaReq = xml("req", {xmlns: NameSpacesLabels.XmppHttpNS, method, resource, "version" : "1.1"});
+
+        let stanzaHeaders = xml("headers",{xmlns: NameSpacesLabels.protocolShimNS});
+
+        for (const headersKey in headers) {
+            let stanzaHeaderHost = xml("header",{name: headersKey}, headers[headersKey]);
+            stanzaHeaders.append(stanzaHeaderHost, undefined);
+        }
+        let stanzaHeaderHost = xml("header",{name: "Host"}, host);
+        stanzaHeaders.append(stanzaHeaderHost, undefined);
+
+        stanzaReq.append(stanzaHeaders, undefined);
+        msg.append(stanzaReq, undefined);
+        that.logger.log("internal", LOG_ID + "(traceRPCoverXMPP) msg : ", msg);
+
+        //return Promise.resolve(message);
+        return await that.xmppClient.sendIq(msg);
+    }
+    
+    //endregion RPCoverXMPP
 
 }
 

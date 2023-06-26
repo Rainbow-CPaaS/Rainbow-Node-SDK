@@ -61,6 +61,7 @@ class FavoritesService extends GenericService{
         this._logger = logger;
 
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
+        this._eventEmitter.on("evt_internal_favoriteupdated_handle", this.onFavoriteUpdated.bind(this));
         this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
     }
 
@@ -179,15 +180,15 @@ class FavoritesService extends GenericService{
     }
 
 
-    private async getServerFavorites(): Promise<Favorite[]> {
+    private async getServerFavorites( peerId: string = undefined): Promise<Favorite[]> {
         try {
             let that = this;
             return new Promise(async (resolve, reject) => {
-                this._rest.getServerFavorites().then(async (favorite : []) => {
+                this._rest.getServerFavorites(peerId).then(async (favorite : []) => {
                     if (favorite) {
                         that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
-                            return this.createFavoriteObj(data.id, data.peerId, data.type);
+                            return this.createFavoriteObj(data.id, data.peerId, data.type, data.position);
                         });
                         let favorites = await Promise.all(promises);
                         this.favorites = favorites.filter((favorite) => {
@@ -223,10 +224,10 @@ class FavoritesService extends GenericService{
         }
     }
 
-    private async addServerFavorite(peerId: string, type: string) {
+    private async addServerFavorite(peerId: string, type: string, position : number= undefined) {
         let that = this;
         try {
-            let favorite = await that._rest.addServerFavorite(peerId, type);
+            let favorite = await that._rest.addServerFavorite(peerId, type, position);
             that._logger.log("internal", LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
             return favorite;
         }
@@ -281,10 +282,10 @@ class FavoritesService extends GenericService{
 
     //region Favorites MANAGEMENT
     
-    private async createFavoriteObj(id: string, peerId: string, type: string) {
+    private async createFavoriteObj(id: string, peerId: string, type: string, position: number) {
         let that = this;
         try {
-            let favorite: any = new Favorite(id, peerId, type);
+            let favorite: any = new Favorite(id, peerId, type, position);
 
             /*
             // Get peer object
@@ -409,18 +410,19 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
-     * @method fetchAllFavorites()
+     * @method fetchAllFavorites
      * @category Favorites GET
      * @instance
+     * @param {string} peerId Allows to retrieve only the requested peerId(s) from user's favorites
      * @description
      *   Fetch all the Favorites from the server in a form of an Array <br>
      * @return {Array<Favorite>} An array of Favorite objects
      */
-    public async fetchAllFavorites() : Promise<Array<Favorite>> {
+    public async fetchAllFavorites(peerId: string = undefined) : Promise<Array<Favorite>> {
         let that = this;
 
         return new Promise((resolve, reject) => {
-            that.getServerFavorites()
+            that.getServerFavorites(peerId)
                     .then(function(favorites) {
                         that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
                         that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
@@ -433,6 +435,162 @@ class FavoritesService extends GenericService{
                     })
         });
     };
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method checkIsPeerSettedAsFavorite
+     * @category Favorites GET
+     * @instance
+     * @param {string} peerId peerId unique identifier
+     * @description
+     *   This API can be used to check if a given peerId is in user's favorites. <br>
+     * @return {Array<Favorite>} The result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | isFavorite | Boolean | true if the requested peerId is in user's favorites, false otherwise. |
+     * 
+     */
+    checkIsPeerSettedAsFavorite(peerId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.checkIsPeerSettedAsFavorite(peerId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method getFavoriteById
+     * @category Favorites GET
+     * @instance
+     * @param {string} favoriteId Favorite unique identifier
+     * @description
+     *   This API can be used to retrieve a specific user's favorite by Id. <br>
+     * @return {Array<Favorite>} The result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Id of the favorite. |
+     * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
+     * | position | Integer | position of the favorite in favorite list (first position is 0). |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     * 
+     */
+    getFavoriteById(favoriteId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
+
+            if (!favoriteId) {
+                that._logger.log("debug", LOG_ID + "(getFavoriteById) bad or empty 'favoriteId' parameter : ", favoriteId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getFavoriteById(favoriteId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getFavoriteById) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method getAllUserFavoriteList
+     * @category Favorites GET
+     * @instance
+     * @param {string} peerId Allows to retrieve only the requested peerId(s) from user's favorites.
+     * @description
+     *   This API can be used to retrieve the list of user's favorites. <br>
+     * @return {Array<Favorite>} The result
+     *
+     *
+     *  Array of Favorites.
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Id of the favorite. |
+     * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
+     * | position | Integer | position of the favorite in favorite list (first position is 0). |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     *
+     */
+    getAllUserFavoriteList(peerId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getAllUserFavoriteList(peerId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getAllUserFavoriteList) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @since 2.21.0
+     * @method moveFavoriteToPosition
+     * @category Favorites GET
+     * @instance
+     * @description
+     *   This API can be used to update a favorite's position in favorite list. <br>
+     * @return {Array<Favorite>} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Id of the favorite. |
+     * | peerId | String | userId, roomId, botId, directoryId or office365Id of the favorite. |
+     * | position | Integer | position of the favorite in favorite list (first position is 0). |
+     * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
+     *
+     * @param {string} favoriteId Favorite unique identifier
+     * @param {number} position new position in list. If position exceed favorites list size the favorite is moved to the end of the list
+     */
+    moveFavoriteToPosition (favoriteId : string, position : number = 1) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
+
+            if (!favoriteId) {
+                that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : ", favoriteId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.moveFavoriteToPosition(favoriteId, position).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(moveFavoriteToPosition) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
 
     //endregion Favorites GET
 
@@ -481,11 +639,11 @@ class FavoritesService extends GenericService{
 
      */
 
-    public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string}): Promise<void> {
+    public async  onFavoriteCreated(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
         let that = this;
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
-            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type);
+            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
             this.favorites.push(favorite);
             //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
             //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
@@ -494,15 +652,29 @@ class FavoritesService extends GenericService{
         }
     }
 
-    public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string}): Promise<void> {
+    public async  onFavoriteUpdated(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
+        let that = this;
+        let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
+        if (!favorite) {
+            favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
+            this.favorites.push(favorite);
+            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+        } else {
+            favorite.id = fav.id;
+            favorite.peerId = fav.peerId;
+            favorite.type = fav.type;
+            favorite.position = fav.position;
+            that._eventEmitter.emit("evt_internal_favoriteupdated", favorite);
+        }
+    }
+
+    public async onFavoriteDeleted(fav: {id:string, peerId: string, type: string, position: number}): Promise<void> {
         let that = this;
         let index = this.favorites.findIndex((fav) => { return fav.id === fav.id; });
         if (index !== -1) {
             let favorite = this.favorites[index];
             if (favorite.conv) { favorite.conv.isFavorite = false; }
             this.favorites.splice(index, 1);
-            //that._logger.log("debug", LOG_ID + "[onFavoriteDeleted] send event : ", { favoriteId: favorite.id });
-            //this.sendEvent('ON_FAVORITE_DELETED', { favoriteId: favorite.id });
             that._eventEmitter.emit("evt_internal_favoritedeleted", fav);
         }
     }

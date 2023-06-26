@@ -146,6 +146,11 @@ export class XMPPUTils {
         return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "calendar");
     }
 
+    // Presence resource is provided by MS-Teams.
+    isFromPresenceJid(fullJid) { 
+        return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "presence");
+    }
+
     getResourceFromFullJID(fullJid) {
         if (fullJid.includes("/")) {
             return fullJid.substring(fullJid.indexOf("/") + 1);

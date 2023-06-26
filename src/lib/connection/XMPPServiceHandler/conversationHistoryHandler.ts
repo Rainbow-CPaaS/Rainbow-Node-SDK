@@ -35,6 +35,7 @@ import {ConversationsService} from "../../services/ConversationsService.js";
 import {ContactsService} from "../../services/ContactsService.js";
 import {stringify} from "querystring";
 import {GenericHandler} from "./GenericHandler.js";
+import {Conversation} from "../../common/models/Conversation.js";
 
 const LOG_ID = "XMPP/HNDL/HIST/CONV - ";
 
@@ -101,10 +102,10 @@ class ConversationHistoryHandler  extends GenericHandler {
         let that = this;
         // Handle response
         try {
-            var conversation = null;
+            let conversation : Conversation = null;
             that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
-            var queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
+            let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (queryId) {
 
                 // Get associated conversation
@@ -119,7 +120,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         return this.onWebrtcHistoryMessageReceived(stanza, conversation);
                     }
 
-                    var brutJid = stanzaMessage.getAttr("from");
+                    let brutJid = stanzaMessage.getAttr("from");
 
                     // Extract fromJid
                     let fromJid;
@@ -184,6 +185,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let originalMessageReplaced : any = null;
                         let isForwarded : boolean = false;
                         let forwardedMsg : any;
+                        let deletedMsg : boolean;
+                        let modifiedMsg : boolean;
                         let mentions : Array<Object> = [];
 
 
@@ -398,6 +401,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     }
 
+                                    deletedMsg = stanzaMessage.find("delete").length > 0;
+                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
+                                    modifiedMsg = stanzaMessage.find("modify").length > 0;
+                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
+                                        
                                     let mentionElmt = stanzaMessage.find("mention");
                                     // stanzaData.mentions = [];
                                         
@@ -414,7 +422,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 if (mention['jid'] && mention['size']) {
                                                     mentions.push(mention);
                                                 }
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                                if (that.jid_im == mention['jid']) {
+                                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                    attention = true;
+                                                }
+                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                             });
                                         } else {
                                             const mention = {};
@@ -425,7 +437,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             if (mention['jid'] && mention['size']) {
                                                 mentions.push(mention);
                                             }
-                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention);
+                                            if (that.jid_im == mention['jid']) {
+                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                attention = true;
+                                            }
+                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                         }
                                     }
                                     //message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
@@ -503,7 +519,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             null, //data.confOwnerDisplayName,
                                             null,  //data.confOwnerJid,
                                             isForwarded,
-                                            forwardedMsg
+                                            forwardedMsg,
+                                            deletedMsg,
+                                            modifiedMsg                                            
                                     );
 
                                     that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) with dataMessage Message : ", dataMessage);
@@ -521,7 +539,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                             // message.updateMessage(message);
                             // that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", message);
-                            conversation.historyMessages.push(message);
+                            let hasATextMessage = false;
+                            if (message.subject || message.alternativeContent || message.content ) {
+                                hasATextMessage = true;
+                            }
+                            if (!hasATextMessage && !isForwarded && ! (deletedMsg) && !modifiedMsg) {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with No message text, so ignore it! hasATextMessage : ", hasATextMessage, ", message : ", message);
+                            } else {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with message text, message : ", message);
+                                conversation.historyMessages.push(message);
+                            }
                             return Promise.resolve(undefined);
                         }
                     });
@@ -546,21 +573,33 @@ class ConversationHistoryHandler  extends GenericHandler {
                             let historyIndex = stanza.getChild("fin").getChild("set").getChild("first") ?
                                 stanza.getChild("fin").getChild("set").getChild("first").text() : -1;
 
+                            /* 
                             // Handle very particular case of historyIndex == -1
                             if (conversation.historyIndex === -1) {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) Handle very particular case of historyIndex == -1, concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
-
-                                if (conversation.chatRenderer) {
-                                    conversation.chatRenderer.prependMessages(conversation.messages, conversation.bubble);
-                                }
                             }
-
                             // Classic case
                             else {
+                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
-
-                                if (conversation.chatRenderer) {
-                                    conversation.chatRenderer.prependMessages(conversation.historyMessages, conversation.bubble);
+                            }
+                            // */
+                            while (conversation.historyMessages.length > 0) {
+                                const historyFirstElement = conversation.historyMessages.shift();
+                                that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) start treatment of history message : ", historyFirstElement, " for conversation.messages, conversation.id : ", conversation.id);
+                                let messageUpdated = false;
+                                conversation.messages.forEach((elmt : Message) => {
+                                   if (elmt.id == historyFirstElement.id || elmt.historyIndex == historyFirstElement.historyIndex) {
+                                       elmt.updateMessage(historyFirstElement);
+                                       messageUpdated = true;
+                                   }  
+                                });
+                                if (!messageUpdated) {
+                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.");
+                                    conversation.messages.unshift.apply(conversation.messages, historyFirstElement);
+                                }  else {
+                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message updated from history.");
                                 }
                             }
 

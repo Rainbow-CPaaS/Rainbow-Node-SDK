@@ -1,12 +1,23 @@
 "use strict";
 
+import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
+import * as deepEqual from "deep-equal";
+import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService.js";
 import {ErrorManager} from "../common/ErrorManager.js";
+import {XMPPService} from "../connection/XMPPService.js";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
+import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
+import {ContactsService} from "./ContactsService.js";
+import {ProfilesService} from "./ProfilesService.js";
+import {S2SService} from "./S2SService.js";
 import {Core} from "../Core.js";
-import {default as PubSub} from "pubsub-js";
+import * as PubSub from "pubsub-js";
 import {GenericService} from "./GenericService.js";
+//import {RBVoice} from "../common/models/rbvoice.js";
+//import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler.js";
+import {Channel} from "../common/models/Channel.js";
+import {HttpoverxmppEventHandler} from "../connection/XMPPServiceHandler/httpoverxmppEventHandler.js";
 
 export {};
 
@@ -148,7 +159,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -157,7 +168,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(get) - sent.");
                 that._logger.log("internal", "(get) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -195,7 +206,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(discoverHTTPoverXMPP) - sent.");
                 that._logger.log("internal", "(discoverHTTPoverXMPP) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -230,16 +241,17 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
-                
+                that._logger.log("internal", LOG_ID + "(trace) Parameter urlToTrace : ", urlToTrace, ", headers : ", headers, ", httpoverxmppserver_jid : ", httpoverxmppserver_jid);
+
                 let node = await that._xmpp.traceHTTPoverXMPP(urlToTrace, httpoverxmppserver_jid, headers);
                 that._logger.log("debug", "(trace) - sent.");
                 that._logger.log("internal", "(trace) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -274,7 +286,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -283,7 +295,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(head) - sent.");
                 that._logger.log("internal", "(head) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -319,7 +331,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -328,7 +340,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(post) - sent.");
                 that._logger.log("internal", "(post) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -364,7 +376,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -373,7 +385,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(put) - sent.");
                 that._logger.log("internal", "(put) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -409,7 +421,7 @@ class HTTPoverXMPP extends GenericService {
             }
 
             if (!httpoverxmppserver_jid) {
-                httpoverxmppserver_jid = that._rest.account.jid;
+                httpoverxmppserver_jid = that._xmpp.fullJid;
             }
 
             try {
@@ -418,7 +430,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(delete) - sent.");
                 that._logger.log("internal", "(delete) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {

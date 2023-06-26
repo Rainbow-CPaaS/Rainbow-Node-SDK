@@ -18,7 +18,7 @@ const LOG_ID = "SETT/SVCE - ";
 @isStarted([])
 /**
  * @module
- * @private
+ * @public
  * @name Settings
  * @version SDKVERSION
  * @description
@@ -92,12 +92,36 @@ class Settings extends GenericService {
     }
     
     /**
-     * @private
+     * @public
+     * @since 2.20.0
      * @method getUserSettings
+     * @category Settings - Users
+     * @async
      * @instance
      * @description
      *  Get current User Settings <br>
+     *  This API can only be used by user himself </br>
      * @return {Promise<UserSettings>} A promise containing the result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | presence | String | Setting for manual user presence (used to go back to this presence when user logs in, instead of default (online))  <br>  <br>Possible values: `online`, `away`, `invisible`, `dnd` |
+     * | displayNameOrderFirstNameFirst | Boolean | Setting for user display name order<br><br>* true: firstname first<br>* false: lastname first |
+     * | activeAlarm | String | Setting for active user alarm sound |
+     * | activeNotif | String | Setting for active user notification sound |
+     * | ringingOnDnd | Boolean | Setting for allowing the user's devices to ring when receiving incoming call while being on DND. |
+     * | promptForCalendarPresence | Boolean | Setting to bypass calendar presence popup |
+     * | applyCalendarPresence optionnel | Boolean | Calendar presence should be applied as user preference settings (DND) |
+     * | promptForMsTeamsPresence | Boolean | Setting to bypass Microsoft Teams presence popup |
+     * | applyMsTeamsPresence optionnel | Boolean | Microsoft Teams presence should be applied as user preference settings (Busy/DND) |
+     * | protectionAgainstMailTypeOffline | boolean | Never receive unsolicited emails of type 'offLine' |
+     * | rainbowReadOnly | Object | Some rainbow public settings |
+     * | nbDaysBeforeWarningByMail | Integer | Notifying offline user by mail, allowed after n days after last login |
+     * | autoAnswer | Boolean | Setting to allow one rainbow client to answer incoming call initiated by external |
+     * | delayBetweenTwoWarningByMailInDays | Integer | Retry notifying offline user by mail, allowed after n days after last attempt |
+     * | autoAnswerByDeviceType | String | Setting to define the default rainbow client used for the autoAnswer feature: IOS or Androïd or Desktop (default = Desktop) |
+     * 
      */
     getUserSettings() {
         let that = this;
@@ -115,11 +139,24 @@ class Settings extends GenericService {
     }
 
     /**
-     * @private
+     * @public
+     * @since 2.20.0
      * @method updateUserSettings
+     * @category Settings - Users
+     * @async
+     * @param {Object} settings : user settings to update </br> 
+     * { </br>
+     *   **presence** optionnel : string : Setting for manual user presence (used to go back to this presence when user logs in, instead of default (online)). Default value : `online`. Possible values : `"online"`, `"away"`, `"invisible"`, `"dnd"` </br>
+     *   **displayNameOrderFirstNameFirst** optionnel : boolean : Setting for user display name order. * true: firstname first. * false: lastname first. Default value : `true` </br>
+     *   **activeAlarm** optionnel : String : Setting for active user alarm sound. Default value : `relax1`. </br>
+     *   **activeNotif** optionnel : String : Setting for active user notification sound. Default value : `notif1`. </br>
+     *   **ringingOnDnd** optionnel : boolean : Setting for allowing devices to ring on incoming call while being on DND. Default value : `false` </br>
+     *   **protectionAgainstMailTypeOffline** optionnel : boolean : Allow never receiving unsolicited emails of type 'offLine'. Default value : `false` </br>
+     *  }   </br>
      * @instance
      * @description
      *  Update current User Settings <br>
+     *  This API can only be used by user himself </br>
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
      */
     updateUserSettings(settings) {
@@ -127,7 +164,7 @@ class Settings extends GenericService {
         return new Promise( (resolve, reject) => {
             // Check validity
             that._rest.updateUserSettings(settings).then( (newSettings) => {
-                    that._logger.log("info", LOG_ID + "(updateUserSettings) get successfully");
+                    that._logger.log("info", LOG_ID + "(updateUserSettings) update successfully");
                     resolve(newSettings);
                 })
                 .catch( (err) => {

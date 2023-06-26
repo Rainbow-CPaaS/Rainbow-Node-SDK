@@ -3,7 +3,7 @@
 import {Core} from "./Core.js";
 import {Appreciation} from "./common/models/Channel.js";
 import {ErrorManager} from "./common/ErrorManager.js";
-import {setTimeoutPromised} from "./common/Utils.js";
+import Utils, {setTimeoutPromised} from "./common/Utils.js";
 import {ImsService} from "./services/ImsService.js";
 import {ChannelsService} from "./services/ChannelsService.js";
 import {S2SService} from "./services/S2SService.js";
@@ -31,6 +31,7 @@ import {RBVoiceService} from "./services/RBVoiceService.js";
 import {Logger} from "./common/Logger.js";
 import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService.js";
+import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -85,7 +86,10 @@ let LOG_ID = "NodeSDK/IDX";
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
  *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+ * @property {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
  * @property {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+ * @property {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
+ * @property {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed from it. Default value is true.
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
  * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
  * @property {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
@@ -384,7 +388,10 @@ class NodeSDK {
      *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
      *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
-     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true. 
+     * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
+     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
+     * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.   
@@ -532,6 +539,8 @@ class NodeSDK {
         let that = this;
         that.startTime = new Date();
         return new Promise(function(resolve, reject) {
+            // Force to work without the REST API at startup :
+            that._core.options._restOptions.useRestAtStartup = false;
             return that._core.start( token).then(function() {
                 return that._core.signinWSOnly(false, token, userInfos);
             }).then(function(result : any) {
@@ -993,6 +1002,17 @@ class NodeSDK {
     
     /**
      * @public
+     * @property {RPCoverXMPPService} rpcoverxmpp
+     * @description
+     *    Get access to the rpcoverxmpp module
+     * @return {RPCoverXMPPService}
+     */
+    get rpcoverxmpp() : RPCoverXMPPService {
+        return this._core._rpcoverxmpp;
+    }
+    
+    /**
+     * @public
      * @property {Object} DataStoreType
      * @description
      *    Get access to the DataStoreType type
@@ -1002,6 +1022,10 @@ class NodeSDK {
         return DataStoreType;
     }
 
+    get Utils() {
+        return this._core.Utils;
+    }
+    
     /**
      * @public
      * @method getConnectionStatus
@@ -1039,7 +1063,7 @@ class NodeSDK {
     static get Appreciation() {
         return Appreciation;
     }
-
+    
 }
 
 // module.exports = NodeSDK;

@@ -38,6 +38,8 @@ export {};
 
 //const packageVersion = require("../package.json");
 //import  * as packageVersion from "../../package.json";
+import * as Utils from "./common/Utils"
+import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;
 let _retrieveInformation;
@@ -86,8 +88,10 @@ class Core {
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
     public _httpoverxmpp: HTTPoverXMPP;
+    public _rpcoverxmpp: RPCoverXMPPService;
 	public _botsjid: any;
     public _s2s: S2SService;
+    public _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
     private _timeOutManager : TimeOutManager;
 
@@ -102,6 +106,8 @@ class Core {
         let loggerModule = new Logger(options);
         self.logger = loggerModule.log;
 
+        self._Utils = Utils;
+        
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);
@@ -129,10 +135,20 @@ class Core {
 
         self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
 
-
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
-            await self.signin(true, undefined);
+            let that = this;
+            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
+            await self.stop().then(function(result) {
+            }).catch(function(err) {
+                let error = ErrorManager.getErrorManager().ERROR;
+                error.msg = err;
+                self.events.publish("stopped", error);
+            });
+            await self.start(undefined).then(async function() {
+                await self.signin(true, undefined);
+            })
         });
+
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
             self._rest.applicationToken = token;
         });
@@ -140,7 +156,6 @@ class Core {
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
-            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
             }).catch(function(err) {
@@ -148,6 +163,7 @@ class Core {
                 error.msg = err;
                 self.events.publish("stopped", error);
             });
+            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -156,9 +172,10 @@ class Core {
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
-                return self._stateManager.transitTo(self._stateManager.CONNECTED).then((data2) => {
+                return self._stateManager.transitTo(self._stateManager.CONNECTED).then(async (data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
+                    await that._bubbles.reset() ;
                     return self._retrieveInformation();
                 });
             }).then((data3) => {
@@ -170,9 +187,12 @@ class Core {
                 });
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
-                if (!self._stateManager.isCONNECTED()) {
+                if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
                     self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
                     self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
+                    await self.stop().then(function(result) {
+                    }).catch(function(err) {
+                    });
                     await self._stateManager.transitTo(self._stateManager.FAILED);
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
@@ -222,7 +242,7 @@ class Core {
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
         self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
         self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options);
+        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options, self);
         self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
@@ -247,6 +267,7 @@ class Core {
         self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
         self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
         self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPPService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
         self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
@@ -557,6 +578,8 @@ class Core {
                 }).then(() => {
                     return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    return that._rpcoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
                     return that._invitations.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     if (that.options._restOptions.useRestAtStartup) {
@@ -578,11 +601,15 @@ class Core {
 
             if (that.options.useXMPP) {
                 try {
-                    if (that.options.imOptions.autoLoadContacts) {
-                        let result = await that._contacts.getRosters();
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                    if (that.options._restOptions.useRestAtStartup ) {
+                        if (that.options.imOptions.autoLoadContacts) {
+                            let result = await that._contacts.getRosters();
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                        } else {
+                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        }
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED because of useRestAtStartup : ", that.options._restOptions.useRestAtStartup);
                     }
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
@@ -653,6 +680,8 @@ class Core {
                     return that._webinars.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._httpoverxmpp.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._rpcoverxmpp.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._invitations.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -731,6 +760,7 @@ class Core {
             that._alerts.cleanMemoryCache();
             that._rbvoice.cleanMemoryCache();
             that._httpoverxmpp.cleanMemoryCache();
+            that._rpcoverxmpp.cleanMemoryCache();
             that._webinars.cleanMemoryCache();
             that._bubbles.cleanMemoryCache();
             that._calllog.cleanMemoryCache();
@@ -869,6 +899,8 @@ class Core {
                         return that._webinars.start(that.options, that) ;
                     }).then(() => {
                         return that._httpoverxmpp.start(that.options, that) ;
+                    }).then(() => {
+                        return that._rpcoverxmpp.start(that.options, that) ;
                     }).then(() => {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
@@ -1033,6 +1065,9 @@ class Core {
                 return that._httpoverxmpp.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped httpoverxmpp");
+                return that._rpcoverxmpp.stop();
+            }).then(() => {
+                that.logger.log("debug", LOG_ID + "(stop) stopped rpcoverxmpp");
                 return that._invitations.stop();
             }).then(() => {
                 that.logger.log("debug", LOG_ID + "(stop) stopped invitations");
@@ -1105,7 +1140,10 @@ class Core {
                 httpQueueSize: 0,
                 nbRunningReq: 0,
                 maxSimultaneousRequests: 0,
-                nbReqInQueue: 0
+                nbReqInQueue: 0,
+                retryAfterTime : 0,
+                retryAfterEndTime : 0,
+                retryAfterStartTime : 0
             };
 
             try {
@@ -1114,7 +1152,10 @@ class Core {
                     httpQueueSize: 0,
                     nbRunningReq: 0,
                     maxSimultaneousRequests: 0,
-                    nbReqInQueue: 0
+                    nbReqInQueue: 0,
+                    retryAfterTime : 0,
+                    retryAfterEndTime : 0,
+                    retryAfterStartTime : 0
                 };
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing http status : ", err);
@@ -1209,6 +1250,11 @@ class Core {
     get calllog() {
         return this._calllog;
     }
+
+    get Utils() {
+        return this._Utils;
+    }
+
 }
 
 //// module.exports = Core;

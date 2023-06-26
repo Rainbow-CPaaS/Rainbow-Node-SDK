@@ -3,7 +3,7 @@ import {xu} from "../../common/XMPPUtils.js";
 import {ConversationsService} from "../../services/ConversationsService.js";
 import {Conversation} from "../../common/models/Conversation.js";
 import {Element} from "ltx";
-import {logEntryExit} from "../../common/Utils.js";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils.js";
 import {FileStorageService} from "../../services/FileStorageService.js";
 import {FileServerService} from "../../services/FileServerService.js";
 import {BubblesService} from "../../services/BubblesService.js";
@@ -171,7 +171,7 @@ class ConversationEventHandler extends GenericHandler {
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, ", node : ", node);
 
         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+        let jsonNode = await getJsonFromXML(xmlNodeStr);
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
         let conferenceInfo = jsonNode["conference-info"];
         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -685,7 +685,7 @@ class ConversationEventHandler extends GenericHandler {
                         eventName = node.attrs.name;
                         eventJid = node.attrs.jid;
                         userIdEvent = node.attrs["user-id"];
-                        //that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", eventName : ", eventName,", eventJid : ", eventJid);
+                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", eventName : ", eventName,", eventJid : ", eventJid, ", userIdEvent : ", userIdEvent);
                         break;
                     case "room-id":
                         roomid = node.getText();
@@ -695,7 +695,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "questions":
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        questions = await that.getJsonFromXML(xmlNodeStr);
+                        questions = await getJsonFromXML(xmlNodeStr);
                         break;
                     case "body":
                         content = node.getText();
@@ -864,6 +864,7 @@ class ConversationEventHandler extends GenericHandler {
                         deletedMsg = true;
                     }
                         break;
+                    case "modified": 
                     case "modify": {
                         modifiedMsg = true;
                     }
@@ -878,6 +879,8 @@ class ConversationEventHandler extends GenericHandler {
                                 conversation.reset();
                                 that.eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                             }
+                        } else {
+                            deletedMsg = true;
                         }
                     }
                         break;
@@ -963,7 +966,7 @@ class ConversationEventHandler extends GenericHandler {
                         let ignoreConferenceInfo = false;
 
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+                        let jsonNode = await getJsonFromXML(xmlNodeStr);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
                         let conferenceInfo = jsonNode["conference-info"];
                         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -1028,15 +1031,31 @@ class ConversationEventHandler extends GenericHandler {
 
             switch (eventName) {
                 case "invitation": {
-                    let invitation = {
-                        event: "invitation",
-                        bubbleId: conferencebubbleId,
-                        bubbleJid: conferencebubbleJid,
-                        fromJid: fromJid,
-                        resource: resource
-                    };
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
-                    that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                    if (eventJid && eventJid != that.jid_im) {
+                        let invitation = {
+                            event: "invitation",
+                            contact_jid: eventJid,
+                            bubbleJid: fromJid,
+                            fromJid: fromJid,
+                            resource: resource,
+                            content,
+                            subject
+                        };
+                        //let contact = await that._contactsService.getContactByJid(eventJid);
+                        //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else,\n  content (=body) : ", content, ", subject : ", subject);
+                        that.eventEmitter.emit("evt_internal_contactinvitationreceived", invitation);
+                    } else {
+                        let invitation = {
+                            event: "invitation",
+                            bubbleId: conferencebubbleId,
+                            bubbleJid: conferencebubbleJid,
+                            fromJid: fromJid,
+                            resource: resource
+                        };
+                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
+                        that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
+                    }
                 }
                     break;
                 case "conferenceAdd": {
@@ -1221,7 +1240,7 @@ class ConversationEventHandler extends GenericHandler {
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
                     if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg) {
-                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with no message text, so ignore it! hasATextMessage : ", hasATextMessage);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", with No message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
                         that.logger.log("internal", LOG_ID + "(_onMessageReceived) with message : ", data, ", hasATextMessage : ", hasATextMessage);
@@ -2158,6 +2177,15 @@ class ConversationEventHandler extends GenericHandler {
                     case "command_ended":
                         that.onConnectorCommandEndedMessageReceived(node);
                         break;
+                    case "import_status":
+                        that.onConnectorImportStatusMessageReceived(node);
+                        break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -2357,7 +2385,7 @@ class ConversationEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
                 let conversationId = node.attrs.id;
-                let conversation = this._conversationService.getConversationById(conversationId);
+                let conversation : Conversation = this._conversationService.getConversationById(conversationId);
                 let action = node.attrs.action;
                 that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", conversationId : ", conversationId);
                 that.logger.log("internal", LOG_ID + "(onConversationManagementMessageReceived) action : " + action + ", for conversation : ", conversation);
@@ -2380,6 +2408,19 @@ class ConversationEventHandler extends GenericHandler {
                             break;
                         case "update":
                             conversation.isFavorite = (node.find("isFavorite").text() === "true");
+                            if (node.find("bookmark")) {
+                                /* <bookmark>
+                                <messageId>web_679434c5 - 1616 - 49e7 - ab10 - d346ec3f99ed0 < /messageId>
+                                < timestamp > 1678714877813903 < /timestamp>
+                                < unreadMessageNumber > 1 < /unreadMessageNumber>
+                                < /bookmark>
+                                // */
+                                conversation.bookmark = {
+                                    "messageId" : node.find("messageId").text(),
+                                    "timestamp" : node.find("timestamp").text(),
+                                    "unreadMessageNumber" : node.find("unreadMessageNumber").text()
+                                };
+                            }
                             //this.conversationService.orderConversations();
                             // Send conversations update event
                             that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
@@ -2649,7 +2690,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) JSON : ", jsonNode);
             let roomscontainer = jsonNode["roomscontainer"];
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) roomscontainer : ", roomscontainer);
@@ -2721,12 +2762,39 @@ class ConversationEventHandler extends GenericHandler {
         }
     };
     
+    async onConnectorImportStatusMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorImportStatusMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
+            let importstatus = jsonNode["import_status"];
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) importstatus : ", importstatus);
+            let reqId = importstatus["$attrs"]["reqId"];
+            let seq = importstatus["$attrs"]["seq"];
+            let status = importstatus["$attrs"]["status"];
+            let failed = importstatus["$attrs"]["failed"];
+            let warnings = importstatus["$attrs"]["warnings"];
+            let succeeded = importstatus["$attrs"]["succeeded"];
+            let total = importstatus["$attrs"]["total"];
+
+            if (importstatus.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) connectorcommand.");
+                that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, status, failed, warnings, succeeded, total});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
     async onConnectorCommandManagementMessageReceived(node) {
         let that = this;
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let connectorcommand = jsonNode["connectorcommand"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand : ", connectorcommand);
@@ -2748,7 +2816,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandEndedMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let command_ended  = jsonNode["command_ended"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) command_ended : ", command_ended );
@@ -2769,7 +2837,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorConfigManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
             let connectorconfig = jsonNode["connectorconfig"];
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig : ", connectorconfig);

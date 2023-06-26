@@ -75,13 +75,16 @@ let options = {
         "storeMessages": true, // Define a server side behaviour with the messages sent. When true, the messages are stored, else messages are only available on the fly. They can not be retrieved later.
         "nbMaxConversations": 15, // parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are removed from XMPP server. They are not destroyed. The can be activated again with a send to the conversation again.
         "rateLimitPerHour": 1000, // Set the maximum count of stanza messages of type `message` sent during one hour. The counter is started at startup, and reseted every hour.
-        "messagesDataStore": DataStoreType.StoreTwinSide // Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+        "messagesDataStore": DataStoreType.StoreTwinSide, // Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
                               // DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
                               // DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
                               // DataStoreType.StoreTwinSide The messages are fully stored.<br>
                               // DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour. 
                               
+        "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
         "autoInitialBubblePresence": true, // Define if the presence should be sent automatically to bubbles. This allows to receive the messages from the bubbles.
+        "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
+        "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
         "autoLoadConversations": true, // Define if the existing conversations on server side should be downloaded at startup. On bot with lot of contacts exchange it can slower the startup. 
         "autoLoadContacts": true // Define if the contacts from the network (the roster) should be loaded at startup. 
     },
@@ -248,10 +251,10 @@ v<br>
 <small>STATE</small><br>`ready`<br>
 |<br>
 v<br>
-**rainbow_onstopped**<br><small>EVENT</small><br>
+**rainbow_onstopped** or **rainbow_onfailed** or **rainbow_onerror**<br><small>EVENTs</small><br>
 |<br>
 v<br>
-<small>STATE</small><br>`stopped`<br>
+<small>STATE</small><br>`stopped` or `failed` or `error`<br>
 <br>
 
 </center>
@@ -272,6 +275,8 @@ Here is the list of state managed by the SDK for Node.JS:
 | **disconnected** | The SDK for Node.JS is disconnected from Rainbow |
 | **reconnecting** | The SDK for Node.JS tries to reconnect to Rainbow |
 | **failed** | The SDK for Node.JS has failed to reconnect to Rainbow |
+| **error** | The SDK for Node.JS has failed to reconnect to Rainbow |
+
 
 
 #### State stopped

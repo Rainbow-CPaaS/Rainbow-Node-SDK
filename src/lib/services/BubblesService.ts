@@ -7,7 +7,7 @@ import {ErrorManager} from "../common/ErrorManager.js";
 import {Bubble} from "../common/models/Bubble.js";
 import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue.js";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
+import {addParamToUrl, getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
 import {ContactsService} from "./ContactsService.js";
 import {ProfilesService} from "./ProfilesService.js";
@@ -20,6 +20,8 @@ import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary.js";
 import {Conference} from "../common/models/Conference.js";
 import {BubblesManager} from "../common/BubblesManager.js";
 import {GenericService} from "./GenericService.js";
+import {Conversation} from "../common/models/Conversation.js";
+import {ConversationsService} from "./ConversationsService.js";
 
 export {};
 
@@ -48,6 +50,7 @@ class Bubbles extends GenericService {
     private _bubbles: Bubble[];
     private avatarDomain: string;
     private _contacts: ContactsService;
+    private _conversations: ConversationsService;
     private _profileService: ProfilesService;
     private _presence: PresenceService;
     private _personalConferenceBubbleId: any;
@@ -81,7 +84,7 @@ class Bubbles extends GenericService {
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-        this._bubbles = null;
+        this._bubbles = [];
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this._startConfig = _startConfig;
@@ -94,6 +97,7 @@ class Bubbles extends GenericService {
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
         this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
+        this._eventEmitter.on("evt_internal_contactinvitationreceived", this._onContactInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_customdatachanged", this._onCustomDataChanged.bind(this));
@@ -123,6 +127,7 @@ class Bubbles extends GenericService {
                 that._rest = _core._rest;
                 that._bubbles = [];
                 that._contacts = _core.contacts;
+                that._conversations = _core.conversations;
                 that._profileService = _core.profiles;
                 that._presence = _core.presence;
                 that._options = _options;
@@ -138,6 +143,7 @@ class Bubbles extends GenericService {
                                 that._eventEmitter.on("evt_internal_topicchanged", that._onTopicChanged.bind(that));
                                 that._eventEmitter.on("evt_internal_namechanged", that._onNameChanged.bind(that));
                 */
+                await that.bubblesManager.reset();
                 that.setStarted();
                 resolve(undefined);
             } catch (err) {
@@ -158,7 +164,7 @@ class Bubbles extends GenericService {
             try {
                 that._xmpp = null;
                 that._rest = null;
-                that._bubbles = null;
+                that._bubbles = [];
                 /*that._eventEmitter.removeListener("evt_internal_invitationreceived", that._onInvitationReceived.bind(that));
                 that._eventEmitter.removeListener("evt_internal_affiliationchanged", that._onAffiliationChanged.bind(that));
                 that._eventEmitter.removeListener("evt_internal_ownaffiliationchanged", that._onOwnAffiliationChanged.bind(that));
@@ -184,17 +190,31 @@ class Bubbles extends GenericService {
     async init(useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that.bubblesManager.reset();
-            await that.getBubbles();
-            for (const bubble of that.getAll()) {
-                if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
-                    that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
-                    that.snapshotConference(bubble.id);
+//            await that.bubblesManager.reset();
+            if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
+                await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed);
+                let bubbles = that.getAll();
+                if (bubbles && bubbles.length > 1) {
+                    for (const bubble of bubbles) {
+                        if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                            that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                            that.snapshotConference(bubble.id);
+                        }
+
+                    }
+                } else {
+                    that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
                 }
-                
+            } else {
+                that._logger.log("warn", LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
             }
         }
         that.setInitialized();
+    }
+    
+    async reset() {
+        let that = this ; 
+        return await that.bubblesManager.reset();
     }
 
     //region Events
@@ -212,28 +232,72 @@ class Bubbles extends GenericService {
         that._logger.log("info", LOG_ID + "(_onInvitationReceived) received. ");
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
-        this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated: any) => {
-            that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
-            that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
+        if (invitation && invitation.bubbleId) {
+            this._rest.getBubble(invitation.bubbleId).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
-            /*// Store the new bubble
-            let foundIndex = that._bubbles.findIndex(bubbleItem => bubbleItem.id === bubbleUpdated.id);
-            if (foundIndex > -1) {
-                bubbleUpdated = Object.assign( that._bubbles[foundIndex], bubbleUpdated);
-                that._bubbles[foundIndex] = bubbleUpdated;
-            }
-            else {
-                bubbleUpdated = Object.assign( new Bubble(), bubbleUpdated);
-                that._bubbles.push(bubbleUpdated);
-            } // */
+                that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else  if (invitation && invitation.bubbleJid) {
+            this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation received from bubble : ", bubbleUpdated);
 
-            that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
-        }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
-            //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
-        });
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else {
+            that._logger.log("warn", LOG_ID + "(_onInvitationReceived) failed to find bubble for invitation : ", invitation);
+        }
+    }
+
+    /**
+     * @private
+     * @method _onContactInvitationReceived
+     * @instance
+     * @param {Object} invitation contains informations about bubble and user's jid
+     * @description
+     *      Method called when receiving an invitation to join a bubble for a contact<br>
+     */
+    _onContactInvitationReceived(invitation) {
+        let that = this;
+        that._logger.log("info", LOG_ID + "(_onContactInvitationReceived) received. ");
+        that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation : ", invitation);
+
+        if (invitation && invitation.bubbleJid) {
+            this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
+                that._logger.log("debug", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble.");
+                that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble : ", bubbleUpdated);
+                let contact = await that._contacts.getContactByJid(invitation.contact_jid);
+                //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
+                let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
+
+                let invitationFull = {
+                    contact: contact,
+                    bubble: bubble,
+                    content : invitation.content,
+                    subject : invitation.subject
+                };
+
+
+                that._eventEmitter.emit("evt_internal_contactinvitationdetailsreceived", invitationFull);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                //that._logger.log("internalerror", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+            });
+        } else {
+            that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) receive empty invitation : ", invitation);
+        }
     }
 
     /**
@@ -304,7 +368,9 @@ class Bubbles extends GenericService {
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                     await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) Error while sendInitialBubblePresenceSync : ", errOfSent);                                       
+                                    }); 
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -323,7 +389,9 @@ class Bubbles extends GenericService {
                         if (that._options._imOptions.autoInitialBubblePresence) {
                             if (bubble.isActive) {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) send initial presence to room : ", bubble.jid);
-                                await that._presence.sendInitialBubblePresenceSync(bubble);
+                                await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                    that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                });
                             } else {
                                 that._logger.log("debug", LOG_ID + "(_onOwnAffiliationChanged) bubble not active, so do not send initial presence to room : ", bubble.jid);
                             }
@@ -549,7 +617,8 @@ class Bubbles extends GenericService {
     _onBubblePresenceSent(data) {
         let that = this;
 
-        this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
+        //this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
+        this._rest.getBubble(data.id).then(async (bubbleUpdated: any) => {
             that._logger.log("debug", LOG_ID + "(_onBubblePresenceSent) Presence sent to bubble : " + data.id);
 
             let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
@@ -584,7 +653,9 @@ class Bubbles extends GenericService {
                     that._presence.sendInitialBubblePresenceSync(bubbleInfo).then(() => {
                         bubbleInMemory.isActive = true;
                         that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
-                    });
+                    }).catch((errOfSent) => {
+                        that._logger.log("warn", LOG_ID + "(_onbubblepresencechanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                    }); 
                 } else {
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 }
@@ -601,8 +672,10 @@ class Bubbles extends GenericService {
                         bubbleInMemory.initialPresence.initPresenceInterval.unsubscribe();
                         bubbleInMemory.initialPresence.initPresenceInterval = null;
                     }
+                    /* do not reset the initPresencePromise to avoid any request of sendInitialBubblePresence to not receive the result
                     bubbleInMemory.initialPresence.initPresencePromise = null;
                     bubbleInMemory.initialPresence.initPresencePromiseResolve = null;
+                    // */
                     //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
                     //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
@@ -1126,12 +1199,27 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} id the id of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} context 
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its ID in memory and if it is not found in server. <br>
+         *  Get a bubble data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        getBubbleById(id, force?: boolean): Promise<Bubble> {
+        getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise((resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
@@ -1149,7 +1237,7 @@ class Bubbles extends GenericService {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not found in memory, search in server id : ", id);
-                    return that._rest.getBubble(id).then(async (bubbleFromServer: any) => {
+                    return that._rest.getBubble(id, context, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer: any) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleById) bubble from server : ", bubbleFromServer);
     
                         if (that._options._imOptions.autoInitialBubblePresence) {
@@ -1159,7 +1247,9 @@ class Bubbles extends GenericService {
                                 //that._bubbles.push(bubble);
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                    await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(getBubbleById) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                    });                                    
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -1190,12 +1280,26 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} jid the JID of the bubble
          * @param {boolean} [force=false] True to force a request to the server
+         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * small: id, name, jid, isActive</br>
+         * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
+         * full: all room fields</br>
+         * If full format is used, the list of users returned is truncated to 100 active users by default.</br>
+         * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned).</br>
+         * The total number of users being member of the room is returned in the field activeUsersCounter.</br>
+         * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
+         * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
+         * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
+         * Default value : small Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its JID in memory and if it is not found in server. <br>
+         *  Get a rooms data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        async getBubbleByJid(jid, force?: boolean): Promise<Bubble> {
+        async getBubbleByJid(jid, force?: boolean, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             return new Promise(async (resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
@@ -1214,7 +1318,7 @@ class Bubbles extends GenericService {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubbleFound in memory : ", bubbleFound.jid);
                 } else {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJId) bubble not found in memory, search in server jid : ", jid);
-                    return await that._rest.getBubbleByJid(jid).then(async (bubbleFromServer) => {
+                    return await that._rest.getBubbleByJid(jid, format, unsubscribed, nbUsersToKeep).then(async (bubbleFromServer) => {
                         that._logger.log("internal", LOG_ID + "(getBubbleByJId) bubble from server : ", bubbleFromServer);
     
                         if (bubbleFromServer) {
@@ -1224,7 +1328,9 @@ class Bubbles extends GenericService {
                             if (that._options._imOptions.autoInitialBubblePresence) {
                                 if (bubble.isActive) {
                                     that._logger.log("debug", LOG_ID + "(getBubbleByJid) send initial presence to room : ", bubble.jid);
-                                    await that._presence.sendInitialBubblePresenceSync(bubble);
+                                    await that._presence.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                        that._logger.log("warn", LOG_ID + "(getBubbleByJid) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                    });
                                 } else {
                                     that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble not active, so do not send initial presence to room : ", bubble.jid);
                                 }
@@ -1243,6 +1349,302 @@ class Bubbles extends GenericService {
                 resolve(bubbleFound);
             });
         }
+
+        /**
+         * @public
+         * @method getAllBubblesJidsOfAUserIsMemberOf
+         * @since 2.19.0
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @async
+         * @description
+         *  Provide the list of room JIDs a user is a member of. <br>
+         * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to join the room. </br>
+         * Else they have to wait an event from XMPP server before joining. </br>
+         * This flag is reset when the room is inactive for a while (basically 60 days), and set when a first user joins the room. </br>
+         * isActive=false : inactive rooms only </br>
+         * isActive=true : active rooms only </br>
+         * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
+         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Default value : true
+         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100
+         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+         * @param {string} sortField Sort items list based on the given field.
+         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @return {Promise<Object>}  return a promise with The result found or null.
+         * 
+         * 
+         * | Champ | Type | Description |
+         * | --- | --- | --- |
+         * | data | String\[\] | List of room JIDs. |
+         * | limit | Number | Number of requested items |
+         * | offset | Number | Requested position of the first item to retrieve |
+         * | total | Number | Total number of items |
+         * 
+         */
+        getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) ");
+
+                try {
+                    return await that._rest.getAllBubblesJidsOfAUserIsMemberOf(isActive, webinar, unsubscribed, limit, offset, sortField, sortOrder).then(async (listOfBubblesJIDs) => {
+                        that._logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) listOfBubblesJIDs from server : ", listOfBubblesJIDs);
+                        resolve(listOfBubblesJIDs);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+        }
+
+    /**
+     * @public
+     * @method getAllBubblesVisibleByTheUser
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles MANAGEMENT
+     * @async
+     * @description
+     *  Display a list of short room description including: id - room identifier, name - room name </br>
+     *  Get all rooms visible by the user requesting it (the private rooms the user is part of and the public rooms)</br>
+     *  Admin shall be able to disallow the use of bubbles, either for the whole company, or per user. User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
+     *
+     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
+     * full: </br>
+     * if userId is used at the same time as format=full: all rooms fields else not all fields but only: id, name, jid, topic, creator, confEndpoints, conference, guestEmails, customData, disableNotifications, isActive, autoAcceptInvitation </br>
+     * the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If userId is used at the same time as format=full, then this user is added in first position of the users list even if he has the status unsubscribed. </br>
+     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list. </br>
+     * </br>
+     *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
+     *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
+     * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
+     * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {boolean} scheduled When a room is/was used for a meeting, select rooms used for an immediate or a scheduled meeting. scheduled query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * scheduled=false : all rooms used for an instant meeting </br>
+     * scheduled=true : all rooms used for a scheduled meeting </br>
+     * @param {boolean} hasConf Select all rooms used for meeting. hasConf query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * hasConf=false : all rooms never used for a meeting </br>
+     * hasConf=true : all rooms used for a meeting </br>
+     * @param {boolean} isActive isActive is a flag of the room. When set to true all room users are invited to share their presence. </br>
+     * Else they have to wait an event from XMPP server to share the presence. </br>
+     * This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence. </br>
+     * isActive=false : all rooms not active yet </br>
+     * isActive=true : all active rooms </br>
+     * @param {string} name Allow to search room which name includes a word beginning by ...
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
+     * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
+     * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
+     */
+     getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
+                                      unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+            let that = this;
+            return new Promise(async (resolve, reject) => {
+                that._logger.log("debug", LOG_ID + "(getAllBubblesVisibleByTheUser) ");
+    
+                try {
+                    return await that._rest.getAllBubblesVisibleByTheUser(format, userId, status, confId, scheduled, hasConf, isActive, name, sortField , sortOrder,
+                            unsubscribed,webinar, limit, offset, nbUsersToKeep, creator, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                        that._logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) listOfBubbles from server : ", listOfBubbles);
+                        resolve(listOfBubbles);
+                    });
+                } catch (err) {
+                    reject (err);
+                }
+            });
+     }
+        
+    /**
+     * @public
+     * @method getBubblesDataByListOfBubblesIds
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles MANAGEMENT
+     * @async
+     * @description
+     *  Display a list of short bubbles description including: id - room identifier, name - room name </br>
+     *  Get Bubbles data by list of room ids </br>
+     *  User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
+     *
+     * @param {Array<string>} bubblesIds list of room's unique identifier (like 56f42c1914e2a8a91b99e595) for which requesting data. if a room identifier doesn't correspond to a room visible by userId or logged in user it is ignored.
+     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * small: id, name, jid, isActive </br>
+     * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
+     * full: </br>
+     * if userId is used at the same time as format=full: all rooms fields else not all fields but only: id, name, jid, topic, creator, confEndpoints, conference, guestEmails, customData, disableNotifications, isActive, autoAcceptInvitation </br>
+     * the list of users returned is truncated to 100 active users by default. </br>
+     * The number of active users returned can be specified using the query parameter nbUsersToKeep (if set to -1, all active users are returned). </br>
+     * The total number of users being member of the room is returned in the field activeUsersCounter. </br>
+     * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users. </br>
+     * If userId is used at the same time as format=full, then this user is added in first position of the users list even if he has the status unsubscribed. </br>
+     * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list. </br>
+     * </br>
+     *  Whatever the used format, when userId is indicated, lastActivityDate field is append for each room data. This is the last activity date of the room (read only, set automatically on IM exchange) </br>
+     *  When the status of the userId in this room is ìnvited and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation. </br>
+     *  When the status of the userId in this room is accepted and when nothing has been shared yet in the room, the lastActivityDate is initialized with the date of the invitation or arrival. Default value : small. Possible values : small, medium, full. </br>
+     * @param {string} userId user unique identifier from which to retrieve the list of rooms the user is in (like 56f42c1914e2a8a91b99e595). creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} status user's status to filter when retrieving the list of user's rooms (like 56f42c1914e2a8a91b99e595) userId query parameter can be any userid from Users with superadmin role, and only the User's id itself if not. In this case only the rooms the user is part of are returned
+     * @param {string} confId When a room hosts a conference endpoint, retrieve the one hosting the given confEndPointId (like 5980c0aaf698c541468fd1e0). confId query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {boolean} scheduled When a room is/was used for a meeting, select rooms used for an immediate or a scheduled meeting. scheduled query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * scheduled=false : all rooms used for an instant meeting </br>
+     * scheduled=true : all rooms used for a scheduled meeting </br>
+     * @param {boolean} hasConf Select all rooms used for meeting. hasConf query parameter used with userId query parameter helps filter when retrieving the list of user's rooms. </br>
+     * hasConf=false : all rooms never used for a meeting </br>
+     * hasConf=true : all rooms used for a meeting </br>
+     * @param {string} sortField Sort items list based on the given field.
+     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
+     * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
+
+     creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
+     * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
+     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @return {Promise<Object>}  return a promise with The result found or null.
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | containerId | String | UUID of the rooms container hosting this room. See ([Rooms containers](#api-rooms_containers)). |
+     * | containerName | String | Name of the rooms container hosting this room |
+     * | tags | Object\[\] | Tags list |
+     * | tag | String | Tag name |
+     * | color | String | Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed" |
+     * | emoji | String | Tag emoji - an unicode sequence |
+     * | isAlertNotificationEnabled optionnel | Boolean | When set to true, allows participants in the room to send alert notifications<br><br>This field is not returned if the query parameter `needIsAlertNotificationEnabled` is set to false. |
+     * | id  | String | Room unique identifier (like 56d0277a0261b53142a5cab5) |
+     * | name | String | Room name. |
+     * | visibility | String | Public/private group visibility for search<br><br>Possibles values `private`, `public` |
+     * | topic | String | Room topic |
+     * | jid | String | Room MUC JID |
+     * | creationDate | Date-Time | Creation date of the room (read only, set automatically during room creation) |
+     * | lastActivityDate | Date-Time | Last activity date of the room (read only, set automatically on IM exchange) |
+     * | creator | String | Rainbow Id of creator |
+     * | users | Object\[\] | List of active users members of the room.  <br>Active users members correspond to users having the status `accepted` or `invited` in the room.  <br>  <br>**Warning**: The list of users returned is truncated to **100 active users**. The total number of users being member of the room is returned in the field `activeUsersCounter`.  <br>Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.  <br>The full list of users registered in the room can be got using API [GET /api/rainbow/enduser/v1.0/rooms/:roomId/users](#api-rooms_users-getRoomActiveUsers), which is paginated and allows to sort the users list. |
+     * | userId | String | User identifier |
+     * | jid_im | String | User jid |
+     * | additionDate | String | Date when the user has been added in the room |
+     * | privilege | String | Privilege of the user in the room<br><br>Possibles values `user`, `moderator` |
+     * | status | String | Status of the user in the room<br><br>Possibles values `invited`, `accepted`, `unsubscribed`, `rejected`, `deleted` |
+     * | activeUsersCounter | Integer | The number of users with the status 'accepted' or 'invited'.  <br>As the list of users returned is truncated to **100 active users**, this counter allows to know if all active room members are in the `users` list or not (if `users`.length < `activeUsersCounter`).  <br>Only available when format=full |
+     * | confEndpoints | Object\[\] | Conference end point of a room user. This user is always a 'moderator'. Only one confEndPoint per room. |
+     * | userId | String | User identifier the user owning the confEndPoint |
+     * | confEndPointId | String | Identifier of the conference end point |
+     * | mediaType | String | User identifier  <br>see also [GET /api/rainbow/confprovisioning/v1.0/conferences/{confEndpointId}](/conf-provision/#api-conferences-GetConference))<br><br>Possibles values `pstnAudio`, `webrtc` |
+     * | conference | Object | When the room hosts or has hosted a meeting, this is a set of data usefull to display list of meetings |
+     * | scheduled | Boolean | Kind of meeting (false: instant meeting, true: scheduled meeting) |
+     * | scheduledStartDate | Date-Time | Scheduled meeting start date |
+     * | scheduledEndDate | Date-Time | Scheduled meeting end date |
+     * | scheduledDuration | Integer | Scheduled meeting duration |
+     * | disableTimeStats | Boolean | When set to true, clients will hide the Time Stats tab from bubble meetings |
+     * | mediaType | String | Conference type \[pstnAudio, webrtc\] |
+     * | lastUpdateDate | Date-Time | Scheduled meeting creation or update date |
+     * | phoneNumbers | Object\[\] | Dial In phone numbers for this room. |
+     * | location | String | location of the Dial In phone number. |
+     * | locationcode | String | location code of the Dial In phone number. |
+     * | number | String | Dial In phone number. |
+     * | numberE164 | String | Dial In phone number in E164 format.@apiSuccess {String\[\]} data.conference.guestEmails Array of non rainbow users email |
+     * | dialInCode | String | Dial in code. |
+     * | guestEmails | String\[\] | Array of non rainbow users email. The former conference.guestEmails field should be deprecated sooner or later |
+     * | includeAllPhoneNumbers | Boolean | Indicates if user chooses to include all Dial In phone numbers. |
+     * | disableNotifications | Boolean | When set to true, there is no more notifications to be sent by a room in all cases with text body (user join/leave, conference start/end) |
+     * | isActive | Boolean | When set to true all room users are invited to share their presence. Else they have to wait an event from XMPP server.  <br>This flag is reset when the room is inactive for a while (basically 60 days), and set when the first user share his presence.  <br>This flag is read-only. |
+     * | autoRegister | String | A user can create a room and not have to register users. He can share instead a public link also called 'public URL'([users public link](#api-users_rooms_public_link)).  <br>According with autoRegister value, if another person uses the link to join the room:<br><br>* autoRegister = 'unlock':  <br>    If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room.<br>* autoRegister = 'lock':  <br>    If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room.<br>* autoRegister = 'unlock_ack':  <br>    If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. |
+     * | customData optionnel | Object | Room's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the room's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 8192 characters. |
+     * | data | Object\[\] | List of room Objects. |
+     * | autoAcceptInvitation | Boolean | When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room) |
+     * 
+     */
+    getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
+                                      unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
+
+            try {
+                return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
+                        unsubscribed, webinar, limit, offset, nbUsersToKeep, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                    that._logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) listOfBubbles from server : ", listOfBubbles);
+                    resolve(listOfBubbles);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
     
         /**
          * @public
@@ -1360,16 +1762,15 @@ class Bubbles extends GenericService {
                         that._eventEmitter.removeListener("evt_internal_bubblepresencechanged", fn_onbubblepresencechanged);
                         resolve(bubble);
                     }); // */
-    
                     that._presence.sendInitialBubblePresenceSync(bubbleObj).then(async () => {
-                        /*// Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
+                        /* // Wait for the bubble to be added in service list with the treatment of the sendInitialPresence result event (_onbubblepresencechanged)
                         await until(() => {
                                 return (that._bubbles.find((bubbleIter: any) => {
                                     return (bubbleIter.jid === bubble.jid);
                                 }) !== undefined);
                             },
                             "Waiting for the initial presence of a creation of bubble : " + bubble.jid);
-                         */
+                         // */
                         //that._bubbles.push(Object.assign( new Bubble(), bubble));
                         that._logger.log("debug", LOG_ID + "(createBubble) bubble successfully created and presence sent : ", bubbleObj.jid);
                         resolve(bubble);
@@ -1906,11 +2307,11 @@ class Bubbles extends GenericService {
          * @description
          *      Internal method
          */
-        getBubbles() {
+        getBubbles(format : string="small", unsubscribed : boolean = false) {
             let that = this;
     
             return new Promise(function (resolve, reject) {
-                that._rest.getBubbles().then(async function (listOfBubbles: any = []) {
+                that._rest.getBubbles(format, unsubscribed).then(async function (listOfBubbles: any = []) {
                     that._logger.log("debug", LOG_ID + "(getBubbles)  listOfBubbles.length : ", listOfBubbles.length);
     
                     //that._bubbles = listOfBubbles.map( (bubble) => Object.assign( new Bubble(), bubble));
@@ -1930,8 +2331,10 @@ class Bubbles extends GenericService {
                         let bubbleObj = await that.getBubbleById(bubble.id);
                         if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid); 
                         
-                        let users = bubble.users;
-                        for (const user of users) {
+                        let users = bubble.users?bubble.users:[];
+                        //for (const user of users) {
+                        for(let i = 0; i < users.length; i++) {
+                            let user = users[i];
                             //users.forEach(function (user) {
                             if (user.userId===that._rest.userId && user.status==="accepted") {
                                 if (that._options._imOptions.autoInitialBubblePresence) {
@@ -2017,6 +2420,26 @@ class Bubbles extends GenericService {
                 return (room.creator===that._rest.userId);
             }));
             //      });
+        }
+    
+        /**
+         * @public
+         * @method getAllOwnedIdBubbles
+         * @instance
+         * @category Manage Bubbles - Bubbles MANAGEMENT
+         * @description
+         *    Get the list of bubbles created by the user <br>
+         * @return {Bubble[]} An array of bubbles restricted to the ones owned by the user
+         */
+        getAllOwnedIdBubbles() {
+            let that = this;
+            that._logger.log("debug", LOG_ID + "(getAllOwnedIdBubbles) ");
+            let allOwnedIdBubbles = [];
+            let allOwnedBubbles = that.getAllOwnedBubbles();
+            for (let i = 0; i < allOwnedBubbles.length ; i++) {
+                allOwnedIdBubbles.push(allOwnedBubbles[i].id);
+            }
+            return allOwnedIdBubbles;
         }
     
         /**
@@ -2537,6 +2960,106 @@ class Bubbles extends GenericService {
     //endregion Bubbles INVITATIONS
     
     //region Bubbles FIELDS
+    
+        /**
+         * @public
+         * @method updateBubbleData
+         * @instance
+         * @category Manage Bubbles - Bubbles FIELDS
+         * @param {string} bubbleId The id of the Bubble to update
+         * @param {string} visibility Public/private group visibility for search. Default value : private. Possible values : private, public.
+         * @param {string} topic Room topic.
+         * @param {string} name Room name.
+         * @param {string} owner User unique identifier; New room owner must be a moderator and current owner must have valid licence (feature BUBBLE_PROMOTE_MEMBER).
+         * @param {string} autoRegister A user can create a room and not have to register users. He can share instead a public link also called 'public URL'(users public link). <br>
+         * According with autoRegister value, if another person uses the link to join the room: <br>
+         * autoRegister = 'unlock': <br>
+         * If this user is not yet registered inside this room, he is automatically included with the status 'accepted' and join the room. <br>
+         * autoRegister = 'lock': <br>
+         * If this user is not yet registered inside this room, he can't access to the room. So that he can't join the room. <br>
+         * autoRegister = 'unlock_ack' (value not authorized yet): <br>
+         * If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment. Default value : unlock. Possible values : unlock, lock. <br>
+         * 
+         * @param {boolean} autoAcceptInvitation When set to true, allows to automatically add participants in the room (default behavior is that participants need to accept the room invitation first before being a member of this room)
+         * @param {boolean} muteUponEntry When participant enters the conference, he is automatically muted.
+         * @param {boolean} playEntryTone Play an entry tone each time a participant enters the conference.
+         * @param {boolean} disableTimeStats When set to true, clients will hide the Time Stats tab from bubble meetings.
+         * @param {Object} phoneNumbers : Array of object with : {  <br>
+         * location : string location of the Dial In phone number <br>
+         * locationcode : string location code of the Dial In phone number <br>
+         * number : string Dial In phone number <br>
+         * numberE164 : string Dial In phone number in E164 format <br>
+         * } <br>
+         * @param {boolean} includeAllPhoneNumbers Indicates if user chooses to include all Dial In phone numbers.
+         * @description
+         *  This API allows to update room data. <br>
+         *      
+         * @async
+         * @return {Promise<Bubble, ErrorManager>}
+         * @fulfil {Bubble} - The bubble updated with the data
+
+         */
+        updateBubbleData(bubbleId : string, visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+    muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean ) {
+    
+            let that = this;
+    
+            if (!bubbleId) {
+                this._logger.log("warn", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter.");
+                this._logger.log("internalerror", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+    
+            let data : { visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
+                muteUponEntry ? : boolean, playEntryTone ? : boolean, disableTimeStats ? : boolean, phoneNumbers ? : Array<{ location ? : string, locationcode ? : string, number ? : string,
+                    numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean } = {};
+            
+            if (visibility != undefined) {
+                data.visibility = visibility;
+            }
+            if (topic != undefined) {
+                data.topic = topic;
+            }
+            if (name != undefined) {
+                data.name = name;
+            }
+            if (owner != undefined) {
+                data.owner = owner;
+            }
+            if (autoRegister != undefined) {
+                data.autoRegister = autoRegister;
+            }
+            if (autoAcceptInvitation != undefined) {
+                data.autoAcceptInvitation = autoAcceptInvitation;
+            }
+            if (muteUponEntry != undefined) {
+                data.muteUponEntry = muteUponEntry;
+            }
+            if (playEntryTone != undefined) {
+                data.playEntryTone = playEntryTone;
+            }
+            if (disableTimeStats != undefined) {
+                data.disableTimeStats = disableTimeStats;
+            }
+            if (phoneNumbers != undefined) {
+                data.phoneNumbers = phoneNumbers;
+            }
+            if (includeAllPhoneNumbers != undefined) {
+                data.includeAllPhoneNumbers = includeAllPhoneNumbers;
+            }
+
+            return new Promise(async(resolve, reject) => {    
+                that._rest.updateRoomData(bubbleId, data).then(async (json: any) => {
+                    that._logger.log("internal", LOG_ID + "(updateBubbleData) result : ", json);
+                    let bubble = await that.addOrUpdateBubbleToCache(json);
+                    resolve(bubble);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateBubbleData) error", err);
+                    return reject(err);
+                });
+            });
+        }
     
         /**
          * @public
@@ -3320,10 +3843,10 @@ class Bubbles extends GenericService {
         }
     
     //endregion Bubbles FIELDS    
-    
+
     //region Bubbles TAGS
     
-        /**
+    /**
          * @public
          * @method retrieveAllBubblesByTags
          * @instance
@@ -3751,6 +4274,30 @@ class Bubbles extends GenericService {
     //endregion Bubbles CONTAINERS
 
     //region Bubbles PUBLIC URL
+
+    /**
+     * @public
+     * @method getABubblePublicLinkAsModerator
+     * @since 2.19.0
+     * @instance
+     * @category Manage Bubbles - Bubbles PUBLIC URL
+     * @param {string} bubbleId Bubble unique identifier
+     * @param {boolean} emailContent Allows to retrieve email content in the json body response.
+     * @param {string} language Allows to provide a language to use for email content. If not provided, logged in user language is used.
+     * @async
+     * @description
+     *     Any member with an Organizer role (moderator privilege) should be able to share the link of the bubble. This api allow to get the openInviteId bound with the given bubble. <br>
+     * @return {Promise<any>}
+     */
+    async getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any> {
+        let that = this;
+        if (!bubbleId) {
+            this._logger.log("warn", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter : ", bubbleId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        return that._rest.getABubblePublicLinkAsModerator(bubbleId, emailContent, language);
+    }
     
         /**
          * @private
@@ -4085,6 +4632,92 @@ class Bubbles extends GenericService {
         }
     
     //endregion Bubbles PUBLIC URL
+
+    //region Bubbles Open Invites
+
+    /**
+     * @public
+     * @method checkOpenInviteIdValidity
+     * @since 2.22.4
+     * @instance
+     * @category Manage Bubbles - Bubbles Open Invites
+     * @description
+     *    Rainbow users may use a public URL to join a meeting The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value.<br>
+     *    https://meet.openrainbow.com/d4bb04c2a2254cd3bebb28e449ce7de3 <br>
+     *    The goal of this api is to check the validity of this URL. This API is public and no authentication is necessary. So a rate limiter is used to dissuade a brute force attack. <br>
+     * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
+     * @return {Promise<any>} An object of the result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | roomName | String | The meeting name |
+     * | roomTopic | String | The description of the meeting |
+     * | roomLocked | Boolean | True when the new comer for the meeting are barred |
+     * | invitingFirstName | String | The meeting creator's first name |
+     * | invitingLastName | String | The meeting creator's last name |
+     * | invitingCompanyName | String | The meeting creator's company name |
+     * 
+     */
+    checkOpenInviteIdValidity(openInviteId : string) {
+        let that = this;
+        if (!openInviteId) {
+            that._logger.log("warn", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter : ", openInviteId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+       
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) openInviteId found : ", openInviteId);
+            that._rest.checkOpenInviteIdValidity(openInviteId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(checkOpenInviteIdValidity) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method joinBubbleByOpenInviteId
+     * @since 2.22.4
+     * @instance
+     * @category Manage Bubbles - Bubbles Open Invites
+     * @description
+     *    Rainbow user may have a public links that will help their coworkers to join rooms. So that he just has to create a room and create a public link so called 'public URL'. <br>
+     *    Each user can create on demand a public URL to one of his rooms(users public link). <br>
+     *    The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value. <br>
+     * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
+     * @return {Promise<any>} An object of the result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | roomId | String | Room unique identifier. |
+     * | hasAlreadyJoinThisRoom | Boolean | True when the loggedInUser has previously join this room. |
+     * 
+     */
+    joinBubbleByOpenInviteId (openInviteId : string ) {
+        let that = this;
+        if (!openInviteId) {
+            that._logger.log("warn", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter : ", openInviteId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) openInviteId found : ", openInviteId);
+            that._rest.joinBubbleByOpenInviteId(openInviteId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(joinBubbleByOpenInviteId) error");
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubbles Open Invites
 
     //region Bubbles Polls
 
@@ -4476,6 +5109,45 @@ class Bubbles extends GenericService {
     
     //endregion Manage Bubbles
 
+    //region Bubbles Messages
+
+    /**
+     *
+     * @public
+     * @since 2.20.0
+     * @method deleteAllMessagesInBubble
+     * @category Bubbles Messages
+     * @instance
+     * @async
+     * @description
+     *   Delete all messages in a Bubble for everybody or hide it definitively for a specific contact. <br>
+     * @param {Bubble} bubble bubble where im messages must be deleted.
+     * @param {string} forContactJid jid of the contact we want to delete the access to messages in the bubble. If not setted, then all bubble's messages are deleted for every contacts.
+     * @return Promise<any> Result of the API.
+     */
+    async deleteAllMessagesInBubble( bubble: Bubble, forContactJid: string = undefined) {
+        let that = this;
+
+        if (!bubble) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        // new to openconversation to send presence and activate the bubble if needed.
+        let conversationObj = await that._conversations.openConversationForBubble(bubble);
+
+        if (conversationObj.type!==Conversation.Type.ROOM) {
+            that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter.");
+            that._logger.log("internalerror", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter : ", conversationObj);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that._xmpp.deleteAllMessagesInRoomConversation(bubble.jid, forContactJid);
+    }
+
+    //endregion Bubbles Messages
+    
     //region Conference V2
 
     /**
@@ -4560,9 +5232,9 @@ class Bubbles extends GenericService {
                     resolve(null);
                 }
                 // */
-                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - active(string):[{0}]", confSnapshop["active"]);
                 let active: boolean = false;
                 active = confSnapshop["active"];
+                that._logger.log("debug", LOG_ID + "(askConferenceSnapshot) - confSnapshop[\"active\"] : ", active);
 
                 let conference: ConferenceSession ;
 
@@ -4679,7 +5351,7 @@ class Bubbles extends GenericService {
 
                 // Finally add conference to the cache
                 await that.addOrUpdateConferenceToCache(conference, true);
-                return conference;
+                return resolve (conference);
             }).catch((err) => {
                 return reject(err);
             });
@@ -4776,7 +5448,7 @@ class Bubbles extends GenericService {
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the room.
      * @param {string} userId User identifier.
      * @async
      * @description
@@ -4788,23 +5460,23 @@ class Bubbles extends GenericService {
      * @return {Promise<any>} the result of the operation.
 
      */
-    disconnectParticipantFromConference(roomId: string, userId: string) {
+    disconnectParticipantFromConference(bubbleId: string, userId: string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(delegateConference) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!userId) {
-                that._logger.log("debug", LOG_ID + "(delegateConference) bad or empty 'userId' parameter : ", userId);
+                that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bad or empty 'userId' parameter : ", userId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.delegateConference(roomId, userId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(delegateConference) result from server : ", result);
+            that._rest.disconnectParticipantFromConference(bubbleId, userId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disconnectParticipantFromConference) result from server : ", result);
 
                 if (result) {
                     resolve(result);
@@ -4866,33 +5538,55 @@ class Bubbles extends GenericService {
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
-     //* @param {string} mediaType For screen sharing during PSTN conference. Valid value : webrtcSharingOnly
+     * @param {string} bubbleId The id of the room.
      * @param {string} participantPhoneNumber Join through dial.
      * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
      * @param {string} deskphone User joins conference through his deskphone. Default value : false
-     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center).
+     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center). Default Value : ["rdeu"]
      * @param {string} mute Join as muted/unmuted.
      * @param {string} microphone Has client a microphone?
-     * @param {string} media Requested media. Default value : [audio,video] . Possible value : audio, video .
+     * @param {Array<string>} media Requested media. Default value : ["video"] to let the bot join without audio. Possible value : "audio", "video" .
+     * @param {string} resourceId Jabber resource identifier for webinar attendee. Default value : the internal xmpp resource used to connect server.
      * @async
      * @description
      *       Adds a participant to a conference. In case of PSTN conference, the user will be called to the provided phone number (dial out). <br>
-     *           NOTE: The join can not be done without any audio/video media, because the server will close the connection after one minute.
+     *           NOTE: The join done with audio media, need a webrtc stack because the server will close the connection after one minute if the media session is not up.
      * @return {Promise<any>} the result of the operation.
-
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object |     |
+     * | jingleJid | String | WebRTC Gateway instance. |
+     * | transportTurn optionnel | Boolean | If true, client must use 'relay' for 'iceTransportPolicy'. |
+     * | gatewayPrefix optionnel | String | WebRTC Gateway prefix in case of deskphone. |
+     * | gatewaySessionId optionnel | String | WebRTC Gateway session id in case of deskphone. |
+     * | isAlreadyConnected optionnel | String | True if user is already connected. |
+     *  
      */
-    joinConferenceV2(roomId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["audio","video"], mute: boolean = false, microphone: boolean = false, media : Array<string> = undefined) {
+    joinConferenceV2(bubbleId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["rdeu"], mute: boolean = false, microphone: boolean = false, media : Array<string> = ["video"], resourceId : string  = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(joinConferenceV2) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(joinConferenceV2) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(joinConferenceV2) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(joinConferenceV2) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
+            
+            if (!resourceId) {
+                resourceId = that._xmpp.resourceId;
+            }
 
-            that._rest.joinConferenceV2(roomId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media).then(async (result) => {
+            if (!dc) {
+                dc = ["rdeu"];
+            }
+            
+            if (!media) {
+                media = ["video"];
+            }
+
+            that._rest.joinConferenceV2(bubbleId, participantPhoneNumber, country, deskphone, dc, mute, microphone, media, resourceId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(joinConferenceV2) result from server : ", result);
 
                 if (result) {
@@ -5003,7 +5697,7 @@ class Bubbles extends GenericService {
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.pauseRecording(roomId).then(async (result) => {
+            that._rest.startRecording(roomId).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(startRecording) result from server : ", result);
 
                 if (result) {
@@ -5098,24 +5792,25 @@ class Bubbles extends GenericService {
      * @instance
      * @since 2.2.0
      * @category Conference V2
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the room.
+     * @param {Object} services Requested service types. example : { "services": [ "video-compositor" ] }
      * @async
      * @description
      *       The start command initiates a conference in a room. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
-    startConferenceOrWebinarInARoom(roomId: string) {
+    startConferenceOrWebinarInARoom(bubbleId: string, services  : { "services": [] } = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) roomId : " + roomId);
+            that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bubbleId : " + bubbleId);
 
-            if (!roomId) {
-                that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'roomId' parameter : ", roomId);
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'bubbleId' parameter : ", bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.startConferenceOrWebinarInARoom(roomId).then(async (result) => {
+            that._rest.startConferenceOrWebinarInARoom(bubbleId, services ).then(async (result) => {
                 that._logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) result from server : ", result);
 
                 if (result) {
@@ -5587,6 +6282,172 @@ class Bubbles extends GenericService {
     }
 
     //endregion Conference V2
+
+    //region Bubbles - dialIn
+
+    /**
+     * @public
+     * @method disableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to disable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     * 
+     */
+    disableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.disableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(disableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method enableDialInForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to enable dial in for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    enableDialInForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.enableDialInForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(enableDialInForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method resetDialInCodeForABubble
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} bubbleId The id of the room.
+     * @async
+     * @description
+     *       This API allows to reset dial in code for a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | dialInCode | String | Dial in code. |
+     *
+     */
+    resetDialInCodeForABubble(bubbleId : string) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
+
+            if (!bubbleId) {
+                that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.resetDialInCodeForARoom(bubbleId).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(resetDialInCodeForABubble) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method getDialInPhoneNumbersList
+     * @instance
+     * @since 2.21.0
+     * @category Bubbles - dialIn
+     * @param {string} shortList Allows to display phoneNumbers of the user's country in a separate list (default true).
+     * @async
+     * @description
+     *       This API allows to retrieve the list of phone numbers to join conference by Dial In. <br>
+     * @return {Promise<any>} the result of the operation.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | country | String | User country (ISO 3166-1 alpha3 format) |
+     * | language | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | shortList | Object\[\] | When the user's country is known, show when exist phoneNumbers located in this country |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     * | phoneNumberList | Object\[\] | List of phoneNumbers ranked by country in the user's language (default: en) |
+     * | location | String | Country and sometime a city |
+     * | locationcode | String | ISO 3166 location code |
+     * | number | String | Dialable phone number |
+     * | numberE164 | String | Dialable phone number in E.164 format |
+     * | numberType | String | Number free of charge or not, one of `local`, `lo-call`, `tollFree`, `other` |
+     *
+     */
+    getDialInPhoneNumbersList ( shortList : boolean) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) shortList : " + shortList);
+
+            if (!shortList) {
+                that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) bad or empty 'shortList' parameter : ", shortList);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getDialInPhoneNumbersList(shortList).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+   //endregion Bubbles - dialIn
+
 
 }
 

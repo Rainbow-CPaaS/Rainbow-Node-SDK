@@ -10,6 +10,8 @@ const { atob } = pkg;
 import {default as Jimp} from 'jimp';
 import {default as dns} from 'dns';
 //import * as utilTypes from 'util'
+const xml2js = require('xml2js');
+const util = require("util");
 import {types as utilTypes} from "util";
 
 
@@ -101,6 +103,10 @@ let isNullOrEmpty = function(value) {
         }
     }
     return _isNullOrEmpty;
+}
+
+let isNumber = function  isNumber(data) {
+    return (typeof data === 'number' && !(isNaN(data)));
 }
 
 let setTimeoutPromised = function(timeOutMs) : Promise<any> {
@@ -253,7 +259,7 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     if (paramValue == undefined || paramValue == null) {
         return;
     } 
-    if (paramValue && urlParams) {
+    if (paramName && urlParams) {
         if (urlParams[0].includes("?") ) {
             urlParams[0] += "&" ;
         } else {
@@ -261,6 +267,15 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
         }
         //urlParams[0] += urlParams[0] ? "&" : "?";
         urlParams[0] += paramName + "=" + encodeURIComponent(paramValue);
+    }
+}
+
+function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+    if (!addEmptyProperty && ( methodValue === null || methodValue === undefined )) {
+        return;
+    } 
+    if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
+        objetToUpdate[methodName] = methodValue;
     }
 }
 
@@ -383,7 +398,13 @@ function logEntryExit(LOG_ID) : any {
                         /* if (!this.getClassName) {
                              this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
                          } // */
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        let logParameters = this.startConfig?this.startConfig.logEntryParameters: false;
+                        if (logParameters) {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_ with : " + util.inspect(arguments, false, 4, true)));
+                            
+                        } else {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        }
                         /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
                             //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
                             logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
@@ -556,6 +577,59 @@ const resolveDns = (cname) => {
     });
 }
 
+async function getJsonFromXML(xml : string) {
+    try {
+        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+        // convert it to a JSON string
+        return result;
+        //return JSON.stringify(result, null, 4);
+    } catch (err) {
+        //console.log(err);
+        return {};
+    }
+}
+
+function randomString(length, chars) {
+    let result = "";
+    for (let i = length; i > 0; --i) {
+        result += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+    return result;
+}
+
+function generateRamdomEmail(email){
+    let randomId = randomString(16, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    let emailGenerated = randomId + "_" + email;
+    return emailGenerated.toLowerCase();
+}
+
+function functionName(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0]  : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    result = result.substr('function '.length);
+    result = result.substr(0, result.indexOf('('));
+    return result;
+}
+
+function functionSignature(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] + "...}" : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0] + "...}" : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    return result;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -563,6 +637,7 @@ export let objToExport = {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -581,7 +656,12 @@ export let objToExport = {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };
 
 // module.exports = objToExport;
@@ -592,6 +672,7 @@ export {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -610,7 +691,12 @@ export {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };
 
 export default {
@@ -620,6 +706,7 @@ export default {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -638,5 +725,10 @@ export default {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
-    doWithinInterval
+    doWithinInterval,
+    addPropertyToObj,
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature
 };

@@ -28,8 +28,9 @@ class AlertDevice {
     public tags: List<string>;
     public geolocation: string; //Geolocation
     public domainUsername: string;
+    public description: string;
     
-    constructor(id? : string , name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string, domainUsername? : string) {
+    constructor(id? : string , name?: string, type?: string, userId?: string, companyId?: string, jid_im?: string, jid_resource?: string, creationDate?: string, ipAddresses?: List<string>, macAddresses?: List<string>, tags?: List<string>, geolocation?: string, domainUsername? : string, description? : string) {
         /**
          * @public
          * @readonly
@@ -133,6 +134,14 @@ class AlertDevice {
          * @instance
          */
         this.domainUsername = domainUsername
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} description The description of the device.
+         * @instance
+         */
+        this.description = description
     }
 }
 

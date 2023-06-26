@@ -26,7 +26,7 @@ class Emitter extends EventEmitter {
     emit(type, ...args): boolean {
         let that = this;
         try {
-        that._logger.log("internal", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        that._logger.log("debug", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
         } catch (e) {
             that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
         }
@@ -39,9 +39,7 @@ class Emitter extends EventEmitter {
         let that = this;
         let listenerWithLog = (...args: any[]) => {
             try {
-                if (args.length === 0) {
-                    that._logger.log("internal", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
-                }
+                that._logger.log("debug", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
                 let iter = 0;
                 [...params] = args;
                 let data = "";
@@ -111,6 +109,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleownaffiliationchanged <br>
  * @fires Events#rainbow_onbubbledeleted <br>
  * @fires Events#rainbow_onbubbleinvitationreceived <br>
+ * @fires Events#rainbow_onbubblecontactinvitationreceived <br>
  * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
  * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
  * @fires Events#rainbow_onbubbleconferencedelegatereceived <br>
@@ -158,6 +157,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_oncalllogupdated <br>
  * @fires Events#rainbow_oncalllogackupdated <br>
  * @fires Events#rainbow_onfavoritecreated <br>
+ * @fires Events#rainbow_onfavoriteupdated <br>
  * @fires Events#rainbow_onfavoritedeleted <br>
  * @fires Events#rainbow_onxmpperror <br>
  * @fires Events#rainbow_onalertmessagereceived <br>
@@ -176,6 +176,10 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorcommand <br>
  * @fires Events#rainbow_onconnectorconfig <br>
  * @fires Events#rainbow_onconnectorcommandended <br>
+ * @fires Events#rainbow_onconnectorimportstatus <br>
+ * @fires Events#rainbow_onrbvoicerawevent <br>
+ * @fires Events#rainbow_onjoincompanyinvitereceived <br>
+ * @fires Events#rainbow_onjoincompanyrequestreceived <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -218,6 +222,7 @@ class Events {
         "rainbow_onbubbleownaffiliationchanged",
         "rainbow_onbubbledeleted",
         "rainbow_onbubbleinvitationreceived",
+        "rainbow_onbubblecontactinvitationreceived",
         "rainbow_onbubbleconferencestartedreceived",
         "rainbow_onbubbleconferencestoppedreceived",
         "rainbow_onbubbleconferencedelegatereceived",
@@ -265,6 +270,7 @@ class Events {
         "rainbow_oncalllogupdated",
         "rainbow_oncalllogackupdated",
         "rainbow_onfavoritecreated",
+        "rainbow_onfavoriteupdated",
         "rainbow_onfavoritedeleted",
         "rainbow_onxmpperror",
         "rainbow_onalertmessagereceived",
@@ -282,7 +288,11 @@ class Events {
         "rainbow_onbubblepollvoted",
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
-        "rainbow_onconnectorcommandended"
+        "rainbow_onconnectorcommandended",
+        "rainbow_onconnectorimportstatus",
+        "rainbow_onrbvoicerawevent",
+        "rainbow_onjoincompanyinvitereceived",
+        "rainbow_onjoincompanyrequestreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -637,7 +647,6 @@ class Events {
                             if (that._core.options._imOptions.autoInitialBubblePresence) {
                                 if (user && user.jid_im===that._core._rest.loggedInUser.jid_im && user.status==="accepted") {
                                     // this._core._xmpp.sendInitialBubblePresence(bubble.jid);
-                                    //that._core.bubbles._sendInitialBubblePresence(bubble);
                                     await that._core._presence.sendInitialBubblePresenceSync(bubble);
                                 }
                             } else {
@@ -712,6 +721,17 @@ class Events {
              *      Fired when an invitation to join a bubble is received
              */
             that.publishEvent("bubbleinvitationreceived", bubble);
+        });   
+        
+        this._evReceiver.on("evt_internal_contactinvitationdetailsreceived", async function(invitation) {
+            /**
+             * @event Events#rainbow_onbubblecontactinvitationreceived
+             * @public
+             * @param { any } invitation The invitation bubble {contact: Contact, bubble: Bubble, content: string, subject:string}
+             * @description
+             *      Fired when an invitation to join a bubble is received for a contact.
+             */
+            that.publishEvent("bubblecontactinvitationreceived", invitation);
         });
 
         this._evReceiver.on("evt_internal_bubbleconferencestartedreceived", function(bubble) {
@@ -1203,6 +1223,17 @@ class Events {
             that.publishEvent("favoritecreated", data);
         });
 
+        this._evReceiver.on("evt_internal_favoriteupdated", function (data) {
+            /**
+             * @event Events#rainbow_onfavoriteupdated
+             * @public
+             * @param { Favorite } favorite The favorite updated
+             * @description
+             *      Fired when a favorite is updated to the loggued in user.
+             */
+            that.publishEvent("favoriteupdated", data);
+        });
+
         this._evReceiver.on("evt_internal_favoritedeleted", function (data) {
             /**
              * @event Events#rainbow_onfavoritedeleted
@@ -1432,6 +1463,50 @@ class Events {
             that.publishEvent("connectorcommand_ended", data);
         });
 
+        this._evReceiver.on("evt_internal_connectorimportstatus", function (data) {
+            /**
+             * @event Events#rainbow_onconnectorimportstatus
+             * @public
+             * @param { Object } data informations about connector import status
+             * @description
+             *      This event is fired in case an import is requested.
+             */
+            that.publishEvent("connectorimportstatus", data);
+        });
+
+        this._evReceiver.on("evt_internal_onrbvoiceevent", function (data) {
+            /**
+             * @event Events#rainbow_onrbvoicerawevent
+             * @public
+             * @param { Object } data informations about rainbow voice events
+             * @description
+             *      This event is fired in case a of rainbow voice event.
+             */
+            that.publishEvent("rbvoicerawevent", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyinvitereceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyinvitereceived
+             * @public
+             * @param { Object } data informations about rainbow join company invite events
+             * @description
+             *      This event is fired in case a of rainbow join company invite event.
+             */
+            that.publishEvent("joincompanyinvitereceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_joincompanyrequestreceived", function (data) {
+            /**
+             * @event Events#rainbow_onjoincompanyrequestreceived
+             * @public
+             * @param { Object } data informations about rainbow join company request events
+             * @description
+             *      This event is fired in case a of rainbow join company request event.
+             */
+            that.publishEvent("joincompanyrequestreceived", data);
+        });
+
     }
 
     get iee(): EventEmitter {
@@ -1485,6 +1560,21 @@ class Events {
      */
     on(event, callback): EventEmitter {
         return this._evPublisher.on(event, callback);
+    }
+
+    /**
+     * @method emit
+     * @private
+     * @memberof Events
+     * @instance
+     * @param {string} eventName name for the event
+     * @param {any} data arguments for the event
+     * @return nothing
+     * @description
+     *      Emit an event.
+     */
+    emit(eventName, data) : void {
+        this.iee.emit(eventName, data);
     }
 
     /**

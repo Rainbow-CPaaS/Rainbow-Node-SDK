@@ -137,3 +137,9 @@ Source code has to be synchronized with Github (push).
 
 Go on Github, and in the release section, edit a new release note and add the content of the changelog.
 
+### keep commonjs mode
+
+yarn add dateformat@4.6.3
+yarn add chalk@4.1.2
+yarn add strip-ansi@6.0.1
+yarn add inquirer@8.2.5

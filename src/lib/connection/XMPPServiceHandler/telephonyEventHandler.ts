@@ -4,7 +4,7 @@ import {XMPPUTils} from "../../common/XMPPUtils.js";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call.js";
-import {logEntryExit} from "../../common/Utils.js";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils.js";
 //const config = require("../../config/config");
 import {config} from "../../config/config.js";
 import {GenericHandler} from "./GenericHandler.js";
@@ -1271,7 +1271,7 @@ class TelephonyEventHandler extends GenericHandler {
 
         that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", eventElem.root ? prettydata.xml(eventElem.root().toString()):eventElem);
         let xmlNodeStr = eventElem ? eventElem.toString():"<xml></xml>";
-        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+        let jsonNode = await getJsonFromXML(xmlNodeStr);
         that.logger.log("debug", LOG_ID + "(onVoiceMessagesEvent) JSON : ", jsonNode);
         infos.voiceMessagesCounters = jsonNode["voiceMessages"]?jsonNode["voiceMessages"]["voiceMessagesCounters"]?jsonNode["voiceMessages"]["voiceMessagesCounters"]['$attrs']:undefined:undefined;
 

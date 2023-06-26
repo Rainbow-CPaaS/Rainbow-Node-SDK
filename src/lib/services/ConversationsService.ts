@@ -68,7 +68,6 @@ class ConversationsService extends GenericService {
 	public waitingBotConversations: any;
 	public botServiceReady: any;
     private _conversationHistoryHandler: ConversationHistoryHandler;
-    private chatRenderer: any;
     private conversationsRetrievedFormat: string = "small";
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
@@ -390,17 +389,24 @@ class ConversationsService extends GenericService {
      * @description
      *    Mark all unread messages in the conversation as read. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
+     * @param {boolean} maskRead if true Im won't be shown as read on peer conversation side. Default value : : false
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    ackAllMessages(conversationDbId) {
-        return this._rest.ackAllMessages(conversationDbId);
+    ackAllMessages(conversationDbId, maskRead : boolean = false) {
+        return this._rest.ackAllMessages(conversationDbId, maskRead );
     }
 
     resetHistoryPageForConversation(conversation : Conversation) {
-        conversation.reset();
+        let that = this;
+        if (!conversation) {
+            that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) undefined conversation.id so no reset done.");
+            return;
+        }
+        that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) id : ", conversation.id, ", dbid : ", conversation.dbId);
+        conversation.resetHistory();
     }
 
     /**
@@ -440,7 +446,7 @@ class ConversationsService extends GenericService {
 
         if (conversation.historyComplete) {
             that._logger.log("debug", LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
-            defered.reject();
+            defered.resolve(conversation);
             return defered.promise;
         }
 
@@ -477,6 +483,32 @@ class ConversationsService extends GenericService {
         }
 
         return defered.promise;
+    }
+
+    /**
+     * @public
+     * @method getHistoryPage
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation. <br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages. 
+     * @async
+     * @return {Promise<Conversation[]>}
+     * @fulfil {Conversation[]} - Array of Conversation object
+     * @category async
+     */
+    loadConversationHistory(conversation, pageSize : number = 30) {
+        let that = this;
+        that._logger.log("debug", "(loadConversationHistory)");
+        return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
+            that._logger.log("debug", "(loadConversationHistory) getHistoryPage.");
+
+            let result = conversationUpdated.historyComplete ? conversationUpdated:that.loadConversationHistory(conversationUpdated);
+            //that._logger.log("internal", "(loadConversationHistory) getHistoryPage result : ", result);
+            return result;
+        });
     }
 
     /**
@@ -529,6 +561,59 @@ class ConversationsService extends GenericService {
     }
 
     /**
+     * @public
+     * @method getTheNumberOfHitsOfASubstringInAllUsersconversations
+     * @instance
+     * @category CONVERSATIONS
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | jid | String | the JID of the peer (P2P, BOT or ROOM) |
+     * | count | Integer | The number of hits |
+     *
+     * @description
+     *          This API can be used to search a text substring in all conversations for a given user from recent to old messages. </br>
+     *          For technical reasons, the same limit value applies on all peer to peer conversations but also on all room conversations. </br>
+     *          This API can only be used by user himself (i.e. userId of logged-in user). </br>
+     * @param {string} userId User unique identifier
+     * @param {string} substring Text to search
+     * @param {number} limit Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Default value : : 100
+     * @param {boolean} webinar Include webinars (excluded by default). Default value : : false
+     */
+    async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!substring) {
+                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                that._rest.getTheNumberOfHitsOfASubstringInAllUsersconversations(meId, substring, limit, webinar).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
      *
      * @public
      * @method getContactsMessagesFromConversationId
@@ -540,7 +625,7 @@ class ConversationsService extends GenericService {
      * @async
      * @return {Promise<any>}
      */
-    getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
+    async getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
         let that = this;
 
         if (!conversationId) {
@@ -557,6 +642,15 @@ class ConversationsService extends GenericService {
         if (!conversation.messages) {
             that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' undefined!");
             return null;
+        }
+
+        if (conversation.historyComplete == false) {
+            that._logger.log("info", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' empty, load the history !");
+            await that.loadConversationHistory(conversation);
+            if (!conversation.messages) {
+                that._logger.log("warn", LOG_ID + "(getContactsMessagesFromConversationId) after load history 'conversation.messages' undefined!");
+                return null;
+            }
         }
 
         return conversation.messages.filter((msg) => {
@@ -691,9 +785,6 @@ class ConversationsService extends GenericService {
                     } */)
                         .then(function successCallback(fileDesc) {
                                 that._logger.log("debug", LOG_ID + "uploadAFileByChunk success");
-                                if (that.chatRenderer) {
-                                    that.chatRenderer.updateFileTransferState(message, fileDesc);
-                                }
                                // resolve(fileDescriptor);
                                 return Promise.resolve(fileDesc);
                             },
@@ -853,54 +944,67 @@ class ConversationsService extends GenericService {
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+        /*
         if (data==undefined) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'data' parameter : ", data);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-        }
+        }//*/
         if (!origMsgId) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter");
             this._logger.log("internalerror", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : ", origMsgId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
-        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : ", data,  "origMsgId : ", origMsgId);
+        that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : \'", data,  "\', origMsgId : ", origMsgId, " content : ", content);
 
         let originalMessage = conversation.getMessageById(origMsgId);
-        let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
-        if (originalMessageFrom !== that._rest.loggedInUser.jid_im) {
-            that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified","(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-        }
+        that._logger.log("info", LOG_ID + "(sendCorrectedChatMessage) originalMessage : ", originalMessage);
+        if (originalMessage) {
+            let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
+            if (originalMessageFrom!==that._rest.loggedInUser.jid_im) {
+                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+                throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified", "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+            }
 
-        let lastEditableMsg = conversation.getlastEditableMsg();
+            let lastEditableMsg = conversation.getlastEditableMsg();
 
-        if (lastEditableMsg.id !== originalMessage.id) {
-            that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
-            throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified","(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
-        }
+            if (lastEditableMsg.id!==originalMessage.id) {
+                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+                throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified", "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+            }
 
-        let messageUnicode = shortnameToUnicode(data);
+            let messageUnicode = data==="" ? "":(data ? shortnameToUnicode(data):undefined);
 
-        try {
-            let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content );
-            let newMsg = Object.assign({}, originalMessage);
-            newMsg.id = sentMessageId;
-            newMsg.content = messageUnicode;
-            newMsg.date = new Date();
-            newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
-            originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
-            that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
-            this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
-            return newMsg;
-        } catch (err) {
-            that._logger.log("error", LOG_ID + "createFileDescriptor error");
-            let error = ErrorManager.getErrorManager().OTHERERROR(err.message,"(sendCorrectedChatMessage) error while sending corrected message : " + err );
+            try {
+                let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content);
+                let newMsg = Object.assign({}, originalMessage);
+                newMsg.id = sentMessageId;
+                newMsg.content = messageUnicode;
+                newMsg.date = new Date();
+                newMsg.alternativeContent = content;
+                newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
+                originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
+                that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
+                this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
+                return newMsg;
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "sendCorrectedChatMessage error");
+                let error = ErrorManager.getErrorManager().OTHERERROR(err.message, "(sendCorrectedChatMessage) error while sending corrected message : " + err);
+                // @ts-ignore
+                error.newMessageText = data;
+                // @ts-ignore
+                error.originaleMessageId = origMsgId;
+                throw  error;
+            }
+        } else {
+            that._logger.log("warn", LOG_ID + "(sendCorrectedChatMessage) error the original message was not found in conversation : ", conversation);
+            let error = ErrorManager.getErrorManager().OTHERERROR("sendCorrectedChatMessage error the original message was not found.", "sendCorrectedChatMessage error the original message was not found.");
             // @ts-ignore
             error.newMessageText = data;
             // @ts-ignore
             error.originaleMessageId = origMsgId;
-            throw  error ;
+            throw  error;
         }
     }
 
@@ -1131,12 +1235,177 @@ class ConversationsService extends GenericService {
             }
         });
     }
-    
-// endregion
-    
-//region CONVERSATIONS
 
     /**
+     * @public
+     * @method updateConversationBookmark
+     * @instance
+     * @category MESSAGES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Status message. |
+     * | data | Object\[\] | No data (empty Array) |
+     * 
+     * @description
+     *          This API can be used to set or replace a bookmarked message in a conversation. This API can only be used by user himself. </br>
+     * @param {string} userId User unique identifier.
+     * @param {string} conversationId conversation unique identifier (the dbId property in Conversation).
+     * @param {string} messageId message unique identifier.
+     */
+    updateConversationBookmark (userId : string, conversationId	: string, messageId : string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(updateConversationBookmark) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!conversationId) {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'conversationId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!messageId) {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'messageId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.updateConversationBookmark(meId, conversationId, messageId).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(updateConversationBookmark) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(updateConversationBookmark) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(updateConversationBookmark) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteConversationBookmark
+     * @instance
+     * @category MESSAGES
+     * @async
+     * @since 2.21.0
+     * @return {Object} The result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Status message. |
+     * | data | Object\[\] | No data (empty Array) |
+     * 
+     * @description
+     *          This API can be used to set or replace a bookmarked message in a conversation. This API can only be used by user himself. </br>
+     * @param {string} userId User unique identifier.
+     * @param {string} conversationId conversation unique identifier (the dbId property in Conversation).
+     */
+    deleteConversationBookmark (userId : string, conversationId	: string) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!conversationId) {
+                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) bad or empty 'conversationId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.deleteConversationBookmark(meId, conversationId).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(deleteConversationBookmark) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(deleteConversationBookmark) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method showAllMatchingMessagesForAPeer
+     * @since 2.21.0
+     * @instance
+     * @category MESSAGES
+     * @description
+     * This API can be used to return all matching messages for one specific peer. This API can only be used by user himself. <br>
+     * @return {Promise<any>} An object of the result
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | timestamp | Integer | Message timestamp in microseconds |
+     * | msgId | String | The message ID |
+     *
+     * @param {string} userId User unique identifier
+     * @param {string} substring Text to search
+     * @param {string} peer Peer JID
+     * @param {boolean} isRoom Is the peer a room ?
+     * @param {number} limit Max number of matching messages references. Default value : : 20
+     */    
+    showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
+        let that = this;
+
+        that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) parameters : userId : ", userId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = userId ? userId : that._rest.account.id;
+
+                if (!substring) {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                if (!peer) {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                that._rest.showAllMatchingMessagesForAPeer(meId, substring, peer, isRoom, limit).then((result : any) => {
+                    that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) Error when updating informations.");
+                    that._logger.log("internalerror", LOG_ID + "(showAllMatchingMessagesForAPeer) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log("internalerror", LOG_ID + "(showAllMatchingMessagesForAPeer) error : ", err);
+                return reject(err);
+            }
+        });       
+    }
+    
+// endregion MESSAGES
+    
+//region CONVERSATIONS
+    
+        /**
      * @public
      * @method getAllConversations
      * @category CONVERSATIONS
@@ -1369,13 +1638,15 @@ class ConversationsService extends GenericService {
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br>
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
+     * @param {Array<string>} emails Allows to send the backup to users from an emails list.</BR> When one email matchs with a Rainbow user loginEmail, the mail sent is localized using this user's language.
+     * @param {string} lang Language of the email notification if user language value is not available (for no Rainbow users). Default value : : en
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    sendConversationByEmail(conversationDbId) {
-        return this._rest.sendConversationByEmail(conversationDbId);
+    sendConversationByEmail(conversationDbId, emails : Array<string> = undefined, lang : string = "en"  ) {
+        return this._rest.sendConversationByEmail(conversationDbId, emails, lang);
     }
 
     /**
@@ -1430,7 +1701,7 @@ class ConversationsService extends GenericService {
                 });
         });
     }
-
+    
     /**
      * @public
      * @method getConversationById
@@ -1447,8 +1718,13 @@ class ConversationsService extends GenericService {
         if (!this.conversations) {
             return null;
         }
-        that._logger.log("internal", LOG_ID + " (getConversationById) conversation : ", this.conversations[conversationId]);
-        return this.conversations[conversationId];
+        let conv =  this.conversations[conversationId];
+        that._logger.log("internal", LOG_ID + " (getConversationById) conversation by id result : ", conv);
+        if (!conv) {
+            conv = that.getConversationByDbId(conversationId);
+            that._logger.log("internal", LOG_ID + " (getConversationById) conversation not found by id, so searched by dbId result : ", conv);
+        } 
+        return conv;
     }
 
     /**
@@ -1602,7 +1878,9 @@ class ConversationsService extends GenericService {
                         // that.createServerConversation(conversation)
                         Promise.resolve(conversation).then(function (__conversation) {
                             if (bubble) {
-                                that._presenceService.sendInitialBubblePresenceSync(bubble);
+                                that._presenceService.sendInitialBubblePresenceSync(bubble).catch((errOfSent) => {
+                                    that._logger.log("warn", LOG_ID + "(getBubbleConversation) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                });
                             }
                             // Send conversations update event
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
@@ -1822,15 +2100,16 @@ class ConversationsService extends GenericService {
      * @description
      *    Allow to create a conversations on server (p2p and bubbles) <br>
      * @param {Conversation} conversation of the conversation (dbId field)
+     * @param {boolean} mute : true if conversation is muted, false otherwise. Default value : false.
      * @return {Conversation} Created conversation object
      */
-    createServerConversation(conversation : Conversation) {
+    createServerConversation(conversation : Conversation, mute : boolean = false ) {
         let that = this;
         // Ignore already stored existing conversation
         if (conversation.dbId) { return Promise.resolve(conversation); }
 
         // Prepare global variables
-        let data = {peerId:null, type: null};
+        let data = {peerId:null, type: null, mute: null};
 
         // Handle one to one conversation
         if (conversation.type === Conversation.Type.ONE_TO_ONE) {
@@ -1864,6 +2143,8 @@ class ConversationsService extends GenericService {
             let avatarRoom = conversation.bubble.avatar;
         }
 
+        data.mute = mute;
+        
         return this._rest.createServerConversation( data ).then((result : any)=> {
             that._logger.log("info", LOG_ID + "createServerConversation success: " + conversation.id);
             conversation.dbId = result.id;

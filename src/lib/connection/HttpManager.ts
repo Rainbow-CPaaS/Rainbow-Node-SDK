@@ -18,6 +18,7 @@ import {Logger} from "../common/Logger.js";
 //let backoff = require("backoff");
 // @ ts-ignore
  import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index.js";
+import {TimeOutManager} from "../common/TimeOutManager.js";
 // const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
 // const BackoffError = require("request-rate-limiter").BackoffError; 
         
@@ -86,6 +87,11 @@ class HttpManager {
     public nbHttpAdded : number = 0;
     public nbRunningReq = 0;
     started: boolean;
+    retryAfterTime = 10000;
+    retryAfterEndTime = Date.now();
+    retryAfterStartTime = Date.now();
+//    retryAfterActivated = false;
+    _core;
 
     public limiter: RequestRateLimiter;
 
@@ -113,6 +119,7 @@ class HttpManager {
         let that = this;
         return new Promise(function (resolve, reject) {
             try {
+                that._core = _core;
                 that.limiter = new RequestRateLimiter({
                     backoffTime: 10,
                     requestRate: _options.requestsRate.maxReqByIntervalForRequestRate,
@@ -141,7 +148,10 @@ class HttpManager {
         httpQueueSize: number,
         nbRunningReq: number,
         maxSimultaneousRequests : number,
-        nbReqInQueue: number
+        nbReqInQueue: number,
+        retryAfterTime : number,
+        retryAfterEndTime :number, 
+        retryAfterStartTime : number
     }> {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
@@ -151,12 +161,18 @@ class HttpManager {
             nbRunningReq: number,
             maxSimultaneousRequests : number,
             nbReqInQueue: number
+            retryAfterTime : number,
+            retryAfterEndTime :number,
+            retryAfterStartTime : number
         } = {
             nbHttpAdded : 0,
             httpQueueSize : 0,
             nbRunningReq : 0,
             maxSimultaneousRequests : 0,
-            nbReqInQueue: 0
+            nbReqInQueue: 0,
+            retryAfterTime : 0,
+            retryAfterEndTime :0,
+            retryAfterStartTime : 0
         };
 
         try {
@@ -165,6 +181,9 @@ class HttpManager {
             httpStatus.nbRunningReq = that.nbRunningReq;
             httpStatus.maxSimultaneousRequests = that.limiter.bucket.capacity;
             httpStatus.nbReqInQueue = that.limiter.bucket.length;
+            httpStatus.retryAfterTime = that.retryAfterTime ;
+            httpStatus.retryAfterEndTime = that.retryAfterEndTime;
+            httpStatus.retryAfterStartTime = that.retryAfterStartTime;
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
         } catch (err) {
             that._logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
@@ -244,7 +263,44 @@ class HttpManager {
         }
         req.id = new Date().getTime() + "_" + that.nbHttpAdded;
         this._logger.log("internal", LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
-        return this.limiter.request(req);
+        if (that.retryAfterEndTime > Date.now()) {
+            this._logger.log("internal", LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+            let error = {
+                code: 429,
+                url: req.params[0],
+                msg: 'Too Many Requests',
+                details: 'undefined',
+                error: { errorMsg: 'Too Many Requests (HAP429).\n' },
+                retryAfterStartTime:that.retryAfterStartTime,
+                retryAfterEndTime:that.retryAfterEndTime,
+                headers: {
+                    'retry-after': that.retryAfterTime/1000,
+                    'content-length': '28',
+                    'content-type': 'text/plain',
+                    connection: 'close'
+                }
+            }
+            return Promise.reject(error);
+        }  else {
+            return this.limiter.request(req).catch((error) => {
+                that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                if (error && error.code == 429 && error.headers) {
+                    that.retryAfterTime = (error.headers["retry-after"] ? Number.parseInt(error.headers["retry-after"]):10) * 1000;
+                    //that.retryAfterActivated = true;
+                    that.retryAfterStartTime = Date.now();
+                    that.retryAfterEndTime = that.retryAfterStartTime + that.retryAfterTime + getRandomInt(5000);
+                    that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.retryAfterStartTime : ", that.retryAfterStartTime, ", that.retryAfterEndTime : ", that.retryAfterEndTime,"that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                    /*
+                     that._core.timeOutManager.setTimeout(() => {
+                        that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                        that.retryAfterTime = 10;
+                        that.retryAfterActivated = false;
+                    }, that.retryAfterTime, "retryAfterActivated")
+                    // */
+                }
+                throw error;
+            });
+        }
     }
 
     stop() {
