@@ -1,6 +1,5 @@
 "use strict";
 
-import {equalIgnoreCase, isNullOrEmpty, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils.js";
 import {default as PubSub} from "pubsub-js";
 import {Conversation} from "../common/models/Conversation.js";
 import {XMPPUTils} from "../common/XMPPUtils.js";
