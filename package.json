@@ -79,7 +79,7 @@
     "puppeteer": "^20.4.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^7.1.1",
-    "typescript": "5.0.4",
+    "typescript": "^5.2.0-dev.20230626",
     "yamljs": "^0.3.0"
   },
   "dependencies": {
