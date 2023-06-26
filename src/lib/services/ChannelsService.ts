@@ -1994,7 +1994,7 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel
-     * @param {Array<any>}owners
+     * @param {Array<any>}owners Array of owners to add.
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of owners to the channel <br>
