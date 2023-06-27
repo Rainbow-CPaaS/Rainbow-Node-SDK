@@ -11,7 +11,7 @@ import {
     logEntryExit,
     makeId,
     setTimeoutPromised
-} from "../common/Utils";
+} from "../common/Utils.js";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler.js";
 import {XmppClient} from "../common/XmppQueue/XmppClient.js";
