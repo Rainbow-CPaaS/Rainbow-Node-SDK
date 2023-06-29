@@ -1,7 +1,7 @@
 "use strict";
-import {Deferred, doWithinInterval, functionSignature, pause, setTimeoutPromised} from "./Utils";
+import {Deferred, doWithinInterval, functionSignature, pause, setTimeoutPromised} from "./Utils.js";
 import {Dictionary, IDictionary, KeyValuePair, List} from "ts-generic-collections-linq";
-import {XMPPUTils} from "./XMPPUtils";
+import {XMPPUTils} from "./XMPPUtils.js";
 import {type} from "os";
 import {isFunction} from "util";
 import {Logger} from "./Logger.js";

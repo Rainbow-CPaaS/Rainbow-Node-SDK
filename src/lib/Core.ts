@@ -38,7 +38,7 @@ export {};
 
 //const packageVersion = require("../package.json");
 //import  * as packageVersion from "../../package.json";
-import * as Utils from "./common/Utils"
+import * as Utils from "./common/Utils.js"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;

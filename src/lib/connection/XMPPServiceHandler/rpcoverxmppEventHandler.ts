@@ -1,9 +1,9 @@
 "use strict";
 
-import {XMPPService} from "../XMPPService";
-import {getJsonFromXML, logEntryExit} from "../../common/Utils";
-import {GenericHandler} from "./GenericHandler";
-import {RESTService} from "../RESTService";
+import {XMPPService} from "../XMPPService.js";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils.js";
+import {GenericHandler} from "./GenericHandler.js";
+import {RESTService} from "../RESTService.js";
 import {RPCoverXMPPService} from "../../services/RPCoverXMPPService.js";
 import {RPCManager} from "../../common/RPCManager.js";
 
@@ -11,7 +11,8 @@ import {RPCManager} from "../../common/RPCManager.js";
 const xml = require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/IQ/RPCoverXMPP - ";
 

@@ -1,14 +1,14 @@
 "use strict";
-import {XMPPService} from "../XMPPService";
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPService} from "../XMPPService.js";
+import {XMPPUTils} from "../../common/XMPPUtils.js";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";
-import {getJsonFromXML, logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils.js";
 //const config = require("../../config/config");
 import {config} from "../../config/config";
-import {GenericHandler} from "./GenericHandler";
-import { Core } from "../../Core";
+import {GenericHandler} from "./GenericHandler.js";
+import { Core } from "../../Core.js";
 import {RBVoiceService} from "../../services/RBVoiceService.js";
 import {ProfilesService} from "../../services/ProfilesService.js";
 import {ContactsService} from "../../services/ContactsService.js";
@@ -16,12 +16,13 @@ import {ContactsService} from "../../services/ContactsService.js";
 export {};
 
 
-const Utils = require("../../common/Utils");
+const Utils = require("../../common/Utils.js");
 
 const xml = require("@xmpp/xml");
-const PromiseQueue = require("../../common/promiseQueue");
+const PromiseQueue = require("../../common/promiseQueue.js");
 
-const prettydata = require("../pretty-data").pd;
+//const prettydata = require("../pretty-data").pd;
+import {pd as prettydata} from "../pretty-data.js";
 
 const LOG_ID = "XMPP/HNDL/RBVOICE - ";
 

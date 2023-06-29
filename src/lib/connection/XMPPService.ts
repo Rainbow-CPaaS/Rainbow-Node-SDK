@@ -20,7 +20,7 @@ import {DataStoreType} from "../config/config.js";
 import {GenericService} from "../services/GenericService.js";
 import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler.js";
-import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
+import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler.js";
 import {Core} from "../Core.js";
 
 //const packageVersion = require("../../package");
@@ -68,8 +68,8 @@ import {default as backoff} from "backoff";
 //const setTimeout = require("timers").setTimeout;
 
 //const HttpsProxyAgent = require("https-proxy-agent");
-import HttpsProxyAgent from "https-proxy-agent";
-import createHttpsProxyAgent from "https-proxy-agent";
+import {HttpsProxyAgent} from "https-proxy-agent";
+//import createHttpsProxyAgent from "https-proxy-agent";
 
 // import {URL} from "url";
 
@@ -490,8 +490,8 @@ class XMPPService extends GenericService {
                 opt.secureProxy = true;
             }
             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-            //options.agent = new HttpsProxyAgent(opt);
-            options.agent = createHttpsProxyAgent(opt);
+            options.agent = new HttpsProxyAgent(opt);
+            //options.agent = createHttpsProxyAgent(opt);
             //options.agent = new HttpsProxyAgent(that.proxy.proxyURL);
             ws_options = options;
         }

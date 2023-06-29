@@ -1,8 +1,9 @@
 {
+ // "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     "noImplicitAny": false,
-    "module": "ES2020",
-    "target": "es2020",
+    "module": "es2020",
+    "target": "es2022",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
@@ -24,7 +25,6 @@
     "resolveJsonModule": true,
     "outDir": "./",
     "lib": [
-      "es6",
       "es2020"
     ],
     //, "dom"
@@ -34,7 +34,9 @@
     "explainFiles": true,
     "diagnostics": true,
     "traceResolution": true,
-    "moduleResolution": "nodeNext"
+    "moduleResolution": "node",
+    "strict": false,
+    "forceConsistentCasingInFileNames": true
   },
   "buildOnSave": true,
   "compileOnSave": true,
