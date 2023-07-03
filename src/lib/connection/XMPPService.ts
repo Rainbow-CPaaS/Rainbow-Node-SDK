@@ -1111,13 +1111,18 @@ class XMPPService extends GenericService {
                     "xml:lang": lang
                 }, subject));
             }
-
+            
+            let alternativeContent = [];
             if (content && content.message) {
                 let contentType = content.type || "text/markdown";
                 stanza.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
                 }, content.message));
+                alternativeContent.push({
+                    "message": content.message,
+                    "type": contentType
+                });
             }
 
             // Handle urgency
@@ -1129,7 +1134,7 @@ class XMPPService extends GenericService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
                     that.logger.log("debug", LOG_ID + "(sendChatMessage) sent");
-                    resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, urgency: urgency});
+                    resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, alternativeContent, urgency: urgency});
                 }).catch((err) => {
                     return reject(err);
                 });
