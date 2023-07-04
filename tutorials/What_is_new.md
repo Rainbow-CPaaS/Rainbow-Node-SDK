@@ -6,7 +6,7 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.24.0 - STS Version - July 2023
+### SDK for Node.JS 2.23.0 - STS Version - July 2023
 
 ---
 
@@ -22,7 +22,7 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Changes**
 
--   None. 
+-   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
 
 **Others Changes**
 
@@ -39,29 +39,6 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 -   Add log in `Conversation` class object.
 -   Fix the update of `Conversation.Messages` when _onReceipt event received.
 -   Fix `Message::alternativeContent` in pending Message sent.
-
-
-### SDK for Node.JS 2.23.0 - STS Version - May 2023
-
----
-
-**3-Release SDK Breaking Changes**
-
--   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
-Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
-
-
-**API Breaking Changes**
-
--   None    
-
-**API Changes**
-
--    Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
-
-**Others Changes**
-
--   None 
 
 
 ### SDK for Node.JS 2.22.0 - STS Version - May 2023
