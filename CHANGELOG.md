@@ -18,6 +18,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `ChannelsService::addPublishersToChannelByLoginEmails` to Add a list of publishers to the channel by loginEmail
 -   Add `ChannelsService::addMembersToChannelByLoginEmails` to Add a list of members to the channel by loginEmail
 -   Add `ChannelsService::deleteUsersFromChannelByLoginEmails` to Remove a list of users from a channel by loginEmail
+-   Add log in `Conversation` class object.
+-   Fix the update of `Conversation.Messages` when _onReceipt event received.
+-   Fix `Message::alternativeContent` in pending Message sent.
 
 ## [2.22.4] - 2023-05-26
 -   Add `Administrator::deleteTrustedApplication` `Administrator::deleteAllTrustedApplications` `Administrator::disableMultifactorAuthentication` `Administrator::enableMultifactorAuthentication` `Administrator::getMultifactorInformation` `Administrator::verifyMultifactorInformation` `Administrator::resetRecoveryCodeForMultifactorAuthentication` to manage Multifactor Rainbow Authentication
