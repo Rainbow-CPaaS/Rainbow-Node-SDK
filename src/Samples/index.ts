@@ -33,6 +33,14 @@ import { Server as MockServer, WebSocket as WS } from 'mock-socket';
 
 const xml = require("@xmpp/xml");
 
+import moment from 'moment';
+//const moment = global.get('moment');
+import serialize from 'safe-stable-stringify' ;
+//const serialize = global.get('safestablestringify');
+import * as ACData from "adaptivecards-templating";
+//const ACData = global.get('adaptivecardstemplating');
+
+
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
 
@@ -3602,6 +3610,370 @@ let urlS2S;
     }
 
     //endregion Guests
+
+        async  testsendChatMessageWithContentAdaptiveCard() {
+            let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let msgsSent = [];
+            let now = new Date().getTime();
+            let formattedMessage = that.formatCard2("original msg : ", now);
+            let content = {
+                "type": "form/json",
+                "message": formattedMessage
+            }
+            /*
+            {
+    "title": "Report an issue",
+    "issueList": [
+        {
+            "category": "Rainbow",
+            "tag": "Sounds metallic",
+            "idcategory": "idcategory",
+            "idtag": "idtag",
+            "reported": "false"
+        },
+        {
+            "category": "Rainbow",
+            "tag": "Sounds low",
+            "idcategory": "idcategory1",
+            "idtag": "idtag1",
+            "reported": "true"
+        }
+    ]
+}
+             */
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            await until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation.");
+            let msgSentOrig = msgsSent.slice(-1)[0];
+            let msgStrModified = "modified : " + msgSentOrig.content;
+            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+        }
+
+
+        async testLoic() {
+       let alternateContent = null;
+
+       let msg : any = {};
+       msg.template = "{\n" +
+               "    \"type\": \"AdaptiveCard\",\n" +
+               "    \"backgroundImage\": \"data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0A%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22600%22%3E%0A%20%20%3Crect%20fill%3D%22white%22%20x%3D%220%25%22%20y%3D%220%25%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20%2F%3E%0A%3C%2Fsvg%3E%0A\",\n" +
+               "    \"body\": [\n" +
+               "        {\n" +
+               "            \"type\": \"TextBlock\",\n" +
+               "            \"size\": \"medium\",\n" +
+               "            \"weight\": \"bolder\",\n" +
+               "            \"text\": \"${title}\",\n" +
+               "            \"spacing\": \"large\",\n" +
+               "            \"height\": \"stretch\",\n" +
+               "            \"maxLines\": 1,\n" +
+               "            \"separator\": true\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"Container\",\n" +
+               "            \"spacing\": \"none\",\n" +
+               "            \"items\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"ColumnSet\",\n" +
+               "                    \"columns\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"31px\",\n" +
+               "                            \"spacing\": \"none\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"text\": \"CATEGORY\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Bottom\",\n" +
+               "                            \"minHeight\": \"20px\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"text\": \"ISSUE\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"horizontalAlignment\": \"Left\",\n" +
+               "                            \"verticalContentAlignment\": \"Bottom\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"66px\"\n" +
+               "                        }\n" +
+               "                    ],\n" +
+               "                    \"horizontalAlignment\": \"Left\",\n" +
+               "                    \"minHeight\": \"30px\"\n" +
+               "                }\n" +
+               "            ]\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"Image\",\n" +
+               "            \"url\": \"https://st-exupery.ale-custo.com/greenbot/line.svg\",\n" +
+               "            \"height\": \"15px\",\n" +
+               "            \"spacing\": \"none\",\n" +
+               "            \"width\": \"383px\"\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"$data\": \"${issueList}\",\n" +
+               "            \"type\": \"Container\",\n" +
+               "            \"items\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"ColumnSet\",\n" +
+               "                    \"columns\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"id\": \"${idcategory};${idTag}\",\n" +
+               "                                    \"type\": \"Input.Toggle\",\n" +
+               "                                    \"title\": \"\",\n" +
+               "                                    \"value\": \"${reported}\",\n" +
+               "                                    \"spacing\": \"none\"\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"31px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"text\": \"${category}\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"text\": \"${tag}\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Image\",\n" +
+               "                                    \"$when\": \"${reported=='true'}\",\n" +
+               "                                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/Off.svg\",\n" +
+               "                                    \"height\": \"19px\"\n" +
+               "                                },\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Image\",\n" +
+               "                                    \"$when\": \"${reported=='false'}\",\n" +
+               "                                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/Running.svg\",\n" +
+               "                                    \"height\": \"19px\"\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\",\n" +
+               "                            \"horizontalAlignment\": \"Left\",\n" +
+               "                            \"spacing\": \"none\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"ActionSet\",\n" +
+               "                                    \"actions\": [\n" +
+               "                                        {\n" +
+               "                                            \"type\": \"Action.Submit\",\n" +
+               "                                            \"$when\": \"${reported=='false'}\",\n" +
+               "                                            \"title\": \"Report\",\n" +
+               "                                            \"style\": \"destructive\",\n" +
+               "                                            \"data\": {\n" +
+               "                                                \"idCategory\": \"${idcategory}\",\n" +
+               "                                                \"idTag\": \"${idtag}\",\n" +
+               "                                                \"rainbow\": {\n" +
+               "                                                    \"text\": \"#report ${category} ${tag}\",\n" +
+               "                                                    \"type\": \"messageBack\",\n" +
+               "                                                    \"value\": {\n" +
+               "                                                        \"response\": \"report\",\n" +
+               "                                                        \"idCategory\": \"${idcategory}\",\n" +
+               "                                                        \"idTag\": \"${idtag}\"\n" +
+               "                                                    }\n" +
+               "                                                }\n" +
+               "                                            }\n" +
+               "                                        },\n" +
+               "                                        {\n" +
+               "                                            \"type\": \"Action.Submit\",\n" +
+               "                                            \"$when\": \"${reported=='true'}\",\n" +
+               "                                            \"title\": \"Cancel\",\n" +
+               "                                            \"style\": \"destructive\",\n" +
+               "                                            \"data\": {\n" +
+               "                                                \"idCategory\": \"${idcategory}\",\n" +
+               "                                                \"idTag\": \"${idtag}\",\n" +
+               "                                                \"rainbow\": {\n" +
+               "                                                    \"text\": \"#cancelreporting ${category} ${tag}\",\n" +
+               "                                                    \"type\": \"messageBack\",\n" +
+               "                                                    \"value\": {\n" +
+               "                                                        \"response\": \"cancelreporting\",\n" +
+               "                                                        \"idCategory\": \"${idcategory}\",\n" +
+               "                                                        \"idTag\": \"${idtag}\"\n" +
+               "                                                    }\n" +
+               "                                                }\n" +
+               "                                            }\n" +
+               "                                        }\n" +
+               "                                    ]\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"66px\"\n" +
+               "                        }\n" +
+               "                    ]\n" +
+               "                },\n" +
+               "                {\n" +
+               "                    \"type\": \"Image\",\n" +
+               "                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/line.svg\",\n" +
+               "                    \"spacing\": \"none\",\n" +
+               "                    \"height\": \"15px\",\n" +
+               "                    \"width\": \"383px\"\n" +
+               "                }\n" +
+               "            ],\n" +
+               "            \"spacing\": \"none\"\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"ColumnSet\",\n" +
+               "            \"columns\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"Column\",\n" +
+               "                    \"width\": \"auto\",\n" +
+               "                    \"items\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"ActionSet\",\n" +
+               "                            \"actions\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Action.Submit\",\n" +
+               "                                    \"title\": \"Report selected\",\n" +
+               "                                    \"style\": \"positive\",\n" +
+               "                                    \"data\": {\n" +
+               "                                        \"rainbow\": {\n" +
+               "                                            \"text\": \"#report-selected\",\n" +
+               "                                            \"type\": \"messageBack\",\n" +
+               "                                            \"value\": {\n" +
+               "                                                \"response\": \"#report-selected\"\n" +
+               "                                            }\n" +
+               "                                        }\n" +
+               "                                    }\n" +
+               "                                }\n" +
+               "                            ]\n" +
+               "                        }\n" +
+               "                    ]\n" +
+               "                }\n" +
+               "            ],\n" +
+               "            \"horizontalAlignment\": \"Center\",\n" +
+               "            \"spacing\": \"ExtraLarge\",\n" +
+               "            \"height\": \"stretch\"\n" +
+               "        }\n" +
+               "    ],\n" +
+               "    \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n" +
+               "    \"version\": \"1.3\"\n" +
+               "}";
+
+       const buildCard = (type) => {
+           const content = msg.template
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(content);
+           const context = {
+               $root: msg.sample
+           };
+           const card = template.expand(context);
+
+           return card;
+
+       }
+
+
+       alternateContent = {
+           type: 'form/json',
+           message: serialize.configure(buildCard(""))
+       };
+
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+       
+       msg.conversation = rainbowSDK.conversations.getConversationById(conversation.id);
+
+       function getConversationHistory(conversation) {
+
+           return rainbowSDK.conversations.getHistoryPage(conversation, 100).then(function (conversationUpdated) {
+               msg.conversationUpdated = conversationUpdated
+               return conversationUpdated.historyComplete ? conversationUpdated : getConversationHistory(conversationUpdated);
+           });
+       }
+       getConversationHistory(msg.conversation).then(async conversation => {
+           msg.conversation = conversation
+           await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+           let msgSentOrig = conversation.getlastEditableMsg();
+           
+           rainbowSDK.conversations.sendCorrectedChatMessage(msg.conversation, `${msgSentOrig.content} up`, msgSentOrig.id, alternateContent).then(message => {
+               msg.message = message;
+               //node.send([msg, null])
+               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+           }, error => {
+               msg.error = error
+               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+               //node.send([null, msg])
+           })
+       }, error => {
+           msg.error = error
+           logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+           //node.send([null, msg])
+       })
+   }     
         
     async  testgetLastMessageOfConversation() {
         let that = this;

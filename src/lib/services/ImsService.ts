@@ -367,8 +367,8 @@ class ImsService extends GenericService{
     async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!conversation) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
+            this._logger.log("warn", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
@@ -428,6 +428,7 @@ class ImsService extends GenericService{
 
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
+            this._logger.log("internal", LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;

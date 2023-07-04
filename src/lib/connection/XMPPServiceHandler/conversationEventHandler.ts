@@ -2480,7 +2480,7 @@ class ConversationEventHandler extends GenericHandler {
 
                     if (action === "delete") {
                         that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
-                        let conversationUnknown = new Conversation(conversationId);
+                        let conversationUnknown = new Conversation(conversationId, that.logger);
                         if (conversationUnknown) {
                             that._conversationService.removeConversation(conversationUnknown);
                         }
