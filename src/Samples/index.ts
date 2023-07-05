@@ -3975,7 +3975,105 @@ let urlS2S;
        })
    }     
         
-    async  testgetLastMessageOfConversation() {
+   async testsendMessageToConversationFormJson() {
+       /*
+       const moment = global.get('moment');
+       const serialize = global.get('safestablestringify');
+       const ACData = global.get('adaptivecardstemplating');
+       // */
+
+       const message = "test"
+       let alternateContent = null;
+
+       const waitUntil = (condition, checkInterval = 500) => {
+           return new Promise(resolve => {
+               let iter = 100
+               let interval = setInterval(() => {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil")
+                   if (!condition() && iter-->0) return;
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil is true")
+                   clearInterval(interval);
+                   resolve(true);
+               }, checkInterval)
+           })
+       }
+       const buildCard = (type) => {
+           const content = "{\n" +
+                   "    \"title\": \"Report an issue\",\n" +
+                   "    \"title1\": \"Your Issue(s) reported\",\n" +
+                   "    \"issueList\": [\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds metallic\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag\",\n" +
+                   "            \"reported\": \"false\"\n" +
+                   "        },\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds high\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag2\",\n" +
+                   "            \"reported\": \"false\"\n" +
+                   "        },\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds low\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag1\",\n" +
+                   "            \"reported\": \"true\",\n" +
+                   "            \"when\": \"August 19, 2022 23:15:30\",\n" +
+                   "            \"idIssue\": \"idIssue1\"\n" +
+                   "        }\n" +
+                   "    ]\n" +
+                   "}"
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(content);
+           const context = {
+               $root: JSON.parse(content)
+           };
+           const card = template.expand(context);
+
+           return card;
+
+       }
+
+
+       alternateContent = {
+           type: 'form/json',
+           message: serialize.configure(buildCard(""))
+       };
+
+       //let msg : any = {origin : {}};
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+       let conversationId = conversation.id;
+
+       await rainbowSDK.im.sendMessageToConversation(conversation,'ok', "fr", alternateContent, "alternate").then(async message => {
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+           await waitUntil(() => {
+               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) of waitUntil");
+               let conversation = rainbowSDK.conversations.getConversationById(conversationId);
+               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) conversation getConversationById : " + conversation.id);
+               let msgFound = conversation.getMessageById(message.id);
+               if (msgFound) {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) msgFound returned by getMessageById : " + msgFound.id);;
+               } else {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) empty msgFound returned by getMessageById.");
+               }
+               return msgFound!==undefined
+           })
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil")
+
+       }, error => {
+       })
+
+       return null;
+   }
+   
+   async  testgetLastMessageOfConversation() {
         let that = this;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
