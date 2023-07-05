@@ -496,7 +496,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
-     * @method getHistoryPage
+     * @method loadConversationHistory
      * @instance
      * @category MESSAGES
      * @description
