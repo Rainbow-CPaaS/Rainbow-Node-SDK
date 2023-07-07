@@ -677,7 +677,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "subject":
                         subject = node.getText();
-                        hasATextMessage = (!(!subject || subject===''));
+                        hasATextMessage = hasATextMessage || (!(!subject || subject===''));
                         break;
                     case "event":
                         eventName = node.attrs.name;
@@ -707,7 +707,7 @@ class ConversationEventHandler extends GenericHandler {
                             lang = "en";
                         }
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - lang : ", lang);
-                        hasATextMessage = (!(!content || content===''));
+                        hasATextMessage = hasATextMessage || (!(!content || content===''));
                         break;
                     case "answeredMsg":
                         answeredMsgId = node.getText();
