@@ -235,12 +235,22 @@ rainbowSDK.start(undefined).then(async(result) => {
                     }
 
                     if (markdownElt[0] === "header" && markdownElt[1].level === 2) {
+                        return false;
+                    }
+
+                    if (markdownElt[0] === "header" && markdownElt[1].level === 3) {
                         // A version
                         version = markdownElt[2][2];
                         if (version.startsWith(minVersion)) {
                             return true;
                         } else {
                             version = null;
+                        }
+                    }
+
+                    if (markdownElt[0] === "header" && markdownElt[1].level === 4) {
+                        if (version) {
+                            return true;
                         }
                     }
 
