@@ -7,7 +7,9 @@ import {Call} from "./Call";
 //const uuid4 = require("uuid/v4");
 import { v4 as uuid4 } from 'uuid';
 import {Message} from "./Message";
+import {Logger} from "../Logger.js";
 
+const LOG_ID = "CONVERSATION/CONV - ";
 
 /**
  * @class
@@ -19,6 +21,18 @@ import {Message} from "./Message";
  *		A conversation never ends and all interactions done can be retrieved. <br>
  */
 class Conversation {
+    get messages(): any {
+        //this.logger.log("internal", LOG_ID + "(get messages) id : ", this.id, ", get messages : ", this._messages);
+        return this._messages;
+    }
+    set messages(value: any) {
+        //this.logger.log("internal", LOG_ID + "(set messages) id : ", this.id, ", set messages : ", value);
+        this._messages = value;
+    }
+    updateMessages(index: number , value: any) {
+        //this.logger.log("internal", LOG_ID + "(updateMessages) id : ", this.id, ", add message : ", value);
+        this._messages[index] = value;
+    }
 	public id: any;
 	public dbId: any;
 	public type: any;
@@ -32,7 +46,7 @@ class Conversation {
 	public filterName: any;
 	public missedCounter: any;
 	public missedCalls: any;
-	public messages: any;
+	private _messages: any;
 	public participantStatuses: any;
 	public draft: any;
 	public uploadFile: any;
@@ -69,9 +83,10 @@ class Conversation {
         "unreadMessageNumber" : string
     };
     pendingPromise: Array<any>;
+    private logger : any;
 
 
-    constructor(conversationId) {
+    constructor(conversationId, logger : Logger) {
         /**
          * @public
          * @property {string} id The conversation ID
@@ -79,6 +94,8 @@ class Conversation {
          */
         this.id = conversationId;
 
+        this.logger = logger ? logger : console;        
+        
         /**
          * @public
          * @property {string} dbId The database ID
@@ -172,7 +189,7 @@ class Conversation {
          * @link Message
          * @readonly
          */
-        this.messages = [];
+        this._messages = [];
 
         /**
          * @private
@@ -325,6 +342,9 @@ class Conversation {
         //message ID
         let randomBase = this.generateRandomID();
         let messageId = 0;
+
+        this.logger.log("debug", LOG_ID + "(Conversation) constructed : ", this.id);
+
     }
 
     /**
@@ -336,6 +356,8 @@ class Conversation {
     addOrUpdateMessage(message) {
         let that = this;
         let messageObj = undefined ;
+
+        this.logger.log("debug", LOG_ID + "(addOrUpdateMessage) id : ", this.id, ", message : ", message?message.id:undefined);
         
         // Check if this message already exist in message store
         let messageIndice = that.messages.findIndex(function(item, index, tab) {
@@ -343,7 +365,7 @@ class Conversation {
         });
         if (messageIndice != -1) {
             // update the already existing message and return this new value.
-            that.messages[messageIndice] = message;
+            that.updateMessages(messageIndice, message);
             messageObj = that.messages[messageIndice];
         } else {
             // Store the message
@@ -358,10 +380,11 @@ class Conversation {
         that.lastMessageText = message.content;
 
         //update last activity date for rooms when we receive/sent messages
-        // dev-code-console //
-        console.log("conversation bubble : ", this.bubble);
-        // end-dev-code-console //
         if (this.bubble) {
+            // dev-code-console //
+            //console.log("conversation bubble : ", this.bubble);
+            this.logger.log("internal", LOG_ID + "(addOrUpdateMessage) id : ", this.id, ", bubble : ", this.bubble.id);
+            // end-dev-code-console //
             this.bubble.lastActivityDate = this.lastModification;
         }
 
@@ -371,9 +394,9 @@ class Conversation {
     /*************************************************************/
     /* STATIC FACTORIES                                          */
     /*************************************************************/
-    static createOneToOneConversation(participant) {
+    static createOneToOneConversation(participant, logger : Logger) {
         // Create the conversation object
-        let conversation = new Conversation(participant.jid_im);
+        let conversation = new Conversation(participant.jid_im, logger);
 
         // Attach it to contact
         conversation.contact = participant;
@@ -397,9 +420,9 @@ class Conversation {
         return conversation;
     }
 
-    static createBubbleConversation(bubble) {
+    static createBubbleConversation(bubble, logger: Logger) {
         // Create the conversation object
-        let conversation = new Conversation(bubble.jid);
+        let conversation = new Conversation(bubble.jid, logger);
         conversation.type = Conversation.Type.ROOM;
         conversation.bubble = bubble;
         // TODO ? conversation.filterName =
@@ -436,12 +459,14 @@ class Conversation {
     /* PUBLIC METHODS                                            */
     /*************************************************************/
     reset() {
+        this.logger.log("debug", LOG_ID + "(reset) id : ", this.id);
         this.messages = [];
         this.lastMessageText = null;
         this.resetHistory();
     }
 
     resetHistory() {
+        this.logger.log("debug", LOG_ID + "(resetHistory) id : ", this.id);
         //this.messages = [];
         //this.lastMessageText = null;
         this.historyIndex = -1;
@@ -453,14 +478,14 @@ class Conversation {
 
     getMessageById(messId) {
         return this
-            .messages
+            ._messages
             .find((item) => {
                 return item.id === messId;
             });
     }
 
     getlastEditableMsg() {
-        let messgs = this.messages.filter((mess) => {
+        let messgs = this._messages.filter((mess) => {
             return (mess.side === Message.Side.RIGHT) ;
         });
         

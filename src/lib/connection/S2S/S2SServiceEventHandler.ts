@@ -389,7 +389,7 @@ class S2SServiceEventHandler {
                         case "delete":
                             if (! conversation) {
                                 that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId);
+                                conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
                             break;
@@ -443,7 +443,7 @@ class S2SServiceEventHandler {
                         case "delete":
                             if (! conversation) {
                                 that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId);
+                                conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
                             break;

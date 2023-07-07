@@ -225,13 +225,13 @@ class ConversationsService extends GenericService {
                     !!data.isMarkdown,
                     data.subject,
                     data.geoloc,
-                     data.voiceMessage,
-                     data.alternativeContent,
-                     data.attention,
-                     data.mentions,
-                     data.urgency,
-                     data.urgencyAck,
-                     data.urgencyHandler,
+                    data.voiceMessage,
+                    data.alternativeContent,
+                    data.attention,
+                    data.mentions,
+                    data.urgency,
+                    data.urgencyAck,
+                    data.urgencyHandler,
                     //data.translatedText,
                     //data.isMerged,
                     data.historyIndex,
@@ -271,25 +271,34 @@ class ConversationsService extends GenericService {
             that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ")");
             that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ") : ", conversation);
             //message.setReceiptStatus(Message.ReceiptStatus.SENT);
-            if (conversation.addOrUpdateMessage) {
-                conversation.addOrUpdateMessage(message);
-            } else {
-                that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ");
-                //that._logger.log("warn", LOG_ID + "(_onReceipt) Warn addMessage method not defined in Conversation stored in pending messageInfo, try to find the Object by id (" + conversation.id, ") : ", conversation);
-                if (conversation && conversation.id) {
-                    conversation = await that.getConversationById(conversation.id);
-                    that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
+            if (conversation && conversation.id) {
+                conversation = await that.getConversationById(conversation.id);
+                that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
+                if (conversation) {
+                    message.conversation = conversation;
                     if (conversation.addOrUpdateMessage) {
+                        that._logger.log("debug", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage.");
+                        that._logger.log("internal", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage : ", message);
                         conversation.addOrUpdateMessage(message);
+                        that.removePendingMessage(message);
+                        //delete this.pendingMessages[message.id];
+                        // Send event
+                        that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                        //that._logger.log("internal", LOG_ID + "(_onReceipt) after sent evt_internal_conversationupdated, conversations : ", that.getConversations());
                     } else {
                         that._logger.log("error", LOG_ID + "(_onReceipt) Error addMessage method not defined in Conversation, so message not added to conversation (" + conversation.id, ") : ", conversation);
                     }
+                } else {
+                    that._logger.log("debug", LOG_ID + "(_onReceipt) conversation unknown can not store the pending message to conversation : ", conversation);
+                    // that._logger.log("internal", LOG_ID + "(_onReceipt) conversation unknown can not store the pending message to conversation : ", conversation);
                 }
+            } else {
+                that._logger.log("debug", LOG_ID + "(_onReceipt) conversation not saved with pending message.");
+                that._logger.log("internal", LOG_ID + "(_onReceipt) conversation not saved with pending message : ", conversation);
             }
-            that.removePendingMessage(message);
-            //delete this.pendingMessages[message.id];
-            // Send event
-            that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
+        } else {
+            that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack message not found.");
+            that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack message not found : ", messageInfo);
         }
     }
 
@@ -1675,7 +1684,7 @@ class ConversationsService extends GenericService {
             that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
                 that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
 
-                let  conversation = Conversation.createOneToOneConversation(contact);
+                let  conversation = Conversation.createOneToOneConversation(contact, that._logger);
                 conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                 conversation.lastMessageText = lastMessageText;
                 conversation.muted = muted;
@@ -1855,7 +1864,7 @@ class ConversationsService extends GenericService {
                 } else {
                     that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
-                    conversation = Conversation.createBubbleConversation(bubble);
+                    conversation = Conversation.createBubbleConversation(bubble, that._logger);
                     conversation.dbId = conversationDbId;
                     conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                     conversation.lastMessageText = lastMessageText;
