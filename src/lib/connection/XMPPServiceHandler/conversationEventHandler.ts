@@ -2062,7 +2062,7 @@ class ConversationEventHandler extends GenericHandler {
                     } // */
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
+                    //that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                 });
             } else {
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
@@ -2083,7 +2083,7 @@ class ConversationEventHandler extends GenericHandler {
                 } // */
                 that.eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
-                that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
+                //that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
