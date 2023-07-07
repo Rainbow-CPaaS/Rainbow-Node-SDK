@@ -43,9 +43,8 @@
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^9.2.2",
     "@tsconfig/node14": "^1.0.3",
-    "@types/node": "^18.11.12",
+    "@types/node": "^20.3.3",
     "@xmpp/debug": "^0.13.0",
-    "adaptivecards-templating": "^2.3.1",
     "chai": "^4.3.7",
     "commander": "^9.4.1",
     "dts-generator": "^3.0.0",
@@ -80,13 +79,14 @@
     "puppeteer": "^19.4.0",
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^7.1.1",
-    "typescript": "4.9.4",
+    "typescript": "^5.1.6",
     "yamljs": "^0.3.0"
   },
   "dependencies": {
     "@types/backoff": "^2.5.2",
     "@xmpp/client": "^0.13.1",
     "@xmpp/xml": "^0.13.1",
+    "adaptivecards-templating": "^2.3.1",
     "adaptive-expressions": "^4.20.0",
     "async-lock": "^1.4.0",
     "atob": "^2.1.2",
