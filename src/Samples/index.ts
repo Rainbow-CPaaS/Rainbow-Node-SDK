@@ -1744,6 +1744,37 @@ let urlS2S;
        }); //*/
    }
         
+    async  testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse() {
+        let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        let now = new Date().getTime();
+        let formattedMessage = that.formatCard2("original msg : ", now);
+        let content = {
+            "type": "form/json",
+            "message": formattedMessage
+        }
+        // Send message
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        msgsSent.push(msgSent);
+        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - wait for message to be in conversation : ", msgSent);
+        await until(() => {
+            return conversation.getMessageById(msgSent.id)!==undefined;
+        }, "Wait for message to be added in conversation.");
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - msgStrModified : ", msgStrModified);
+    }
+
     async  testsendCorrectedChatMessageWithContentAdaptiveCard() {
         let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder

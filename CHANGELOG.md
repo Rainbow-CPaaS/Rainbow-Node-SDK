@@ -6,6 +6,9 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.23.1] - 2023-07-07
+-   Fix to not ignore messages when it is received with empty body but with a filled alternativeContent.
+
 ## [2.23.0] - 2023-07-04
 -   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
 -   Add treatment of Http Status Code 429 while occurs.
