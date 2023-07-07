@@ -6,6 +6,12 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+## [2.21.0-lts.2] - 2023-07-07
+-   Add log in `Conversation` class object.
+-   Fix the update of `Conversation.Messages` when _onReceipt event received.
+-   Fix `Message::alternativeContent` in pending Message sent.
+-   Fix to not ignore messages when it is received with empty body but with a filled alternativeContent.
+
 ## [2.21.0-lts.1] - 2023-06-22
 -   fix HTTPoverXMPPService.
 -   Add treatment of Http Status Code 429 while occurs.
