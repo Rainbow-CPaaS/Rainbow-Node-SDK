@@ -8,7 +8,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.24.X] - 2023-08-XX
 #### Removed
+-   None
 #### Fixed
+-   None
 #### Added
 -   Add API methods in AdminService service to exchange with Customer Care portal. Details :
 -   * Add API `AdminService::getCustomerCareAdministratorsGroup` allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets.
@@ -32,6 +34,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   * Add API `AdminService::readAllTicketsOnASameCompany` allows to read all context regarding submitted tickets to Zendesk in the same company .
 
 #### Changed
+-   None
 
 ### [2.23.1] - 2023-07-07
 -   Fix to not ignore messages when it is received with empty body but with a filled alternativeContent.
