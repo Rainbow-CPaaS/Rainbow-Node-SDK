@@ -313,7 +313,7 @@ class AdminService extends GenericService {
      * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
-     * Valeur par défaut : `true`
+     * Default value : `true`
      * @param {string} expirationDate Date of expiration of the Join company link </BR>
      * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
      * * `expirationDate` has to be provided in UTC timezone. </BR>
@@ -503,17 +503,17 @@ class AdminService extends GenericService {
      * > * `small`: id, companyId, isEnabled
      * > * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
      * > * `full`: all join company links fields
-     * Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`.
+     * Default value : `small`. Possibles values : `small`, `medium`, `full`.
      * @param {string} createdByAdminId List join company links created by the specified administrator id(s).
      * @param {boolean} isEnabled List join company links with the specified isEnabled value (true/false).
      * @param {string} fromExpirationDate List join company links expiring after the given date.
      * @param {string} toExpirationDate List join company links expiring before the given date.
      * @param {string} fromNbUsersRegistered List join company links that have been used by at least the given number (nbUsersRegistered greater than or equal to the requested toNbUsersRegistered number).
      * @param {string} toNbUsersRegistered List join company links that have been used by at less than the given number (nbUsersRegistered lower than or equal to the requested toNbUsersRegistered number).
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1 .
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1 .
      * @category Company join companies links
      * @return {Promise<Object, ErrorManager>} - result
      *
@@ -586,7 +586,7 @@ class AdminService extends GenericService {
      * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
-     * Valeur par défaut : `true` </BR>
+     * Default value : `true` </BR>
      * @param {string} expirationDate Date of expiration of the Join company link </BR>
      * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
      * `expirationDate` has to be provided in UTC timezone. </BR>
@@ -2774,12 +2774,12 @@ class AdminService extends GenericService {
      * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
      * | companyAdminLoginEmail | String |     |
      *
-     * @param {string} sortField Sort items list based on the given field<br><br>Valeur par défaut : `lastNotificationDate`
-     * @param {string} status List all join company requests having the provided status(es). Valeurs autorisées : `=pending`, `accepted`, `declined`
-     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Valeur par défaut : `small`<br>Valeurs autorisées : `small`, `medium`, `full`
-     * @param {number} limit Allow to specify the number of items to retrieve.<br>Valeur par défaut : `100`
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Valeur par défaut : `0`
-     * @param {number} sortOrder Specify order when sorting items list.<br>Valeur par défaut : `1`. Valeurs autorisées : `-1`, `1`
+     * @param {string} sortField Sort items list based on the given field<br><br>Default value : `lastNotificationDate`
+     * @param {string} status List all join company requests having the provided status(es). Possibles values : `=pending`, `accepted`, `declined`
+     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Default value : `small`<br>Possibles values : `small`, `medium`, `full`
+     * @param {number} limit Allow to specify the number of items to retrieve.<br>Default value : `100`
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Default value : `0`
+     * @param {number} sortOrder Specify order when sorting items list.<br>Default value : `1`. Possibles values : `-1`, `1`
      */
     getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
@@ -2905,7 +2905,7 @@ class AdminService extends GenericService {
      * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory. 
      * @param {string} requestedCompanyLinkId  Id of the join company invite associated to the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
-     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Valeur par défaut : `en`
+     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
      */
     requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
         let that = this;
@@ -11045,6 +11045,1348 @@ class AdminService extends GenericService {
     }
 
     //endregion multifactor rainbow authentication
+
+    //region Customer Care
+
+    //region Customer Care - Administrators Group
+
+    /**
+     * @public
+     * @method getCustomerCareAdministratorsGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
+     * @return {Promise<any>} - result
+     *
+     * Result sample : </br> 
+     * { </br>
+     * [ { </br>
+     * "userId": "57347ea14a0327064fcb93fd", </br>
+     * "loginEmail": "alice.beneth@al-enterprise.com" </br>
+     * }, </br>
+     * { </br>
+     * "userId": "57347ea14a0327064fcb93fd", </br>
+     * "loginEmail": "bob.smith@al-enterprise.com" </br>
+     * } ] </br>
+     * }  </br>
+     */
+    getCustomerCareAdministratorsGroup() {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getCustomerCareAdministratorsGroup().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method addAdministratorToGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId Superadmin or Support unique identifier. Default value is the connected user.
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows Add one administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
+     * @return {Promise<any>} - result
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | userId | String | User unique identifier |
+     * | loginEmail | String | User email address (used for login) |
+     * 
+     */
+    addAdministratorToGroup(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.addAdministratorToGroup(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(addAdministratorToGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(addAdministratorToGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(addAdministratorToGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(addAdministratorToGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(addAdministratorToGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeAdministratorFromGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId Superadmin or Support unique identifier
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows to remove one administrator from the group. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     */
+    removeAdministratorFromGroup(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.removeAdministratorFromGroup(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(removeAdministratorFromGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Administrators Group
+
+    //region Customer Care - Logs
+
+    /**
+     * @public
+     * @method getIssue
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} logId Logs context unique identifier
+     * @category Customer Care - Logs
+     * @description
+     *     This API allows to retrieve a given issue. </BR>
+     *     The logged in user must have administration rights on the company to which belong the user who created the issue. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     *
+     */
+    getIssue(logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getIssue(logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getIssue) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getIssue) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getIssue) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getIssue) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getIssue) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getListOfIssues
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Logs
+     * @param {number} limit Allow to specify the number of issues to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first issue to retrieve (first issue if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {String} sortField Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
+     * @param {number} sortOrder Specify sort order when sorting issues list. Default value : -1. Possibles values : -1, 1.
+     * @param {String} companyId Allows to filter issues list on the companyId(s) provided in this option. companyId parameter is optional: if companyId is not provided, all the issues created by users belonging to companies that the administrator manage are returned. If provided, the logged in user must have administration rights on the requested companyId(s).
+     * @param {String} bpId Allows to filter issues list on all the companyId(s) being linked to the BP company provided in this option. </br>
+     * For the case of BP companies with bpType= VAD, the query parameter customerCategory allows to specify the kind of companies for which the issues are requested (see more details in the doc of customerCategory parameter). </br>
+     * The list of returned issues depends on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *      *issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br> 
+     * * if bpId corresponds to a BP company with type=IR (customerCategory shouldn't be used), the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC).  </br>
+     * * if bpId corresponds to a BP company with type=DR (customerCategory shouldn't be used), the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC).  </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *   * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC).  </br>
+     * * if bpId corresponds to a BP company with bpType=IR, the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br> 
+     * * if bpId corresponds to a BP company with bpType=DR, the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP DR --> EC). </br>
+     *    </br>
+     * Only one BP's companyId can be provided in this filter. </br>
+     * If the companyIs set in the field bpId does not correspond to a BP company, no issues will match. </br>
+     * The filter companyId can be used additionally, for example to request the issues submitted by users belonging to the BP company as well. </br> 
+     * The user must have superadmin, support or bp_admin role to use this filter (not taken into account otherwise). </br> 
+     * If provided, the logged in user must have administration rights on the requested BP company. </br>
+     * @param {string} customerCategory Allows to specify the kind of companies associated to the requested bpId filter for which the list of issues is requested. </br>
+     * This query parameter is especially designed for the case of BP with bpType=VAD (to provide the flexibility on the list of issues returned depending on the client's needs). If the BP set in bpId don't have bpType=VAD, some values of customerCategory won't return any results (irs_only, ecs_of_irs_only and irs_with_ecs_of_irs_only should not be used if bpId correspond to a DR or an IR). </br>
+     * This query parameter is only taken into account if the bpId query parameter is also provided (not taken into account otherwise). </br>
+     * The logs will be returned depending on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     * * if bpId corresponds to a BP company with type=IR, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     * * if bpId corresponds to a BP company with type=DR, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     * </br>
+     * Default value : all. Possibles values : all, ecs_only, irs_only, ecs_of_irs_only, irs_with_ecs_of_irs_only </br>
+     * @param {string} name Allows to filter issues on the name provided in this option (filter on associated user's displayName and company's name). </br>
+     * The filtering is case insensitive and on partial name match: all issues having the user's displayName or the company's name containing the provided name value will be returned (whatever the position of the match). </br>
+     * Ex: if filtering is done on Phil, issues created by users or companies match the filter: 'Philip Smith' (user displayName), 'John Philip' (user displayName), 'Philip Morris' (company name), 'This company name is Philips' (company name), ... </br>
+     * @param {string} version Allows to filter issues list on the version(s) provided in this option. </br>
+     * The filtering is case insensitive and on partial version match. Ex: if filtering is done on 1.112, all issues with the version starting by 1.112 match the filter: '1.112' (exact match), '1.112.2', '1.112.3', '1.1121', ... </br>
+     * @param {string} device Allows to filter issues list on the device(s) provided in this option. </br> 
+     * Note: room corresponds to Rainbow Room </br>
+     * Default value : android,desktop,ios,room,web
+     * @param {string} fromCreationDate List issues which have been created after the given date (uses creationDate field).
+     * @param {string} toCreationDate List issues which have been created before the given date (uses creationDate field).
+     * @param {string} fromOccurrenceDate List issues which occurred after the given date (uses occurrenceDate field).
+     * @param {string} toOccurrenceDate List issues which occurred before the given date (uses occurrenceDate field).
+     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * * small: id userId companyId device description </br>
+     * * medium: id userId companyId device version description creationDate </br>
+     * * full: All fields </br>
+     * </br>
+     * Default value : small. Possibles values : small, medium, full </br>
+     * @description
+     *     This API allows to retrieve the list of issues. </BR>
+     *     The list of issues (logs contexts) that a user can retrieve depends on its roles: </BR>
+     *     * Users with `superadmin` or `support` role can retrieve all the issues. </br>
+     *     * Users with `bp_admin` role can retrieve all the issues created by users belonging to their EC companies and to their company. </br>
+     *     * In the case of BP with type VAD, they can retrieve all the issues created by users belonging to all the EC companies linked directly to the BP VAD and all the EC companies linked to their BP IR companies. </br>
+     *     * Users with `admin` role retrieve the issues created by users belonging to the companies they can manage: </br>
+     *      * an `organization_admin` gets all the issues created by users belonging to all the companies he manages (i.e. companies having organisationId equal to his organisationId) </br>
+     *      * a `company_admin` gets all the issues created by users belonging to his company </br>
+     *       </BR>
+     *      This API provides some query parameters allowing to filter the list of issues depending on the needs: </BR>
+     *      * `companyId` filter allows to retrieve only the issues created by users of a given company </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * 
+     */
+    getListOfIssues(limit : number = 100, offset : number = 0, sortField : string = "creationDate",
+                    sortOrder : number = -1, companyId : string, bpId : string, customerCategory : string = "all", name : string,
+                    version : string, device : string, fromCreationDate : string, toCreationDate : string,
+                    fromOccurrenceDate : string, toOccurrenceDate : string, format : string = "small") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfIssues(limit, offset, sortField, sortOrder, companyId, bpId, customerCategory, name,
+                        version, device, fromCreationDate, toCreationDate, fromOccurrenceDate, toOccurrenceDate, format).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfIssues) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfIssues) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfIssues) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfIssues) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfIssues) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion Customer Care - Logs
+
+    //region Customer Care - Users Logs
+
+    /**
+     * @public
+     * @method getListOfIssuesForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * * small: id userId companyId device description </br>
+     * * medium: id userId companyId device version description creationDate </br>
+     * * full: All fields </br>
+     * Default value : small. Possibles values : small, medium, full
+     * @category Customer Care - Users Logs
+     * @description
+     *     This API allows to consult the list of issues associated to a user or a Rainbow Room. </BR>
+     *     So that, as administrator (BP, Organisation, Company), support, superadmin, it is then possible to start issue resolution process with Rainbow Customer Care team. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     *
+     */
+    getListOfIssuesForUser(userId : string, format : string = "small") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfIssuesForUser(userId, format).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfIssuesForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfIssuesForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfIssuesForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getIssueForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @category Customer Care - Users Logs
+     * @description
+     *     This API allows to consult one issue associated to a user or a Rainbow Room. </BR>
+     *     So that, as administrator (BP, Organisation, Company), support, superadmin, it is then possible to start issue resolution process with Rainbow Customer Care team. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     *
+     */
+    getIssueForUser(userId : string, logId : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getIssueForUser(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getIssueForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getIssueForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getIssueForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getIssueForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getIssueForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method initiateLogsContext
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string}  occurrenceDate  
+     * @param {string} occurrenceDateTimezone  
+     * @param {string} type 
+     * @param {string} description  
+     * @param {string} resourceId  
+     * @param {string} externalRef  
+     * @param {string} device  
+     * @param {Array<string>} attachments  
+     * @param {string} version  
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
+     * * name optionnel String When relevant, name of the browser on which the issue occurred
+     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @description
+     *     This API allows to Initialise a context to submit logs. This logs context may contains all fields necessary to finally build a ticket to submit an issue. </BR>
+     * </BR>
+     * * userId </BR>
+     * * companyId </BR>
+     * * device </BR>
+     * * version </BR>
+     * * occurrenceDate </BR>
+     * * occurrenceDateTimezone </BR>
+     * * description </BR>
+     * * attachments </BR>
+     * </BR>
+     *  When type is `feedback`, some files **>may**\> be attached but are not mandatory. Inconsistencies may lead to an error (errorDetailsCode: 409003 / Attachments inconsistency) </BR>
+     *   </BR>
+     * * file doesn't exist </BR>
+     * * file not uploaded </BR>
+     * * file doesn't belong to the userId </BR>
+     * * file is not a log file (the file descriptor must include the field 'tags.purpose' = "logs" or 'tags.purpose' = "client_logs" </BR>
+     * </BR>
+     *  When type is `ask`, resourceId field is mandatory. So that the customercare portal is able to send a Stanza/Message to the right user's device to get his agreement to receive his logs. </BR>
+     *  For the case 'As Admin, ask to manage a user', the administrator must use the `getListOfResourcesForUser` API </BR>
+     *  to select the right resource. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     *
+     */
+    initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
+                        description : string, resourceId : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.initiateLogsContext(userId, occurrenceDate, occurrenceDateTimezone, type,
+                        description, resourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(initiateLogsContext) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(initiateLogsContext) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(initiateLogsContext) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(initiateLogsContext) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(initiateLogsContext) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method completeLogsContext
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @param {string} occurrenceDate Date when the issue occurred (ISO-8601 UTC format).
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones). </BR>
+     * Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) </BR>
+     * @param {string} description Issue description
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {Array<string>} attachments An Array of file descriptor Id.
+     * * Forbidden when type is `feedback`. All attachments are awaited during the logs context creation in thi scenario.
+     * * Mandatory with at least one valid fileId when type is `feedback` and logged in user is a user or a Rainbow room (TV user) When the logs context is updated with some valid attachments, the logged in user looses his ownership for theses files.
+     * @param {string} version Device version
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
+     * * name optionnel String When relevant, name of the browser on which the issue occurred
+     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @description
+     *     This API allows to completethe logs context. </BR>
+     *     When an Admin or Emily bot ask to manage a user, this user must complete the logs context with all awaited data. </BR>
+     * </BR>
+     * * device </BR>
+     * * version </BR>
+     * * description </BR>
+     * * attachments </BR>
+     * </BR>
+     * We let administrators to update some logs context fields at anytime, like: </BR>
+     * </BR>
+     * * device </BR>
+     * * version </BR>
+     * * description </BR>
+     * * externalRef </BR>
+     * </BR>
+     * To discriminate the user and TV role from the administrator role we applies the following rules: </BR>
+     * </BR>
+     * * TV role is a single role then assimilated to a Rainbow user, we ask to complete an 'ask' log context. </BR>
+     * * When userId URL parameter is the logged in user id, then this user he is also assimilated to a Rainbow user we ask to complete an 'ask' log context. </BR>
+     * * When userId URL parameter is not the logged in user id, then we consider an administrator or a bot trying to update a logs context. </BR>
+     * </BR>
+     * Following constraints are applied (errorDetailsCode: 409004) </BR>
+     * </BR>
+     * * The logs context 'userId' field must match the value given as URL parameter </BR>
+     * * A user or a rainbow TV can't updates a logs contexts when 'userId' field is not his userId and when the logs context type is 'feedback' </BR>
+     * * Attachments are mandatory when a user or a rainbow TV updates a logs context, and no attachments are linked yet </BR>
+     * * Can't override 'attachments' field when logs context has already some attached files </BR>
+     * * An administrator updating a logs context can't set 'attachments' field </BR>
+     * * A user or a rainbow TV updating a logs context can't change the field externalRef reserved for administrators purpose. </BR>
+     * </BR>
+     * Obviously when some files need to be attached, some constraints may lead to an error (errorDetailsCode: 409003) </BR>
+     * </BR>
+     * * file doesn't exist </BR>
+     * * file not uploaded </BR>
+     * * file doesn't belong to the userId </BR>
+     * * file is not a log file (the file descriptor must include the field 'tags.purpose' = "logs" or 'tags.purpose' = "client_logs" </BR>
+     * * permission must be granted before attaching files. See `acknowledgeLogsRequest` </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * exemple of result :
+     * { 
+     * "id": "5e5f677a513f6721706bddeb", 
+     * "type": "feedback", 
+     * "permission": "granted", 
+     * "userId": "5cca97863cba1119f22f062f", 
+     * "userDisplayName": "John Doe", 
+     * "companyId": "57e2b30c89a091b21e843924", 
+     * "companyName": "My company", 
+     * "problemNumber": 2, 
+     * "creationDate": "2020-03-04T08:31:54.426Z", 
+     * "occurrenceDate": "2020-03-04T08:15:00.000Z", 
+     * "occurrenceDateTimezone": "Europe/Paris", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "device": "android", 
+     * "version": "1.67.5", 
+     * "deviceDetails": { 
+     *  "hardware": { 
+     *      "manufacturer": "Samsung", 
+     *      "model": "Galaxy S21" 
+     *  }, 
+     *  "os": { 
+     *      "name": "Android", 
+     *      "version": "11" 
+     *  } 
+     * }, 
+     * "attachments": \["5e5fecb299821728abb63e6d"\] 
+     * } 
+     *
+     */
+    completeLogsContext(userId : string, logId : string, occurrenceDate : string, occurrenceDateTimezone : string,
+                        description : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.completeLogsContext(userId, logId, occurrenceDate, occurrenceDateTimezone,
+                        description, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(completeLogsContext) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(completeLogsContext) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(completeLogsContext) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(completeLogsContext) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(completeLogsContext) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method cancelOrCloseLogsSubmission
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. 
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     This API can be called either as administrator (BP, Organisation, Company), support, superadmin to close a log submission. </BR>
+     *     It can be called also by Emily bot after the User or Rainbow room decides to cancel the Ticket submission. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     */
+    cancelOrCloseLogsSubmission(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.cancelOrCloseLogsSubmission(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method acknowledgeLogsRequest
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an STANZA/Message type management. </BR>
+     *     </BR>
+     *     </BR>
+     *     <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web\_win\_1.67.2_P0EnyMvN" xmlns="jabber:client"> &lt;logs action="request" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt;
+     *     </BR>
+     *     Then it will have to: </BR>
+     *     acknowledge or reject the request </BR>
+     *     </BR>
+     *     Without an aknowledgment, it's forbidden to update the given logs context. </BR>
+     *     When the request is accepted, it's no more possible to reject the request. </BR>
+     *     </BR>
+     *     Some errors occurs when: </BR>
+     *     Logs context not found (resource not found) </BR>
+     *     The logged in user is not involved in this logs context </BR>
+     *     </BR>
+     *     This API can only be used by user himself (i.e. userId of logged in user). </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    acknowledgeLogsRequest(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.acknowledgeLogsRequest(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(acknowledgeLogsRequest) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method rejectLogsRequest
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an STANZA/Message type management. </BR>
+     * </BR>
+     * <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web\_win\_1.67.2_P0EnyMvN" xmlns="jabber:client"> &lt;logs action="request" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt; </BR>
+     * </BR>
+     * Then it will have to: </BR>
+     * * acknowledge or reject the request </BR>
+     * </BR>
+     * This API is to reject de request. </BR>
+     * A STANZA/Message type management. </BR>
+     * </BR>
+     * <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="2b096e9c3cbe4ac988250e672aeb6989@openrainbow.com" xmlns="jabber:client"> &lt;logs action="reject" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt; </BR>
+     * </BR>
+     * Then it's up to the administrator or the bot to delete the logs context and to stop interacting with the user. </BR>
+     * Without an aknowledgment, it's forbidden to update the given logs context. </BR>
+     * </BR>
+     * Some errors occurs when: </BR>
+     * * Logs context not found (resource not found) </BR>
+     * * The logged in user is not involved in this logs context </BR>
+     * * `Permission already granted. It can no longer be revoked` </BR>
+     * </BR>
+     * This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL) </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    rejectLogsRequest(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.rejectLogsRequest(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(rejectLogsRequest) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(rejectLogsRequest) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(rejectLogsRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(rejectLogsRequest) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(rejectLogsRequest) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users Logs
+
+    //region Customer Care - Users Logs Append
+
+    /**
+     * @public
+     * @method adminOrBotAddAdditionalFiles
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs Append
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     This api can be called either as administrator (BP, Organisation, Company), support, superadmin or Emily bot to append additional elements ( pictures, screenshot, ... or conversation content). </BR>
+     *     </BR>
+     *     For example in the [Cf Case As Emily Bot, ask to manage a user](/customercare/#api-_) scenario, the Emily bot should be able to add elements shared by a customer via the conversation the bot did with him. </BR>
+     *     </BR>
+     *     **Pre-checks:** </BR>
+     *     the loggedInUser is the creator of the log context or an authorized administrator. </BR>
+     *     </BR>
+     *     **Case file to add:** two types of files are uploaded : file generated from conversation and file belonging to logged in user. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    adminOrBotAddAdditionalFiles(userId : string, logId : string, attachments : Array<string>, conversationId : string, fileName : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.adminOrBotAddAdditionalFiles(userId, logId, attachments, conversationId, fileName).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users Logs Append
+
+    //region Customer Care - Users resources
+
+    /**
+     * @public
+     * @method getListOfResourcesForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users resources
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to have the list of resources a user selected to connect to Rainbow infrastructure. </BR>
+     So that, as administrator (Superadmin, Support, BP, Organisation, Company), I can ask a user to upload logs if he agree. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * {
+     * "jid_im": \[ 
+     * { 
+     * "resource": "web\_win\_1.67.2_P0EnyMvN", 
+     * "date": "2020-02-11T17:45:18.231395Z" 
+     * }, 
+     * { 
+     * "resource": "web\_win\_1.67.2_ajqyiThi", 
+     * "date": "2020-02-11T17:31:31.409537Z", 
+     * "show": "xa", "status": "away" 
+     * } \]
+     * }
+     *
+     */
+    getListOfResourcesForUser( userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfResourcesForUser(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfResourcesForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfResourcesForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfResourcesForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users resources
+
+    //region Customer Care - Users ticket
+
+    /**
+     * @public
+     * @method createAnAtriumTicket
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} subject Subject of the new ticket
+     * @param {string} description Description of the new ticket
+     * @param {string} additionalDescription Additional information if necessary
+     * @param {string} resource  resource used to generate anomaly
+     * @param {string} externalRef external reference used  
+     * @param {Array<string>} logs An Array of log Id regarding the anomaly.
+     * @description
+     *     This API allows to Initialise a context from logs to submit a ticket to Zendesk. </BR> 
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.createAnAtriumTicket(userId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createAnAtriumTicket) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createAnAtriumTicket) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createAnAtriumTicket) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(createAnAtriumTicket) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateAnAtriumTicket
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} ticketId ticketId Ticket unique identifier
+     * @param {string} subject Subject of the new ticket
+     * @param {string} description Description of the new ticket
+     * @param {string} additionalDescription Additional information if necessary
+     * @param {string} resource  resource used to generate anomaly
+     * @param {string} externalRef external reference used
+     * @param {Array<string>} logs An Array of log Id regarding the anomaly.
+     * @description
+     *     This API allows to update a context from logs to submit a ticket to Zendesk. </BR>
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     * 
+     */
+    updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.updateAnAtriumTicket(userId, ticketId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateAnAtriumTicket) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(updateAnAtriumTicket) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAnAtriumTicketInformation
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier.
+     * @param {string} ticketId ticketId Ticket unique identifier
+     * @description
+     *     This API allows to delete an existing context in database from a submitted ticket to Zendesk. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteAnAtriumTicketInformation(userId, ticketId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method readAnAtriumTicketInformation
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to read a context from a submitted ticket to Zendesk. </BR>
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    readAnAtriumTicketInformation( userId : string, ticketId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.readAnAtriumTicketInformation(userId, ticketId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(readAnAtriumTicketInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method readAllTicketsOnASameCompany
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to read all context regarding submitted tickets to Zendesk in the same company . The company is calculated with userId information found in DB. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * \[ 
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Where is the volume button of my iphone?", 
+     * "additionalDescription": "Where is my rainbow icon on my mac? ", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\] 
+     * }, 
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "Screen problem", 
+     * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.", 
+     * "resource": "web\_win\_xxxxx" 
+     * }
+     * \]
+     *
+     */
+    readAllTicketsOnASameCompany(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.readAllTicketsOnASameCompany(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users ticket
+
+    //endregion Customer Care
     }
 
 module.exports.AdminService = AdminService;

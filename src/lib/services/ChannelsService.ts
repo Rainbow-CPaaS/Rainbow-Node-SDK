@@ -1875,7 +1875,7 @@ class ChannelsService extends GenericService {
      * [     
      *  {
      *  id : string, // Rainbow user Id
-     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
      *  } 
      *  ]
      *  
@@ -1930,7 +1930,7 @@ class ChannelsService extends GenericService {
      * [     
      *  {
      *  loginEmail : string, // Rainbow user loginEmail.
-     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
      *  } 
      *  ]
      *  
