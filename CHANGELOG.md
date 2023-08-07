@@ -6,10 +6,31 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.23.X] - 2023-07-XX
+### [2.24.X] - 2023-08-XX
 #### Removed
 #### Fixed
 #### Added
+-   Add API methods in AdminService service to exchange with Customer Care portal. Details :
+-   * Add API `AdminService::getCustomerCareAdministratorsGroup` allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets.
+-   * Add API `AdminService::addAdministratorToGroup` allows Add one administrators allowed to consult the list of issues, create and consolidate tickets.
+-   * Add API `AdminService::removeAdministratorFromGroup` allows to remove one administrator from the group.
+-   * Add API `AdminService::getIssue` allows to retrieve a given issue.
+-   * Add API `AdminService::getListOfIssues` allows to retrieve the list of issues.
+-   * Add API `AdminService::getListOfIssuesForUser` allows to consult the list of issues associated to a user or a Rainbow Room.
+-   * Add API `AdminService::getIssueForUser` allows to consult one issue associated to a user or a Rainbow Room.
+-   * Add API `AdminService::initiateLogsContext` allows to Initialise a context to submit logs.
+-   * Add API `AdminService::completeLogsContext` allows to completethe logs context.
+-   * Add API `AdminService::cancelOrCloseLogsSubmission` to cancel the Ticket submission.
+-   * Add API `AdminService::acknowledgeLogsRequest`  to acknoledge the log request.
+-   * Add API `AdminService::rejectLogsRequest` to reject the log request.
+-   * Add API `AdminService::adminOrBotAddAdditionalFiles` add files
+-   * Add API `AdminService::getListOfResourcesForUser` allows to have the list of resources a user selected to connect to Rainbow infrastructure. 
+-   * Add API `AdminService::createAnAtriumTicket` allows to Initialise a context from logs to submit a ticket to Zendesk.
+-   * Add API `AdminService::updateAnAtriumTicket` allows to update a context from logs to submit a ticket to Zendesk.
+-   * Add API `AdminService::deleteAnAtriumTicketInformation` allows to delete an existing context in database from a submitted ticket to Zendesk.
+-   * Add API `AdminService::readAnAtriumTicketInformation` allows to read a context from a submitted ticket to Zendesk.
+-   * Add API `AdminService::readAllTicketsOnASameCompany` allows to read all context regarding submitted tickets to Zendesk in the same company .
+
 #### Changed
 
 ### [2.23.1] - 2023-07-07
