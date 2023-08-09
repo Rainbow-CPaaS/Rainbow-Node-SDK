@@ -12,7 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Fixed
 -   None
 #### Added
--   Add API methods in AdminService service to exchange with Customer Care portal. Details :
+-   Add API methods in AdminService service to exchange with Customer Care portal (RQRAINB-5086). Details :
 -   Add ability to inject a stanza in the event engine with `XMPPService::mockStanza` method. Of course this is for developer tests, and should not be used in production environnment.
 -   * Add API `AdminService::getCustomerCareAdministratorsGroup` allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets.
 -   * Add API `AdminService::addAdministratorToGroup` allows Add one administrators allowed to consult the list of issues, create and consolidate tickets.
