@@ -127,6 +127,9 @@ class InvitationEventHandler extends GenericHandler {
                     case "joincompanyrequest":
                         that.onJoinCompanyRequestManagementMessageReceived(node);
                         break;
+                    case "logs":
+                        // treated in conversationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

@@ -678,11 +678,11 @@ class AdminService extends GenericService {
      * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
      * | name | String | Company name |
      * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
-     * | street optionnel | String | Company street<br><br>Ordre de grandeur : `0..255` |
-     * | city optionnel | String | Company city<br><br>Ordre de grandeur : `0..255` |
+     * | street optionnel | String | Company street<br> |
+     * | city optionnel | String | Company city<br> |
      * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
-     * | postalCode optionnel | String | Company postal code<br><br>Ordre de grandeur : `0..64` |
-     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Ordre de grandeur : `3`<br><br>Possibles values `USD`, `EUR`, `CNY` |
+     * | postalCode optionnel | String | Company postal code<br> |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values `USD`, `EUR`, `CNY` |
      * | status | String | Company status<br><br>Possibles values `initializing`, `active`, `alerting`, `hold`, `terminated` |
      * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values `public`, `private`, `organisation`, `closed`, `isolated` |
      * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
@@ -720,8 +720,8 @@ class AdminService extends GenericService {
      * | offerType | String | Allowed company offer types<br><br>Possibles values `freemium`, `premium` |
      * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
      * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values `HDS` |
-     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
-     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
      * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values `square`, `circle` |
      * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
      * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
@@ -730,7 +730,7 @@ class AdminService extends GenericService {
      * | dark optionnel | String | Set the selected theme dark for users of the company. |
      * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
      * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
-     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br><br>Ordre de grandeur : `0..256` |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br> |
      * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
      * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
      * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
@@ -844,7 +844,7 @@ class AdminService extends GenericService {
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. Ordre de grandeur : 0-1000
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -927,7 +927,7 @@ class AdminService extends GenericService {
      * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
      * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. Ordre de grandeur : 0-1000
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
@@ -1366,7 +1366,7 @@ class AdminService extends GenericService {
      * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
      * | assignationDate | String | Date when the subscription was attached to user profile |
      * | canBeSold | Boolean | Indicates if the offer is billed.  <br>Some offers will not be billed (Essential, Demo, ...). |
-     * | offerTechnicalDescription optionnel | string | Offer technical description.<br><br>Ordre de grandeur : `1..512` |
+     * | offerTechnicalDescription optionnel | string | Offer technical description.<br> |
      * | businessModel optionnel | string | Indicates the business model associated to this offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Subscriptions having this business model are billed according to the number of users bought for it.<br>* `usage`: Subscriptions having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer).<br>* `flat_fee`: Subscriptions having this business model are billed based on a flat fee (same price each month for the company which subscribe to this offer).<br>* `none`: no business model. Should be used for offers which are not sold (like Essential...).<br><br>Default value : `none`<br><br>Possibles values : `nb_users`, `usage`, `flat_fee`, `none` |
      * | businessSpecific optionnel | String\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Default value : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
      * | isExclusive optionnel | Boolean | Indicates if the offer is exclusive for assignation to a user profile (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer). |
@@ -9950,23 +9950,23 @@ class AdminService extends GenericService {
      * | companyId optionnel | string | Id of the company |
      * | userId optionnel | string | Id of the user |
      * | type | string | Type of the directory entry</BR>* `user` if firstName and/or lastName are filled,</BR>* `company` if only companyName is filled (firstName and lastName empty)</BR>Possible values : `user`, `company` |
-     * | firstName optionnel | string | Contact First name</BR>Ordre de grandeur : `0..255` |
-     * | lastName optionnel | string | Contact Last name</BR>Ordre de grandeur : `0..255` |
-     * | companyName optionnel | string | Company Name of the contact</BR>Ordre de grandeur : `0..255` |
-     * | department optionnel | string | Contact address: Department</BR>Ordre de grandeur : `0..255` |
-     * | street optionnel | string | Contact address: Street</BR>Ordre de grandeur : `0..255` |
-     * | city optionnel | string | Contact address: City</BR>Ordre de grandeur : `0..255` |
+     * | firstName optionnel | string | Contact First name |
+     * | lastName optionnel | string | Contact Last name |
+     * | companyName optionnel | string | Company Name of the contact |
+     * | department optionnel | string | Contact address: Department |
+     * | street optionnel | string | Contact address: Street |
+     * | city optionnel | string | Contact address: City |
      * | state optionnel | string | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
-     * | postalCode optionnel | string | Contact address: postal code / ZIP</BR>Ordre de grandeur : `0..64` |
+     * | postalCode optionnel | string | Contact address: postal code / ZIP |
      * | country optionnel | string | Contact address: country (ISO 3166-1 alpha3 format) |
-     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | jobTitle optionnel | string | Contact Job title</BR>Ordre de grandeur : `0..255` |
-     * | eMail optionnel | string | Contact Email address</BR>Ordre de grandeur : `0..255` |
-     * | tags optionnel | string\[\] | An Array of free tags</BR>Ordre de grandeur : `1..64` |
-     * | custom1 optionnel | string | Custom field 1</BR>Ordre de grandeur : `0..255` |
-     * | custom2 optionnel | string | Custom field 2</BR>Ordre de grandeur : `0..255` |
+     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format) |
+     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format) |
+     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format) |
+     * | jobTitle optionnel | string | Contact Job title |
+     * | eMail optionnel | string | Contact Email address |
+     * | tags optionnel | string\[\] | An Array of free tags |
+     * | custom1 optionnel | string | Custom field 1 |
+     * | custom2 optionnel | string | Custom field 2 |
      * 
      * 
      */
@@ -11215,15 +11215,15 @@ class AdminService extends GenericService {
      * | version | String | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getIssue(logId : string) {
@@ -11391,15 +11391,15 @@ class AdminService extends GenericService {
      * | version | String | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
      * 
      */
     getListOfIssues(limit : number = 100, offset : number = 0, sortField : string = "creationDate",
@@ -11473,15 +11473,15 @@ class AdminService extends GenericService {
      * | version | String | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getListOfIssuesForUser(userId : string, format : string = "small") {
@@ -11542,15 +11542,15 @@ class AdminService extends GenericService {
      * | version | String | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br><br>Ordre de grandeur : `1..64` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getIssueForUser(userId : string, logId : string ) {
@@ -11583,25 +11583,37 @@ class AdminService extends GenericService {
      * @async
      * @category Customer Care - Users Logs
      * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
-     * @param {string}  occurrenceDate  
-     * @param {string} occurrenceDateTimezone  
-     * @param {string} type 
-     * @param {string} description  
-     * @param {string} resourceId  
-     * @param {string} externalRef  
-     * @param {string} device  
-     * @param {Array<string>} attachments  
-     * @param {string} version  
-     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
-     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
-     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
-     * * model optionnel String When relevant, model of the device on which the issue occurred
-     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
-     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
-     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
-     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
-     * * name optionnel String When relevant, name of the browser on which the issue occurred
-     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @param {string}  occurrenceDate  Date when the issue occurred. If not provided, occurrenceDate is set by default to the issue's creation date.
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in IANA tz database. </BR>
+     * Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...) </BR>
+     *  </BR>
+     * If not provided, occurrenceDateTimezone is set to the user's timezone if available, to "UTC" otherwise. </BR>
+     * @param {string} type Initial scenario </BR>
+     * * `feedback`: The customer submits an issue. `userId` parameter must be the logged in user Id in this case. </BR>
+     * * `ask`: A bot or an admin has contacted a customer to complete an issue </BR>
+     * </BR>
+     * Possibles values : `feedback`, `ask` </BR>
+     * @param {string} description Issue description
+     * @param {string} resourceId Mandatory when type is ask, this is the resource of the device from which we need to get logs (in case of multi-devices configuration)
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {Array<string>} attachments An Array of file descriptor Id. </BR>
+     * Forbidden when type is ask </BR>
+     * Mandatory with at least one valid fileId when type is feedback When the logs context is created, the logged in user looses his ownership for theses files. </BR>
+     * @param {string} version Device version  
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred </BR>
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred </BR>
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred </BR>
+     * * model optionnel String When relevant, model of the device on which the issue occurred </BR>
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred </BR>
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred </BR>
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred </BR>
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred </BR>
+     * * name optionnel String When relevant, name of the browser on which the issue occurred </BR>
+     * * version optionnel String When relevant, name of the browser on which the issue occurred </BR>
      * @description
      *     This API allows to Initialise a context to submit logs. This logs context may contains all fields necessary to finally build a ticket to submit an issue. </BR>
      * </BR>
@@ -11628,6 +11640,26 @@ class AdminService extends GenericService {
      *
      *
      * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Valeurs autorisées : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      *
      */
     initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
@@ -11833,10 +11865,10 @@ class AdminService extends GenericService {
      * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
      * @param {string} logId Logs context unique identifier
      * @description
-     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an STANZA/Message type management. </BR>
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an event type management. </BR>
      *     </BR>
      *     </BR>
-     *     <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web\_win\_1.67.2_P0EnyMvN" xmlns="jabber:client"> &lt;logs action="request" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt;
+     *      `rainbow_onlogsconfig` with an action equal to "request".
      *     </BR>
      *     Then it will have to: </BR>
      *     acknowledge or reject the request </BR>
@@ -11907,17 +11939,15 @@ class AdminService extends GenericService {
      * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
      * @param {string} logId Logs context unique identifier
      * @description
-     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an STANZA/Message type management. </BR>
-     * </BR>
-     * <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web\_win\_1.67.2_P0EnyMvN" xmlns="jabber:client"> &lt;logs action="request" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt; </BR>
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an event type management. </BR>
+     *     </BR>
+     *     </BR>
+     *      `rainbow_onlogsconfig` with an action equal to "request".
      * </BR>
      * Then it will have to: </BR>
      * * acknowledge or reject the request </BR>
      * </BR>
-     * This API is to reject de request. </BR>
-     * A STANZA/Message type management. </BR>
-     * </BR>
-     * <message type="management" id="c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0" to="2b096e9c3cbe4ac988250e672aeb6989@openrainbow.com" xmlns="jabber:client"> &lt;logs action="reject" xmlns='jabber:iq:configuration' contextid="5a1c2848bf33d1379ac5592f"/&gt; &lt;/message&gt; </BR>
+     * This API is to reject de request. An event type management `rainbow_onlogsconfig` with an action equal to "reject" is raised.
      * </BR>
      * Then it's up to the administrator or the bot to delete the logs context and to stop interacting with the user. </BR>
      * Without an aknowledgment, it's forbidden to update the given logs context. </BR>

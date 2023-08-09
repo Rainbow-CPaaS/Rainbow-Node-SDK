@@ -2185,6 +2185,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "joincompanyrequest":
                         // treated in invitationEventHandler
                         break;
+                    case "logs":
+                        that.onLogsMessageReceived(node);
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -2850,6 +2853,28 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onLogsMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onLogsMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
+            let logsObj = jsonNode["logs"];
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) logsObj : ", logsObj);
+            let action = logsObj["$attrs"]["action"];
+            let contextid = logsObj["$attrs"]["contextid"];
+
+            if (logsObj.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) connectorconfig with action : ", action, ", contextid : ", contextid);
+                that.eventEmitter.emit("evt_internal_logsconfig", {action, contextid});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
         }
     };
     

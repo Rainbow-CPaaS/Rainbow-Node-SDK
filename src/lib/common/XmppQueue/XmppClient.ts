@@ -3,6 +3,7 @@
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
 import {Deferred, stackTrace, getJsonFromXML} from "../Utils";
+import {Element} from "adaptive-expressions/lib/builtinFunctions";
 
 export {};
 
@@ -29,7 +30,9 @@ const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
 //const debug = require("@xmpp/debug");
 
+// @ts-ignore
 const Element = require('ltx').Element;
+const parse = require('ltx').parse;
 
 let LOG_ID='XMPPCLIENT';
 
@@ -667,6 +670,13 @@ class XmppClient  {
         this.client.entity.handle(evt,  cb);
     } // */
 
+    emit(evtname, stanza) {
+        let that = this;
+        let stanzaElmt : Element = parse(stanza);
+//        stanzaElmt.find("to") = that.fullJid;
+        this.client.entity.emit(evtname, stanzaElmt);
+    }
+    
     on(evt, cb) {
         this.client.entity.on(evt,  cb);
     }

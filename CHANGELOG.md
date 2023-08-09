@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 #### Added
 -   Add API methods in AdminService service to exchange with Customer Care portal. Details :
+-   Add ability to inject a stanza in the event engine with `XMPPService::mockStanza` method. Of course this is for developer tests, and should not be used in production environnment.
 -   * Add API `AdminService::getCustomerCareAdministratorsGroup` allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets.
 -   * Add API `AdminService::addAdministratorToGroup` allows Add one administrators allowed to consult the list of issues, create and consolidate tickets.
 -   * Add API `AdminService::removeAdministratorFromGroup` allows to remove one administrator from the group.
@@ -32,6 +33,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   * Add API `AdminService::deleteAnAtriumTicketInformation` allows to delete an existing context in database from a submitted ticket to Zendesk.
 -   * Add API `AdminService::readAnAtriumTicketInformation` allows to read a context from a submitted ticket to Zendesk.
 -   * Add API `AdminService::readAllTicketsOnASameCompany` allows to read all context regarding submitted tickets to Zendesk in the same company .
+-   Add event `rainbow_onlogsconfig` for Logs management from customer care.
 
 #### Changed
 -   None

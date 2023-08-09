@@ -460,6 +460,12 @@ class XMPPService extends GenericService {
         }
     }
 
+    mockStanza(stanza) {
+        let that = this;
+        that.xmppClient.emit(STANZA_EVENT, stanza);
+        that.logger.log("internal", LOG_ID + "(handleXMPPConnection) mockStanza - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
+    }
+        
     async handleXMPPConnection (headers) {
 
         let that = this;
@@ -635,7 +641,9 @@ class XMPPService extends GenericService {
             let delivered = PubSub.publish(eventId, stanza);
 
             stanza.children.forEach((child) => {
-                delivered |= PubSub.publish(that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : ""), stanza);
+                let eventIdForChilds = that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : "");
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventIdForChilds : ", eventIdForChilds);
+                delivered |= PubSub.publish(eventIdForChilds, stanza);
             });
 
             if (!delivered) {

@@ -5857,6 +5857,11 @@ let urlS2S;
 
     //region ldap
 
+  // testmockStanza("<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>")
+   async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+        rainbowSDK._core._xmpp.mockStanza(stanza);
+   }        
+        
     async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
