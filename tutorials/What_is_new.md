@@ -6,6 +6,15 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
+### SDK for Node.JS 2.24.0 - STS Version - August 2023
+
+---
+
+**3-Delivery Release SDK Breaking Changes**
+
+-   Warning: From version STS 2.24.0 this file will not be updated any more, because all the informations are now in the changelog file.
+
+
 ### SDK for Node.JS 2.23.0 - STS Version - July 2023
 
 ---
