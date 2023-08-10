@@ -846,7 +846,7 @@ class Bubbles extends GenericService {
                 let conference = that.getConferenceByIdFromCache(bubble.id);
                 that.removeConferenceFromCache(bubble.id);
                 //conference.
-                conference.active = false;
+                if (conference) conference.active = false;
                 that._eventEmitter.emit("evt_internal_bubbleconferenceupdated", conference, {});
         }
     }
