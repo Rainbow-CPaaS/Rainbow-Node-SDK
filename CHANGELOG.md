@@ -11,7 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix BubblesService::_onBubbleConferenceStoppedReceived event.
 
 #### Added
 -   Add API methods in AdminService service to exchange with Customer Care portal (RQRAINB-5086). Details :
@@ -36,7 +36,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   * Add API `AdminService::readAnAtriumTicketInformation` allows to read a context from a submitted ticket to Zendesk.
 -   * Add API `AdminService::readAllTicketsOnASameCompany` allows to read all context regarding submitted tickets to Zendesk in the same company .
 -   Add event `rainbow_onlogsconfig` for Logs management from customer care.
--   Add API `AdminService::createListOfEventsForConnector` allows the different connectors to store a list of events. 
+-   Add API `AdminService::createListOfEventsForConnector` allows the different connectors to store a list of events (RQRAINB-8039). 
 
 #### Changed
 -   None
