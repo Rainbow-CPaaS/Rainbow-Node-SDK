@@ -9531,6 +9531,33 @@ Request Method: PUT
 
     //endregion AD/LDAP
 
+    //region Connectors
+
+    createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>) {
+        // API https://api.openrainbow.org/admin/#api-connectors-PostLdapActivate
+        // POST /api/rainbow/admin/v1.0/connectors/events
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/admin/v1.0/connectors/events";
+            that.logger.log("internal", LOG_ID + "(createListOfEventsForConnector) REST url : ", url);
+            let data: any = { events };
+            
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
+                that.logger.log("info", LOG_ID + "(createListOfEventsForConnector) successfull");
+                that.logger.log("internal", LOG_ID + "(createListOfEventsForConnector) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(createListOfEventsForConnector) error");
+                that.logger.log("internalerror", LOG_ID, "(createListOfEventsForConnector) error : ", err);
+                return reject(err);
+            });
+        });  
+    }
+
+    //endregion Connectors
+    
     //region Rainbow Voice Communication Platform Provisioning
     // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
 

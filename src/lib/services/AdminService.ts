@@ -6513,6 +6513,79 @@ class AdminService extends GenericService {
     //endregion LDAP APIs to use
     
     //endregion AD/LDAP
+
+    //region Connectors
+
+    /**
+     * @public
+     * @method createListOfEventsForConnector
+     * @since 2.14.0
+     * @instance
+     * @async
+     * @category Connectors
+     * @param {any} events The list of events for a connector : 
+     * { </BR> 
+     * events : [{ </BR>
+     *  eventId : string The identifier of an event  </BR>
+     *  level : string The level of an event. Possibles values : `ERROR`, `WARN`, `INFO`  </BR>
+     *  category : string The category of an event  </BR>
+     *  operation : string The operation of an event  </BR>
+     *  description : string The description of an event  </BR>
+     *  date : string The date an event  </BR>
+     * }]</BR>
+     * }</BR>
+     * 
+     * @description
+     *     This API allows the different connectors to store a list of events </BR>
+     *      </BR>
+     *      Each given events is stored in Rainbow database. If an event, identified by its eventId, already exists for a connector in database, it isn't duplicated. An event is created with a deleted field value as false. </BR>
+     *      It's associated eityher with a companyId or a systemId, according to the type of its connector. </BR>
+     *      It's stored during 30 days. After that, it's automatically removed from database. </BR>
+     * </BR>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of connector event stored. |
+     * | id  | String | Event unique identifier. |
+     * | userId | String | User associated to the connector unique identifier. |
+     * | eventId | String | Event identifier in the connector scope |
+     * | level | String | Event level<br><br>Possibles values : `ERROR`, `WARN`, `INFO` |
+     * | category | String | Event category |
+     * | operation | String | Event operation |
+     * | description | String | Event description |
+     * | deleted | Boolean | Indicate if the event is considered as deleted |
+     * | date | Date-Time | Date of event |
+     * | companyId optionnel | String | Company linked to the connector. |
+     * | systemId optionnel | String | System linked to the connector. |
+     *
+     */
+    createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!events) {
+                    this._logger.log("warn", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter : ", events);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.createListOfEventsForConnector(events);
+                that._logger.log("debug", "(createListOfEventsForConnector) - sent.");
+                that._logger.log("internal", "(createListOfEventsForConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createListOfEventsForConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Connectors
     
     //region Rainbow Voice Communication Platform Provisioning
     // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
@@ -11656,7 +11729,7 @@ class AdminService extends GenericService {
      * | description | String | Issue description |
      * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
      * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Valeurs autorisées : `android`, `desktop`, `ios`, `room`, `web` |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
      * | version | String | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |

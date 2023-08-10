@@ -34,6 +34,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   * Add API `AdminService::readAnAtriumTicketInformation` allows to read a context from a submitted ticket to Zendesk.
 -   * Add API `AdminService::readAllTicketsOnASameCompany` allows to read all context regarding submitted tickets to Zendesk in the same company .
 -   Add event `rainbow_onlogsconfig` for Logs management from customer care.
+-   Add API `AdminService::createListOfEventsForConnector` allows the different connectors to store a list of events. 
 
 #### Changed
 -   None
