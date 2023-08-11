@@ -697,7 +697,7 @@ class XMPPService extends GenericService {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 default:
                     that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
@@ -796,7 +796,7 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(OFFLINE_EVENT, function fn_OFFLINE_EVENT (msg) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
         });
 
         that.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
@@ -817,32 +817,32 @@ class XMPPService extends GenericService {
                 if (!that.isReconnecting) {
                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
                     await that.reconnect.reconnect().catch((err) => {
-                        that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
                     });
                 } else {
-                    that.logger.log("info", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
                 }
             } else {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
+                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
             }
         });
 
         that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
             let stanza = xml("close", {
                 "xmlns": NameSpacesLabels.XmppFraming
             });
 
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
             return that.xmppClient.send(stanza);
         });
 
         that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
         });
 
         that.reconnect.on(RECONNECTING_EVENT, function fn_RECONNECTING_EVENT () {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
             if (that.reconnect) {
                 that.logger.log("info", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
                 if (!that.isReconnecting) {
