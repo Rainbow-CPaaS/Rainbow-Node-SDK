@@ -273,7 +273,8 @@ class ConversationsService extends GenericService {
             //message.setReceiptStatus(Message.ReceiptStatus.SENT);
             if (conversation && conversation.id) {
                 conversation = await that.getConversationById(conversation.id);
-                that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
+                that._logger.log("debug", LOG_ID + "(_onReceipt) getConversationById conversation received.");
+                // that._logger.log("internal", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
                 if (conversation) {
                     message.conversation = conversation;
                     if (conversation.addOrUpdateMessage) {
