@@ -15,6 +15,7 @@ import {ContactsService} from "./ContactsService";
 import {GenericService} from "./GenericService";
 
 import {dateFormat} from "dateformat";
+import { FileStorageService } from "./FileStorageService";
 
 let fs = require('fs');
 
@@ -67,6 +68,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  */
 class AdminService extends GenericService {
     private _contacts: ContactsService;
+    private _fileStorage: FileStorageService;
 
     static getClassName(){ return 'AdminService'; }
     getClassName(){ return AdminService.getClassName(); }
@@ -99,6 +101,7 @@ class AdminService extends GenericService {
                 that._options = _options;
                 that._s2s = _core._s2s;
                 that._contacts = _core._contacts;
+                that._fileStorage = _core._fileStorage;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 
@@ -12079,6 +12082,110 @@ class AdminService extends GenericService {
         });
     }
 
+    /**
+     * @public
+     * @method sendCustomerCareReport
+     * @since 2.24.1
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} logId Logs context unique identifier (received with an `rainbow_onlogsconfig` event with a "request" `action` parameter).
+     * @param {Array<string>} filesPath the path to the files to store in the logs context.
+     * @param {string} occurrenceDate Date when the issue occurred (ISO-8601 UTC format).
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones). </BR>
+     * Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) </BR>
+     * @param {string} description Issue description
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {string} version Device version
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
+     * * name optionnel String When relevant, name of the browser on which the issue occurred
+     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @description
+     *     This API allows to store files in rainbow, and then to complete the logs context with it and provided informations. </BR>
+     *
+     *     **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
+     * @return {Promise<any>} - result
+     *  The result of the completeLogsContext call.
+     *  
+     *  **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
+     */
+    sendCustomerCareReport(logId : string, filesPath : Array<string> = [], occurrenceDate : string, occurrenceDateTimezone : string,
+                           description : string, externalRef : string, device : string, version : string, deviceDetails : any) {
+        let that = this;
+        let proms = [];
+        let attachments = [];
+        let fileFailed = [];
+
+        return new Promise(function (resolve, reject) {
+            try {
+                for (let i = 0; i < filesPath.length; i++) {
+                    let filePath = filesPath[i];
+                    that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
+                    that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
+
+                    proms.push(that._fileStorage.uploadFileToStorage(filePath));
+                }
+
+                Promise.allSettled(proms).then((resultsOfUpload: Array<any>) => {
+                    let success = true;
+                    for (let i = 0; i < resultsOfUpload.length; i++) {
+                        let resultOfUpload = resultsOfUpload[i];
+                        that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) resultOfUpload.");
+                        that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) resultOfUpload : ", resultOfUpload);
+                        success = (success && (resultOfUpload.status!=="rejected"));
+                        if (success) {
+                            attachments.push(resultOfUpload.value);
+                        } else {
+                            fileFailed.push({
+                                filePath: filesPath[i],
+                                reason: resultOfUpload.reason
+                            })
+                        }
+                    }
+
+                    if (success) {
+                        that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
+                                description, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                            return resolve(result);
+                        }).catch((err) => {
+                            return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in completeLogsContext", "Error in completeLogsContext", err));
+                        })
+                    } else {
+                        return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", fileFailed));
+                    }
+
+                    /*switch (success) {
+                        "rejected":
+                            break;
+                        "fulfilled":
+                            break;
+                        default:
+                            break;
+                    } // */
+                }). catch ((err) => {
+                    that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                    that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                    return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in waiting all proms.", "Error in waiting all proms.", err));
+                });
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", err));
+            }
+        });
+    }
+
     //endregion Customer Care - Users Logs
 
     //region Customer Care - Users Logs Append
@@ -12488,7 +12595,7 @@ class AdminService extends GenericService {
     }
 
     //endregion Customer Care - Users ticket
-
+    
     //endregion Customer Care
     }
 

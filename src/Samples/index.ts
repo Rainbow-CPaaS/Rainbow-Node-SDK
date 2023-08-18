@@ -88,7 +88,7 @@ import * as Utils from "../lib/common/Utils";
 import fs = require("fs");
 //import fileapi from "file-api";
 let fileapi = require('file-api');
-import {inspect} from "util";
+import {inspect, toUSVString} from "util";
 
 const inquirer = require("inquirer");
 import jwt from "jwt-decode";
@@ -6985,6 +6985,36 @@ let urlS2S;
         }
         
     //endregion RPC
+        
+   //region Customer Care
+
+        async testsendCustomerCareReport() {
+            let logId: string, filesPath: Array<string> = [], occurrenceDate: string, occurrenceDateTimezone: string,
+                    description: string, externalRef: string, device: string, version: string, deviceDetails: any;
+            try {
+                logId = "1234";
+
+                filesPath.push("c:\\temp\\test.txt");
+                filesPath.push("c:\\temp\\test2.txt");
+
+                occurrenceDate = new Date().toLocaleString();
+                occurrenceDateTimezone = "Europe/Paris";
+                description = "test of log return by node SDK";
+                externalRef = undefined;
+                device = "web";
+                version = "2.24.1";
+                deviceDetails = undefined;
+
+                let res = await rainbowSDK.admin.sendCustomerCareReport(logId, filesPath, occurrenceDate, occurrenceDateTimezone,
+                        description, externalRef, device, version, deviceDetails);
+                logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
+            } catch (err) {
+                logger.log("error", "MAIN - CATCH error.");
+                logger.log("internalerror", "MAIN - CATCH error !!! : ", err);            
+            }
+        }
+
+    //endregion Customer Care     
         
     // region TimeOutManager
 

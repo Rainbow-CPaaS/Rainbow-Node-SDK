@@ -25,8 +25,61 @@ import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
 import {GenericService} from "./GenericService";
 
+import * as fs from "fs";
+import * as path from "path";
 import * as mime from "mime";
-if ( ! mime.lookup) mime.lookup = mime.getType;
+// if ( ! mime.lookup) mime.lookup = mime.getType;
+
+function FileUpdated(input) {
+    var self = this;
+
+    function updateStat(stat) {
+        self.stat = stat;
+        self.lastModifiedDate = self.stat.mtime;
+        self.size = self.stat.size;
+    }
+    
+    if (input == undefined) return; 
+
+    if ('string' === typeof input) {
+        self.path = input;
+    } else {
+        Object.keys(input).forEach(function (k) {
+            self[k] = input[k];
+        });
+    }
+
+    self.name = self.name || path.basename(self.path||'');
+    if (!self.name) {
+        throw new Error("No name");
+    }
+    if ( ! mime.lookup)  {
+        self.type = self.type || mime.getType(self.name);
+    } else {
+        self.type = self.type || mime.lookup(self.name);
+    }
+
+    if (!self.path) {
+        if (self.buffer) {
+            self.size = self.buffer.length;
+        } else if (!self.stream) {
+            throw new Error('No input, nor stream, nor buffer.');
+        }
+        return;
+    }
+
+    if (!self.jsdom) {
+        return;
+    }
+
+    if (!self.async) {
+        updateStat(fs.statSync(self.path));
+    } else {
+        fs.stat(self.path, function (err, stat) {
+            updateStat(stat);
+        });
+    }
+}
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -342,7 +395,9 @@ class FileStorage extends GenericService{
             // Allow to pass a file path (for test purpose)
             if ( typeof (file) === "string") {
                 try {
-                    let fileObj = new fileapi.File({
+
+                    let fileObj = new FileUpdated({
+                    //let fileObj = new fileapi.File({
 
                             //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                             "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read

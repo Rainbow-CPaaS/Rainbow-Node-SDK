@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.24.1] - 2023-08-18
+#### Removed
+-   None
+
+#### Fixed
+-   Fix `File` library in `FileStorageService` to use lastest mime version (3.0.0).
+
+#### Added
+-   Add API method `AdminService::sendCustomerCareReport` allows to store files in rainbow, and then to complete the logs context with it and provided informations.
+
+#### Changed
+-   Update `ErrorManager::CUSTOMERROR` with an error object to provide more information.
+
 ### [2.24.0] - 2023-08-10
 #### Removed
 -   None
