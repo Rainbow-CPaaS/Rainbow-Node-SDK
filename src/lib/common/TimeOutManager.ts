@@ -19,7 +19,7 @@ class ItemForTimeOutQueue {
     public id : string;
     private label: string;
     public typePromised: boolean;
-    public timeoutId: NodeJS.Timer;
+    public timeoutId: NodeJS.Timeout;
     public timetoutInProgress: boolean;
 
     constructor(itemFunction : any, label: string, typePromised: boolean) {
