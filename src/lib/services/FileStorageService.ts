@@ -383,11 +383,16 @@ class FileStorage extends GenericService{
      * @category Files TRANSFER
      * @async
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
      * @instance
      * @description
      *   Send a file in user storage <br>
      */
-    async uploadFileToStorage( file) {
+    async uploadFileToStorage( file, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("info", LOG_ID + "sendFSMessage");
@@ -436,7 +441,7 @@ class FileStorage extends GenericService{
             let currentFileDescriptor;
 
 
-            that.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(async function (fileDescriptor: any) {
+            that.createFileDescriptor(file.name, fileExtension, file.size, viewers, voicemessage, duration, encoding, ccarelogs, ccareclientlogs).then(async function (fileDescriptor: any) {
                 currentFileDescriptor = fileDescriptor;
                 fileDescriptor.fileToSend = file;
                 if (fileDescriptor.isImage()) {

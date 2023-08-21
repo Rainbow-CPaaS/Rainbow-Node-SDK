@@ -12134,7 +12134,7 @@ class AdminService extends GenericService {
                     that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
                     that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
 
-                    proms.push(that._fileStorage.uploadFileToStorage(filePath));
+                    proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, true, undefined));
                 }
 
                 Promise.allSettled(proms).then((resultsOfUpload: Array<any>) => {
