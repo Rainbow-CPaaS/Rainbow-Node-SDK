@@ -12134,7 +12134,7 @@ class AdminService extends GenericService {
                     that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
                     that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
 
-                    proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, true, undefined));
+                    proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, false, true));
                 }
 
                 Promise.allSettled(proms).then((resultsOfUpload: Array<any>) => {
@@ -12155,11 +12155,13 @@ class AdminService extends GenericService {
                     }
 
                     if (success) {
-                        that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
-                                description, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                        let ressourceId = undefined;
+                        that.initiateLogsContext(undefined, occurrenceDate, occurrenceDateTimezone, "feedback",
+                        //that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
+                                description, ressourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
                             return resolve(result);
                         }).catch((err) => {
-                            return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in completeLogsContext", "Error in completeLogsContext", err));
+                            return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in initiateLogsContext", "Error in initiateLogsContext", err));
                         })
                     } else {
                         return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", fileFailed));

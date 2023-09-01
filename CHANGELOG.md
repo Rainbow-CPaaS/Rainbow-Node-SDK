@@ -11,7 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix `AdminService::sendCustomerCareReport` to send 'ccareclientlogs' header to `uploadFileToStorage` method and to use the initiateLogsContext instead of completeLogsContext
 
 #### Added
 -   Add option `options.im.autoLoadConversationHistory` to activate the retrieve of conversation's messages from the server. The default value is false.
