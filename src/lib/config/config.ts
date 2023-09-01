@@ -140,6 +140,7 @@ let conf =  {
         "autoInitialBubbleFormat": "full",
         "autoInitialBubbleUnsubscribed": true,
         autoLoadConversations: true,
+        autoLoadConversationHistory: false,
         autoLoadContacts: true,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
         enableCarbon: true,

@@ -248,7 +248,7 @@ class Core {
         self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
         self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
         self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations);
+        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
         self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
         self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
         self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
@@ -555,7 +555,13 @@ class Core {
                     return Promise.resolve(undefined);
                 }).then(() => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                        return that._conversations.getServerConversations();
+                        if (that.options.imOptions.autoLoadConversationHistory) {
+                            return that._conversations.getServerConversations().then(() => {
+                                that._conversations.loadEveryConversationsHistory()
+                            });
+                        } else {
+                            return that._conversations.getServerConversations();
+                        }
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
@@ -658,7 +664,13 @@ class Core {
                     return Promise.resolve(undefined);
                 }).then(() => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                        return that._conversations.getServerConversations();
+                        if (that.options.imOptions.autoLoadConversationHistory) {
+                            return that._conversations.getServerConversations().then(() => {
+                                that._conversations.loadEveryConversationsHistory()
+                            });
+                        } else {
+                            return that._conversations.getServerConversations();
+                        }
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;

@@ -455,6 +455,7 @@ class Options {
             "autoInitialBubbleFormat": "small",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
+            autoLoadConversationHistory: false,
             autoLoadContacts: true,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
@@ -480,7 +481,8 @@ class Options {
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
-        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;

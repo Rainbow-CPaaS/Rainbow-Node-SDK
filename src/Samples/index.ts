@@ -232,6 +232,7 @@ let urlS2S;
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
+            "autoLoadConversationHistory" : true,
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
