@@ -5483,16 +5483,16 @@ Request Method: PUT
     }
 
     // Publish a message to a channel
-    publishMessage(channelId, message, title, url, imagesIds, type) {
+    publishMessage(channelId, message, title, url, imagesIds, type, customDatas : any = {}) {
         let that = this;
         return new Promise((resolve, reject) => {
-            let payload = {
+            let payload = Object.assign({
                 type,
                 message: message,
                 title: title || "",
                 url: url || "",
                 images: null
-            };
+            }, customDatas);
 
             if (imagesIds) {
                 payload.images = imagesIds || null;

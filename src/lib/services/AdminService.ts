@@ -12111,6 +12111,7 @@ class AdminService extends GenericService {
      * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
      * * name optionnel String When relevant, name of the browser on which the issue occurred
      * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @param {string} typeOfLog is Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue
      * @description
      *     This API allows to store files in rainbow, and then to complete the logs context with it and provided informations. </BR>
      *
@@ -12121,7 +12122,7 @@ class AdminService extends GenericService {
      *  **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
      */
     sendCustomerCareReport(logId : string, filesPath : Array<string> = [], occurrenceDate : string, occurrenceDateTimezone : string,
-                           description : string, externalRef : string, device : string, version : string, deviceDetails : any) {
+                           description : string, externalRef : string, device : string, version : string, deviceDetails : any, typeOfLog : string = "feedback") {
         let that = this;
         let proms = [];
         let attachments = [];
@@ -12156,7 +12157,7 @@ class AdminService extends GenericService {
 
                     if (success) {
                         let ressourceId = undefined;
-                        that.initiateLogsContext(undefined, occurrenceDate, occurrenceDateTimezone, "feedback",
+                        that.initiateLogsContext(undefined, occurrenceDate, occurrenceDateTimezone, typeOfLog,
                         //that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
                                 description, ressourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
                             return resolve(result);

@@ -2089,13 +2089,29 @@ let urlS2S;
         });
     }
 
+    async  testPublishMessageToChannel() {
+        // use with vincent03@vbe.test.openrainbow.net sur .Net
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
+        let mychannel = mychannels ? mychannels[0]:null;
+        if (mychannel) {
+            let now = new Date().getTime();
+            await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + now, "title_", null, null, null, {tag: ["tag1", "tag2"]}).then((res) => {
+                logger.log("debug", "MAIN - publishMessageToChannel - res : ", res);
+            });
+            pause(300);
+        } else {
+            logger.log("debug", "MAIN - publishMessageToChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+        }
+    }
+
     async  testPublishChannel() {
+        // use with vincent03@vbe.test.openrainbow.net sur .Net
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         if (mychannel) {
             for (let i = 0; i < 100; i++) {
                 let now = new Date().getTime();
-                await rainbowSDK.channels.createItem(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null, null).then((res) => {
+                await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null, null).then((res) => {
                     logger.log("debug", "MAIN - createItem - res : ", res);
                 });
                 pause(300);

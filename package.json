@@ -108,7 +108,7 @@
     "jwt-decode": "3.1.2",
     "ltx": "^3.0.0",
     "md5": "^2.3.0",
-    "mime": "^3.0.0",
+    "mime": "1.6.0",
     "mime-types": "^2.1.35",
     "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",

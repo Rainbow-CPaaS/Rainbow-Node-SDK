@@ -12,12 +12,14 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix `AdminService::sendCustomerCareReport` to send 'ccareclientlogs' header to `uploadFileToStorage` method and to use the initiateLogsContext instead of completeLogsContext
+-   Downgrade to mime lib 1.6.0 version.
 
 #### Added
 -   Add option `options.im.autoLoadConversationHistory` to activate the retrieve of conversation's messages from the server. The default value is false.
+-   Add `customDatas` JSON object with custom datas merged to the payload send to server for the publishMessageToChannel .  (and createItem also)
 
 #### Changed
--   None
+-   Update sendCustomerCareReport to send "feedback" as default type.
 
 ### [2.24.3] - 2023-08-21
 #### Removed

@@ -1218,13 +1218,14 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server. 
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
         let that = this;
-        return that.createItem(channel, message, title, url, imagesIds, type);
+        return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
     }
 
     /**
@@ -1239,11 +1240,12 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} imagesIds An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server.
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise <{}> {
+    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
         let that = this;
         if (!channel || !channel.id) {
             that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'channel' parameter ");
@@ -1271,7 +1273,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
             type = type ? "urn:xmpp:channels:" + type : "urn:xmpp:channels:basic";
 
-            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type).then((status) => {
+            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type, customDatas).then((status) => {
                 that._logger.log("info", LOG_ID + "(createItem) message published");
                 that._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
                 resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
