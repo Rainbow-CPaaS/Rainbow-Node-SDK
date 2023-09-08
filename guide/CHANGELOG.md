@@ -16,7 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   Add option `options.im.autoLoadConversationHistory` to activate the retrieve of conversation's messages from the server. The default value is false.
--   Add `customDatas` JSON object with custom datas merged to the payload send to server for the publishMessageToChannel .  (and createItem also)
+-   Add `customDatas` parameter a JSON object with custom datas merged to the payload send to server for the `ChannelService::publishMessageToChannel` .  (and createItem also). And also take these custom data into account is the events received.
 
 #### Changed
 -   Update sendCustomerCareReport to send "feedback" as default type.
@@ -94,6 +94,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   None
+
+<!--- xxx -->
 
 ### [2.23.1] - 2023-07-07
 -   Fix to not ignore messages when it is received with empty body but with a filled alternativeContent.

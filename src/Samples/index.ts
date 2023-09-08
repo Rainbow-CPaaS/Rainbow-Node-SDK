@@ -414,6 +414,7 @@ let urlS2S;
         logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
     });
     rainbowSDK.events.on("rainbow_onstarted", () => {
+
         // do something when the SDK has been started
         logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
     });

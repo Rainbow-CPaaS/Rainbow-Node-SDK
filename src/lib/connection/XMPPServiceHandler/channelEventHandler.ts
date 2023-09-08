@@ -281,12 +281,38 @@ class ChannelEventHandler extends GenericHandler {
                             "messageId": item.attrs.id,
                             "channelId": entry.attrs.channelId,
                             "fromJid": entry.attrs.from,
-                            "message": entry.getChild("message") ? entry.getChild("message").getText() || "" : "",
-                            "title": entry.getChild("title") ? entry.getChild("title").getText() || "" : "",
-                            "url": entry.getChild("url") ? entry.getChild("url").getText() || "" : "",
+                          //  "message": entry.getChild("message") ? entry.getChild("message").getText() || "" : "",
+                          //  "title": entry.getChild("title") ? entry.getChild("title").getText() || "" : "",
+                          //  "url": entry.getChild("url") ? entry.getChild("url").getText() || "" : "",
                             "date": new Date(entry.attrs.timestamp),
                             "images": new Array()
                         };
+
+                        for (const child of entry.children) {
+                            if (child.getName) {
+                                for (const childTxt of child.children) {
+                                    if (typeof childTxt==="string" || typeof childTxt==="number") {
+                                        //that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel entry child : ", childTxt);
+                                        if (message[child.getName()] !== undefined) {
+                                            //that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel entry child.getName() : ", child.getName(), ", message[child.getName()] : ", message[child.getName()]);
+                                            if (Array.isArray(message[child.getName()])) {
+                                                if (childTxt != null && childTxt != "null") {
+                                                    message[child.getName()].push(childTxt);
+                                                }
+                                            } else {
+                                                let valueSaved = message[child.getName()];
+                                                message[child.getName()] = [];
+                                                message[child.getName()].push(valueSaved);
+                                                message[child.getName()].push(childTxt);
+                                            }
+                                        } else {
+                                            message[child.getName()] = childTxt;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                         let images = entry.getChildren("images");
                         if (Array.isArray(images)) {
                             images.forEach((image) => {
