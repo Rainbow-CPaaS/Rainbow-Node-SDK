@@ -158,11 +158,11 @@ module.exports = function(grunt) {
             },
             files: [
                 {
-                    src: "CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
+                    src: "guide/CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
                 }
                 /* ,
                 {
-                src: "tutorials/What_is_new.md", dest: "build/What_is_new.rss"
+                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
                 } */
                 ]
         }
