@@ -145,21 +145,50 @@ let RainbowSDK = require("rainbow-node-sdk");
 // Define your configuration
 let options = {
     "rainbow": {
-        "host": "sandbox"
+        "host": "sandbox",
+        "mode": "xmpp"
     },
     "credentials": {
         "login": "bot@mycompany.com", // To replace by your developer credendials
         "password": "thePassword!123" // To replace by your developer credentials
+    },
+    "xmpp": {
+          "host": "",
+          "port": "443",
+          "protocol": "wss",
+          "timeBetweenXmppRequests": "20",
+          "raiseLowLevelXmppInEvent": false,
+          "raiseLowLevelXmppOutReq": false,
+          "maxIdleTimer": 16000,
+          "maxPingAnswerTimer": 11000,
+          "xmppRessourceName": "vnagw"
+    },
+    "s2s": {
+          "hostCallback": urlS2S,
+          //"hostCallback": "http://70a0ee9d.ngrok.io",
+          "locallistenningport": "4000"
     },
     // Application identifier
     "application": {
         "appID": "",
         "appSecret": ""
     },
+    // Proxy configuration
+    "proxy": {
+        "host": undefined,
+        "port": 8080,
+        "protocol": undefined,
+        "user": undefined,
+        "password": undefined,
+        "secureProtocol": undefined //"SSLv3_method"
+    }, // */
+    // Proxy configuration
     // Logs options
     "logs": {
         "enableConsoleLogs": true,
         "enableFileLogs": false,
+        "enableEventsLogs": false,
+        "enableEncryptedLogs": false,
         "color": true,
         "level": 'debug',
         "customLabel": "vincent01",
@@ -176,22 +205,81 @@ let options = {
             maxFiles : 10 // */
         }
     },
+    "testOutdatedVersion": false,
+    "testDNSentry": true,
+    "httpoverxmppserver": false,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
+    "requestsRate": {
+        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+    },
     // IM options
     "im": {
         "sendReadReceipt": true,
-        "messageMaxLength": 1024, // the maximum size of IM messages sent. Note that this value must be under 1024.
-        "sendMessageToConnectedUser": false, // When it is setted to false it forbid to send message to the connected user. This avoid a bot to auto send messages.
-        "conversationsRetrievedFormat": "small", // It allows to set the quantity of datas retrieved when SDK get conversations from server. Value can be "small" of "full"
-        "storeMessages": true, // Define a server side behaviour with the messages sent. When true, the messages are stored, else messages are only available on the fly. They can not be retrieved later.
-        "nbMaxConversations": 15, // parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are removed from XMPP server. They are not destroyed. The can be activated again with a send to the conversation again.
-        "rateLimitPerHour": 1000, // Set the maximum count of stanza messages of type `message` sent during one hour. The counter is started at startup, and reseted every hour.
-        "messagesDataStore": RainbowSDK.DataStoreType.StoreTwinSide // Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
+        "messageMaxLength": 1024,
+        "sendMessageToConnectedUser": false,
+        "conversationsRetrievedFormat": "small",
+        "storeMessages": false,
+        //"copyMessage": true,
+        "nbMaxConversations": 15,
+        "rateLimitPerHour": 1000,
+//          "messagesDataStore": DataStoreType.NoStore,
+        "messagesDataStore": RainbowSDK.DataStoreType.StoreTwinSide, // Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)<br>
                               // DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
                               // DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
                               // DataStoreType.StoreTwinSide The messages are fully stored.<br>
                               // DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour. 
-    }
+        "autoInitialGetBubbles": true,
+        "autoInitialBubblePresence": true,
+        "autoInitialBubbleFormat": "small",
+        "autoInitialBubbleUnsubscribed": true,
+        "autoLoadConversations": true,
+        "autoLoadConversationHistory" : false,
+        "autoLoadContacts": true,
+        "enableCarbon": true,
+        "enablesendurgentpushmessages": true,
+        "useMessageEditionAndDeletionV2": true
+    },
+    // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
+    // Take care, severals services are linked, so disabling a service can disturb an other one.
+    // By default all the services are started. Events received from server are not yet filtered.
+    // So this feature is realy risky, and should be used with much more cautions.
+    "servicesToStart": {
+        "bubbles": {
+            "start_up": true,
+        },
+        "telephony": {
+            "start_up": true,
+        },
+        "channels": {
+            "start_up": true,
+        },
+        "admin": {
+            "start_up": true,
+        },
+        "fileServer": {
+            "start_up": true,
+        },
+        "fileStorage": {
+           "start_up": true,
+        },
+        "calllog": {
+            "start_up": true,
+        },
+        "favorites": {
+            "start_up": true,
+        },
+        "alerts": {
+            "start_up": true,
+        }, //need services :
+        "webrtc": {
+            "start_up": true,
+            "optional": true
+        } // */
+    } // */
 };
+
 
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
