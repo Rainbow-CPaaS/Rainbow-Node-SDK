@@ -168,6 +168,23 @@ module.exports = function(grunt) {
         }
     },
 
+      generateWhatsNew:{
+        all: {
+            options: {
+                debugcode: true
+            },
+            files: [
+                {
+                    src: "guide/CHANGELOG.md", dest:"build/What_is_new_generated.md"
+                }
+                /* ,
+                {
+                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
+                } */
+                ]
+        }
+    },
+
       generateFoss: {
           all: {
               options: {
@@ -360,11 +377,11 @@ module.exports = function(grunt) {
     grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
   grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
   //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
+    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "generateWhatsNew", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
 
   grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode:debug"]);
   //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "generateWhatsNew", "nodesheets", "exec:sitemapGeneration"]);
   grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
 
   //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);
