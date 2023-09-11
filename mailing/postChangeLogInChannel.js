@@ -197,7 +197,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
             let product = {};
             if (!changeLog) {
-                changeLog = "./CHANGELOG.md";
+                changeLog = "./guide/CHANGELOG.md";
                 logger.log("debug", "Set CHANGELOG file path to default one : ", changeLog);
             } else {
                 logger.log("debug", "CHANGELOG file path is externaly setted : ", changeLog);
@@ -267,7 +267,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 logger.log("debug", "html : ", html);
 
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then(async (res ) => {
+                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:"Node SDK"}).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
                     if (res.publishResult && res.publishResult.data && res.publishResult.data[0]) {
                         await rainbowSDK.channels.likeItem(mychannel, res.publishResult.data[0].id, RainbowSDK.Appreciation.Fantastic).catch((err1) => {
