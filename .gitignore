@@ -287,3 +287,4 @@ fabric.properties
 /xmpp.txt
 /Samples/testStop.js
 /Samples/testStop.js
+/tasks/generateWhatsNew.js
