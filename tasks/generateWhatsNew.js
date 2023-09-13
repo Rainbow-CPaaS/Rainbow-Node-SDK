@@ -61,6 +61,18 @@ module.exports = function(grunt) {
         for (let iter=0 ; iter < tabFiles.length ; iter++ ) {
             let file = tabFiles[iter];
             grunt.log.writeln(">> src : " + file.src + " to dest : " + file.dest + ", path.join(__dirname, file.src) : ", path.join(__dirname, "../" + file.src.toString()));
+            let changeLogTitle;
+            if (!changeLogTitle) {
+                changeLogTitle = "Rainbow Node SDK ChangeLog : " + minVersion;
+                grunt.log.writeln(">> Set changeLogTitle file path to default one : ", changeLogTitle);
+            } else {
+                grunt.log.writeln(">> changeLogTitle file path externaly setted : ", changeLogTitle);
+            }
+
+            let item = {
+                "title": changeLogTitle,
+                "path": path.join(__dirname, "../" + file.src)
+            };
             let data = fs.readFileSync(path.join(__dirname, "../" + file.src), "utf8");
             //grunt.log.writeln("data read ");
             let tree = md.parse(data.toString());
@@ -70,9 +82,9 @@ module.exports = function(grunt) {
                 if (index === 0) {
                     return true;
                 }
-                if (item[0] === "hr") {
+                /*if (item[0] === "hr") {
                     return false;
-                }
+                } // */
 
                 if (markdownElt[0] === "header" && markdownElt[1].level === 2) {
                     return false;
@@ -105,8 +117,8 @@ module.exports = function(grunt) {
 
             let html = "<h1>" + changeLogTitle + " - News</h1><hr />" + md.renderJsonML(md.toHTMLTree(filteredTree));
 
-            logger.log("debug", "html : ", html);
-            let feedXml = feed.xml(true);
+            grunt.log.writeln(">> html : ", html);
+            //let feedXml = feed.xml(true);
             //console.log(">> rss : ", feedXml);
 
             //let html = md.renderJsonML(md.toHTMLTree(filteredTree));
