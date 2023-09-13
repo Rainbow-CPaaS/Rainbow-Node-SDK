@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.1] - 2023-09-13
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   Add `generateWhatsNew` file with a task to generate a "what s new". It is used in grunt delivery process.  
+
+#### Changed
+-   None
+
 ### [2.25.0] - 2023-09-11
 #### Removed
 -   None
