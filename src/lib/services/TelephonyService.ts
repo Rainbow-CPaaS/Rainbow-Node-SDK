@@ -220,17 +220,19 @@ class TelephonyService extends GenericService {
                     that._xmpp.getAgentStatus().then((data) => {
                         that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                     });
                 } catch (err) {
                     that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
                     that.setInitialized();
-                    resolve(undefined);
+                    //resolve(undefined);
                 }
+                //resolve(undefined);
             } else {
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
+            resolve(undefined);
         });
     }
 

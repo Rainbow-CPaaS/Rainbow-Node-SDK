@@ -115,11 +115,16 @@ class InvitationsService extends GenericService {
 
 	public async init (useRestAtStartup : boolean) {
 		let that = this;
+		let prom = [];
 		if (useRestAtStartup) {
-			await that.getAllSentInvitations();
-			await that.getAllReceivedInvitations();
+			prom.push(that.getAllSentInvitations());
+			prom.push(that.getAllReceivedInvitations());
 		}
-		that.setInitialized();
+		Promise.all(prom).then(()=>{
+			that.setInitialized();
+		}).catch(()=>{
+			that.setInitialized();
+		});
 	}
 
 	async stop() {

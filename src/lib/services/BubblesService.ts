@@ -192,24 +192,28 @@ class Bubbles extends GenericService {
         if (useRestAtStartup) {
 //            await that.bubblesManager.reset();
             if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
-                await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed);
-                let bubbles = that.getAll();
-                if (bubbles && bubbles.length > 1) {
-                    for (const bubble of bubbles) {
-                        if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
-                            that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
-                            that.snapshotConference(bubble.id);
+                that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed).then((result) => {
+                    let bubbles = that.getAll();
+                    if (bubbles && bubbles.length > 1) {
+                        for (const bubble of bubbles) {
+                            if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                                that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                                that.snapshotConference(bubble.id);
+                            }
                         }
-
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
                     }
-                } else {
-                    that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
-                }
+                    that.setInitialized();
+                }).catch((err)=>{
+                    that._logger.log("warn", LOG_ID + "(init) error at startup : ", err);
+                    that.setInitialized();
+                });
             } else {
                 that._logger.log("warn", LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
+                that.setInitialized();
             }
         }
-        that.setInitialized();
     }
     
     async reset() {

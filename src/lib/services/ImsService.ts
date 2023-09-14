@@ -111,13 +111,13 @@ class ImsService extends GenericService{
             that.enableCarbon().then((result) => {
                 that.setInitialized();
             }).catch(() => {
-                //that.setInitialized();
+                that.setInitialized();
             });
         } else {
             that.disableCarbon().then((result) => {
                 that.setInitialized();
             }).catch(() => {
-                //that.setInitialized();
+                that.setInitialized();
             });
         }
     }

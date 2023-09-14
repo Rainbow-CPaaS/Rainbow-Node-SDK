@@ -506,7 +506,7 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that.presence._sendPresenceFromConfiguration().then(() => {
+                return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration()).then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
@@ -604,8 +604,10 @@ class Core {
                 try {
                     if (that.options._restOptions.useRestAtStartup ) {
                         if (that.options.imOptions.autoLoadContacts) {
-                            let result = await that._contacts.getRosters();
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                            //let result = await that._contacts.getRosters();
+                            that._contacts.getRosters().then((result)=> {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                            });
                         } else {
                             that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                         }
@@ -615,6 +617,7 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
+                //return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration).then(() => {
                 return that.presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
@@ -622,6 +625,7 @@ class Core {
                 }).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    //return Utils.traceExecutionTime(that,"_contacts.init", that._contacts.init, [that.options._restOptions.useRestAtStartup]);
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._telephony.init(that.options._restOptions.useRestAtStartup);
@@ -655,21 +659,20 @@ class Core {
                     return that.im.init(that.options._imOptions.enableCarbon, that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     if (that.options._restOptions.useRestAtStartup) {
-                        return that._rest.getBots();
+                        that._rest.getBots().then((bots: any) => {
+                            that._botsjid = bots ? bots.map((bot) => {
+                                return bot.jid;
+                            }):[];
+                        });
                     }
-                }).then((bots: any) => {
-                    that._botsjid = bots ? bots.map((bot) => {
-                        return bot.jid;
-                    }) : [];
-                    return Promise.resolve(undefined);
                 }).then(() => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                         if (that.options.imOptions.autoLoadConversationHistory) {
-                            return that._conversations.getServerConversations().then(() => {
+                            that._conversations.getServerConversations().then(() => {
                                 that._conversations.loadEveryConversationsHistory()
                             });
                         } else {
-                            return that._conversations.getServerConversations();
+                            that._conversations.getServerConversations();
                         }
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);

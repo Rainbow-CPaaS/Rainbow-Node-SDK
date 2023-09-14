@@ -125,9 +125,11 @@ class RPCoverXMPPService extends GenericService {
     async init(useRestAtStartup : boolean) {
         let that = this;
         
-        await that.initRPCSystemMethods()
-        
-        that.setInitialized();
+        that.initRPCSystemMethods().then(()=> {
+            that.setInitialized();
+        }).catch(()=>{
+            that.setInitialized();
+        });
     }
 
     attachHandlers() {

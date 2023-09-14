@@ -222,17 +222,20 @@ class FileStorage extends GenericService{
                         })
                         .then(() => {
                             that.setInitialized();
-                            resolve(undefined);
+                          //  resolve(undefined);
                         })
                         .catch((error) => {
                             that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                            resolve(undefined);
+                            that.setInitialized();
+                            //resolve(undefined);
                             //reject(error);
                         });
+                //resolve(undefined);
             } else {
                 that.setInitialized();
-                resolve (undefined);
+                //resolve (undefined);
             }
+            resolve(undefined);
         });
     }
 
