@@ -506,7 +506,7 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration()).then(() => {
+                return that.presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
