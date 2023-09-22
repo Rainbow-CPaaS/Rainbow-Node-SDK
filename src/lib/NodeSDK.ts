@@ -3,7 +3,7 @@
 import {Core} from "./Core";
 import {Appreciation} from "./common/models/Channel";
 import {ErrorManager} from "./common/ErrorManager";
-import Utils, {setTimeoutPromised} from "./common/Utils";
+import {setTimeoutPromised} from "./common/Utils";
 import {ImsService} from "./services/ImsService";
 import {ChannelsService} from "./services/ChannelsService";
 import {S2SService} from "./services/S2SService";
@@ -493,6 +493,7 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.start( token).then(function() {
                 return that._core.signin(false, token);
+                //throw new Error("error test");
             }).then(function(result : any) {
                 let startDuration: number;
                 // @ts-ignore
@@ -507,7 +508,9 @@ class NodeSDK {
                 } catch (e) {
                     
                 }
-                
+                await setTimeoutPromised(500).then( () => {
+                    that._core._stateManager.transitTo(false, SDKSTATUSENUM.STOPPED);                    
+                });
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
                     // It looks that winston is close before this line :(, so console is used. 
@@ -556,7 +559,11 @@ class NodeSDK {
                 } catch (e) {
                     
                 }
-                
+
+                await setTimeoutPromised(500).then( () => {
+                    that._core._stateManager.transitTo(false, SDKSTATUSENUM.STOPPED);
+                });
+
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
                     // It looks that winston is close before this line :(, so console is used. 
