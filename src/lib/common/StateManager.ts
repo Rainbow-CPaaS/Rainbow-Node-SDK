@@ -16,7 +16,8 @@ enum SDKSTATUSENUM {
     "DISCONNECTED" = "disconnected",
     "RECONNECTING" = "reconnecting",
     "FAILED" = "failed",
-    "ERROR" = "error"
+    "ERROR" = "error",
+    "CONNECTIONERROR" = "connectionerror"
 }
 
 const LOG_ID = "STATEMGR - ";
@@ -69,7 +70,7 @@ class StateManager {
 
         return new Promise(function(resolve, reject) {
             try {
-                that.transitTo(SDKSTATUSENUM.STOPPED).then(() => {
+                that.transitTo(true, SDKSTATUSENUM.STOPPED).then(() => {
                     that.logger.log("info", LOG_ID + "(stop) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                     resolve(undefined);
@@ -81,7 +82,7 @@ class StateManager {
         });
     }
 
-    async transitTo(state, data?) {
+    async transitTo(publishEvent : boolean = true, state : SDKSTATUSENUM, data?) {
         return new Promise( async (resolve, reject) => {
             if (this.state === state) {
                 this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
@@ -92,12 +93,12 @@ class StateManager {
                     await utils.setTimeoutPromised(1500).then(() => {
                     // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
                         this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                        this.eventEmitter.publish(state, data);
+                        if (publishEvent) { this.eventEmitter.publish(state, data); }
                         resolve(undefined);
                     });
                 } else {
                     this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                    this.eventEmitter.publish(state, data);
+                    if (publishEvent) { this.eventEmitter.publish(state, data); }
                     resolve(undefined);
                 }
             }

@@ -158,7 +158,7 @@ class Core {
                 error.msg = err;
                 self.events.publish("stopped", error);
             });
-            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
+            await self._stateManager.transitTo(true, self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -167,7 +167,7 @@ class Core {
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
-                return self._stateManager.transitTo(self._stateManager.CONNECTED).then(async (data2) => {
+                return self._stateManager.transitTo(true, self._stateManager.CONNECTED).then(async (data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     await that._bubbles.reset() ;
@@ -176,7 +176,7 @@ class Core {
             }).then((data3) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
-                self._stateManager.transitTo(self._stateManager.READY).then((data4) => {
+                self._stateManager.transitTo(true, self._stateManager.READY).then((data4) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
                 });
@@ -188,7 +188,7 @@ class Core {
                     await self.stop().then(function(result) {
                     }).catch(function(err) {
                     });
-                    await self._stateManager.transitTo(self._stateManager.FAILED);
+                    await self._stateManager.transitTo(true, self._stateManager.FAILED);
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
                         self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
@@ -196,7 +196,7 @@ class Core {
                         self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
                         self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
                         // ErrorManager in REST micro service, so let say it is disconnected
-                        await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                        await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
                         // relaunch the REST connection.
                         self._eventEmitter.iee.emit("rainbow_xmppreconnected");
                     }
@@ -205,16 +205,16 @@ class Core {
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", async function () {
-            await self._stateManager.transitTo(self._stateManager.RECONNECTING);
+            await self._stateManager.transitTo(true, self._stateManager.RECONNECTING);
         });
 
         self._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
             if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
-                await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
             }  else {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
-                await self._stateManager.transitTo(self._stateManager.STOPPED);
+                await self._stateManager.transitTo(true, self._stateManager.STOPPED);
             }
         });
 
@@ -506,7 +506,7 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that.presence._sendPresenceFromConfiguration().then(() => {
+                return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
@@ -618,7 +618,7 @@ class Core {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
                 //return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration).then(() => {
-                return that.presence._sendPresenceFromConfiguration().then(() => {
+                return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
@@ -915,7 +915,7 @@ class Core {
                         return that._invitations.start(that.options, that, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
-                        that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
+                        that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
                             that.logger.log("debug", LOG_ID + "(start) _exiting_");
                             resolve(undefined);
                         }).catch((err) => {
@@ -948,16 +948,16 @@ class Core {
             return that._signin(forceStopXMPP, token).then(function (_json) {
                 json = _json;
                 that._tokenSurvey();
-                return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     return that._retrieveInformation();
                 });
             }).then(() => {
-                that._stateManager.transitTo(that._stateManager.READY).then(() => {
+                that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
                     reject(err); 
                 });
-            }).catch((err) => {
+            }).catch(async (err) => {
                 reject(err);
             });
         });
@@ -973,14 +973,14 @@ class Core {
             return that._signinWSOnly(forceStopXMPP, token, userInfos).then(function (_json) {
                 json = _json;
                 //that._tokenSurvey();
-                return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     
                     return that._retrieveInformation().catch((err) => {
                         that.logger.log("internal", LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
                     });
                 });
             }).then(() => {
-                that._stateManager.transitTo(that._stateManager.READY).then(() => {
+                    that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
                     reject(err); 
