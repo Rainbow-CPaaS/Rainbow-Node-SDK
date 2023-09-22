@@ -30,6 +30,7 @@ import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
 import { Server as MockServer, WebSocket as WS } from 'mock-socket';
+import { v4 as uuidv4 } from 'uuid';
 
 const xml = require("@xmpp/xml");
 
@@ -295,7 +296,8 @@ let urlS2S;
             options.application.appSecret = `${val}`.substring(10);
         }
     });
-
+    
+    console.log("UUID:" + String(uuidv4()).toUpperCase());
 
     options.logs.customLabel = options.credentials.login;
 
@@ -737,15 +739,26 @@ let urlS2S;
             logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
             rainbowSDK._core._rest._renewAuthToken();            
         }
-        
+
+        async test_renewAuthToken_2() {
+            await rainbowSDK.stop().then(()=>{}).catch(()=>{});
+            logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
+            rainbowSDK._core._rest._renewAuthToken("failedurl");
+        }
+
         testCloseXMPP() {
             let stanza = xml("close", {
                 "xmlns": NameSpacesLabels.XmppFraming
             });
             rainbowSDK._core._xmpp.sendStanza(stanza);
         }
-        
-    //region Contacts
+
+        /*async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+            rainbowSDK._core._xmpp.mockStanza(stanza);
+        } // */
+
+
+        //region Contacts
 
      testupdateMyInformations() {
         let contactInfo = {};
@@ -1821,6 +1834,49 @@ let urlS2S;
             });
             logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
         }, 20000);
+    }
+
+        formatCardUrgent(msg, utc){
+            return JSON.stringify({
+                "version": "1.1",
+                "type": "AdaptiveCard",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [ { "type": "TextBlock", "text": msg + " Hey! How are you? " + utc, "wrap": "True" }]
+                    },
+                    {
+                        "type": "ActionSet", "actions": [
+                            { "title": "great", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_great" }, "text": "great" } } },
+                            { "title": "reply urgent", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_unhappy" }, "text": "reply urgent sad", "urgency" : "high" }, "urgency" : "high", "mentions" : "@vincent01", "urlMetadata" : "metadata" } }
+                        ]
+                    }
+                ],
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+            })
+        }
+
+        async  testsendChatMessageWithContentAdaptiveCardUrgent() {
+        let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        let now = new Date().getTime();
+        let formattedMessage = that.formatCardUrgent("original msg : ", now);
+        let content = {
+            "type": "form/json",
+            "message": formattedMessage
+        }
+        // Send message
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
     }
 
     async  testdeleteMessageFromConversation() {
