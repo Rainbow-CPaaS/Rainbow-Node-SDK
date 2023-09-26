@@ -160,6 +160,7 @@ let conf =  {
     displayOrder:"firstLast",
     testOutdatedVersion: true,
     testDNSentry: true,
+    autoReconnectIgnoreErrors: false,
     httpoverxmppserver: false,
     servicesToStart : {
             s2s: {

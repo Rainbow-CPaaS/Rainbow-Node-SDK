@@ -17,7 +17,6 @@ enum SDKSTATUSENUM {
     "RECONNECTING" = "reconnecting",
     "FAILED" = "failed",
     "ERROR" = "error",
-    "CONNECTIONERROR" = "connectionerror"
 }
 
 const LOG_ID = "STATEMGR - ";

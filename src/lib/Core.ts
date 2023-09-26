@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
+import {getRandomInt, logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
 import {XMPPService} from "./connection/XMPPService";
 import {RESTService} from "./connection/RESTService";
 import {HTTPService} from "./connection/HttpService";
@@ -132,16 +132,23 @@ class Core {
 
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
             let that = this;
+            let error = ErrorManager.getErrorManager().ERROR;
             self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
             await self.stop().then(function(result) {
-            }).catch(function(err) {
-                let error = ErrorManager.getErrorManager().ERROR;
+            }).catch(async function(err) {
                 error.msg = err;
-                self.events.publish("stopped", error);
+                //await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+                //self.events.publish("stopped", error);
             });
+            await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
             await self.start(undefined).then(async function() {
-                await self.signin(true, undefined);
-            })
+                return await self.signin(true, undefined);
+            }).catch((err2)=>{
+                self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                setTimeout(()=> {
+                    self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                }, 10000 + getRandomInt(40000));
+            });
         });
 
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
@@ -153,12 +160,17 @@ class Core {
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
-            }).catch(function(err) {
+            }).catch(async function(err) {
                 let error = ErrorManager.getErrorManager().ERROR;
                 error.msg = err;
-                self.events.publish("stopped", error);
+                await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+                //self.events.publish("stopped", error);
             });
-            await self._stateManager.transitTo(true, self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
+            if (! self.options.autoReconnectIgnoreErrors) {
+                await self._stateManager.transitTo(true, self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
+            } else {
+                self._eventEmitter.iee.emit("evt_internal_signinrequired");
+            }
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -188,7 +200,11 @@ class Core {
                     await self.stop().then(function(result) {
                     }).catch(function(err) {
                     });
-                    await self._stateManager.transitTo(true, self._stateManager.FAILED);
+                    if (! self.options.autoReconnectIgnoreErrors) {
+                        await self._stateManager.transitTo(true, self._stateManager.FAILED);
+                    } else {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
                         self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
@@ -214,7 +230,11 @@ class Core {
                 await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
             }  else {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
-                await self._stateManager.transitTo(true, self._stateManager.STOPPED);
+                if (! self.options.autoReconnectIgnoreErrors) {
+                    await self._stateManager.transitTo(true, self._stateManager.STOPPED);
+                } else {
+                    self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                }
             }
         });
 

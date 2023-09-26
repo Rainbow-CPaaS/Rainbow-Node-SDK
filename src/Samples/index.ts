@@ -214,6 +214,7 @@ let urlS2S;
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
         },
+        "autoReconnectIgnoreErrors":true,
         // IM options
         "im": {
             "sendReadReceipt": true,
@@ -743,7 +744,7 @@ let urlS2S;
         async test_renewAuthToken_2() {
             await rainbowSDK.stop().then(()=>{}).catch(()=>{});
             logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
-            rainbowSDK._core._rest._renewAuthToken("failedurl");
+            //rainbowSDK._core._rest._renewAuthToken("failedurl");
         }
 
         testCloseXMPP() {

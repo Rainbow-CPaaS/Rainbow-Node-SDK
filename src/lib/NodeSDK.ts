@@ -204,6 +204,7 @@ type OptionsType = {
         "intervalForRequestRate": number, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": number // nb seconds Request stay in queue before being rejected if queue is full.
     },
+    "autoReconnectIgnoreErrors":boolean,
     // IM options
     "im": {
         "sendReadReceipt": boolean,

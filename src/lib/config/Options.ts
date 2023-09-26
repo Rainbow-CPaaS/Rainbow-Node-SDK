@@ -26,6 +26,7 @@ class Options {
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
 	private _testDNSentry: boolean;
+	private _autoReconnectIgnoreErrors: boolean;
 	private _httpoverxmppserver: boolean;
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
@@ -41,6 +42,7 @@ class Options {
         this._CLIMode = true;
         this._testOutdatedVersion = true;
         this._testDNSentry = true;
+        this._autoReconnectIgnoreErrors = false;
         this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
     }
@@ -92,6 +94,7 @@ class Options {
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
         this._testDNSentry = this._gettestDNSentry();
+        this._autoReconnectIgnoreErrors = this._getautoReconnectIgnoreErrors();
         this._httpoverxmppserver = this._gethttpoverxmppserver();
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
@@ -112,6 +115,14 @@ class Options {
 
     set testDNSentry(value: boolean) {
         this._testDNSentry = value;
+    }
+
+    get autoReconnectIgnoreErrors(): boolean {
+        return this._autoReconnectIgnoreErrors;
+    }
+
+    set autoReconnectIgnoreErrors(value: boolean) {
+        this._autoReconnectIgnoreErrors = value;
     }
 
     get testhttpoverxmppserver(): boolean {
@@ -210,6 +221,14 @@ class Options {
             return this._options.testDNSentry;
         } else {
             return config.testDNSentry;
+        }
+    }
+
+    _getautoReconnectIgnoreErrors() {
+        if ( this._options["autoReconnectIgnoreErrors"] !== undefined ) {
+            return this._options.autoReconnectIgnoreErrors;
+        } else {
+            return config.autoReconnectIgnoreErrors;
         }
     }
 
