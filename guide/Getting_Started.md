@@ -331,13 +331,51 @@ So, in our HelloWorld application you can subscribe to the `rainbow_onready` eve
 ```js
 
 ...
+rainbowSDK.events.on('rainbow_onstarted', function() {
+    // do something when the SDK has successfully started (the object is contructed, but the bot is not yet signed in, and the SDK's APIs are not ready to be used.)
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onconnected', function() {
+    // do something when the connection to Rainbow XMPP server is successfull (signin complete, but data for initialisation not yet retrieved)
+    ...
+});
+
 rainbowSDK.events.on('rainbow_onready', function() {
-    // do something when the SDK is connected to Rainbow
+    // do something when the SDK is connected to Rainbow. It is this event which allows application to start the use of SDK's APIs.
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onstopped', function() {
+    // do something when the SDK is stopped (all services have been stopped)
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onconnectionerror', function(err) {
+    // do something when the connection can't be done with Rainbow (ie. issue on sign-in) 
+    // Application must start the sdk again.
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onfailed', function(err) {
+    // do something when the SDK didn't succeed to reconnect and stop trying
+    // Application must start the sdk again.
     ...
 });
 
 rainbowSDK.events.on('rainbow_onerror', function(err) {
-    // do something when something goes wrong
+    // do something when something goes fatal on Xmpp server (ie: bad 'configurations' parameter...). 
+    // Application must start the sdk again.
+    ...
+});
+
+rainbowSDK.events.on('rainbow_ondisconnected', function(err) {
+    // do something when the SDK lost the connection with Rainbow
+    ...
+});
+
+rainbowSDK.events.on('rainbow_onreconnecting', function(err) {
+    // do something when the SDK tries to reconnect
     ...
 });
 

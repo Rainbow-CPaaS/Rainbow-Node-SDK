@@ -1629,7 +1629,7 @@ class Events {
          * @public
          * @param { Object } status The event status
          * @description
-         *      Fired when the SDK has successfully started (not yet signed in)
+         *      Fired when the SDK has successfully started (the object is contructed, but the bot is not yet signed in, and the SDK's APIs are not ready to be used.)
          */
 
         /**
@@ -1645,7 +1645,7 @@ class Events {
          * @public
          * @param { Object } status The event status
          * @description
-         *      Fired when the connection is successfull with Rainbow (signin complete)
+         *      Fired when the connection is successfull with Rainbow XMPP server (signin complete, but data for initialisation not yet retrieved)
          */
 
         /**
@@ -1681,19 +1681,19 @@ class Events {
          */
 
         /**
-         * @event Events#rainbow_onready
-         * @public
-         * @param { Object } status The event status
-         * @description
-         *      Fired when the SDK is connected to Rainbow and ready to be used
-         */
-
-        /**
          * @event Events#rainbow_onerror
          * @public
          * @param {Object} error The error received
          * @description
-         *      Fired when something goes wrong (ie: bad 'configurations' parameter...). Used by application to stop, start the sdk again.
+         *      Fired when something goes fatal on Xmpp server (ie: bad 'configurations' parameter...). Used by application to start the sdk again.
+         */
+
+        /**
+         * @event Events#rainbow_onready
+         * @public
+         * @param { Object } status The event status
+         * @description
+         *      Fired when the SDK is connected to Rainbow and ready to be used. It is this event which allows application to start the use of SDK's APIs.
          */
 
         //this._logger.log("info", LOG_ID + "(publish) event " + this._logger.colors.events("rainbow_on" + event) + " : ", info);
