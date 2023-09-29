@@ -12,12 +12,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix SDK state when an error occured during "start" api.  
+-   Fix 'AdminService::sendCustomerCareReport' method.
 
 #### Added
 -   None.  
 
 #### Changed
--   None
+-   Update callback event on "evt_internal_signinrequired" event to reconnect with the previously used singin method (signin or signinWSOnly).
 
 ### [2.25.1] - 2023-09-13
 #### Removed

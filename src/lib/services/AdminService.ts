@@ -12146,7 +12146,9 @@ class AdminService extends GenericService {
                         that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) resultOfUpload : ", resultOfUpload);
                         success = (success && (resultOfUpload.status!=="rejected"));
                         if (success) {
-                            attachments.push(resultOfUpload.value);
+                            if (resultOfUpload.value) {
+                                attachments.push(resultOfUpload.value.id);
+                            }
                         } else {
                             fileFailed.push({
                                 filePath: filesPath[i],

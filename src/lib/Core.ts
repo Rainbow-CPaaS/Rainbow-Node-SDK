@@ -46,6 +46,11 @@ let _retrieveInformation;
 
 const LOG_ID = "CORE - ";
 
+enum SIGNINMETHODNAME {
+    "SIGNIN" = "signin",
+    "SIGNINWSONLY" = "signinWSOnly"
+}
+
 @logEntryExit(LOG_ID)
 class Core {
     get timeOutManager(): TimeOutManager {
@@ -89,6 +94,8 @@ class Core {
     public _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
     private _timeOutManager : TimeOutManager;
+    private _signinmethodName : SIGNINMETHODNAME;
+    private lastConnectedOptions : {token : string, userInfos : any};
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -141,14 +148,26 @@ class Core {
                 //self.events.publish("stopped", error);
             });
             await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
-            await self.start(undefined).then(async function() {
-                return await self.signin(true, undefined);
-            }).catch((err2)=>{
-                self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
-                setTimeout(()=> {
-                    self._eventEmitter.iee.emit("evt_internal_signinrequired");
-                }, 10000 + getRandomInt(40000));
-            });
+            if (that._signinmethodName == SIGNINMETHODNAME.SIGNIN ) {
+                await self.start(that.lastConnectedOptions.token).then(async function () {
+                    return await self.signin(true, that.lastConnectedOptions.token);
+                }).catch((err2) => {
+                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    setTimeout(() => {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }, 10000 + getRandomInt(40000));
+                });
+            } 
+            if (that._signinmethodName == SIGNINMETHODNAME.SIGNINWSONLY ) {
+                await self.start(that.lastConnectedOptions.token).then(async function () {
+                    return await self._signinWSOnly(true, that.lastConnectedOptions.token, that.lastConnectedOptions.userInfos);
+                }).catch((err2) => {
+                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    setTimeout(() => {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }, 10000 + getRandomInt(40000));
+                });
+            } 
         });
 
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
@@ -962,10 +981,12 @@ class Core {
 
         let that = this;
         return new Promise(function (resolve, reject) {
+            that._signinmethodName = SIGNINMETHODNAME.SIGNIN;
 
             let json = null;
 
             return that._signin(forceStopXMPP, token).then(function (_json) {
+                that.lastConnectedOptions.token = token;
                 json = _json;
                 that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
@@ -987,10 +1008,13 @@ class Core {
 
         let that = this;
         return new Promise(function (resolve, reject) {
+            that._signinmethodName = SIGNINMETHODNAME.SIGNINWSONLY;
 
             let json = null;
 
             return that._signinWSOnly(forceStopXMPP, token, userInfos).then(function (_json) {
+                that.lastConnectedOptions.token = token;
+                that.lastConnectedOptions.userInfos = userInfos;
                 json = _json;
                 //that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {

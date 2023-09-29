@@ -6265,7 +6265,7 @@ Request Method: PUT
     //region Generic HTTP VERB
     get(url, token) {
         let that = this;
-        that.tokenRest = token;
+        if (token)  { that.tokenRest = token; }
         return new Promise(function (resolve, reject) {
             that.http.get(url, that.getRequestHeader(), undefined).then(function (JSON) {
                 resolve(JSON);
@@ -6278,7 +6278,7 @@ Request Method: PUT
 
     post(url, token, data, contentType) {
         let that = this;
-        that.tokenRest = token;
+        if (token)  { that.tokenRest = token; }
         return new Promise(function (resolve, reject) {
             that.http.post(url, that.getRequestHeader(), data, contentType).then(function (JSON) {
                 resolve(JSON);
@@ -6291,7 +6291,7 @@ Request Method: PUT
 
     put(url, token, data) {
         let that = this;
-        that.tokenRest = token;
+        if (token)  { that.tokenRest = token; }
         return new Promise(function (resolve, reject) {
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (JSON) {
                 resolve(JSON);
@@ -6304,7 +6304,7 @@ Request Method: PUT
 
     delete(url, token) {
         let that = this;
-        that.tokenRest = token;
+        if (token)  { that.tokenRest = token; }
         return new Promise(function (resolve, reject) {
             that.http.delete(url, that.getRequestHeader()).then(function (JSON) {
                 resolve(JSON);
