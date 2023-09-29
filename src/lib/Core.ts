@@ -109,7 +109,10 @@ class Core {
         self.logger = loggerModule.log;
 
         self._Utils = Utils;
-        
+
+        // init property
+        self.lastConnectedOptions = {token:undefined, userInfos: {}};
+
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);

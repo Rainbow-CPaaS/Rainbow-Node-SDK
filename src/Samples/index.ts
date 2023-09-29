@@ -5937,6 +5937,16 @@ let urlS2S;
         rainbowSDK._core._xmpp.mockStanza(stanza);
    }        
         
+   async testmockStanzaBubbleResume(){
+        let stanza : string = "<presence xmlns='jabber:client' to='37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw' from='room_c6afe2d3d1e24cf19d532f90bd46a32d@muc.openrainbow.net'><x  xmlns='http://jabber.org/protocol/muc#user'><item><reason>Room resumed</reason></item><status code='339'/><status code='110'/></x></presence>"
+       await this.testmockStanza(stanza);
+   }        
+        
+   async testmockStanzaBubbleStatus110(){
+        let stanza : string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
+        await rainbowSDK._core._xmpp.mockStanza(stanza);
+   }        
+        
     async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
