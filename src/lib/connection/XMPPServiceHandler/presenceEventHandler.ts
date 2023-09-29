@@ -54,7 +54,8 @@ class PresenceEventHandler extends GenericHandler {
             let applyCalendarPresence = false;
 
             // Ignore muc presence
-            if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) { 
+            if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) {
+                that.logger.log("internal", LOG_ID + "(onPresenceReceived) ignore Muc Name Space.");
                 return true; 
             }
 
