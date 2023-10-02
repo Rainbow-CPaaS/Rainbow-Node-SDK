@@ -75,6 +75,7 @@ module.exports = function(grunt) {
             }
         }
     },
+      
 
     clean: {
         dist: ["build"],
@@ -159,6 +160,23 @@ module.exports = function(grunt) {
             files: [
                 {
                     src: "guide/CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
+                }
+                /* ,
+                {
+                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
+                } */
+                ]
+        }
+    },
+
+      generateJsDocToJSON:{
+        all: {
+            options: {
+                debugcode: true
+            },
+            files: [
+                {
+                    src: "./lib/services/*.js", dest:"build/JsDocJSON"
                 }
                 /* ,
                 {
