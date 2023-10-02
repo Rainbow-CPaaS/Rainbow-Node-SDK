@@ -57,7 +57,7 @@ class ConversationsService extends GenericService {
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
     private _conversationHistoryHandlerToken: any;
-    public conversations: Array<Conversation>;
+    public conversations: any; // { jid : Conversation }
     private _conversationServiceEventHandler: any;
     private _bubblesService: BubblesService;
 	public activeConversation: any;
@@ -71,6 +71,7 @@ class ConversationsService extends GenericService {
     private conversationsRetrievedFormat: string = "small";
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
+    private autoLoadConversationHistory: boolean;
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -81,7 +82,7 @@ class ConversationsService extends GenericService {
     constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
-    }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean) {
+    }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean, _autoLoadConversationHistory: boolean) {
         super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -102,6 +103,7 @@ class ConversationsService extends GenericService {
         this.conversationsRetrievedFormat = _conversationsRetrievedFormat;
         this.nbMaxConversations = _nbMaxConversations;
         this.autoLoadConversations = _autoLoadConversations;
+        this.autoLoadConversationHistory = _autoLoadConversationHistory;
 
         //that._eventEmitter.removeListener("evt_internal_onreceipt", that._onReceipt.bind(that));
         this._eventEmitter.on("evt_internal_onreceipt", this._onReceipt.bind(this));
@@ -127,7 +129,7 @@ class ConversationsService extends GenericService {
                 that._presenceService = _core.presence;
 
                 that.activeConversation = null;
-                that.conversations = [];
+                that.conversations = {};
 
                 that.inCallConversations = [];
                 that.idleConversations = [];
@@ -273,7 +275,8 @@ class ConversationsService extends GenericService {
             //message.setReceiptStatus(Message.ReceiptStatus.SENT);
             if (conversation && conversation.id) {
                 conversation = await that.getConversationById(conversation.id);
-                that._logger.log("error", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
+                that._logger.log("debug", LOG_ID + "(_onReceipt) getConversationById conversation received.");
+                // that._logger.log("internal", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
                 if (conversation) {
                     message.conversation = conversation;
                     if (conversation.addOrUpdateMessage) {
@@ -511,13 +514,50 @@ class ConversationsService extends GenericService {
     loadConversationHistory(conversation, pageSize : number = 30) {
         let that = this;
         that._logger.log("debug", "(loadConversationHistory)");
+        that.resetHistoryPageForConversation(conversation);
         return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
             that._logger.log("debug", "(loadConversationHistory) getHistoryPage.");
 
-            let result = conversationUpdated.historyComplete ? conversationUpdated:that.loadConversationHistory(conversationUpdated);
+            let result = conversationUpdated.historyComplete ? conversationUpdated:that.getHistoryPage(conversationUpdated, pageSize);
             //that._logger.log("internal", "(loadConversationHistory) getHistoryPage result : ", result);
             return result;
         });
+    }
+
+    /**
+     * @private
+     * @method loadEveryConversationsHistory
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation. <br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages. 
+     * @async
+     * @return {Promise<Conversation[]>}
+     * @fulfil {Conversation[]} - Array of Conversation object
+     * @category async
+     */
+    loadEveryConversationsHistory( pageSize : number = 30) {
+        let that = this;
+        let nbConversations = that.conversations?that.conversations.length:0 ;
+        that._logger.log("debug", "(loadEveryConversationsHistory).");
+
+        for (let variableKey in that.conversations){
+            if (that.conversations.hasOwnProperty(variableKey)){
+                let conversation =  that.conversations[variableKey];
+                //that.openConversationForContact(conversation).then(async function (conversationOpenned) {
+                    //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
+                    let conversationOpenned = conversation;
+                    that._logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversationOpenned.messages.length);
+                    that.loadConversationHistory(conversationOpenned, pageSize).then((conversationLoadedHistory) => {
+                        that._logger.log("debug", "(loadEveryConversationsHistory) loadConversationHistory result : ", conversationLoadedHistory.messages.length);
+                    }, (err) => {
+                        that._logger.log("debug", "(loadEveryConversationsHistory) loadConversationHistory error : ", err);
+                    });
+                //});
+            }
+        }
     }
 
     /**
@@ -976,12 +1016,14 @@ class ConversationsService extends GenericService {
                 throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified", "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
             }
 
+            /* 
             let lastEditableMsg = conversation.getlastEditableMsg();
 
             if (lastEditableMsg.id!==originalMessage.id) {
                 that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
                 throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified", "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
             }
+            // */
 
             let messageUnicode = data==="" ? "":(data ? shortnameToUnicode(data):undefined);
 
@@ -1728,7 +1770,7 @@ class ConversationsService extends GenericService {
             return null;
         }
         let conv =  this.conversations[conversationId];
-        that._logger.log("internal", LOG_ID + " (getConversationById) conversation by id result : ", conv);
+        that._logger.log("internal", LOG_ID + " (getConversationById) conversation by id, id of conversation found : ", conv ? conv.id : "");
         if (!conv) {
             conv = that.getConversationByDbId(conversationId);
             that._logger.log("internal", LOG_ID + " (getConversationById) conversation not found by id, so searched by dbId result : ", conv);
@@ -2285,8 +2327,12 @@ class ConversationsService extends GenericService {
             that._logger.log("info", LOG_ID + " Re-initialize conversation service");
 
             // Remove all my conversation
-            delete that.conversations;
-            that.conversations = [];
+            for (let variableKey in that.conversations){
+                if (that.conversations.hasOwnProperty(variableKey)){
+                    delete that.conversations[variableKey];
+                }
+            }
+            that.conversations = {};
 
             if (that.autoLoadConversations) {
                 // bot service is ready / TODO ? service.botServiceReady = true; Fetch

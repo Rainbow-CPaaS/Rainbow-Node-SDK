@@ -15,6 +15,7 @@ import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
+import {ContactsService} from "./ContactsService.js";
 
 export {};
 
@@ -46,6 +47,8 @@ class ChannelsService extends GenericService {
     private channelEventHandler: ChannelEventHandler;
     private channelHandlerToken: any;
     public invitationCounter: number = 0;
+    private _contacts: ContactsService;
+
 
     static getClassName(){ return 'ChannelsService'; }
     getClassName(){ return ChannelsService.getClassName(); }
@@ -82,6 +85,7 @@ class ChannelsService extends GenericService {
         this._useS2S = false;
         this._channels = null;
         this._channelsList = null;
+        this._contacts = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         this.MAX_ITEMS = 100;
@@ -111,6 +115,7 @@ class ChannelsService extends GenericService {
                 that._rest = _core._rest;
                 that._options = _options;
                 that._s2s = _core._s2s;
+                that._contacts = _core._contacts;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that._channels = [];
@@ -153,9 +158,12 @@ class ChannelsService extends GenericService {
     async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that.fetchMyChannels();
+            that.fetchMyChannels().then((result)=>{
+                that.setInitialized();
+            }).catch((err)=>{
+                that.setInitialized();
+            });
         }
-        that.setInitialized();
     }
 
     attachHandlers() {
@@ -230,9 +238,10 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
+    *
      * @public
-     * @method createClosedChannel (ex: createPrivateChannel)
+     * @method createPrivateChannel (ex: createPrivateChannel)
      * @instance
      * @async
      * @category Channels MANAGEMENT
@@ -244,12 +253,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} New Channel
      * @description
      *  Create a new private channel <br>
-     */
     createPrivateChannel(name : string, description : string) {
         let that = this;
         
         return that.createClosedChannel(name, description, "globalnews");
     }
+     // */
 
     /**
      * @public
@@ -262,6 +271,7 @@ class ChannelsService extends GenericService {
      * @param {string} [category=""] The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
+     * (old createPrivateChannel)
      *  Create a new closed channel <br>
      */
     createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
@@ -423,7 +433,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method getChannelById
      * @instance
@@ -437,12 +447,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel found
      * @description
      * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
-     */
     getChannelById(id : string, force? : boolean) : Promise <Channel> {
         let that = this;
         
         return that.fetchChannel(id,  force);
     }
+     // */
 
     /**
      * @public
@@ -454,6 +464,7 @@ class ChannelsService extends GenericService {
      * @param {boolean} [force=false] True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
+     * (old getChannelById)
      * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
      */
     async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
@@ -548,7 +559,7 @@ class ChannelsService extends GenericService {
         });
     };
 
-    /**
+    /*
      * @public
      * @method getChannels
      * @since 1.38
@@ -561,12 +572,12 @@ class ChannelsService extends GenericService {
      *    Get the channels you own, are subscribed to, are publisher<br>
      *    Return a promise. <br>
      * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
-     */
     getChannels() {
         let that = this;
         
         return that.fetchMyChannels();
     }
+     */
 
     /**
      * @public
@@ -576,6 +587,7 @@ class ChannelsService extends GenericService {
      * @category Channels MANAGEMENT
      * @param {boolean} force Boolean to force the get of channels's informations from server. 
      * @description
+     * (old getChannels)
      *    Get the channels you own, are subscribed to, are publisher<br>
      *    Return a promise. <br>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
@@ -659,7 +671,7 @@ class ChannelsService extends GenericService {
         return that._channels;
     }
 
-    /**
+    /*
      * @public
      * @method getAllOwnedChannel
      * @instance
@@ -670,11 +682,11 @@ class ChannelsService extends GenericService {
      * @return {Channel[]} An array of channels (owned only)
      * @description
      *  Return the list of owned channels only <br>
-     */
     getAllOwnedChannel(){
         let that = this;
         return that.getAllOwnedChannels();
     }
+     */
 
     /**
      * @public
@@ -683,6 +695,7 @@ class ChannelsService extends GenericService {
      * @instance
      * @return {Channel[]} An array of channels (owned only)
      * @description
+     * (old getAllOwnedChannel)
      *  Return the list of owned channels only <br>
      */
     getAllOwnedChannels() : [Channel] {
@@ -1208,13 +1221,14 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server. 
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
         let that = this;
-        return that.createItem(channel, message, title, url, imagesIds, type);
+        return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
     }
 
     /**
@@ -1229,11 +1243,12 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} imagesIds An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server.
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise <{}> {
+    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
         let that = this;
         if (!channel || !channel.id) {
             that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'channel' parameter ");
@@ -1261,7 +1276,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
             type = type ? "urn:xmpp:channels:" + type : "urn:xmpp:channels:basic";
 
-            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type).then((status) => {
+            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type, customDatas).then((status) => {
                 that._logger.log("info", LOG_ID + "(createItem) message published");
                 that._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
                 resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
@@ -1273,7 +1288,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method getMessagesFromChannel
      * @instance
@@ -1286,11 +1301,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Object[]>} The list of messages received
      * @description
      *  Retrieve the last messages from a channel <br>
-     */
     getMessagesFromChannel (channel : Channel) {
         let that = this;
         return that.fetchChannelItems(channel);
     }
+    // */     
 
     /**
      * @public
@@ -1304,6 +1319,7 @@ class ChannelsService extends GenericService {
      * @param {Date} afterDate [optional] - show items after a specific timestamp (ISO 8601 format)
      * @return {Promise<Object[]>} The list of messages received
      * @description
+     * (old getChannels)
      *  Retrieve the last maxMessages messages from a channel <br>
      */
     public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
@@ -1361,7 +1377,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method deleteMessageFromChannel
      * @instance
@@ -1375,11 +1391,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Delete a message from a channel <br>
-     */
     deleteMessageFromChannel(channelId : string, messageId : string) {
         let that = this;
         return that.deleteItemFromChannel(channelId, messageId);
     }
+    // */
 
     /**
      * @public
@@ -1391,6 +1407,7 @@ class ChannelsService extends GenericService {
      * @param  {string} itemId The Id of the item
      * @return {Promise<Channel>} The channel updated
      * @description
+     * (old deleteMessageFromChannel)
      *  Delete a message from a channel <br>
      */
     public deleteItemFromChannel (channelId : string, itemId : string) : Promise<Channel> {
@@ -1536,7 +1553,7 @@ class ChannelsService extends GenericService {
 
     //region Channels SUBSCRIPTION
 
-    /**
+    /*
      * @public
      * @method getAllSubscribedChannel
      * @instance
@@ -1547,11 +1564,11 @@ class ChannelsService extends GenericService {
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
      *  Return the list of subscribed channels only <br>
-     */
     getAllSubscribedChannel() {
         let that = this;
         return that.getAllSubscribedChannels();
     }
+     // */
 
     /**
      * @public
@@ -1560,6 +1577,7 @@ class ChannelsService extends GenericService {
      * @category Channels SUBSCRIPTION
      * @return {Channel[]} An array of channels (subscribed only)
      * @description
+     * (old getAllSubscribedChannel)
      *  Return the list of subscribed channels only <br>
      */
     getAllSubscribedChannels() : [Channel] {
@@ -1700,7 +1718,7 @@ class ChannelsService extends GenericService {
 
     //region Channels USERS
 
-    /**
+    /*
      * @public
      * @method fetchChannelUsers
      * @instance
@@ -1718,11 +1736,11 @@ class ChannelsService extends GenericService {
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
      *  Get a pagined list of users who belongs to a channel <br>
-     */
     getUsersFromChannel(channel: Channel, options: any) {
         let that = this;
         return that.fetchChannelUsers(channel, options);
     }
+    // */
 
     /**
      * @public
@@ -1738,6 +1756,7 @@ class ChannelsService extends GenericService {
      * @param {Boolean} [options.onlyOwners=false] Filter to owners only
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
+     * (old getUsersFromChannel)
      *  Get a pagined list of users who belongs to a channel <br>
      */
     public fetchChannelUsers(channel : Channel, options : any) : Promise<Array<{}>> {
@@ -1786,7 +1805,7 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /**
+    /*
      * @public
      * @method removeAllUsersFromChannel
      * @instance
@@ -1799,11 +1818,12 @@ class ChannelsService extends GenericService {
      * @return {Promise<Channel>} The channel updated
      * @description
      *  Remove all users from a channel <br>
-     */
     removeAllUsersFromChannel(channel : Channel) {
         let that = this;
         return that.deleteAllUsersFromChannel(channel);
     }
+    // */
+    
     /**
      * @public
      * @method deleteAllUsersFromChannel
@@ -1813,6 +1833,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel The channel
      * @return {Promise<Channel>} The channel updated
      * @description
+     * (old removeAllUsersFromChannel)
      *  Remove all users from a channel <br>
      */
     public deleteAllUsersFromChannel(channel : Channel) : Promise<Channel> {
@@ -1854,7 +1875,15 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel 
-     * @param {Array<any>} users The users of the channel
+     * @param {Array<any>} users The users of the channel.
+     * collection of users to update
+     * [     
+     *  {
+     *  id : string, // Rainbow user Id
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
+     *  } 
+     *  ]
+     *  
      * @return {Promise<Channel>} Update Channel Users status
      * @description
      *  Update a collection of channel users
@@ -1895,12 +1924,82 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @method updateChannelUsersByLoginEmails
+     * @instance
+     * @since 2.23.0
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel 
+     * @param {Array<any>} users Array of users loginEmail of the channel.
+     * collection of users to update
+     * [     
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
+     *  } 
+     *  ]
+     *  
+     * @return {Promise<Channel>} Update Channel Users status
+     * @description
+     *  Update a collection of channel users by loginEmail
+     *  
+     */
+    public updateChannelUsersByLoginEmails(channel : Channel, users: Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        let channelId = channel.id;
+        return new Promise((resolve, reject) => {
+            //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
+            let usersId = [];
+            if (Array.isArray(users)) {
+                usersId = users.map(async (value , index, arr) => {  
+                    let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                        that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                    });
+                    return {
+                        id : usersIndex, 
+                        type : value.type 
+                    }
+                });
+            }
+            
+            
+            that._rest.updateChannelUsers(channelId, usersId).then((res) => {
+                that._logger.log("info", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
+                that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);
+
+                that._rest.getChannel(channelId).then((updatedChannel : any) => {
+                    // Update local channel
+                    let channelObj = that.addOrUpdateChannelToCache(updatedChannel);
+
+                    /*let foundIndex = that._channels.findIndex(channelItem => channelItem.id === updatedChannel.id);
+                    let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, that._rest.http.serverURL);
+                    that._channels[foundIndex] = channelObj;
+                     */
+                    that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel updated : ", channelObj);
+                    resolve(channelObj);
+                });
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(updateChannelUsersByLoginEmails) error ");
+                that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    /**
+     * @public
      * @method addOwnersToChannel
      * @instance
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel
-     * @param {Array<any>}owners
+     * @param {Array<any>}owners Array of owners to add.
      * @return {Promise<Channel>} The updated channel
      * @description
      *  Add a list of owners to the channel <br>
@@ -1930,6 +2029,64 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @method addOwnersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} owners Array of loginEmail of owners.
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of owners to the channel by loginEmail<br>
+     *      
+     */
+    public addOwnersToChannelByLoginEmails(channel : Channel, owners: any[]) : Promise<Channel>  {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!owners) {
+            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", owners);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*
+        let usersId = [];
+
+        owners.forEach((user) => {
+            usersId.push({"id": user.id, "type": "owner"});
+        });
+        // */
+
+        let usersId = [];
+        if (Array.isArray(owners)) {
+            usersId = owners.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "owner"
+                }
+            });
+        }
+        
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
      * @method addPublishersToChannel
      * @instance
      * @async
@@ -1938,7 +2095,8 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} publishers The list of Contacts to add as publisher to channel.
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of publishers to the channel <br>
+     *  Add a list of publishers to the channel<br>
+     *      
      */
     public addPublishersToChannel(channel : Channel, publishers : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -1965,6 +2123,63 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @method addPublishersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} publishers The list of Contacts loginEmails to add as publisher to channel.
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of publishers to the channel by loginEmail<br>
+     *      
+     */
+    public addPublishersToChannelByLoginEmails(channel : Channel, publishers : Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id ) {
+            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!publishers || !(publishers.length > 0)) {
+            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", publishers);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*let usersId = [];
+
+        publishers.forEach((user) => {
+            usersId.push({"id": user.id, "type": "publisher"});
+        });
+        // */
+
+        let usersId = [];
+        if (Array.isArray(publishers)) {
+            usersId = publishers.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "publisher"
+                }
+            });
+        }
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
      * @method addMembersToChannel
      * @instance
      * @async
@@ -1973,7 +2188,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} members array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of members to the channel <br>
+     *  Add a list of members to the channel  by loginEmail<br>
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;
@@ -2009,6 +2224,73 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @method addMembersToChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} members array of users loginEmail to add
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     *  Add a list of members to the channel by loginEmail<br>
+     *      
+     */
+    public async addMembersToChannelByLoginEmails(channel : Channel, members : Array<any>) : Promise<Channel> {
+        let that = this;
+        //that._logger.log("internal", LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!members) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        /*
+        let usersId: Array<any> = [];
+
+        members.forEach((user) => {
+            if (user) {
+                usersId.push({"id": user.id, "type": "member"});
+            }
+        });
+        // */
+        
+        let usersId = [];
+        if (Array.isArray(members)) {
+            usersId = members.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "member"
+                }
+            });
+        }
+        
+        if (!(usersId.length > 0)) {
+            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /*
+     * @public
      * @method removeUsersFromChannel1
      * @instance
      * @async
@@ -2020,12 +2302,13 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Remove a list of users from a channel <br>
-     */
+     *  Remove a list of users from a channel <br>    
     removeUsersFromChannel1(channel : Channel, users: Array<Contact>) {
         let that = this;
         return that.deleteUsersFromChannel(channel, users);
     }
+     // */
+    
     /**
      * @public
      * @method deleteUsersFromChannel
@@ -2036,6 +2319,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} users An array of users to remove
      * @return {Promise<Channel>} The updated channel
      * @description
+     * (old removeUsersFromChannel1)
      *  Remove a list of users from a channel <br>
      */
     public deleteUsersFromChannel(channel : Channel, users : Array<Contact>) : Promise<Channel> {
@@ -2057,6 +2341,65 @@ class ChannelsService extends GenericService {
         users.forEach((user) => {
             usersId.push({"id": user.id, "type": "none"});
         });
+
+        return that.updateChannelUsers(channel, usersId);
+    }
+
+    /**
+     * @public
+     * @method deleteUsersFromChannelByLoginEmails
+     * @instance
+     * @async
+     * @category Channels USERS
+     * @param {Channel} channel The channel
+     * @param {Array<any>} users An array of loginEmail of users to remove
+     * collection of owners loginEmails
+     * [
+     *  {
+     *  loginEmail : string, // Rainbow user loginEmail.
+     *  }
+     * ]
+     *
+     * @return {Promise<Channel>} The updated channel
+     * @description
+     * (old removeUsersFromChannel1)
+     *  Remove a list of users from a channel by loginEmail <br>
+     *      
+     */
+    public deleteUsersFromChannelByLoginEmails(channel : Channel, users : Array<any>) : Promise<Channel> {
+        let that = this;
+        if (!channel || !channel.id) {
+            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        if (!users) {
+            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter : ", users);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        
+        /*
+        let usersId = [];
+
+        users.forEach((user) => {
+            usersId.push({"id": user.id, "type": "none"});
+        });
+        // */
+        
+        let usersId = [];
+        if (Array.isArray(users)) {
+            usersId = users.map(async (value , index, arr) => {
+                let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                });
+                return {
+                    id : usersIndex,
+                    type : "none"
+                }
+            });
+        }
 
         return that.updateChannelUsers(channel, usersId);
     }

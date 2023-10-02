@@ -3,7 +3,7 @@ import {xu} from "../../common/XMPPUtils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {Conversation} from "../../common/models/Conversation";
 import {Element} from "ltx";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {FileStorageService} from "../../services/FileStorageService";
 import {FileServerService} from "../../services/FileServerService";
 import {BubblesService} from "../../services/BubblesService";
@@ -169,7 +169,7 @@ class ConversationEventHandler extends GenericHandler {
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, ", node : ", node);
 
         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+        let jsonNode = await getJsonFromXML(xmlNodeStr);
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
         let conferenceInfo = jsonNode["conference-info"];
         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -694,7 +694,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "questions":
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        questions = await that.getJsonFromXML(xmlNodeStr);
+                        questions = await getJsonFromXML(xmlNodeStr);
                         break;
                     case "body":
                         content = node.getText();
@@ -965,7 +965,7 @@ class ConversationEventHandler extends GenericHandler {
                         let ignoreConferenceInfo = false;
 
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                        let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+                        let jsonNode = await getJsonFromXML(xmlNodeStr);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
                         let conferenceInfo = jsonNode["conference-info"];
                         //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
@@ -2176,11 +2176,17 @@ class ConversationEventHandler extends GenericHandler {
                     case "command_ended":
                         that.onConnectorCommandEndedMessageReceived(node);
                         break;
+                    case "import_status":
+                        that.onConnectorImportStatusMessageReceived(node);
+                        break;
                     case "joincompanyinvite":
                         // treated in invitationEventHandler
                         break;
                     case "joincompanyrequest":
                         // treated in invitationEventHandler
+                        break;
+                    case "logs":
+                        that.onLogsMessageReceived(node);
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -2686,7 +2692,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onRoomsContainerManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) JSON : ", jsonNode);
             let roomscontainer = jsonNode["roomscontainer"];
             that.logger.log("debug", LOG_ID + "(onRoomsContainerManagementMessageReceived) roomscontainer : ", roomscontainer);
@@ -2758,12 +2764,39 @@ class ConversationEventHandler extends GenericHandler {
         }
     };
     
+    async onConnectorImportStatusMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onConnectorImportStatusMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
+            let importstatus = jsonNode["import_status"];
+            that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) importstatus : ", importstatus);
+            let reqId = importstatus["$attrs"]["reqId"];
+            let seq = importstatus["$attrs"]["seq"];
+            let status = importstatus["$attrs"]["status"];
+            let failed = importstatus["$attrs"]["failed"];
+            let warnings = importstatus["$attrs"]["warnings"];
+            let succeeded = importstatus["$attrs"]["succeeded"];
+            let total = importstatus["$attrs"]["total"];
+
+            if (importstatus.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onConnectorImportStatusMessageReceived) connectorcommand.");
+                that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, status, failed, warnings, succeeded, total});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
     async onConnectorCommandManagementMessageReceived(node) {
         let that = this;
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let connectorcommand = jsonNode["connectorcommand"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand : ", connectorcommand);
@@ -2785,7 +2818,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorCommandEndedMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) JSON : ", jsonNode); // command="manual_synchro" commandId="xyz" xmlns="jabber:iq:configuration" 
             let command_ended  = jsonNode["command_ended"];
             that.logger.log("debug", LOG_ID + "(onConnectorCommandEndedMessageReceived) command_ended : ", command_ended );
@@ -2806,7 +2839,7 @@ class ConversationEventHandler extends GenericHandler {
         try {
             that.logger.log("internal", LOG_ID + "(onConnectorConfigManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
-            let jsonNode = await that.getJsonFromXML(xmlNodeStr);
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
             let connectorconfig = jsonNode["connectorconfig"];
             that.logger.log("debug", LOG_ID + "(onConnectorConfigManagementMessageReceived) connectorconfig : ", connectorconfig);
@@ -2820,6 +2853,28 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onLogsMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onLogsMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
+            let logsObj = jsonNode["logs"];
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) logsObj : ", logsObj);
+            let action = logsObj["$attrs"]["action"];
+            let contextid = logsObj["$attrs"]["contextid"];
+
+            if (logsObj.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) connectorconfig with action : ", action, ", contextid : ", contextid);
+                that.eventEmitter.emit("evt_internal_logsconfig", {action, contextid});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
         }
     };
     

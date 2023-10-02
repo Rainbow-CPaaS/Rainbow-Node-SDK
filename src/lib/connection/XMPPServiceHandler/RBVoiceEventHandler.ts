@@ -4,7 +4,7 @@ import {XMPPUTils} from "../../common/XMPPUtils";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
 import {Call} from "../../common/models/Call";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 //const config = require("../../config/config");
 import {config} from "../../config/config";
 import {GenericHandler} from "./GenericHandler";
@@ -114,7 +114,7 @@ class RBVoiceEventHandler extends GenericHandler {
             //let that = this;
 
             let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
-            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("info", LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
 
             // Ignore "Offline" message
@@ -145,7 +145,7 @@ class RBVoiceEventHandler extends GenericHandler {
             //let that = this;
 
             let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
-            let reqObj = await that.getJsonFromXML(xmlNodeStr);
+            let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("info", LOG_ID + "(onManagementMessageReceived) reqObj : ", reqObj);
 
             // Ignore "Offline" message
@@ -175,7 +175,7 @@ class RBVoiceEventHandler extends GenericHandler {
             let stanzaElem = stanza;
             //let that = this;
             let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
-            let stanzaObj = await that.getJsonFromXML(xmlNodeStr);
+            let stanzaObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) stanzaObj : ", stanzaObj);
 
             if (stanzaObj && stanzaObj.message) {

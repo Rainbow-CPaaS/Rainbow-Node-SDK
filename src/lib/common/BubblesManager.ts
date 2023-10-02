@@ -297,8 +297,10 @@ class BubblesManager {
     async _onAffiliationDetailsChanged(bubble) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onAffiliationDetailsChanged) bubble : ", bubble);
-        await that.removeBubbleToJoinInProgress(bubble);
-        await that.addBubbleAlreadyJoined(bubble);
+        if (bubble) {
+            await that.removeBubbleToJoinInProgress(bubble);
+            await that.addBubbleAlreadyJoined(bubble);
+        }
     }
 
     /**
@@ -315,8 +317,10 @@ class BubblesManager {
             that._logger.log("error", LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubblepresenceinfo, ", : ", err);
         });
         that._logger.log("internal", LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo : ", bubblepresenceinfo, ", bubble : ", bubble);
-        await that.removeBubbleToJoinInProgress(bubble);
-        await that.addBubbleAlreadyJoined(bubble);
+        if (bubble) {
+            await that.removeBubbleToJoinInProgress(bubble);
+            await that.addBubbleAlreadyJoined(bubble);
+        }
     }
 
     async addBubbleToJoinInProgress(bubble): Promise<any> {
@@ -401,7 +405,7 @@ class BubblesManager {
                 that._logger.log("internal", LOG_ID + "(resetBubbleFromJoinInProgressToBubbleToJoin) Succeed - Jid : ", result);
                 resolve(result);
             }).catch((result) => {
-                that._logger.log("internal", LOG_ID + "(removeBubbleToJoinInProgress) Failed - Jid : ", result);
+                that._logger.log("internal", LOG_ID + "(resetBubbleFromJoinInProgressToBubbleToJoin) Failed - Jid : ", result);
                 resolve(undefined);
             });
         });

@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -168,7 +168,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(get) - sent.");
                 that._logger.log("internal", "(get) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -206,7 +206,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(discoverHTTPoverXMPP) - sent.");
                 that._logger.log("internal", "(discoverHTTPoverXMPP) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -245,12 +245,13 @@ class HTTPoverXMPP extends GenericService {
             }
 
             try {
-                
+                that._logger.log("internal", LOG_ID + "(trace) Parameter urlToTrace : ", urlToTrace, ", headers : ", headers, ", httpoverxmppserver_jid : ", httpoverxmppserver_jid);
+
                 let node = await that._xmpp.traceHTTPoverXMPP(urlToTrace, httpoverxmppserver_jid, headers);
                 that._logger.log("debug", "(trace) - sent.");
                 that._logger.log("internal", "(trace) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -294,7 +295,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(head) - sent.");
                 that._logger.log("internal", "(head) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -339,7 +340,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(post) - sent.");
                 that._logger.log("internal", "(post) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -384,7 +385,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(put) - sent.");
                 that._logger.log("internal", "(put) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
@@ -429,7 +430,7 @@ class HTTPoverXMPP extends GenericService {
                 that._logger.log("debug", "(delete) - sent.");
                 that._logger.log("internal", "(delete) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
-                let reqObj = await that._xmpp.httpoverxmppEventHandler.getJsonFromXML(xmlNodeStr);
+                let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {

@@ -117,11 +117,10 @@ const LOG_ID = "GROUPS/SVCE - ";
     async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            return that.getGroups().then((result) => {
+            that.getGroups().then((result) => {
                 that.setInitialized();
-                return result;
             }).catch(() => {
-                //that.setInitialized();
+                that.setInitialized();
             });
         } else {
             that.setInitialized();

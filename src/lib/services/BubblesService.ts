@@ -7,7 +7,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {addParamToUrl, getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -192,24 +192,28 @@ class Bubbles extends GenericService {
         if (useRestAtStartup) {
 //            await that.bubblesManager.reset();
             if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
-                await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed);
-                let bubbles = that.getAll();
-                if (bubbles && bubbles.length > 1) {
-                    for (const bubble of bubbles) {
-                        if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
-                            that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
-                            that.snapshotConference(bubble.id);
+                that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed).then((result) => {
+                    let bubbles = that.getAll();
+                    if (bubbles && bubbles.length > 1) {
+                        for (const bubble of bubbles) {
+                            if (bubble.conference && bubble.conference.sessions && bubble.conference.sessions.length > 0) {
+                                that._logger.log("info", LOG_ID + "(init) get snapshotConference.");
+                                that.snapshotConference(bubble.id);
+                            }
                         }
-
+                    } else {
+                        that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
                     }
-                } else {
-                    that._logger.log("debug", LOG_ID + "(init) no bubbles at startup. ");
-                }
+                    that.setInitialized();
+                }).catch((err)=>{
+                    that._logger.log("warn", LOG_ID + "(init) error at startup : ", err);
+                    that.setInitialized();
+                });
             } else {
                 that._logger.log("warn", LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
+                that.setInitialized();
             }
         }
-        that.setInitialized();
     }
     
     async reset() {
@@ -4632,6 +4636,92 @@ class Bubbles extends GenericService {
         }
     
     //endregion Bubbles PUBLIC URL
+
+    //region Bubbles Open Invites
+
+    /**
+     * @public
+     * @method checkOpenInviteIdValidity
+     * @since 2.22.4
+     * @instance
+     * @category Manage Bubbles - Bubbles Open Invites
+     * @description
+     *    Rainbow users may use a public URL to join a meeting The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value.<br>
+     *    https://meet.openrainbow.com/d4bb04c2a2254cd3bebb28e449ce7de3 <br>
+     *    The goal of this api is to check the validity of this URL. This API is public and no authentication is necessary. So a rate limiter is used to dissuade a brute force attack. <br>
+     * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
+     * @return {Promise<any>} An object of the result
+     * 
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | roomName | String | The meeting name |
+     * | roomTopic | String | The description of the meeting |
+     * | roomLocked | Boolean | True when the new comer for the meeting are barred |
+     * | invitingFirstName | String | The meeting creator's first name |
+     * | invitingLastName | String | The meeting creator's last name |
+     * | invitingCompanyName | String | The meeting creator's company name |
+     * 
+     */
+    checkOpenInviteIdValidity(openInviteId : string) {
+        let that = this;
+        if (!openInviteId) {
+            that._logger.log("warn", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter : ", openInviteId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+       
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) openInviteId found : ", openInviteId);
+            that._rest.checkOpenInviteIdValidity(openInviteId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(checkOpenInviteIdValidity) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @method joinBubbleByOpenInviteId
+     * @since 2.22.4
+     * @instance
+     * @category Manage Bubbles - Bubbles Open Invites
+     * @description
+     *    Rainbow user may have a public links that will help their coworkers to join rooms. So that he just has to create a room and create a public link so called 'public URL'. <br>
+     *    Each user can create on demand a public URL to one of his rooms(users public link). <br>
+     *    The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value. <br>
+     * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
+     * @return {Promise<any>} An object of the result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | roomId | String | Room unique identifier. |
+     * | hasAlreadyJoinThisRoom | Boolean | True when the loggedInUser has previously join this room. |
+     * 
+     */
+    joinBubbleByOpenInviteId (openInviteId : string ) {
+        let that = this;
+        if (!openInviteId) {
+            that._logger.log("warn", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter : ", openInviteId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) openInviteId found : ", openInviteId);
+            that._rest.joinBubbleByOpenInviteId(openInviteId).then(function (result: any) {
+                resolve(result);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(joinBubbleByOpenInviteId) error");
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubbles Open Invites
 
     //region Bubbles Polls
 

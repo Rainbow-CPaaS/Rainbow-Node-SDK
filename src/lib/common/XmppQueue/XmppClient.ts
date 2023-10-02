@@ -2,7 +2,8 @@
 //import Element from "ltx";
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
-import {Deferred, stackTrace} from "../Utils";
+import {Deferred, stackTrace, getJsonFromXML} from "../Utils";
+import {Element} from "adaptive-expressions/lib/builtinFunctions";
 
 export {};
 
@@ -28,9 +29,10 @@ const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
 const xml = require("@xmpp/xml");
 //const debug = require("@xmpp/debug");
-const xml2js = require('xml2js');
 
+// @ts-ignore
 const Element = require('ltx').Element;
+const parse = require('ltx').parse;
 
 let LOG_ID='XMPPCLIENT';
 
@@ -88,6 +90,7 @@ class XmppClient  {
         that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
         that.client.setQuery('urn:xmpp:http', 'req', that.iqSetEventHttp.bind(that));
+        that.client.setQuery('jabber:iq:rpc', 'query', that.iqSetEventRpc.bind(that));
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
@@ -182,7 +185,7 @@ class XmppClient  {
         try {
             let stanza = ctx.stanza;
             //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
-            //let reqObj = await that.getJsonFromXML(xmlstanzaStr);
+            //let reqObj = await getJsonFromXML(xmlstanzaStr);
             that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp ctx.stanza : ", ctx.stanza);
             //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
             let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
@@ -191,6 +194,28 @@ class XmppClient  {
             that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp prom result : ", result);
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventHttp CATCH Error !!! error : ", e);
+        }
+        
+        return result;
+    };
+
+    async  iqSetEventRpc (ctx) {
+        let that = this;
+        let result = true;
+        //that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRpc set iq receiv - :", ctx);
+        // return {};
+        try {
+            let stanza = ctx.stanza;
+            //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
+            //let reqObj = await getJsonFromXML(xmlstanzaStr);
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc ctx.stanza : ", ctx.stanza);
+            //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
+            let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
+            that.pendingRequests.push(eventWaited);
+            result = await eventWaited.prom.promise;
+            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc prom result : ", result);
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventRpc CATCH Error !!! error : ", e);
         }
         
         return result;
@@ -254,19 +279,6 @@ class XmppClient  {
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _exiting_");
     }
 
-    async getJsonFromXML(xml : string) {
-        try {
-            const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
-
-            // convert it to a JSON string
-            return result;
-            //return JSON.stringify(result, null, 4);
-        } catch (err) {
-            //console.log(err);
-            return {};
-        }
-    }
-    
     send(...args) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(send) _entering_");
@@ -298,7 +310,7 @@ class XmppClient  {
             let stanza = args[0];
 
             if (that.enablesendurgentpushmessages && stanza && stanza.name=="message") {
-                let stanzaJson = await that.getJsonFromXML(stanza);
+                let stanzaJson = await getJsonFromXML(stanza);
                 that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
                 //if (stanzaJson && stanzaJson.message != undefined) {
                 //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message.");
@@ -413,7 +425,7 @@ class XmppClient  {
                     let stanza = args[0];
 
                     if (that.enablesendurgentpushmessages && stanza && stanza.name == "message") {
-                        let stanzaJson = await that.getJsonFromXML(stanza);
+                        let stanzaJson = await getJsonFromXML(stanza);
                         that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
                         //if (stanzaJson && stanzaJson.message != undefined) {
                             //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message.");
@@ -658,6 +670,13 @@ class XmppClient  {
         this.client.entity.handle(evt,  cb);
     } // */
 
+    emit(evtname, stanza) {
+        let that = this;
+        let stanzaElmt : Element = parse(stanza);
+//        stanzaElmt.find("to") = that.fullJid;
+        this.client.entity.emit(evtname, stanzaElmt);
+    }
+    
     on(evt, cb) {
         this.client.entity.on(evt,  cb);
     }

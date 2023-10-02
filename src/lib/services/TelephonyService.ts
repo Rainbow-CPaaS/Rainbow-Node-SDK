@@ -220,17 +220,19 @@ class TelephonyService extends GenericService {
                     that._xmpp.getAgentStatus().then((data) => {
                         that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                     });
                 } catch (err) {
                     that._logger.log("warn", LOG_ID + "[init] getAgentStatus failed : ", err);
                     that.setInitialized();
-                    resolve(undefined);
+                    //resolve(undefined);
                 }
+                //resolve(undefined);
             } else {
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
+            resolve(undefined);
         });
     }
 
@@ -994,7 +996,7 @@ class TelephonyService extends GenericService {
                     //that._logger.log("internal", LOG_ID + "(makeSimpleCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     return reject(error);
                     //that._logger.log("error", LOG_ID + "(makeSimpleCall) Error.");
                     //that._logger.log("internalerror", LOG_ID + "(makeSimpleCall) Error : ", error);
@@ -1099,7 +1101,7 @@ class TelephonyService extends GenericService {
                     //that._logger.log("debug", LOG_ID + "(makeConsultationCall) send evt_internal_callupdated ", call);
                     that._eventEmitter.emit("evt_internal_callupdated", call);
                     //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     return reject(error);
                     //that._logger.log("error", LOG_ID + "(makeConsultationCall) Error");
                     //that._logger.log("internalerror", LOG_ID + "(makeConsultationCall) Error : ", error);
@@ -1326,7 +1328,7 @@ class TelephonyService extends GenericService {
                     resolve(call);
                 },
                 (response) => {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     that._logger.log("error", LOG_ID + "(releaseCall) Error.");
                     that._logger.log("internalerror", LOG_ID + "(releaseCall) Error : ", error, ", response : ", response);
                     return reject(error);
@@ -1411,7 +1413,7 @@ class TelephonyService extends GenericService {
                             //that._logger.log("internal", LOG_ID + "(answerCall) send evt_internal_callupdated ", call);
                             that._eventEmitter.emit("evt_internal_callupdated", call);
                             //$rootScope.$broadcast("ON_CALL_UPDATED_EVENT", call);
-                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                             that._logger.log("error", LOG_ID + "(answerCall) Error.");
                             that._logger.log("internalerror", LOG_ID + "(answerCall) Error : ", error);
                             return reject(error);
@@ -1482,7 +1484,7 @@ class TelephonyService extends GenericService {
                     resolve(call);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     reject(error);
                     that._logger.log("error", LOG_ID + "(holdCall) Error.");
                     that._logger.log("internalerror", LOG_ID + "(holdCall) Error : ", error);
@@ -1569,7 +1571,7 @@ class TelephonyService extends GenericService {
                             resolve(undefined);
                         },
                         function failure(response) {
-                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                             that._logger.log("error", LOG_ID + "(retrieveCall) Error.");
                             that._logger.log("internalerror", LOG_ID + "(retrieveCall) Error : ", error);
                             return reject(error);
@@ -1642,7 +1644,7 @@ class TelephonyService extends GenericService {
                     resolve(undefined);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     that._logger.log("error", LOG_ID + "(deflectCallToVM) Error.");
                     that._logger.log("internalerror", LOG_ID + "(deflectCallToVM) Error : ", error);
                     return reject(error);
@@ -1699,7 +1701,7 @@ class TelephonyService extends GenericService {
                     resolve(undefined);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     that._logger.log("error", LOG_ID + "(deflectCall) Error. ");
                     that._logger.log("internalerror", LOG_ID + "(deflectCall) Error : ", error);
                     return reject(error);
@@ -1762,7 +1764,7 @@ class TelephonyService extends GenericService {
                     resolve(undefined);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     that._logger.log("error", LOG_ID + "(transfertCall) Error.");
                     that._logger.log("internalerror", LOG_ID + "(transfertCall) Error : ", error);
                     return reject(error);
@@ -1823,7 +1825,7 @@ class TelephonyService extends GenericService {
                     resolve(undefined);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     return reject(error);
                     that._logger.log("error", LOG_ID + "(conferenceCall) error.");
                     that._logger.log("internalerror", LOG_ID + "(conferenceCall) Error : ", error);
@@ -1879,7 +1881,7 @@ class TelephonyService extends GenericService {
                             resolve(undefined);
                         },
                         function failure(response) {
-                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                            let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                             return reject(error);
                             that._logger.log("error", LOG_ID + "(forwardToDevice) Error.");
                             that._logger.log("internalerror", LOG_ID + "(forwardToDevice) Error : ", error);
@@ -1935,7 +1937,7 @@ class TelephonyService extends GenericService {
                     resolve(undefined);
                 },
                 function failure(response) {
-                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                     that._logger.log("error", LOG_ID + "(forwardToVoicemail) Error.");
                     that._logger.log("internalerror", LOG_ID + "(forwardToVoicemail) Error : ", error);
                     return reject(error);
@@ -1979,7 +1981,7 @@ class TelephonyService extends GenericService {
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(cancelForward) Error.");
                         that._logger.log("internalerror", LOG_ID + "(cancelForward) Error : ", error);
                         return reject(error);
@@ -2006,7 +2008,7 @@ class TelephonyService extends GenericService {
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(getForwardStatus) error.");
                         that._logger.log("internalerror", LOG_ID + "(getForwardStatus) Error : ", error);
                         return reject(error);
@@ -2059,7 +2061,7 @@ class TelephonyService extends GenericService {
                                     resolve(undefined);
                                 },
                                 function failure(response) {
-                                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                                    let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                                     that._logger.log("error", LOG_ID + "(sendDtmf) Error.");
                                     that._logger.log("internalerror", LOG_ID + "(sendDtmf) Error : ", error);
                                     return reject(error);
@@ -2262,7 +2264,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(logon) Error.");
                         that._logger.log("internalerror", LOG_ID + "(logon) Error : ", error);
                         return reject(error);
@@ -2298,7 +2300,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(logoff) Error.");
                         that._logger.log("internalerror", LOG_ID + "(logoff) Error : ", error);
                         return reject(error);
@@ -2339,7 +2341,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(withdrawal) Error.");
                         that._logger.log("internalerror", LOG_ID + "(withdrawal) Error : ", error);
                         return reject(error);
@@ -2381,7 +2383,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(wrapup) Error.");
                         that._logger.log("internalerror", LOG_ID + "(wrapup) Error : ", error);
                         return reject(error);
@@ -2574,7 +2576,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
             //reject not allowed operations
             if (!that.isNomadicEnabled) {
-                let error = ErrorManager.getErrorManager().CUSTOMERROR("403", "getNomadicStatus failure - Not Allowed", "getNomadicStatus failure - Not Allowed");// errorHelperService.handleError(response);
+                let error = ErrorManager.getErrorManager().CUSTOMERROR("403", "getNomadicStatus failure - Not Allowed", "getNomadicStatus failure - Not Allowed", undefined);// errorHelperService.handleError(response);
                 that._logger.log("error", LOG_ID + "(getNomadicStatus) Error.");
                 that._logger.log("internalerror", LOG_ID + "(getNomadicStatus) Error : ", error);
                 return reject(error);
@@ -2588,7 +2590,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         resolve(undefined);
                     },
                     function failure(response) {
-                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details);// errorHelperService.handleError(response);
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(response.code, response.msg, response.details, response);// errorHelperService.handleError(response);
                         that._logger.log("error", LOG_ID + "(getNomadicStatus) Error");
                         that._logger.log("internalerror", LOG_ID + "(getNomadicStatus) Error : ", error);
                         return reject(error);

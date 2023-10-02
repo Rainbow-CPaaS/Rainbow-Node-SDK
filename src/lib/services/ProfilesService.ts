@@ -181,24 +181,25 @@ class ProfilesService extends GenericService {
                             that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                             that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
-                            // NED TO BE PORTED !!!!!!!
+                            // NEED TO BE PORTED !!!!!!!
                             // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
 
-                            that.setInitialized();
-                            resolve(undefined);
+                            //that.setInitialized();
+                            //resolve(undefined);
                         })
                         .catch(function (error) {
                             that._logger.log("warn", LOG_ID + "([profileService] === getServerProfile FAILURE === ");
                             that._logger.log("internalerror", LOG_ID + "([profileService] === getServerProfile FAILURE === : " + error.message);
-                            resolve(undefined);
+                            that.setInitialized();
+                            //resolve(undefined);
                             //return reject(error);
                         });
             } else {
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
-        });
-    
+            resolve(undefined);
+        });    
     }
 
     onUserUpdateNeeded ()

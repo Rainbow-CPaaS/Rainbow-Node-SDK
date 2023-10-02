@@ -4,6 +4,7 @@
 import {logEntryExit, pause} from "../common/Utils";
 import {HttpManager, RequestForQueue} from "./HttpManager";
 import * as util from "util";
+import {window} from "rxjs";
 
 
 require('http').globalAgent.maxSockets = 999;
@@ -96,6 +97,13 @@ class HTTPService {
         }
 
         if (that.logger.logHttp) {
+            // @ts-ignore
+            let fnerror = console.error;
+            console.error = function(error, url, line) {
+                that.logger.log("debug", LOG_ID, chalk.red("DEBUG CONSOLE")  , ...arguments);
+                //that.logger.log("debug", LOG_ID, chalk.red("DEBUG CONSOLE")  , {acc:'error', data:'ERR:'+error+' URL:'+url+' L:'+line});
+                // fnerror(...arguments);
+            };
             debugHttp(debugHandler);
             Request.debug = true;
         }

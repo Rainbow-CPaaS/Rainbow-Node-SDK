@@ -6,7 +6,16 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.21.0-lts.0 - LTS Version - April 2023
+### SDK for Node.JS 2.24.0 - STS Version - August 2023
+
+---
+
+**3-Delivery Release SDK Breaking Changes**
+
+-   Warning: From version STS 2.24.0 this file will not be updated any more, because all the informations are now in the changelog file.
+
+
+### SDK for Node.JS 2.23.0 - STS Version - July 2023
 
 ---
 
@@ -18,22 +27,75 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Breaking Changes**
 
--   Remove `PresenceService::enableCalendar` and `PresenceService::disableCalendar` because the API is not available on server side anymore.    
+-   Remove deprecated methods form ChannelsService : getChannelById, createPrivateChannel, getChannels, getAllOwnedChannel, getMessagesFromChannel, deleteMessageFromChannel, getAllSubscribedChannel, getUsersFromChannel, removeAllUsersFromChannel, removeUsersFromChannel1
+
+**API Changes**
+
+-   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
+
+**Others Changes**
+
+-   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
+-   Add treatment of Http Status Code 429 while occurs.
+-   Add random delay (between 1 and 5000ms) to delay provided in headers RetryAfter on Http Status Code 429.
+-   Add `ContactsService::getContactIdByLoginEmail` to retrieve the Id of a contact by its email. 
+-   Add ability to log the call of API methods and parameters sent to it. It is an API module scoped feature. It is the `logEntryParameters` property in each services of the servicesToStart start options of the SDK.
+-   Add `ChannelsService::updateChannelUsersByLoginEmails` to Update a collection of channel users by loginEmail
+-   Add `ChannelsService::addOwnersToChannelByLoginEmails` to Add a list of owners to the channel by loginEmail
+-   Add `ChannelsService::addPublishersToChannelByLoginEmails` to Add a list of publishers to the channel by loginEmail
+-   Add `ChannelsService::addMembersToChannelByLoginEmails` to Add a list of members to the channel by loginEmail
+-   Add `ChannelsService::deleteUsersFromChannelByLoginEmails` to Remove a list of users from a channel by loginEmail
+-   Add log in `Conversation` class object.
+-   Fix the update of `Conversation.Messages` when _onReceipt event received.
+-   Fix `Message::alternativeContent` in pending Message sent.
+
+
+### SDK for Node.JS 2.22.0 - STS Version - May 2023
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None    
+
+**API Changes**
+
+-   None    
+
+**Others Changes**
+
+-   Add RPCoverXMPPService to manages and use an RPC over XMPP requests system.
+-   Add RPCoverXMPPService documentation.
+-   Add documentation about guide Remote Procedure Call in SDK in `Managing_RPCoverXMPP.md`.
+
+
+### SDK for Node.JS 2.21.0 - STS Version - April 2022
+
+---
+
+**3-Release SDK Breaking Changes**
+
+-   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
+Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
+
+
+**API Breaking Changes**
+
+-   None    
 
 **API Changes**
 
 -   Update `ConversationsService::sendConversationByEmail` with parameters to send it to custom email, and set the language.
 -   Update `ConversationsService::ackAllMessages` with parameter `maskRead` if true Im won't be shown as read on peer conversation side.
--   Update the `ConversationsService::getContactsMessagesFromConversationId` method to retrieve history from server if not yet loaded.
 -   Update `FavoritesService::fetchAllFavorites` with peerId parameter.
--   Update `InvitationsService::sendInvitationsByBulk` API with lang and comment parameters. 
 -   Update `InvitationsService::reSendInvitation` API with customMessage parameters. 
--   Update to set useMessageEditionAndDeletionV2 to true by default.
--   Fix `RESTService::renameTagForAllAssignedDirectoryEntries` parameters.
--   Fix `searchUserByPhonenumber` parameter type.
--   Fix `BubblesService::snapshotConference` return.
--   Update the `BubblesService::getBubbleById` with few parameters.
--   Update the `BubblesService::getBubbleByJid` with few parameters.
+-   Update `InvitationsService::sendInvitationsByBulk` API with lang and comment parameters. 
 
 **Others Changes**
 
@@ -50,6 +112,7 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 -   Update low layer `RESTService::getServerConversations` method's parameters.
 -   Add `ConversationsService::updateConversationBookmark` API can be used to set or replace a bookmarked message in a conversation.
 -   Add `ConversationsService::loadConversationHistory` API to retrieve the remote history of a specific conversation.
+-   Update the `ConversationsService::getContactsMessagesFromConversationId` method to retrieve history from server if not yet loaded.
 -   Fix `BubblesService::getBubbles` when users property is empty in bubble.
 -   Add `ConversationsService::showAllMatchingMessagesForAPeer` API. It can be used to return all matching messages for one specific peer.
 -   Fix `AdminService::retrieveLdapConnectorAllConfigTemplates` (the last "s" was missing in doc).
@@ -90,44 +153,6 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 -   Fix to send "close" stanza back to server when a "close" is received. It allows the reconnection without the "Replaced by new connection" error.
 -   Fix `evt_internal_signinrequired` callback to restart the SDK before the signin.
 -   Fix `rainbow_xmppreconnected` to stop the SDK before switching to FAILED state.
--   Add `PresenceService::setApplyMsTeamsPresenceSettings` This api allows to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.
--   Add treatment of presence received from ms-teams. Note that only "online" and "do not disturb" teams presences are relayed by rainbow.
--   Add API MSTeams presence in `PresenceService`.
--   Add `rainbow_onbubblecontactinvitationreceived` event fired when an invitation to join a bubble is received for a contact.
--   Add use `applyMsTeamsPresence` in calculated presence.
--   Fix treatment of XMPP error with conditions : `policy-violation`, `resource-constraint` .
--   Fix `BubblesService::startRecording`.
--   Fix xmpp stanza for deleted or modified messages.
--   Add `AdminService::getASystemPhoneNumber` `AdminService::getAllSystemPhoneNumbers` `AdminService::updateASystemPhoneNumber` API to get/update phones numbers for a given system (pbx).
--   Fix `alternativeContent` in message for `sendCorrectedChatMessage` in bubble.
--   Add `BubblesService::deleteAllMessagesInBubble` API to delete all messages in a Bubble for everybody or hide it definitively for a specific contact. Please be carefull with it.
--   Add methods to retrieve/update phone number in systems : `AdminService::getASystemPhoneNumber`, `AdminService::getAllSystemPhoneNumbers`, `AdminService::updateASystemPhoneNumber`.
--   Add methods to manage `Systems` in Rainbow `AdminService::createSystem`, `AdminService::deleteSystem`, `AdminService::getSystemConnectionState`, `AdminService::getSystemDataByPbxId`, `AdminService::getSystemData`, `AdminService::getAllSystems`, `AdminService::getListOfCountriesAllowedForSystems`, `AdminService::updateSystem`.
--   Add `pcg2` presence (Rainbow HUB - Sipwize)
--   Add `RBVoiceEventHandler` to manage Rainbow Voice Events received from server.
--   Add `rainbow_onrbvoicerawevent` event fired in case a of rainbow voice event.
--   Add services parameter of `BubblesService::startConferenceOrWebinarInARoom` Requested service types. 
--   Fix of events of modified/deleted messages.
--   Add `rainbow_onbubbleconferencedelegatereceived` event fired when an event conference delegate in a bubble is received.
--   Add `BubblesService::updateBubbleData` This API allows to update room data.
--   Add `BubblesService::getABubblePublicLinkAsModerator` api allow to get the openInviteId bound with the given bubble.
--   Add `BubblesService::getAllBubblesJidsOfAUserIsMemberOf` Provide the list of room JIDs a user is a member of.
--   Add `BubblesService::getAllBubblesVisibleByTheUser` Get all rooms visible by the user requesting it.
--   Add `BubblesService::getBubblesDataByListOfBubblesIds` Get all rooms visible by the user requesting it.
--   Add `BubblesService::getAllOwnedIdBubbles` Get the list of bubbles created by the user.
--   Add SDK parameter options.im : "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
--   Add SDK parameter options.im : "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
--   Add SDK parameter options.im : "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
--   Add PBX Voice messages treatments with methods `TelephonyService::deleteAllMyVoiceMessagesFromPbx` `TelephonyService::deleteAVoiceMessageFromPbx` `TelephonyService::getAVoiceMessageFromPbx` `TelephonyService::getDetailedListOfVoiceMessages` `TelephonyService::getNumbersOfVoiceMessages`
--   Add `rainbow_onvoicemessagesinfo` event about the PBX Voice Message status.
--   Fix to initialize the contacts service before the telephony service.
--   Fix `ConversationsService::getServerConversations` to succeed even if the retrieve of informations about the contact failed.
--   Add a `TimeOutManager` manager to be able to control every setTimeout from one tool. Useful for stopping setTimeout when a stop of SDK occured.
--   Fix events treatment `ConversationHistoryHandler::onHistoryMessageReceived` when there are several times the tag `headers`. These events are raised as result of `conversations::getHistoryPage` API.
--   Add `AdminService::getAnImportStatus` API to provide a short status of the last import (completed or pending) of a company directory.
--   Add `PresenceService::controlCalendarOrIgnoreAnEntry` API to Enable/disable a calendar sharing or ignore a calendar entry.
--   Add `PresenceService::unregisterCalendar` API to Delete a calendar sharing.
--   Catch when getBubble failed.
 
 
 ### SDK for Node.JS 2.19.0 - STS Version - December 2022

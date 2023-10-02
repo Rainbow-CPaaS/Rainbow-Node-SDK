@@ -1,11 +1,17 @@
 "use strict";
 
 
+//import util from "util";
+
+import {start} from "repl";
+
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
 const dns = require('dns')
 const utilTypes = require('util').types
+const xml2js = require('xml2js');
+const util = require("util");
 
 let makeId = (n) => {
   let text = "";
@@ -95,6 +101,10 @@ let isNullOrEmpty = function(value) {
         }
     }
     return _isNullOrEmpty;
+}
+
+let isNumber = function  isNumber(data) {
+    return (typeof data === 'number' && !(isNaN(data)));
 }
 
 let setTimeoutPromised = function(timeOutMs) : Promise<any> {
@@ -373,7 +383,24 @@ function logEntryExit(LOG_ID) : any {
             // Keep the method store in a local variable
             const originalMethod = descriptor.value;
             descriptor.value = function (...args: any[]) {
-
+                let startDate = new Date();
+                /*let result = Promise.resolve();
+                try {
+                    if (parameters === undefined) {
+                        result =  await methodDefinition.apply(thisToUse,[]);
+                    } else {
+                        result =  await methodDefinition.apply(thisToUse,parameters);
+                        //result = await methodDefinition(...parameters);
+                    }
+                } catch (err) {
+                    result = Promise.reject(err);
+                } 
+                let stopDate = new Date();
+                // @ts-ignore
+                let startDuration = Math.round(stopDate - startDate);
+                //console.log("start duration of the method : " + methodName + " === STARTED (" + startDuration + " ms) ===");
+                */
+                
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
@@ -386,7 +413,13 @@ function logEntryExit(LOG_ID) : any {
                         /* if (!this.getClassName) {
                              this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
                          } // */
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        let logParameters = this.startConfig?this.startConfig.logEntryParameters: false;
+                        if (logParameters) {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_ with : " + util.inspect(arguments, false, 4, true)));
+                            
+                        } else {
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                        }
                         /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
                             //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
                             logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
@@ -394,7 +427,10 @@ function logEntryExit(LOG_ID) : any {
                         } // */
 
                         returnValue = originalMethod.apply(this, args);
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
+                        let stopDate = new Date();
+                        // @ts-ignore
+                        let startDuration = Math.round(stopDate - startDate);
+                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_ execution time : " + startDuration + " ms."));
                     } catch (err) {
                         logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
                         // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
@@ -559,6 +595,19 @@ const resolveDns = (cname) => {
     });
 }
 
+async function getJsonFromXML(xml : string) {
+    try {
+        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+        // convert it to a JSON string
+        return result;
+        //return JSON.stringify(result, null, 4);
+    } catch (err) {
+        //console.log(err);
+        return {};
+    }
+}
+
 function randomString(length, chars) {
     let result = "";
     for (let i = length; i > 0; --i) {
@@ -573,6 +622,52 @@ function generateRamdomEmail(email){
     return emailGenerated.toLowerCase();
 }
 
+function functionName(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0]  : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    result = result.substr('function '.length);
+    result = result.substr(0, result.indexOf('('));
+    return result;
+}
+
+function functionSignature(functionPtr) {
+    let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
+    //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
+    //that.logger.log("internal", LOG_ID + "(methodSignature) - result1 : ", result1);
+    let methodFromNamedFunction = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/) : undefined;
+    let methodNameFromNamedFunction = methodFromNamedFunction ? methodFromNamedFunction[0] + "...}" : undefined;
+    let methodFromAnonymousFunction = methodCallbackStr?methodCallbackStr.match(/\s*(.*?)\s*=>\s*{/) : undefined;
+    let methodNameFromAnonymousFunction = methodFromAnonymousFunction? methodFromAnonymousFunction[0] + "...}" : undefined;
+    let result = methodNameFromNamedFunction ? methodNameFromNamedFunction : ( methodNameFromAnonymousFunction ? methodNameFromAnonymousFunction : "") ;
+    return result;
+}
+
+async function traceExecutionTime(thisToUse, methodName, methodDefinition, parameters = undefined) {
+    let startDate = new Date();
+    let result = Promise.resolve();
+    try {
+        if (parameters === undefined) {
+            result =  await methodDefinition.apply(thisToUse,[]);
+        } else {
+            result =  await methodDefinition.apply(thisToUse,parameters);
+            //result = await methodDefinition(...parameters);
+        }
+    } catch (err) {
+        result = Promise.reject(err);
+    }
+    let stopDate = new Date();
+    // @ts-ignore
+    let startDuration = Math.round(stopDate - startDate);
+    console.log("start duration of the method : " + methodName + " === STARTED (" + startDuration + " ms) ===");
+    return result;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -580,6 +675,7 @@ export let objToExport = {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -600,7 +696,11 @@ export let objToExport = {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature,
+    traceExecutionTime
 };
 
 module.exports = objToExport;
@@ -611,6 +711,7 @@ export {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -631,7 +732,11 @@ export {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature,
+    traceExecutionTime
 };
 
 export default {
@@ -641,6 +746,7 @@ export default {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isNumber,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -661,5 +767,9 @@ export default {
     isPromise,
     doWithinInterval,
     addPropertyToObj,
-    generateRamdomEmail
+    generateRamdomEmail,
+    getJsonFromXML,
+    functionName,
+    functionSignature,
+    traceExecutionTime
 };

@@ -128,16 +128,16 @@ class FileServer extends GenericService{
 
         return new Promise(async (resolve, reject)=> {
             if (useRestAtStartup ) {
-                let capa = await that.capabilities.catch(() => {
+                that.capabilities.then((result)=>{
                     that.setInitialized();
-                    resolve(null);
+                }).catch(() => {
+                    that.setInitialized();
                 });
-                that.setInitialized();
-                resolve(capa);
+//                resolve(capa);
             } else {
                 that.setInitialized();
-                resolve (undefined) ;
             }
+            resolve(null);
         });
     }
 

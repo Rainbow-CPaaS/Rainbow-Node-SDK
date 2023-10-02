@@ -270,25 +270,26 @@ class ContactsService extends GenericService {
     }
 
     init(useRestAtStartup : boolean) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             let that = this;
             if (that._rest.account) {
                 if (that._rest.account.id) {
                     let userInfo = that.getContactById(that._rest.account.id, true);
-                    return Promise.all([userInfo]).then((contact: Contact[]) => {
+                    Promise.all([userInfo]).then((contact: Contact[]) => {
                         //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                         if (contact) {
                             that.userContact.updateFromUserData(contact[0]);
                         }
                         that.setInitialized();
-                        return resolve(undefined);
+                        //return resolve(undefined);
                     }).catch(() => {
-                        return resolve(undefined);
+                        //return resolve(undefined);
                         //return reject();
                     });
+                    return resolve();
                 }
                 if (that._rest.account.jid_im) {
-                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
@@ -301,21 +302,22 @@ class ContactsService extends GenericService {
                         that.userContact.updateFromUserData(contact);
                     }); 
                     // */
-                    return Promise.all([userInfo]).then(() => {
+                    Promise.all([userInfo]).then(() => {
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                     }).catch((err) => {
                         that._logger.log("warn", LOG_ID + "(init) search by jid_im failed with error : ", err);
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                         //return reject();
                     });
                 }
             } else {
                 that._logger.log("internal", LOG_ID + "(init) else from contact : ", that._rest.account);
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
+            return resolve();
         });
     }
 
@@ -734,6 +736,69 @@ class ContactsService extends GenericService {
                             that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
                             resolve(null);
                         }
+                    }).catch((err) => {
+                        return reject(err);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getContactIdByLoginEmail
+     * @instance
+     * @category Contacts INFORMATIONS
+     * @param {string} loginEmail The contact loginEmail
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+     * @description
+     *  Get a contact Id by his loginEmail <br>
+     * @async
+     * @return {Promise<String, ErrorManager>}
+     * @fulfil {String} - Found contact Id or null or an error object depending on the result
+
+     */
+    async getContactIdByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<String> {
+
+        let that = this;
+
+        return new Promise((resolve, reject) => {
+            if (!loginEmail) {
+                this._logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
+                this._logger.log("internalerror", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            } else {
+
+                let contactFound: Contact = null;
+                let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
+
+                if (that._contacts && !forceServerSearch) {
+                    contactFound = that._contacts.find((contact) => {
+                        return contact.loginEmail===loginEmail;
+                    });
+                }
+
+                if (contactFound) {
+                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
+                    resolve(contactFound.id);
+                } else {
+                    that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
+                    that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
+                        let contactId: string = undefined;
+                        if (contactsFromServeur && contactsFromServeur.length > 0) {
+                            //let contact: Contact = null;
+                            that._logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            let _contactFromServer = contactsFromServeur[0];
+                            
+                            if (_contactFromServer) {
+                                contactId = _contactFromServer.id;
+                            } else {
+                                that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
+                            }
+                        } else {
+                            that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
+                        }
+                        resolve(contactId);
                     }).catch((err) => {
                         return reject(err);
                     });

@@ -26,6 +26,7 @@ class Options {
 	public _servicesToStart: any;
 	private _testOutdatedVersion: boolean;
 	private _testDNSentry: boolean;
+	private _autoReconnectIgnoreErrors: boolean;
 	private _httpoverxmppserver: boolean;
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
@@ -41,6 +42,7 @@ class Options {
         this._CLIMode = true;
         this._testOutdatedVersion = true;
         this._testDNSentry = true;
+        this._autoReconnectIgnoreErrors = false;
         this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
     }
@@ -92,6 +94,7 @@ class Options {
         this._servicesToStart = this._getservicesToStart();
         this._testOutdatedVersion = this._gettestOutdatedVersion();
         this._testDNSentry = this._gettestDNSentry();
+        this._autoReconnectIgnoreErrors = this._getautoReconnectIgnoreErrors();
         this._httpoverxmppserver = this._gethttpoverxmppserver();
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
@@ -112,6 +115,14 @@ class Options {
 
     set testDNSentry(value: boolean) {
         this._testDNSentry = value;
+    }
+
+    get autoReconnectIgnoreErrors(): boolean {
+        return this._autoReconnectIgnoreErrors;
+    }
+
+    set autoReconnectIgnoreErrors(value: boolean) {
+        this._autoReconnectIgnoreErrors = value;
     }
 
     get testhttpoverxmppserver(): boolean {
@@ -210,6 +221,14 @@ class Options {
             return this._options.testDNSentry;
         } else {
             return config.testDNSentry;
+        }
+    }
+
+    _getautoReconnectIgnoreErrors() {
+        if ( this._options["autoReconnectIgnoreErrors"] !== undefined ) {
+            return this._options.autoReconnectIgnoreErrors;
+        } else {
+            return config.autoReconnectIgnoreErrors;
         }
     }
 
@@ -455,6 +474,7 @@ class Options {
             "autoInitialBubbleFormat": "small",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
+            autoLoadConversationHistory: false,
             autoLoadContacts: true,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
@@ -480,7 +500,8 @@ class Options {
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
-        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == false) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;

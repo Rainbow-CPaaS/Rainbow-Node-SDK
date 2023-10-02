@@ -25,8 +25,61 @@ import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
 import {GenericService} from "./GenericService";
 
+import * as fs from "fs";
+import * as path from "path";
 import * as mime from "mime";
-if ( ! mime.lookup) mime.lookup = mime.getType;
+// if ( ! mime.lookup) mime.lookup = mime.getType;
+
+function FileUpdated(input) {
+    var self = this;
+
+    function updateStat(stat) {
+        self.stat = stat;
+        self.lastModifiedDate = self.stat.mtime;
+        self.size = self.stat.size;
+    }
+    
+    if (input == undefined) return; 
+
+    if ('string' === typeof input) {
+        self.path = input;
+    } else {
+        Object.keys(input).forEach(function (k) {
+            self[k] = input[k];
+        });
+    }
+
+    self.name = self.name || path.basename(self.path||'');
+    if (!self.name) {
+        throw new Error("No name");
+    }
+    if ( ! mime.lookup)  {
+        self.type = self.type || mime.getType(self.name);
+    } else {
+        self.type = self.type || mime.lookup(self.name);
+    }
+
+    if (!self.path) {
+        if (self.buffer) {
+            self.size = self.buffer.length;
+        } else if (!self.stream) {
+            throw new Error('No input, nor stream, nor buffer.');
+        }
+        return;
+    }
+
+    if (!self.jsdom) {
+        return;
+    }
+
+    if (!self.async) {
+        updateStat(fs.statSync(self.path));
+    } else {
+        fs.stat(self.path, function (err, stat) {
+            updateStat(stat);
+        });
+    }
+}
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -169,17 +222,20 @@ class FileStorage extends GenericService{
                         })
                         .then(() => {
                             that.setInitialized();
-                            resolve(undefined);
+                          //  resolve(undefined);
                         })
                         .catch((error) => {
                             that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                            resolve(undefined);
+                            that.setInitialized();
+                            //resolve(undefined);
                             //reject(error);
                         });
+                //resolve(undefined);
             } else {
                 that.setInitialized();
-                resolve (undefined);
+                //resolve (undefined);
             }
+            resolve(undefined);
         });
     }
 
@@ -330,11 +386,16 @@ class FileStorage extends GenericService{
      * @category Files TRANSFER
      * @async
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
      * @instance
      * @description
      *   Send a file in user storage <br>
      */
-    async uploadFileToStorage( file) {
+    async uploadFileToStorage( file, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("info", LOG_ID + "sendFSMessage");
@@ -342,7 +403,9 @@ class FileStorage extends GenericService{
             // Allow to pass a file path (for test purpose)
             if ( typeof (file) === "string") {
                 try {
-                    let fileObj = new fileapi.File({
+
+                    let fileObj = new FileUpdated({
+                    //let fileObj = new fileapi.File({
 
                             //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                             "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
@@ -381,7 +444,7 @@ class FileStorage extends GenericService{
             let currentFileDescriptor;
 
 
-            that.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(async function (fileDescriptor: any) {
+            that.createFileDescriptor(file.name, fileExtension, file.size, viewers, voicemessage, duration, encoding, ccarelogs, ccareclientlogs).then(async function (fileDescriptor: any) {
                 currentFileDescriptor = fileDescriptor;
                 fileDescriptor.fileToSend = file;
                 if (fileDescriptor.isImage()) {

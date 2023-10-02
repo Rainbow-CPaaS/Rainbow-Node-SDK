@@ -143,11 +143,12 @@ class ErrorManager {
         };
     }
 
-    CUSTOMERROR(codeERROR, label, msg) {
+    CUSTOMERROR(codeERROR, label, msg, error) {
         return {
             code: codeERROR,
-            label: label,
-            msg: msg
+            label,
+            msg,
+            error
         };
     }
 

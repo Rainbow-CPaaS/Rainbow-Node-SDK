@@ -87,7 +87,7 @@ module.exports = function(grunt) {
                  let markdownElt = tree[treeIter];
 
                  // Version line : get version + date of delivery
-                if (markdownElt[0] === "header" && markdownElt[1].level === 2) {
+                if (markdownElt[0] === "header" && markdownElt[1].level === 3) {
                     // A version
                     version = markdownElt[2][2];
                     //console.log("version markdownElt : ", markdownElt);
@@ -110,6 +110,33 @@ module.exports = function(grunt) {
                         version = null;
                     }
                     // */
+                }
+
+                // Feature item of list of the version : build the line of feature
+                if (markdownElt[0] === "header" && markdownElt[1].level === 4) {
+                        //const iteratormdElmt = markdownElt.values();
+                        //console.log("bulletlist iteratormdElmt.length : ", iteratormdElmt.length);
+                    markdownElt.forEach(mdElt => {
+                        //grunt.log.writeln(">> mdElet : ", mdElt);
+                    //for (const mdElt of iteratormdElmt) {
+                            // eslint-disable-next-line max-depth
+                            if (mdElt[0] === "listitem") {
+                                //console.log("listitem found : ", mdElt.values());
+                                //const iteratormdElmtData = mdElt.values();
+                                item.description +=  "- ";
+                                // eslint-disable-next-line max-depth
+                                mdElt.forEach(mdDataElt => {
+//                                    for (const mdDataElt of iteratormdElmtData) {
+                                    // eslint-disable-next-line max-depth
+                                    if (mdDataElt !== "listitem") {
+                                        //console.log("iter data mdDataElt : ", mdDataElt);
+                                        item.description +=   mdDataElt;
+                                    }
+
+                                });
+                                item.description += "<br>\n";
+                            }
+                        });// */
                 }
 
                 // Feature item of list of the version : build the line of feature

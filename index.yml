@@ -1,5 +1,5 @@
 ---
-- SDK FOR NODEJS GUIDES:
+- GUIDES:
   - Getting started: 'ref:doc/sdk/node/guides/Getting_Started.md'
   - What's new ?: 'ref:doc/sdk/node/guides/What_is_new.md'
   - Get latest SDK News: 'ref:doc/sdk/node/guides/RainbowNodeSDKNews.md'
@@ -14,15 +14,17 @@
   - Managing groups: 'ref:doc/sdk/node/guides/Managing_groups.md'
   - Sharing files: 'ref:doc/sdk/node/guides/Share_file_with_users.md'
   - Managing channels: 'ref:doc/sdk/node/guides/Managing_channels.md'
+  - Managing RPC over XMPP: 'ref:doc/sdk/node/guides/Managing_RPCoverXMPP.md'
   - Telephony calls: 'ref:doc/sdk/node/guides/Telephony_calls.md'
   - Retrieving calls history: 'ref:doc/sdk/node/guides/Retrieving_calls_history.md'
   - Using a proxy: 'ref:doc/sdk/node/guides/Proxy.md'
   - Development Kit: 'ref:doc/sdk/node/guides/Development_Kit.md'
   - Debugging: 'ref:doc/sdk/node/guides/Debugging.md'
   - Legals: 'ref:doc/sdk/node/guides/Legals.md'
-- SDK FOR NODEJS APIs:
+- APIs:
   - SDK: 'ref:doc/sdk/node/api/sdk.md'
-  # Types :
+  - Events Handler: 'ref:doc/sdk/node/api/events.md'
+- APIs - Types :
   - Alert: 'ref:doc/sdk/node/api/alert.md'
   - AlertDevice: 'ref:doc/sdk/node/api/alertdevice.md'
   - AlertFilter: 'ref:doc/sdk/node/api/alertfilter.md'
@@ -43,7 +45,7 @@
   - Message: 'ref:doc/sdk/node/api/message.md'
   - PresenceRainbow: 'ref:doc/sdk/node/api/presencerainbow.md'
   - Settings.js: 'ref:doc/sdk/node/api/settings.md'
-  # Services :
+- APIs - Services :
   - Admin Service: 'ref:doc/sdk/node/api/admin.md'
   - Alerts Service: 'ref:doc/sdk/node/api/alerts.md'
   - Bubbles Service: 'ref:doc/sdk/node/api/bubbles.md'
@@ -51,7 +53,6 @@
   - Channels Service: 'ref:doc/sdk/node/api/channels.md'
   - Contacts Service: 'ref:doc/sdk/node/api/contacts.md'
   - Conversations Service: 'ref:doc/sdk/node/api/conversations.md'
-  - Events Handler: 'ref:doc/sdk/node/api/events.md'
   - Favorites Service: 'ref:doc/sdk/node/api/favorites.md'
   - FileStorage Service: 'ref:doc/sdk/node/api/filestorage.md'
   - Groups Service: 'ref:doc/sdk/node/api/groups.md'
@@ -61,6 +62,7 @@
   - Presence Service: 'ref:doc/sdk/node/api/presence.md'
   - Profiles Service: 'ref:doc/sdk/node/api/profiles.md'
   - Rainbow Voice Service: 'ref:doc/sdk/node/api/rbvoice.md'
+  - RPCoverXMPP Service: 'ref:doc/sdk/node/api/rpcoverxmpp.md'
   - S2S Service: 'ref:doc/sdk/node/api/s2s.md'
   - Settings Service: 'ref:doc/sdk/node/api/settingssvc.md'
   - Telephony Service: 'ref:doc/sdk/node/api/telephony.md'

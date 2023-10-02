@@ -200,7 +200,7 @@ function CallLogsBean() : ICallLogsBean {
 
         if (useRestAtStartup) {
             //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
-            await setTimeoutPromised(3000).then(() => {
+            setTimeoutPromised(3000).then(() => {
                 let startDate = new Date();
                 that.getCallLogHistoryPage()
                         .then(() => {
@@ -209,6 +209,7 @@ function CallLogsBean() : ICallLogsBean {
                         .catch((error) => {
                             that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
                             that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
+                            that.setInitialized();
                         });
             });
         } else {

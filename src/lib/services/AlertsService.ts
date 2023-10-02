@@ -21,7 +21,6 @@ import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "ALERTS/SVCE - ";
-
 @logEntryExit(LOG_ID)
 @isStarted([])
     /**
@@ -278,6 +277,8 @@ class AlertsService extends GenericService{
                 "tags": [],
                 "ipAddresses": [],
                 "macAddresses": [],
+                "userId" : device.userId ? device.userId : that._rest.account.id,
+                "description " : device.description  ? device.description  : "",
                 "geolocation ": device.geolocation,
                 "type": (!device.type || device.type === "") ? "desktop" : device.type,
                 "jid_resource": that._xmpp.resourceId,

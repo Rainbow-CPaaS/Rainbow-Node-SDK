@@ -286,3 +286,4 @@ fabric.properties
 /Samples/samplesTests.js.map
 /Samples/testStop.js
 /Samples/testStop.js
+/tasks/generateWhatsNew.js

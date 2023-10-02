@@ -4,6 +4,8 @@ import {XMPPService} from "../XMPPService";
 import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {GenericHandler} from "./GenericHandler";
 import {RESTService} from "../RESTService";
+import {RPCoverXMPPService} from "../../services/RPCoverXMPPService.js";
+import {RPCManager} from "../../common/RPCManager.js";
 
 
 const xml = require("@xmpp/xml");
@@ -11,15 +13,17 @@ const packageVersion = require("../../../package");
 
 const prettydata = require("../pretty-data").pd;
 
-const LOG_ID = "XMPP/HNDL/IQ/HTTPoverXMPP - ";
+const LOG_ID = "XMPP/HNDL/IQ/RPCoverXMPP - ";
 
 @logEntryExit(LOG_ID)
-class HttpoverxmppEventHandler extends GenericHandler {
+class RpcoverxmppEventHandler extends GenericHandler {
     public IQ_GET: any;
     public IQ_SET: any;
     public IQ_RESULT: any;
     public IQ_ERROR: any;
     private _rest: RESTService;
+    private _rpcoverxmpp: RPCoverXMPPService;
+    private _rpcManager: RPCManager;
     options: any;
     /*public onIqGetReceived: any;
     public onIqResultReceived: any;
@@ -29,10 +33,10 @@ class HttpoverxmppEventHandler extends GenericHandler {
 
      */
 
-    static getClassName(){ return 'HttpoverxmppEventHandler'; }
-    getClassName(){ return HttpoverxmppEventHandler.getClassName(); }
+    static getClassName(){ return 'RpcoverxmppEventHandler'; }
+    getClassName(){ return RpcoverxmppEventHandler.getClassName(); }
 
-    constructor(xmppService: XMPPService, restService: RESTService, options: any) {
+    constructor(xmppService: XMPPService, restService: RESTService, options: any, rpcoverxmpp : RPCoverXMPPService) {
         super( xmppService);
         let that = this;
 
@@ -43,7 +47,9 @@ class HttpoverxmppEventHandler extends GenericHandler {
         this.IQ_ERROR = "jabber:client.iq.error";
         
         that.options = options;
-
+        
+        that._rpcoverxmpp = rpcoverxmpp;
+        that._rpcManager = rpcoverxmpp.rpcManager;
     }
 
 
@@ -55,11 +61,16 @@ class HttpoverxmppEventHandler extends GenericHandler {
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "req":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        // treatement in iqEventHandler
+                        /*that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
                         that._onIqGetSetReqReceived(stanza, node);
+                        // */
                         break;
                     case "query":
-                        // treatement in iqEventHandler
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        if (node.attrs.xmlns === "jabber:iq:rpc") {
+                            that._onIqGetSetQueryReceived(stanza, node);
+                        }
                         break;
                     case "ping":
                         // treatement in iqEventHandler
@@ -120,7 +131,95 @@ class HttpoverxmppEventHandler extends GenericHandler {
             that.logger.log("internalerror", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
+    
+    async _onIqGetSetQueryReceived (stanza, node) {
+        let that = this;
+        // treatment of the XEP 0332.
+        try {
+            that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let reqObj = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
+            
+            if (reqObj.query && reqObj.query.methodCall) {
+                let methodName = reqObj.query.methodCall.methodName;
+                let methodParams = [];
 
+                let params = reqObj.query.methodCall.params;
+
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodName : ", methodName);
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
+
+                if (params) {
+                    if (params.param && Array.isArray(params.param)) {
+                        for (const param of params.param) {
+                            let paramDecoded = that.xmppService.decodeRPCParam(param);
+                            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                            methodParams.push(paramDecoded);
+                        }
+                    } else {
+                        let paramDecoded = that.xmppService.decodeRPCParam(params.param);
+                        that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                        methodParams.push(paramDecoded);
+                    }
+                }
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+                //console.log(LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+
+                /*
+                <iq type='result'
+        from='responder@company-a.com/jrpc-server'
+        to='requester@company-b.com/jrpc-client'
+        id='rpc1'>
+      <query xmlns='jabber:iq:rpc'>
+        <methodResponse>
+          <params>
+            <param>
+              <value><string>Colorado</string></value>
+            </param>
+          </params>
+        </methodResponse>
+      </query>
+    </iq>
+    // */
+
+                let resulRPCMethod = that._rpcManager.treatRPCMethod(methodName, methodParams);
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) treatRPCMethod result  : ", resulRPCMethod);
+
+                let stanzaResp = xml("query", {
+                    "xmlns": "jabber:iq:rpc",
+                })
+
+                let stanzaMethodResponse = xml("methodResponse", {});
+
+                //let encodedData = encodeURIComponent(resultOfHttp);
+                /*let stanzaParams = xml("params", {});
+                let stanzaParam = xml("param", {});
+                let stanzaValue = xml("value", {});
+                let stanzaString = xml("string", {}, "result OK");
+                // */
+                let stanzaParams = xml("params", {}); 
+                
+                //stanzaMethodCall.append(stanzaParams, undefined);
+
+                that.xmppService.paramToStanza([resulRPCMethod], stanzaParams);
+                // stanzaValue.append(stanzaString, undefined);
+                // stanzaParam.append(stanzaValue, undefined);
+                // stanzaParams.append(stanzaParam, undefined);
+                stanzaMethodResponse.append(stanzaParams, undefined);
+                stanzaResp.append(stanzaMethodResponse, undefined);
+
+
+                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
+
+                await that.xmppClient.resolvPendingRequest(stanza.attrs.id, stanzaResp);
+            }
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that.logger.log("internalerror", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+        }
+    }
+    
     async _onIqGetSetReqReceived(stanza, node) {
         let that = this;
         // treatment of the XEP 0332.
@@ -383,5 +482,5 @@ class HttpoverxmppEventHandler extends GenericHandler {
     
 }
 
-module.exports.HttpoverxmppEventHandler = HttpoverxmppEventHandler;
-export {HttpoverxmppEventHandler};
+module.exports.RpcoverxmppEventHandler = RpcoverxmppEventHandler;
+export {RpcoverxmppEventHandler};

@@ -31,6 +31,7 @@ import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
 import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
+import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -90,6 +91,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
  * @property {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed from it. Default value is true.
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+ * @property {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
  * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
  * @property {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
@@ -202,6 +204,7 @@ type OptionsType = {
         "intervalForRequestRate": number, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": number // nb seconds Request stay in queue before being rejected if queue is full.
     },
+    "autoReconnectIgnoreErrors":boolean,
     // IM options
     "im": {
         "sendReadReceipt": boolean,
@@ -215,6 +218,7 @@ type OptionsType = {
         "messagesDataStore": DataStoreType,
         "autoInitialBubblePresence": boolean,
         "autoLoadConversations": boolean,
+        "autoLoadConversationHistory": boolean,
         "autoLoadContacts": boolean,
         "enablesendurgentpushmessages": false
     },
@@ -392,6 +396,7 @@ class NodeSDK {
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
+     * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.   
      * @param {Object} options.servicesToStart <br>
@@ -1004,6 +1009,17 @@ class NodeSDK {
      */
     get httpoverxmpp() : HTTPoverXMPP {
         return this._core._httpoverxmpp;
+    }
+    
+    /**
+     * @public
+     * @property {RPCoverXMPPService} rpcoverxmpp
+     * @description
+     *    Get access to the rpcoverxmpp module
+     * @return {RPCoverXMPPService}
+     */
+    get rpcoverxmpp() : RPCoverXMPPService {
+        return this._core._rpcoverxmpp;
     }
     
     /**
