@@ -478,6 +478,9 @@ let urlS2S;
     rainbowSDK.events.on("rainbow_onchannelmessagereceived", (data) => {
         logger.log("debug", "MAIN - (rainbow_onchannelmessagereceived) - rainbow event received.", data);
     });
+    rainbowSDK.events.on("rainbow_onbubbleownaffiliationchanged", (data) => {
+        logger.log("debug", "MAIN - (rainbow_onbubbleownaffiliationchanged) - rainbow event received.", data);
+    });
     rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
         logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
         /*rainbowSDK.channels.deleteChannel(data).then((result2) => {
