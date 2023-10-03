@@ -248,8 +248,13 @@ pipeline {
                     
                     sudo npm install --global npm@6
                         
+                    cd ${WORKSPACE}
+                    
                     echo ---------- STEP install the library :
                     npm install
+                    
+                    ls 
+                    ls ./src/**/*
                         
                     echo ---------- STEP grunt : 
                     echo Sub Step 1 : To compil the sources
@@ -359,16 +364,16 @@ pipeline {
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
                                 
-                                                
+
                                 """
-                                
+
                                  stash includes: 'Documentation/**', name: 'DocumentationFolder'
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                        
-                         stage("Generate documentation search index") {
+
+                        stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
                                    // unstash 'DocumentationFolder'
@@ -382,8 +387,8 @@ pipeline {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                          
-                         stage('Build Debian package') {
+
+                        stage('Build Debian package') {
                             try {
                                 echo "Build debian the package : "
                                 sh script: """
@@ -403,7 +408,7 @@ pipeline {
                                 //    notifyBuild(currentBuild.result)
                             }
                         }
-                            
+                          
                         stage('Debian Publish') {
                             try {
                                 echo "Publish Debian package : "

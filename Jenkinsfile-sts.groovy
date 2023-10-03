@@ -362,6 +362,9 @@ pipeline {
                                 echo "copy Docs and Debian config files to the folder Documentation ."
 
                                 cd "${workspace}"
+                                echo find debian in workspace
+                                find debian
+                                
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
@@ -384,12 +387,8 @@ pipeline {
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
-                                 
-                                 pwd 
-                                 
-                                 ls 
-                                 
-                                 
+                                
+
                                 """
 
                                  stash includes: 'Documentation/**', name: 'DocumentationFolder'
@@ -397,7 +396,7 @@ pipeline {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                          
+
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
