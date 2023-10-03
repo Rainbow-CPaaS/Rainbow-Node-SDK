@@ -176,11 +176,11 @@ module.exports = function(grunt) {
             },
             files: [
                 {
-                    src: "./lib/services/*.js", dest:"build/JsDocJSON"
+                    src: "lib/services/**/*.js", dest:"build/JSONDOCS/"
                 }
                 /* ,
                 {
-                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
+                    src: "./lib/services/ * * / *.js", dest:"build/JsDocJSON"
                 } */
                 ]
         }
@@ -272,7 +272,7 @@ module.exports = function(grunt) {
             options: {
                 template: "node_modules/rainbow_hub_sheets_generation/mermaidtemplate"
             }
-        }
+        }        
     },
 
     "copy-part-of-file": {
