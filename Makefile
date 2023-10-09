@@ -60,7 +60,7 @@ doclts:
 	cp guide/*.md doc/sdk/node/lts/guides && \
 	grunt generatemermaid
 	mkdir -p doc/sdk/node/lts/imgs && \
-	cp build/resources/. doc/sdk/node/lts/imgs && \
+	cp -r build/resources/. doc/sdk/node/lts/imgs && \
 	cp index.yml doc/sdk/node/lts && \
 	cp lts_version.json doc/sdk/node/lts && \
 	cp sitemap.xml doc/sdk/node/lts  
