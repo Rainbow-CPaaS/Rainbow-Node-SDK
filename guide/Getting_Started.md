@@ -1,4 +1,3 @@
-$Id$
 ## SDK for Node.JS: Getting Started
 
 ---
@@ -400,4 +399,4 @@ Others available guides will help you understanding the tricky parts. Take time 
 
 ---
 
-_Last updated $DATE$_
+_Last updated October, 10 2023_
