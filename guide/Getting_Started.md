@@ -1,3 +1,4 @@
+$Id$
 ## SDK for Node.JS: Getting Started
 
 ---
@@ -379,9 +380,19 @@ rainbowSDK.events.on('rainbow_onreconnecting', function(err) {
     ...
 });
 
+// It is also possible to listen to one event only once with the following code
+rainbowSDK.events.once("rainbow_on...", function fn_onrbevent() {
+    // remove the listener.
+    rainbowSDK.events.removeListener("rainbow_on...", fn_onrbevent);
+});
+
 ```
 
-For checking that everything works fine, you can add a log in your callbacks and see the result in your shell.
+_Note:_  
+The Events class (rainbowSDK.events) extends the NodeJS.EventEmitter so you can use method from super class : `https://nodejs.org/api/events.html` 
+
+
+For checking that everything works fine, you can add a login your callbacks and see the result in your shell.
 
 You're now ready to do greater things with the ALE Rainbow SDK for Node.JS!!!
 
@@ -389,4 +400,4 @@ Others available guides will help you understanding the tricky parts. Take time 
 
 ---
 
-_Last updated January, 11th 2018_
+_Last updated $DATE$_
