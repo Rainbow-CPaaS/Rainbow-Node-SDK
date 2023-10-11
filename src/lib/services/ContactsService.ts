@@ -493,9 +493,24 @@ class ContactsService extends GenericService {
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br>
+     *  Return the list of _contacts in cache that are in the network of the connected users (aka rosters) <br>
      */
     getAll() : Array<Contact>{
+        return this._contacts?this._contacts.filter(contact => contact.roster):[];
+    }
+
+    /**
+     * @public
+     * @method getAllContactsInCache
+     * @category Contacts INFORMATIONS
+     * @instance
+     * @return {Contact[]} the list of _contacts
+     * @description
+     *  Return the list of _contacts that are in the cache of the current instance of the connected users. </br>
+     *  `Note:` the stored contacts can be or not in the network. Rainbow SDK only receives event of contacts in the network. </br>
+     *  So others are only cache about previous exchange, and are cleaned with the clean memory process. The cleaning interval is defined by "intervalBetweenCleanMemoryCache" SDK's option.
+     */
+    getAllContactsInCache() : Array<Contact>{
         return this._contacts;
     }
 

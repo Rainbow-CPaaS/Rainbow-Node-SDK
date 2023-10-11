@@ -280,7 +280,7 @@ class BubblesManager {
                 });
                 that._logger.log("debug", LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
             } else {
-                that._logger.log("error", LOG_ID + "(treatAllBubblesToJoin) No bubble to join, and no bublle already in progress to join.");
+                that._logger.log("warn", LOG_ID + "(treatAllBubblesToJoin) No bubble to join, and no bublle already in progress to join.");
             }
             resolve("done");
         });

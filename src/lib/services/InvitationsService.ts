@@ -314,6 +314,9 @@ class InvitationsService extends GenericService {
 						if (invitation.invitingUserId) {
 							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+							}).catch((err)=>{
+								that._logger.log("info", LOG_ID + "(handleReceivedInvitation) getContactById failed.");
+								that._logger.log("internal", LOG_ID + "(handleReceivedInvitation) getContactById failed : ", err);
 							});
 						}
 
@@ -375,6 +378,9 @@ class InvitationsService extends GenericService {
 									that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact: Contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										contact.roster = true;
+									}).catch((err)=>{
+										that._logger.log("info", LOG_ID + "(handleSentInvitation) getContactById failed.");
+										that._logger.log("internal", LOG_ID + "(handleSentInvitation) getContactById failed : ", err);
 									});
 								}
 								break;
@@ -745,11 +751,13 @@ class InvitationsService extends GenericService {
 					function failure(err) {
 						//let error = errorHelperService.handleError(err);
 						if (err.errorDetailsCode && err.errorDetailsCode === 409605) {
-							that._contacts.getContactById(invitation.invitingUserId, true)
-									.then(function (contact) {
+							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										reject(err);
-									});
+							}).catch((err)=>{
+								that._logger.log("info", LOG_ID + "(acceptInvitation) getContactById failed.");
+								that._logger.log("internal", LOG_ID + "(acceptInvitation) getContactById failed : ", err);
+							});
 						} else {
 							that._logger.log("error", LOG_ID + "(acceptInvitation) error ");
 							that._logger.log("internalerror", LOG_ID + "(acceptInvitation) error : ", err);
@@ -1306,6 +1314,9 @@ class InvitationsService extends GenericService {
 				}
 				// contact.updateRichStatus();
 				resolve(undefined);
+			}).catch((err)=>{
+				that._logger.log("info", LOG_ID + "(updateContactInvitationStatus) getContactById failed.");
+				that._logger.log("internal", LOG_ID + "(updateContactInvitationStatus) getContactById failed : ", err);
 			});
 		});
 	};
