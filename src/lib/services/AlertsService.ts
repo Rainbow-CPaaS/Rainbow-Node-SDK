@@ -160,7 +160,6 @@ class AlertsService extends GenericService{
      * @description
      *    Mark as Received the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     markAlertMessageAsReceived(jid: string, messageXmppId: string): Promise<any> {
         let that = this;
@@ -185,6 +184,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method markAlertMessageAsRead
      * @instance
      * @async
@@ -194,7 +194,6 @@ class AlertsService extends GenericService{
      * @description
      *    Mark as Read the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     markAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any> {
         let that = this;
@@ -217,6 +216,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method createDevice
      * @instance
      * @async
@@ -228,7 +228,6 @@ class AlertsService extends GenericService{
      *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br>
      *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     createDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(true, device);
@@ -236,6 +235,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method updateDevice
      * @instance
      * @async
@@ -248,7 +248,6 @@ class AlertsService extends GenericService{
      *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br>    
      *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br>
      * @return {Promise<AlertDevice>} the result of the operation.   <br>
-     
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice> {
         return this.createOrUpdateDevice(false, device);
@@ -379,6 +378,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteDevice
      * @instance
      * @async
@@ -387,7 +387,6 @@ class AlertsService extends GenericService{
      * @description
      *    Delete a device (using its id) <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
@@ -450,6 +449,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getDevice
      * @instance
      * @async
@@ -458,7 +458,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get a device using its Id <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     getDevice(deviceId: string): Promise<AlertDevice> {
         let that = this;
@@ -520,6 +519,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getDevices
      * @instance
      * @async
@@ -534,7 +534,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get list of devices   <br>
      * @return {Promise<AlertDevicesData>} the result of the operation.
-     
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
@@ -585,6 +584,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getDevicesTags
      * @instance
      * @async
@@ -593,7 +593,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getDevicesTags(companyId: string): Promise<any> {
         let that = this;
@@ -613,6 +612,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method renameDevicesTags
      * @instance
      * @async
@@ -624,7 +624,6 @@ class AlertsService extends GenericService{
      * @description
      * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     
      */
     renameDevicesTags(newTagName : string, tag: string, companyId: string) {
 
@@ -658,6 +657,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteDevicesTags
      * @instance
      * @async
@@ -668,7 +668,6 @@ class AlertsService extends GenericService{
      * @description
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     
      */
     deleteDevicesTags(tag: string, companyId: string) {
         let that = this;
@@ -695,6 +694,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getstatsTags
      * @instance
      * @async
@@ -704,7 +704,6 @@ class AlertsService extends GenericService{
      * @description
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
      * @return {Promise<any>} the result of the operation.
-     
      */
     getstatsTags(companyId: string) {
         // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
@@ -729,6 +728,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method createTemplate
      * @instance
      * @async
@@ -737,7 +737,6 @@ class AlertsService extends GenericService{
      * @description
      *    Create a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     createTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(true, template);
@@ -745,6 +744,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method updateTemplate
      * @instance
      * @async
@@ -753,7 +753,6 @@ class AlertsService extends GenericService{
      * @description
      *    Update a template  <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     updateTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         return this.createOrUpdateTemplate(false, template);
@@ -865,6 +864,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteTemplate
      * @instance
      * @async
@@ -873,7 +873,6 @@ class AlertsService extends GenericService{
      * @description
      *    Delete a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     deleteTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
@@ -931,6 +930,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getTemplate
      * @instance
      * @async
@@ -939,7 +939,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get an template by id <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     getTemplate(templateId: string): Promise<AlertTemplate> {
         let that = this;
@@ -998,6 +997,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getTemplates
      * @instance
      * @async
@@ -1008,7 +1008,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get templates <br>
      * @return {Promise<AlertTemplatesData>} the result of the operation.
-     
      */
     getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<AlertTemplatesData> {
         let that = this;
@@ -1061,6 +1060,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method createFilter
      * @instance
      * @async
@@ -1069,7 +1069,6 @@ class AlertsService extends GenericService{
      * @description
      *    Create a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     createFilter(filter: AlertFilter): Promise<AlertFilter> {
         return this.createOrUpdateFilter(true, filter);
@@ -1085,7 +1084,6 @@ class AlertsService extends GenericService{
      * @description
      *    Update a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     updateFilter(filter: AlertFilter) : Promise<AlertFilter> {
         return this.createOrUpdateFilter(false, filter);
@@ -1153,6 +1151,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteFilter
      * @instance
      * @async
@@ -1161,7 +1160,6 @@ class AlertsService extends GenericService{
      * @description
      *    Delete a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     deleteFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
@@ -1204,6 +1202,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFilter
      * @instance
      * @async
@@ -1212,7 +1211,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get an filter by id <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     getFilter(filterId: string): Promise<AlertFilter> {
         let that = this;
@@ -1256,6 +1254,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFilters
      * @instance
      * @async
@@ -1265,7 +1264,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get filters : have required role(s) superadmin, admin <br>
      * @return {Promise<AlertFiltersData>} the result of the operation.
-     
      */
     getFilters(offset: number = 0, limit: number = 100): Promise<AlertFiltersData> {
         let that = this;
@@ -1310,6 +1308,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method createAlert
      * @instance
      * @async
@@ -1327,6 +1326,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method updateAlert
      * @instance
      * @async
@@ -1447,6 +1447,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteAlert
      * @instance
      * @async
@@ -1456,7 +1457,6 @@ class AlertsService extends GenericService{
      *    Delete an alert   <br>
      *    All the data related to this notification are deleted, including the reports <br>  
      * @return {Promise<Alert>} the result of the operation.
-     
      */
     deleteAlert(alert: Alert): Promise<Alert> {
         let that = this;
@@ -1503,6 +1503,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getAlert
      * @instance
      * @async
@@ -1511,7 +1512,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get an alert by id <br>
      * @return {Promise<Alert>} the result of the operation.
-     
      */
     getAlert(alertId: string): Promise<Alert> {
         let that = this;
@@ -1557,6 +1557,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getAlerts
      * @instance
      * @async
@@ -1566,7 +1567,6 @@ class AlertsService extends GenericService{
      * @description
      *    Get alerts : required role(s) superadmin,support,admin <br>
      * @return {Promise<AlertsData>} the result of the operation.
-     
      */
     getAlerts(offset: number = 0, limit: number = 100): Promise<AlertsData> {
         let that = this;
@@ -1616,6 +1616,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendAlertFeedback
      * @instance
      * @async
@@ -1627,7 +1628,6 @@ class AlertsService extends GenericService{
      *    To send a feedback from an alert.   <br>
      *    To be used by end-user who has received the alert   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any> {
         let that = this;
@@ -1673,6 +1673,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getAlertFeedbackSentForANotificationMessage
      * @instance
      * @async
@@ -1693,7 +1694,6 @@ class AlertsService extends GenericService{
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
-     
      */
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
@@ -1718,6 +1718,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getAlertFeedbackSentForAnAlert
      * @instance
      * @async
@@ -1738,7 +1739,6 @@ class AlertsService extends GenericService{
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
-     
      */
     getAlertFeedbackSentForAnAlert(alertId: string): Promise<any> {
         let that = this;
@@ -1763,6 +1763,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getAlertStatsFeedbackSentForANotificationMessage
      * @instance
      * @async
@@ -1776,7 +1777,6 @@ class AlertsService extends GenericService{
      *      data 	String data submitted by the devices <br>
      *      count 	String Number of devices having submitted this given data <br>
      * }
-     
      */
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
@@ -1805,6 +1805,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getReportSummary
      * @instance
      * @async
@@ -1813,7 +1814,6 @@ class AlertsService extends GenericService{
      * @description
      *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportSummary(alertId: string): Promise<any> {
         let that = this;
@@ -1839,6 +1839,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getReportDetails
      * @instance
      * @async
@@ -1847,7 +1848,6 @@ class AlertsService extends GenericService{
      * @description
      *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportDetails(alertId: string): Promise<any> {
         let that = this;
@@ -1873,6 +1873,7 @@ class AlertsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getReportComplete
      * @instance
      * @async
@@ -1891,7 +1892,6 @@ class AlertsService extends GenericService{
      *  The detailed CSV report contains the following columns: <br>
      *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportComplete(alertId: string): Promise<any> {
         let that = this;

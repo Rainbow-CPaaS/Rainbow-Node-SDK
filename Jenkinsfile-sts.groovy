@@ -258,6 +258,8 @@ pipeline {
                     ls 
                     ls ./src/**/*
                         
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
@@ -291,6 +293,8 @@ pipeline {
                     #npm view
                     npm token list
                         
+                    cp -R build/JSONDOCS guide/JSONDOCS
+
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then

@@ -168,6 +168,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setPresenceTo
      * @instance
      * @async
@@ -234,6 +235,7 @@ class PresenceService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method getUserConnectedPresence
      * @instance
      * @category Presence CONNECTED USER
@@ -331,6 +333,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMyPresenceInformation
      * @since 2.16.0 
      * @instance
@@ -358,6 +361,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setApplyMsTeamsPresenceSettings
      * @instance
      * @async
@@ -575,6 +579,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getCalendarState
      * @instance
      * @category Presence CALENDAR
@@ -623,6 +628,7 @@ class PresenceService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method getCalendarStates
      * @instance
      * @category Presence CALENDAR
@@ -671,6 +677,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setCalendarRegister
      * @instance
      * @category Presence CALENDAR
@@ -687,7 +694,6 @@ class PresenceService extends GenericService{
      *    "url" : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     async setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
         let that = this;
@@ -711,6 +717,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getCalendarAutomaticReplyStatus
      * @instance
      * @category Presence CALENDAR
@@ -734,7 +741,6 @@ class PresenceService extends GenericService{
      *    message_thtml : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     async getCalendarAutomaticReplyStatus(userId? : string ) {
         let that = this;
@@ -773,7 +779,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     private async enableCalendar( ) {
         let that = this;
@@ -836,6 +841,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method controlCalendarOrIgnoreAnEntry
      * @instance
      * @category Presence CALENDAR
@@ -852,7 +858,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
      */
     controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
         let that = this;
@@ -876,6 +881,7 @@ class PresenceService extends GenericService{
 
      /**
      * @public
+      * @nodered true
      * @method unregisterCalendar
      * @instance
      * @category Presence CALENDAR
@@ -890,7 +896,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
      */
     async unregisterCalendar ( ) {
         let that = this;
@@ -919,6 +924,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method controlMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -938,6 +944,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceState
      * @since 2.20.0
      * @instance
@@ -989,6 +996,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceStates
      * @since 2.20.0
      * @instance
@@ -1027,6 +1035,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method registerMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -1050,6 +1059,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method unregisterMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -1072,6 +1082,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method activateMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -1094,6 +1105,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deactivateMsteamsPresence
      * @since 2.20.0
      * @instance

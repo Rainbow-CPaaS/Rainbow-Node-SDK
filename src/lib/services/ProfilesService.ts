@@ -234,6 +234,7 @@ class ProfilesService extends GenericService {
     /*********************************************************************/
     /**
      * @public
+     * @nodered true
      * @method getServerProfile
      * @async
      * @category Profiles PROFILES
@@ -248,6 +249,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getServerProfiles
      * @async
      * @category Profiles PROFILES
@@ -294,6 +296,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileOffer
      * @category Profiles PROFILES
      * @description
@@ -311,6 +314,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileName
      * @category Profiles PROFILES
      * @description
@@ -329,6 +333,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfiles
      * @category Profiles PROFILES
      * @description
@@ -349,6 +354,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getThirdPartyApps
      * @async
      * @category Profiles PROFILES
@@ -383,6 +389,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method revokeThirdPartyAccess
      * @async
      * @category Profiles PROFILES
@@ -425,6 +432,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getServerProfilesFeatures
      * @async
      * @category Profiles FEATURES
@@ -494,6 +502,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method isFeatureEnabled
      * @category Profiles FEATURES
      * @description
@@ -513,6 +522,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMax
      * @category Profiles FEATURES
      * @description
@@ -532,6 +542,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMin
      * @category Profiles FEATURES
      * @description
@@ -551,6 +562,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileFeatures
      * @category Profiles FEATURES
      * @description

@@ -12,7 +12,7 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName
+    generateRamdomEmail, functionName, makeId
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -40,6 +40,7 @@ import serialize from 'safe-stable-stringify' ;
 //const serialize = global.get('safestablestringify');
 import * as ACData from "adaptivecards-templating";
 //const ACData = global.get('adaptivecardstemplating');
+import * as path from "path";
 
 
 //const MockServer = require("mock-socket").Server;
@@ -436,6 +437,10 @@ let urlS2S;
         logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
     });
 
+    rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
+        logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
+    });
+
     let bubbleInvitationReceived = null;
     rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", async (bubble) => {
         logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
@@ -761,8 +766,78 @@ let urlS2S;
             rainbowSDK._core._xmpp.mockStanza(stanza);
         } // */
 
+        // region File JSON
+        testloadDocJSON() {
+            let pathJson = path.join(__dirname,'../build/JSONDOCS/BubblesService.json');
+           // let pathJson = path.join(__dirname,'../node_modules/rainbow-node-sdk/build/JSONDOCS/BubblesService.json');
+            console.log("Rainbow pathJson : ", pathJson);
+            //const path = require("path");
+            let bubblesServiceDocJSONTab = require( pathJson);
 
-        //region Contacts
+            //console.log("Rainbow BubblesService JSON : ", util.inspect(bubblesServiceDocJSONTab));
+            for (let i = 0; i < bubblesServiceDocJSONTab.length; i++) {
+                let bubblesServiceDocJSON = bubblesServiceDocJSONTab[i];
+                if (bubblesServiceDocJSON.tags) {
+
+                    let bubblesServiceDocJSONNodeRed = bubblesServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "nodered" && (item.value==="true" || item.value===true));
+                    });
+                    if (bubblesServiceDocJSONNodeRed ) {
+                        //console.log("Rainbow BubblesService bubblesServiceDocJSONNodeRed JSON : ", bubblesServiceDocJSONNodeRed);
+                        if ((bubblesServiceDocJSONNodeRed.value==="true" || bubblesServiceDocJSONNodeRed.value===true) && (bubblesServiceDocJSON["kind"]==="function" || bubblesServiceDocJSON["kind"]==="method")) {
+                            console.log("Rainbow BubblesService bubblesServiceDocJSON JSON : ", bubblesServiceDocJSON);
+                        }
+                    }
+                }
+            }
+
+        }
+        
+        testloadDocJSONServices() {
+            let sdkPublic=[];
+            console.log("Rainbow : rainbowsdkNodeSDKapi will get Services names and types from NodeSDK.");
+            let pathJson = path.join(__dirname, '../build/JSONDOCS/NodeSDK.json');
+            console.log("Rainbow pathJson : ", pathJson);
+            //const path = require("path");
+            let NodeSDKServiceDocJSONTab = require(pathJson);
+
+            // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
+            // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
+
+            for (let i = 0; i < NodeSDKServiceDocJSONTab.length; i++) {
+                let NodeSDKServiceDocJSON = NodeSDKServiceDocJSONTab[i];
+                if (NodeSDKServiceDocJSON.tags) {
+
+                    let NodeSDKServiceDocJSONNodeRed = NodeSDKServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "nodered" && (item.value === "true" || item.value === true));
+                    });
+                    let NodeSDKServiceDocJSONService = NodeSDKServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "service" && (item.value === "true" || item.value === true));
+                    });
+                    if (NodeSDKServiceDocJSONNodeRed && NodeSDKServiceDocJSONService) {
+                        //console.log("Rainbow BubblesService NodeSDKServiceDocJSONNodeRed JSON : ", NodeSDKServiceDocJSONNodeRed);
+                        if ((NodeSDKServiceDocJSONNodeRed.value === "true" || NodeSDKServiceDocJSONNodeRed.value === true) && (NodeSDKServiceDocJSONService.value === "true" || NodeSDKServiceDocJSONService.value === true) && (NodeSDKServiceDocJSON["kind"] === "member")) {
+                            console.log("Rainbow NodeSDKServiceDocJSON JSON : ", NodeSDKServiceDocJSON);
+                            console.log("Rainbow NodeSDKServiceDocJSON properties : ", NodeSDKServiceDocJSON.properties);
+                            let serviceObj : any = {};
+                            if (Array.isArray(NodeSDKServiceDocJSON.properties) && NodeSDKServiceDocJSON.properties[0] != undefined) {
+                                serviceObj.name = NodeSDKServiceDocJSON.properties[0].name;
+                                serviceObj.typeService = NodeSDKServiceDocJSON.properties[0].type? NodeSDKServiceDocJSON.properties[0].type.names[0]: "";
+                            }
+                            sdkPublic.push(serviceObj);
+                        }
+                    }
+                }
+            }
+            console.log("SDK Services : ", sdkPublic);
+        }
+        
+        // endregion File JSON
+
+        // region Contacts
 
      testupdateMyInformations() {
         let contactInfo = {};
@@ -4709,6 +4784,64 @@ let urlS2S;
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
 
     }
+    
+    async  testCreateCompanyCreateUserAndDelete() {
+        // To use with rford@westworld.com
+
+        let utc = new Date().toJSON().replace(/-/g, '_');
+        let companyName = "MyVberderCompany_" + utc;
+        let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createCompany Error : ", e);
+        })) ;
+        await pause(2000);
+       /* let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeCompanyToDemoOffer Error : ", e);
+        }) ;
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeResult : ", subscribeResult);
+        // */
+        let generatedId = makeId(15);
+        let email = "vincentTest01"+ generatedId + "@vbe.test.openrainbow.com";
+        let password = "Password_123";
+        let firstname = "vincentTest01_"+generatedId;
+        let lastname = "berderTest01_"+generatedId;
+        await pause(2000);
+        /*logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+        }));
+        await pause(2000);
+// */
+        let newUser : any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createUserInCompany Error : ", e);
+        }) ;
+        await pause(10000);
+        /*
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testsubscribtestCreateCompanyCreateUserAndDeleteeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Error : ", e);
+        }));
+        // */
+
+        let result = await rainbowSDK.contacts.addToNetwork(newUser);
+        await pause(10000);
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - addToNetwork done Result : ", result);
+        
+        let contacts = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts : ", contacts);
+        
+        let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
+        
+        let contacts2 = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts2 : ", contacts2);
+        await pause(10000);
+        let contacts3 = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts3 : ", contacts3);
+        let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
+    }
 
     async  testJoinCompanyInvitations() {
         // To use with rford@westworld.com
@@ -5949,6 +6082,11 @@ let urlS2S;
         let stanza : string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
         await rainbowSDK._core._xmpp.mockStanza(stanza);
    }        
+   
+   async testmockDiconnect() {
+        let stanza = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
+       await rainbowSDK._core._xmpp.mockStanza(stanza);        
+   }
         
     async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.

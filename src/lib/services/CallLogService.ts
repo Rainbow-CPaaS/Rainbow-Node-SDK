@@ -266,6 +266,7 @@ function CallLogsBean() : ICallLogsBean {
     
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @instance
      * @category CallLog MANAGEMENT
@@ -300,6 +301,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method getMissedCallLogCounter
      * @instance
      * @category CallLog MANAGEMENT
@@ -324,6 +326,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method deleteOneCallLog
      * @instance
      * @category CallLog MANAGEMENT
@@ -342,6 +345,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCallLogsForContact
      * @instance
      * @category CallLog MANAGEMENT
@@ -360,6 +364,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllCallLogs
      * @instance
      * @category CallLog MANAGEMENT
@@ -377,6 +382,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method markCallLogAsRead
      * @instance
      * @category CallLog MANAGEMENT
@@ -395,6 +401,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method markAllCallsLogsAsRead
      * @instance
      * @category CallLog MANAGEMENT
@@ -416,6 +423,7 @@ function CallLogsBean() : ICallLogsBean {
 
     /**
      * @public
+     * @nodered true
      * @method isInitialized
      * @instance
      * @category CallLog INITIALISATION

@@ -270,6 +270,7 @@ class WebinarsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method createWebinar
      * @since 2.3.0
      * @instance
@@ -359,6 +360,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateWebinar
      * @since 2.3.0
      * @category Webinars
@@ -439,6 +441,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getWebinarData
      * @since 2.3.0
      * @instance
@@ -476,6 +479,7 @@ class WebinarsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getWebinarsData
      * @instance
      * @category Webinars
@@ -513,6 +517,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchMyWebinars
      * @since 2.3.0
      * @instance
@@ -566,6 +571,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method warnWebinarModerators
      * @since 2.3.0
      * @instance
@@ -608,6 +614,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method publishAWebinarEvent
      * @since 2.3.0
      * @instance
@@ -649,6 +656,7 @@ class WebinarsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteWebinar
      * @since 2.3.0
      * @category Webinars

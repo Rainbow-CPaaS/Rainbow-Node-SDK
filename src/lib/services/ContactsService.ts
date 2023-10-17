@@ -488,6 +488,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Contacts INFORMATIONS
      * @instance
@@ -501,6 +502,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllContactsInCache
      * @category Contacts INFORMATIONS
      * @instance
@@ -516,6 +518,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactByJid
      * @instance
      * @category Contacts INFORMATIONS
@@ -591,6 +594,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactById
      * @instance
      * @category Contacts INFORMATIONS
@@ -669,6 +673,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -761,6 +766,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactIdByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -824,6 +830,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -849,6 +856,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCompanyInfos
      * @instance
      * @category Contacts INFORMATIONS
@@ -1018,6 +1026,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAvatarByContactId
      * @instance
      * @category Contacts INFORMATIONS
@@ -1037,6 +1046,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getConnectedUser
      * @category Contacts INFORMATIONS
      * @instance
@@ -1070,6 +1080,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDisplayName
      * @instance
      * @category Contacts INFORMATIONS
@@ -1084,6 +1095,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -1159,6 +1171,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createSource
      * @instance
      * @category Contacts SOURCES
@@ -1220,6 +1233,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSource
      * @instance
      * @category Contacts SOURCES
@@ -1270,6 +1284,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSourceData
      * @instance
      * @category Contacts SOURCES
@@ -1321,6 +1336,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSourcesByUserId
      * @instance
      * @category Contacts SOURCES
@@ -1378,6 +1394,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSourceData
      * @instance
      * @category Contacts SOURCES
@@ -1440,6 +1457,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1540,6 +1558,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1688,6 +1707,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1768,6 +1788,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactsList
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1847,6 +1868,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1951,6 +1973,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getRosters
      * @instance
      * @category Contacts NETWORK
@@ -2079,6 +2102,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method addToNetwork
      * @instance
      * @category Contacts NETWORK
@@ -2096,6 +2120,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method addToContactsList
      * @instance
@@ -2142,6 +2167,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeFromNetwork
      * @since 1.69
      * @instance
@@ -2179,6 +2205,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.64.0
+     * @nodered true
      * @method getInvitationById
      * @instance
      * @category Contacts NETWORK
@@ -2202,6 +2229,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method acceptInvitation
      * @instance
      * @category Contacts NETWORK
@@ -2227,6 +2255,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method declineInvitation
      * @instance
@@ -2255,8 +2284,8 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.41
-     * @beta
      * @method joinContacts
      * @instance
      * @category Contacts NETWORK
@@ -2311,6 +2340,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method searchInAlldirectories
      * @since 2.8.9
      * @instance
@@ -2370,6 +2400,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method searchInPhonebook
      * @since 2.8.9
      * @instance
@@ -2440,6 +2471,7 @@ class ContactsService extends GenericService {
      
     /**
      * @public
+     * @nodered true
      * @method searchUserByPhonenumber
      * @since 2.8.9
      * @instance
@@ -2500,6 +2532,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method searchUsers
      * @since 2.8.9
      * @instance
@@ -2627,6 +2660,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createPersonalDirectoryEntry
      * @since 2.9.0
      * @instance
@@ -2716,6 +2750,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.10.0
      * @instance
@@ -2761,6 +2796,7 @@ class ContactsService extends GenericService {
    
     /**
      * @public
+     * @nodered true
      * @method getListPersonalDirectoryEntriesData
      * @since 2.9.0
      * @instance
@@ -2878,6 +2914,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updatePersonalDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -2970,6 +3007,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deletePersonalDirectoryEntry
      * @since 2.9.0
      * @instance

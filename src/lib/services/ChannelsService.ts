@@ -185,6 +185,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method createChannel
      * @instance
      * @async
@@ -203,6 +204,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createPublicChannel
      * @instance
      * @async
@@ -262,6 +264,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createClosedChannel (ex: createPrivateChannel)
      * @instance
      * @async
@@ -300,6 +303,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteChannel
      * @instance
      * @async
@@ -345,6 +349,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method findChannelsByName
      * @instance
      * @async
@@ -368,6 +373,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method findChannelsByTopic
      * @instance
      * @async
@@ -456,6 +462,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannel
      * @instance
      * @async
@@ -496,6 +503,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelsByFilter
      * @since 1.55
      * @instance
@@ -581,6 +589,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchMyChannels
      * @since 1.38
      * @instance
@@ -659,6 +668,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -690,6 +700,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -707,6 +718,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllPendingChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -723,6 +735,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelTopic
      * @instance
      * @async
@@ -740,6 +753,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelDescription
      * @instance
      * @async
@@ -791,7 +805,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelName
      * @since 1.46
      * @instance
      * @category Channels MANAGEMENT
@@ -845,7 +860,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannel
      * @since 1.38
      * @category Channels MANAGEMENT
      * @instance
@@ -911,6 +927,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibility
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -969,6 +986,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToPublic
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -986,6 +1004,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToClosed
      * @since 1.55
      * @instance
@@ -1004,7 +1023,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -1058,7 +1078,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method deleteChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -1211,6 +1232,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method publishMessageToChannel
      * @instance
      * @async
@@ -1309,6 +1331,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelItems
      * @instance
      * @async
@@ -1399,6 +1422,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteItemFromChannel
      * @instance
      * @async
@@ -1454,6 +1478,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method likeItem
      * @instance
      * @async
@@ -1502,6 +1527,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDetailedAppreciations
      * @instance
      * @async
@@ -1572,6 +1598,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSubscribedChannels
      * @instance
      * @category Channels SUBSCRIPTION
@@ -1589,6 +1616,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeToChannel
      * @instance
      * @async
@@ -1624,7 +1652,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method subscribeToChannelById
      * @since 1.47
      * @instance
      * @category Channels SUBSCRIPTION
@@ -1684,6 +1713,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unsubscribeFromChannel
      * @instance
      * @async
@@ -1744,6 +1774,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelUsers
      * @instance
      * @async
@@ -1826,6 +1857,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deleteAllUsersFromChannel
      * @instance
      * @async
@@ -1870,6 +1902,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsers
      * @instance
      * @async
@@ -1924,6 +1957,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsersByLoginEmails
      * @instance
      * @since 2.23.0
@@ -1994,6 +2028,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannel
      * @instance
      * @async
@@ -2029,6 +2064,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannelByLoginEmails
      * @instance
      * @async
@@ -2087,6 +2123,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannel
      * @instance
      * @async
@@ -2123,6 +2160,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannelByLoginEmails
      * @instance
      * @async
@@ -2180,6 +2218,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannel
      * @instance
      * @async
@@ -2224,6 +2263,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannelByLoginEmails
      * @instance
      * @async
@@ -2311,6 +2351,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannel
      * @instance
      * @async
@@ -2347,6 +2388,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannelByLoginEmails
      * @instance
      * @async

@@ -398,9 +398,13 @@ ChannelsService : Channel[] : getAllOwnedChannels()
 ChannelsService : Channel[] : getAllPendingChannels()
 ChannelsService : Promise.Channel : updateChannelTopic(Channel, string)
 ChannelsService : Promise.Channel : updateChannelDescription(Channel, string)
+ChannelsService : Channel : updateChannelName(Channel, string)
+ChannelsService : Promise.Channel : updateChannel(string, string, string, Number, Number, string, string)
 ChannelsService : Promise.Channel : updateChannelVisibility(Channel, string)
 ChannelsService : Channel : updateChannelVisibilityToPublic(Channel)
 ChannelsService : Channel : updateChannelVisibilityToClosed(Channel)
+ChannelsService : Channel : updateChannelAvatar(Channel, string)
+ChannelsService : Channel : deleteChannelAvatar(Channel)
 ChannelsService : Promise.ErrorManager.getErrorManager().OK : publishMessageToChannel(Channel, string, string, string, any, string, Object)
 ChannelsService : Promise.ErrorManager.getErrorManager().OK : createItem(Channel, string, string, string, any, string, Object)
 ChannelsService : Promise.Object[] : fetchChannelItems(Channel, number, Date, Date)
@@ -409,6 +413,7 @@ ChannelsService : Promise.any : likeItem(Channel, string, Appreciation)
 ChannelsService : Promise.any : getDetailedAppreciations(Channel, string)
 ChannelsService : Channel[] : getAllSubscribedChannels()
 ChannelsService : Promise.Channel : subscribeToChannel(Channel)
+ChannelsService : Object : subscribeToChannelById(string)
 ChannelsService : Promise.string : unsubscribeFromChannel(Channel)
 ChannelsService : Promise.any[] : fetchChannelUsers(Channel, Object, Number, Number, Boolean, Boolean)
 ChannelsService : Promise.Channel : deleteAllUsersFromChannel(Channel)
@@ -423,6 +428,7 @@ ChannelsService : Promise.Channel : addMembersToChannelByLoginEmails(Channel, an
 ChannelsService : Promise.Channel : deleteUsersFromChannel(Channel, Contact[])
 ChannelsService : Promise.Channel : deleteUsersFromChannelByLoginEmails(Channel, any[])
 ContactsService : Contact[] : getAll()
+ContactsService : Contact[] : getAllContactsInCache()
 ContactsService : Promise.Contact, ErrorManager : getContactByJid(string, boolean)
 ContactsService : Promise.Contact, ErrorManager : getContactById(string, boolean)
 ContactsService : Promise.Contact, ErrorManager : getContactByLoginEmail(string, boolean)
@@ -484,6 +490,8 @@ ConversationsService : Promise : deleteServerConversation(string)
 ConversationsService : Promise.Conversation[] : sendConversationByEmail(string, string[], string)
 ConversationsService : Conversation : getConversationById(string)
 ConversationsService : Conversation : getConversationByDbId(string)
+ConversationsService : Conversation : getConversationByBubbleId(string)
+ConversationsService : Conversation : getConversationByBubbleJid(string)
 ConversationsService : Promise.Conversation : getBubbleConversation(string, string, Date, string, number, boolean, boolean, Date, string)
 ConversationsService : Promise : closeConversation(Conversation)
 ConversationsService : Promise.any : cleanConversations()
@@ -642,25 +650,39 @@ NodeSDK : void : start(String)
 NodeSDK : void : start()
 NodeSDK : void : setRenewedToken()
 NodeSDK : void : stop()
-NodeSDK : Object : im
-NodeSDK : Object : channels
-NodeSDK : Object : contacts
-NodeSDK : Object : conversations
-NodeSDK : Object : presence
-NodeSDK : Object : bubbles
-NodeSDK : Object : groups
-NodeSDK : Object : events
-NodeSDK : Object : admin
+NodeSDK [1] --> [1] ImsService
+NodeSDK : ImsService : im
+NodeSDK [1] --> [1] ChannelsService
+NodeSDK : ChannelsService : channels
+NodeSDK [1] --> [1] ContactsService
+NodeSDK : ContactsService : contacts
+NodeSDK [1] --> [1] ConversationsService
+NodeSDK : ConversationsService : conversations
+NodeSDK [1] --> [1] PresenceService
+NodeSDK : PresenceService : presence
+NodeSDK : BubblesService : bubbles
+NodeSDK [1] --> [1] GroupsService
+NodeSDK : GroupsService : groups
+NodeSDK [1] --> [1] Events
+NodeSDK : Events : events
+NodeSDK : FileServerService : fileServer
+NodeSDK : FileStorageService : fileStorage
+NodeSDK [1] --> [1] AdminService
+NodeSDK : AdminService : admin
 NodeSDK : Object : profiles
-NodeSDK : Object : settings
+NodeSDK : SettingsService : settings
 NodeSDK : SDKSTATUSENUM : state
 NodeSDK : String : version
 NodeSDK : ConnectedUser : connectedUser
-NodeSDK : Object : telephony
-NodeSDK : Object : calllog
-NodeSDK : Object : favorites
-NodeSDK : Object : invitations
-NodeSDK : Object : s2s
+NodeSDK [1] --> [1] TelephonyService
+NodeSDK : TelephonyService : telephony
+NodeSDK [1] --> [1] CallLogService
+NodeSDK : CallLogService : calllog
+NodeSDK [1] --> [1] FavoritesService
+NodeSDK : FavoritesService : favorites
+NodeSDK [1] --> [1] InvitationsService
+NodeSDK : InvitationsService : invitations
+NodeSDK : S2SService : s2s
 NodeSDK [1] --> [1] AlertsService
 NodeSDK : AlertsService : alerts
 NodeSDK : RBVoiceService : rbvoice
@@ -773,8 +795,8 @@ Events ::event : rainbow_onconnectionerror
 Events ::event : rainbow_ondisconnected
 Events ::event : rainbow_onreconnecting
 Events ::event : rainbow_onfailed
-Events ::event : rainbow_onready
 Events ::event : rainbow_onerror
+Events ::event : rainbow_onready
 Bubble : string : id
 Bubble : string : name
 Bubble : string : topic

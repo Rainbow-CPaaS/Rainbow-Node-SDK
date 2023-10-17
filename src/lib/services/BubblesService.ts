@@ -1158,6 +1158,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getBubblesConsumption
          * @instance
          * @async
@@ -1198,6 +1199,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getBubbleById
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1279,6 +1281,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getBubbleByJid
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1356,6 +1359,7 @@ class Bubbles extends GenericService {
 
         /**
          * @public
+         * @nodered true
          * @method getAllBubblesJidsOfAUserIsMemberOf
          * @since 2.19.0
          * @instance
@@ -1403,6 +1407,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllBubblesVisibleByTheUser
      * @since 2.19.0
      * @instance
@@ -1531,6 +1536,7 @@ class Bubbles extends GenericService {
         
     /**
      * @public
+     * @nodered true
      * @method getBubblesDataByListOfBubblesIds
      * @since 2.19.0
      * @instance
@@ -1652,6 +1658,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllPendingBubbles
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @instance
@@ -1674,6 +1681,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllActiveBubbles
          * @since 1.30
          * @instance
@@ -1695,6 +1703,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllClosedBubbles
          * @since 1.30
          * @instance
@@ -1716,6 +1725,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method createBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1790,6 +1800,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method isBubbleClosed
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1815,6 +1826,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method isBubbleArchived
          * @instance
          * @async
@@ -1850,6 +1862,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllOwnedNotArchivedBubbles
          * @instance
          * @async
@@ -1882,6 +1895,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllOwnedArchivedBubbles
          * @instance
          * @async
@@ -1913,6 +1927,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method deleteAllBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1948,6 +1963,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method closeAnddeleteAllBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -1974,6 +1990,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method deleteBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2047,6 +2064,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method closeAndDeleteBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2100,6 +2118,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method closeBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2202,6 +2221,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method archiveBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2249,6 +2269,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method leaveBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2382,6 +2403,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAll
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @instance
@@ -2395,7 +2417,9 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllBubbles
+         * @nodered true
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @return {Bubble[]} The list of existing bubbles
@@ -2408,6 +2432,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllOwnedBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2428,6 +2453,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getAllOwnedIdBubbles
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2572,6 +2598,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method promoteContactInBubble
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -2659,6 +2686,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method promoteContactToModerator
          * @since 1.65
          * @instance
@@ -2686,6 +2714,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method demoteContactFromModerator
          * @since 1.65
          * @instance
@@ -2717,6 +2746,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method acceptInvitationToJoinBubble
          * @instance
          * @category Manage Bubbles - Bubbles INVITATIONS
@@ -2770,6 +2800,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method declineInvitationToJoinBubble
          * @instance
          * @category Manage Bubbles - Bubbles INVITATIONS
@@ -2823,6 +2854,7 @@ class Bubbles extends GenericService {
 
         /**
          * @public
+         * @nodered true
          * @method inviteContactToBubble
          * @instance
          * @category Manage Bubbles - Bubbles INVITATIONS
@@ -2916,6 +2948,7 @@ class Bubbles extends GenericService {
 
         /**
          * @public
+         * @nodered true
          * @method inviteContactsByEmailsToBubble
          * @instance
          * @category Manage Bubbles - Bubbles INVITATIONS
@@ -2926,7 +2959,6 @@ class Bubbles extends GenericService {
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the new invitation
-    
          */
         inviteContactsByEmailsToBubble(contactsEmails, bubble) {
             let that = this;
@@ -2967,6 +2999,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method updateBubbleData
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3067,6 +3100,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method setBubbleCustomData
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3189,6 +3223,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method setBubbleTopic
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3228,6 +3263,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method setBubbleName
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3287,6 +3323,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method updateAvatarForBubble
          * @since 1.65
          * @instance
@@ -3354,6 +3391,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method deleteAvatarFromBubble
          * @since 1.65
          * @instance
@@ -3414,6 +3452,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method updateCustomDataForBubble
          * @since 1.64
          * @instance
@@ -3463,6 +3502,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method deleteCustomDataForBubble
          * @since 1.65
          * @instance
@@ -3479,6 +3519,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method updateDescriptionForBubble
          * @since 1.65
          * @instance
@@ -3518,6 +3559,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method changeBubbleOwner
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3561,6 +3603,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method removeContactFromBubble
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3674,6 +3717,7 @@ class Bubbles extends GenericService {
         }
     
         /**
+         * @nodered true
          * @method getAvatarFromBubble
          * @public
          * @instance
@@ -3765,6 +3809,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getUsersFromBubble
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3823,6 +3868,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method getStatusForConnectedUserInBubble
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
@@ -3852,7 +3898,8 @@ class Bubbles extends GenericService {
     
     /**
          * @public
-         * @method retrieveAllBubblesByTags
+     * @nodered true
+     * @method retrieveAllBubblesByTags
          * @instance
          * @async
          * @category Manage Bubbles - Bubbles TAGS
@@ -3909,6 +3956,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method setTagsOnABubble
          * @instance
          * @async
@@ -3951,6 +3999,7 @@ class Bubbles extends GenericService {
         /**
          *
          * @public
+         * @nodered true
          * @method deleteTagOnABubble
          * @instance
          * @async
@@ -4004,6 +4053,7 @@ class Bubbles extends GenericService {
     // Get all rooms containers
     /**
      * @public
+     * @nodered true
      * @method getAllBubblesContainers
      * @instance
      * @async
@@ -4040,6 +4090,7 @@ class Bubbles extends GenericService {
     // Get one rooms container
     /**
      * @public
+     * @nodered true
      * @method getABubblesContainersById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4072,6 +4123,7 @@ class Bubbles extends GenericService {
     // Add some rooms to the container
     /**
      * @public
+     * @nodered true
      * @method addBubblesToContainerById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4115,6 +4167,7 @@ class Bubbles extends GenericService {
     // Change one rooms container name or description
     /**
      * @public
+     * @nodered true
      * @method updateBubbleContainerNameAndDescriptionById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4159,6 +4212,7 @@ class Bubbles extends GenericService {
     // Create a rooms container
     /**
      * @public
+     * @nodered true
      * @method createBubbleContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4198,6 +4252,7 @@ class Bubbles extends GenericService {
     // Delete one rooms container
     /**
      * @public
+     * @nodered true
      * @method deleteBubbleContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4235,6 +4290,7 @@ class Bubbles extends GenericService {
     // Remove some rooms from the container
     /**
      * @public
+     * @nodered true
      * @method removeBubblesFromContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -4281,6 +4337,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getABubblePublicLinkAsModerator
      * @since 2.19.0
      * @instance
@@ -4333,6 +4390,7 @@ class Bubbles extends GenericService {
         /**
          *
          * @public
+         * @nodered true
          * @method getAllPublicUrlOfBubbles
          * @since 1.72
          * @category Manage Bubbles - Bubbles PUBLIC URL
@@ -4354,6 +4412,7 @@ class Bubbles extends GenericService {
         /**
          *
          * @public
+         * @nodered true
          * @method getAllPublicUrlOfBubblesOfAUser
          * @since 1.72
          * @instance
@@ -4376,6 +4435,7 @@ class Bubbles extends GenericService {
         /**
          *
          * @public
+         * @nodered true
          * @method getAllPublicUrlOfABubble
          * @since 1.72
          * @instance
@@ -4404,6 +4464,7 @@ class Bubbles extends GenericService {
         /**
          *
          * @public
+         * @nodered true
          * @method getAllPublicUrlOfABubbleOfAUser
          * @since 1.72
          * @instance
@@ -4436,6 +4497,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method createPublicUrl
          * @since 1.72
          * @instance
@@ -4461,6 +4523,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method generateNewPublicUrl
          * @since 1.72
          * @instance
@@ -4486,6 +4549,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method removePublicUrl
          * @since 1.72
          * @instance
@@ -4504,6 +4568,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method setBubbleAutoRegister
          * @since 1.86
          * @instance
@@ -4582,6 +4647,7 @@ class Bubbles extends GenericService {
     
         /**
          * @public
+         * @nodered true
          * @method registerGuestForAPublicURL
          * @since 1.75
          * @instance
@@ -4641,6 +4707,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method checkOpenInviteIdValidity
      * @since 2.22.4
      * @instance
@@ -4684,6 +4751,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method joinBubbleByOpenInviteId
      * @since 2.22.4
      * @instance
@@ -4727,6 +4795,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createBubblePoll
      * @since 2.10.0
      * @instance
@@ -4783,6 +4852,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteBubblePoll
      * @since 2.10.0
      * @instance
@@ -4815,6 +4885,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getBubblePoll
      * @since 2.10.0
      * @instance
@@ -4848,6 +4919,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getBubblePollsByBubble
      * @since 2.10.0
      * @instance
@@ -4910,6 +4982,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method publishBubblePoll
      * @since 2.10.0
      * @instance
@@ -4943,6 +5016,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method terminateBubblePoll
      * @since 2.10.0
      * @instance
@@ -4976,6 +5050,7 @@ class Bubbles extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method unpublishBubblePoll
      * @since 2.10.0
      * @instance
@@ -5009,6 +5084,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateBubblePoll
      * @since 2.10.0
      * @instance
@@ -5069,6 +5145,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method votesForBubblePoll
      * @since 2.10.0
      * @instance
@@ -5119,6 +5196,7 @@ class Bubbles extends GenericService {
      *
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method deleteAllMessagesInBubble
      * @category Bubbles Messages
      * @instance
@@ -5156,6 +5234,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addPSTNParticipantToConference
      * @instance
      * @category Conference V2
@@ -5200,6 +5279,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method snapshotConference
      * @instance
      * @since 2.2.0
@@ -5364,6 +5444,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method delegateConference
      * @instance
      * @since 2.2.0
@@ -5407,6 +5488,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disconnectPSTNParticipantFromConference
      * @instance
      * @since 2.2.0
@@ -5448,6 +5530,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disconnectParticipantFromConference
      * @instance
      * @since 2.2.0
@@ -5495,6 +5578,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getTalkingTimeForAllPparticipantsInConference
      * @instance
      * @since 2.2.0
@@ -5538,6 +5622,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method joinConferenceV2
      * @instance
      * @since 2.2.0
@@ -5606,6 +5691,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method pauseRecording
      * @instance
      * @since 2.2.0
@@ -5643,6 +5729,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resumeRecording
      * @instance
      * @since 2.2.0
@@ -5680,6 +5767,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method startRecording
      * @instance
      * @since 2.2.0
@@ -5717,6 +5805,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method stopRecording
      * @instance
      * @since 2.2.0
@@ -5754,6 +5843,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method rejectAVideoConference
      * @instance
      * @since 2.2.0
@@ -5792,6 +5882,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method startConferenceOrWebinarInARoom
      * @instance
      * @since 2.2.0
@@ -5830,6 +5921,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method stopConferenceOrWebinar
      * @instance
      * @since 2.2.0
@@ -5871,6 +5963,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeForParticipantVideoStream
      * @instance
      * @since 2.2.0
@@ -5921,6 +6014,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updatePSTNParticipantParameters
      * @instance
      * @since 2.2.0
@@ -5966,6 +6060,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateConferenceParameters
      * @instance
      * @since 2.2.0
@@ -6015,6 +6110,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateParticipantParameters
      * @instance
      * @since 2.2.0
@@ -6071,6 +6167,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method allowTalkWebinar
      * @instance
      * @since 2.2.0
@@ -6114,6 +6211,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disableTalkWebinar
      * @instance
      * @since 2.2.0
@@ -6157,6 +6255,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method lowerHandWebinar
      * @instance
      * @since 2.2.0
@@ -6194,6 +6293,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method raiseHandWebinar
      * @instance
      * @since 2.2.0
@@ -6231,6 +6331,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method stageDescriptionWebinar
      * @instance
      * @since 2.2.0
@@ -6291,6 +6392,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disableDialInForABubble
      * @instance
      * @since 2.21.0
@@ -6328,6 +6430,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method enableDialInForABubble
      * @instance
      * @since 2.21.0
@@ -6365,6 +6468,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resetDialInCodeForABubble
      * @instance
      * @since 2.21.0
@@ -6402,6 +6506,7 @@ class Bubbles extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDialInPhoneNumbersList
      * @instance
      * @since 2.21.0

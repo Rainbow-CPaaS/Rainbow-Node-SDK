@@ -208,6 +208,7 @@ class RPCoverXMPPService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method addRPCMethod
      * @since 2.22.0
      * @instance
@@ -250,6 +251,7 @@ class RPCoverXMPPService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeRPCMethod
      * @since 2.22.0
      * @instance
@@ -287,6 +289,7 @@ class RPCoverXMPPService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method discoverRPCoverXMPP
      * @since 2.22.0
      * @instance
@@ -325,6 +328,7 @@ class RPCoverXMPPService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method callRPCMethod
      * @since 2.22.0
      * @instance

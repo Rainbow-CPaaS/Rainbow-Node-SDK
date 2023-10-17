@@ -219,6 +219,7 @@ class S2SService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method listConnectionsS2S
      * @instance
      * @category S2S Management
@@ -244,6 +245,7 @@ class S2SService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method checkS2Sconnection
      * @instance
      * @category S2S Management
@@ -269,6 +271,7 @@ class S2SService extends GenericService{
 
     /**
      * @private
+     * @nodered true
      * @method deleteConnectionsS2S
      * @instance
      * @category S2S Management
@@ -303,6 +306,7 @@ class S2SService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllConnectionsS2S
      * @instance
      * @category S2S Management
@@ -354,6 +358,7 @@ class S2SService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method infoS2S
      * @instance
      * @category S2S Management
@@ -426,6 +431,7 @@ class S2SService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageInConversation
      * @instance
      * @category S2S Methods

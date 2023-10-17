@@ -53,7 +53,7 @@ const xml = require("@xmpp/xml");
 let backoff = require("backoff");
 //const setTimeout = require("timers").setTimeout;
 
-const HttpsProxyAgent = require("https-proxy-agent");
+const {HttpsProxyAgent} = require("https-proxy-agent");
 
 // import {URL} from "url";
 
@@ -232,6 +232,9 @@ class XMPPService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+
+                //that.logger.log("info", LOG_ID + "(start) path to require https-proxy-agent :", require.resolve('https-proxy-agent'), ", HttpsProxyAgent : ", HttpsProxyAgent);
+                
                 if (withXMPP) {
                     that.logger.log("debug", LOG_ID + "(start) XMPP host used : ", that.host);
                     that.logger.log("info", LOG_ID + "(start) XMPP serverURL : ", that.serverURL);
@@ -475,7 +478,7 @@ class XMPPService extends GenericService {
         let options = {agent: null};
         //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
         let opt = url.parse(that.proxy.proxyURL);
-        if (that.proxy.isProxyConfigured) {
+        if (that.proxy.isProxyConfigured ) {
             if (that.proxy.secureProtocol) {
                 opt.secureProxy = true;
             }

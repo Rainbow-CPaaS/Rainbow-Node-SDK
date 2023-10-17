@@ -395,6 +395,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method ackAllMessages
      * @instance
      * @category MESSAGES
@@ -499,6 +500,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method loadConversationHistory
      * @instance
      * @category MESSAGES
@@ -563,6 +565,7 @@ class ConversationsService extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getOneMessageFromConversationId
      * @instance
      * @category MESSAGES
@@ -611,6 +614,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getTheNumberOfHitsOfASubstringInAllUsersconversations
      * @instance
      * @category CONVERSATIONS
@@ -665,6 +669,7 @@ class ConversationsService extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getContactsMessagesFromConversationId
      * @instance
      * @category MESSAGES
@@ -896,6 +901,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method sendExistingMessage
      * @instance
      * @category MESSAGES
@@ -968,6 +974,7 @@ class ConversationsService extends GenericService {
      */
     /**
      * @public
+     * @nodered true
      * @method sendCorrectedChatMessage
      * @category MESSAGES
      * @instance
@@ -1062,6 +1069,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @since 1.58
+     * @nodered true
      * @method deleteMessage
      * @category MESSAGES
      * @instance
@@ -1094,6 +1102,7 @@ class ConversationsService extends GenericService {
      *
      * @public
      * @since 1.67.0
+     * @nodered true
      * @method deleteAllMessageInOneToOneConversation
      * @category MESSAGES
      * @instance
@@ -1152,6 +1161,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeAllMessages
      * @category MESSAGES
      * @instance
@@ -1213,6 +1223,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeMessagesFromConversation
      * @category MESSAGES
      * @instance
@@ -1258,6 +1269,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingState
      * @category MESSAGES
      * @instance
@@ -1289,6 +1301,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateConversationBookmark
      * @instance
      * @category MESSAGES
@@ -1346,6 +1359,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteConversationBookmark
      * @instance
      * @category MESSAGES
@@ -1396,6 +1410,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method showAllMatchingMessagesForAPeer
      * @since 2.21.0
      * @instance
@@ -1458,7 +1473,8 @@ class ConversationsService extends GenericService {
     
         /**
      * @public
-     * @method getAllConversations
+         * @nodered true
+         * @method getAllConversations
      * @category CONVERSATIONS
      * @instance
      * @description
@@ -1492,6 +1508,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method openConversationForContact
      * @category CONVERSATIONS
      * @instance
@@ -1535,6 +1552,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method openConversationForBubble
      * @since 1.65
      * @category CONVERSATIONS
@@ -1572,6 +1590,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getS2SServerConversation
      * @since 1.65
      * @category CONVERSATIONS
@@ -1624,6 +1643,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteServerConversation
      * @category CONVERSATIONS
      * @instance
@@ -1681,6 +1701,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method sendConversationByEmail
      * @category CONVERSATIONS
      * @instance
@@ -1755,6 +1776,7 @@ class ConversationsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getConversationById
      * @category CONVERSATIONS
      * @instance
@@ -1780,6 +1802,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getConversationByDbId
      * @category CONVERSATIONS
      * @instance
@@ -1802,7 +1825,8 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method getConversationByBubbleId
      * @category CONVERSATIONS
      * @instance
      * @description
@@ -1823,7 +1847,8 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method getConversationByBubbleJid
      * @category CONVERSATIONS
      * @instance
      * @description
@@ -1844,6 +1869,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getBubbleConversation
      * @category CONVERSATIONS
      * @instance
@@ -1966,6 +1992,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method closeConversation
      * @category CONVERSATIONS
      * @instance
@@ -2044,6 +2071,7 @@ class ConversationsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method cleanConversations
      * @category CONVERSATIONS
      * @instance

@@ -131,6 +131,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method createGroup
      * @instance
      * @param {string} name The name of the group to create
@@ -173,6 +174,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
      /**
       * @public
+      * @nodered true
       * @method deleteGroup
       * @instance
       * @param {Object} group The group to delete
@@ -214,6 +216,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllGroups
      * @instance
      * @async
@@ -259,6 +262,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method updateGroupName
      * @instance
      * @async
@@ -311,6 +315,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method updateGroupComment
      * @instance
      * @async
@@ -402,7 +407,8 @@ const LOG_ID = "GROUPS/SVCE - ";
 
      /**
      * @public
-     * @method setGroupAsFavorite
+      * @nodered true
+      * @method setGroupAsFavorite
      * @since 1.67.0
      * @async
      * @category Groups MANAGEMENT
@@ -438,6 +444,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method unsetGroupAsFavorite
      * @since 1.67.0
      * @category Groups MANAGEMENT
@@ -474,6 +481,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Groups MANAGEMENT
      * @instance
@@ -487,6 +495,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method getFavoriteGroups
      * @category Groups MANAGEMENT
      * @instance
@@ -502,6 +511,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method getGroupById
      * @category Groups MANAGEMENT
      * @instance
@@ -560,6 +570,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method getGroupByName
      * @category Groups MANAGEMENT
      * @instance
@@ -623,6 +634,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method addUserInGroup
      * @instance
      * @async
@@ -688,6 +700,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
     /**
      * @public
+     * @nodered true
      * @method removeUserFromGroup
      * @instance
      * @async

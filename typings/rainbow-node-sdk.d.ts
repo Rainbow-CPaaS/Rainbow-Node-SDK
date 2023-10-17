@@ -11,7 +11,7 @@ declare module 'lib/common/Utils' {
 }): Promise<any>; function orderByFilter(originalArray: any, filterFct: any, flag: any, sortFct: any): any[]; function addDaysToDate(date: any, days: any): Date; function addParamToUrl(urlParams: Array<string>, paramName: string, paramValue: any): void; function addPropertyToObj(objetToUpdate: Object, methodName: string, methodValue: any, addEmptyProperty?: boolean): void; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
     type: any;
     data: Uint8Array;
-}; function getRandomInt(max: any): number; function stackTrace(): string; function isPromise(x: any): any; const resolveDns: (cname: any) => Promise<unknown>; function getJsonFromXML(xml: string): Promise<any>; function generateRamdomEmail(email: any): string; function functionName(functionPtr: any): any; function functionSignature(functionPtr: any): string;
+}; function getRandomInt(max: any): number; function stackTrace(): string; function isPromise(x: any): any; const resolveDns: (cname: any) => Promise<unknown>; function getJsonFromXML(xml: string): Promise<any>; function generateRamdomEmail(email: any): string; function functionName(functionPtr: any): any; function functionSignature(functionPtr: any): string; function traceExecutionTime(thisToUse: any, methodName: any, methodDefinition: any, parameters?: any): Promise<void>;
 export let objToExport: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
@@ -44,8 +44,9 @@ export let objToExport: {
     getJsonFromXML: typeof getJsonFromXML;
     functionName: typeof functionName;
     functionSignature: typeof functionSignature;
+    traceExecutionTime: typeof traceExecutionTime;
 };
-export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, functionName, functionSignature }; const _default: {
+export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, functionName, functionSignature, traceExecutionTime }; const _default: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
     isAdmin: (roles: any) => boolean;
@@ -77,6 +78,7 @@ export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase,
     getJsonFromXML: typeof getJsonFromXML;
     functionName: typeof functionName;
     functionSignature: typeof functionSignature;
+    traceExecutionTime: typeof traceExecutionTime;
 };
 export default _default;
 
@@ -721,6 +723,7 @@ declare module 'lib/config/config' {
     displayOrder: string;
     testOutdatedVersion: boolean;
     testDNSentry: boolean;
+    autoReconnectIgnoreErrors: boolean;
     httpoverxmppserver: boolean;
     servicesToStart: {
         s2s: {
@@ -1598,6 +1601,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     private createFavoriteObj;
     /**
      * @public
+     * @nodered true
      * @since 1.56
      * @method createFavorite()
      * @category Favorites MANAGEMENT
@@ -1612,6 +1616,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method deleteFavorite()
      * @category Favorites MANAGEMENT
      * @instance
@@ -1623,6 +1628,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     deleteFavorite(id: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getFavorite
      * @category Favorites GET
      * @instance
@@ -1635,6 +1641,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method fetchAllFavorites
      * @category Favorites GET
      * @instance
@@ -1647,6 +1654,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method checkIsPeerSettedAsFavorite
      * @category Favorites GET
      * @instance
@@ -1665,6 +1673,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method getFavoriteById
      * @category Favorites GET
      * @instance
@@ -1685,6 +1694,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     getFavoriteById(favoriteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method getAllUserFavoriteList
      * @category Favorites GET
@@ -1709,6 +1719,7 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method moveFavoriteToPosition
      * @category Favorites GET
      * @instance
@@ -2016,6 +2027,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     /*********************************************************************/
     /**
      * @public
+     * @nodered true
      * @method getServerProfile
      * @async
      * @category Profiles PROFILES
@@ -2026,6 +2038,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getServerProfile(): Promise<[unknown, unknown]>;
     /**
      * @public
+     * @nodered true
      * @method getServerProfiles
      * @async
      * @category Profiles PROFILES
@@ -2037,6 +2050,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getServerProfiles(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getMyProfileOffer
      * @category Profiles PROFILES
      * @description
@@ -2047,6 +2061,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getMyProfileOffer(): any;
     /**
      * @public
+     * @nodered true
      * @method getMyProfileName
      * @category Profiles PROFILES
      * @description
@@ -2057,6 +2072,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getMyProfileName(): any;
     /**
      * @public
+     * @nodered true
      * @method getMyProfiles
      * @category Profiles PROFILES
      * @description
@@ -2066,6 +2082,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getMyProfiles(): any[];
     /**
      * @public
+     * @nodered true
      * @method getThirdPartyApps
      * @async
      * @category Profiles PROFILES
@@ -2077,6 +2094,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getThirdPartyApps(force?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method revokeThirdPartyAccess
      * @async
      * @category Profiles PROFILES
@@ -2088,6 +2106,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     revokeThirdPartyAccess(tokenId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getServerProfilesFeatures
      * @async
      * @category Profiles FEATURES
@@ -2101,6 +2120,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     /*********************************************************************/
     /**
      * @public
+     * @nodered true
      * @method isFeatureEnabled
      * @category Profiles FEATURES
      * @description
@@ -2110,6 +2130,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     isFeatureEnabled(featureUniqueRef: any): any;
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMax
      * @category Profiles FEATURES
      * @description
@@ -2119,6 +2140,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getFeatureLimitMax(featureUniqueRef: any): any;
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMin
      * @category Profiles FEATURES
      * @description
@@ -2128,6 +2150,7 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     getFeatureLimitMin(featureUniqueRef: any): any;
     /**
      * @public
+     * @nodered true
      * @method getMyProfileFeatures
      * @category Profiles FEATURES
      * @description
@@ -2827,6 +2850,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToConversation
      * @instance
      * @async
@@ -2843,6 +2867,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToBubble
      * @instance
      * @async
@@ -2859,6 +2884,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.67.0
+     * @nodered true
      * @method uploadFileToStorage
      * @category Files TRANSFER
      * @async
@@ -2876,6 +2902,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method downloadFile
      * @category Files TRANSFER
      * @async
@@ -2891,6 +2918,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.79.0
+     * @nodered true
      * @method downloadFileInPath
      * @instance
      * @category Files TRANSFER
@@ -2917,6 +2945,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method removeFile
      * @instance
      * @async
@@ -2947,6 +2976,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getFileDescriptorById(id: any): any;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFileDescriptorFromId
      * @instance
@@ -2959,6 +2989,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getFileDescriptorFromId(id: any): any;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesReceivedInConversation
      * @instance
@@ -2974,6 +3005,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesReceivedInBubble
      * @instance
      * @async
@@ -3059,6 +3091,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
      */
     getSentFilesToContact(dbId: any): any;
     /**
+     * @nodered true
      * @method getReceivedFilesForRoom
      * @public
      *
@@ -3130,6 +3163,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     deleteAllFileDescriptor(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method retrieveFileDescriptorsListPerOwner
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
@@ -3188,6 +3222,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     retrieveFilesReceivedFromPeer(userId: any, peerId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method retrieveSentFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -3221,6 +3256,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      *
+     * @nodered true
      * @method retrieveReceivedFilesForRoom
      * @instance
      * @description
@@ -3256,6 +3292,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      *
      * @public
+     * @nodered true
      * @method retrieveReceivedFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -3292,6 +3329,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesSentInConversation
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -3322,6 +3360,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getFilesSentInConversation(conversation: any, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesSentInBubble
      * @instance
@@ -3354,6 +3393,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getFilesSentInBubble(bubble: any, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder: number, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getUserQuotaConsumption
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -3366,6 +3406,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getUserQuotaConsumption(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesSent
      * @instance
@@ -3377,6 +3418,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getAllFilesSent(): any;
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesReceived
      * @instance
@@ -3430,6 +3472,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     addFileViewer(fileId: any, viewerId: any, viewerType: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method retrieveOneFileDescriptor
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -3455,6 +3498,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     retrieveAndStoreOneFileDescriptor(fileId: any, forceRetrieve: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getFileDescriptorsByCompanyId
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -3497,6 +3541,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     getFileDescriptorsByCompanyId(companyId?: string, fileName?: boolean, extension?: string, typeMIME?: string, purpose?: string, isUploaded?: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method copyFileInPersonalCloudSpace
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -3522,6 +3567,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     copyFileInPersonalCloudSpace(fileId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method fileOwnershipChange
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -4077,6 +4123,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     /*********************************************************/
     /**
      * @public
+     * @nodered true
      * @method ackAllMessages
      * @instance
      * @category MESSAGES
@@ -4108,6 +4155,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getHistoryPage(conversation: Conversation, size?: number): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method loadConversationHistory
      * @instance
      * @category MESSAGES
@@ -4139,6 +4187,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     /**
      *
      * @public
+     * @nodered true
      * @method getOneMessageFromConversationId
      * @instance
      * @category MESSAGES
@@ -4156,6 +4205,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getOneMessageFromConversationId(conversationId: string, messageId: string, stamp: string): Promise<Message>;
     /**
      * @public
+     * @nodered true
      * @method getTheNumberOfHitsOfASubstringInAllUsersconversations
      * @instance
      * @category CONVERSATIONS
@@ -4182,6 +4232,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     /**
      *
      * @public
+     * @nodered true
      * @method getContactsMessagesFromConversationId
      * @instance
      * @category MESSAGES
@@ -4204,6 +4255,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     sendFSMessage(conversation: any, file: any, data: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method sendExistingMessage
      * @instance
      * @category MESSAGES
@@ -4240,6 +4292,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      */
     /**
      * @public
+     * @nodered true
      * @method sendCorrectedChatMessage
      * @category MESSAGES
      * @instance
@@ -4264,6 +4317,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     /**
      * @public
      * @since 1.58
+     * @nodered true
      * @method deleteMessage
      * @category MESSAGES
      * @instance
@@ -4279,6 +4333,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      *
      * @public
      * @since 1.67.0
+     * @nodered true
      * @method deleteAllMessageInOneToOneConversation
      * @category MESSAGES
      * @instance
@@ -4310,6 +4365,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     removePendingMessage(message: any): void;
     /**
      * @public
+     * @nodered true
      * @method removeAllMessages
      * @category MESSAGES
      * @instance
@@ -4325,6 +4381,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     removeAllMessages(conversation: Conversation): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeMessagesFromConversation
      * @category MESSAGES
      * @instance
@@ -4342,6 +4399,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     removeMessagesFromConversation(conversation: Conversation, date: Date, number: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingState
      * @category MESSAGES
      * @instance
@@ -4354,6 +4412,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     sendIsTypingState(conversation: Conversation, status: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateConversationBookmark
      * @instance
      * @category MESSAGES
@@ -4376,6 +4435,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     updateConversationBookmark(userId: string, conversationId: string, messageId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteConversationBookmark
      * @instance
      * @category MESSAGES
@@ -4397,6 +4457,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     deleteConversationBookmark(userId: string, conversationId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method showAllMatchingMessagesForAPeer
      * @since 2.21.0
      * @instance
@@ -4420,7 +4481,8 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     showAllMatchingMessagesForAPeer(userId: string, substring: string, peer: string, isRoom?: boolean, limit?: number): Promise<unknown>;
     /**
  * @public
- * @method getAllConversations
+     * @nodered true
+     * @method getAllConversations
  * @category CONVERSATIONS
  * @instance
  * @description
@@ -4440,6 +4502,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getConversations(): any[];
     /**
      * @public
+     * @nodered true
      * @method openConversationForContact
      * @category CONVERSATIONS
      * @instance
@@ -4453,6 +4516,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     openConversationForContact(contact: Contact): Promise<Conversation>;
     /**
      * @public
+     * @nodered true
      * @method openConversationForBubble
      * @since 1.65
      * @category CONVERSATIONS
@@ -4467,6 +4531,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     openConversationForBubble(bubble: Bubble): Promise<Conversation>;
     /**
      * @public
+     * @nodered true
      * @method getS2SServerConversation
      * @since 1.65
      * @category CONVERSATIONS
@@ -4480,6 +4545,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getS2SServerConversation(conversationId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteServerConversation
      * @category CONVERSATIONS
      * @instance
@@ -4504,6 +4570,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     updateServerConversation(conversationId: any, mute: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendConversationByEmail
      * @category CONVERSATIONS
      * @instance
@@ -4529,6 +4596,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getOrCreateOneToOneConversation(conversationId: any, conversationDbId?: any, lastModification?: any, lastMessageText?: any, missedIMCounter?: any, muted?: any, creationDate?: any): Promise<Conversation>;
     /**
      * @public
+     * @nodered true
      * @method getConversationById
      * @category CONVERSATIONS
      * @instance
@@ -4540,6 +4608,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getConversationById(conversationId: string): any;
     /**
      * @public
+     * @nodered true
      * @method getConversationByDbId
      * @category CONVERSATIONS
      * @instance
@@ -4551,7 +4620,8 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getConversationByDbId(dbId: string): any;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method getConversationByBubbleId
      * @category CONVERSATIONS
      * @instance
      * @description
@@ -4562,7 +4632,8 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getConversationByBubbleId(bubbleId: string): Promise<any>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method getConversationByBubbleJid
      * @category CONVERSATIONS
      * @instance
      * @description
@@ -4573,6 +4644,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getConversationByBubbleJid(bubbleJid: string): any;
     /**
      * @public
+     * @nodered true
      * @method getBubbleConversation
      * @category CONVERSATIONS
      * @instance
@@ -4595,6 +4667,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     getBubbleConversation(bubbleJid: string, conversationDbId?: string, lastModification?: Date, lastMessageText?: string, missedIMCounter?: number, noError?: boolean, muted?: boolean, creationDate?: Date, lastMessageSender?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method closeConversation
      * @category CONVERSATIONS
      * @instance
@@ -4621,6 +4694,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     removeConversation(conversation: Conversation): void;
     /**
      * @public
+     * @nodered true
      * @method cleanConversations
      * @category CONVERSATIONS
      * @instance
@@ -4959,6 +5033,7 @@ export {}; class Bubbles extends GenericService {
     addOrUpdateConferenceToCache(conference: ConferenceSession, updatedDatasForEvent?: any): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method getBubblesConsumption
      * @instance
      * @async
@@ -4973,6 +5048,7 @@ export {}; class Bubbles extends GenericService {
     getBubblesConsumption(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getBubbleById
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5001,6 +5077,7 @@ export {}; class Bubbles extends GenericService {
     getBubbleById(id: any, force?: boolean, context?: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<Bubble>;
     /**
      * @public
+     * @nodered true
      * @method getBubbleByJid
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5028,6 +5105,7 @@ export {}; class Bubbles extends GenericService {
     getBubbleByJid(jid: any, force?: boolean, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<Bubble>;
     /**
      * @public
+     * @nodered true
      * @method getAllBubblesJidsOfAUserIsMemberOf
      * @since 2.19.0
      * @instance
@@ -5060,6 +5138,7 @@ export {}; class Bubbles extends GenericService {
     getAllBubblesJidsOfAUserIsMemberOf(isActive?: boolean, webinar?: boolean, unsubscribed?: boolean, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllBubblesVisibleByTheUser
      * @since 2.19.0
      * @instance
@@ -5171,6 +5250,7 @@ export {}; class Bubbles extends GenericService {
     getAllBubblesVisibleByTheUser(format?: string, userId?: string, status?: string, confId?: string, scheduled?: boolean, hasConf?: boolean, isActive?: boolean, name?: string, sortField?: string, sortOrder?: number, unsubscribed?: boolean, webinar?: boolean, limit?: number, offset?: number, nbUsersToKeep?: number, creator?: string, context?: string, needIsAlertNotificationEnabled?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getBubblesDataByListOfBubblesIds
      * @since 2.19.0
      * @instance
@@ -5275,6 +5355,7 @@ export {}; class Bubbles extends GenericService {
     getBubblesDataByListOfBubblesIds(bubblesIds: Array<string>, format?: string, userId?: string, status?: string, confId?: string, scheduled?: boolean, hasConf?: boolean, sortField?: string, sortOrder?: number, unsubscribed?: boolean, webinar?: boolean, limit?: number, offset?: number, nbUsersToKeep?: number, context?: string, needIsAlertNotificationEnabled?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllPendingBubbles
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @instance
@@ -5285,6 +5366,7 @@ export {}; class Bubbles extends GenericService {
     getAllPendingBubbles(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method getAllActiveBubbles
      * @since 1.30
      * @instance
@@ -5296,6 +5378,7 @@ export {}; class Bubbles extends GenericService {
     getAllActiveBubbles(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method getAllClosedBubbles
      * @since 1.30
      * @instance
@@ -5307,6 +5390,7 @@ export {}; class Bubbles extends GenericService {
     getAllClosedBubbles(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method createBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5323,6 +5407,7 @@ export {}; class Bubbles extends GenericService {
     createBubble(name: any, description: any, withHistory?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method isBubbleClosed
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5334,6 +5419,7 @@ export {}; class Bubbles extends GenericService {
     isBubbleClosed(bubble: any): boolean;
     /**
      * @public
+     * @nodered true
      * @method isBubbleArchived
      * @instance
      * @async
@@ -5346,6 +5432,7 @@ export {}; class Bubbles extends GenericService {
     isBubbleArchived(bubble: Bubble): Promise<boolean>;
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedNotArchivedBubbles
      * @instance
      * @async
@@ -5357,6 +5444,7 @@ export {}; class Bubbles extends GenericService {
     getAllOwnedNotArchivedBubbles(): Promise<[Bubble]>;
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedArchivedBubbles
      * @instance
      * @async
@@ -5368,6 +5456,7 @@ export {}; class Bubbles extends GenericService {
     getAllOwnedArchivedBubbles(): Promise<[Bubble]>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5379,6 +5468,7 @@ export {}; class Bubbles extends GenericService {
     deleteAllBubbles(): void;
     /**
      * @public
+     * @nodered true
      * @method closeAnddeleteAllBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5390,6 +5480,7 @@ export {}; class Bubbles extends GenericService {
     closeAnddeleteAllBubbles(): void;
     /**
      * @public
+     * @nodered true
      * @method deleteBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5404,6 +5495,7 @@ export {}; class Bubbles extends GenericService {
     deleteBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method closeAndDeleteBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5418,6 +5510,7 @@ export {}; class Bubbles extends GenericService {
     closeAndDeleteBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method closeBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5432,6 +5525,7 @@ export {}; class Bubbles extends GenericService {
     closeBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method archiveBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5448,6 +5542,7 @@ export {}; class Bubbles extends GenericService {
     archiveBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method leaveBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5469,6 +5564,7 @@ export {}; class Bubbles extends GenericService {
     getBubbles(format?: string, unsubscribed?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @instance
@@ -5479,7 +5575,9 @@ export {}; class Bubbles extends GenericService {
     getAll(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method getAllBubbles
+     * @nodered true
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
      * @return {Bubble[]} The list of existing bubbles
@@ -5489,6 +5587,7 @@ export {}; class Bubbles extends GenericService {
     getAllBubbles(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5499,6 +5598,7 @@ export {}; class Bubbles extends GenericService {
     getAllOwnedBubbles(): Bubble[];
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedIdBubbles
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5538,6 +5638,7 @@ export {}; class Bubbles extends GenericService {
     private removeBubbleFromCache;
     /**
      * @public
+     * @nodered true
      * @method promoteContactInBubble
      * @instance
      * @category Manage Bubbles - Bubbles MANAGEMENT
@@ -5555,6 +5656,7 @@ export {}; class Bubbles extends GenericService {
     promoteContactInBubble(contact: any, bubble: any, isModerator: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method promoteContactToModerator
      * @since 1.65
      * @instance
@@ -5569,6 +5671,7 @@ export {}; class Bubbles extends GenericService {
     promoteContactToModerator(contact: any, bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method demoteContactFromModerator
      * @since 1.65
      * @instance
@@ -5583,6 +5686,7 @@ export {}; class Bubbles extends GenericService {
     demoteContactFromModerator(contact: any, bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method acceptInvitationToJoinBubble
      * @instance
      * @category Manage Bubbles - Bubbles INVITATIONS
@@ -5597,6 +5701,7 @@ export {}; class Bubbles extends GenericService {
     acceptInvitationToJoinBubble(bubble: Bubble): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method declineInvitationToJoinBubble
      * @instance
      * @category Manage Bubbles - Bubbles INVITATIONS
@@ -5611,6 +5716,7 @@ export {}; class Bubbles extends GenericService {
     declineInvitationToJoinBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method inviteContactToBubble
      * @instance
      * @category Manage Bubbles - Bubbles INVITATIONS
@@ -5629,6 +5735,7 @@ export {}; class Bubbles extends GenericService {
     inviteContactToBubble(contact: any, bubble: any, isModerator: any, withInvitation: any, reason?: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method inviteContactsByEmailsToBubble
      * @instance
      * @category Manage Bubbles - Bubbles INVITATIONS
@@ -5639,11 +5746,11 @@ export {}; class Bubbles extends GenericService {
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - The bubble updated with the new invitation
-
      */
     inviteContactsByEmailsToBubble(contactsEmails: any, bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateBubbleData
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5688,6 +5795,7 @@ export {}; class Bubbles extends GenericService {
     }>, includeAllPhoneNumbers?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setBubbleCustomData
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5719,6 +5827,7 @@ export {}; class Bubbles extends GenericService {
     setBubbleVisibilityStatus(bubble: any, status: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setBubbleTopic
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5735,6 +5844,7 @@ export {}; class Bubbles extends GenericService {
     setBubbleTopic(bubble: any, topic: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setBubbleName
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5759,6 +5869,7 @@ export {}; class Bubbles extends GenericService {
     randomString(length?: number): string;
     /**
      * @public
+     * @nodered true
      * @method updateAvatarForBubble
      * @since 1.65
      * @instance
@@ -5784,6 +5895,7 @@ export {}; class Bubbles extends GenericService {
     setAvatarBubble(bubble: any, roomAvatarPath: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAvatarFromBubble
      * @since 1.65
      * @instance
@@ -5806,6 +5918,7 @@ export {}; class Bubbles extends GenericService {
     deleteAvatarBubble(bubbleId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateCustomDataForBubble
      * @since 1.64
      * @instance
@@ -5822,6 +5935,7 @@ export {}; class Bubbles extends GenericService {
     updateCustomDataForBubble(customData: any, bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCustomDataForBubble
      * @since 1.65
      * @instance
@@ -5835,6 +5949,7 @@ export {}; class Bubbles extends GenericService {
     deleteCustomDataForBubble(bubble: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateDescriptionForBubble
      * @since 1.65
      * @instance
@@ -5849,6 +5964,7 @@ export {}; class Bubbles extends GenericService {
     updateDescriptionForBubble(bubble: any, strDescription: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method changeBubbleOwner
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5864,6 +5980,7 @@ export {}; class Bubbles extends GenericService {
     changeBubbleOwner(bubble: any, contact: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeContactFromBubble
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5878,6 +5995,7 @@ export {}; class Bubbles extends GenericService {
      */
     removeContactFromBubble(contact: any, bubble: any): Promise<unknown>;
     /**
+     * @nodered true
      * @method getAvatarFromBubble
      * @public
      * @instance
@@ -5903,6 +6021,7 @@ export {}; class Bubbles extends GenericService {
     refreshMemberAndOrganizerLists(bubble: any): any;
     /**
      * @public
+     * @nodered true
      * @method getUsersFromBubble
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5925,6 +6044,7 @@ export {}; class Bubbles extends GenericService {
     getUsersFromBubble(bubble: any, options?: Object): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getStatusForConnectedUserInBubble
      * @instance
      * @category Manage Bubbles - Bubbles FIELDS
@@ -5937,7 +6057,8 @@ export {}; class Bubbles extends GenericService {
     getStatusForConnectedUserInBubble(bubble: any): any;
     /**
          * @public
-         * @method retrieveAllBubblesByTags
+     * @nodered true
+     * @method retrieveAllBubblesByTags
          * @instance
          * @async
          * @category Manage Bubbles - Bubbles TAGS
@@ -5964,6 +6085,7 @@ export {}; class Bubbles extends GenericService {
     retrieveAllBubblesByTags(tags: Array<string>, format?: string, nbUsersToKeep?: number): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method setTagsOnABubble
      * @instance
      * @async
@@ -5978,6 +6100,7 @@ export {}; class Bubbles extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method deleteTagOnABubble
      * @instance
      * @async
@@ -5991,6 +6114,7 @@ export {}; class Bubbles extends GenericService {
     deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAllBubblesContainers
      * @instance
      * @async
@@ -6008,6 +6132,7 @@ export {}; class Bubbles extends GenericService {
     getAllBubblesContainers(name?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getABubblesContainersById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6021,6 +6146,7 @@ export {}; class Bubbles extends GenericService {
     getABubblesContainersById(id?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method addBubblesToContainerById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6035,6 +6161,7 @@ export {}; class Bubbles extends GenericService {
     addBubblesToContainerById(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateBubbleContainerNameAndDescriptionById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6050,6 +6177,7 @@ export {}; class Bubbles extends GenericService {
     updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createBubbleContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6065,6 +6193,7 @@ export {}; class Bubbles extends GenericService {
     createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteBubbleContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6078,6 +6207,7 @@ export {}; class Bubbles extends GenericService {
     deleteBubbleContainer(containerId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeBubblesFromContainer
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
@@ -6092,6 +6222,7 @@ export {}; class Bubbles extends GenericService {
     removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getABubblePublicLinkAsModerator
      * @since 2.19.0
      * @instance
@@ -6120,6 +6251,7 @@ export {}; class Bubbles extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getAllPublicUrlOfBubbles
      * @since 1.72
      * @category Manage Bubbles - Bubbles PUBLIC URL
@@ -6132,6 +6264,7 @@ export {}; class Bubbles extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getAllPublicUrlOfBubblesOfAUser
      * @since 1.72
      * @instance
@@ -6145,6 +6278,7 @@ export {}; class Bubbles extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getAllPublicUrlOfABubble
      * @since 1.72
      * @instance
@@ -6158,6 +6292,7 @@ export {}; class Bubbles extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getAllPublicUrlOfABubbleOfAUser
      * @since 1.72
      * @instance
@@ -6171,6 +6306,7 @@ export {}; class Bubbles extends GenericService {
     getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method createPublicUrl
      * @since 1.72
      * @instance
@@ -6184,6 +6320,7 @@ export {}; class Bubbles extends GenericService {
     createPublicUrl(bubble: Bubble): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method generateNewPublicUrl
      * @since 1.72
      * @instance
@@ -6199,6 +6336,7 @@ export {}; class Bubbles extends GenericService {
     generateNewPublicUrl(bubble: Bubble): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method removePublicUrl
      * @since 1.72
      * @instance
@@ -6212,6 +6350,7 @@ export {}; class Bubbles extends GenericService {
     removePublicUrl(bubble: Bubble): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method setBubbleAutoRegister
      * @since 1.86
      * @instance
@@ -6242,6 +6381,7 @@ export {}; class Bubbles extends GenericService {
     getPublicURLFromResponseContent(content: any): string;
     /**
      * @public
+     * @nodered true
      * @method registerGuestForAPublicURL
      * @since 1.75
      * @instance
@@ -6267,6 +6407,7 @@ export {}; class Bubbles extends GenericService {
     registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method checkOpenInviteIdValidity
      * @since 2.22.4
      * @instance
@@ -6292,6 +6433,7 @@ export {}; class Bubbles extends GenericService {
     checkOpenInviteIdValidity(openInviteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method joinBubbleByOpenInviteId
      * @since 2.22.4
      * @instance
@@ -6313,6 +6455,7 @@ export {}; class Bubbles extends GenericService {
     joinBubbleByOpenInviteId(openInviteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createBubblePoll
      * @since 2.10.0
      * @instance
@@ -6346,6 +6489,7 @@ export {}; class Bubbles extends GenericService {
     }>, anonymous?: boolean, duration?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteBubblePoll
      * @since 2.10.0
      * @instance
@@ -6359,6 +6503,7 @@ export {}; class Bubbles extends GenericService {
     deleteBubblePoll(pollId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getBubblePoll
      * @since 2.10.0
      * @instance
@@ -6373,6 +6518,7 @@ export {}; class Bubbles extends GenericService {
     getBubblePoll(pollId: string, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getBubblePollsByBubble
      * @since 2.10.0
      * @instance
@@ -6416,6 +6562,7 @@ export {}; class Bubbles extends GenericService {
     getBubblePollsByBubble(bubbleId: string, format: string, limit: number, offset: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method publishBubblePoll
      * @since 2.10.0
      * @instance
@@ -6430,6 +6577,7 @@ export {}; class Bubbles extends GenericService {
     publishBubblePoll(pollId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method terminateBubblePoll
      * @since 2.10.0
      * @instance
@@ -6444,6 +6592,7 @@ export {}; class Bubbles extends GenericService {
     terminateBubblePoll(pollId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unpublishBubblePoll
      * @since 2.10.0
      * @instance
@@ -6458,6 +6607,7 @@ export {}; class Bubbles extends GenericService {
     unpublishBubblePoll(pollId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateBubblePoll
      * @since 2.10.0
      * @instance
@@ -6490,6 +6640,7 @@ export {}; class Bubbles extends GenericService {
     }>, anonymous?: boolean, duration?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method votesForBubblePoll
      * @since 2.10.0
      * @instance
@@ -6512,6 +6663,7 @@ export {}; class Bubbles extends GenericService {
      *
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method deleteAllMessagesInBubble
      * @category Bubbles Messages
      * @instance
@@ -6525,6 +6677,7 @@ export {}; class Bubbles extends GenericService {
     deleteAllMessagesInBubble(bubble: Bubble, forContactJid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method addPSTNParticipantToConference
      * @instance
      * @category Conference V2
@@ -6541,6 +6694,7 @@ export {}; class Bubbles extends GenericService {
     addPSTNParticipantToConference(roomId: string, participantPhoneNumber: string, country: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method snapshotConference
      * @instance
      * @since 2.2.0
@@ -6561,6 +6715,7 @@ export {}; class Bubbles extends GenericService {
     snapshotConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method delegateConference
      * @instance
      * @since 2.2.0
@@ -6576,6 +6731,7 @@ export {}; class Bubbles extends GenericService {
     delegateConference(roomId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disconnectPSTNParticipantFromConference
      * @instance
      * @since 2.2.0
@@ -6594,6 +6750,7 @@ export {}; class Bubbles extends GenericService {
     disconnectPSTNParticipantFromConference(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disconnectParticipantFromConference
      * @instance
      * @since 2.2.0
@@ -6613,6 +6770,7 @@ export {}; class Bubbles extends GenericService {
     disconnectParticipantFromConference(bubbleId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getTalkingTimeForAllPparticipantsInConference
      * @instance
      * @since 2.2.0
@@ -6633,6 +6791,7 @@ export {}; class Bubbles extends GenericService {
     getTalkingTimeForAllPparticipantsInConference(roomId: string, limit?: number, offset?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method joinConferenceV2
      * @instance
      * @since 2.2.0
@@ -6666,6 +6825,7 @@ export {}; class Bubbles extends GenericService {
     joinConferenceV2(bubbleId: string, participantPhoneNumber?: string, country?: string, deskphone?: boolean, dc?: Array<string>, mute?: boolean, microphone?: boolean, media?: Array<string>, resourceId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method pauseRecording
      * @instance
      * @since 2.2.0
@@ -6680,6 +6840,7 @@ export {}; class Bubbles extends GenericService {
     pauseRecording(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method resumeRecording
      * @instance
      * @since 2.2.0
@@ -6694,6 +6855,7 @@ export {}; class Bubbles extends GenericService {
     resumeRecording(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method startRecording
      * @instance
      * @since 2.2.0
@@ -6708,6 +6870,7 @@ export {}; class Bubbles extends GenericService {
     startRecording(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method stopRecording
      * @instance
      * @since 2.2.0
@@ -6722,6 +6885,7 @@ export {}; class Bubbles extends GenericService {
     stopRecording(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method rejectAVideoConference
      * @instance
      * @since 2.2.0
@@ -6737,6 +6901,7 @@ export {}; class Bubbles extends GenericService {
     rejectAVideoConference(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method startConferenceOrWebinarInARoom
      * @instance
      * @since 2.2.0
@@ -6754,6 +6919,7 @@ export {}; class Bubbles extends GenericService {
     }): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method stopConferenceOrWebinar
      * @instance
      * @since 2.2.0
@@ -6772,6 +6938,7 @@ export {}; class Bubbles extends GenericService {
     stopConferenceOrWebinar(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method subscribeForParticipantVideoStream
      * @instance
      * @since 2.2.0
@@ -6794,6 +6961,7 @@ export {}; class Bubbles extends GenericService {
     subscribeForParticipantVideoStream(roomId: string, userId: string, media?: string, subStreamLevel?: number, dynamicFeed?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updatePSTNParticipantParameters
      * @instance
      * @since 2.2.0
@@ -6811,6 +6979,7 @@ export {}; class Bubbles extends GenericService {
     updatePSTNParticipantParameters(roomId: string, phoneNumber: string, option?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateConferenceParameters
      * @instance
      * @since 2.2.0
@@ -6832,6 +7001,7 @@ export {}; class Bubbles extends GenericService {
     updateConferenceParameters(roomId: string, option?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateParticipantParameters
      * @instance
      * @since 2.2.0
@@ -6860,6 +7030,7 @@ export {}; class Bubbles extends GenericService {
     updateParticipantParameters(roomId: string, userId: string, option: string, media: string, bitRate: number, subStreamLevel: number, publisherId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method allowTalkWebinar
      * @instance
      * @since 2.2.0
@@ -6875,6 +7046,7 @@ export {}; class Bubbles extends GenericService {
     allowTalkWebinar(roomId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disableTalkWebinar
      * @instance
      * @since 2.2.0
@@ -6890,6 +7062,7 @@ export {}; class Bubbles extends GenericService {
     disableTalkWebinar(roomId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method lowerHandWebinar
      * @instance
      * @since 2.2.0
@@ -6904,6 +7077,7 @@ export {}; class Bubbles extends GenericService {
     lowerHandWebinar(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method raiseHandWebinar
      * @instance
      * @since 2.2.0
@@ -6918,6 +7092,7 @@ export {}; class Bubbles extends GenericService {
     raiseHandWebinar(roomId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method stageDescriptionWebinar
      * @instance
      * @since 2.2.0
@@ -6936,6 +7111,7 @@ export {}; class Bubbles extends GenericService {
     stageDescriptionWebinar(roomId: string, userId: string, type: string, properties: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disableDialInForABubble
      * @instance
      * @since 2.21.0
@@ -6955,6 +7131,7 @@ export {}; class Bubbles extends GenericService {
     disableDialInForABubble(bubbleId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method enableDialInForABubble
      * @instance
      * @since 2.21.0
@@ -6974,6 +7151,7 @@ export {}; class Bubbles extends GenericService {
     enableDialInForABubble(bubbleId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method resetDialInCodeForABubble
      * @instance
      * @since 2.21.0
@@ -6993,6 +7171,7 @@ export {}; class Bubbles extends GenericService {
     resetDialInCodeForABubble(bubbleId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getDialInPhoneNumbersList
      * @instance
      * @since 2.21.0
@@ -7043,9 +7222,10 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     });
     start(_options: any, _core: Core): Promise<unknown>;
     stop(): Promise<unknown>;
-    init(useRestAtStartup: boolean): Promise<unknown>;
+    init(useRestAtStartup: boolean): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method createGroup
      * @instance
      * @param {string} name The name of the group to create
@@ -7062,6 +7242,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     createGroup(name: any, comment: any, isFavorite: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteGroup
      * @instance
      * @param {Object} group The group to delete
@@ -7076,6 +7257,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     deleteGroup(group: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllGroups
      * @instance
      * @async
@@ -7088,6 +7270,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     deleteAllGroups(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateGroupName
      * @instance
      * @async
@@ -7103,6 +7286,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     updateGroupName(group: any, name: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateGroupComment
      * @instance
      * @async
@@ -7125,7 +7309,8 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     getGroups(): Promise<unknown>;
     /**
     * @public
-    * @method setGroupAsFavorite
+     * @nodered true
+     * @method setGroupAsFavorite
     * @since 1.67.0
     * @async
     * @category Groups MANAGEMENT
@@ -7140,6 +7325,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     setGroupAsFavorite(group: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unsetGroupAsFavorite
      * @since 1.67.0
      * @category Groups MANAGEMENT
@@ -7155,6 +7341,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     unsetGroupAsFavorite(group: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Groups MANAGEMENT
      * @instance
@@ -7165,6 +7352,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     getAll(): any;
     /**
      * @public
+     * @nodered true
      * @method getFavoriteGroups
      * @category Groups MANAGEMENT
      * @instance
@@ -7175,6 +7363,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     getFavoriteGroups(): any;
     /**
      * @public
+     * @nodered true
      * @method getGroupById
      * @category Groups MANAGEMENT
      * @instance
@@ -7187,6 +7376,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     getGroupById(id: string, forceServerSearch?: boolean): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getGroupByName
      * @category Groups MANAGEMENT
      * @instance
@@ -7200,6 +7390,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     getGroupByName(name: string, forceServerSearch?: boolean): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method addUserInGroup
      * @instance
      * @async
@@ -7228,6 +7419,7 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     addUserInGroup(contact: any, group: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeUserFromGroup
      * @instance
      * @async
@@ -7342,6 +7534,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getAllReceivedInvitations(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getReceivedInvitations
      * @instance
@@ -7353,6 +7546,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getReceivedInvitations(): any[];
     /**
      * @public
+     * @nodered true
      * @since 2.9.0
      * @method searchInvitationsReceivedFromServer
      * @instance
@@ -7390,6 +7584,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     searchInvitationsReceivedFromServer(sortField: string, status: string, format: string, limit: number, offset: number, sortOrder: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method 	getAcceptedInvitations
      * @instance
@@ -7401,6 +7596,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getAcceptedInvitations(): any[];
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getInvitationsNumberForCounter
      * @category Invitations RECEIVED
@@ -7412,6 +7608,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getInvitationsNumberForCounter(): number;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getServerInvitation
      * @instance
@@ -7424,6 +7621,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getServerInvitation(invitationId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getInvitation
      * @instance
@@ -7436,6 +7634,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getInvitation(invitationId: any): any;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method joinContactInvitation
      * @instance
@@ -7451,6 +7650,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     joinContactInvitation(contact: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method acceptInvitation
      * @instance
@@ -7482,6 +7682,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     acceptInvitation(invitation: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method declineInvitation
      * @instance
@@ -7518,6 +7719,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getAllSentInvitations(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getSentInvitations
      * @instance
@@ -7529,6 +7731,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getSentInvitations(): any[];
     /**
      * @public
+     * @nodered true
      * @since 2.9.0
      * @method searchInvitationsSentFromServer
      * @instance
@@ -7567,6 +7770,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     searchInvitationsSentFromServer(sortField?: string, status?: string, format?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method sendInvitationByEmail
      * @instance
@@ -7602,6 +7806,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     sendInvitationByEmail(email: string, lang: string, customMessage: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 2.9.0
      * @method sendInvitationByCriteria
      * @instance
@@ -7691,6 +7896,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     sendInvitationByCriteria(email: string, invitedPhoneNumber: string, invitedUserId: string, lang: string, customMessage: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method cancelOneSendInvitation
      * @instance
@@ -7704,6 +7910,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     cancelOneSendInvitation(invitation: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method reSendInvitation
      * @instance
@@ -7742,6 +7949,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     reSendInvitation(invitationId: string, customMessage: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method sendInvitationsByBulk
      * @instance
@@ -7793,6 +8001,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     sendInvitationsParBulk(listOfMails: any, lang?: string, customMessage?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.65
      * @method getAllInvitationsNumber
      * @instance
@@ -7804,6 +8013,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     getAllInvitationsNumber: () => any;
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method deleteAUserInvitation
      * @instance
@@ -7868,7 +8078,7 @@ export {}; class ContactsService extends GenericService {
     });
     start(_options: any, _core: Core): Promise<unknown>;
     stop(): Promise<unknown>;
-    init(useRestAtStartup: boolean): Promise<unknown>;
+    init(useRestAtStartup: boolean): Promise<void>;
     cleanMemoryCache(): void;
     createEmptyContactContact(jid: any): Contact;
     getContact(jid: any, phoneNumber: any): any;
@@ -7876,16 +8086,31 @@ export {}; class ContactsService extends GenericService {
     createBasicContact(jid: any, phoneNumber?: any): Contact;
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Contacts INFORMATIONS
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br>
+     *  Return the list of _contacts in cache that are in the network of the connected users (aka rosters) <br>
      */
     getAll(): Array<Contact>;
     /**
      * @public
+     * @nodered true
+     * @method getAllContactsInCache
+     * @category Contacts INFORMATIONS
+     * @instance
+     * @return {Contact[]} the list of _contacts
+     * @description
+     *  Return the list of _contacts that are in the cache of the current instance of the connected users. </br>
+     *  `Note:` the stored contacts can be or not in the network. Rainbow SDK only receives event of contacts in the network. </br>
+     *  So others are only cache about previous exchange, and are cleaned with the clean memory process. The cleaning interval is defined by "intervalBetweenCleanMemoryCache" SDK's option.
+     */
+    getAllContactsInCache(): Array<Contact>;
+    /**
+     * @public
+     * @nodered true
      * @method getContactByJid
      * @instance
      * @category Contacts INFORMATIONS
@@ -7901,6 +8126,7 @@ export {}; class ContactsService extends GenericService {
     getContactByJid(jid: string, forceServerSearch?: boolean): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method getContactById
      * @instance
      * @category Contacts INFORMATIONS
@@ -7916,6 +8142,7 @@ export {}; class ContactsService extends GenericService {
     getContactById(id: string, forceServerSearch?: boolean): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method getContactByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -7931,6 +8158,7 @@ export {}; class ContactsService extends GenericService {
     getContactByLoginEmail(loginEmail: string, forceServerSearch?: boolean): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method getContactIdByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -7946,6 +8174,7 @@ export {}; class ContactsService extends GenericService {
     getContactIdByLoginEmail(loginEmail: string, forceServerSearch?: boolean): Promise<String>;
     /**
      * @public
+     * @nodered true
      * @method getMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -7959,6 +8188,7 @@ export {}; class ContactsService extends GenericService {
     getMyInformations(): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method getCompanyInfos
      * @instance
      * @category Contacts INFORMATIONS
@@ -8109,6 +8339,7 @@ export {}; class ContactsService extends GenericService {
     getCompanyInfos(companyId?: string, format?: string, selectedThemeObj?: boolean, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAvatarByContactId
      * @instance
      * @category Contacts INFORMATIONS
@@ -8122,6 +8353,7 @@ export {}; class ContactsService extends GenericService {
     getAvatarByContactId(id: string, lastAvatarUpdateDate: string): string;
     /**
      * @public
+     * @nodered true
      * @method getConnectedUser
      * @category Contacts INFORMATIONS
      * @instance
@@ -8132,6 +8364,7 @@ export {}; class ContactsService extends GenericService {
     getConnectedUser(): Contact;
     /**
      * @public
+     * @nodered true
      * @method getDisplayName
      * @instance
      * @category Contacts INFORMATIONS
@@ -8143,6 +8376,7 @@ export {}; class ContactsService extends GenericService {
     getDisplayName(contact: Contact): string;
     /**
      * @public
+     * @nodered true
      * @method updateMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -8183,6 +8417,7 @@ export {}; class ContactsService extends GenericService {
     updateMyInformations(dataToUpdate: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method createSource
      * @instance
      * @category Contacts SOURCES
@@ -8209,6 +8444,7 @@ export {}; class ContactsService extends GenericService {
     createSource(userId: string, sourceId: string, os: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteSource
      * @instance
      * @category Contacts SOURCES
@@ -8230,6 +8466,7 @@ export {}; class ContactsService extends GenericService {
     deleteSource(userId: string, sourceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getSourceData
      * @instance
      * @category Contacts SOURCES
@@ -8252,6 +8489,7 @@ export {}; class ContactsService extends GenericService {
     getSourceData(userId: string, sourceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllSourcesByUserId
      * @instance
      * @category Contacts SOURCES
@@ -8284,6 +8522,7 @@ export {}; class ContactsService extends GenericService {
     getAllSourcesByUserId(userId?: string, format?: string, sortField?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateSourceData
      * @instance
      * @category Contacts SOURCES
@@ -8307,6 +8546,7 @@ export {}; class ContactsService extends GenericService {
     updateSourceData(userId: string, sourceId: string, os: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -8372,6 +8612,7 @@ export {}; class ContactsService extends GenericService {
     updateContactData(userId: string, sourceId: string, contactIddb: string, contactId?: string, firstName?: string, lastName?: string, displayName?: string, company?: string, jobTitle?: string, phoneNumbers?: Array<any>, emails?: Array<any>, addresses?: Array<any>, groups?: Array<string>, otherData?: Array<any>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -8436,6 +8677,7 @@ export {}; class ContactsService extends GenericService {
     createContact(userId: string, sourceId: string, contactId: string, firstName: string, lastName: string, displayName: string, company: string, jobTitle: string, phoneNumbers?: Array<any>, emails?: Array<any>, addresses?: Array<any>, groups?: Array<string>, otherData?: Array<any>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -8481,6 +8723,7 @@ export {}; class ContactsService extends GenericService {
     getContactData(userId: string, sourceId: string, contactId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getContactsList
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -8531,6 +8774,7 @@ export {}; class ContactsService extends GenericService {
     getContactsList(userId: string, sourceId: string, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -8558,6 +8802,7 @@ export {}; class ContactsService extends GenericService {
     isUserContact(contact: Contact): boolean;
     /**
      * @public
+     * @nodered true
      * @method getRosters
      * @instance
      * @category Contacts NETWORK
@@ -8572,6 +8817,7 @@ export {}; class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method addToNetwork
      * @instance
      * @category Contacts NETWORK
@@ -8586,6 +8832,7 @@ export {}; class ContactsService extends GenericService {
     addToNetwork(contact: Contact): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method addToContactsList
      * @instance
@@ -8602,6 +8849,7 @@ export {}; class ContactsService extends GenericService {
     addToContactsList(contact: Contact): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method removeFromNetwork
      * @since 1.69
      * @instance
@@ -8615,6 +8863,7 @@ export {}; class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.64.0
+     * @nodered true
      * @method getInvitationById
      * @instance
      * @category Contacts NETWORK
@@ -8627,6 +8876,7 @@ export {}; class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method acceptInvitation
      * @instance
      * @category Contacts NETWORK
@@ -8640,6 +8890,7 @@ export {}; class ContactsService extends GenericService {
     acceptInvitation(invitation: Invitation): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method declineInvitation
      * @instance
@@ -8654,8 +8905,8 @@ export {}; class ContactsService extends GenericService {
     declineInvitation(invitation: Invitation): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.41
-     * @beta
      * @method joinContacts
      * @instance
      * @category Contacts NETWORK
@@ -8670,6 +8921,7 @@ export {}; class ContactsService extends GenericService {
     joinContacts(contact: Contact, contactIds: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method searchInAlldirectories
      * @since 2.8.9
      * @instance
@@ -8713,6 +8965,7 @@ export {}; class ContactsService extends GenericService {
     searchInAlldirectories(pbxId?: string, systemId?: string, numberE164?: string, shortnumber?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method searchInPhonebook
      * @since 2.8.9
      * @instance
@@ -8767,6 +9020,7 @@ export {}; class ContactsService extends GenericService {
     searchInPhonebook(pbxId: string, name: string, number: string, format: string, limit: number, offset: number, sortField: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method searchUserByPhonenumber
      * @since 2.8.9
      * @instance
@@ -8811,6 +9065,7 @@ export {}; class ContactsService extends GenericService {
     searchUserByPhonenumber(number: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method searchUsers
      * @since 2.8.9
      * @instance
@@ -8918,6 +9173,7 @@ export {}; class ContactsService extends GenericService {
     searchUsers(limit?: number, displayName?: string, search?: string, companyId?: string, excludeCompanyId?: string, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createPersonalDirectoryEntry
      * @since 2.9.0
      * @instance
@@ -8948,6 +9204,7 @@ export {}; class ContactsService extends GenericService {
     createPersonalDirectoryEntry(firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.10.0
      * @instance
@@ -8967,6 +9224,7 @@ export {}; class ContactsService extends GenericService {
     getDirectoryEntryData(entryId: string, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getListPersonalDirectoryEntriesData
      * @since 2.9.0
      * @instance
@@ -9049,6 +9307,7 @@ export {}; class ContactsService extends GenericService {
     getListPersonalDirectoryEntriesData(name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, view?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updatePersonalDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -9081,6 +9340,7 @@ export {}; class ContactsService extends GenericService {
     updatePersonalDirectoryEntry(entryId: string, firstName?: string, lastName?: string, companyName?: string, department?: string, street?: string, city?: string, state?: string, postalCode?: string, country?: string, workPhoneNumbers?: string[], mobilePhoneNumbers?: string[], otherPhoneNumbers?: string[], jobTitle?: string, eMail?: string, tags?: string[], custom1?: string, custom2?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deletePersonalDirectoryEntry
      * @since 2.9.0
      * @instance
@@ -9200,6 +9460,7 @@ import { Core } from 'lib/Core'; class Settings extends GenericService {
     /**
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method getUserSettings
      * @category Settings - Users
      * @async
@@ -9233,6 +9494,7 @@ import { Core } from 'lib/Core'; class Settings extends GenericService {
     /**
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method updateUserSettings
      * @category Settings - Users
      * @async
@@ -9297,6 +9559,7 @@ export {}; class PresenceService extends GenericService {
     sendInitialPresence(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setPresenceTo
      * @instance
      * @async
@@ -9312,6 +9575,7 @@ export {}; class PresenceService extends GenericService {
     setPresenceTo(presence: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getUserConnectedPresence
      * @instance
      * @category Presence CONNECTED USER
@@ -9341,6 +9605,7 @@ export {}; class PresenceService extends GenericService {
     _sendPresenceFromConfiguration(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getMyPresenceInformation
      * @since 2.16.0
      * @instance
@@ -9351,6 +9616,7 @@ export {}; class PresenceService extends GenericService {
     getMyPresenceInformation(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setApplyMsTeamsPresenceSettings
      * @instance
      * @async
@@ -9427,6 +9693,7 @@ export {}; class PresenceService extends GenericService {
     _onMyPresenceChanged(user: any): void;
     /**
      * @public
+     * @nodered true
      * @method getCalendarState
      * @instance
      * @category Presence CALENDAR
@@ -9455,6 +9722,7 @@ export {}; class PresenceService extends GenericService {
     getCalendarState(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCalendarStates
      * @instance
      * @category Presence CALENDAR
@@ -9484,6 +9752,7 @@ export {}; class PresenceService extends GenericService {
     getCalendarStates(users?: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setCalendarRegister
      * @instance
      * @category Presence CALENDAR
@@ -9500,11 +9769,11 @@ export {}; class PresenceService extends GenericService {
      *    "url" : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCalendarAutomaticReplyStatus
      * @instance
      * @category Presence CALENDAR
@@ -9528,7 +9797,6 @@ export {}; class PresenceService extends GenericService {
      *    message_thtml : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     getCalendarAutomaticReplyStatus(userId?: string): Promise<unknown>;
     /**
@@ -9548,7 +9816,6 @@ export {}; class PresenceService extends GenericService {
      *       Status : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     private enableCalendar;
     /**
@@ -9573,6 +9840,7 @@ export {}; class PresenceService extends GenericService {
     private disableCalendar;
     /**
      * @public
+     * @nodered true
      * @method controlCalendarOrIgnoreAnEntry
      * @instance
      * @category Presence CALENDAR
@@ -9589,11 +9857,11 @@ export {}; class PresenceService extends GenericService {
      *       Status : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
      */
     controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string): Promise<unknown>;
     /**
     * @public
+     * @nodered true
     * @method unregisterCalendar
     * @instance
     * @category Presence CALENDAR
@@ -9608,11 +9876,11 @@ export {}; class PresenceService extends GenericService {
     *       Status : string
     *    }, ErrorManager>}
     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
     */
     unregisterCalendar(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method controlMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -9628,6 +9896,7 @@ export {}; class PresenceService extends GenericService {
     controlMsteamsPresence(disable?: boolean, ignore?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceState
      * @since 2.20.0
      * @instance
@@ -9672,6 +9941,7 @@ export {}; class PresenceService extends GenericService {
     getMsteamsPresenceState(userId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceStates
      * @since 2.20.0
      * @instance
@@ -9703,6 +9973,7 @@ export {}; class PresenceService extends GenericService {
     getMsteamsPresenceStates(users?: Array<string>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method registerMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -9722,6 +9993,7 @@ export {}; class PresenceService extends GenericService {
     registerMsteamsPresenceSharing(redirect?: boolean, callback?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unregisterMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -9740,6 +10012,7 @@ export {}; class PresenceService extends GenericService {
     unregisterMsteamsPresenceSharing(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method activateMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -9758,6 +10031,7 @@ export {}; class PresenceService extends GenericService {
     activateMsteamsPresence(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deactivateMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -11305,6 +11579,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     init(useRestAtStartup: boolean): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method listConnectionsS2S
      * @instance
      * @category S2S Management
@@ -11318,6 +11593,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     listConnectionsS2S(): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method checkS2Sconnection
      * @instance
      * @category S2S Management
@@ -11331,6 +11607,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     checkS2Sconnection(): Promise<any>;
     /**
      * @private
+     * @nodered true
      * @method deleteConnectionsS2S
      * @instance
      * @category S2S Management
@@ -11345,6 +11622,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     deleteConnectionsS2S(connexions: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllConnectionsS2S
      * @instance
      * @category S2S Management
@@ -11372,6 +11650,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     loginS2S(callback_url: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method infoS2S
      * @instance
      * @category S2S Management
@@ -11406,6 +11685,7 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     sendS2SPresence(obj: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageInConversation
      * @instance
      * @category S2S Methods
@@ -11576,6 +11856,7 @@ export {}; class RPCoverXMPPService extends GenericService {
     initRPCSystemMethods(): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method addRPCMethod
      * @since 2.22.0
      * @instance
@@ -11592,6 +11873,7 @@ export {}; class RPCoverXMPPService extends GenericService {
     addRPCMethod(methodName?: string, methodCallback?: any, methodDescription?: string, methodHelp?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeRPCMethod
      * @since 2.22.0
      * @instance
@@ -11605,6 +11887,7 @@ export {}; class RPCoverXMPPService extends GenericService {
     removeRPCMethod(methodName?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method discoverRPCoverXMPP
      * @since 2.22.0
      * @instance
@@ -11619,6 +11902,7 @@ export {}; class RPCoverXMPPService extends GenericService {
     discoverRPCoverXMPP(headers?: any, rpcoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method callRPCMethod
      * @since 2.22.0
      * @instance
@@ -11881,6 +12165,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     disableCarbon(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessagesFromConversation
      * @instance
@@ -11898,6 +12183,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     getMessagesFromConversation(conversation: any, intNbMessage?: number): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromConversationById
      * @instance
@@ -11912,6 +12198,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     getMessageFromConversationById(conversation: any, strMessageId: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromBubbleById
      * @instance
@@ -11926,6 +12213,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     getMessageFromBubbleById(bubble: any, strMessageId: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method markMessageAsRead
      * @instance
      * @description
@@ -11940,6 +12228,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     markMessageAsRead(messageReceived: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method sendMessageToConversation
      * @instance
@@ -11963,6 +12252,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     sendMessageToConversation(conversation: any, message: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToContact
      * @instance
      * @async
@@ -11999,6 +12289,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      */
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJid
      * @instance
      * @async
@@ -12015,11 +12306,11 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
-
      */
     sendMessageToJid(message: any, jid: any, lang: any, content: any, subject: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAnswer
      * @instance
      * @async
@@ -12042,6 +12333,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     sendMessageToJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAcknowledged
      * @instance
      * @async
@@ -12057,6 +12349,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     sendMessageToJidAcknowledged(message: Message, lang?: string, ackLabel?: string): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidIgnored
      * @instance
      * @async
@@ -12072,6 +12365,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     sendMessageToJidIgnored(message: Message, lang?: string, ignLabel?: string): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubble
      * @instance
      * @async
@@ -12089,11 +12383,11 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     sendMessageToBubble(message: any, bubble: any, lang: any, content: any, subject: any, mentions: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJid
      * @instance
      * @async
@@ -12111,11 +12405,11 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     sendMessageToBubbleJid(message: any, jid: any, lang: any, content: any, subject: any, mentions?: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJidAnswer
      * @async
      * @category Ims MESSAGES
@@ -12134,11 +12428,11 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     sendMessageToBubbleJidAnswer(message: any, jid: any, lang: any, content: any, subject: any, answeredMsg: any, mentions: any, urgency?: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method retrieveXMPPMessagesByListOfMessageIds
      * @category Ims MESSAGES
@@ -12176,6 +12470,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     _onmessageReceipt(receipt: any): void;
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInBubble
      * @async
      * @category Ims TYPING
@@ -12189,6 +12484,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     sendIsTypingStateInBubble(bubble: any, status: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInConversation
      * @instance
      * @async
@@ -12297,6 +12593,7 @@ export {}; class ChannelsService extends GenericService {
     attachHandlers(): void;
     /**
      * @public
+     * @nodered true
      * @method createChannel
      * @instance
      * @async
@@ -12310,6 +12607,7 @@ export {}; class ChannelsService extends GenericService {
     createChannel(name: string, channelTopic: string): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method createPublicChannel
      * @instance
      * @async
@@ -12324,6 +12622,7 @@ export {}; class ChannelsService extends GenericService {
     createPublicChannel(name: string, channelTopic: string, category: string): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method createClosedChannel (ex: createPrivateChannel)
      * @instance
      * @async
@@ -12339,6 +12638,7 @@ export {}; class ChannelsService extends GenericService {
     createClosedChannel(name: string, description: string, category: string): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method deleteChannel
      * @instance
      * @async
@@ -12351,6 +12651,7 @@ export {}; class ChannelsService extends GenericService {
     deleteChannel(channel: Channel): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method findChannelsByName
      * @instance
      * @async
@@ -12363,6 +12664,7 @@ export {}; class ChannelsService extends GenericService {
     findChannelsByName(name: string): Promise<[Channel]>;
     /**
      * @public
+     * @nodered true
      * @method findChannelsByTopic
      * @instance
      * @async
@@ -12381,6 +12683,7 @@ export {}; class ChannelsService extends GenericService {
     private _findChannels;
     /**
      * @public
+     * @nodered true
      * @method fetchChannel
      * @instance
      * @async
@@ -12395,6 +12698,7 @@ export {}; class ChannelsService extends GenericService {
     fetchChannel(id: string, force?: boolean): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method fetchChannelsByFilter
      * @since 1.55
      * @instance
@@ -12416,6 +12720,7 @@ export {}; class ChannelsService extends GenericService {
     fetchChannelsByFilter(filter: any): Promise<[Channel]>;
     /**
      * @public
+     * @nodered true
      * @method fetchMyChannels
      * @since 1.38
      * @instance
@@ -12430,6 +12735,7 @@ export {}; class ChannelsService extends GenericService {
     fetchMyChannels(force?: boolean): Promise<[Channel]>;
     /**
      * @public
+     * @nodered true
      * @method getAllChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -12440,6 +12746,7 @@ export {}; class ChannelsService extends GenericService {
     getAllChannels(): [Channel];
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -12451,6 +12758,7 @@ export {}; class ChannelsService extends GenericService {
     getAllOwnedChannels(): [Channel];
     /**
      * @public
+     * @nodered true
      * @method getAllPendingChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -12461,6 +12769,7 @@ export {}; class ChannelsService extends GenericService {
     getAllPendingChannels(): [Channel];
     /**
      * @public
+     * @nodered true
      * @method updateChannelTopic
      * @instance
      * @async
@@ -12474,6 +12783,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannelTopic(channel: Channel, description: string): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelDescription
      * @instance
      * @async
@@ -12487,7 +12797,8 @@ export {}; class ChannelsService extends GenericService {
     updateChannelDescription(channel: Channel, description: string): Promise<Channel>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelName
      * @since 1.46
      * @instance
      * @category Channels MANAGEMENT
@@ -12501,7 +12812,8 @@ export {}; class ChannelsService extends GenericService {
     updateChannelName(channel: Channel, channelName: string): Promise<unknown>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannel
      * @since 1.38
      * @category Channels MANAGEMENT
      * @instance
@@ -12522,6 +12834,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannel(id: string, channelTopic: string, visibility: string, max_items: Number, max_payload_size: Number, channelName: string, category: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibility
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -12536,6 +12849,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannelVisibility(channel: Channel, visibility: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToPublic
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -12549,6 +12863,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannelVisibilityToPublic(channel: Channel): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToClosed
      * @since 1.55
      * @instance
@@ -12562,7 +12877,8 @@ export {}; class ChannelsService extends GenericService {
     updateChannelVisibilityToClosed(channel: Channel): Promise<unknown>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -12576,7 +12892,8 @@ export {}; class ChannelsService extends GenericService {
     updateChannelAvatar(channel: Channel, urlAvatar: string): Promise<unknown>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method deleteChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -12608,6 +12925,7 @@ export {}; class ChannelsService extends GenericService {
     private removeChannelFromCache;
     /**
      * @public
+     * @nodered true
      * @method publishMessageToChannel
      * @instance
      * @async
@@ -12644,6 +12962,7 @@ export {}; class ChannelsService extends GenericService {
     createItem(channel: Channel, message: string, title: string, url: string, imagesIds: any, type: string, customDatas?: any): Promise<{}>;
     /**
      * @public
+     * @nodered true
      * @method fetchChannelItems
      * @instance
      * @async
@@ -12660,6 +12979,7 @@ export {}; class ChannelsService extends GenericService {
     fetchChannelItems(channel: Channel, maxMessages?: number, beforeDate?: Date, afterDate?: Date): Promise<Array<any>>;
     /**
      * @public
+     * @nodered true
      * @method deleteItemFromChannel
      * @instance
      * @async
@@ -12674,6 +12994,7 @@ export {}; class ChannelsService extends GenericService {
     deleteItemFromChannel(channelId: string, itemId: string): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method likeItem
      * @instance
      * @async
@@ -12688,6 +13009,7 @@ export {}; class ChannelsService extends GenericService {
     likeItem(channel: Channel, itemId: string, appreciation: Appreciation): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getDetailedAppreciations
      * @instance
      * @async
@@ -12702,6 +13024,7 @@ export {}; class ChannelsService extends GenericService {
     retrieveLatests(beforeDate?: Date): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAllSubscribedChannels
      * @instance
      * @category Channels SUBSCRIPTION
@@ -12713,6 +13036,7 @@ export {}; class ChannelsService extends GenericService {
     getAllSubscribedChannels(): [Channel];
     /**
      * @public
+     * @nodered true
      * @method subscribeToChannel
      * @instance
      * @async
@@ -12725,7 +13049,8 @@ export {}; class ChannelsService extends GenericService {
     subscribeToChannel(channel: Channel): Promise<Channel>;
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method subscribeToChannelById
      * @since 1.47
      * @instance
      * @category Channels SUBSCRIPTION
@@ -12738,6 +13063,7 @@ export {}; class ChannelsService extends GenericService {
     subscribeToChannelById(id: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unsubscribeFromChannel
      * @instance
      * @async
@@ -12750,6 +13076,7 @@ export {}; class ChannelsService extends GenericService {
     unsubscribeFromChannel(channel: Channel): Promise<string>;
     /**
      * @public
+     * @nodered true
      * @method fetchChannelUsers
      * @instance
      * @async
@@ -12768,6 +13095,7 @@ export {}; class ChannelsService extends GenericService {
     fetchChannelUsers(channel: Channel, options: any): Promise<Array<{}>>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllUsersFromChannel
      * @instance
      * @async
@@ -12781,6 +13109,7 @@ export {}; class ChannelsService extends GenericService {
     deleteAllUsersFromChannel(channel: Channel): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsers
      * @instance
      * @async
@@ -12802,6 +13131,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannelUsers(channel: Channel, users: Array<any>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsersByLoginEmails
      * @instance
      * @since 2.23.0
@@ -12825,6 +13155,7 @@ export {}; class ChannelsService extends GenericService {
     updateChannelUsersByLoginEmails(channel: Channel, users: Array<any>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannel
      * @instance
      * @async
@@ -12838,6 +13169,7 @@ export {}; class ChannelsService extends GenericService {
     addOwnersToChannel(channel: Channel, owners: any[]): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannelByLoginEmails
      * @instance
      * @async
@@ -12859,6 +13191,7 @@ export {}; class ChannelsService extends GenericService {
     addOwnersToChannelByLoginEmails(channel: Channel, owners: any[]): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannel
      * @instance
      * @async
@@ -12873,6 +13206,7 @@ export {}; class ChannelsService extends GenericService {
     addPublishersToChannel(channel: Channel, publishers: Array<Contact>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannelByLoginEmails
      * @instance
      * @async
@@ -12894,6 +13228,7 @@ export {}; class ChannelsService extends GenericService {
     addPublishersToChannelByLoginEmails(channel: Channel, publishers: Array<any>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannel
      * @instance
      * @async
@@ -12907,6 +13242,7 @@ export {}; class ChannelsService extends GenericService {
     addMembersToChannel(channel: Channel, members: Array<Contact>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannelByLoginEmails
      * @instance
      * @async
@@ -12928,6 +13264,7 @@ export {}; class ChannelsService extends GenericService {
     addMembersToChannelByLoginEmails(channel: Channel, members: Array<any>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannel
      * @instance
      * @async
@@ -12942,6 +13279,7 @@ export {}; class ChannelsService extends GenericService {
     deleteUsersFromChannel(channel: Channel, users: Array<Contact>): Promise<Channel>;
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannelByLoginEmails
      * @instance
      * @async
@@ -13245,6 +13583,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     isTelephonyAvailable(): boolean;
     /**
      * @public
+     * @nodered true
      * @method getAgentVersion
      * @instance
      * @category Telephony MANAGEMENT
@@ -13255,6 +13594,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getAgentVersion(): any;
     /**
      * @public
+     * @nodered true
      * @method getXMPPAgentStatus
      * @instance
      * @category Telephony MANAGEMENT
@@ -13265,6 +13605,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getXMPPAgentStatus(): any;
     /**
      * @public
+     * @nodered true
      * @method getPhoneAPIStatus
      * @instance
      * @category Telephony MANAGEMENT
@@ -13286,6 +13627,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
      *
      /**
      * @public
+     * @nodered true
      * @method getMediaPillarInfo
      * @instance
      * @category Telephony MANAGEMENT
@@ -13313,6 +13655,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getParticipantsFromParticipantsElem(participants: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getVoiceMessageCounter
      * @async
      * @category Telephony CALL
@@ -13327,6 +13670,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*********************************************************/
     /**
      * @public
+     * @nodered true
      * @method getCallToHangOut
      * @category Telephony CALL
      * @instance
@@ -13337,6 +13681,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getCallToHangOut(): any;
     /**
      * @public
+     * @nodered true
      * @method getActiveCall
      * @category Telephony CALL
      * @instance
@@ -13347,6 +13692,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getActiveCall(): any;
     /**
      * @public
+     * @nodered true
      * @method getActiveCalls
      * @category Telephony CALL
      * @instance
@@ -13357,6 +13703,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getActiveCalls(): any[];
     /**
      * @public
+     * @nodered true
      * @method getCalls
      * @category Telephony CALL
      * @instance
@@ -13367,6 +13714,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getCalls(): any[];
     /**
      * @public
+     * @nodered true
      * @method getCallsSize
      * @category Telephony CALL
      * @instance
@@ -13384,6 +13732,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getTabSize(tab: any): number;
     /**
      * @public
+     * @nodered true
      * @method getActiveCall
      * @param {Contact} contact The contact with an active call with us.
      * @category Telephony CALL
@@ -13397,6 +13746,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method makeCall
      * @instance
      * @async
@@ -13435,6 +13785,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     private makeConsultationCall;
     /**
      * @public
+     * @nodered true
      * @method makeCall
      * @async
      * @category Telephony CALL
@@ -13461,6 +13812,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method releaseCall
      * @async
      * @category Telephony CALL
@@ -13476,6 +13828,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method answerCall
      * @async
      * @category Telephony CALL
@@ -13491,6 +13844,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method holdCall
      * @category Telephony CALL
      * @instance
@@ -13505,6 +13859,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method retrieveCall
      * @async
      * @category Telephony CALL
@@ -13520,6 +13875,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method deflectCallToVM
      * @async
      * @category Telephony CALL
@@ -13535,6 +13891,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method deflectCall
      * @async
      * @category Telephony CALL
@@ -13557,6 +13914,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method transfertCall
      * @async
      * @category Telephony CALL
@@ -13574,6 +13932,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method conferenceCall
      * @async
      * @category Telephony CALL
@@ -13591,6 +13950,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method forwardToDevice
      * @async
      * @category Telephony CALL
@@ -13604,6 +13964,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     forwardToDevice(phoneNumber: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method forwardToVoicemail
      * @async
      * @category Telephony CALL
@@ -13616,6 +13977,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     forwardToVoicemail(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method cancelForward
      * @async
      * @category Telephony CALL
@@ -13631,6 +13993,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method sendDtmf
      * @async
      * @category Telephony CALL
@@ -13676,6 +14039,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     private removeCallFromCache;
     /**
      * @public
+     * @nodered true
      * @method logon
      * @async
      * @category Telephony CALL
@@ -13691,6 +14055,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     logon(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method logoff
      * @async
      * @category Telephony CALL
@@ -13706,6 +14071,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     logoff(endpointTel: any, agentId: any, password: any, groupId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method withdrawal
      * @async
      * @category Telephony CALL
@@ -13720,6 +14086,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     withdrawal(agentId: any, groupId: any, status: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method wrapup
      * @async
      * @category Telephony CALL
@@ -13738,6 +14105,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     nomadicLogin(phoneNumber: any, NotTakeIntoAccount?: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getNomadicStatus
      * @async
      * @category Telephony NOMADIC
@@ -13756,6 +14124,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getNomadicDestination(): any;
     /**
      * @public
+     * @nodered true
      * @method deleteAllMyVoiceMessagesFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -13776,6 +14145,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     deleteAllMyVoiceMessagesFromPbx(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAVoiceMessageFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -13797,6 +14167,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     deleteAVoiceMessageFromPbx(messageId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAVoiceMessageFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -13826,6 +14197,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getAVoiceMessageFromPbx(messageId: string, messageDate: string, messageFrom: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getDetailedListOfVoiceMessages
      * @async
      * @category Telephony Voice Messages
@@ -13862,6 +14234,7 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     getDetailedListOfVoiceMessages(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getNumbersOfVoiceMessages
      * @async
      * @category Telephony Voice Messages
@@ -13922,6 +14295,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     /**
      * @public
      * @method getRainbowSupportBotService
+     * @nodered true
      * @instance
      * @description
      *      This API can be used to get Rainbow support bot service (Emily) </BR>
@@ -13950,6 +14324,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
      * @method getABotServiceData
      * @instance
      * @param {string} botId Bot Service unique identifier
+     * @nodered true
      * @description
      *      This API can be used to get a bot service data. </BR>
      * @async
@@ -13975,6 +14350,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     /**
      * @public
      * @method getAllBotServices
+     * @nodered true
      * @instance
      * @description
      *      This API can be used to retrieve the list of bot services. </BR>
@@ -14009,6 +14385,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllBotServices(format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): any;
     /**
      * @public
+     * @nodered true
      * @method createAJoinCompanyLink
      * @instance
      * @description
@@ -14048,6 +14425,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createAJoinCompanyLink(companyId?: string, description?: string, isEnabled?: boolean, expirationDate?: string, maxNumberUsers?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAJoinCompanyLink
      * @instance
      * @description
@@ -14081,6 +14459,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteAJoinCompanyLink(companyId: string, joinCompanyLinkId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAJoinCompanyLink
      * @instance
      * @description
@@ -14113,6 +14492,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     /**
      * @public
      * @method getAllJoinCompanyLinks
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to list existing join company links for his company. </BR>
@@ -14161,6 +14541,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     /**
      * @public
      * @method updateAJoinCompanyLink
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to update a join company link for his company. </BR>
@@ -14202,6 +14583,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateAJoinCompanyLink(companyId: string, joinCompanyLinkId: string, description: string, isEnabled: boolean, expirationDate: string, maxNumberUsers: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createCompanyFromDefault
      * @instance
      * @description
@@ -14341,8 +14723,10 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createCompanyFromDefault(name: string, visibility?: string, country?: string, state?: string, slogan?: string, description?: string, size?: string, economicActivityClassification?: string, website?: string, avatarShape?: string, giphyEnabled?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllCompaniesVisibleByUser
      * @instance
+     * @nodered true
      * @description
      *   This API allows users to get all companies. </BR>
      *   Users with user role can only retrieve their own company and companies they can see (companies with visibility=public, companies having user's companyId in visibleBy field, companies being in user's company organization and having visibility=organization, BP company of user's company). </BR>
@@ -14392,6 +14776,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllCompaniesVisibleByUser(format?: string, sortField?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCompanyAdministrators
      * @instance
      * @description
@@ -14433,6 +14818,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCompanyAdministrators(companyId?: string, format?: string, limit?: number, offset?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createCompany
      * @instance
      * @description
@@ -14460,6 +14846,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     setVisibilityForCompany(company: any, visibleByCompany: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method createUserInCompany
      * @instance
      * @description
@@ -14481,6 +14868,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createUserInCompany(email: string, password: string, firstname: string, lastname: string, companyId: string, language: string, isCompanyAdmin?: boolean, roles?: Array<string>): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method createUser
      * @since 2.21.0
      * @instance
@@ -14723,6 +15111,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createUser(sendInvitationEmail?: boolean, doNotAssignPaidLicense?: boolean, mandatoryDefaultSubscription?: boolean, companyId?: string, loginEmail?: string, customData?: any, password?: string, firstName?: string, lastName?: string, nickName?: string, title?: string, jobTitle?: string, department?: string, tags?: Array<string>, emails?: Array<any>, phoneNumbers?: Array<any>, country?: string, state?: string, language?: string, timezone?: string, accountType?: string, roles?: Array<string>, adminType?: string, isActive?: boolean, isInitialized?: boolean, visibility?: string, timeToLive?: number, authenticationType?: string, authenticationExternalUid?: string, userInfo1?: string, selectedTheme?: string, userInfo2?: string, isAdmin?: boolean): Promise<Contact>;
     /**
      * @public
+     * @nodered true
      * @method createGuestUser
      * @instance
      * @description
@@ -14740,6 +15129,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createGuestUser(firstname: any, lastname: any, language: any, timeToLive: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method createAnonymousGuestUser
      * @since 1.31
      * @instance
@@ -14756,6 +15146,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createAnonymousGuestUser(timeToLive: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method inviteUserInCompany
      * @instance
      * @description
@@ -14773,6 +15164,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     inviteUserInCompany(email: any, companyId: any, language: any, message: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method changePasswordForUser
      * @instance
      * @description
@@ -14788,6 +15180,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     changePasswordForUser(password: any, userId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateInformationForUser
      * @instance
      * @description
@@ -14803,6 +15196,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateInformationForUser(objData: any, userId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteUser
      * @instance
      * @description
@@ -14817,6 +15211,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteUser(userId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllCompanies
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
      * - small: _id, name </BR>
@@ -14924,6 +15319,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     removeCompany(company: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllUsers
      * @instance
      * @description
@@ -14944,6 +15340,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByFilter
      * @instance
      * @category Companies and users management
@@ -15015,6 +15412,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllUsersByFilter(phoneNumbers: number, phoneNumber: number, searchEmail: string, companyId: string, roles: string, excludeRoles: string, tags: string, departments: string, isTerminated: string, isActivated: string, fileSharingCustomisation: string, userTitleNameCustomisation: string, softphoneOnlyCustomisation: string, useRoomCustomisation: string, phoneMeetingCustomisation: string, useChannelCustomisation: string, useScreenSharingCustomisation: string, useWebRTCVideoCustomisation: string, useWebRTCAudioCustomisation: string, instantMessagesCustomisation: string, userProfileCustomisation: string, fileStorageCustomisation: string, overridePresenceCustomisation: string, alert: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, recordingConversationCustomisation: string, useGifCustomisation: string, useDialOutCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string, selectedAppCustomisationTemplate: string, format: string, limit: string, offset: string, sortField: string, sortOrder: string, displayName: string, useEmails: boolean, companyName: string, loginEmail: string, email: string, visibility: string, organisationId: string, siteId: string, jid_im: string, jid_tel: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByCompanyId
      * @instance
      * @description
@@ -15037,6 +15435,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllUsersByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllUsersBySearchEmailByCompanyId
      * @instance
      * @description
@@ -15059,6 +15458,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllUsersBySearchEmailByCompanyId(format: string, offset: number, limit: number, sortField: string, companyId: string, searchEmail: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getContactInfos
      * @instance
      * @description
@@ -15073,6 +15473,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getContactInfos(userId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateContactInfos
      * @instance
      * @description
@@ -15246,6 +15647,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateContactInfos(userId: any, infos: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method acceptJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -15278,6 +15680,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     acceptJoinCompanyInvitation(invitationId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method declineJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -15310,6 +15713,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     declineJoinCompanyInvitation(invitationId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -15341,6 +15745,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getJoinCompanyInvitation(invitationId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyInvitations
      * @instance
      * @since 2.21.0
@@ -15385,6 +15790,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllJoinCompanyInvitations(sortField: string, status: string, format?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method cancelJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -15418,6 +15824,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     cancelJoinCompanyRequest(joinCompanyRequestId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -15451,6 +15858,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getJoinCompanyRequest(joinCompanyRequestId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyRequests
      * @instance
      * @since 2.21.0
@@ -15492,6 +15900,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllJoinCompanyRequests(sortField: string, status: string, format?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method resendJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -15527,6 +15936,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     resendJoinCompanyRequest(joinCompanyRequestId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method requestToJoinCompany
      * @instance
      * @since 2.21.0
@@ -15572,6 +15982,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     requestToJoinCompany(requestedCompanyId?: string, requestedCompanyAdminId?: string, requestedCompanyLinkId?: string, lang?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method applyCustomisationTemplates
      * @instance
      * @description
@@ -15625,6 +16036,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     applyCustomisationTemplates(name: string, companyId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createCustomisationTemplate
      * @instance
      * @description
@@ -15842,6 +16254,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCustomisationTemplate
      * @instance
      * @description
@@ -15863,6 +16276,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCustomisationTemplate(templateId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -15890,6 +16304,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllAvailableCustomisationTemplates(companyId?: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -15905,6 +16320,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getRequestedCustomisationTemplate(templateId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateCustomisationTemplate
      * @instance
      * @description
@@ -16120,6 +16536,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateCustomisationTemplate(templateId: string, name: string, visibleBy: string[], instantMessagesCustomisation?: string, useGifCustomisation?: string, fileSharingCustomisation?: string, fileStorageCustomisation?: string, phoneMeetingCustomisation?: string, useDialOutCustomisation?: string, useChannelCustomisation?: string, useRoomCustomisation?: string, useScreenSharingCustomisation?: string, useWebRTCAudioCustomisation?: string, useWebRTCVideoCustomisation?: string, recordingConversationCustomisation?: string, overridePresenceCustomisation?: string, userProfileCustomisation?: string, userTitleNameCustomisation?: string, changeTelephonyCustomisation?: string, changeSettingsCustomisation?: string, fileCopyCustomisation?: string, fileTransferCustomisation?: string, forbidFileOwnerChangeCustomisation?: string, readReceiptsCustomisation?: string, useSpeakingTimeStatistics?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method askTokenOnBehalf
      * @instance
      * @description
@@ -16137,8 +16554,10 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     /**
      *
      * @public
+     * @nodered true
      * @method getUserPresenceInformation
      * @instance
+     * @nodered true
      * @description
      *      Get presence informations about a user </BR>
      * </BR>
@@ -16154,6 +16573,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getUserPresenceInformation(userId?: undefined): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method retrieveAllOffersOfCompanyById
      * @since 1.73
      * @instance
@@ -16167,6 +16587,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     retrieveAllOffersOfCompanyById(companyId?: string): Promise<Array<any>>;
     /**
      * @public
+     * @nodered true
      * @method retrieveAllSubscriptionsOfCompanyById
      * @since 1.73
      * @instance
@@ -16184,6 +16605,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     retrieveAllSubscriptionsOfCompanyById(companyId?: string, format?: string): Promise<Array<any>>;
     /**
      * @public
+     * @nodered true
      * @method getSubscriptionsOfCompanyByOfferId
      * @since 1.73
      * @instance
@@ -16198,6 +16620,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getSubscriptionsOfCompanyByOfferId(offerId: any, companyId: any): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -16242,6 +16665,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     unSubscribeCompanyToDemoOffer(companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -16256,6 +16680,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     subscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -16270,6 +16695,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     unSubscribeCompanyToAlertOffer(companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -16284,6 +16710,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     subscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -16298,6 +16725,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     unSubscribeCompanyToVoiceEnterpriseOffer(companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -16312,6 +16740,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     unSubscribeCompanyToOfferById(offerId: string, companyId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method subscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -16326,6 +16755,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     subscribeUserToSubscription(userId?: string, subscriptionId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method unSubscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -16340,6 +16770,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     unSubscribeUserToSubscription(userId?: string, subscriptionId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserId
      * @since 2.11.0
      * @instance
@@ -16378,6 +16809,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAUserProfilesByUserId(userId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserEmail
      * @since 2.11.0
      * @instance
@@ -16416,6 +16848,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAUserProfilesByUserEmail(email?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserId
      * @since 2.11.0
      * @instance
@@ -16443,6 +16876,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAUserProfilesFeaturesByUserId(userId?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserEmail
      * @since 2.11.0
      * @instance
@@ -17956,6 +18390,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     }>): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxById
      * @since 2.1.0
      * @instance
@@ -17969,6 +18404,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPbxById(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBX
      * @since 2.1.0
      * @instance
@@ -17997,6 +18433,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateCloudPBX(systemId: any, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBX
      * @since 2.1.0
      * @instance
@@ -18010,6 +18447,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCloudPBX(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxs
      * @since 2.1.0
      * @instance
@@ -18028,6 +18466,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createACloudPBX
      * @since 2.1.0
      * @instance
@@ -18054,6 +18493,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXCLIPolicyForOutboundCalls
      * @since 2.1.0
      * @instance
@@ -18067,6 +18507,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXCLIPolicyForOutboundCalls(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXCLIOptionsConfiguration
      * @since 2.1.0
      * @instance
@@ -18081,6 +18522,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: CLOUDPBXCLIOPTIONPOLICY): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXlanguages
      * @since 2.1.0
      * @instance
@@ -18094,6 +18536,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXlanguages(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXDeviceModels
      * @since 2.1.0
      * @instance
@@ -18107,6 +18550,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXDeviceModels(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXTrafficBarringOptions
      * @since 2.1.0
      * @instance
@@ -18120,6 +18564,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXTrafficBarringOptions(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
      * @since 2.1.0
      * @instance
@@ -18133,6 +18578,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method CreateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18149,6 +18595,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method factoryResetCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18164,6 +18611,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPDeviceById
      * @since 2.1.0
      * @instance
@@ -18178,6 +18626,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXSIPDeviceById(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18192,6 +18641,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18208,6 +18658,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18231,6 +18682,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllCloudPBXSIPDevice(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, assigned: boolean, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPRegistrationsInformationDevice
      * @since 2.1.0
      * @instance
@@ -18245,6 +18697,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method grantCloudPBXAccessToDebugSession
      * @since 2.1.0
      * @instance
@@ -18268,6 +18721,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method revokeCloudPBXAccessFromDebugSession
      * @since 2.1.0
      * @instance
@@ -18284,6 +18738,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method rebootCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -18298,6 +18753,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     rebootCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -18312,6 +18768,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -18326,6 +18783,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXSubscriberRainbowUser
      * @since 2.1.0
      * @instance
@@ -18345,6 +18803,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPdeviceAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -18360,6 +18819,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeCloudPBXAssociationSubscriberAndSIPdevice
      * @since 2.1.0
      * @instance
@@ -18375,6 +18835,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXAllSIPdevicesAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -18393,6 +18854,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
      * @since 2.1.0
      * @instance
@@ -18407,6 +18869,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method assignCloudPBXSIPDeviceToSubscriber
      * @since 2.1.0
      * @instance
@@ -18426,6 +18889,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriberCLIOptions
      * @since 2.1.0
      * @instance
@@ -18440,6 +18904,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXUnassignedInternalPhonenumbers
      * @since 2.1.0
      * @instance
@@ -18453,6 +18918,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getCloudPBXUnassignedInternalPhonenumbers(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method listCloudPBXDDINumbersAssociated
      * @since 2.1.0
      * @instance
@@ -18476,6 +18942,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     listCloudPBXDDINumbersAssociated(systemId: string, limit: number, offset: number, sortField: string, sortOrder: number, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -18490,6 +18957,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createCloudPBXDDINumber(systemId: string, number: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -18505,6 +18973,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method associateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -18520,6 +18989,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disassociateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -18535,6 +19005,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method setCloudPBXDDIAsdefault
      * @since 2.1.0
      * @instance
@@ -18549,6 +19020,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method retrieveExternalSIPTrunkById
      * @since 2.1.0
      * @instance
@@ -18562,6 +19034,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     retrieveExternalSIPTrunkById(externalTrunkId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method retrievelistExternalSIPTrunks
      * @since 2.1.0
      * @instance
@@ -18581,6 +19054,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createASite
      * @since 2.1.1
      * @instance
@@ -18598,6 +19072,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createASite(name: string, status: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteSite
      * @since 2.1.1
      * @instance
@@ -18611,6 +19086,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteSite(siteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getSiteData
      * @since 2.1.1
      * @instance
@@ -18624,6 +19100,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getSiteData(siteId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllSites
      * @since 2.1.1
      * @instance
@@ -18650,6 +19127,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllSites(format: string, limit: number, offset: number, sortField: string, sortOrder: number, name: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateSite
      * @since 2.1.1
      * @instance
@@ -18666,6 +19144,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateSite(siteId: string, name: string, status: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createSystem
      * @since 2.20.0
      * @instance
@@ -18763,6 +19242,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createSystem(name: string, pbxId: string, pbxLdapId: string, siteId: string, type: string, country: string, version?: string, serverPingTimeout?: number, pbxMainBundlePrefix?: Array<string>, usePbxMainBundlePrefix?: boolean, pbxNumberingTranslator?: Array<any>, pbxNationalPrefix?: string, pbxInternationalPrefix?: string, searchResultOrder?: Array<string>, activationCode?: string, isCentrex?: boolean, isShared?: boolean, bpId?: string, isOxoManaged?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteSystem
      * @since 2.20.0
      * @instance
@@ -18793,6 +19273,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteSystem(systemId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getSystemConnectionState
      * @since 2.20.0
      * @instance
@@ -18835,6 +19316,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getSystemConnectionState(systemId: string, format?: string, connectionHistory?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getSystemDataByPbxId
      * @since 2.20.0
      * @instance
@@ -18895,6 +19377,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getSystemDataByPbxId(pbxId: string, connectionHistory?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getSystemData
      * @since 2.20.0
      * @instance
@@ -18955,6 +19438,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getSystemData(systemId: string, connectionHistory?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllSystems
      * @since 2.20.0
      * @instance
@@ -19041,6 +19525,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllSystems(connectionHistory?: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, name?: string, type?: string, status?: string, siteId?: string, companyId?: string, bpId?: string, isShared?: boolean, isCentrex?: boolean, isSharedOrCentrex?: boolean, isOxoManaged?: boolean, fromCreationDate?: string, toCreationDate?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getListOfCountriesAllowedForSystems
      * @since 2.20.0
      * @instance
@@ -19056,6 +19541,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getListOfCountriesAllowedForSystems(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateSystem
      * @since 2.20.0
      * @instance
@@ -19159,6 +19645,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updatepbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, companyName: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -19210,6 +19697,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getASystemPhoneNumber(systemId: string, phoneNumberId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllSystemPhoneNumbers
      * @since 2.20.0
      * @instance
@@ -19270,6 +19758,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllSystemPhoneNumbers(systemId: string, shortNumber?: string, internalNumber?: string, pbxUserId?: string, companyPrefix?: string, isMonitored?: boolean, name?: string, deviceName?: string, isAssignedToUser?: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -19333,6 +19822,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateASystemPhoneNumber(systemId: string, phoneNumberId: string, isMonitored?: boolean, userId?: string, internalNumber?: string, number?: string, type?: string, deviceType?: string, firstName?: string, lastName?: string, deviceName?: string, isVisibleByOthers?: boolean): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -19364,6 +19854,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createDirectoryEntry(companyId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCompanyDirectoryAllEntry
      * @since 2.2.0
      * @instance
@@ -19377,6 +19868,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteCompanyDirectoryAllEntry(companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -19390,6 +19882,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteDirectoryEntry(entryId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.2.0
      * @instance
@@ -19409,6 +19902,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getDirectoryEntryData(entryId: string, format?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getListDirectoryEntriesData
      * @since 2.2.0
      * @instance
@@ -19497,6 +19991,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, view?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -19534,6 +20029,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     buildDirectoryCsvBlob(companyId: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method exportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -19548,6 +20044,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     exportDirectoryCsvFile(companyId: string, filePath: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method ImportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -19563,6 +20060,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     ImportDirectoryCsvFile(companyId: string, fileFullPath: string, label: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllTagsAssignedToDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -19577,6 +20075,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllTagsAssignedToDirectoryEntries(companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method removeTagFromAllDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -19593,6 +20092,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     removeTagFromAllDirectoryEntries(companyId: string, tag: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method renameTagForAllAssignedDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -19610,6 +20110,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getStatsRegardingTagsOfDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -19623,6 +20124,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getStatsRegardingTagsOfDirectoryEntries(companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createAClientVersion
      * @since 2.5.0
      * @instance
@@ -19641,6 +20143,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     createAClientVersion(id: string, version: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAClientVersion
      * @since 2.5.0
      * @instance
@@ -19656,6 +20159,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteAClientVersion(clientId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAClientVersionData
      * @since 2.5.0
      * @instance
@@ -19670,6 +20174,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAClientVersionData(clientId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getAllClientsVersions
      * @since 2.5.0
      * @instance
@@ -19689,6 +20194,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getAllClientsVersions(name?: string, typeClient?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateAClientVersion
      * @since 2.5.0
      * @instance
@@ -19704,6 +20210,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateAClientVersion(clientId: string, version: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getListOfCountries
      * @since 2.21.0
      * @instance
@@ -19728,6 +20235,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getListOfCountries(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteTrustedApplication
      * @since 2.22.4
      * @instance
@@ -19746,6 +20254,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteTrustedApplication(appId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllTrustedApplications
      * @since 2.22.4
      * @instance
@@ -19764,6 +20273,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     deleteAllTrustedApplications(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method disableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -19782,6 +20292,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     disableMultifactorAuthentication(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method enableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -19795,6 +20306,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     enableMultifactorAuthentication(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -19816,6 +20328,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     getMultifactorInformation(): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method verifyMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -19836,6 +20349,7 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     verifyMultifactorInformation(token: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method resetRecoveryCodeForMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -20853,7 +21367,7 @@ export {}; enum SDKSTATUSENUM {
     constructor(_eventEmitter: any, logger: any, timeOutManager: TimeOutManager);
     start(): Promise<unknown>;
     stop(): Promise<unknown>;
-    transitTo(state: any, data?: any): Promise<unknown>;
+    transitTo(publishEvent: boolean, state: SDKSTATUSENUM, data?: any): Promise<unknown>;
     get STOPPED(): SDKSTATUSENUM;
     get CONNECTED(): SDKSTATUSENUM;
     get STARTED(): SDKSTATUSENUM;
@@ -20961,6 +21475,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     /*********************************************************/
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @instance
      * @category CallLog MANAGEMENT
@@ -20971,6 +21486,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     getAll(): any[];
     /**
      * @public
+     * @nodered true
      * @method getMissedCallLogCounter
      * @instance
      * @category CallLog MANAGEMENT
@@ -20981,6 +21497,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     getMissedCallLogCounter(): number;
     /**
      * @public
+     * @nodered true
      * @method deleteOneCallLog
      * @instance
      * @category CallLog MANAGEMENT
@@ -20993,6 +21510,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     deleteOneCallLog(id: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteCallLogsForContact
      * @instance
      * @category CallLog MANAGEMENT
@@ -21005,6 +21523,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     deleteCallLogsForContact(jid: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteAllCallLogs
      * @instance
      * @category CallLog MANAGEMENT
@@ -21016,6 +21535,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     deleteAllCallLogs(): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method markCallLogAsRead
      * @instance
      * @category CallLog MANAGEMENT
@@ -21028,6 +21548,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     markCallLogAsRead(id: any): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method markAllCallsLogsAsRead
      * @instance
      * @category CallLog MANAGEMENT
@@ -21039,6 +21560,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     markAllCallsLogsAsRead(): Promise<void>;
     /**
      * @public
+     * @nodered true
      * @method isInitialized
      * @instance
      * @category CallLog INITIALISATION
@@ -21196,6 +21718,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     _servicesToStart: any;
     private _testOutdatedVersion;
     private _testDNSentry;
+    private _autoReconnectIgnoreErrors;
     private _httpoverxmppserver;
     private _concurrentRequests;
     private _intervalBetweenCleanMemoryCache;
@@ -21206,6 +21729,8 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     set testOutdatedVersion(value: boolean);
     get testDNSentry(): boolean;
     set testDNSentry(value: boolean);
+    get autoReconnectIgnoreErrors(): boolean;
+    set autoReconnectIgnoreErrors(value: boolean);
     get testhttpoverxmppserver(): boolean;
     set testhttpoverxmppserver(value: boolean);
     get intervalBetweenCleanMemoryCache(): number;
@@ -21232,6 +21757,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     };
     _gettestOutdatedVersion(): any;
     _gettestDNSentry(): any;
+    _getautoReconnectIgnoreErrors(): any;
     _gethttpoverxmppserver(): any;
     _getintervalBetweenCleanMemoryCache(): any;
     _getservicesToStart(): {};
@@ -21484,11 +22010,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Mark as Received the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     markAlertMessageAsReceived(jid: string, messageXmppId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method markAlertMessageAsRead
      * @instance
      * @async
@@ -21498,11 +22024,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Mark as Read the specified alert message   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     markAlertMessageAsRead(jid: string, messageXmppId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method createDevice
      * @instance
      * @async
@@ -21514,11 +22040,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *    if AlertDevice.jid_resource cannot be specified, it's always the Jid_resource of the current user. <br>
      *    if AlertDevice.type is not specified, automatically it's set to "desktop" <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     createDevice(device: AlertDevice): Promise<AlertDevice>;
     /**
      * @public
+     * @nodered true
      * @method updateDevice
      * @instance
      * @async
@@ -21531,12 +22057,12 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *    AlertDevice.Jid_resource cannot be specified, it's always the Jid_resource of the current user: Application.GetResourceId() <br>
      *    if AlertDevice.Type is not specified, automatically it's set to "desktop"     <br>
      * @return {Promise<AlertDevice>} the result of the operation.   <br>
-     
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice>;
     private createOrUpdateDevice;
     /**
      * @public
+     * @nodered true
      * @method deleteDevice
      * @instance
      * @async
@@ -21545,11 +22071,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Delete a device (using its id) <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice>;
     /**
      * @public
+     * @nodered true
      * @method getDevice
      * @instance
      * @async
@@ -21558,11 +22084,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get a device using its Id <br>
      * @return {Promise<AlertDevice>} the result of the operation.
-     
      */
     getDevice(deviceId: string): Promise<AlertDevice>;
     /**
      * @public
+     * @nodered true
      * @method getDevices
      * @instance
      * @async
@@ -21577,11 +22103,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get list of devices   <br>
      * @return {Promise<AlertDevicesData>} the result of the operation.
-     
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset?: number, limit?: number): Promise<AlertDevicesData>;
     /**
      * @public
+     * @nodered true
      * @method getDevicesTags
      * @instance
      * @async
@@ -21590,11 +22116,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getDevicesTags(companyId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method renameDevicesTags
      * @instance
      * @async
@@ -21606,11 +22132,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     
      */
     renameDevicesTags(newTagName: string, tag: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteDevicesTags
      * @instance
      * @async
@@ -21621,11 +22147,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
-     
      */
     deleteDevicesTags(tag: string, companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getstatsTags
      * @instance
      * @async
@@ -21635,11 +22161,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
      * @return {Promise<any>} the result of the operation.
-     
      */
     getstatsTags(companyId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method createTemplate
      * @instance
      * @async
@@ -21648,11 +22174,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Create a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     createTemplate(template: AlertTemplate): Promise<AlertTemplate>;
     /**
      * @public
+     * @nodered true
      * @method updateTemplate
      * @instance
      * @async
@@ -21661,12 +22187,12 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Update a template  <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     updateTemplate(template: AlertTemplate): Promise<AlertTemplate>;
     private createOrUpdateTemplate;
     /**
      * @public
+     * @nodered true
      * @method deleteTemplate
      * @instance
      * @async
@@ -21675,11 +22201,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Delete a template <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     deleteTemplate(template: AlertTemplate): Promise<AlertTemplate>;
     /**
      * @public
+     * @nodered true
      * @method getTemplate
      * @instance
      * @async
@@ -21688,11 +22214,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get an template by id <br>
      * @return {Promise<AlertTemplate>} the result of the operation.
-     
      */
     getTemplate(templateId: string): Promise<AlertTemplate>;
     /**
      * @public
+     * @nodered true
      * @method getTemplates
      * @instance
      * @async
@@ -21703,11 +22229,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get templates <br>
      * @return {Promise<AlertTemplatesData>} the result of the operation.
-     
      */
     getTemplates(companyId: string, offset?: number, limit?: number): Promise<AlertTemplatesData>;
     /**
      * @public
+     * @nodered true
      * @method createFilter
      * @instance
      * @async
@@ -21716,7 +22242,6 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Create a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     createFilter(filter: AlertFilter): Promise<AlertFilter>;
     /**
@@ -21729,12 +22254,12 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Update a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     updateFilter(filter: AlertFilter): Promise<AlertFilter>;
     createOrUpdateFilter(create: boolean, filter: AlertFilter): Promise<AlertFilter>;
     /**
      * @public
+     * @nodered true
      * @method deleteFilter
      * @instance
      * @async
@@ -21743,11 +22268,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Delete a filter <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     deleteFilter(filter: AlertFilter): Promise<AlertFilter>;
     /**
      * @public
+     * @nodered true
      * @method getFilter
      * @instance
      * @async
@@ -21756,11 +22281,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get an filter by id <br>
      * @return {Promise<AlertFilter>} the result of the operation.
-     
      */
     getFilter(filterId: string): Promise<AlertFilter>;
     /**
      * @public
+     * @nodered true
      * @method getFilters
      * @instance
      * @async
@@ -21770,11 +22295,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get filters : have required role(s) superadmin, admin <br>
      * @return {Promise<AlertFiltersData>} the result of the operation.
-     
      */
     getFilters(offset?: number, limit?: number): Promise<AlertFiltersData>;
     /**
      * @public
+     * @nodered true
      * @method createAlert
      * @instance
      * @async
@@ -21789,6 +22314,7 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
     createAlert(alert: Alert): Promise<Alert>;
     /**
      * @public
+     * @nodered true
      * @method updateAlert
      * @instance
      * @async
@@ -21806,6 +22332,7 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
     createOrUpdateAlert(create: boolean, alert: Alert): Promise<Alert>;
     /**
      * @public
+     * @nodered true
      * @method deleteAlert
      * @instance
      * @async
@@ -21815,11 +22342,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *    Delete an alert   <br>
      *    All the data related to this notification are deleted, including the reports <br>
      * @return {Promise<Alert>} the result of the operation.
-     
      */
     deleteAlert(alert: Alert): Promise<Alert>;
     /**
      * @public
+     * @nodered true
      * @method getAlert
      * @instance
      * @async
@@ -21828,11 +22355,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get an alert by id <br>
      * @return {Promise<Alert>} the result of the operation.
-     
      */
     getAlert(alertId: string): Promise<Alert>;
     /**
      * @public
+     * @nodered true
      * @method getAlerts
      * @instance
      * @async
@@ -21842,11 +22369,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Get alerts : required role(s) superadmin,support,admin <br>
      * @return {Promise<AlertsData>} the result of the operation.
-     
      */
     getAlerts(offset?: number, limit?: number): Promise<AlertsData>;
     /**
      * @public
+     * @nodered true
      * @method sendAlertFeedback
      * @instance
      * @async
@@ -21858,11 +22385,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *    To send a feedback from an alert.   <br>
      *    To be used by end-user who has received the alert   <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAlertFeedbackSentForANotificationMessage
      * @instance
      * @async
@@ -21883,11 +22410,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
-     
      */
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAlertFeedbackSentForAnAlert
      * @instance
      * @async
@@ -21908,11 +22435,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * sortField optionnel 	String Sort feedback list based on the creationDate field (date when the feedback submitted by the device has been received by Rainbow servers). (default value : creationDate. Possible values : creationDate) <br>
      * sortOrder optionnel 	Number Specify order when sorting feedback list. (default value : 1. Possible values : -1, 1) <br>
      * }
-     
      */
     getAlertFeedbackSentForAnAlert(alertId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getAlertStatsFeedbackSentForANotificationMessage
      * @instance
      * @async
@@ -21926,11 +22453,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *      data 	String data submitted by the devices <br>
      *      count 	String Number of devices having submitted this given data <br>
      * }
-     
      */
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getReportSummary
      * @instance
      * @async
@@ -21939,11 +22466,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Allow to retrieve the list of summary reports of an alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportSummary(alertId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getReportDetails
      * @instance
      * @async
@@ -21952,11 +22479,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      * @description
      *    Allow to retrieve detail the list of detail reports of a alert (initial alert plus alerts update if any). <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportDetails(alertId: string): Promise<any>;
     /**
      * @public
+     * @nodered true
      * @method getReportComplete
      * @instance
      * @async
@@ -21975,7 +22502,6 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
      *  The detailed CSV report contains the following columns: <br>
      *  DeviceName,DeviceID,Domain_Username,IpAddress,MacAddress,sent,received,read,feedback,notificationId. <br>
      * @return {Promise<any>} the result of the operation.
-     
      */
     getReportComplete(alertId: string): Promise<any>;
 }
@@ -22187,6 +22713,7 @@ export {}; class WebinarsService extends GenericService {
     private removeWebinarFromCache;
     /**
      * @public
+     * @nodered true
      * @method createWebinar
      * @since 2.3.0
      * @instance
@@ -22214,6 +22741,7 @@ export {}; class WebinarsService extends GenericService {
     createWebinar(name: string, subject: string, waitingRoomStartDate: Date, webinarStartDate: Date, webinarEndDate: Date, reminderDates: Array<Date>, timeZone: string, register: boolean, approvalRegistrationMethod: string, passwordNeeded: boolean, isOrganizer: boolean, waitingRoomMultimediaURL: Array<string>, stageBackground: string, chatOption?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method updateWebinar
      * @since 2.3.0
      * @category Webinars
@@ -22241,6 +22769,7 @@ export {}; class WebinarsService extends GenericService {
     updateWebinar(webinarId: string, name: string, subject: string, waitingRoomStartDate: Date, webinarStartDate: Date, webinarEndDate: Date, reminderDates: Array<Date>, timeZone: string, register: boolean, approvalRegistrationMethod: string, passwordNeeded: boolean, lockRegistration: boolean, waitingRoomMultimediaURL: Array<string>, stageBackground: string, chatOption: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getWebinarData
      * @since 2.3.0
      * @instance
@@ -22255,6 +22784,7 @@ export {}; class WebinarsService extends GenericService {
     getWebinarData(webinarId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method getWebinarsData
      * @instance
      * @category Webinars
@@ -22268,6 +22798,7 @@ export {}; class WebinarsService extends GenericService {
     getWebinarsData(role: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method fetchMyWebinars
      * @since 2.3.0
      * @instance
@@ -22282,6 +22813,7 @@ export {}; class WebinarsService extends GenericService {
     fetchMyWebinars(force?: boolean): Promise<Webinar[]>;
     /**
      * @public
+     * @nodered true
      * @method warnWebinarModerators
      * @since 2.3.0
      * @instance
@@ -22301,6 +22833,7 @@ export {}; class WebinarsService extends GenericService {
     warnWebinarModerators(webinarId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method publishAWebinarEvent
      * @since 2.3.0
      * @instance
@@ -22319,6 +22852,7 @@ export {}; class WebinarsService extends GenericService {
     publishAWebinarEvent(webinarId: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method deleteWebinar
      * @since 2.3.0
      * @category Webinars
@@ -22393,6 +22927,8 @@ export {}; class RBVoiceService extends GenericService {
     attachHandlers(): void;
     _onEventRBVoice(data: any): void;
     /**
+     * @public
+     * @nodered true
      * @method retrieveAllAvailableCallLineIdentifications
      * @async
      * @category Rainbow Voice CLI Options
@@ -22415,6 +22951,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveAllAvailableCallLineIdentifications(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveCurrentCallLineIdentification
      * @async
      * @category Rainbow Voice CLI Options
@@ -22425,6 +22963,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveCurrentCallLineIdentification(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method setCurrentActiveCallLineIdentification
      * @async
      * @category Rainbow Voice CLI Options
@@ -22448,6 +22988,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method addMemberToGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22487,6 +23029,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method deleteVoiceMessageAssociatedToAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22500,6 +23044,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getVoiceMessagesAssociatedToGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22538,6 +23084,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getVoiceMessagesAssociatedToGroup(groupId: string, limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getGroupForwards
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22557,6 +23105,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getGroupForwards(groupId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getTheUserGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22585,6 +23135,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getTheUserGroup(type: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method joinAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22613,6 +23165,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     joinAGroup(groupId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method joinAllGroups
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22626,6 +23180,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     joinAllGroups(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method leaveAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22654,6 +23210,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     leaveAGroup(groupId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method leaveAllGroups
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22680,6 +23238,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     leaveAllGroups(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method removeMemberFromGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22693,6 +23253,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     removeMemberFromGroup(groupId: string, memberId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22718,6 +23280,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updateAVoiceMessageAssociatedToAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22732,6 +23296,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updateAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22767,6 +23333,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updateGroupForward
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22809,6 +23377,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updateGroupMember
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -22841,6 +23411,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method activateDeactivateDND
      * @async
      * @category Rainbow Voice Deskphones
@@ -22852,6 +23424,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     activateDeactivateDND(activate: boolean): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method configureAndActivateDeactivateForward
      * @async
      * @category Rainbow Voice Deskphones
@@ -22875,6 +23449,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number, activated: boolean): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveActiveForwards
      * @async
      * @category Rainbow Voice Deskphones
@@ -22886,6 +23462,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveActiveForwards(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveDNDState
      * @async
      * @category Rainbow Voice Deskphones
@@ -22897,6 +23475,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveDNDState(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method searchUsersGroupsContactsByName
      * @async
      * @category Rainbow Voice Deskphones
@@ -22937,6 +23517,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     searchUsersGroupsContactsByName(displayName: string, limit: number): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method activatePersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -22970,6 +23552,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     activatePersonalRoutine(routineId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method createCustomPersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -23026,6 +23610,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     createCustomPersonalRoutine(name: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method deleteCustomPersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -23038,6 +23624,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     deleteCustomPersonalRoutine(routineId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getPersonalRoutineData
      * @async
      * @category Rainbow Voice Personal Routines
@@ -23094,6 +23682,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getPersonalRoutineData(routineId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getAllPersonalRoutines
      * @async
      * @category Rainbow Voice Personal Routines
@@ -23128,6 +23718,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getAllPersonalRoutines(userId: any): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updatePersonalRoutineData
      * @async
      * @category Rainbow Voice Personal Routines
@@ -23241,6 +23833,8 @@ export {}; class RBVoiceService extends GenericService {
         withdrawAll: boolean;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method manageUserRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -23262,6 +23856,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     manageUserRoutingData(destinations: Array<string>, currentDeviceId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrievetransferRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -23281,6 +23877,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveUserRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -23300,6 +23898,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveUserRoutingData(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveVoiceUserSettings
      * @async
      * @category Rainbow Voice Voice
@@ -23316,6 +23916,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     retrieveVoiceUserSettings(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method addParticipant3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23332,6 +23934,8 @@ export {}; class RBVoiceService extends GenericService {
         callee: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method answerCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23348,6 +23952,8 @@ export {}; class RBVoiceService extends GenericService {
         legId: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method blindTransferCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23369,6 +23975,8 @@ export {}; class RBVoiceService extends GenericService {
         };
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method deflectCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23385,6 +23993,8 @@ export {}; class RBVoiceService extends GenericService {
         destination: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method holdCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23401,6 +24011,8 @@ export {}; class RBVoiceService extends GenericService {
         legId: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method makeCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23440,6 +24052,8 @@ export {}; class RBVoiceService extends GenericService {
         dialPadCalleeNumber: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method mergeCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23456,6 +24070,8 @@ export {}; class RBVoiceService extends GenericService {
         heldCallId: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method pickupCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23477,6 +24093,8 @@ export {}; class RBVoiceService extends GenericService {
         calleeShortNumber: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method releaseCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23492,6 +24110,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     releaseCall3PCC(callId: string, legId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method retrieveCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23508,6 +24128,8 @@ export {}; class RBVoiceService extends GenericService {
         legId: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method sendDTMF3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23526,6 +24148,8 @@ export {}; class RBVoiceService extends GenericService {
         digits: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method snapshot3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23547,6 +24171,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     snapshot3PCC(callId: string, deviceId: string, seqNum: number): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method transferCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -23563,6 +24189,8 @@ export {}; class RBVoiceService extends GenericService {
         heldCallId: string;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method deleteAVoiceMessage
      * @async
      * @category Rainbow Voice Voice
@@ -23576,6 +24204,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     deleteAVoiceMessage(messageId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method deleteAllVoiceMessages
      * @async
      * @category Rainbow Voice Voice
@@ -23589,6 +24219,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     deleteAllVoiceMessages(messageId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getEmergencyNumbersAndEmergencyOptions
      * @async
      * @category Rainbow Voice Voice
@@ -23609,6 +24241,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getEmergencyNumbersAndEmergencyOptions(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getVoiceMessages
      * @async
      * @category Rainbow Voice Voice
@@ -23645,6 +24279,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getVoiceMessages(limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getUserDevices
      * @async
      * @category Rainbow Voice Voice
@@ -23665,6 +24301,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getUserDevices(): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method updateVoiceMessage
      * @async
      * @category Rainbow Voice Voice
@@ -23686,6 +24324,8 @@ export {}; class RBVoiceService extends GenericService {
         read: boolean;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method forwardCall
      * @async
      * @category Rainbow Voice Voice Forward
@@ -23714,6 +24354,8 @@ export {}; class RBVoiceService extends GenericService {
         noReplyDelay: number;
     }): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method getASubscriberForwards
      * @async
      * @category Rainbow Voice Voice Forward
@@ -23731,6 +24373,8 @@ export {}; class RBVoiceService extends GenericService {
      */
     getASubscriberForwards(userId: string): Promise<unknown>;
     /**
+     * @public
+     * @nodered true
      * @method searchCloudPBXhuntingGroups
      * @async
      * @category Rainbow Voice Voice Search Hunting Groups
@@ -23770,6 +24414,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     attachHandlers(): void;
     /**
      * @public
+     * @nodered true
      * @method get
      * @since 2.10.0
      * @instance
@@ -23785,6 +24430,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     get(urlToGet: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method discoverHTTPoverXMPP
      * @since 2.10.0
      * @instance
@@ -23799,6 +24445,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     discoverHTTPoverXMPP(headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method trace
      * @since 2.10.0
      * @instance
@@ -23814,6 +24461,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     trace(urlToTrace: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method head
      * @since 2.10.0
      * @instance
@@ -23829,6 +24477,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     head(urlToHead: string, headers?: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method post
      * @since 2.10.0
      * @instance
@@ -23845,6 +24494,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     post(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method put
      * @since 2.10.0
      * @instance
@@ -23861,6 +24511,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     put(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @public
+     * @nodered true
      * @method delete
      * @since 2.10.0
      * @instance
@@ -23877,6 +24528,7 @@ export {}; class HTTPoverXMPP extends GenericService {
     delete(urlToPost: string, headers: any, data: any, httpoverxmppserver_jid?: string): Promise<unknown>;
     /**
      * @private
+     * @nodered true
      * @method discover
      * @since 2.10.0
      * @instance
@@ -23959,6 +24611,8 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class C
     _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
     private _timeOutManager;
+    private _signinmethodName;
+    private lastConnectedOptions;
     static getClassName(): string;
     getClassName(): string;
     constructor(options: any);
@@ -24206,8 +24860,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     stopProcess(): () => Promise<never>;
     /**
      * @public
-     * @property {Object} im
+     * @property {ImsService} im
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the IM module
      * @return {ImsService}
@@ -24215,8 +24871,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get im(): ImsService;
     /**
      * @public
-     * @property {Object} channels
+     * @property {ChannelsService} channels
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Channels module
      * @return {ChannelsService}
@@ -24224,7 +24882,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get channels(): ChannelsService;
     /**
      * @public
-     * @property {Object} contacts
+     * @property {ContactsService} contacts
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Contacts module
@@ -24233,7 +24893,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get contacts(): ContactsService;
     /**
      * @public
-     * @property {Object} conversations
+     * @property {ConversationsService} conversations
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Conversations module
@@ -24242,8 +24904,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get conversations(): ConversationsService;
     /**
      * @public
-     * @property {Object} presence
+     * @property {PresenceService} presence
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Presence module
      * @return {PresenceService}
@@ -24251,8 +24915,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get presence(): PresenceService;
     /**
      * @public
-     * @property {Object} bubbles
+     * @property {BubblesService} bubbles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Bubbles module
      * @return {BubblesService}
@@ -24260,8 +24926,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get bubbles(): BubblesService;
     /**
      * @public
-     * @property {Object} groups
+     * @property {GroupsService} groups
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Groups module
      * @return {GroupsService}
@@ -24269,26 +24937,31 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get groups(): GroupsService;
     /**
      * @public
-     * @property {Object} events
+     * @property {Events} events
      * @instance
+     * @nodered true
      * @description
      *    Get access to the Events module
      * @return {Events}
      */
     get events(): Events;
     /**
-     * @private
-     * @property {Object} fileServer
+     * @public
+     * @property {FileServerService} fileServer
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Server module
      * @return {FileServerService}
      */
     get fileServer(): FileServerService;
     /**
-     * @private
-     * @property {Object} fileStorage
+     * @public
+     * @property {FileStorageService} fileStorage
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Storage module
      * @return {FileStorageService}
@@ -24296,8 +24969,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get fileStorage(): FileStorageService;
     /**
      * @public
-     * @property {Object} admin
+     * @property {AdminService} admin
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Admin module
      * @return {AdminService}
@@ -24307,6 +24982,8 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @public
      * @property {Object} profiles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Profiles module
      * @return {AdminService}
@@ -24314,7 +24991,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get profiles(): ProfilesService;
     /**
      * @private
-     * @property {Object} rest
+     * @property {RESTService} rest
      * @instance
      * @description
      *    Get access to the REST module
@@ -24323,8 +25000,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get rest(): RESTService;
     /**
      * @public
-     * @property {Object} settings
+     * @property {SettingsService} settings
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Settings module
      * @return {SettingsService}
@@ -24334,6 +25013,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @public
      * @property {SDKSTATUSENUM} state
      * @instance
+     * @nodered true
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @return {SDKSTATUSENUM}
@@ -24343,6 +25023,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @public
      * @property {String} version
      * @instance
+     * @nodered true
      * @description
      *      Return the version of the SDK
      * @return {String}
@@ -24352,6 +25033,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @public
      * @property {ConnectedUser} connectedUser
      * @instance
+     * @nodered true
      * @description
      *      Return the connected user information
      * @return {any}
@@ -24359,8 +25041,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get connectedUser(): any;
     /**
      * @public
-     * @property {Object} telephony
+     * @property {TelephonyService} telephony
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the telephony module
      * @return {TelephonyService}
@@ -24368,8 +25052,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get telephony(): TelephonyService;
     /**
      * @public
-     * @property {Object} calllog
+     * @property {CallLogService} calllog
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the calllog module
      * @return {CallLogService}
@@ -24377,8 +25063,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get calllog(): CallLogService;
     /**
      * @public
-     * @property {Object} favorites
+     * @property {FavoritesService} favorites
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the favorite module
      * @return {FavoritesService}
@@ -24386,8 +25074,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get favorites(): FavoritesService;
     /**
      * @public
-     * @property {Object} invitations
+     * @property {InvitationsService} invitations
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the invitation module
      * @return {InvitationsService}
@@ -24395,8 +25085,10 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     get invitations(): InvitationsService;
     /**
      * @public
-     * @property {Object} s2s
+     * @property {S2SService} s2s
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the s2s module
      * @return {S2SService}
@@ -24405,6 +25097,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     /**
      * @public
      * @property {AlertsService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the alerts module
      * @return {AlertsService}
@@ -24413,6 +25108,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     /**
      * @public
      * @property {RBVoiceService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {RBVoiceService}
@@ -24421,6 +25119,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     /**
      * @public
      * @property {WebinarsService} alerts
+     * @intance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {WebinarsService}
@@ -24429,6 +25130,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     /**
      * @public
      * @property {HTTPoverXMPP} httpoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the httpoverxmpp module
      * @return {HTTPoverXMPP}
@@ -24437,6 +25141,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     /**
      * @public
      * @property {RPCoverXMPPService} rpcoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the rpcoverxmpp module
      * @return {RPCoverXMPPService}
@@ -24455,6 +25162,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @public
      * @method getConnectionStatus
      * @instance
+     * @nodered true
      * @description
      *    Get connections status of each low layer services, and also the full SDK state. <br>
      * <br>

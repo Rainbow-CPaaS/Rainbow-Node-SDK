@@ -255,6 +255,8 @@ pipeline {
                     
                     ls 
                     ls ./src/**/*
+
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                         
                     echo ---------- STEP grunt : 
                     echo Sub Step 1 : To compil the sources
@@ -275,7 +277,9 @@ pipeline {
                         
                     #npm view
                     npm token list
-                        
+                      
+                    cp -R build/JSONDOCS guide/JSONDOCS
+
                     echo ---------- STEP publish :
                     ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
                         

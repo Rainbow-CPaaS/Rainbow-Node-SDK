@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.25.2-lts.2] - 2023-10-XX
+### [2.25.2-lts.2] - 2023-10-17
 #### Removed
 -   None
 
@@ -15,7 +15,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `InvitationsService` when an error occurs during call of `ContactsService::getContactById`. 
 
 #### Added
--   Add `ContactsService::getAllContactsInCache` to get the list of _contacts that are in the cache of the current instance of the connected users..
+-   Add `ContactsService::getAllContactsInCache` to get the list of _contacts that are in the cache of the current instance of the connected users.
+-   Add @nodered true tag in javadoc of Service's apis
+-   Add generated JSON docs for nodered contrib in jenkins job for include it in npmjs publish.
 
 #### Changed
 -   Update `ContactsService::getAll` API result (see Fixed).

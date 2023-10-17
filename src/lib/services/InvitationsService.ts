@@ -505,6 +505,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getReceivedInvitations
 	 * @instance
@@ -520,6 +521,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method searchInvitationsReceivedFromServer
 	 * @instance
@@ -572,6 +574,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method 	getAcceptedInvitations
 	 * @instance
@@ -587,6 +590,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getInvitationsNumberForCounter
 	 * @category Invitations RECEIVED
@@ -602,6 +606,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getServerInvitation
 	 * @instance
@@ -632,6 +637,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getInvitation
 	 * @instance
@@ -671,6 +677,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method joinContactInvitation
 	 * @instance
@@ -706,6 +713,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method acceptInvitation
 	 * @instance
@@ -769,6 +777,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method declineInvitation
 	 * @instance
@@ -857,6 +866,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getSentInvitations
 	 * @instance
@@ -872,6 +882,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method searchInvitationsSentFromServer
 	 * @instance
@@ -925,6 +936,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method sendInvitationByEmail
 	 * @instance
@@ -964,6 +976,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method sendInvitationByCriteria
 	 * @instance
@@ -1069,6 +1082,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method cancelOneSendInvitation
 	 * @instance
@@ -1098,6 +1112,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method reSendInvitation
 	 * @instance
@@ -1151,6 +1166,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method sendInvitationsByBulk
 	 * @instance
@@ -1230,6 +1246,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getAllInvitationsNumber
 	 * @instance
@@ -1245,6 +1262,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.21.0
 	 * @method deleteAUserInvitation
 	 * @instance

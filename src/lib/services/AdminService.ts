@@ -141,6 +141,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method getRainbowSupportBotService
+     * @nodered true
      * @instance
      * @description
      *      This API can be used to get Rainbow support bot service (Emily) </BR>
@@ -193,6 +194,7 @@ class AdminService extends GenericService {
      * @method getABotServiceData
      * @instance
      * @param {string} botId Bot Service unique identifier
+     * @nodered true
      * @description
      *      This API can be used to get a bot service data. </BR>
      * @async
@@ -242,6 +244,7 @@ class AdminService extends GenericService {
      /**
       * @public
       * @method getAllBotServices
+      * @nodered true
       * @instance
       * @description
       *      This API can be used to retrieve the list of bot services. </BR>
@@ -305,6 +308,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAJoinCompanyLink
      * @instance
      * @description
@@ -370,6 +374,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAJoinCompanyLink
      * @instance
      * @description
@@ -434,6 +439,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAJoinCompanyLink
      * @instance
      * @description
@@ -496,6 +502,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method getAllJoinCompanyLinks
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to list existing join company links for his company. </BR>
@@ -578,6 +585,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method updateAJoinCompanyLink
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to update a join company link for his company. </BR>
@@ -653,6 +661,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method createCompanyFromDefault
      * @instance
      * @description
@@ -821,8 +830,10 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCompaniesVisibleByUser
      * @instance
+     * @nodered true
      * @description
      *   This API allows users to get all companies. </BR>
      *   Users with user role can only retrieve their own company and companies they can see (companies with visibility=public, companies having user's companyId in visibleBy field, companies being in user's company organization and having visibility=organization, BP company of user's company). </BR>
@@ -895,6 +906,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCompanyAdministrators
      * @instance
      * @description
@@ -960,6 +972,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCompany
      * @instance
      * @description
@@ -1057,6 +1070,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createUserInCompany
      * @instance
      * @description
@@ -1149,6 +1163,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createUser
      * @since 2.21.0
      * @instance
@@ -1432,6 +1447,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createGuestUser
      * @instance
      * @description
@@ -1490,6 +1506,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAnonymousGuestUser
      * @since 1.31
      * @instance
@@ -1532,6 +1549,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method inviteUserInCompany
      * @instance
      * @description
@@ -1586,6 +1604,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method changePasswordForUser
      * @instance
      * @description
@@ -1635,6 +1654,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateInformationForUser
      * @instance
      * @description
@@ -1690,6 +1710,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteUser
      * @instance
      * @description
@@ -1731,6 +1752,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCompanies
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
      * - small: _id, name </BR>
@@ -1906,6 +1928,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsers
      * @instance
      * @description
@@ -1949,6 +1972,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByFilter
      * @instance
      * @category Companies and users management
@@ -2046,6 +2070,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByCompanyId
      * @instance
      * @description
@@ -2091,6 +2116,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersBySearchEmailByCompanyId
      * @instance
      * @description
@@ -2136,6 +2162,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactInfos
      * @instance
      * @description
@@ -2173,6 +2200,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateContactInfos
      * @instance
      * @description
@@ -2423,6 +2451,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method acceptJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2473,6 +2502,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method declineJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2523,6 +2553,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2572,6 +2603,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyInvitations
      * @instance
      * @since 2.21.0
@@ -2634,6 +2666,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method cancelJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2690,6 +2723,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2746,6 +2780,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyRequests
      * @instance
      * @since 2.21.0
@@ -2810,6 +2845,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resendJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2868,6 +2904,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method requestToJoinCompany
      * @instance
      * @since 2.21.0
@@ -2942,6 +2979,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method applyCustomisationTemplates
      * @instance
      * @description
@@ -3017,6 +3055,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCustomisationTemplate
      * @instance
      * @description
@@ -3264,6 +3303,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCustomisationTemplate
      * @instance
      * @description
@@ -3307,6 +3347,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -3356,6 +3397,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -3393,6 +3435,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCustomisationTemplate
      * @instance
      * @description
@@ -3643,6 +3686,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method askTokenOnBehalf
      * @instance
      * @description
@@ -3682,8 +3726,10 @@ class AdminService extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getUserPresenceInformation
      * @instance
+     * @nodered true
      * @description
      *      Get presence informations about a user </BR>
      * </BR>
@@ -3723,6 +3769,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method retrieveAllOffersOfCompanyById
      * @since 1.73
      * @instance
@@ -3756,6 +3803,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrieveAllSubscriptionsOfCompanyById
      * @since 1.73
      * @instance
@@ -3793,6 +3841,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSubscriptionsOfCompanyByOfferId
      * @since 1.73
      * @instance
@@ -3825,6 +3874,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -3946,6 +3996,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -3981,6 +4032,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -4015,6 +4067,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -4050,6 +4103,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -4084,6 +4138,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -4130,6 +4185,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -4160,6 +4216,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -4190,6 +4247,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserId
      * @since 2.11.0
      * @instance
@@ -4249,6 +4307,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserEmail
      * @since 2.11.0
      * @instance
@@ -4309,6 +4368,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserId
      * @since 2.11.0
      * @instance
@@ -4358,6 +4418,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserEmail
      * @since 2.11.0
      * @instance
@@ -6597,6 +6658,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxById
      * @since 2.1.0
      * @instance
@@ -6635,6 +6697,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBX
      * @since 2.1.0
      * @instance
@@ -6688,6 +6751,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBX
      * @since 2.1.0
      * @instance
@@ -6724,6 +6788,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxs
      * @since 2.1.0
      * @instance
@@ -6759,6 +6824,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createACloudPBX
      * @since 2.1.0
      * @instance
@@ -6804,6 +6870,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXCLIPolicyForOutboundCalls
      * @since 2.1.0
      * @instance
@@ -6841,6 +6908,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXCLIOptionsConfiguration
      * @since 2.1.0
      * @instance
@@ -6885,6 +6953,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXlanguages
      * @since 2.1.0
      * @instance
@@ -6921,6 +6990,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXDeviceModels
      * @since 2.1.0
      * @instance
@@ -6957,6 +7027,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXTrafficBarringOptions
      * @since 2.1.0
      * @instance
@@ -6993,6 +7064,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
      * @since 2.1.0
      * @instance
@@ -7032,6 +7104,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method CreateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7084,6 +7157,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method factoryResetCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7129,6 +7203,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPDeviceById
      * @since 2.1.0
      * @instance
@@ -7173,6 +7248,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7221,6 +7297,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7267,6 +7344,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7313,6 +7391,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPRegistrationsInformationDevice
      * @since 2.1.0
      * @instance
@@ -7360,6 +7439,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method grantCloudPBXAccessToDebugSession
      * @since 2.1.0
      * @instance
@@ -7416,6 +7496,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method revokeCloudPBXAccessFromDebugSession
      * @since 2.1.0
      * @instance
@@ -7465,6 +7546,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method rebootCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7518,6 +7600,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -7565,6 +7648,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -7612,6 +7696,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXSubscriberRainbowUser
      * @since 2.1.0
      * @instance
@@ -7670,6 +7755,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPdeviceAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -7725,6 +7811,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method removeCloudPBXAssociationSubscriberAndSIPdevice
      * @since 2.1.0
      * @instance
@@ -7779,6 +7866,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXAllSIPdevicesAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -7820,6 +7908,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
      * @since 2.1.0
      * @instance
@@ -7867,6 +7956,7 @@ class AdminService extends GenericService {
      
     /**
      * @public
+     * @nodered true
      * @method assignCloudPBXSIPDeviceToSubscriber
      * @since 2.1.0
      * @instance
@@ -7916,6 +8006,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriberCLIOptions
      * @since 2.1.0
      * @instance
@@ -7967,6 +8058,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXUnassignedInternalPhonenumbers
      * @since 2.1.0
      * @instance
@@ -8007,6 +8099,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method listCloudPBXDDINumbersAssociated
      * @since 2.1.0
      * @instance
@@ -8057,6 +8150,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8104,6 +8198,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8152,6 +8247,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method associateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8207,6 +8303,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method disassociateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8261,6 +8358,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method setCloudPBXDDIAsdefault
      * @since 2.1.0
      * @instance
@@ -8312,6 +8410,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrieveExternalSIPTrunkById
      * @since 2.1.0
      * @instance
@@ -8352,6 +8451,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrievelistExternalSIPTrunks
      * @since 2.1.0
      * @instance
@@ -8398,6 +8498,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createASite
      * @since 2.1.1
      * @instance
@@ -8448,6 +8549,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSite
      * @since 2.1.1
      * @instance
@@ -8487,6 +8589,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSiteData
      * @since 2.1.1
      * @instance
@@ -8526,6 +8629,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSites
      * @since 2.1.1
      * @instance
@@ -8573,6 +8677,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSite
      * @since 2.1.1
      * @instance
@@ -8621,6 +8726,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createSystem
      * @since 2.20.0
      * @instance
@@ -8750,6 +8856,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSystem
      * @since 2.20.0
      * @instance
@@ -8806,6 +8913,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemConnectionState
      * @since 2.20.0
      * @instance
@@ -8874,6 +8982,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemDataByPbxId
      * @since 2.20.0
      * @instance
@@ -8960,6 +9069,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemData
      * @since 2.20.0
      * @instance
@@ -9046,6 +9156,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSystems
      * @since 2.20.0
      * @instance
@@ -9157,6 +9268,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListOfCountriesAllowedForSystems
      * @since 2.20.0
      * @instance
@@ -9193,6 +9305,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSystem
      * @since 2.20.0
      * @instance
@@ -9474,6 +9587,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -9556,6 +9670,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSystemPhoneNumbers
      * @since 2.20.0
      * @instance
@@ -9642,6 +9757,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -9746,6 +9862,7 @@ class AdminService extends GenericService {
     //region directory
     /**
      * @public
+     * @nodered true
      * @method createDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -9838,6 +9955,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCompanyDirectoryAllEntry
      * @since 2.2.0
      * @instance
@@ -9877,6 +9995,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -9916,6 +10035,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.2.0
      * @instance
@@ -9961,6 +10081,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListDirectoryEntriesData
      * @since 2.2.0
      * @instance
@@ -10085,6 +10206,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -10352,6 +10474,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method exportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -10389,6 +10512,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method ImportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -10442,6 +10566,7 @@ class AdminService extends GenericService {
     //region directory tags
     /**
      * @public
+     * @nodered true
      * @method getAllTagsAssignedToDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10476,6 +10601,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeTagFromAllDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10513,6 +10639,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method renameTagForAllAssignedDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10556,6 +10683,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getStatsRegardingTagsOfDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10596,6 +10724,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAClientVersion
      * @since 2.5.0
      * @instance
@@ -10647,6 +10776,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAClientVersion
      * @since 2.5.0
      * @instance
@@ -10683,6 +10813,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAClientVersionData
      * @since 2.5.0
      * @instance
@@ -10718,6 +10849,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllClientsVersions
      * @since 2.5.0
      * @instance
@@ -10758,6 +10890,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateAClientVersion
      * @since 2.5.0
      * @instance
@@ -10799,6 +10932,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListOfCountries
      * @since 2.21.0
      * @instance
@@ -10848,6 +10982,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteTrustedApplication
      * @since 2.22.4
      * @instance
@@ -10887,6 +11022,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllTrustedApplications
      * @since 2.22.4
      * @instance
@@ -10926,6 +11062,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -10965,6 +11102,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method enableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -10999,6 +11137,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -11041,6 +11180,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method verifyMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -11082,6 +11222,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resetRecoveryCodeForMultifactorAuthentication
      * @since 2.22.4
      * @instance

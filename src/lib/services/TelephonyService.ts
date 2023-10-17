@@ -389,6 +389,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAgentVersion
      * @instance
      * @category Telephony MANAGEMENT
@@ -403,6 +404,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getXMPPAgentStatus
      * @instance
      * @category Telephony MANAGEMENT
@@ -417,6 +419,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getPhoneAPIStatus
      * @instance
      * @category Telephony MANAGEMENT
@@ -482,6 +485,7 @@ class TelephonyService extends GenericService {
      *
      /**
      * @public
+     * @nodered true
      * @method getMediaPillarInfo
      * @instance
      * @category Telephony MANAGEMENT
@@ -670,6 +674,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getVoiceMessageCounter
      * @async 
      * @category Telephony CALL
@@ -712,6 +717,7 @@ class TelephonyService extends GenericService {
     /*********************************************************/
     /**
      * @public
+     * @nodered true
      * @method getCallToHangOut
      * @category Telephony CALL
      * @instance
@@ -734,6 +740,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getActiveCall
      * @category Telephony CALL
      * @instance
@@ -755,6 +762,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getActiveCalls
      * @category Telephony CALL
      * @instance
@@ -782,6 +790,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCalls
      * @category Telephony CALL
      * @instance
@@ -800,6 +809,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCallsSize
      * @category Telephony CALL
      * @instance
@@ -823,6 +833,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getActiveCall
      * @param {Contact} contact The contact with an active call with us.
      * @category Telephony CALL
@@ -856,6 +867,7 @@ class TelephonyService extends GenericService {
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method makeCall
      * @instance
      * @async
@@ -1111,6 +1123,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method makeCall
      * @async
      * @category Telephony CALL
@@ -1275,6 +1288,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method releaseCall
      * @async
      * @category Telephony CALL
@@ -1343,6 +1357,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method answerCall
      * @async
      * @category Telephony CALL
@@ -1429,6 +1444,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method holdCall
      * @category Telephony CALL
      * @instance
@@ -1499,6 +1515,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrieveCall
      * @async
      * @category Telephony CALL
@@ -1587,6 +1604,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deflectCallToVM
      * @async
      * @category Telephony CALL
@@ -1659,6 +1677,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deflectCall
      * @async
      * @category Telephony CALL
@@ -1715,6 +1734,7 @@ class TelephonyService extends GenericService {
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method transfertCall
      * @async
      * @category Telephony CALL
@@ -1777,6 +1797,7 @@ class TelephonyService extends GenericService {
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method conferenceCall
      * @async
      * @category Telephony CALL
@@ -1839,6 +1860,7 @@ class TelephonyService extends GenericService {
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method forwardToDevice
      * @async
      * @category Telephony CALL
@@ -1892,6 +1914,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method forwardToVoicemail
      * @async
      * @category Telephony CALL
@@ -1947,6 +1970,7 @@ class TelephonyService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method cancelForward
      * @async
      * @category Telephony CALL
@@ -2025,6 +2049,7 @@ class TelephonyService extends GenericService {
     /*************************************************************/
     /**
      * @public
+     * @nodered true
      * @method sendDtmf
      * @async
      * @category Telephony CALL
@@ -2238,6 +2263,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method logon
      * @async
      * @category Telephony CALL
@@ -2274,6 +2300,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method logoff
      * @async
      * @category Telephony CALL
@@ -2310,6 +2337,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method withdrawal
      * @async
      * @category Telephony CALL
@@ -2351,6 +2379,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method wrapup
      * @async
      * @category Telephony CALL
@@ -2562,6 +2591,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 // */
     /**
      * @public
+     * @nodered true
      * @method getNomadicStatus
      * @async
      * @category Telephony NOMADIC
@@ -2681,6 +2711,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllMyVoiceMessagesFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -2707,6 +2738,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method deleteAVoiceMessageFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -2734,6 +2766,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method getAVoiceMessageFromPbx
      * @async
      * @category Telephony Voice Messages
@@ -2769,6 +2802,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method getDetailedListOfVoiceMessages
      * @async
      * @category Telephony Voice Messages
@@ -2811,6 +2845,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     /**
      * @public
+     * @nodered true
      * @method getNumbersOfVoiceMessages
      * @async
      * @category Telephony Voice Messages

@@ -137,6 +137,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method get
      * @since 2.10.0
      * @instance
@@ -181,6 +182,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method discoverHTTPoverXMPP
      * @since 2.10.0
      * @instance
@@ -219,6 +221,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method trace
      * @since 2.10.0
      * @instance
@@ -264,6 +267,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method head
      * @since 2.10.0
      * @instance
@@ -308,6 +312,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method post
      * @since 2.10.0
      * @instance
@@ -353,6 +358,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method put
      * @since 2.10.0
      * @instance
@@ -398,6 +404,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method delete
      * @since 2.10.0
      * @instance
@@ -443,6 +450,7 @@ class HTTPoverXMPP extends GenericService {
 
     /**
      * @private
+     * @nodered true
      * @method discover
      * @since 2.10.0
      * @instance

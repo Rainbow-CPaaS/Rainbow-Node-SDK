@@ -705,8 +705,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} im
+     * @property {ImsService} im
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the IM module
      * @return {ImsService}
@@ -717,8 +719,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} channels
+     * @property {ChannelsService} channels
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Channels module
      * @return {ChannelsService}
@@ -729,7 +733,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} contacts
+     * @property {ContactsService} contacts
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Contacts module
@@ -741,7 +747,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} conversations
+     * @property {ConversationsService} conversations
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Conversations module
@@ -753,8 +761,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} presence
+     * @property {PresenceService} presence
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Presence module
      * @return {PresenceService}
@@ -765,8 +775,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} bubbles
+     * @property {BubblesService} bubbles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Bubbles module
      * @return {BubblesService}
@@ -777,8 +789,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} groups
+     * @property {GroupsService} groups
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Groups module
      * @return {GroupsService}
@@ -789,8 +803,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} events
+     * @property {Events} events
      * @instance
+     * @nodered true
      * @description
      *    Get access to the Events module
      * @return {Events}
@@ -800,9 +815,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
-     * @property {Object} fileServer
+     * @public
+     * @property {FileServerService} fileServer
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Server module
      * @return {FileServerService}
@@ -812,9 +829,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
-     * @property {Object} fileStorage
+     * @public
+     * @property {FileStorageService} fileStorage
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Storage module
      * @return {FileStorageService}
@@ -825,8 +844,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} admin
+     * @property {AdminService} admin
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Admin module
      * @return {AdminService}
@@ -839,6 +860,8 @@ class NodeSDK {
      * @public
      * @property {Object} profiles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Profiles module
      * @return {AdminService}
@@ -849,7 +872,7 @@ class NodeSDK {
 
     /**
      * @private
-     * @property {Object} rest
+     * @property {RESTService} rest
      * @instance
      * @description
      *    Get access to the REST module
@@ -861,8 +884,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} settings
+     * @property {SettingsService} settings
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Settings module
      * @return {SettingsService}
@@ -875,6 +900,7 @@ class NodeSDK {
      * @public
      * @property {SDKSTATUSENUM} state
      * @instance
+     * @nodered true
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @return {SDKSTATUSENUM}
@@ -887,6 +913,7 @@ class NodeSDK {
      * @public
      * @property {String} version
      * @instance
+     * @nodered true
      * @description
      *      Return the version of the SDK
      * @return {String}
@@ -899,6 +926,7 @@ class NodeSDK {
      * @public
      * @property {ConnectedUser} connectedUser
      * @instance
+     * @nodered true
      * @description
      *      Return the connected user information
      * @return {any}
@@ -909,8 +937,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} telephony
+     * @property {TelephonyService} telephony
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the telephony module
      * @return {TelephonyService}
@@ -921,8 +951,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} calllog
+     * @property {CallLogService} calllog
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the calllog module
      * @return {CallLogService}
@@ -933,8 +965,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} favorites
+     * @property {FavoritesService} favorites
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the favorite module
      * @return {FavoritesService}
@@ -945,8 +979,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} invitations
+     * @property {InvitationsService} invitations
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the invitation module
      * @return {InvitationsService}
@@ -957,8 +993,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} s2s
+     * @property {S2SService} s2s
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the s2s module
      * @return {S2SService}
@@ -970,6 +1008,9 @@ class NodeSDK {
     /**
      * @public
      * @property {AlertsService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the alerts module
      * @return {AlertsService}
@@ -981,6 +1022,9 @@ class NodeSDK {
     /**
      * @public
      * @property {RBVoiceService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {RBVoiceService}
@@ -992,6 +1036,9 @@ class NodeSDK {
     /**
      * @public
      * @property {WebinarsService} alerts
+     * @intance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {WebinarsService}
@@ -1003,6 +1050,9 @@ class NodeSDK {
     /**
      * @public
      * @property {HTTPoverXMPP} httpoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the httpoverxmpp module
      * @return {HTTPoverXMPP}
@@ -1014,6 +1064,9 @@ class NodeSDK {
     /**
      * @public
      * @property {RPCoverXMPPService} rpcoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the rpcoverxmpp module
      * @return {RPCoverXMPPService}
@@ -1041,6 +1094,7 @@ class NodeSDK {
      * @public
      * @method getConnectionStatus
      * @instance
+     * @nodered true
      * @description
      *    Get connections status of each low layer services, and also the full SDK state. <br>
      * <br>

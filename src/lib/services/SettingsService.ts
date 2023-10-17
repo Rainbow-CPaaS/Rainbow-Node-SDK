@@ -94,6 +94,7 @@ class Settings extends GenericService {
     /**
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method getUserSettings
      * @category Settings - Users
      * @async
@@ -141,6 +142,7 @@ class Settings extends GenericService {
     /**
      * @public
      * @since 2.20.0
+     * @nodered true
      * @method updateUserSettings
      * @category Settings - Users
      * @async

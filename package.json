@@ -33,6 +33,7 @@
     "package.json",
     "README.md",
     "guide/CHANGELOG.md",
+    "guide/JSONDOCS/*.json",
     "src",
     "tsconfig.json"
   ],

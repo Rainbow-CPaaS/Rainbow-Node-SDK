@@ -246,6 +246,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToConversation
      * @instance
      * @async
@@ -303,6 +304,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToBubble
      * @instance
      * @async
@@ -382,6 +384,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.67.0
+     * @nodered true
      * @method uploadFileToStorage
      * @category Files TRANSFER
      * @async
@@ -514,6 +517,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method downloadFile
      * @category Files TRANSFER
      * @async
@@ -567,6 +571,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.79.0
+     * @nodered true
      * @method downloadFileInPath
      * @instance
      * @category Files TRANSFER
@@ -691,6 +696,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method removeFile
      * @instance
      * @async
@@ -853,6 +859,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFileDescriptorFromId
      * @instance
@@ -868,6 +875,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesReceivedInConversation
      * @instance
@@ -914,6 +922,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesReceivedInBubble
      * @instance
      * @async
@@ -1110,6 +1119,7 @@ class FileStorage extends GenericService{
     }
 
     /**
+     * @nodered true
      * @method getReceivedFilesForRoom
      * @public
      *
@@ -1291,6 +1301,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveFileDescriptorsListPerOwner
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
@@ -1440,6 +1451,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveSentFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -1498,6 +1510,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      *
+     * @nodered true
      * @method retrieveReceivedFilesForRoom
      * @instance
      * @description
@@ -1563,6 +1576,7 @@ class FileStorage extends GenericService{
     /**
      *
      * @public
+     * @nodered true
      * @method retrieveReceivedFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -1635,6 +1649,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesSentInConversation
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -1698,6 +1713,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesSentInBubble
      * @instance
@@ -1756,6 +1772,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getUserQuotaConsumption
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -1777,6 +1794,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesSent
      * @instance
@@ -1792,6 +1810,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesReceived
      * @instance
@@ -1942,6 +1961,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveOneFileDescriptor
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -2042,6 +2062,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFileDescriptorsByCompanyId
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -2100,6 +2121,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method copyFileInPersonalCloudSpace
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -2140,6 +2162,7 @@ class FileStorage extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method fileOwnershipChange
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES

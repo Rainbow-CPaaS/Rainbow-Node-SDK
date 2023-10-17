@@ -192,6 +192,7 @@ class ImsService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessagesFromConversation
      * @instance
@@ -222,6 +223,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromConversationById
      * @instance
@@ -257,6 +259,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromBubbleById
      * @instance
@@ -304,6 +307,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method markMessageAsRead
      * @instance
      * @description
@@ -344,6 +348,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method sendMessageToConversation
      * @instance
@@ -438,6 +443,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToContact
      * @instance
      * @async
@@ -499,6 +505,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJid
      * @instance
      * @async
@@ -515,7 +522,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null) {
         let that = this;
@@ -571,6 +577,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAnswer
      * @instance
      * @async
@@ -644,6 +651,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAcknowledged
      * @instance
      * @async
@@ -673,6 +681,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidIgnored
      * @instance
      * @async
@@ -702,6 +711,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubble
      * @instance
      * @async
@@ -719,7 +729,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
         if (!bubble || !bubble.jid) {
@@ -733,6 +742,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJid
      * @instance
      * @async
@@ -750,7 +760,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions = null, urgency: string = null) {
         let that = this;
@@ -809,6 +818,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJidAnswer
      * @async
      * @category Ims MESSAGES
@@ -827,7 +837,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null) {
         let that = this;
@@ -892,6 +901,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method retrieveXMPPMessagesByListOfMessageIds
      * @category Ims MESSAGES
@@ -966,6 +976,7 @@ class ImsService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInBubble
      * @async
      * @category Ims TYPING
@@ -1011,6 +1022,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInConversation
      * @instance
      * @async

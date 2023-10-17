@@ -312,6 +312,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.56
      * @method createFavorite()
      * @category Favorites MANAGEMENT
@@ -361,6 +362,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method deleteFavorite()
      * @category Favorites MANAGEMENT
      * @instance
@@ -395,6 +397,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFavorite
      * @category Favorites GET
      * @instance
@@ -413,6 +416,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method fetchAllFavorites
      * @category Favorites GET
      * @instance
@@ -442,6 +446,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method checkIsPeerSettedAsFavorite
      * @category Favorites GET
      * @instance
@@ -478,6 +483,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method getFavoriteById
      * @category Favorites GET
      * @instance
@@ -516,6 +522,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method getAllUserFavoriteList
      * @category Favorites GET
@@ -558,6 +565,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method moveFavoriteToPosition
      * @category Favorites GET
      * @instance
