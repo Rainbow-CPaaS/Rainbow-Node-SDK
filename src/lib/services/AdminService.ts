@@ -6573,7 +6573,105 @@ class AdminService extends GenericService {
             }
         });
     }
-    
+
+    /**
+     * @public
+     * @method uploadLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {binary} binaryImgFile File to be sent
+     * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
+     * @description
+     *      This API can be used to upload avatar image for logged in user.</BR>
+     *      Rules:</BR>
+     *      Avatar file has to be sent directly in http body (no JSon).</BR>
+     *      Only jpeg, jpg and png files are supported. Appropriate content-type has to be set (image/jpeg or image/png).</BR>
+     *      If user already has an avatar, the existing one is overwritten.</BR>
+     *      By default, avatar file size is limited to 4194304 bytes (4 MB) (this limit can be changed by integration team in enduser portal config file).</BR>
+     *      When an avatar is uploaded, the field lastAvatarUpdateDate of the user is updated to the current date.</BR>
+     *      User vCard is also updated: the PHOTO element is set with avatar filename (i.e. user id) in base64 and the LASTAVATARUPDATE element is set to the current date.  </BR>
+     *
+     *      a 'rainbow_onconnectorconfig' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     *
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    uploadLdapAvatar(binaryImgFile : any, contentType: string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!binaryImgFile) {
+                    this._logger.log("warn", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    this._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!contentType) {
+                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : ", contentType);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType);
+                that._logger.log("debug", "(uploadLdapAvatar) - sent.");
+                that._logger.log("internal", "(uploadLdapAvatar) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(uploadLdapAvatar) Error.");
+                that._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @description
+     *      This API can be used to delete avatar image for logged in user. </BR>
+     *      When an avatar is deleted, the field lastAvatarUpdateDate of the user is set to null. </BR>
+     *      User vCard is also updated: the PHOTO element is removed and the LASTAVATARUPDATE element is set to empty.   </BR>
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    deleteLdapAvatar() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.deleteLdapAvatar();
+                that._logger.log("debug", "(deleteLdapAvatar) - sent.");
+                that._logger.log("internal", "(deleteLdapAvatar) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteLdapAvatar) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteLdapAvatar) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     //endregion LDAP APIs to use
     
     //endregion AD/LDAP

@@ -9527,6 +9527,46 @@ Request Method: PUT
         });
     }
 
+    uploadLdapAvatar(binaryImgFile: string, contentType: string = "") {
+        // API https://api.openrainbow.org/admin/#api-connectors-uploadLdapAvatar
+        // POST /api/rainbow/admin/v1.0/connectors/ldaps/avatar
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar";
+            that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
+            let data: any = binaryImgFile;
+
+            that.http.post(url, that.getRequestHeader(), data, contentType).then((json) => {
+                that.logger.log("info", LOG_ID + "(uploadLdapAvatar) successfull");
+                that.logger.log("internal", LOG_ID + "(uploadLdapAvatar) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(uploadLdapAvatar) error");
+                that.logger.log("internalerror", LOG_ID, "(uploadLdapAvatar) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteLdapAvatar() {
+        // API https://api.openrainbow.org/admin/#api-connectors-deleteLdapAvatar
+        // DELETE /api/rainbow/admin/v1.0/connectors/ldaps/avatar
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.delete("/api/rainbow/admin/v1.0/connectors/ldaps/avatar", that.getRequestHeader()).then(function (json) {
+                that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) successfull");
+                that.logger.log("internal", LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
+                resolve(json);
+            }).catch(function (err) {
+                that.logger.log("error", LOG_ID, "(deleteLdapConnectorConfig) error");
+                that.logger.log("internalerror", LOG_ID, "(deleteLdapConnectorConfig) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion LDAP APIs to use:
 
     //endregion AD/LDAP

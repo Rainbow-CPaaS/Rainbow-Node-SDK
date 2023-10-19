@@ -6,6 +6,20 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.3] - 2023-10-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   Add `AdminService::uploadLdapAvatar` API used to upload avatar image for logged in user.
+-   Add `AdminService::deleteLdapAvatar` API used to delete avatar image for logged in user.
+
+#### Changed
+-   None
+
 ### [2.25.2-lts.2] - 2023-10-17
 #### Removed
 -   None
