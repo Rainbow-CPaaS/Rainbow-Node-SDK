@@ -11,7 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   rollback the modifications done to increase the startup because the init of the services was not correct when the SDK sent the rainbow_onready event.
+-   Rollback the modifications done to increase the startup because the init of the services was not correct when the SDK sent the rainbow_onready event.
 
 #### Added
 -   Add `AdminService::uploadLdapAvatar` API used to upload avatar image for logged in user.
