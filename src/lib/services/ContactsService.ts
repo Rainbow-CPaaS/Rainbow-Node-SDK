@@ -3141,7 +3141,7 @@ class ContactsService extends GenericService {
                         if (resource.status==="EVT_CONNECTION_CLEARED" && resource.show===PresenceShow.Chat) {
                             on_the_phone = false;
                         }
-                        if (resourceId==="pcg2" && resource.show===PresenceShow.Dnd) {
+                        if (resourceId==="pcg2" && resource.show!==PresenceShow.Online) {
                             on_the_phone = true;
                         }
                     }
@@ -3440,7 +3440,7 @@ class ContactsService extends GenericService {
                         if (resource.status==="EVT_CONNECTION_CLEARED" && resource.show===PresenceShow.Chat) {
                             on_the_phone = false;
                         }
-                        if (resourceId==="pcg2" && resource.show===PresenceShow.Dnd) {
+                        if (resourceId==="pcg2" && resource.show!==PresenceShow.Online) {
                             on_the_phone = true;
                         }
                     }

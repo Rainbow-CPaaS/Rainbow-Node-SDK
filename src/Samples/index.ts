@@ -12,7 +12,7 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName, makeId
+    generateRamdomEmail, functionName, makeId, Deferred
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -41,7 +41,8 @@ import serialize from 'safe-stable-stringify' ;
 import * as ACData from "adaptivecards-templating";
 //const ACData = global.get('adaptivecardstemplating');
 import * as path from "path";
-
+const prettydata = require("../lib/connection/pretty-data").pd;
+const mime = require('mime');
 
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
@@ -6087,8 +6088,16 @@ let urlS2S;
         let stanza = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
        await rainbowSDK._core._xmpp.mockStanza(stanza);        
    }
-        
-    async  testsynchronizeUsersAndDeviceswithCSV() {
+
+   async testmockUploadLdapAvatarPresence() {
+
+        let stanzaStr = "<presence from='3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com'> <x xmlns='vcard-temp:x:update'>    <avatar/> </x>    <actor xmlns='jabber:iq:configuration'/x>   </presence>";
+       let stanza = prettydata.xmlmin(stanzaStr);
+       logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
+        await rainbowSDK._core._xmpp.mockStanza(stanza);
+   }
+
+   async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
@@ -6154,6 +6163,32 @@ let urlS2S;
         logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
 
     }
+
+    testundefined2(){
+        let result = undefined;
+        logger.log("debug", "MAIN - testundefined2 - with undefined result : ", result?.id);
+        result = {"id":"423412345145325"};
+        logger.log("debug", "MAIN - testundefined2 - with initialized result : ", result?.id);
+    }
+
+   testuploadLdapAvatar() {
+       let that = this;
+       let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
+
+       let fd = fs.openSync(pathImg, "r+");
+       let fileStats = fs.statSync(pathImg);
+       let sizeToRead = fileStats.size;
+       let buf = new Buffer(sizeToRead);
+       logger.log("debug", "MAIN - testuploadAFileByChunk sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
+       let promiseDeferred = new Deferred();
+       fs.readSync(fd, buf, 0, sizeToRead, null);
+
+       let fileType = mime.lookup(pathImg);
+
+       rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+           logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
+       });
+   }
 
     //endregion ldap
 

@@ -6,12 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.25.2-lts.3] - 2023-10-XX
+### [2.25.2-lts.3] - 2023-10-20
 #### Removed
 -   None
 
 #### Fixed
 -   Rollback the modifications done to increase the startup because the init of the services was not correct when the SDK sent the rainbow_onready event.
+-   Fix `ContactsService::_onPresenceChanged` and `ContactsService::_onRosterPresenceChanged` about Dnd on PCG V2.
 
 #### Added
 -   Add `AdminService::uploadLdapAvatar` API used to upload avatar image for logged in user.

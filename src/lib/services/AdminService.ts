@@ -6593,8 +6593,25 @@ class AdminService extends GenericService {
      *      When an avatar is uploaded, the field lastAvatarUpdateDate of the user is updated to the current date.</BR>
      *      User vCard is also updated: the PHOTO element is set with avatar filename (i.e. user id) in base64 and the LASTAVATARUPDATE element is set to the current date.  </BR>
      *
-     *      a 'rainbow_onconnectorconfig' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     *      a 'rainbow_onXXX' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     * @example
+     * const mime = require('mime');
+     * const fs = require("fs");
+     * testuploadLdapAvatar() {
+     *      let that = this;
+     *      let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
      *
+     *      let fd = fs.openSync(pathImg, "r+");
+     *      let fileStats = fs.statSync(pathImg);
+     *      let sizeToRead = fileStats.size;
+     *      let buf = new Buffer(sizeToRead);
+     *      fs.readSync(fd, buf, 0, sizeToRead, null);
+     *      let fileType = mime.lookup(pathImg);
+
+     *      rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+     *          ...
+     *      });
+     * }
      * @return {Promise<{Object}>} -
      * </BR>
      *
