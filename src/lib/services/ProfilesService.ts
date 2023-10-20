@@ -218,10 +218,10 @@ class ProfilesService extends GenericService {
                         clearInterval(that.timer);
                         that.timer = null;
                     })
-                    .catch(function (error) {
+                    .catch(function (err) {
                         that.timer = null;
-                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
-                        that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
+                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE error : ", err);
+                        //that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
                         // reject(error);
                     });
         }, 3000);

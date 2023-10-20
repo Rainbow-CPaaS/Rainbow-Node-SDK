@@ -2284,11 +2284,14 @@ class ConversationsService extends GenericService {
      * @private
      */
     async onRoomChangedEvent(__event, bubble, action) {
+        let that = this;
         if (bubble) {
             let conversation = this.getConversationById(bubble.jid);
             if (conversation) {
                 if (action === "remove") {
-                    await this.closeConversation(conversation);
+                    await this.closeConversation(conversation).catch(err=>{
+                        that._logger.log("warn", LOG_ID + "(onRoomChangedEvent) closeConversation error : ", err);
+                    });
                 } else {
                     conversation.bubble = bubble;
                 }
@@ -2374,6 +2377,8 @@ class ConversationsService extends GenericService {
                             that._logger.log("info", LOG_ID + " getServerConversations failure, try again");
                             that._rest.getServerConversations(that.conversationsRetrievedFormat).then(function () {
                                 // TODO ? that.linkAllActiveCallsToConversations();
+                            }).catch(err=>{
+                                that._logger.log("warn", LOG_ID + "(reinit) getServerConversations error : ", err);
                             });
                         }, 10000);//, 1, true);
 

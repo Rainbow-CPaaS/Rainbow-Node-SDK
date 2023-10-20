@@ -2456,6 +2456,8 @@ class ChannelsService extends GenericService {
             message.channel = channel;
             delete message.channelId;
             that._eventEmitter.emit("evt_internal_channelmessagereceived", message);
+        }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(_onChannelMessageReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2491,6 +2493,8 @@ class ChannelsService extends GenericService {
             }
 
             that._eventEmitter.emit("evt_internal_channelmyappreciationreceived", appreciationObj);
+        }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(_onChannelMyAppreciationReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2532,7 +2536,9 @@ class ChannelsService extends GenericService {
                     } else { // */
                     that._eventEmitter.emit("evt_internal_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                     //}
-                });
+                }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(onUpdateToChannel) getChannel error : ", err);
+        });
     }
 
     public  onAddToChannel(channelInfo: {id:string}): void {
@@ -2577,14 +2583,18 @@ class ChannelsService extends GenericService {
                                 });
                     }
 
-                });
+                }).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onAddToChannel) getChannel error : ", err);
+        });
     }
 
     private async onRemovedFromChannel(channelInfo : {id : string}): Promise<any> {
         let that = this;
         let channelId = channelInfo.id;
         that._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
-        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onRemovedFromChannel) removeChannelFromCache error : ", err);
+        });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.DELETE, channelId);
@@ -2606,7 +2616,9 @@ class ChannelsService extends GenericService {
                     .then(() => {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
-                    });
+                    }).catch(err=>{
+                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) retrieveLatests error : ", err);
+            });
         }
 
         // Handle self subscription case
@@ -2619,7 +2631,9 @@ class ChannelsService extends GenericService {
                     .then(() => {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
-                    });
+                    }).catch(err=>{
+                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) getChannel error : ", err);
+            });
         }
     }
 
@@ -2629,10 +2643,14 @@ class ChannelsService extends GenericService {
         let subscribersInfo: string = channelInfo.subscribers;
         that._logger.log("internal", LOG_ID + "(onUnsubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
         let subscribers = Number.parseInt(subscribersInfo);
-        let channel  : Channel = await that.fetchChannel(channelId);
-        if (channel) {
-            channel.subscribers_count = subscribers;
-            channel.subscribed = false;
+        try {
+            let channel: Channel = await that.fetchChannel(channelId);
+            if (channel) {
+                channel.subscribers_count = subscribers;
+                channel.subscribed = false;
+            }
+        } catch(err){
+            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) fetchChannel error : ", err);
         }
 
         // Update messagesList
@@ -2640,6 +2658,9 @@ class ChannelsService extends GenericService {
         that.retrieveLatests().then(() => {
             that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
             //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
+        }).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) retrieveLatests error : ", err);
+            return;
         });
     }
 
@@ -2647,7 +2668,9 @@ class ChannelsService extends GenericService {
         let that = this;
         let channelId: string = channelInfo.id;
         that._logger.log("debug", LOG_ID + "(onDeleteChannel) channelId : ", channelId);
-        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onDeleteChannel) removeChannelFromCache error : ", err);
+        });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
 
         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
@@ -2657,7 +2680,9 @@ class ChannelsService extends GenericService {
     private async onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(onUserSubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel : Channel = await that.fetchChannel(info.id);
+        let channel = await that.fetchChannel(info.id).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUserSubscribeEvent) fetchChannel error : ", err);
+        });
         if (channel) {
             channel.subscribers_count = info.subscribers;
         }
@@ -2669,7 +2694,9 @@ class ChannelsService extends GenericService {
     private async onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(onUserUnsubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel : Channel = await that.fetchChannel(info.id);
+        let channel = await that.fetchChannel(info.id).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUserUnsubscribeEvent) fetchChannel error : ", err);
+        });
         if (channel) {
             channel.subscribers_count = info.subscribers;
         }

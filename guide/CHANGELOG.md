@@ -18,7 +18,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `AdminService::deleteLdapAvatar` API used to delete avatar image for logged in user.
 
 #### Changed
--   None
+-   Update `catch` callbacks in event's handler in services : log level from `error` to `warn`.
 
 ### [2.25.2-lts.2] - 2023-10-17
 #### Removed

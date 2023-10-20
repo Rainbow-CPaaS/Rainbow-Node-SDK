@@ -391,7 +391,9 @@ class S2SService extends GenericService{
     async onS2SReady(event) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(onS2SReady) S2S READY ENVENT: ", event );
-        await this._rest.setS2SConnection(event.id);
+        await this._rest.setS2SConnection(event.id).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onS2SReady) setS2SConnection error : ", err);
+        });
     }
 
     //endregion Events

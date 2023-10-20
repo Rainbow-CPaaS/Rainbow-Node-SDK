@@ -177,7 +177,9 @@ class InvitationsService extends GenericService {
 	onRosterChanged(data) {
 		let that = this;
 		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
-		return that.getAllSentInvitations();
+		that.getAllSentInvitations().catch(err=>{
+			that._logger.log("warn", LOG_ID + "(onRosterChanged) getAllSentInvitations error : ", err);
+		});
 	}
 
 	async onOpenInvitationManagementUpdate(openInvitation) {
@@ -342,6 +344,8 @@ class InvitationsService extends GenericService {
 
 				// Needed for SDK
 				// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATION_CHANGED", invitation);
+			}).catch(err=>{
+				that._logger.log("warn", LOG_ID + "(handleReceivedInvitation) getServerInvitation error : ", err);
 			});
 		}
 	};
@@ -405,7 +409,9 @@ class InvitationsService extends GenericService {
 							that.updateSentInvitationsArray();
 							resolve(undefined);
 						}
-					});
+					}).catch(err=>{
+					that._logger.log("warn", LOG_ID + "(handleSentInvitation) getServerInvitation error : ", err);
+				});
 
 				if (action === "resend") {
 					// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATIONS_RE_SEND", id);

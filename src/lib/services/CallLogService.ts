@@ -438,10 +438,7 @@ function CallLogsBean() : ICallLogsBean {
 
     //endregion CallLog INITIALISATION
 
-    /*********************************************************/
-    /**                  EVENT HANDLERS                     **/
-
-    /*********************************************************/
+    //region EVENT HANDLERS
 
     async onCallLogUpdated(calllogs) {
         this.calllogs = calllogs;
@@ -457,6 +454,7 @@ function CallLogsBean() : ICallLogsBean {
         this.calllogs = calllogs ;
     } // */
 
+    //endregion EVENT HANDLERS
 
     /*********************************************************/
     /**                  HELPER FUNCTIONS                   **/

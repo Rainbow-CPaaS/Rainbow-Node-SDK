@@ -160,6 +160,8 @@ class WebinarsService extends GenericService {
                     "webinar" : webinarsObj
                 });
             }
+        }).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onCreateWebinar) getWebinarData error : ", err);
         });
     }
 

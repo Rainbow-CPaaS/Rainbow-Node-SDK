@@ -551,7 +551,9 @@ class PresenceService extends GenericService{
      */
     _onUserSettingsChanged() {
         let that = this;
-        that._sendPresenceFromConfiguration();
+        that._sendPresenceFromConfiguration().catch(err=>{
+            that._logger.log("warn", LOG_ID + "(_onUserSettingsChanged) _sendPresenceFromConfiguration error : ", err);
+        });
     }
 
     /**

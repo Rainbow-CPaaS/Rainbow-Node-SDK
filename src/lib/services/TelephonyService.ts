@@ -311,10 +311,10 @@ class TelephonyService extends GenericService {
                             that._eventEmitter.emit("evt_internal_telephonystatuschanged", "started");
                             //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "started");
                         })
-                        .catch(function(error) {
+                        .catch(function(err) {
                             that.starting = false;
-                            that._logger.log("error", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - " );
-                            that._logger.log("internalerror", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - : " + error.message);
+                            that._logger.log("warn", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - error : ", err );
+                            //that._logger.log("internalerror", LOG_ID + "[onTelPresenceChange] receive telephony presence but no agent response - : " + error.message);
                         });
                 }
             }

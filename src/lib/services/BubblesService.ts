@@ -245,7 +245,7 @@ class Bubbles extends GenericService {
 
                 that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                that._logger.log("warn", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
                 //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
             });
         } else  if (invitation && invitation.bubbleJid) {
@@ -257,7 +257,7 @@ class Bubbles extends GenericService {
 
                 that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                that._logger.log("warn", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
                 //that._logger.log("internalerror", LOG_ID + "(_onInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
             });
         } else {
@@ -296,11 +296,11 @@ class Bubbles extends GenericService {
 
                 that._eventEmitter.emit("evt_internal_contactinvitationdetailsreceived", invitationFull);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
+                that._logger.log("warn", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
                 //that._logger.log("internalerror", LOG_ID + "(_onContactInvitationReceived) get bubble failed for invitation : ", invitation, ", : ", err);
             });
         } else {
-            that._logger.log("error", LOG_ID + "(_onContactInvitationReceived) receive empty invitation : ", invitation);
+            that._logger.log("warn", LOG_ID + "(_onContactInvitationReceived) receive empty invitation : ", invitation);
         }
     }
 
@@ -336,7 +336,7 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
             //that._logger.log("internalerror", LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
         });
     }
@@ -407,7 +407,7 @@ class Bubbles extends GenericService {
 
                     that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble ? bubble : bubbleUpdated);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(_onOwnAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+                    that._logger.log("warn", LOG_ID + "(_onOwnAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
                     //that._logger.log("internalerror", LOG_ID + "(_onOwnAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
                 });
             }
@@ -463,7 +463,7 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_bubblecustomDatachanged", bubble);
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onCustomDataChanged) get bubble failed for data : ", data, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onCustomDataChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -495,7 +495,7 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_bubbletopicchanged", bubble);
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onTopicChanged) get bubble failed for data : ", data, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onTopicChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -521,7 +521,7 @@ class Bubbles extends GenericService {
             let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
             that._eventEmitter.emit("evt_internal_bubbleprivilegechanged", {bubble, "privilege": bubbleInfo.privilege});
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onPrivilegeBubbleChanged) get bubble failed for bubbleInfo : ", bubbleInfo, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onPrivilegeBubbleChanged) get bubble failed for bubbleInfo : ", bubbleInfo, ", : ", err);
         });
     }
 
@@ -555,7 +555,7 @@ class Bubbles extends GenericService {
 
             that._eventEmitter.emit("evt_internal_bubblenamechanged", bubble);
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onNameChanged) get bubble failed for data : ", data, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onNameChanged) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -629,7 +629,7 @@ class Bubbles extends GenericService {
 
             //that._eventEmitter.emit("evt_internal_bubble___", bubble);
         }).catch((err) => {
-            that._logger.log("error", LOG_ID + "(_onBubblePresenceSent) get bubble failed for data : ", data, ", : ", err);
+            that._logger.log("warn", LOG_ID + "(_onBubblePresenceSent) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -2044,6 +2044,7 @@ class Bubbles extends GenericService {
                         resolve(bubble);
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(deleteBubble) error");
+                        that._logger.log("internalerror", LOG_ID + "(deleteBubble) error : ", err);
                         return reject(err);
                     });
                 } else {
@@ -2108,6 +2109,7 @@ class Bubbles extends GenericService {
                         resolve(updatedBubble);
                     }).catch(function (err) {
                         that._logger.log("error", LOG_ID + "(closeAndDeleteBubble) error");
+                        that._logger.log("internalerror", LOG_ID + "(closeAndDeleteBubble) error : ", err);
                         return reject(err);
                     });
                 }).catch((err) => {
@@ -2208,7 +2210,7 @@ class Bubbles extends GenericService {
     
                                 resolve(bubbleReturned);
                             }).catch((err) => {
-                                that._logger.log("error", LOG_ID + "(closeBubble) get bubble failed for bubble : ", bubble, ", : ", err);
+                                that._logger.log("error", LOG_ID + "(closeBubble) get bubble failed for bubble : ", bubble?.id, ", : ", err);
                                 return reject(err);
                             });
                         });

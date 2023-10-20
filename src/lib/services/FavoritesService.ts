@@ -655,11 +655,13 @@ class FavoritesService extends GenericService{
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
             favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
-            this.favorites.push(favorite);
-            //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
-            //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
+            if (favorite) {
+                this.favorites.push(favorite);
+                //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
+                //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
 
-            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+                that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            }
         }
     }
 
@@ -668,8 +670,10 @@ class FavoritesService extends GenericService{
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
             favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
-            this.favorites.push(favorite);
-            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            if (favorite) {
+                this.favorites.push(favorite);
+                that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            }
         } else {
             favorite.id = fav.id;
             favorite.peerId = fav.peerId;

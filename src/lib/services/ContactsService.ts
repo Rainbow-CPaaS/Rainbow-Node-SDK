@@ -3602,7 +3602,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("info", LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
+            this._logger.log("warn", LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
         });
     }
     /**
@@ -3648,7 +3648,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
+            this._logger.log("warn", LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
         });
     }
 
