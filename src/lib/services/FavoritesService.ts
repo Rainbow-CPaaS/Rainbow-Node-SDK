@@ -121,7 +121,7 @@ class FavoritesService extends GenericService{
     public async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            that.getServerFavorites().then(()=> {
+            await that.getServerFavorites().then(()=> {
                 that.setInitialized();
             }).catch(()=>{
                 that.setInitialized();

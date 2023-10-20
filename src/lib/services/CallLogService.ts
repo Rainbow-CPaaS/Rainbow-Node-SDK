@@ -200,9 +200,9 @@ function CallLogsBean() : ICallLogsBean {
 
         if (useRestAtStartup) {
             //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
-            setTimeoutPromised(3000).then(() => {
+            await setTimeoutPromised(3000).then(async () => {
                 let startDate = new Date();
-                that.getCallLogHistoryPage()
+                await that.getCallLogHistoryPage()
                         .then(() => {
                             that.setInitialized();
                         })

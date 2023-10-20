@@ -270,12 +270,12 @@ class ContactsService extends GenericService {
     }
 
     init(useRestAtStartup : boolean) {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>(async(resolve, reject) => {
             let that = this;
             if (that._rest.account) {
                 if (that._rest.account.id) {
                     let userInfo = that.getContactById(that._rest.account.id, true);
-                    Promise.all([userInfo]).then((contact: Contact[]) => {
+                    await Promise.all([userInfo]).then((contact: Contact[]) => {
                         //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                         if (contact) {
                             that.userContact.updateFromUserData(contact[0]);
@@ -289,7 +289,7 @@ class ContactsService extends GenericService {
                     return resolve();
                 }
                 if (that._rest.account.jid_im) {
-                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                    let userInfo = await that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
@@ -302,7 +302,7 @@ class ContactsService extends GenericService {
                         that.userContact.updateFromUserData(contact);
                     }); 
                     // */
-                    Promise.all([userInfo]).then(() => {
+                    await Promise.all([userInfo]).then(() => {
                         that.setInitialized();
                         //resolve(undefined);
                     }).catch((err) => {

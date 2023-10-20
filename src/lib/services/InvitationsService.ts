@@ -120,7 +120,7 @@ class InvitationsService extends GenericService {
 			prom.push(that.getAllSentInvitations());
 			prom.push(that.getAllReceivedInvitations());
 		}
-		Promise.all(prom).then(()=>{
+		await Promise.all(prom).then(()=>{
 			that.setInitialized();
 		}).catch(()=>{
 			that.setInitialized();

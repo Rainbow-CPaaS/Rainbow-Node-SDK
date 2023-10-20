@@ -169,10 +169,10 @@ class ProfilesService extends GenericService {
 
     init (useRest: boolean) {
         let that = this;
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (useRest) {
                 // Fetch profile from server
-                that.getServerProfile().then(function () {
+                await that.getServerProfile().then(function () {
                             // Consider service as started
                             that.setInitialized();
                             //that.stats.push({service: "profileService", startDuration: startDuration});

@@ -192,7 +192,7 @@ class Bubbles extends GenericService {
         if (useRestAtStartup) {
 //            await that.bubblesManager.reset();
             if (that._options._imOptions.autoInitialGetBubbles || that._options._imOptions.autoInitialGetBubbles == "true") {
-                that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed).then((result) => {
+                await that.getBubbles(that._options._imOptions.autoInitialBubbleFormat, that._options._imOptions.autoInitialBubbleUnsubscribed).then((result) => {
                     let bubbles = that.getAll();
                     if (bubbles && bubbles.length > 1) {
                         for (const bubble of bubbles) {

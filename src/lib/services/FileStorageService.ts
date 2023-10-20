@@ -193,7 +193,7 @@ class FileStorage extends GenericService{
     init(useRestAtStartup : boolean) {
         let that = this;
 
-        return new Promise((resolve, reject)=> {
+        return new Promise(async(resolve, reject)=> {
             if (useRestAtStartup ) {
                 // No blocking service
                 let fileName : boolean = undefined; 
@@ -212,7 +212,7 @@ class FileStorage extends GenericService{
                 let sortField : string = undefined;
                 let sortOrder : number = undefined; 
                 let format : string = "full";
-                that.retrieveFileDescriptorsListPerOwner(fileNameStr , extension, typeMIME, purpose , isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
+                await that.retrieveFileDescriptorsListPerOwner(fileNameStr , extension, typeMIME, purpose , isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
                         .then(() => {
                             return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder );
                         })

@@ -185,7 +185,7 @@ class TelephonyService extends GenericService {
     }
 
     init(useRestAtStartup : boolean) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let that = this;
             that._calls = [];
 
@@ -217,7 +217,7 @@ class TelephonyService extends GenericService {
                 that.userJidTel = that._rest.loggedInUser ? that._rest.loggedInUser.jid_tel:"";
 
                 try {
-                    that._xmpp.getAgentStatus().then((data) => {
+                    await that._xmpp.getAgentStatus().then((data) => {
                         that._logger.log("info", LOG_ID + "[init] getAgentStatus  -- ", data);
                         that.setInitialized();
                         //resolve(undefined);
