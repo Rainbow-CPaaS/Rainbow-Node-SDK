@@ -452,17 +452,17 @@ class PresenceService extends GenericService{
                 reject({code:-1, label:"Bubble id is not defined!!!"});
             } else {
                 const attemptInfo = attempt ? " -- attempt " + attempt : "";
-                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
                 if (that._useXMPP) {
                     let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble);
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
                     // Wait for the bubble to be active
                     await until(() => {
                         return bubble.isActive === true;
                     }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
-                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
+                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid , " : ", err);
                     });
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble);
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
                     resolve(result);
                 }
                 if (that._useS2S) {
