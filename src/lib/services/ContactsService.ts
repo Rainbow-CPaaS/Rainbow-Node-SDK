@@ -1958,6 +1958,14 @@ class ContactsService extends GenericService {
         return (that._rest.account.jid_im===jid);
     }
 
+    isUserContactId(id) {
+        let that = this;
+        if (!that._rest.account) {
+            return false;
+        }
+        return (that._rest.account.id===id);
+    }
+
     isUserContact(contact: Contact) {
         let that = this;
         if (!contact || !contact.jid) {
