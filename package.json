@@ -30,6 +30,8 @@
     "/lib",
     "config",
     "index.js",
+    "index.d.ts",
+    "index.js.map",
     "package.json",
     "README.md",
     "guide/CHANGELOG.md",
