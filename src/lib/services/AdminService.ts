@@ -16,6 +16,7 @@ import {GenericService} from "./GenericService";
 
 import {dateFormat} from "dateformat";
 import { FileStorageService } from "./FileStorageService";
+import {Core} from "../Core.js";
 
 let fs = require('fs');
 
@@ -73,35 +74,38 @@ class AdminService extends GenericService {
     static getClassName(){ return 'AdminService'; }
     getClassName(){ return AdminService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
         this._startConfig = _startConfig;
-        this._xmpp = null;
-        this._rest = null;
+        //this._xmpp = null;
+        //this._rest = null;
         this._s2s = null;
         this._contacts = null;
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
         this._logger = _logger;
+
+        this._core = _core;
     }
 
-    start(_options, _core) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start(_options) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
 
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
 
                 that._options = _options;
-                that._s2s = _core._s2s;
-                that._contacts = _core._contacts;
-                that._fileStorage = _core._fileStorage;
+                that._s2s = that._core._s2s;
+                that._contacts = that._core._contacts;
+                that._fileStorage = that._core._fileStorage;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 

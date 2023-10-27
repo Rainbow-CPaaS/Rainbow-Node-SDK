@@ -79,7 +79,7 @@ class ConversationsService extends GenericService {
     static getClassName(){ return 'ConversationsService'; }
     getClassName(){ return ConversationsService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean, _autoLoadConversationHistory: boolean) {
@@ -96,6 +96,9 @@ class ConversationsService extends GenericService {
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
+
+        this._core = _core;
+
         this.pendingMessages = {};
         this._conversationEventHandler = null;
         this._conversationHandlerToken = [];
@@ -110,23 +113,24 @@ class ConversationsService extends GenericService {
 
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _fileStorageService : FileStorageService, _fileServerService : FileServerService
         let that = this;
+        that.initStartDate();
         that._conversationHandlerToken = [];
         that._conversationHistoryHandlerToken= [];
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._contactsService = _core.contacts;
-                that._bubblesService = _core.bubbles;
-                that._fileStorageService = _core.fileStorage;
-                that._fileServerService = _core.fileServer;
-                that._presenceService = _core.presence;
+                that._contactsService = that._core.contacts;
+                that._bubblesService = that._core.bubbles;
+                that._fileStorageService = that._core.fileStorage;
+                that._fileServerService = that._core.fileServer;
+                that._presenceService = that._core.presence;
 
                 that.activeConversation = null;
                 that.conversations = {};

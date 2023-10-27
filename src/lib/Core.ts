@@ -96,6 +96,7 @@ class Core {
     private _timeOutManager : TimeOutManager;
     private _signinmethodName : SIGNINMETHODNAME;
     private lastConnectedOptions : {token : string, userInfos : any};
+    public startDate : Date;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -277,41 +278,48 @@ class Core {
 
         // Instantiate basic service
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
-        self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
-        self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options, self);
-        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
+        self._http = new HTTPService(self, self.options, self.logger, self._proxy, self._eventEmitter.iee);
+        self._rest = new RESTService(self, self.options, self._eventEmitter.iee, self.logger);
+        self._xmpp = new XMPPService(self, self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options);
+        self._s2s = new S2SService(self, self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
         self._stateManager = new StateManager(self._eventEmitter, self.logger, this._timeOutManager );
 
         // Instantiate others Services
-        self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
-        self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
-        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
-        self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
-        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
-        self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
-        self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
-        self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
-        self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
-        self._fileServer = new FileServerService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
-        self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
-        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
-        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
-        self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
-        self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
-        self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
-        self._rpcoverxmpp = new RPCoverXMPPService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
-        self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
-        self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
+        self._im = new ImsService(self, self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
+        self._presence = new PresenceService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
+        self._channels = new ChannelsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
+        self._contacts = new ContactsService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
+        self._conversations = new ConversationsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
+        self._profiles = new ProfilesService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
+        self._telephony = new TelephonyService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
+        self._bubbles = new BubblesService(self, self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
+        self._groups = new GroupsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
+        self._admin = new AdminService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
+        self._settings = new SettingsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
+        self._fileServer = new FileServerService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
+        self._fileStorage = new FileStorageService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
+        self._calllog = new CallLogService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
+        self._favorites = new FavoritesService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._alerts = new AlertsService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
+        self._rbvoice = new RBVoiceService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
+        self._httpoverxmpp = new HTTPoverXMPP(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPPService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
+        self._webinars = new WebinarsService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
+        self._invitations = new InvitationsService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
 
         self.startCleanningInterval();
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
+    }
+
+    getDurationSinceStart(label:string) {
+        let that = this;
+        let sinceCreateDuration =  Math.round((new Date()).getTime() - that.startDate?.getTime());
+        that.logger.log("info", LOG_ID + `=== ${label} - SINCE CREATION (${sinceCreateDuration} ms) ===`);
+        return sinceCreateDuration;
     }
 
     _signin (forceStopXMPP, token) {
@@ -459,7 +467,7 @@ class Core {
 
     _retrieveInformation () {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
+        that.logger.log("debug", LOG_ID + "(_retrieveInformation). " + `(${that.getDurationSinceStart("_retrieveInformation")} ms)`);
         //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
         return new Promise(async (resolve, reject) => {
 
@@ -537,6 +545,8 @@ class Core {
                     that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
                 }
             }
+
+            that.getDurationSinceStart("_retrieveInformation after DNSEntry search ");
 
             if (that.options.useS2S) {
                 try {
@@ -649,6 +659,7 @@ class Core {
                             //let result = await that._contacts.getRosters();
                             await that._contacts.getRosters().then((result)=> {
                                 that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                                that.getDurationSinceStart("_retrieveInformation after contacts from roster retrieved ");
                             });
                         } else {
                             that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
@@ -711,11 +722,12 @@ class Core {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                         if (that.options.imOptions.autoLoadConversationHistory) {
                             return await that._conversations.getServerConversations().then(async () => {
-                                return await that._conversations.loadEveryConversationsHistory()
+                                return await that._conversations.loadEveryConversationsHistory();
                             });
                         } else {
                             return await that._conversations.getServerConversations();
                         }
+                        that.getDurationSinceStart("_retrieveInformation after getServerConversations ");
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
@@ -744,6 +756,7 @@ class Core {
                     reject(err);
                 });
             }
+            that.getDurationSinceStart("_retrieveInformation end ");
         });
     };
 
@@ -837,6 +850,8 @@ class Core {
     start(token) {
         let that = this;
 
+        that.startDate = new Date();
+
         // Initialize the logger
         //if (! that.logger) {
             let loggerModule = new Logger(that.options._options);
@@ -849,6 +864,8 @@ class Core {
         return new Promise(async function (resolve, reject) {
 
             try {
+
+                that.getDurationSinceStart("start begin ");
 
                 if (!that.options.hasCredentials && !token) {
                     that.logger.log("error", LOG_ID + "(start) No credentials. Stop loading...");
@@ -912,52 +929,53 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._s2s.start(that.options, that);
+                        return that._s2s.start(that.options);
                     }).then(() => {
-                        return that._settings.start(that.options, that);
+                        return that._settings.start(that.options);
                     }).then(() => {
-                        return that._presence.start(that.options,that) ;
+                        return that._presence.start(that.options) ;
                     }).then(() => {
-                        return  that._contacts.start(that.options, that ) ;
+                        return  that._contacts.start(that.options ) ;
                     }).then(() => {
-                       return that._bubbles.start(that.options, that) ;
+                       return that._bubbles.start(that.options) ;
                     }).then(() => {
-                        return that._conversations.start(that.options, that) ;
+                        return that._conversations.start(that.options) ;
                     }).then(() => {
-                        return that._profiles.start(that.options, that, []) ;
+                        return that._profiles.start(that.options, []) ;
                     }).then(() => {
-                        return that._telephony.start(that.options, that) ;
+                        return that._telephony.start(that.options) ;
                     }).then(() => {
-                        return that._im.start(that.options, that) ;
+                        return that._im.start(that.options) ;
                     }).then(() => {
-                        return that._channels.start(that.options, that) ;
+                        return that._channels.start(that.options) ;
                     }).then(() => {
-                        return that._groups.start(that.options, that) ;
+                        return that._groups.start(that.options) ;
                     }).then(() => {
-                        return that._admin.start(that.options,that) ;
+                        return that._admin.start(that.options) ;
                     }).then(() => {
-                        return that._fileServer.start(that.options, that) ;
+                        return that._fileServer.start(that.options) ;
                     }).then(() => {
-                        return that._fileStorage.start(that.options, that) ;
+                        return that._fileStorage.start(that.options) ;
                     }).then(() => {
-                        return that._calllog.start(that.options, that) ;
+                        return that._calllog.start(that.options) ;
                     }).then(() => {
-                        return that._favorites.start(that.options, that) ;
+                        return that._favorites.start(that.options) ;
                     }).then(() => {
-                        return that._alerts.start(that.options, that) ; 
+                        return that._alerts.start(that.options) ;
                     }).then(() => {
-                        return that._rbvoice.start(that.options, that) ;
+                        return that._rbvoice.start(that.options) ;
                     }).then(() => {
-                        return that._webinars.start(that.options, that) ;
+                        return that._webinars.start(that.options) ;
                     }).then(() => {
-                        return that._httpoverxmpp.start(that.options, that) ;
+                        return that._httpoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._rpcoverxmpp.start(that.options, that) ;
+                        return that._rpcoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._invitations.start(that.options, that, []) ;
+                        return that._invitations.start(that.options, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
+                            that.getDurationSinceStart("start end ");
                             that.logger.log("debug", LOG_ID + "(start) _exiting_");
                             resolve(undefined);
                         }).catch((err) => {
@@ -987,15 +1005,20 @@ class Core {
             that._signinmethodName = SIGNINMETHODNAME.SIGNIN;
 
             let json = null;
+            that.getDurationSinceStart("signin begin ");
 
             return that._signin(forceStopXMPP, token).then(function (_json) {
                 that.lastConnectedOptions.token = token;
                 json = _json;
+                that.getDurationSinceStart("_signin done ");
+
                 that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
+                    that.getDurationSinceStart("_retrieveInformation before ");
                     return that._retrieveInformation();
                 });
             }).then(() => {
+                that.getDurationSinceStart("_retrieveInformation done ");
                 that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 

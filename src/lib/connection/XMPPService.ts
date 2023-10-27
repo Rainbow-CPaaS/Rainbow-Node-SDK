@@ -165,13 +165,13 @@ class XMPPService extends GenericService {
     private maxPingAnswerTimer: number;
     private company: any;
     private xmppRessourceName: string;
-    private _core: Core;
+//    private _core: Core;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
 
-    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options, _core) {
+    constructor(_core, _xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
         super(_logger, LOG_ID);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -229,6 +229,7 @@ class XMPPService extends GenericService {
     start(withXMPP) {
         let that = this;
         that.forceClose = false;
+        that.initStartDate();
 
         return new Promise(function (resolve, reject) {
             try {

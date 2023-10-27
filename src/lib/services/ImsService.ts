@@ -49,7 +49,7 @@ class ImsService extends GenericService{
     static getClassName(){ return 'ImsService'; }
     getClassName(){ return ImsService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -67,23 +67,26 @@ class ImsService extends GenericService{
         this._pendingMessages = {};
         this._imOptions = _imOptions;
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
+    start(_options) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
         let that = this;
+        that.initStartDate();
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._conversations = _core.conversations;
-                that._bulles = _core.bubbles;
-                that._fileStorage = _core.fileStorage;
-                that._presence = _core.presence;
+                that._conversations = that._core.conversations;
+                that._bulles = that._core.bubbles;
+                that._fileStorage = that._core.fileStorage;
+                that._presence = that._core.presence;
                 that.setStarted ();
                 resolve(undefined);
             } catch (err) {
