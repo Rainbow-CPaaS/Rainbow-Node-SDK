@@ -21,6 +21,19 @@ const chalk = require("chalk");
 
 const debugHttp = require("debug-http");
 
+//import HttpAgent, { HttpsAgent } from "agentkeepalive";
+//const HttpAgent = require('agentkeepalive');
+//const HttpsAgent = require('agentkeepalive').HttpsAgent;
+
+let Agent = require('keepalive-proxy-agent');
+
+import got, {Got} from "got";
+const urlLib = require('url');
+
+//const {HttpsProxyAgent} = require("https-proxy-agent");
+
+//import {HttpsProxyAgent} from 'hpagent';
+
 const LOG_ID = "HTTP - ";
 
 let colorCodes = {
@@ -51,6 +64,7 @@ class HTTPService {
     public httpManager : HttpManager;
     private _options: any;
     private _core: any;
+    private mergedGot: Got;
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
@@ -66,6 +80,7 @@ class HTTPService {
         this._core = _core;
         this.httpManager = new HttpManager(_evtEmitter,_logger);
         let that = this;
+        this.mergedGot = got;
 
         function debugHandler(request, options?, cb?): any {
             options = typeof options === "string" ? urlParse(options) : options;
@@ -97,6 +112,21 @@ class HTTPService {
         }
 
         if (that.logger.logHttp) {
+
+            const logger = got.extend({
+                handlers: [
+                    (options, next) => {
+                        //that.logger.log("internalerror", LOG_ID + `Sending ${options.method} to ${options.url}`);
+                        that.logger.log("internal", LOG_ID + chalk.red("DEBUG CONSOLE"), `Sending ${options.method} to ${options.url} \nheaders :`, options.headers, `\nresponseType : ${options.responseType}`);
+                        return next(options);
+                    }
+                ]
+            });
+
+            that.mergedGot = got.extend(
+                    logger,
+            );
+
             // @ts-ignore
             let fnerror = console.error;
             console.error = function(error, url, line) {
@@ -106,7 +136,11 @@ class HTTPService {
             };
             debugHttp(debugHandler);
             Request.debug = true;
+        } else {
+            that.mergedGot = got;
         }
+
+
 
     }
 
@@ -664,11 +698,9 @@ safeJsonParse(str) {
     }
 
     _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 1, timeBetweenRetry = 1000): Promise<any> {
-
         let that = this;
 
         return new Promise(async function (resolve, reject) {
-
             try {
                 headers["user-agent"] = USER_AGENT;
                 that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
@@ -677,7 +709,80 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
 
-                if (headers.Accept && headers.Accept.indexOf("json") > -1) {
+                if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
+
+                    const liveOption : any = {
+                        keepAlive: true,
+                        maxSockets: 10,
+                    }; // */
+
+                    const newAliveAgent :any = () => {
+                        let req = {
+                            prefixUrl:"",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                // */
+                            },
+                            headers,
+                            searchParams: params,
+                            retry: {
+                                limit: nbTryBeforeFailed
+                            }
+                        };
+
+                        if (responseType != "") {
+                            req["responseType"] = responseType; // 'arraybuffer'
+                        }
+
+                        if (that.proxy.isProxyConfigured ) {
+                            if (that.proxy.secureProtocol) {
+                                //opt.secureProxy = true;
+                            }
+                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+                            //options.agent = new HttpsProxyAgent(opt);
+
+                            //let opt = urlLib.parse(that.proxy.proxyURL);
+                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        } else {
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        }
+
+                        return req;
+                    };
+
+                    try {
+                        let response = (await that.mergedGot.get(urlEncoded, newAliveAgent()));
+                        that.logger.log("info", LOG_ID + "(get) done.");
+
+                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                            resolve(JSON.parse(response?.body));
+                        } else {
+                            resolve(response?.rawBody);
+                        }
+                    } catch (error) {
+                        /**
+                         An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                         Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                         */
+                        that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(get) HTTP error : ", error);
+                        // error.response.body
+                        reject (error);
+                    }
+
+                    return;
+
+
                     let req = {
                         url: urlEncoded,
                         method: "GET",

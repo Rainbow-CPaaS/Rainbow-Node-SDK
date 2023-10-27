@@ -175,12 +175,13 @@ let urlS2S;
         }, // */
         // Proxy configuration
 
+
         /*
         proxy: {
             host: "10.67.253.14",
             port: 8081,
             protocol: "http",
-           // user: "",
+            //user: "",
             //password: "",
             //secureProtocol: "SSLv3_method"
         }, // */
