@@ -188,7 +188,7 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
@@ -201,11 +201,11 @@ let urlS2S;
             },
             "file": {
                 "path": "c:/temp/",
-                "customFileName": "R-SDK-Node-Sample",
+                "customFileName": "R-SDK-Node-Sample-"+ Math.floor(Math.random() * 1000),
                 //"level": 'info',                    // Default log level used
-                "zippedArchive": false /*,
-            "maxSize" : '10m',
-            "maxFiles" : 10 // */
+                "zippedArchive": false ,
+            "maxSize" : '100m',
+            "maxFiles" : 2 // */
             }
         },
         "testOutdatedVersion": false,
@@ -858,6 +858,14 @@ let urlS2S;
         });
     }
 
+     testgetContactByLoginEmail_natawi29() {
+        let usersToSearch = "natawi29@gmail.com";
+        rainbowSDK.contacts.getContactByLoginEmail(usersToSearch).then(contact => {
+            logger.log("debug", "MAIN - [testgetContactByLoginEmail_natawi29    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetContactByLoginEmail_natawi29    ] :: catch reject contact : ", err);
+        });
+    }
      testgetContactByLoginEmail_UnknownUser() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
@@ -7470,6 +7478,27 @@ let urlS2S;
         });
     }
     
+    async  testsendMultiHttpRequest() {
+
+        logger.log("debug", "MAIN - (testsendMultiHttpRequest) .");
+        let headers = rainbowSDK._core._rest.getRequestHeader();
+
+        for (let i = 0; i < 102; i++) {
+            rainbowSDK._core._rest.http.get("/api/rainbow/enduser/v1.0/users/jids/209c7d9cf1fe4b818ae4004899cbd03c@openrainbow.com", headers, undefined).then(
+                    async (result) => {
+                        logger.log("debug", "MAIN - (testsendMultiHttpRequest) rainbow get result : ", logger.colors.green(result));
+                    }
+            ).catch(async error => {
+                logger.log("error", "MAIN - (testsendMultiHttpRequest) CATCH Error !!! : ", logger.colors.green(error));
+                let connectionStatus = await rainbowSDK.getConnectionStatus().catch(err => {
+                    return err;
+                });
+                logger.log("debug", "MAIN - [testsendMultiHttpRequest    ] :: connectionStatus : ", connectionStatus);
+
+            });
+        }
+    }
+
     async  test5Start() {
         logger.log("debug", "MAIN - (test5Start) __ begin __.");
         let options1: any={};
@@ -8184,8 +8213,15 @@ let urlS2S;
                         default:
                             logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                             if (answers.cmd) {
-                                let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
-                                eval(cmdStr);
+                                if (answers.cmd?.indexOf("eval:")===0) {
+                                    let cmdStr = answers.cmd.substring("eval:".length);
+                                    logger.log("debug", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    eval(cmdStr);
+                                } else {
+                                    let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
+                                    logger.log("debug", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    eval(cmdStr);
+                                }
                             }
                             enterCmd();
                             break;

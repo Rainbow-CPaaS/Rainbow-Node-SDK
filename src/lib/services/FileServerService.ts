@@ -48,7 +48,7 @@ class FileServer extends GenericService{
     static getClassName(){ return 'FileServer'; }
     getClassName(){ return FileServer.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -65,6 +65,9 @@ class FileServer extends GenericService{
         this._capabilities = null;
         this.transferPromiseQueue = null;
         this._fileStorageService = null;
+
+        this._core = _core;
+
     }
 
     get capabilities() : Promise<any>{
@@ -88,17 +91,18 @@ class FileServer extends GenericService{
         });
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _fileStorageService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _fileStorageService
         let that = this;
+        that.initStartDate();
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._fileStorageService = _core.fileStorage;
+                that._fileStorageService = that._core.fileStorage;
 
                 that.setStarted ();
                 resolve(undefined);

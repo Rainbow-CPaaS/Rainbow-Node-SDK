@@ -89,7 +89,7 @@ function CallLogsBean() : ICallLogsBean {
     getClassName(){ return CallLogService.getClassName(); }
 
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -108,6 +108,8 @@ function CallLogsBean() : ICallLogsBean {
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
+
+        this._core = _core;
 
         /*this.callLogs = [];
         this.orderByNameCallLogs = [];
@@ -138,15 +140,16 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_options, _core : Core) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
+    async start(_options) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
         let that = this;
-        that._xmpp = _core._xmpp;
-        that._rest = _core._rest;
-        that._contacts = _core.contacts;
-        that._profiles = _core.profiles;
-        that._telephony = _core.telephony;
+        that.initStartDate();
+        that._xmpp = that._core._xmpp;
+        that._rest = that._core._rest;
+        that._contacts = that._core.contacts;
+        that._profiles = that._core.profiles;
+        that._telephony = that._core.telephony;
         that._options = _options;
-        that._s2s = _core._s2s;
+        that._s2s = that._core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
 

@@ -181,7 +181,7 @@ class ContactsService extends GenericService {
         return ContactsService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -201,6 +201,8 @@ class ContactsService extends GenericService {
         this._rosterPresenceQueue = new RosterPresenceQueue(_logger);
         this.userContact = new Contact();
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onRosterContactInfoChanged.bind(this));
@@ -212,20 +214,21 @@ class ContactsService extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService
 
         let that = this;
+        that.initStartDate();
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._invitationsService = _core.invitations;
-                that._presenceService = _core.presence;
+                that._invitationsService = that._core.invitations;
+                that._presenceService = that._core.presence;
                 that._contacts = [];
 
                 // Create the user contact

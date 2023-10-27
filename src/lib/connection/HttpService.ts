@@ -55,7 +55,7 @@ class HTTPService {
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
 
-    constructor(_options, _logger, _proxy, _evtEmitter, _core) {
+    constructor(_core, _options, _logger, _proxy, _evtEmitter ) {
         this._options= _options;
         let _http  = _options.httpOptions;
         this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
@@ -249,7 +249,8 @@ safeJsonParse(str) {
                     proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                     agentOptions: {
                         secureProtocol: that.proxy.secureProtocol
-                    }
+                    },
+                    forever: true
                 }, (error, response, body) => {
                     that.logger.log("debug", LOG_ID + "(get) successfull");
                     if (error) {
@@ -309,6 +310,7 @@ safeJsonParse(str) {
                     agentOptions: {
                         secureProtocol: that.proxy.secureProtocol
                     },
+                    forever: true,
                     body: undefined
                 }, (error, response, body) => {
                     that.logger.log("debug", LOG_ID + "(_headUrlRaw) successfull");
@@ -380,6 +382,7 @@ safeJsonParse(str) {
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
                 },
+                forever: true,
                 body: body
             }, (error, response, body) => {
                 that.logger.log("debug", LOG_ID + "(_postUrlRaw) successfull");
@@ -451,6 +454,7 @@ safeJsonParse(str) {
                     agentOptions: {
                         secureProtocol: that.proxy.secureProtocol
                     },
+                    forever: true,
                     body: body
                 }, (error, response, body) => {
                     that.logger.log("debug", LOG_ID + "(_putUrlRaw) successfull");
@@ -578,7 +582,8 @@ safeJsonParse(str) {
                     proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                     agentOptions: {
                         secureProtocol: that.proxy.secureProtocol
-                    }
+                    },
+                    forever: true
                 }, (error, response, body) => {
                     that.logger.log("debug", LOG_ID + "(_getUrlJson) successfull");
                     if (error) {
@@ -681,7 +686,8 @@ safeJsonParse(str) {
                         proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
                         agentOptions: {
                             secureProtocol: that.proxy.secureProtocol
-                        }
+                        },
+                        forever: true
                     };
                     if (responseType != "") {
                         req["responseType"] = responseType; // 'arraybuffer'
@@ -920,6 +926,7 @@ safeJsonParse(str) {
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
                 },
+                forever: true,
                 body: body
             }, (error, response, body) => {
                 if (error) {
@@ -1043,6 +1050,7 @@ safeJsonParse(str) {
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
                 },
+                forever: true,
                 body: undefined
             }, (error, response, body) => {
                 if (error) {
@@ -1170,6 +1178,7 @@ safeJsonParse(str) {
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
                 },
+                forever: true,
                 body: body
             }, (error, response, body) => {
                 if (error) {
@@ -1296,6 +1305,7 @@ safeJsonParse(str) {
                 agentOptions: {
                     secureProtocol: that.proxy.secureProtocol
                 },
+                forever: true,
                 body: body
             }, (error, response, body) => {
                 if (error) {
@@ -1414,6 +1424,7 @@ safeJsonParse(str) {
                     agentOptions: {
                         secureProtocol: that.proxy.secureProtocol
                     },
+                        forever: true,
                     body: buffer
                 },
                 function (error, response, body) {

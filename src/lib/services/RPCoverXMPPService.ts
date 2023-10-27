@@ -54,7 +54,7 @@ class RPCoverXMPPService extends GenericService {
         return RPCoverXMPPService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
@@ -71,7 +71,9 @@ class RPCoverXMPPService extends GenericService {
         this._protocol = _http.protocol;
         this._host = _http.host;
         this._port = _http.port;
-        
+
+        this._core = _core;
+
         this.rpcManager = new RPCManager(this._logger);
 
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
@@ -81,18 +83,18 @@ class RPCoverXMPPService extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
+        that.initStartDate();
 
         return new Promise(async function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                //that._rbvoice = [];
                 that.attachHandlers();
                 that.setStarted();
                 resolve(undefined);

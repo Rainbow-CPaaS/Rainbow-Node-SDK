@@ -48,7 +48,7 @@ class PresenceService extends GenericService{
     static getClassName(){ return 'PresenceService'; }
     getClassName(){ return PresenceService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core,_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -65,6 +65,8 @@ class PresenceService extends GenericService{
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
 
+        that._core = _core;
+
         that.manualState = false;
         that._currentPresence = new PresenceRainbow(PresenceLevel.Online);
         that.RAINBOW_PRESENCE_ONLINE = PresenceLevel.Online;
@@ -77,21 +79,22 @@ class PresenceService extends GenericService{
         that._eventEmitter.on("evt_internal_mypresencechanged", that._onMyPresenceChanged.bind(that));
     }
 
-    start(_options, _core : Core ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
+    start(_options ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
         let that = this;
+        that.initStartDate();
         return new Promise(function(resolve, reject) {
             try {
                 that._options = _options;
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
-                that._s2s = _core._s2s;
-                that._settings = _core.settings;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
+                that._s2s = that._core._s2s;
+                that._settings = that._core.settings;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._bubbles = _core.bubbles;
+                that._bubbles = that._core.bubbles;
 
 
-                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, _core._contacts);
+                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, that._core._contacts);
                 that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler));
 
 /*

@@ -37,7 +37,7 @@ const LOG_ID = "GROUPS/SVCE - ";
     static getClassName(){ return 'GroupsService'; }
     getClassName(){ return GroupsService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -53,6 +53,8 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_hdle_groupcreated", this._onGroupCreated.bind(this));
         this._eventEmitter.on("evt_internal_hdle_groupdeleted", this._onGroupDeleted.bind(this));
         this._eventEmitter.on("evt_internal_hdle_groupupdated", this._onGroupUpdated.bind(this));
@@ -60,14 +62,15 @@ const LOG_ID = "GROUPS/SVCE - ";
         this._eventEmitter.on("evt_internal_hdle_userremovedfromgroup", this._onUserRemovedFromGroup.bind(this));
     }
 
-     start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+     start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
          let that = this;
+         that.initStartDate();
          return new Promise(function(resolve, reject) {
              try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                 that._xmpp = that._core._xmpp;
+                 that._rest = that._core._rest;
                  that._options = _options;
-                 that._s2s = _core._s2s;
+                 that._s2s = that._core._s2s;
                  that._useXMPP = that._options.useXMPP;
                  that._useS2S = that._options.useS2S;
                  that._groups = [];

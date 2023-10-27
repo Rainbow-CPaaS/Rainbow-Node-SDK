@@ -73,7 +73,7 @@ class Bubbles extends GenericService {
         return Bubbles.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
@@ -91,6 +91,8 @@ class Bubbles extends GenericService {
         this._protocol = _http.protocol;
         this._host = _http.host;
         this._port = _http.port;
+
+        this._core = _core;
 
         this.bubblesManager = new BubblesManager(this._eventEmitter, this._logger)
 
@@ -117,21 +119,22 @@ class Bubbles extends GenericService {
      * @private
      * @return {Promise<void>}
      */
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
+        that.initStartDate();
 
         return new Promise(async function (resolve, reject) {
             try {
-                await that.bubblesManager.init(_options, _core);
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                await that.bubblesManager.init(_options, that._core);
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._bubbles = [];
-                that._contacts = _core.contacts;
-                that._conversations = _core.conversations;
-                that._profileService = _core.profiles;
-                that._presence = _core.presence;
+                that._contacts = that._core.contacts;
+                that._conversations = that._core.conversations;
+                that._profileService = that._core.profiles;
+                that._presence = that._core.presence;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 

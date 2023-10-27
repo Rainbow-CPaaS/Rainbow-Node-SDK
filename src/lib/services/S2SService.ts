@@ -14,6 +14,7 @@ import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {ProxyImpl} from "../ProxyImpl";
 import {GenericService} from "./GenericService";
+import {Core} from "../Core.js";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
@@ -60,7 +61,7 @@ class S2SService extends GenericService{
     static getClassName(){ return 'S2SService'; }
     getClassName(){ return S2SService.getClassName(); }
 
-    constructor(_s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
+    constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         super(_logger, LOG_ID);
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
@@ -94,6 +95,9 @@ class S2SService extends GenericService{
         this.forceClose = false;
         this.applicationId = _application.appID;
 // */
+
+        this._core = _core;
+
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
         this.generatedRandomId = this.xmppUtils.generateRandomID();
@@ -105,19 +109,20 @@ class S2SService extends GenericService{
         this._logger.log("internal", LOG_ID + "(S2SService) ", this._logger.colors.yellow("S2SService contructor."));
     }
 
-    start(_options, _core) {
+    start(_options) {
         let that = this;
+        that.initStartDate();
 
         return new Promise(async (resolve, reject) => {
             try {
                 that._options = _options;
                 that._useS2S = that._options.useS2S;
-                that._rest = _core._rest;
-                that._contacts = _core._contacts;
-                that._conversations = _core._conversations;
+                that._rest = that._core._rest;
+                that._contacts = that._core._contacts;
+                that._conversations = that._core._conversations;
                 that.app = express();
 
-                await that.s2sEventHandler.start(_core);
+                await that.s2sEventHandler.start(that._core);
                 if (that._useS2S) {
                     that._logger.log("debug", LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
                     //that._logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);

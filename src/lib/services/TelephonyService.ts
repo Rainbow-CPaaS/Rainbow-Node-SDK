@@ -73,7 +73,7 @@ class TelephonyService extends GenericService {
     static getClassName(){ return 'TelephonyService'; }
     getClassName(){ return TelephonyService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -109,6 +109,8 @@ class TelephonyService extends GenericService {
         this.isForwardEnabled = false;
         this.isNomadicEnabled = false;
 
+        this._core = _core;
+
         that._eventEmitter.on("evt_internal_presencechanged", that.onTelPresenceChange.bind(that));
         that._eventEmitter.on("evt_internal_callupdated", that.onCallUpdated.bind(that));
 
@@ -116,24 +118,25 @@ class TelephonyService extends GenericService {
 
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _bubbles : BubblesService, _profiles : ProfilesService
         let that = this;
+
+        that.initStartDate();
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this.voiceMail = VoiceMail.createVoiceMail(_core._profiles);
+        this.voiceMail = VoiceMail.createVoiceMail(this._core._profiles);
 
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._contacts = _core.contacts;
-                that._bubbles = _core.bubbles;
-                that._profiles = _core.profiles;
-
+                that._contacts = that._core.contacts;
+                that._bubbles = that._core.bubbles;
+                that._profiles = that._core.profiles;
 
                 that.attachHandlers();
 

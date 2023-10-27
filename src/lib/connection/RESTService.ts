@@ -322,7 +322,7 @@ class RESTService extends GenericRESTService {
         return RESTService.getClassName();
     }
 
-    constructor(_options, evtEmitter: EventEmitter, _logger: Logger, core: Core) {
+    constructor(core: Core, _options, evtEmitter: EventEmitter, _logger: Logger) {
         super();
         let that = this;
         let self = this;
@@ -1682,7 +1682,8 @@ class RESTService extends GenericRESTService {
                     jidBare = jid.substr(0, jid.lastIndexOf("/"));
                 }
 
-                that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + encodeURIComponent(jidBare), that.getRequestHeader(), undefined).then(function (json) {
+                //that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + encodeURIComponent(jidBare), that.getRequestHeader(), undefined).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + jidBare, that.getRequestHeader(), undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(getContactInformationByJID) successfull");
                     that.logger.log("internal", LOG_ID + "(getContactInformationByJID) REST result : ", json.data);
                     resolve(json.data);

@@ -121,7 +121,7 @@ class FileStorage extends GenericService{
     static getClassName(){ return 'FileStorage'; }
     getClassName(){ return FileStorage.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
     start_up:boolean,
     optional:boolean
 }) {
@@ -139,6 +139,8 @@ class FileStorage extends GenericService{
         this._fileServerService = null;
         this._conversations = null;
 
+        this._core = _core;
+
         this.fileDescriptors = [];
         this.fileDescriptorsByDate = [];
         this.fileDescriptorsByName = [];
@@ -150,21 +152,22 @@ class FileStorage extends GenericService{
         this.consumptionData = {};
     }
 
-    start(_options, _core : Core) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
+    start(_options) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
         let that = this;
+        that.initStartDate();
 
         return new Promise((resolve, reject) => {
             try {
 
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._fileServerService = _core.fileServer;
-                that._conversations = _core.conversations;
-                that._contactService = _core.contacts;
+                that._fileServerService = that._core.fileServer;
+                that._conversations = that._core.conversations;
+                that._contactService = that._core.contacts;
                 that.fileDescriptors = [];
                 that.fileDescriptorsByDate = [];
                 that.fileDescriptorsByName = [];
