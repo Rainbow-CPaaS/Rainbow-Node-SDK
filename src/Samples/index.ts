@@ -4260,14 +4260,215 @@ let urlS2S;
                }
                return msgFound!==undefined
            })
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil")
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil");
 
        }, error => {
        })
 
        return null;
    }
-   
+
+   async testsendMessageAdaptiveCard() {
+       let alternateContent = null;
+
+
+       function treatmentOfAdaptiveCardMessage(adaptiveResponse) {
+           // Treatment of returned data by the adptive card.
+           if (adaptiveResponse?.rainbow?.value?.response === "adaptiveCard_responseIntervention") {
+               let firstName = adaptiveResponse?.firstName;
+               let lastName = adaptiveResponse?.lastName;
+               let soinDone = adaptiveResponse?.interventionDoneVal;
+               let quantity = adaptiveResponse?.quantity;
+               let dateVal = adaptiveResponse?.dateVal;
+               let timeVal = adaptiveResponse?.timeVal;
+               let dateRespVal = adaptiveResponse?.dateRespVal;
+               logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
+                       ", Quantité : ", quantity +
+                       ", le  : ", dateVal +
+                       ", à : ", timeVal +
+                       ", hidden dateRespVal : ", dateRespVal);
+           } else {
+               // The card is not the result of an intervention.
+           }
+       }
+
+       // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
+       rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
+           logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+           let responseObjJson = "";
+           if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
+
+               switch (message.alternativeContent[0].type) {
+                   case "rainbow/json":
+                       responseObjJson = JSON.parse(message.alternativeContent[0].message);
+                       treatmentOfAdaptiveCardMessage(responseObjJson);
+                   default:
+               }
+
+           }
+       });
+
+       const buildCard = (type) => {
+           let templateJson = {
+               "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+               "type": "AdaptiveCard",
+               "version": "1.4",
+               "body": [
+                   {
+                       "type": "TextBlock",
+                       "text": "${titleCard}"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "size": "Medium",
+                       "weight": "Bolder",
+                       "text": "${Survey.title}",
+                       "horizontalAlignment": "Center",
+                       "wrap": true,
+                       "style": "heading"
+                   },
+                   {
+                       "type": "Input.Text",
+                       "id": "firstName",
+                       "label": "${Survey.askFirstName}"
+                   },
+                   {
+                       "type": "Input.Text",
+                       "id": "lastName",
+                       "label": "${Survey.askLastName}"
+                   },
+                   { // start
+                       "type": "TextBlock",
+                       "text": "${Survey.askQuantity}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Number",
+                       "min": 0,
+                       "max": 5,
+                       "value": 1,
+                       "id": "quantity"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.askDate}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Date",
+                       "id": "dateVal",
+                       "value": "2023-11-06"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.askTime}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Time",
+                       "id": "timeVal",
+                       "value": "16:59"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.questions[0].question}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.ChoiceSet",
+                       "id": "interventionDoneVal",
+                       "style": "expanded",
+                       "value": "false",
+                       "choices": [
+                           {
+                               "$data": "${Survey.questions[0].items}",
+                               "title": "${title}",
+                               "value": "${value}"
+                           }
+                       ]
+                   },
+                   {
+                       "type": "Input.Date",
+                       "id": "dateRespVal",
+                       "isVisible": false,
+                       "value": "${formatDateTime(utcNow(), 'yyyy-MM-dd')}"
+                   },
+
+               ],
+               "actions": [
+                   {
+                       "type": "Action.Submit",
+                       "title": "Valider",
+                       "data": {
+                           "rainbow": {
+                               "text": "Retour fait.",
+                               "type": "messageBack",
+                               "value": {
+                                   "response": "adaptiveCard_responseIntervention"
+                               }
+                           }
+                       }
+                   }
+               ]
+           }; // */
+
+           let messageJson = {
+               "titleCard": "Retour de textes et choix.",
+               "Survey": {
+                   "title": "Résultat d'intervension : ",
+                   "askFirstName": "Votre prénom ?",
+                   "askLastName": "Votre nom ?",
+                   "askQuantity": "Quantité deliverée ? ",
+                   "askDate": "Date de réalisation : ",
+                   "askTime": "Start time : ",
+                   "questions": [
+                       {
+                           "question": "Avez-vous effectué l'intervension ? ",
+                           "items": [
+                               {
+                                   "title": "Oui",
+                                   "value": "true"
+                               },
+                               {
+                                   "title": "Non",
+                                   "value": "false"
+                               }
+                           ]
+                       }
+                   ]
+               }
+           };
+
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(templateJson);
+           const context = {
+               $root: messageJson
+           };
+           const card = template.expand(context);
+           return JSON.stringify(card);
+       }
+
+       alternateContent = {
+           type: 'form/json',
+           //message: serialize.configure(buildCard(""))
+           message: buildCard("")
+       };
+
+       logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
+
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+       //let conversationId = conversation.id;
+
+       await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+
+       }, error => {
+       })
+   }
+
    async  testgetLastMessageOfConversation() {
         let that = this;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
