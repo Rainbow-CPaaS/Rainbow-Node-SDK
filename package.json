@@ -89,7 +89,7 @@
     "@types/backoff": "^2.5.2",
     "@xmpp/client": "^0.13.1",
     "@xmpp/xml": "^0.13.1",
-    "adaptive-expressions": "^4.20.0",
+    "adaptive-expressions": "^4.21.0",
     "adaptivecards-templating": "^2.3.1",
     "async-lock": "^1.4.0",
     "atob": "^2.1.2",
