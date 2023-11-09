@@ -139,9 +139,13 @@ class HTTPService {
                 ]
             });
 
-            that.mergedGot = got.extend(
-                    logger,
-            );
+            try {
+                that.mergedGot = got.extend(
+                        logger,
+                );
+            } catch (error) {
+
+            }
 
             // @ts-ignore
             let fnerror = console.error;
@@ -153,7 +157,11 @@ class HTTPService {
             debugHttp(debugHandler);
             Request.debug = true;
         } else {
-            that.mergedGot = got;
+            try {
+                that.mergedGot = got;
+            } catch (error) {
+
+            }
         }
 
 
@@ -743,7 +751,8 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                limit: nbTryBeforeFailed,
+                                //limit: nbTryBeforeFailed,
+                                limit: 1,
                                 calculateDelay: ({retryObject}) => {
                                     /* interface RetryObject {
                                         attemptCount: number;
@@ -752,9 +761,43 @@ safeJsonParse(str) {
                                         computedValue: number;
                                         retryAfter?: number;
                                     } of retryObject */
-                                    that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, retryObject : ", retryObject);
-                                    return timeBetweenRetry;
-                                }
+                                    that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                    return retryObject;
+                                    //return timeBetweenRetry;
+                                },
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
                             },
                             hooks: {
                                 afterResponse: [
@@ -780,8 +823,8 @@ safeJsonParse(str) {
                                             }
                                         } else {
                                             that.logger.warn("warn", LOG_ID + "(get) afterResponseHTTP response.code != 200");
-                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200 , bodyjs : ", response.body);
-                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200 , response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage, ", body : ", body);
+                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
                                             let bodyjs: any = {};
                                             if (that.hasJsonStructure(response.body)) {
                                                 bodyjs = JSON.parse(response.body);
@@ -863,7 +906,16 @@ safeJsonParse(str) {
                     };
 
                     try {
-                        let response = ( that.mergedGot.get(urlEncoded, newAliveAgent()));
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch ((error)=>{
+                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code);
+                        });
                         that.logger.log("info", LOG_ID + "(get) done.");
 
                         /*
@@ -1136,7 +1188,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 if (error) {
-                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error, ", url:", urlEncoded);
+                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
                     return reject("post failed");
                 } else {
                     if (response) {
