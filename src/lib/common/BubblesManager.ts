@@ -56,7 +56,7 @@ class BubblesManager {
     private lockKey = "LOCK_BUBBLE_MANAGER";
     private nbBubbleAdded : number = 0;
     private delay: number = 15000;
-    private MAXBUBBLEJOJNINPROGRESS = 30;
+    private MAXBUBBLEJOJNINPROGRESS = 3;
 
     static getClassName() {
         return 'BubblesManager';

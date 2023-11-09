@@ -27,7 +27,7 @@ const debugHttp = require("debug-http");
 
 let Agent = require('keepalive-proxy-agent');
 
-import got, {Got} from "got";
+import got, {Agents, Got} from "got";
 const urlLib = require('url');
 
 //const {HttpsProxyAgent} = require("https-proxy-agent");
@@ -65,6 +65,7 @@ class HTTPService {
     private _options: any;
     private _core: any;
     private mergedGot: Got;
+    private reqAgent: any;
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
@@ -82,6 +83,21 @@ class HTTPService {
         let that = this;
         this.mergedGot = got;
 
+        const liveOption : any = {
+            keepAlive: true,
+            maxSockets: 10,
+        };
+
+        if (that.proxy.isProxyConfigured ) {
+            if (that.proxy.secureProtocol) {
+                //opt.secureProxy = true;
+            }
+            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+        }
+
+        this.reqAgent =  new Agent(liveOption);
+        
         function debugHandler(request, options?, cb?): any {
             options = typeof options === "string" ? urlParse(options) : options;
 
@@ -711,12 +727,6 @@ safeJsonParse(str) {
 
                 if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
 
-
-                    const liveOption : any = {
-                        keepAlive: true,
-                        maxSockets: 10,
-                    };
-
                     const newAliveAgent :any = () => {
                         let req = {
                             prefixUrl:"",
@@ -753,17 +763,6 @@ safeJsonParse(str) {
 
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
                                             if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                /* let json = {};
-                                                if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                    json = JSON.parse(response.body);
-                                                    responseRequest = json;
-                                                    resolve2({statusCode: response.statusCode, id:3});
-                                                } else {
-                                                    responseRequest = response.body;
-                                                    resolve2({statusCode: response.statusCode, id:3});
-                                                } // */
-
-
                                                 if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
                                                     resolve(JSON.parse(response?.body));
                                                 } else {
@@ -840,7 +839,7 @@ safeJsonParse(str) {
                             req["responseType"] = responseType; // 'arraybuffer'
                         }
 
-                        if (that.proxy.isProxyConfigured ) {
+                        /*if (that.proxy.isProxyConfigured ) {
                             if (that.proxy.secureProtocol) {
                                 //opt.secureProxy = true;
                             }
@@ -855,13 +854,16 @@ safeJsonParse(str) {
                         } else {
                             req.agent.http =  new Agent(liveOption);
                             req.agent.https = new Agent(liveOption);
-                        }
+                        } // */
+
+                        req.agent.http =  that.reqAgent;
+                        req.agent.https = that.reqAgent;
 
                         return req;
                     };
 
                     try {
-                        let response = (await that.mergedGot.get(urlEncoded, newAliveAgent()));
+                        let response = ( that.mergedGot.get(urlEncoded, newAliveAgent()));
                         that.logger.log("info", LOG_ID + "(get) done.");
 
                         /*
@@ -877,8 +879,6 @@ safeJsonParse(str) {
                          //
                         that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
                         that.logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
-
-
                     }
 
                     return;
