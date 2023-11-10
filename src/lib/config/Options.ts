@@ -491,6 +491,7 @@ class Options {
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
+            maxBubbleJoinInProgress: 5,
             "autoInitialBubbleFormat": "small",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
@@ -518,6 +519,7 @@ class Options {
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
         optionsIM.autoInitialGetBubbles = (this._options.im.autoInitialGetBubbles == false) ? this._options.im.autoInitialGetBubbles : config.im.autoInitialGetBubbles;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
+        optionsIM.maxBubbleJoinInProgress = (this._options.im.maxBubbleJoinInProgress ) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;

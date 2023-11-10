@@ -89,6 +89,7 @@ let LOG_ID = "NodeSDK/IDX";
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  * @property {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
  * @property {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+ * @property {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
  * @property {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
  * @property {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed from it. Default value is true.
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
@@ -219,6 +220,7 @@ type OptionsType = {
         "rateLimitPerHour": number,
         "messagesDataStore": DataStoreType,
         "autoInitialBubblePresence": boolean,
+        "maxBubbleJoinInProgress": number,
         "autoLoadConversations": boolean,
         "autoLoadConversationHistory": boolean,
         "autoLoadContacts": boolean,
@@ -396,6 +398,7 @@ class NodeSDK {
      *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
      * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
