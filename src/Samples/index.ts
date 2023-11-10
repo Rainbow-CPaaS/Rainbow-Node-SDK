@@ -218,7 +218,7 @@ let urlS2S;
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
         },
-        "autoReconnectIgnoreErrors":true,
+        "autoReconnectIgnoreErrors":false,
         // IM options
         "im": {
             "sendReadReceipt": true,
@@ -233,6 +233,7 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
+            "maxBubbleJoinInProgress": 6,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
             "autoLoadConversations": true,
@@ -268,7 +269,7 @@ let urlS2S;
                 "start_up": true,
             },
             "calllog": {
-                "start_up": true,
+                "start_up": false,
             },
             "favorites": {
                 "start_up": true,
@@ -2823,12 +2824,19 @@ let urlS2S;
 
     //region Bubbles
 
-     testgetContactById_aluno() {
-         rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
-             logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+     testgetContactById_65269b10bd1d36463da3c89d() {
+        // userid not existing in .Net platform
+         rainbowSDK.contacts.getContactById("65269b10bd1d36463da3c89d").then((contact: any) => {
+             logger.log("debug", "MAIN - [testgetContactById_65269b10bd1d36463da3c89d    ] :: getContactById contact : ", contact);
          });
      }
-     
+
+     testgetContactById_aluno() {
+         rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
+             logger.log("debug", "MAIN - [testgetContactById_aluno    ] :: getContactById contact : ", contact);
+         });
+     }
+
      testCreateBubble_Uniasselvi() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net" ;
 
@@ -8352,6 +8360,29 @@ let urlS2S;
         }); // */
     }
 
+     startstop() {
+        rainbowSDK.start(token).then(async (result: any) => {
+            try {
+                // Do something when the SDK is started
+                connectedUser = result.loggedInUser;
+                token = result.token;
+                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+
+                //let startDuration = Math.round(new Date() - startDate);
+                let startDuration = result.startDuration;
+                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+
+               rainbowSDK.stop();
+            } catch (err) {
+                console.log("MAIN - Error during starting : ", inspect(err));
+            }
+        }).catch((err) => {
+            console.log("MAIN - Error during starting : ", inspect(err));
+        }); // */
+    }
+
      stop() {
         rainbowSDK.stop();
     }
@@ -8405,6 +8436,11 @@ let urlS2S;
                         case "start":
                             logger.log("debug", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
+                            enterCmd();
+                            break;
+                        case "startstop":
+                            logger.log("debug", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
+                            eval("tests.startstop()");
                             enterCmd();
                             break;
                         case "stop":

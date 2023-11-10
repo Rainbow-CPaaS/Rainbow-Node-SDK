@@ -712,7 +712,7 @@ safeJsonParse(str) {
         });
     }
 
-    get(url, headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 1, timeBetweenRetry = 1000): Promise<any> {
+    get(url, headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._get.bind(this);
@@ -721,7 +721,7 @@ safeJsonParse(str) {
         return that.httpManager.add(req);
     }
 
-    _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 1, timeBetweenRetry = 1000): Promise<any> {
+    _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -751,8 +751,8 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                //limit: nbTryBeforeFailed,
-                                limit: 1,
+                                limit: nbTryBeforeFailed,
+                                //limit: 1,
                                 calculateDelay: ({retryObject}) => {
                                     /* interface RetryObject {
                                         attemptCount: number;
@@ -762,8 +762,8 @@ safeJsonParse(str) {
                                         retryAfter?: number;
                                     } of retryObject */
                                     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                    return retryObject;
-                                    //return timeBetweenRetry;
+                                    //return retryObject;
+                                    return timeBetweenRetry;
                                 },
                                 methods: [
                                     'GET',
@@ -914,7 +914,7 @@ safeJsonParse(str) {
 
 
                         let response = secondInstance.get(urlEncoded, newAliveAgent()).catch ((error)=>{
-                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code);
+                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(get) done.");
 
