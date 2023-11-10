@@ -137,6 +137,7 @@ let conf =  {
         messagesDataStore: DataStoreType.UsestoreMessagesField,
         autoInitialGetBubbles: true,
         autoInitialBubblePresence: true,
+        maxBubbleJoinInProgress: 5,
         "autoInitialBubbleFormat": "full",
         "autoInitialBubbleUnsubscribed": true,
         autoLoadConversations: true,
