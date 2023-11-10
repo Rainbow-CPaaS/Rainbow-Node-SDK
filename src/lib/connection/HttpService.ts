@@ -812,7 +812,7 @@ safeJsonParse(str) {
                                                     resolve(response?.rawBody);
                                                 }
                                             } else {
-                                                responseRequest = {
+                                                let responseRequest = {
                                                     code: -1,
                                                     url: urlEncoded,
                                                     msg: "Bad content, please check your host",
@@ -1174,7 +1174,151 @@ safeJsonParse(str) {
 
             that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
-            Request({
+
+            const newAliveAgent :any = () => {
+                let req = {
+                    prefixUrl:"",
+                    agent: {
+                        http: undefined,
+                        https: undefined
+                        //http: agent,
+                        //https: agent
+
+                        //http: new HttpAgent(liveOption),
+                        //https: new HttpsAgent(liveOption)
+                        //
+                    },
+                    headers,
+                    body,
+                    //searchParams: params,
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+
+                                if (response.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
+                                            } else {
+                                                resolve(response?.rawBody);
+                                            }
+                                        } else {
+                                            let responseRequest = {
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Bad content, please check your host",
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            };
+                                            reject(responseRequest);
+                                        }
+                                    } else {
+                                        that.logger.warn("warn", LOG_ID + "(post) afterResponseHTTP response.code != 200");
+                                        that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
+                                        } else {
+                                            bodyjs.errorMsg = response.body;
+                                        }
+
+                                        that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
+                                        that.logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorDetails = bodyjs.errorDetails;
+                                        if (errorDetails) {
+                                            if (typeof errorDetails==="object") {
+                                                // errorDetails = JSON.stringify(errorDetails);
+                                                errorDetails = util.inspect(errorDetails, false, 4, true);
+                                            }
+                                        }
+                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        let responseRequest = {
+                                            code: response?.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response?.headers
+                                        };
+
+                                        // error.response.body
+                                        reject(responseRequest);
+                                    }
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
+                                        return reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
+                                        that.logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                        that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
+                                        return reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
+                                }
+                                // No changes otherwise
+                                return response;
+                            }
+                        ],
+                    },
+                };
+
+                req.agent.http =  that.reqAgent;
+                req.agent.https = that.reqAgent;
+
+                return req;
+            };
+
+            try {
+
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                let response = secondInstance.post(urlEncoded, newAliveAgent()).catch ((error)=>{
+                    that.logger.warn("internal", LOG_ID + "(post) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                });
+                that.logger.log("info", LOG_ID + "(post) done.");
+
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that.logger.warn("warn", LOG_ID + "(post) HTTP error.");
+                that.logger.warn("internal", LOG_ID + "(post) HTTP error statusCode : ", error?.statusCode);
+            }
+
+            return;
+// */
+
+
+
+
+
+
+
+                Request({
                 method: 'POST',
                 preambleCRLF: true,
                 postambleCRLF: true,
