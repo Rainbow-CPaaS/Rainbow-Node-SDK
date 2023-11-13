@@ -751,20 +751,22 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                limit: nbTryBeforeFailed,
+                                limit: 0,
+                                //limit: nbTryBeforeFailed,
                                 //limit: 1,
-                                calculateDelay: ({retryObject}) => {
-                                    /* interface RetryObject {
-                                        attemptCount: number;
-                                        retryOptions: RetryOptions;
-                                        error: RequestError;
-                                        computedValue: number;
-                                        retryAfter?: number;
-                                    } of retryObject */
-                                    that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                    //return retryObject;
-                                    return timeBetweenRetry;
-                                },
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return timeBetweenRetry;
+                                // },
+                                calculateDelay: ({computedValue}) => computedValue,
                                 methods: [
                                     'GET',
                                     'PUT',
