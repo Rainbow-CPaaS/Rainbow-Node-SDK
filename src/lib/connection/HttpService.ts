@@ -1470,7 +1470,7 @@ safeJsonParse(str) {
                                 computedValue: number;
                                 retryAfter?: number;
                             } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(head) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                            that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
                             //return retryObject;
                             return 1000;
                         },
@@ -1924,7 +1924,7 @@ safeJsonParse(str) {
                                 computedValue: number;
                                 retryAfter?: number;
                             } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                            that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
                             //return retryObject;
                             return 1000;
                         },
@@ -2313,7 +2313,7 @@ safeJsonParse(str) {
                                 computedValue: number;
                                 retryAfter?: number;
                             } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                            that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
                             //return retryObject;
                             return 1000;
                         },
