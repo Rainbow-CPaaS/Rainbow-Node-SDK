@@ -1464,18 +1464,19 @@ safeJsonParse(str) {
                     retry: {
                         limit: 0,
                         //limit: 1,
-                        calculateDelay: ({retryObject}) => {
-                            /* interface RetryObject {
-                                attemptCount: number;
-                                retryOptions: RetryOptions;
-                                error: RequestError;
-                                computedValue: number;
-                                retryAfter?: number;
-                            } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
-                            //return retryObject;
-                            return 1000;
-                        },
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
                         methods: [
                             'GET',
                             'PUT',
@@ -1791,18 +1792,19 @@ safeJsonParse(str) {
                     retry: {
                         limit: 0,
                         //limit: 1,
-                        calculateDelay: ({retryObject}) => {
-                            /* interface RetryObject {
-                                attemptCount: number;
-                                retryOptions: RetryOptions;
-                                error: RequestError;
-                                computedValue: number;
-                                retryAfter?: number;
-                            } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                            //return retryObject;
-                            return 1000;
-                        },
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
                         methods: [
                             'GET',
                             'PUT',
@@ -2117,18 +2119,19 @@ safeJsonParse(str) {
                     retry: {
                         limit: 0,
                         //limit: 1,
-                        calculateDelay: ({retryObject}) => {
-                            /* interface RetryObject {
-                                attemptCount: number;
-                                retryOptions: RetryOptions;
-                                error: RequestError;
-                                computedValue: number;
-                                retryAfter?: number;
-                            } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
-                            //return retryObject;
-                            return 1000;
-                        },
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
                         methods: [
                             'GET',
                             'PUT',
@@ -2506,18 +2509,19 @@ safeJsonParse(str) {
                     retry: {
                         limit: 0,
                         //limit: 1,
-                        calculateDelay: ({retryObject}) => {
-                            /* interface RetryObject {
-                                attemptCount: number;
-                                retryOptions: RetryOptions;
-                                error: RequestError;
-                                computedValue: number;
-                                retryAfter?: number;
-                            } of retryObject */
-                            that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                            //return retryObject;
-                            return 1000;
-                        },
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
                         methods: [
                             'GET',
                             'PUT',
