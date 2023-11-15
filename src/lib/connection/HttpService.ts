@@ -28,6 +28,7 @@ const debugHttp = require("debug-http");
 let Agent = require('keepalive-proxy-agent');
 
 import got, {Agents, Got} from "got";
+const _ = require('highland');
 const urlLib = require('url');
 
 //const {HttpsProxyAgent} = require("https-proxy-agent");
@@ -2446,9 +2447,260 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, " stream fileName : ", stream.fileName);
+            that.logger.log("internal", LOG_ID + "(putStream) url : ", urlEncoded, " stream fileName : ", stream.fileName);
 
             headers["user-agent"] = USER_AGENT;
+
+            const newAliveAgent :any = () => {
+                let req = {
+                    prefixUrl:"",
+                    agent: {
+                        http: undefined,
+                        https: undefined
+                        //http: agent,
+                        //https: agent
+
+                        //http: new HttpAgent(liveOption),
+                        //https: new HttpsAgent(liveOption)
+                        //
+                    },
+                    headers,
+                    //body,
+                    //searchParams: params,
+                    retry: {
+                        limit: 0,
+                        //limit: 1,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+
+                                if (response.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response?.rawBody && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
+                                            } else {
+                                                resolve(response?.rawBody);
+                                            }
+                                        } else {
+                                            let responseRequest = {
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Bad content, please check your host",
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            };
+                                            reject(responseRequest);
+                                        }
+                                    } else {
+                                        that.logger.warn("warn", LOG_ID + "(putStream) afterResponseHTTP response.code != 200");
+                                        that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
+                                        } else {
+                                            bodyjs.errorMsg = response.body;
+                                        }
+
+                                        that.logger.warn("warn", LOG_ID + "(putStream) HTTP response.code != 200 ");
+                                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorDetails = bodyjs.errorDetails;
+                                        if (errorDetails) {
+                                            if (typeof errorDetails==="object") {
+                                                // errorDetails = JSON.stringify(errorDetails);
+                                                errorDetails = util.inspect(errorDetails, false, 4, true);
+                                            }
+                                        }
+                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        let responseRequest = {
+                                            code: response?.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response?.headers
+                                        };
+
+                                        // error.response.body
+                                        reject(responseRequest);
+                                    }
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that.logger.log("error", LOG_ID + "(putStream) HTTP security issue", response.error.reason);
+                                        return reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that.logger.warn("error", LOG_ID + "(putStream) HTTP other issue.");
+                                        that.logger.warn("internalerror", LOG_ID + "(putStream) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                        that.logger.log("internal", LOG_ID + "(putStream) HTTP other issue", response);
+                                        return reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
+                                }
+                                // No changes otherwise
+                                return response;
+                            }
+                        ],
+                        beforeRetry: [
+                            error => {
+                                // This will be called on `retryWithMergedOptions(...)`
+                            }
+                        ]
+                    },
+                };
+
+                req.agent.http =  that.reqAgent;
+                req.agent.https = that.reqAgent;
+
+                return req;
+            };
+
+            try {
+
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                // store error and result
+                let error;
+                let result = {};
+                let verbose = 2;
+                let spinner = undefined;
+
+                let streamRes = _(stream.pipe(secondInstance.stream.put(urlEncoded, newAliveAgent())))
+                        /*.catch ((error)=>{
+                    that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                });
+                that.logger.log("info", LOG_ID + "(put) done.");
+                // */
+                        .split()
+                        .filter(l => l && l.length);
+                // store output
+                streamRes.on('data', str => {
+                    if (spinner) {
+                        spinner.text = 'Project uploaded! Waiting for deployment..';
+                    }
+                    const s = str.toString();
+                    try {
+                        const data = JSON.parse(s);
+                        // always log info
+                        if (data.level === 'info') {
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
+                            // if data has deployments info - assign it as result
+                            if (data.deployments) {
+                                result = data;
+                            }
+                        }
+                        // log verbose if needed
+                        data.level === 'verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
+                        // if error - store as error and log
+                        if (data.level === 'error') {
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
+                            verbose > 1 && console.log(JSON.stringify(data, null, 2));
+                            error = new Error(data.message);
+                            error.response = data;
+                        }
+                    } catch (e) {
+                        error = new Error('Error parsing output!');
+                        error.response = {
+                            error: s,
+                        };
+                        verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', s);
+                    }
+                });
+                // listen for read stream end
+                streamRes.on('end', () => {
+                    // if stream had error - reject
+                    if (error) {
+                        that.logger.warn("warn", LOG_ID + "(putStream) HTTP error at end.");
+                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP error at end. statusCode : ", error?.statusCode);
+                        reject(error);
+                        return;
+                    }
+                    // otherwise resolve
+                    resolve(result);
+                });
+                streamRes.on('error', e => (error = e));
+
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that.logger.warn("warn", LOG_ID + "(putStream) HTTP error.");
+                that.logger.warn("internal", LOG_ID + "(putStream) HTTP error statusCode : ", error?.statusCode);
+            }
+
+            return ;
+// */
+
+
+
 
             let request = Request.put({
                 url: urlEncoded,
