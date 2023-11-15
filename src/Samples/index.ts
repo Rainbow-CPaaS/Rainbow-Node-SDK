@@ -2716,7 +2716,7 @@ let urlS2S;
         let file = null;
         //let strMessage = {message: "message for the file"};
         let strMessage = "message for the file";
-        file = "c:\\temp\\IMG_20131005_173918XXXXXXXXXXX.jpg";
+        file = "c:\\temp\\IMG_20131005_173918.jpg";
         logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
         // Share the file
         return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
@@ -6397,7 +6397,7 @@ let urlS2S;
        let fileStats = fs.statSync(pathImg);
        let sizeToRead = fileStats.size;
        let buf = new Buffer(sizeToRead);
-       logger.log("debug", "MAIN - testuploadAFileByChunk sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
+       logger.log("debug", "MAIN - testuploadLdapAvatar sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
        let promiseDeferred = new Deferred();
        fs.readSync(fd, buf, 0, sizeToRead, null);
 

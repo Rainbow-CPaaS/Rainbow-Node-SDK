@@ -105,6 +105,7 @@
     "deep-equal": "^2.2.1",
     "express": "^4.18.2",
     "file-api": "^0.10.4",
+    "highland": "^2.13.5",
     "https-proxy-agent": "7.0.0",
     "humanize-number": "0.0.2",
     "jimp": "^0.22.8",
