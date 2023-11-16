@@ -29,6 +29,7 @@ let Agent = require('keepalive-proxy-agent');
 
 import got, {Agents, Got} from "got";
 const _ = require('highland');
+const { pipeline } = require('stream');
 const urlLib = require('url');
 
 //const {HttpsProxyAgent} = require("https-proxy-agent");
@@ -2471,13 +2472,13 @@ safeJsonParse(str) {
                         limit: 0,
                         //limit: 1,
                         // calculateDelay: ({retryObject}) => {
-                        //     /* interface RetryObject {
-                        //         attemptCount: number;
-                        //         retryOptions: RetryOptions;
-                        //         error: RequestError;
-                        //         computedValue: number;
-                        //         retryAfter?: number;
-                        //     } of retryObject */
+                        //     // interface RetryObject {
+                        //     //    attemptCount: number;
+                        //     //    retryOptions: RetryOptions;
+                        //     //    error: RequestError;
+                        //     //    computedValue: number;
+                        //     //    retryAfter?: number;
+                        //     // } of retryObject
                         //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
                         //     //return retryObject;
                         //     return 1000;
@@ -2621,25 +2622,37 @@ safeJsonParse(str) {
             try {
 
                 const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
                 // store error and result
                 let error;
-                let result = {};
+                let result = null;
                 let verbose = 2;
                 let spinner = undefined;
 
-                let streamRes = _(stream.pipe(secondInstance.stream.put(urlEncoded, newAliveAgent())))
-                        /*.catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(put) done.");
-                // */
-                        .split()
-                        .filter(l => l && l.length);
+
+
+
+                let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, newAliveAgent())), (err) => {
+                    if (err) {
+                        console.error('Pipeline failed', err);
+                        reject(err);
+                    } else {
+                        console.log('Pipeline succeeded');
+                        resolve(err);
+                    }
+                } )) ;
+
+
+
+
+
+
+//return;
+
+               // let streamRes = _(stream.pipe(secondInstance.stream.put(urlEncoded, newAliveAgent())))
+//                        .split()
+//                        .filter(l => l && l.length);
                 // store output
                 streamRes.on('data', str => {
                     if (spinner) {
@@ -2647,7 +2660,9 @@ safeJsonParse(str) {
                     }
                     const s = str.toString();
                     try {
-                        const data = JSON.parse(s);
+
+                        result = result? result + s : s;
+                       /*  const data = JSON.parse(s);
                         // always log info
                         if (data.level === 'info') {
                             verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
@@ -2665,6 +2680,7 @@ safeJsonParse(str) {
                             error = new Error(data.message);
                             error.response = data;
                         }
+                        // */
                     } catch (e) {
                         error = new Error('Error parsing output!');
                         error.response = {
@@ -2678,25 +2694,62 @@ safeJsonParse(str) {
                     // if stream had error - reject
                     if (error) {
                         that.logger.warn("warn", LOG_ID + "(putStream) HTTP error at end.");
-                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP error at end. statusCode : ", error?.statusCode);
+                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP error at end. error : ", error);
                         reject(error);
                         return;
                     }
+
+                    try {
+
+                        verbose && that.logger.log("internal", LOG_ID + "(putStream) result : ", chalk.blue('[info]'), result);
+                        const data = JSON.parse(result);
+                        verbose && that.logger.log("internal", LOG_ID + "(putStream) data : ", chalk.blue('[info]'), data);
+                        // always log info
+                        if (data.level === 'info') {
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
+                            // if data has deployments info - assign it as result
+                            if (data.deployments) {
+                                result = data;
+                            }
+                        }
+                        // log verbose if needed
+                        data.level === 'verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
+                        // if error - store as error and log
+                        if (data.level === 'error') {
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
+                            verbose > 1 && console.log(JSON.stringify(data, null, 2));
+                            error = new Error(data.message);
+                            error.response = data;
+                            reject(error);
+                            return;
+                        }
+                    } catch (e) {
+                        error = new Error('Error parsing output!');
+                        error.response = {
+                            error: e,
+                        };
+                        verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', result);
+                        reject(error);
+                        return;
+                    }
+
+                    that.logger.log("info", LOG_ID + "(putStream) successfull");
+                    that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url");
                     // otherwise resolve
-                    resolve(result);
+                    resolve("done");
                 });
                 streamRes.on('error', e => (error = e));
 
+                return (streamRes) ;
             } catch (error) {
                 //
                 //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
                 //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
                 //
                 that.logger.warn("warn", LOG_ID + "(putStream) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(putStream) HTTP error statusCode : ", error?.statusCode);
+                that.logger.warn("internal", LOG_ID + "(putStream) HTTP error : ", error);
+                return  (error);
             }
-
-            return ;
 // */
 
 
