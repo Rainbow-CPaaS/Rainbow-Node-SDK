@@ -22,8 +22,12 @@ pipeline {
     }
     options {
         timeout(time: 1, unit: 'HOURS') 
-        disableConcurrentBuilds()
-        //withCredentials() 
+        disableConcurrentBuilds(),
+        //withCredentials()
+           buildDiscarder(logRotator(
+                numToKeepStr: '30',
+                artifactNumToKeepStr: '30'
+           ))
     }
     
     parameters {
