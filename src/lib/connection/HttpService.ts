@@ -135,7 +135,7 @@ class HTTPService {
                 handlers: [
                     (options, next) => {
                         //that.logger.log("internalerror", LOG_ID + `Sending ${options.method} to ${options.url}`);
-                        that.logger.log("internal", LOG_ID + chalk.red("DEBUG CONSOLE"), `Sending ${options.method} to ${options.url} \nheaders :`, options.headers, `\nresponseType : ${options.responseType}`);
+                        that.logger.log("internal", LOG_ID + chalk.red("DEBUG CONSOLE"), `Sending ${options.method} to ${options.url} \nheaders :`, options.headers, `\nresponseType : ${options.responseType}`, `\nbody : ${options.body}`);
                         return next(options);
                     }
                 ]
@@ -301,6 +301,185 @@ safeJsonParse(str) {
                 that.logger.log("info", LOG_ID + "(_getUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
                 that.logger.log("internal", LOG_ID + "(_getUrlRaw) url : ", url, ", headers : ", headers, ", params : ", params);
 
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            searchParams: params,
+                            retry: {
+                                limit: 0,
+                                //limit: nbTryBeforeFailed,
+                                //limit: 1,
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return timeBetweenRetry;
+                                // },
+                                calculateDelay: ({computedValue}) => computedValue,
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
+                            },
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_getUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                    //if (response) {
+                                                        //response.body = body;
+                                                    //}
+                                                    resolve(response);
+                                                } else {
+                                                    that.logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP response.code != 200");
+                                                    that.logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
+                                                    reject({
+                                                        code: -1,
+                                                        msg: "ErrorManager while requesting",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            } else {
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _getUrlRaw no statusCode returned",
+                                                    details: undefined,
+                                                    headers: undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _getUrlRaw no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        return response;
+                                    }
+                                ],
+                                beforeRetry: [
+                                    error => {
+                                        // This will be called on `retryWithMergedOptions(...)`
+                                    }
+                                ]
+                            },
+                        };
+
+                        /*
+                        if (responseType != "") {
+                            req["responseType"] = responseType; // 'arraybuffer'
+                        } // */
+
+                        /*if (that.proxy.isProxyConfigured ) {
+                            if (that.proxy.secureProtocol) {
+                                //opt.secureProxy = true;
+                            }
+                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+                            //options.agent = new HttpsProxyAgent(opt);
+
+                            //let opt = urlLib.parse(that.proxy.proxyURL);
+                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        } else {
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        } // */
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(_getUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(_getUrlRaw) done.");
+
+                        /*
+                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                            resolve(JSON.parse(response?.body));
+                        } else {
+                            resolve(response?.rawBody);
+                        } // */
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    return;
+                }
+
+
+
+
                 let request = Request({
                     url: urlEncoded,
                     method: "GET",
@@ -312,7 +491,7 @@ safeJsonParse(str) {
                     },
                     forever: true
                 }, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(get) successfull");
+                    that.logger.log("info", LOG_ID + "(_getUrlRaw) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -321,9 +500,9 @@ safeJsonParse(str) {
                             headers: response ? response.headers:undefined
                         });
                     } else {
-                        if (response) {
-                            response.body = body;
-                        }
+                        //if (response) {
+                          //  response.body = body;
+                        //}
                         resolve (response);
                     }
                 });
@@ -359,6 +538,159 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
 
                 that.logger.log("internal", LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
+
+
+
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            //body,
+                            //searchParams: params,
+                            retry: {
+                                limit: 0,
+                                //limit: 1,
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return 1000;
+                                // },
+                                calculateDelay: ({computedValue}) => computedValue,
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
+                            },
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_headUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                    //if (response) {
+                                                    //    response.body = body;
+                                                    //}
+                                                    resolve(response);
+                                                } else {
+                                                    that.logger.warn("warn", LOG_ID + "(_headUrlRaw) HTTP response.code != 200");
+                                                    that.logger.warn("internal", LOG_ID + "(_headUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
+                                                    reject({
+                                                        code: -1,
+                                                        msg: "ErrorManager while requesting _headUrlRaw",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            } else {
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _headUrlRaw no statusCode returned",
+                                                    details: undefined,
+                                                    headers: undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _headUrlRaw no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        return response;
+                                    }
+                                ],
+                                beforeRetry: [
+                                    error => {
+                                        // This will be called on `retryWithMergedOptions(...)`
+                                    }
+                                ]
+                            },
+                        };
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.head(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(head) done.");
+
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(head) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    return;
+                }
+// */
+
+
 
                 Request({
                     method: 'HEAD',
@@ -414,53 +746,148 @@ safeJsonParse(str) {
 
         return new Promise(function (resolve, reject) {
             try {
-            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
-            let urlEncoded = url;
-            headers["user-agent"] = USER_AGENT;
-            let body = data;
-            /*
-            if (contentType) {
-                //request.type(type);
-                headers["Content-Type"] = contentType;
-            } else {
-                //request.type("json");
-                if (!headers["Content-Type"]) {
-                    headers["Content-Type"] = "application/json";
-                    body = JSON.stringify(data);
-                }
-            } // */
-
-            that.logger.log("internal", LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
-
-            Request({
-                method: 'POST',
-                preambleCRLF: true,
-                postambleCRLF: true,
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                forever: true,
-                body: body
-            }, (error, response, body) => {
-                that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
-                that.logger.log("internal", LOG_ID + "(_postUrlRaw) successfull - error : ", error, ", body : ", body);
-                if (error) {
-                    return reject({
-                        code: -1,
-                        msg: "ErrorManager while posting",
-                        details: error,
-                        headers: response ? response.headers:undefined
-                    });
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = url;
+                headers["user-agent"] = USER_AGENT;
+                let body = data;
+                /*
+                if (contentType) {
+                    //request.type(type);
+                    headers["Content-Type"] = contentType;
                 } else {
-                    if (response) {
-                        response.body = body;
+                    //request.type("json");
+                    if (!headers["Content-Type"]) {
+                        headers["Content-Type"] = "application/json";
+                        body = JSON.stringify(data);
                     }
-                    resolve (response);
+                } // */
+
+                that.logger.log("internal", LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            body,
+                            //searchParams: params,
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_postUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                    //if (response) {
+                                                      //  response.body = body;
+                                                    //}
+                                                    resolve(response);
+                                                } else {
+                                                    that.logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP response.code != 200");
+                                                    that.logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
+                                                    reject({
+                                                        code: -1,
+                                                        msg: "ErrorManager while requesting _postUrlRaw",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            } else {
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _postUrlRaw no statusCode returned",
+                                                    details: undefined,
+                                                    headers: undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _postUrlRaw no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        return response;
+                                    }
+                                ],
+                            },
+                        };
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.post(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(_postUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(_postUrlRaw) done.");
+
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    return;
                 }
-            });
+// */
+
+
+                Request({
+                    method: 'POST',
+                    preambleCRLF: true,
+                    postambleCRLF: true,
+                    url: urlEncoded,
+                    headers: headers,
+                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
+                    agentOptions: {
+                        secureProtocol: that.proxy.secureProtocol
+                    },
+                    forever: true,
+                    body: body
+                }, (error, response, body) => {
+                    that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
+                    that.logger.log("internal", LOG_ID + "(_postUrlRaw) successfull - error : ", error, ", body : ", body);
+                    if (error) {
+                        return reject({
+                            code: -1,
+                            msg: "ErrorManager while posting",
+                            details: error,
+                            headers: response ? response.headers:undefined
+                        });
+                    } else {
+                        //if (response) {
+                          //  response.body = body;
+                        //}
+                        resolve(response);
+                    }
+                });
             } catch (err) {
                 that.logger.log("error", LOG_ID + "(_postUrlRaw) HTTP ErrorManager");
                 that.logger.log("internalerror", LOG_ID + "(_postUrlRaw) HTTP ErrorManager : ", err);
@@ -526,9 +953,9 @@ safeJsonParse(str) {
                             headers: response ? response.headers:undefined
                         });
                     } else {
-                        if (response) {
-                            response.body = body;
-                        }
+                        //if (response) {
+                        //    response.body = body;
+                        //}
                         resolve(response);
                     }
                 });
@@ -568,6 +995,174 @@ safeJsonParse(str) {
 
                 that.logger.log("internal", LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req: any = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            // body,
+                            //searchParams: params,
+                            retry: {
+                                limit: 0,
+                                //limit: 1,
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return 1000;
+                                // },
+                                calculateDelay: ({computedValue}) => computedValue,
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
+                            },
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_deleteUrlRaw) HTTP code", response.code);
+                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                    //if (response) {
+                                                      //  response.body = body;
+                                                    //}
+                                                    resolve(response);
+                                                } else {
+                                                    reject({
+                                                        code: -1,
+                                                        msg: "ErrorManager while posting",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            } else {
+                                                if (response.error && response.error.reason) {
+                                                    that.logger.log("error", LOG_ID + "(_deleteUrlRaw) HTTP security issue", response.error.reason);
+                                                    reject({
+                                                        code: -1,
+                                                        url: urlEncoded,
+                                                        msg: response.error.reason,
+                                                        details: "",
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                } else {
+                                                    that.logger.warn("error", LOG_ID + "(_deleteUrlRaw) HTTP other issue.");
+                                                    that.logger.warn("internalerror", LOG_ID + "(_deleteUrlRaw) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                                    that.logger.log("internal", LOG_ID + "(_deleteUrlRaw) HTTP other issue", response);
+                                                    reject({
+                                                        code: -1,
+                                                        url: urlEncoded,
+                                                        msg: "Unknown error",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _deleteUrlRaw no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        // No changes otherwise
+                                        return response;
+                                    }
+                                ],
+                                beforeRetry: [
+                                    error => {
+                                        // This will be called on `retryWithMergedOptions(...)`
+                                    }
+                                ]
+                            },
+                        };
+
+                        if (body) {
+                            req.body = body;
+                        }
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.delete(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(_deleteUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done.");
+
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(_deleteUrlRaw) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(_deleteUrlRaw) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    return;
+                }
+// */
+
+
 
                 let deleteOptions = {
                     url: urlEncoded,
@@ -588,14 +1183,14 @@ safeJsonParse(str) {
                     if (error) {
                         return reject({
                             code: -1,
-                            msg: "ErrorManager while posting",
+                            msg: "ErrorManager while deleting",
                             details: error,
                             headers: response ? response.headers:undefined
                         });
                     } else {
-                        if (response) {
-                            response.body = body;
-                        }
+                        //if (response) {
+                         //   response.body = body;
+                        //}
                         resolve(response);
                     }
                 });
@@ -633,6 +1228,207 @@ safeJsonParse(str) {
 
                 that.logger.log("info", LOG_ID + "(_getUrlJson) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
                 that.logger.log("internal", LOG_ID + "(_getUrlJson) url : ", url, ", headers : ", headers, ", params : ", params);
+
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            searchParams: params,
+                            retry: {
+                                limit: 0,
+                                //limit: nbTryBeforeFailed,
+                                //limit: 1,
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return timeBetweenRetry;
+                                // },
+                                calculateDelay: ({computedValue}) => computedValue,
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
+                            },
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
+                                                if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                                    if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                        let json = {};
+                                                        if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                                            json = JSON.parse(response.body);
+                                                            resolve(json);
+                                                        } else {
+                                                            resolve(response.body);
+                                                        }
+                                                    } else {
+                                                        reject({
+                                                            code: -1,
+                                                            msg: "Bad content, please check your host",
+                                                            details: "",
+                                                            headers: response ? response.headers:undefined
+                                                        });
+                                                    }
+                                                } else {
+                                                    that.logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP response.code != 200");
+                                                    that.logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP response.code != 200 , bodyjs : ", response.body);
+                                                    let bodyjs: any = {};
+                                                    if (that.hasJsonStructure(response.body)) {
+                                                        bodyjs = JSON.parse(response.body);
+                                                    } else {
+                                                        bodyjs.errorMsg = response.body;
+                                                    }
+                                                    let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                    errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+                                                    //that.tokenExpirationControl(bodyjs);
+                                                    reject({
+                                                        code: response.statusCode,
+                                                        msg: msg,
+                                                        details: errorMsgDetail,
+                                                        error: bodyjs,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+
+                                                }
+                                            } else {
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _getUrlJson no statusCode returned",
+                                                    details: undefined,
+                                                    headers: undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _getUrlJson no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        return response;
+                                    }
+                                ],
+                                beforeRetry: [
+                                    error => {
+                                        // This will be called on `retryWithMergedOptions(...)`
+                                    }
+                                ]
+                            },
+                        };
+
+                        /*
+                        if (responseType != "") {
+                            req["responseType"] = responseType; // 'arraybuffer'
+                        } // */
+
+                        /*if (that.proxy.isProxyConfigured ) {
+                            if (that.proxy.secureProtocol) {
+                                //opt.secureProxy = true;
+                            }
+                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+                            //options.agent = new HttpsProxyAgent(opt);
+
+                            //let opt = urlLib.parse(that.proxy.proxyURL);
+                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        } else {
+                            req.agent.http =  new Agent(liveOption);
+                            req.agent.https = new Agent(liveOption);
+                        } // */
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(get) done.");
+
+                        /*
+                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                            resolve(JSON.parse(response?.body));
+                        } else {
+                            resolve(response?.rawBody);
+                        } // */
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    return;
+                }
+
 
                 let request = Request({
                     url: urlEncoded,
@@ -737,207 +1533,209 @@ safeJsonParse(str) {
 
                 if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
 
-                    const newAliveAgent :any = () => {
-                        let req = {
-                            prefixUrl:"",
-                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                    if (that._options.restOptions.useGotLibForHttp) {
+                        const newAliveAgent: any = () => {
+                            let req = {
+                                prefixUrl: "",
+                                agent: {
+                                    http: undefined,
+                                    https: undefined
+                                    //http: agent,
+                                    //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-                            headers,
-                            searchParams: params,
-                            retry: {
-                                limit: 0,
-                                //limit: nbTryBeforeFailed,
-                                //limit: 1,
-                                // calculateDelay: ({retryObject}) => {
-                                //     /* interface RetryObject {
-                                //         attemptCount: number;
-                                //         retryOptions: RetryOptions;
-                                //         error: RequestError;
-                                //         computedValue: number;
-                                //         retryAfter?: number;
-                                //     } of retryObject */
-                                //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                //     //return retryObject;
-                                //     return timeBetweenRetry;
-                                // },
-                                calculateDelay: ({computedValue}) => computedValue,
-                                methods: [
-                                    'GET',
-                                    'PUT',
-                                    'HEAD',
-                                    'DELETE',
-                                    'OPTIONS',
-                                    'TRACE'
-                                ],
-                                statusCodes: [
-                                    408,
-                                    413,
-                                    429,
-                                    500,
-                                    502,
-                                    503,
-                                    504,
-                                    521,
-                                    522,
-                                    524
-                                ],
-                                errorCodes: [
-                                    'ETIMEDOUT',
-                                    'ECONNRESET',
-                                    'EADDRINUSE',
-                                    'ECONNREFUSED',
-                                    'EPIPE',
-                                    'ENOTFOUND',
-                                    'ENETUNREACH',
-                                    'EAI_AGAIN'
-                                ],
-                                maxRetryAfter: undefined,
-                                backoffLimit: Number.POSITIVE_INFINITY,
-                                noise: 100
-                            },
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
+                                    //http: new HttpAgent(liveOption),
+                                    //https: new HttpsAgent(liveOption)
+                                    //
+                                },
+                                headers,
+                                searchParams: params,
+                                retry: {
+                                    limit: 0,
+                                    //limit: nbTryBeforeFailed,
+                                    //limit: 1,
+                                    // calculateDelay: ({retryObject}) => {
+                                    //     /* interface RetryObject {
+                                    //         attemptCount: number;
+                                    //         retryOptions: RetryOptions;
+                                    //         error: RequestError;
+                                    //         computedValue: number;
+                                    //         retryAfter?: number;
+                                    //     } of retryObject */
+                                    //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                    //     //return retryObject;
+                                    //     return timeBetweenRetry;
+                                    // },
+                                    calculateDelay: ({computedValue}) => computedValue,
+                                    methods: [
+                                        'GET',
+                                        'PUT',
+                                        'HEAD',
+                                        'DELETE',
+                                        'OPTIONS',
+                                        'TRACE'
+                                    ],
+                                    statusCodes: [
+                                        408,
+                                        413,
+                                        429,
+                                        500,
+                                        502,
+                                        503,
+                                        504,
+                                        521,
+                                        522,
+                                        524
+                                    ],
+                                    errorCodes: [
+                                        'ETIMEDOUT',
+                                        'ECONNRESET',
+                                        'EADDRINUSE',
+                                        'ECONNREFUSED',
+                                        'EPIPE',
+                                        'ENOTFOUND',
+                                        'ENETUNREACH',
+                                        'EAI_AGAIN'
+                                    ],
+                                    maxRetryAfter: undefined,
+                                    backoffLimit: Number.POSITIVE_INFINITY,
+                                    noise: 100
+                                },
+                                hooks: {
+                                    afterResponse: [
+                                        (response, retryWithMergedOptions) => {
+                                            let body;
 
-                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
-                                                    resolve(JSON.parse(response?.body));
+                                            if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                    if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                        resolve(JSON.parse(response?.body));
+                                                    } else {
+                                                        resolve(response.body);
+                                                    }
                                                 } else {
-                                                    resolve(response?.rawBody);
+                                                    let responseRequest = {
+                                                        code: -1,
+                                                        url: urlEncoded,
+                                                        msg: "Bad content, please check your host",
+                                                        details: "",
+                                                        headers: response ? response.headers:undefined
+                                                    };
+                                                    reject(responseRequest);
                                                 }
                                             } else {
+                                                that.logger.warn("warn", LOG_ID + "(get) afterResponseHTTP response.code != 200");
+                                                that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                                that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                                let bodyjs: any = {};
+                                                if (that.hasJsonStructure(response.body)) {
+                                                    bodyjs = JSON.parse(response.body);
+                                                } else {
+                                                    bodyjs.errorMsg = response.body;
+                                                }
+                                                let msg = (response && response.statusMessage) ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+                                                that.tokenExpirationControl(bodyjs);
                                                 let responseRequest = {
-                                                    code: -1,
+                                                    code: response?.statusCode,
                                                     url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
+                                                    msg: msg,
+                                                    details: errorMsgDetail,
+                                                    error: bodyjs,
+                                                    headers: response?.headers
                                                 };
+
+                                                // error.response.body
                                                 reject(responseRequest);
+
+                                                /*
+                                                // Unauthorized
+                                                if (response.statusCode === 401) {
+                                                    // Refresh the access token
+                                                    const updatedOptions = {
+                                                        headers: {
+                                                            token: getNewToken()
+                                                        }
+                                                    };
+
+                                                    // Update the defaults
+                                                    instance.defaults.options.merge(updatedOptions);
+
+                                                    // Make a new retry
+                                                    return retryWithMergedOptions(updatedOptions);
+                                                }
+
+                                                // */
                                             }
-                                        } else {
-                                            that.logger.warn("warn", LOG_ID + "(get) afterResponseHTTP response.code != 200");
-                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                            that.logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-                                            let msg = (response && response.statusMessage) ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
-                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-                                            that.tokenExpirationControl(bodyjs);
-                                            let responseRequest = {
-                                                code: response?.statusCode,
-                                                url: urlEncoded,
-                                                msg: msg,
-                                                details: errorMsgDetail,
-                                                error: bodyjs,
-                                                headers: response?.headers
-                                            };
-
-                                            // error.response.body
-                                            reject(responseRequest);
-
-                                            /*
-                                            // Unauthorized
-                                            if (response.statusCode === 401) {
-                                                // Refresh the access token
-                                                const updatedOptions = {
-                                                    headers: {
-                                                        token: getNewToken()
-                                                    }
-                                                };
-
-                                                // Update the defaults
-                                                instance.defaults.options.merge(updatedOptions);
-
-                                                // Make a new retry
-                                                return retryWithMergedOptions(updatedOptions);
-                                            }
-
-                                            // */
+                                            // No changes otherwise
+                                            return response;
                                         }
-                                        // No changes otherwise
-                                        return response;
-                                    }
-                                ],
-                                beforeRetry: [
-                                    error => {
-                                        // This will be called on `retryWithMergedOptions(...)`
-                                    }
-                                ]
-                            },
+                                    ],
+                                    beforeRetry: [
+                                        error => {
+                                            // This will be called on `retryWithMergedOptions(...)`
+                                        }
+                                    ]
+                                },
+                            };
+
+                            if (responseType!="") {
+                                req["responseType"] = responseType; // 'arraybuffer'
+                            }
+
+                            /*if (that.proxy.isProxyConfigured ) {
+                                if (that.proxy.secureProtocol) {
+                                    //opt.secureProxy = true;
+                                }
+                                // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+                                //options.agent = new HttpsProxyAgent(opt);
+
+                                //let opt = urlLib.parse(that.proxy.proxyURL);
+                                liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+
+                                req.agent.http =  new Agent(liveOption);
+                                req.agent.https = new Agent(liveOption);
+                            } else {
+                                req.agent.http =  new Agent(liveOption);
+                                req.agent.https = new Agent(liveOption);
+                            } // */
+
+                            req.agent.http = that.reqAgent;
+                            req.agent.https = that.reqAgent;
+
+                            return req;
                         };
 
-                        if (responseType != "") {
-                            req["responseType"] = responseType; // 'arraybuffer'
+                        try {
+
+                            const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                            /*secondInstance.defaults.options.hooks = defaults.hooks;
+                            secondInstance.defaults.options.retry = defaults.retry;
+                            secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                            let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                                that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                            });
+                            that.logger.log("info", LOG_ID + "(get) done.");
+
+                            /*
+                            if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                                resolve(JSON.parse(response?.body));
+                            } else {
+                                resolve(response?.rawBody);
+                            } // */
+                        } catch (error) {
+                            //
+                            //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                            //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                            //
+                            that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
+                            that.logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
                         }
 
-                        /*if (that.proxy.isProxyConfigured ) {
-                            if (that.proxy.secureProtocol) {
-                                //opt.secureProxy = true;
-                            }
-                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                            //options.agent = new HttpsProxyAgent(opt);
-
-                            //let opt = urlLib.parse(that.proxy.proxyURL);
-                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
-
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
-                        } else {
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
-                        } // */
-
-                        req.agent.http =  that.reqAgent;
-                        req.agent.https = that.reqAgent;
-
-                        return req;
-                    };
-
-                    try {
-
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-
-                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch ((error)=>{
-                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                        });
-                        that.logger.log("info", LOG_ID + "(get) done.");
-
-                        /*
-                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
-                            resolve(JSON.parse(response?.body));
-                        } else {
-                            resolve(response?.rawBody);
-                        } // */
-                    } catch (error) {
-                        //
-                         //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                         //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                         //
-                        that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
-                        that.logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
+                        return;
                     }
-
-                    return;
 // */
 
                     let req = {
@@ -957,7 +1755,7 @@ safeJsonParse(str) {
 
                     let responseRequest :any =  null; //Promise.reject({statusCode: -100, id:1});
 
-                    for (let i = 0; i < nbTryBeforeFailed ; i++) {
+                    for (let i = 0; i < nbTryBeforeFailed + 1 ; i++) {
                         let responsePromRequest : any = new Promise(function(resolve2, reject2) {
                             let request = Request(req, (error, response, body) => {
                                 that.logger.log("info", LOG_ID + "(get) done.");
@@ -1072,7 +1870,7 @@ safeJsonParse(str) {
                             return resolve (responseRequest);
                         } else {
                             that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, ", responseRequest : ", responseRequest);
-                            if ( (i + 1) < nbTryBeforeFailed) {
+                            if ( (i ) < nbTryBeforeFailed) {
                                 that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
                                 await pause(timeBetweenRetry).catch((res) => {return res; });
                             } else {
@@ -1179,141 +1977,143 @@ safeJsonParse(str) {
             that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
 
-            const newAliveAgent :any = () => {
-                let req = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    body,
-                    //searchParams: params,
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        body,
+                        //searchParams: params,
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                resolve(JSON.parse(response?.body));
+                                    if (response?.statusCode) {
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response?.rawBody);
+                                                let responseRequest = {
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                };
+                                                reject(responseRequest);
                                             }
                                         } else {
+                                            that.logger.warn("warn", LOG_ID + "(post) afterResponseHTTP response.code != 200");
+                                            that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+
+                                            that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
+                                            that.logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
+                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorDetails = bodyjs.errorDetails;
+                                            if (errorDetails) {
+                                                if (typeof errorDetails==="object") {
+                                                    // errorDetails = JSON.stringify(errorDetails);
+                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
+                                                }
+                                            }
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: -1,
+                                                code: response?.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
-                                                headers: response ? response.headers:undefined
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
+                                                headers: response?.headers
                                             };
+
+                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(post) afterResponseHTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                        that.logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
                                         } else {
-                                            bodyjs.errorMsg = response.body;
+                                            that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
+                                            });
                                         }
-
-                                        that.logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
-                                        that.logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
-                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                        let errorDetails = bodyjs.errorDetails;
-                                        if (errorDetails) {
-                                            if (typeof errorDetails==="object") {
-                                                // errorDetails = JSON.stringify(errorDetails);
-                                                errorDetails = util.inspect(errorDetails, false, 4, true);
-                                            }
-                                        }
-                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                        that.tokenExpirationControl(bodyjs);
-                                        let responseRequest = {
-                                            code: response?.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs,
-                                            headers: response?.headers
-                                        };
-
-                                        // error.response.body
-                                        reject(responseRequest);
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(post) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(post) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(post) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                    },
+                            ],
+                        },
+                    };
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
+                try {
 
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                let response = secondInstance.post(urlEncoded, newAliveAgent()).catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(post) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(post) done.");
+                    let response = secondInstance.post(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(post) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(post) done.");
 
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(post) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(post) HTTP error statusCode : ", error?.statusCode);
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(post) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(post) HTTP error statusCode : ", error?.statusCode);
+                }
+
+                return;
             }
-
-            return;
 // */
 
 
@@ -1447,196 +2247,198 @@ safeJsonParse(str) {
             that.logger.log("internal", LOG_ID + "(head) url : ", urlEncoded, ", headers : ", headers);
 
 
-            const newAliveAgent :any = () => {
-                let req = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    //body,
-                    //searchParams: params,
-                    retry: {
-                        limit: 0,
-                        //limit: 1,
-                        // calculateDelay: ({retryObject}) => {
-                        //     /* interface RetryObject {
-                        //         attemptCount: number;
-                        //         retryOptions: RetryOptions;
-                        //         error: RequestError;
-                        //         computedValue: number;
-                        //         retryAfter?: number;
-                        //     } of retryObject */
-                        //     that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
-                        //     //return retryObject;
-                        //     return 1000;
-                        // },
-                        calculateDelay: ({computedValue}) => computedValue,
-                        methods: [
-                            'GET',
-                            'PUT',
-                            'HEAD',
-                            'DELETE',
-                            'OPTIONS',
-                            'TRACE'
-                        ],
-                        statusCodes: [
-                            408,
-                            413,
-                            429,
-                            500,
-                            502,
-                            503,
-                            504,
-                            521,
-                            522,
-                            524
-                        ],
-                        errorCodes: [
-                            'ETIMEDOUT',
-                            'ECONNRESET',
-                            'EADDRINUSE',
-                            'ECONNREFUSED',
-                            'EPIPE',
-                            'ENOTFOUND',
-                            'ENETUNREACH',
-                            'EAI_AGAIN'
-                        ],
-                        maxRetryAfter: undefined,
-                        backoffLimit: Number.POSITIVE_INFINITY,
-                        noise: 100
-                    },
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        //body,
+                        //searchParams: params,
+                        retry: {
+                            limit: 0,
+                            //limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that.logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            if (response?.rawBody && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                resolve(JSON.parse(response?.body));
+                                    if (response?.statusCode) {
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response?.rawBody);
+                                                let responseRequest = {
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                };
+                                                reject(responseRequest);
                                             }
                                         } else {
+                                            that.logger.warn("warn", LOG_ID + "(head) afterResponseHTTP response.code != 200");
+                                            that.logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+
+                                            that.logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
+                                            that.logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
+                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorDetails = bodyjs.errorDetails;
+                                            if (errorDetails) {
+                                                if (typeof errorDetails==="object") {
+                                                    // errorDetails = JSON.stringify(errorDetails);
+                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
+                                                }
+                                            }
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: -1,
+                                                code: response?.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
-                                                headers: response ? response.headers:undefined
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
+                                                headers: response?.headers
                                             };
+
+                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(head) afterResponseHTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                        that.logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(head) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
                                         } else {
-                                            bodyjs.errorMsg = response.body;
+                                            that.logger.warn("error", LOG_ID + "(head) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(head) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(head) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
+                                            });
                                         }
-
-                                        that.logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
-                                        that.logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
-                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                        let errorDetails = bodyjs.errorDetails;
-                                        if (errorDetails) {
-                                            if (typeof errorDetails==="object") {
-                                                // errorDetails = JSON.stringify(errorDetails);
-                                                errorDetails = util.inspect(errorDetails, false, 4, true);
-                                            }
-                                        }
-                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                        that.tokenExpirationControl(bodyjs);
-                                        let responseRequest = {
-                                            code: response?.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs,
-                                            headers: response?.headers
-                                        };
-
-                                        // error.response.body
-                                        reject(responseRequest);
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(head) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(head) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(head) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(head) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                        beforeRetry: [
-                            error => {
-                                // This will be called on `retryWithMergedOptions(...)`
-                            }
-                        ]
-                    },
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
+                try {
 
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                let response = secondInstance.head(urlEncoded, newAliveAgent()).catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(head) done.");
+                    let response = secondInstance.head(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(head) done.");
 
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(head) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(head) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
+                }
+
+                return;
             }
-
-            return;
 // */
 
 
@@ -1775,188 +2577,190 @@ safeJsonParse(str) {
             } // */
 
 
-            const newAliveAgent :any = () => {
-                let req : any = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req: any = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    // body,
-                    //searchParams: params,
-                    retry: {
-                        limit: 0,
-                        //limit: 1,
-                        // calculateDelay: ({retryObject}) => {
-                        //     /* interface RetryObject {
-                        //         attemptCount: number;
-                        //         retryOptions: RetryOptions;
-                        //         error: RequestError;
-                        //         computedValue: number;
-                        //         retryAfter?: number;
-                        //     } of retryObject */
-                        //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                        //     //return retryObject;
-                        //     return 1000;
-                        // },
-                        calculateDelay: ({computedValue}) => computedValue,
-                        methods: [
-                            'GET',
-                            'PUT',
-                            'HEAD',
-                            'DELETE',
-                            'OPTIONS',
-                            'TRACE'
-                        ],
-                        statusCodes: [
-                            408,
-                            413,
-                            429,
-                            500,
-                            502,
-                            503,
-                            504,
-                            521,
-                            522,
-                            524
-                        ],
-                        errorCodes: [
-                            'ETIMEDOUT',
-                            'ECONNRESET',
-                            'EADDRINUSE',
-                            'ECONNREFUSED',
-                            'EPIPE',
-                            'ENOTFOUND',
-                            'ENETUNREACH',
-                            'EAI_AGAIN'
-                        ],
-                        maxRetryAfter: undefined,
-                        backoffLimit: Number.POSITIVE_INFINITY,
-                        noise: 100
-                    },
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        // body,
+                        //searchParams: params,
+                        retry: {
+                            limit: 0,
+                            //limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
-                                    if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            let json = {};
-                                            if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                json = JSON.parse(response.body);
-                                                resolve(json);
+                                    if (response?.statusCode) {
+                                        that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                                        if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                let json = {};
+                                                if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                                    json = JSON.parse(response.body);
+                                                    resolve(json);
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response.body);
+                                                reject({
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                });
                                             }
                                         } else {
-                                            return reject({
-                                                code: -1,
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+                                            that.logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
+                                            that.logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
+                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                            that.tokenExpirationControl(bodyjs);
+                                            reject({
+                                                code: response.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
                                                 headers: response ? response.headers:undefined
                                             });
                                         }
                                     } else {
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(delete) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
                                         } else {
-                                            bodyjs.errorMsg = response.body;
+                                            that.logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(delete) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
+                                            });
                                         }
-                                        that.logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
-                                        that.logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
-                                        let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                        let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
-
-                                        that.tokenExpirationControl(bodyjs);
-                                        return reject({
-                                            code: response.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs,
-                                            headers: response ? response.headers:undefined
-                                        });
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(delete) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(delete) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                        beforeRetry: [
-                            error => {
-                                // This will be called on `retryWithMergedOptions(...)`
-                            }
-                        ]
-                    },
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    if (body) {
+                        req.body = body;
+                    }
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                if (body) {
-                    req.body = body;
+                try {
+
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                    let response = secondInstance.patch(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(delete) done.");
+
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(delete) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode);
                 }
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
-
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-
-                let response = secondInstance.patch(urlEncoded, newAliveAgent()).catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(delete) done.");
-
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(delete) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode);
+                return;
             }
-
-            return;
 // */
 
 
@@ -2102,196 +2906,198 @@ safeJsonParse(str) {
             } // */
 
 
-            const newAliveAgent :any = () => {
-                let req = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    body,
-                    //searchParams: params,
-                    retry: {
-                        limit: 0,
-                        //limit: 1,
-                        // calculateDelay: ({retryObject}) => {
-                        //     /* interface RetryObject {
-                        //         attemptCount: number;
-                        //         retryOptions: RetryOptions;
-                        //         error: RequestError;
-                        //         computedValue: number;
-                        //         retryAfter?: number;
-                        //     } of retryObject */
-                        //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
-                        //     //return retryObject;
-                        //     return 1000;
-                        // },
-                        calculateDelay: ({computedValue}) => computedValue,
-                        methods: [
-                            'GET',
-                            'PUT',
-                            'HEAD',
-                            'DELETE',
-                            'OPTIONS',
-                            'TRACE'
-                        ],
-                        statusCodes: [
-                            408,
-                            413,
-                            429,
-                            500,
-                            502,
-                            503,
-                            504,
-                            521,
-                            522,
-                            524
-                        ],
-                        errorCodes: [
-                            'ETIMEDOUT',
-                            'ECONNRESET',
-                            'EADDRINUSE',
-                            'ECONNREFUSED',
-                            'EPIPE',
-                            'ENOTFOUND',
-                            'ENETUNREACH',
-                            'EAI_AGAIN'
-                        ],
-                        maxRetryAfter: undefined,
-                        backoffLimit: Number.POSITIVE_INFINITY,
-                        noise: 100
-                    },
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        body,
+                        //searchParams: params,
+                        retry: {
+                            limit: 0,
+                            //limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            if (response?.rawBody && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                resolve(JSON.parse(response?.body));
+                                    if (response?.statusCode) {
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response?.rawBody);
+                                                let responseRequest = {
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                };
+                                                reject(responseRequest);
                                             }
                                         } else {
+                                            that.logger.warn("warn", LOG_ID + "(put) afterResponseHTTP response.code != 200");
+                                            that.logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+
+                                            that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
+                                            that.logger.warn("internal", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
+                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorDetails = bodyjs.errorDetails;
+                                            if (errorDetails) {
+                                                if (typeof errorDetails==="object") {
+                                                    // errorDetails = JSON.stringify(errorDetails);
+                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
+                                                }
+                                            }
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: -1,
+                                                code: response?.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
-                                                headers: response ? response.headers:undefined
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
+                                                headers: response?.headers
                                             };
+
+                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(put) afterResponseHTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                        that.logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(put) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
                                         } else {
-                                            bodyjs.errorMsg = response.body;
+                                            that.logger.warn("error", LOG_ID + "(put) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
+                                            });
                                         }
-
-                                        that.logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
-                                        that.logger.warn("internal", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
-                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                        let errorDetails = bodyjs.errorDetails;
-                                        if (errorDetails) {
-                                            if (typeof errorDetails==="object") {
-                                                // errorDetails = JSON.stringify(errorDetails);
-                                                errorDetails = util.inspect(errorDetails, false, 4, true);
-                                            }
-                                        }
-                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                        that.tokenExpirationControl(bodyjs);
-                                        let responseRequest = {
-                                            code: response?.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs,
-                                            headers: response?.headers
-                                        };
-
-                                        // error.response.body
-                                        reject(responseRequest);
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(put) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(put) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(put) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                        beforeRetry: [
-                            error => {
-                                // This will be called on `retryWithMergedOptions(...)`
-                            }
-                        ]
-                    },
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
+                try {
 
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                let response = secondInstance.put(urlEncoded, newAliveAgent()).catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(put) done.");
+                    let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(put) done.");
 
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(put) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(put) HTTP error statusCode : ", error?.statusCode);
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(put) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(put) HTTP error statusCode : ", error?.statusCode);
+                }
+
+                return;
             }
-
-            return;
 // */
 
 
@@ -2415,7 +3221,96 @@ safeJsonParse(str) {
 
             headers["user-agent"] = USER_AGENT;
 
-            that.logger.log("internal", LOG_ID + "(putBuffer) url : ", urlEncoded);
+            that.logger.log("internal", LOG_ID + "(_putBuffer) url : ", urlEncoded);
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
+
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        body:buffer,
+                        //searchParams: params,
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            that.logger.log("info", LOG_ID + "(_putBuffer) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                  //  response.body = body;
+                                                //}
+                                                resolve(response.body);
+                                            } else {
+                                                that.logger.warn("warn", LOG_ID + "(_putBuffer) HTTP response.code != 200");
+                                                that.logger.warn("internal", LOG_ID + "(_putBuffer) HTTP response.code != 200 , bodyjs : ", response?.body);
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _putBuffer",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _putBuffer no statusCode returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _putBuffer no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
+                                    }
+                                    return response;
+                                }
+                            ],
+                        },
+                    };
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
+                };
+
+                try {
+
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+
+                    let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(_putBuffer) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(_putBuffer) done.");
+
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(_putBuffer) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(_putBuffer) HTTP error statusCode : ", error?.statusCode);
+                }
+
+                return;
+            }
+// */
 
             Request({
                     method: 'PUT',
@@ -2448,309 +3343,305 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
-            that.logger.log("internal", LOG_ID + "(putStream) url : ", urlEncoded, " stream fileName : ", stream.fileName);
+            that.logger.log("internal", LOG_ID + "(putStream) url : ", urlEncoded, " stream fileName : ", stream?.fileName);
 
             headers["user-agent"] = USER_AGENT;
 
-            const newAliveAgent :any = () => {
-                let req = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    //body,
-                    //searchParams: params,
-                    retry: {
-                        limit: 0,
-                        //limit: 1,
-                        // calculateDelay: ({retryObject}) => {
-                        //     // interface RetryObject {
-                        //     //    attemptCount: number;
-                        //     //    retryOptions: RetryOptions;
-                        //     //    error: RequestError;
-                        //     //    computedValue: number;
-                        //     //    retryAfter?: number;
-                        //     // } of retryObject
-                        //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
-                        //     //return retryObject;
-                        //     return 1000;
-                        // },
-                        calculateDelay: ({computedValue}) => computedValue,
-                        methods: [
-                            'GET',
-                            'PUT',
-                            'HEAD',
-                            'DELETE',
-                            'OPTIONS',
-                            'TRACE'
-                        ],
-                        statusCodes: [
-                            408,
-                            413,
-                            429,
-                            500,
-                            502,
-                            503,
-                            504,
-                            521,
-                            522,
-                            524
-                        ],
-                        errorCodes: [
-                            'ETIMEDOUT',
-                            'ECONNRESET',
-                            'EADDRINUSE',
-                            'ECONNREFUSED',
-                            'EPIPE',
-                            'ENOTFOUND',
-                            'ENETUNREACH',
-                            'EAI_AGAIN'
-                        ],
-                        maxRetryAfter: undefined,
-                        backoffLimit: Number.POSITIVE_INFINITY,
-                        noise: 100
-                    },
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        //body,
+                        //searchParams: params,
+                        retry: {
+                            limit: 0,
+                            //limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     // interface RetryObject {
+                            //     //    attemptCount: number;
+                            //     //    retryOptions: RetryOptions;
+                            //     //    error: RequestError;
+                            //     //    computedValue: number;
+                            //     //    retryAfter?: number;
+                            //     // } of retryObject
+                            //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            if (response?.rawBody && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                resolve(JSON.parse(response?.body));
+                                    if (response?.statusCode) {
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response?.rawBody);
+                                                let responseRequest = {
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                };
+                                                reject(responseRequest);
                                             }
                                         } else {
+                                            that.logger.warn("warn", LOG_ID + "(putStream) afterResponseHTTP response.code != 200");
+                                            that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+
+                                            that.logger.warn("warn", LOG_ID + "(putStream) HTTP response.code != 200 ");
+                                            that.logger.warn("internal", LOG_ID + "(putStream) HTTP response.code != 200 , body : ", bodyjs);
+                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorDetails = bodyjs.errorDetails;
+                                            if (errorDetails) {
+                                                if (typeof errorDetails==="object") {
+                                                    // errorDetails = JSON.stringify(errorDetails);
+                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
+                                                }
+                                            }
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: -1,
+                                                code: response?.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
-                                                headers: response ? response.headers:undefined
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
+                                                headers: response?.headers
                                             };
+
+                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(putStream) afterResponseHTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                        that.logger.warn("internal", LOG_ID + "(putStream) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                        let bodyjs: any = {};
-                                        if (that.hasJsonStructure(response.body)) {
-                                            bodyjs = JSON.parse(response.body);
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(putStream) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
                                         } else {
-                                            bodyjs.errorMsg = response.body;
+                                            that.logger.warn("error", LOG_ID + "(putStream) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(putStream) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(putStream) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
+                                            });
                                         }
-
-                                        that.logger.warn("warn", LOG_ID + "(putStream) HTTP response.code != 200 ");
-                                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP response.code != 200 , body : ", bodyjs);
-                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                        let errorDetails = bodyjs.errorDetails;
-                                        if (errorDetails) {
-                                            if (typeof errorDetails==="object") {
-                                                // errorDetails = JSON.stringify(errorDetails);
-                                                errorDetails = util.inspect(errorDetails, false, 4, true);
-                                            }
-                                        }
-                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
-                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                        that.tokenExpirationControl(bodyjs);
-                                        let responseRequest = {
-                                            code: response?.statusCode,
-                                            url: urlEncoded,
-                                            msg: msg,
-                                            details: errorMsgDetail,
-                                            error: bodyjs,
-                                            headers: response?.headers
-                                        };
-
-                                        // error.response.body
-                                        reject(responseRequest);
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(putStream) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(putStream) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(putStream) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(putStream) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                        beforeRetry: [
-                            error => {
-                                // This will be called on `retryWithMergedOptions(...)`
-                            }
-                        ]
-                    },
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
+                try {
 
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
 
 
-                // store error and result
-                let error;
-                let result = null;
-                let verbose = 2;
-                let spinner = undefined;
+                    // store error and result
+                    let error;
+                    let result = null;
+                    let verbose = 2;
+                    let spinner = undefined;
 
-
-
-
-                let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, newAliveAgent())), (err) => {
-                    if (err) {
-                        console.error('Pipeline failed', err);
-                        reject(err);
-                    } else {
-                        console.log('Pipeline succeeded');
-                        resolve(err);
-                    }
-                } )) ;
-
-
-
-
-
+                    let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, newAliveAgent())), (err) => {
+                        if (err) {
+                            console.error('Pipeline failed', err);
+                            reject(err);
+                        } else {
+                            console.log('Pipeline succeeded');
+                            resolve(err);
+                        }
+                    }));
 
 //return;
 
-               // let streamRes = _(stream.pipe(secondInstance.stream.put(urlEncoded, newAliveAgent())))
+                    // let streamRes = _(stream.pipe(secondInstance.stream.put(urlEncoded, newAliveAgent())))
 //                        .split()
 //                        .filter(l => l && l.length);
-                // store output
-                streamRes.on('data', str => {
-                    if (spinner) {
-                        spinner.text = 'Project uploaded! Waiting for deployment..';
-                    }
-                    const s = str.toString();
-                    try {
-
-                        result = result? result + s : s;
-                       /*  const data = JSON.parse(s);
-                        // always log info
-                        if (data.level === 'info') {
-                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
-                            // if data has deployments info - assign it as result
-                            if (data.deployments) {
-                                result = data;
-                            }
+                    // store output
+                    streamRes.on('data', str => {
+                        if (spinner) {
+                            spinner.text = 'Project uploaded! Waiting for deployment..';
                         }
-                        // log verbose if needed
-                        data.level === 'verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
-                        // if error - store as error and log
-                        if (data.level === 'error') {
-                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
-                            verbose > 1 && console.log(JSON.stringify(data, null, 2));
-                            error = new Error(data.message);
-                            error.response = data;
-                        }
-                        // */
-                    } catch (e) {
-                        error = new Error('Error parsing output!');
-                        error.response = {
-                            error: s,
-                        };
-                        verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', s);
-                    }
-                });
-                // listen for read stream end
-                streamRes.on('end', () => {
-                    // if stream had error - reject
-                    if (error) {
-                        that.logger.warn("warn", LOG_ID + "(putStream) HTTP error at end.");
-                        that.logger.warn("internal", LOG_ID + "(putStream) HTTP error at end. error : ", error);
-                        reject(error);
-                        return;
-                    }
+                        const s = str.toString();
+                        try {
 
-                    try {
-
-                        verbose && that.logger.log("internal", LOG_ID + "(putStream) result : ", chalk.blue('[info]'), result);
-                        const data = JSON.parse(result);
-                        verbose && that.logger.log("internal", LOG_ID + "(putStream) data : ", chalk.blue('[info]'), data);
-                        // always log info
-                        if (data.level === 'info') {
-                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
-                            // if data has deployments info - assign it as result
-                            if (data.deployments) {
-                                result = data;
-                            }
+                            result = result ? result + s:s;
+                            /*  const data = JSON.parse(s);
+                             // always log info
+                             if (data.level === 'info') {
+                                 verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
+                                 // if data has deployments info - assign it as result
+                                 if (data.deployments) {
+                                     result = data;
+                                 }
+                             }
+                             // log verbose if needed
+                             data.level === 'verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
+                             // if error - store as error and log
+                             if (data.level === 'error') {
+                                 verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
+                                 verbose > 1 && console.log(JSON.stringify(data, null, 2));
+                                 error = new Error(data.message);
+                                 error.response = data;
+                             }
+                             // */
+                        } catch (e) {
+                            error = new Error('Error parsing output!');
+                            error.response = {
+                                error: s,
+                            };
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', s);
                         }
-                        // log verbose if needed
-                        data.level === 'verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
-                        // if error - store as error and log
-                        if (data.level === 'error') {
-                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
-                            verbose > 1 && console.log(JSON.stringify(data, null, 2));
-                            error = new Error(data.message);
-                            error.response = data;
+                    });
+                    // listen for read stream end
+                    streamRes.on('end', () => {
+                        // if stream had error - reject
+                        if (error) {
+                            that.logger.warn("warn", LOG_ID + "(putStream) HTTP error at end.");
+                            that.logger.warn("internal", LOG_ID + "(putStream) HTTP error at end. error : ", error);
                             reject(error);
                             return;
                         }
-                    } catch (e) {
-                        error = new Error('Error parsing output!');
-                        error.response = {
-                            error: e,
-                        };
-                        verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', result);
-                        reject(error);
-                        return;
-                    }
 
-                    that.logger.log("info", LOG_ID + "(putStream) successfull");
-                    that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url");
-                    // otherwise resolve
-                    resolve("done");
-                });
-                streamRes.on('error', e => (error = e));
+                        try {
 
-                return (streamRes) ;
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(putStream) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(putStream) HTTP error : ", error);
-                return  (error);
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) result : ", chalk.blue('[info]'), result);
+                            const data = JSON.parse(result);
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) data : ", chalk.blue('[info]'), data);
+                            // always log info
+                            if (data.level==='info') {
+                                verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.blue('[info]'), data.message);
+                                // if data has deployments info - assign it as result
+                                if (data.deployments) {
+                                    result = data;
+                                }
+                            }
+                            // log verbose if needed
+                            data.level==='verbose' && verbose > 1 && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.grey('[verbose]'), data.message);
+                            // if error - store as error and log
+                            if (data.level==='error') {
+                                verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), data.message);
+                                verbose > 1 && console.log(JSON.stringify(data, null, 2));
+                                error = new Error(data.message);
+                                error.response = data;
+                                reject(error);
+                                return;
+                            }
+                        } catch (e) {
+                            error = new Error('Error parsing output!');
+                            error.response = {
+                                error: e,
+                            };
+                            verbose && that.logger.log("internal", LOG_ID + "(putStream) : ", chalk.red('[error]'), 'Error parsing line:', result);
+                            reject(error);
+                            return;
+                        }
+
+                        that.logger.log("info", LOG_ID + "(putStream) successfull");
+                        that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url");
+                        // otherwise resolve
+                        resolve("done");
+                    });
+                    streamRes.on('error', e => (error = e));
+
+                    return (streamRes);
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(putStream) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(putStream) HTTP error : ", error);
+                    return (error);
+                }
+
+                return;
             }
-// */
+            // */
 
 
 
@@ -2795,192 +3686,194 @@ safeJsonParse(str) {
 
             that.logger.log("internal", LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
-            const newAliveAgent :any = () => {
-                let req : any = {
-                    prefixUrl:"",
-                    agent: {
-                        http: undefined,
-                        https: undefined
-                        //http: agent,
-                        //https: agent
+            if (that._options.restOptions.useGotLibForHttp) {
+                const newAliveAgent: any = () => {
+                    let req: any = {
+                        prefixUrl: "",
+                        agent: {
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                        //http: new HttpAgent(liveOption),
-                        //https: new HttpsAgent(liveOption)
-                        //
-                    },
-                    headers,
-                    // body,
-                    //searchParams: params,
-                    retry: {
-                        limit: 0,
-                        //limit: 1,
-                        // calculateDelay: ({retryObject}) => {
-                        //     /* interface RetryObject {
-                        //         attemptCount: number;
-                        //         retryOptions: RetryOptions;
-                        //         error: RequestError;
-                        //         computedValue: number;
-                        //         retryAfter?: number;
-                        //     } of retryObject */
-                        //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                        //     //return retryObject;
-                        //     return 1000;
-                        // },
-                        calculateDelay: ({computedValue}) => computedValue,
-                        methods: [
-                            'GET',
-                            'PUT',
-                            'HEAD',
-                            'DELETE',
-                            'OPTIONS',
-                            'TRACE'
-                        ],
-                        statusCodes: [
-                            408,
-                            413,
-                            429,
-                            500,
-                            502,
-                            503,
-                            504,
-                            521,
-                            522,
-                            524
-                        ],
-                        errorCodes: [
-                            'ETIMEDOUT',
-                            'ECONNRESET',
-                            'EADDRINUSE',
-                            'ECONNREFUSED',
-                            'EPIPE',
-                            'ENOTFOUND',
-                            'ENETUNREACH',
-                            'EAI_AGAIN'
-                        ],
-                        maxRetryAfter: undefined,
-                        backoffLimit: Number.POSITIVE_INFINITY,
-                        noise: 100
-                    },
-                    hooks: {
-                        afterResponse: [
-                            (response, retryWithMergedOptions) => {
-                                let body;
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
+                        headers,
+                        // body,
+                        //searchParams: params,
+                        retry: {
+                            limit: 0,
+                            //limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that.logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
 
-                                if (response.statusCode) {
-                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                            if (response?.rawBody && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                resolve(JSON.parse(response?.body));
+                                    if (response?.statusCode) {
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response?.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
+                                                } else {
+                                                    resolve(response.body);
+                                                }
                                             } else {
-                                                resolve(response?.rawBody);
+                                                let responseRequest = {
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Bad content, please check your host",
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                };
+                                                reject(responseRequest);
                                             }
                                         } else {
-                                            let responseRequest = {
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Bad content, please check your host",
-                                                details: "",
-                                                headers: response ? response.headers:undefined
-                                            };
-                                            reject(responseRequest);
+                                            that.logger.warn("warn", LOG_ID + "(delete) afterResponseHTTP response.code != 200");
+                                            that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
+                                            if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                                let bodyjs = {};
+                                                if (response.body) {
+                                                    bodyjs = JSON.parse(response.body);
+                                                }
+                                                resolve(bodyjs);
+                                            } else {
+                                                let bodyjs: any = {};
+                                                if (that.hasJsonStructure(response.body)) {
+                                                    bodyjs = JSON.parse(response.body);
+                                                } else {
+                                                    bodyjs.errorMsg = response.body;
+                                                }
+                                                that.tokenExpirationControl(bodyjs);
+                                                reject({
+                                                    code: response.statusCode,
+                                                    url: urlEncoded,
+                                                    msg: response.body ? response.body.errorMsg || "":"",
+                                                    details: response.body ? response.body.errorDetails || "":"",
+                                                    error: bodyjs,
+                                                    headers: response ? response.headers:undefined
+                                                });
+                                            }
                                         }
                                     } else {
-                                        that.logger.warn("warn", LOG_ID + "(delete) afterResponseHTTP response.code != 200");
-                                        that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                        that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                        that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
-                                        if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                            let bodyjs = {};
-                                            if (response.body) {
-                                                bodyjs = JSON.parse(response.body);
-                                            }
-                                            resolve(bodyjs);
-                                        } else {
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-                                            that.tokenExpirationControl(bodyjs);
-                                            return reject({
-                                                code: response.statusCode,
+                                        if (response.error && response.error.reason) {
+                                            that.logger.log("error", LOG_ID + "(delete) HTTP security issue", response.error.reason);
+                                            reject({
+                                                code: -1,
                                                 url: urlEncoded,
-                                                msg: response.body ? response.body.errorMsg || "" : "",
-                                                details: response.body ? response.body.errorDetails || "" : "",
-                                                error: bodyjs,
+                                                msg: response.error.reason,
+                                                details: "",
+                                                headers: response ? response.headers:undefined
+                                            });
+                                        } else {
+                                            that.logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
+                                            that.logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                            that.logger.log("internal", LOG_ID + "(delete) HTTP other issue", response);
+                                            reject({
+                                                code: -1,
+                                                url: urlEncoded,
+                                                msg: "Unknown error",
+                                                details: response,
                                                 headers: response ? response.headers:undefined
                                             });
                                         }
                                     }
-                                } else {
-                                    if (response.error && response.error.reason) {
-                                        that.logger.log("error", LOG_ID + "(delete) HTTP security issue", response.error.reason);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: response.error.reason,
-                                            details: "",
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    } else {
-                                        that.logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
-                                        that.logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                        that.logger.log("internal", LOG_ID + "(delete) HTTP other issue", response);
-                                        return reject({
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "Unknown error",
-                                            details: response,
-                                            headers: response ? response.headers:undefined
-                                        });
-                                    }
+                                    // No changes otherwise
+                                    return response;
                                 }
-                                // No changes otherwise
-                                return response;
-                            }
-                        ],
-                        beforeRetry: [
-                            error => {
-                                // This will be called on `retryWithMergedOptions(...)`
-                            }
-                        ]
-                    },
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    if (body) {
+                        req.body = body;
+                    }
+
+                    req.agent.http = that.reqAgent;
+                    req.agent.https = that.reqAgent;
+
+                    return req;
                 };
 
-                if (body) {
-                    req.body = body;
+                try {
+
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                    let response = secondInstance.delete(urlEncoded, newAliveAgent()).catch((error) => {
+                        that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                    });
+                    that.logger.log("info", LOG_ID + "(delete) done.");
+
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that.logger.warn("warn", LOG_ID + "(delete) HTTP error.");
+                    that.logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode);
                 }
 
-                req.agent.http =  that.reqAgent;
-                req.agent.https = that.reqAgent;
-
-                return req;
-            };
-
-            try {
-
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                /*secondInstance.defaults.options.hooks = defaults.hooks;
-                secondInstance.defaults.options.retry = defaults.retry;
-                secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-
-                let response = secondInstance.delete(urlEncoded, newAliveAgent()).catch ((error)=>{
-                    that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
-                });
-                that.logger.log("info", LOG_ID + "(delete) done.");
-
-            } catch (error) {
-                //
-                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                //
-                that.logger.warn("warn", LOG_ID + "(delete) HTTP error.");
-                that.logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode);
+                return;
             }
-
-            return;
 // */
 
 

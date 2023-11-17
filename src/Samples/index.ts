@@ -149,8 +149,9 @@ let urlS2S;
             //"hostCallback": "http://70a0ee9d.ngrok.io",
             "locallistenningport": "4000"
         },
-        /*"rest":{
-            "useRestAtStartup" : true
+        "rest":{
+            "useRestAtStartup" : true,
+            "useGotLibForHttp": true
         }, // */
         "credentials": {
             "login": "",  // The Rainbow email account to use
@@ -2710,7 +2711,13 @@ let urlS2S;
         //});
     }
 
-     testuploadFileToStorage() {
+    testgetRainbowNodeSdkPackagePublishedInfos() {
+         rainbowSDK._core._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+             logger.log("debug", "MAIN - testgetRainbowNodeSdkPackagePublishedInfos - infos : ", infos);
+        });
+    }
+
+    testuploadFileToStorage() {
         let that = this;
         // let conversation = null;
         let file = null;
@@ -2723,6 +2730,22 @@ let urlS2S;
             logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);
         }).catch((errr) => {
             logger.log("error", "MAIN - uploadFileToStorage - error : ", errr);
+        });
+    }
+
+    testuploadFileToStorageBig() {
+        let that = this;
+        // let conversation = null;
+        let file = null;
+        //let strMessage = {message: "message for the file"};
+        let strMessage = "message for the file";
+        file = "c:\\temp\\fichiertestupload.txt";
+        logger.log("debug", "MAIN - testuploadFileToStorageBig - file : ", file);
+        // Share the file
+        return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
+            logger.log("debug", "MAIN - testuploadFileToStorageBig - uploadFileToStorage result : ", result);
+        }).catch((errr) => {
+            logger.log("error", "MAIN - testuploadFileToStorageBig - uploadFileToStorage error : ", errr);
         });
     }
 
@@ -2792,7 +2815,7 @@ let urlS2S;
 
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
         logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - allCompanies : ", allCompanies.length);
-        
+
         // */
 
         let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId(undefined, true);
@@ -3275,7 +3298,7 @@ let urlS2S;
 //});
      testBubblesArchived() {
         /*let bubbles = rainbowSDK.bubbles.getAllBubbles();
-    
+
         bubbles.forEach((bubble) => {
             logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubble : ", bubble);
         }); */
@@ -3560,7 +3583,7 @@ let urlS2S;
         if (result && result.length > 0 && result[0].name=="test") {
             let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(result[0], undefined);
             logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator - resultDelete : ", resultDelete);
-        } 
+        }
     }
 
      async testdeleteAllMessagesInRoomConversationFromMember() {
@@ -3615,7 +3638,7 @@ let urlS2S;
 
      async testdeleteAllMessagesInRoomConversationFromContactNotInBubble() {
          // to be used with vincent03 on .NET with bubble "test" jid room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net.
-         let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net"; 
+         let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net";
          let resultDelete = rainbowSDK._core._xmpp.deleteAllMessagesInRoomConversation(bubbleJid, undefined);
          logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble - resultDelete : ", resultDelete);
     }
@@ -3752,12 +3775,12 @@ let urlS2S;
         //                     rainbowSDK.bubbles.joinConference(bubble).then((result) => {
         //                         //let bubbles = rainbowSDK.bubbles.getAll();
         //                         logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
-        //                     }); 
+        //                     });
         //                 });
         //             });
         //         }
         //     }
-        // }); 
+        // });
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 // */
@@ -4146,7 +4169,7 @@ let urlS2S;
        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-       
+
        msg.conversation = rainbowSDK.conversations.getConversationById(conversation.id);
 
        function getConversationHistory(conversation) {
@@ -4160,7 +4183,7 @@ let urlS2S;
            msg.conversation = conversation
            await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
            let msgSentOrig = conversation.getlastEditableMsg();
-           
+
            rainbowSDK.conversations.sendCorrectedChatMessage(msg.conversation, `${msgSentOrig.content} up`, msgSentOrig.id, alternateContent).then(message => {
                msg.message = message;
                //node.send([msg, null])
@@ -4175,8 +4198,8 @@ let urlS2S;
            logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
            //node.send([null, msg])
        })
-   }     
-        
+   }
+
    async testsendMessageToConversationFormJson() {
        /*
        const moment = global.get('moment');
@@ -5003,7 +5026,7 @@ let urlS2S;
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
 
     }
-    
+
     async  testCreateCompanyCreateUserAndDelete() {
         // To use with rford@westworld.com
 
@@ -5048,12 +5071,12 @@ let urlS2S;
         let result = await rainbowSDK.contacts.addToNetwork(newUser);
         await pause(10000);
         logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - addToNetwork done Result : ", result);
-        
+
         let contacts = rainbowSDK.contacts.getAll();
         logger.log("debug","MAIN - contacts : ", contacts);
-        
+
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
-        
+
         let contacts2 = rainbowSDK.contacts.getAll();
         logger.log("debug","MAIN - contacts2 : ", contacts2);
         await pause(10000);
@@ -5081,9 +5104,9 @@ let urlS2S;
         }));
         await pause(2000);
         // */
-            
+
         let loginEmail = rainbowSDK.Utils.generateRamdomEmail(email);
-        
+
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
         let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
                 p_mandatoryDefaultSubscription: boolean = false,
@@ -5178,9 +5201,9 @@ let urlS2S;
         }));
         await pause(2000);
         // */
-            
+
         let loginEmail = rainbowSDK.Utils.generateRamdomEmail(email);
-        
+
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
         let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
                 p_mandatoryDefaultSubscription: boolean = false,
@@ -5269,7 +5292,7 @@ let urlS2S;
         addPropertyToObj(user, "phoneNumber", phoneNumber, false);
         logger.log("debug", "MAIN - testaddPropertyToObj - user : ", user);
     }
-    
+
     async  testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
@@ -5611,7 +5634,7 @@ let urlS2S;
         /*let usersIds = [];
         usersIds.push(contactsIdentifier[0]);
         usersIds.push(contactsIdentifier[1]);
-        usersIds.push(contactsIdentifier[2]); 
+        usersIds.push(contactsIdentifier[2]);
         let result = await rainbowSDK.presence.getCalendarStates(usersIds);
         // */
         let result = await rainbowSDK.presence.getCalendarStates(contactsIdentifier);
@@ -5634,15 +5657,15 @@ let urlS2S;
         // To use with vincent.berder on Official
         /*  let result = await rainbowSDK.presence.disableCalendar();
           logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
-  
+
           let result2 = await rainbowSDK.presence.enableCalendar();
           logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
           // */
     }
 
-    //endregion    
+    //endregion
 
-    //region Country        
+    //region Country
 
         async  testgetListOfCountries() {
             try {
@@ -5651,10 +5674,10 @@ let urlS2S;
             } catch (e) {
                 logger.log("error", "MAIN - testgetListOfCountries - error : ", e);
             }
-        }   
-        
+        }
+
     //endregion Country
-    
+
     //region Bubble - dialIn
 
         async testdialIn() {
@@ -5662,7 +5685,7 @@ let urlS2S;
             try {
 
                 logger.log("debug", "MAIN - testdialIn - getAll bubbles : ", rainbowSDK.bubbles.getAll());
-                
+
                 let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
                 logger.log("debug", "MAIN - testdialIn - getAllOwnedBubbles bubble : ", bubbles);
                 let bubble = bubbles.find(element => element.name==="bulle1")
@@ -5702,7 +5725,7 @@ let urlS2S;
         }
 
         //endregion Bubble - dialIn
-        
+
     //region MS Teams
 
     async  testcontrolMsteamsPresenceDisable() {
@@ -5777,20 +5800,20 @@ let urlS2S;
     //endregion MS Teams
 
     //region Rainbow Voice
-         
+
     async  testgetCloudPbxById() {
-        // To use with 
+        // To use with
         let systemId = "5cf7dd229fb99523e4de0ea9";
         let result = await rainbowSDK.admin.getCloudPbxById(systemId);
         logger.log("debug", "MAIN - testgetCloudPbxById - result : ", result);
     }
 
     async  testgetCloudPbxs() {
-        // To use with 
+        // To use with
         let result = await rainbowSDK.admin.getCloudPbxs(100, 0, "companyId", 1, connectedUser.companyId, null);
         logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
     }
-    
+
     async testmakeCall3PCC () {
         // to use with user851@pqa.test.openrainbow.net
         /* Data sent by Web UI : {
@@ -5814,7 +5837,7 @@ let urlS2S;
                 sipDeviceId = userDevices[i].deviceId;
             }
         }
-        
+
         let callData : any =  {
             deviceId: sipDeviceId,
             callerAutoAnswer: true,
@@ -5823,17 +5846,17 @@ let urlS2S;
             calleePbxId: contactDom1.phoneNumbers[0].pbxId,
             calleeShortNumber: contactDom1.phoneNumbers[0].shortNumber,
             calleeCountry: contactDom1.phoneNumbers[0].country,
-            //dialPadCalleeNumber: string 
+            //dialPadCalleeNumber: string
             };
         logger.log("debug", "MAIN - testmakeCall3PCC - callData : ", callData);
         let result = await rainbowSDK.rbvoice.makeCall3PCC(callData);
         logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
     }
-    
+
     //endregion
 
     //region Company
-    
+
     //region Company From enduser
 
         async  testgetAllCompaniesVisibleByUser() {
@@ -5841,13 +5864,13 @@ let urlS2S;
             let allCompanies: any = await rainbowSDK.admin.getAllCompaniesVisibleByUser();
             logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser - allCompanies : ", allCompanies.length);
         }
-        
+
         async  testgetCompanyAdministrators() {
             logger.log("debug", "MAIN - testgetCompanyAdministrators. ");
             let allCompanies: any = await rainbowSDK.admin.getCompanyAdministrators();
             logger.log("debug", "MAIN - testgetCompanyAdministrators - allCompanies : ", allCompanies.length);
         }
-        
+
     //endregion Company From enduser
 
     async  testgetAllCompanies() {
@@ -6290,21 +6313,21 @@ let urlS2S;
   // testmockStanza("<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>")
    async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
         rainbowSDK._core._xmpp.mockStanza(stanza);
-   }        
-        
+   }
+
    async testmockStanzaBubbleResume(){
         let stanza : string = "<presence xmlns='jabber:client' to='37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw' from='room_c6afe2d3d1e24cf19d532f90bd46a32d@muc.openrainbow.net'><x  xmlns='http://jabber.org/protocol/muc#user'><item><reason>Room resumed</reason></item><status code='339'/><status code='110'/></x></presence>"
        await this.testmockStanza(stanza);
-   }        
-        
+   }
+
    async testmockStanzaBubbleStatus110(){
         let stanza : string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
         await rainbowSDK._core._xmpp.mockStanza(stanza);
-   }        
-   
+   }
+
    async testmockDiconnect() {
         let stanza = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
-       await rainbowSDK._core._xmpp.mockStanza(stanza);        
+       await rainbowSDK._core._xmpp.mockStanza(stanza);
    }
 
    async testmockUploadLdapAvatarPresence() {
@@ -6375,7 +6398,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testretrieveRainbowEntriesList - companyId : ", companyId);
 
         //companyId? : string, format : string = "json", ldap_id : boolean = true
-        
+
         //let result = await rainbowSDK.admin.retrieveRainbowEntriesList(companyId, "json", true);
         let result = await rainbowSDK.admin.retrieveRainbowEntriesList(null, "json", false);
         logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
@@ -6497,7 +6520,7 @@ let urlS2S;
 
         // To be used with vincent.berder COM
         //let bubbleId = '5e56968c6f18201dde44fa7c'; // name: 'Bulle_NodeSDK',
-                
+
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: bubble : ", bubble);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
@@ -6510,7 +6533,7 @@ let urlS2S;
                     logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request ok, result : ", result);
                 }).catch(err => {
                     logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request not ok, err : ", err);
-                });                
+                });
             }).catch(err => {
                 logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
             });
@@ -7253,7 +7276,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testdiscover, res : ", res);
     }
 
-    //endregion Rainbow HTTPoverXMPP 
+    //endregion Rainbow HTTPoverXMPP
 
     //region Presence
 
@@ -7300,7 +7323,7 @@ let urlS2S;
     }
 
     async  testgetAVoiceMessageFromPbx() {
-        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
         let messageId: string, messageDate: string, messageFrom: string;
@@ -7309,7 +7332,7 @@ let urlS2S;
     }
 
     async  testgetDetailedListOfVoiceMessages() {
-        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list
         // GET /api/rainbow/telephony/v1.0/voicemessages
         let that = this;
         try {
@@ -7345,7 +7368,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetABotServiceData, getRainbowSupportBotService res : ", res);
         let res2 = await rainbowSDK.admin.getABotServiceData(res.id);
         logger.log("debug", "MAIN - testgetABotServiceData, getABotServiceData res2 : ", res2);
-        
+
     }
 
     async  testgetAllBotServices() {
@@ -7354,38 +7377,38 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
     }
 
-    // endregion Bots    
-    
+    // endregion Bots
+
     //region PBXS
-    
+
     async  testgetAllPbxs() {
        let that = this;
        let res = await rainbowSDK.admin.getAllPbxs();
        logger.log("debug", "MAIN - testgetAllPbxs, res : ", res);
     }
 
-    //endregion PBXS    
-        
+    //endregion PBXS
+
     //region RPC
-        
+
         testFunctionName () {
             let fn1 = function (arg1) {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn1 : ", functionName(fn1));
-            
+
             let fn2 = function fn2(arg1) {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn2 : ", functionName(fn2));
-            
+
             let fn3 = (arg1) => {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn3 : ", functionName(fn3));
         }
-        
-        
+
+
         async testcallRPCMethod_system () {
             let that = this;
             let methodNames : any = await rainbowSDK.rpcoverxmpp.callRPCMethod();
@@ -7398,10 +7421,10 @@ let urlS2S;
                 logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
             }
         }
-        
+
         async testaddRPCMethod () {
             let that = this;
-            
+
             let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
                 logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
                 logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
@@ -7413,13 +7436,13 @@ let urlS2S;
                     arg2,
                     arg3,
                     arg4,
-                    arg5                    
+                    arg5
                 }
                 return result;
             }, "example.trace description", "example.trace help");
             logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
         }
-        
+
         async testcallRPCMethod_withParams () {
             let that = this;
             let param = [];
@@ -7458,13 +7481,13 @@ let urlS2S;
             param.push(obj);
             param.push({"propertyOne":"valueproperty"});
             param.push(["valArrayOne"]);
-            
+
             let res = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"example.trace", param);
             logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
         }
-        
+
     //endregion RPC
-        
+
    //region Customer Care
 
         async testsendCustomerCareReport() {
@@ -7489,12 +7512,12 @@ let urlS2S;
                 logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
             } catch (err) {
                 logger.log("error", "MAIN - CATCH error.");
-                logger.log("internalerror", "MAIN - CATCH error !!! : ", err);            
+                logger.log("internalerror", "MAIN - CATCH error !!! : ", err);
             }
         }
 
-    //endregion Customer Care     
-        
+    //endregion Customer Care
+
     // region TimeOutManager
 
     async  testtimeOutManagersetTimeout() {
@@ -7572,7 +7595,7 @@ let urlS2S;
     }
 
     // endregion TimeOutManager
-        
+
         testundefined() {
             try {
                 // @ts-ignore
@@ -7581,7 +7604,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - testundefined, CATCH Error !!! : ", err);
             }
         }
-        
+
      testresolveDns(url: string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result) => {
             logger.log("debug", "MAIN - testresolveDns, result : ", result);
@@ -7653,7 +7676,7 @@ let urlS2S;
 
     async  testStopAndStart() {
         let result = await this.start();
-        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result)); 
+        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result));
         await rainbowSDK.stop();
         let token = undefined;
 
@@ -7664,7 +7687,7 @@ let urlS2S;
         });
         await rainbowSDK.stop();
     }
-    
+
     async  testsend429Appid() {
 
         logger.log("debug", "MAIN - (testsend429Appid) rainbow SDK stopped.");
@@ -7686,7 +7709,7 @@ let urlS2S;
 
         });
     }
-    
+
     async  testsendMultiHttpRequest() {
 
         logger.log("debug", "MAIN - (testsendMultiHttpRequest) .");
@@ -7714,7 +7737,7 @@ let urlS2S;
         let options2: any={};
         let options3: any={};
         let options4: any={};
-        
+
         Object.assign(options1, options);
         options1.logs.customLabel = options1.credentials.login + "_1";
         options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
@@ -7727,7 +7750,7 @@ let urlS2S;
             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK1 = undefined;
         });
-        
+
         Object.assign(options2, options);
         options2.logs.customLabel = options2.credentials.login + "_2";
         options2.logs.file.customFileName = "R-SDK-Node-" + options2.credentials.login + "_2";
@@ -7776,7 +7799,7 @@ let urlS2S;
             // Do something when the SDK is started
             logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
-        // */         
+        // */
         /*
         await rainbowSDK2.start(token).then(async (result2) => {
             // Do something when the SDK is started
@@ -7793,7 +7816,7 @@ let urlS2S;
         */
         // await rainbowSDK.stop();
     }
-    
+
      startWSOnly() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
@@ -7823,7 +7846,7 @@ let urlS2S;
             }
         });
     }
-    
+
      startMockXMPP() {
          let options1: any={};
 
@@ -7846,7 +7869,7 @@ let urlS2S;
          let resource = "";
          let alice = {loggedInUser : {jid_im : "98091bcde14d4eadac763d9cc0851719@openrainbow.net"}};
          //alice.loggedInUser.jid_im
-         
+
          const mockServer = new MockServer("wss://openrainbow.net:443/websocket");
          mockServer.on("connection", (socket) => {
              logger.log("debug", "MAIN - (startMockXMPP) (on) MockServer.connection : " + "socket : " + socket);
@@ -7912,7 +7935,7 @@ let urlS2S;
              logger.log("debug", "MAIN - (startMockXMPP) (on) message : ", message);
          });
 
-         
+
          rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
              // do something when the SDK has been started
              logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
@@ -7943,9 +7966,9 @@ let urlS2S;
              }
          });
 
-         
-         
-         
+
+
+
          rainbowSDK1.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
             try {
@@ -7967,7 +7990,7 @@ let urlS2S;
             console.log("MAIN - Error during starting : ", inspect(err));
         }); // */
     }
-    
+
      start() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
@@ -7981,7 +8004,7 @@ let urlS2S;
                             let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
                                 logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
                             });
-                
+
                             logger.log("debug", "MAIN - company infos :" , companyInfo);
                 // */
                 /*
@@ -8067,7 +8090,7 @@ let urlS2S;
                 //logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                 /*
                 let list = rainbowSDK.contacts.getAll();
-        
+
                 if (list) {
                     list.forEach(function (contact) {
                         logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
@@ -8079,7 +8102,7 @@ let urlS2S;
 
                 /*let roster = await rainbowSDK.contacts.getRosters();
                 logger.log("debug", "MAIN - getRosters - roster : ", roster);
-        
+
                  */
                 class Dog {
                     private name: any;
@@ -8121,7 +8144,7 @@ let urlS2S;
                  await rainbowSDK4.start();
                  await rainbowSDK5.start();
                  //await rainbowSDK6.start();
-         
+
                 // */
 
                 //  rainbowSDK.stop().then(() => { process.exit(0); }); // testCreate50BubblesAndArchiveThem()
@@ -8131,7 +8154,7 @@ let urlS2S;
                      readline.question("Command>", cmd => {
                          //console.log(`run ${cmd}!`);
                          logger.log("debug", "MAIN - run : ", cmd); //logger.colors.green(JSON.stringify(result)));
-        
+
                          try {
                              if (cmd === "by") {
                                  process.exit(0);
@@ -8139,7 +8162,7 @@ let urlS2S;
                              eval(cmd);
                          } catch (e) {
                              logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
-        
+
                          }
                          readline.close();
                      });
@@ -8151,11 +8174,11 @@ let urlS2S;
                     let bubbles = rainbowSDK.bubbles.getAll();
                     let bubblesCount = bubbles.length;
                     //logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " : ", bubbles);
-        
+
                     let conversationBubblePromises=[];
                     let bubblesWithLastModificationDate=[];
-        
-        
+
+
                     if(bubblesCount>0) {
                         let bubblesInfos = "";
                         for (let bubble of bubbles) {
@@ -8238,7 +8261,7 @@ let urlS2S;
                     }).catch((error) => {
                         logger.log("debug", "MAIN - [makeCallByPhoneNumber] error ", error);
                     });
-        
+
                     setTimeout(() => {
                         calls.forEach((c) => {
                             rainbowSDK.telephony.releaseCall(c);
@@ -8251,7 +8274,7 @@ let urlS2S;
                      console.log("getAllCompanies companies", restresult);
                  }); //*/
                 /* rainbowSDK.im.sendMessageToJid("😔😎😜😋👀😁😁🐣🐦🐷🐴🐮🦋🐗🙊🐧🐔🐻💿⏱⏱🎞🖨📻🇧🇴🇦🇱🇧🇼✡💔🚖🚗🚘🚜🛫🚔🚲🛫🛬\ntest  sample node : ° ✈ :airplane::airplane: ) : " + utc + ", randow : " + Math.random() * 10,
-        
+
                  "ca648c9e335f481d9b732dd99990b789@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im")
              /*    then((msg) => {
                      "6a2010ca31864df79b958113785492ae@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im"
@@ -8285,7 +8308,7 @@ let urlS2S;
                                                 console.log('delete user', id);
                                                 removeUsers.push(rainbowSDK.admin.deleteUser(id));
                                             });
-        
+
                                             Promise.all(removeUsers).then(
                                                 () => {
                                                     rainbowSDK.admin.removeCompany(company).then((data) => {
@@ -8295,7 +8318,7 @@ let urlS2S;
                                                             console.log("deleteCompany after user delete, error", err2);
                                                         }
                                                     );
-        
+
                                                 });
                                         } else {
                                             console.log("error during deleting company : ", err);
@@ -8326,8 +8349,8 @@ let urlS2S;
                         } else {
                             logger.log("debug", "MAIN - [start    ] :: contacts list empty");
                         }
-        
-        
+
+
                     })
                     ;
                 }); // */
