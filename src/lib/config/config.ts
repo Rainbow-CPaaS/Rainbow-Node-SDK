@@ -28,7 +28,7 @@ let conf =  {
         http: {
             host: "sandbox.openrainbow.com",
             port: "443",
-            protocol: "https"
+            protocol: "https",
         },
         xmpp: {
             host: "sandbox.openrainbow.com",
@@ -47,14 +47,15 @@ let conf =  {
             locallistenningport: "4000"
         },
         rest:{
-            useRestAtStartup : true
+            useRestAtStartup : true,
+            "useGotLibForHttp":true
         }
     },
     official: {
         http: {
             host: "openrainbow.com",
             port: "443",
-            protocol: "https"
+            protocol: "https",
         },
         xmpp: {
             host: "openrainbow.com",
@@ -73,7 +74,8 @@ let conf =  {
             locallistenningport: "4000"
         },
         rest:{
-            useRestAtStartup : true
+            useRestAtStartup : true,
+            "useGotLibForHttp": true
         }
     },
     any: {
@@ -100,7 +102,8 @@ let conf =  {
         }
         ,
         rest:{
-            useRestAtStartup : true
+            useRestAtStartup : true,
+            "useGotLibForHttp": true
         }
     },
     logs: {
