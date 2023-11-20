@@ -921,16 +921,96 @@ safeJsonParse(str) {
                 that.logger.log("internal", LOG_ID + "(_putUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
                 let body = data;
-                /*if (type) {
-                    //request.type(type);
-                    headers["Content-Type"] = type;
-                } else {
-                    //request.type("json");
-                    if (!headers["Content-Type"]) {
-                        headers["Content-Type"] = "application/json";
-                        body = JSON.stringify(data);
+                //that.logger.log("internal", LOG_ID + "(_putUrlRaw) url : ", urlEncoded);
+                if (that._options.restOptions.useGotLibForHttp) {
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
+
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                            headers,
+                            body,
+                            //searchParams: params,
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+
+                                        if (response) {
+                                            if (response?.statusCode) {
+                                                that.logger.log("info", LOG_ID + "(_putUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                    //if (response) {
+                                                    //  response.body = body;
+                                                    //}
+                                                    resolve(response);
+                                                } else {
+                                                    that.logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP response.code != 200");
+                                                    that.logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
+                                                    reject({
+                                                        code: -1,
+                                                        msg: "ErrorManager while requesting _putBuffer",
+                                                        details: response,
+                                                        headers: response ? response.headers:undefined
+                                                    });
+                                                }
+                                            } else {
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while requesting _putUrlRaw no statusCode returned",
+                                                    details: undefined,
+                                                    headers: undefined
+                                                });
+                                            }
+                                        } else {
+                                            reject({
+                                                code: -1,
+                                                msg: "ErrorManager while requesting _putUrlRaw no response returned",
+                                                details: undefined,
+                                                headers: undefined
+                                            });
+                                        }
+                                        return response;
+                                    }
+                                ],
+                            },
+                        };
+
+                        req.agent.http = that.reqAgent;
+                        req.agent.https = that.reqAgent;
+
+                        return req;
+                    };
+
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+
+                        let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                            that.logger.warn("internal", LOG_ID + "(_putUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                        });
+                        that.logger.log("info", LOG_ID + "(_putUrlRaw) done.");
+
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that.logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP error statusCode : ", error?.statusCode);
                     }
-                } // */
+
+                    return;
+                }
+
                 Request({
                     method: 'PUT',
                     preambleCRLF: true,

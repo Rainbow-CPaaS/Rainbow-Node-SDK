@@ -7038,6 +7038,25 @@ let urlS2S;
         logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
     }
 
+    async  testputHTTPoverXMPP_2(urlToPut: string = "https://reqbin.com/echo/put/json") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {
+            "dateOfRequest": new Date().toLocaleDateString(),
+            "Content-Type": "application/json"
+        };
+        //let headers = {};
+        let data = "{\n" +
+                "  \"Id\": 12345,\n" +
+                "  \"Customer\": \"John Smith\",\n" +
+                "  \"Quantity\": 1,\n" +
+                "  \"Price\": 10.00\n" +
+                "}";
+        let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
+        logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
+    }
+
     async  testdeleteHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
