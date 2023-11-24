@@ -3,7 +3,7 @@
 import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
 import {Deferred, stackTrace, getJsonFromXML} from "../Utils";
-import {Element} from "adaptive-expressions/lib/builtinFunctions";
+//import {Element} from "adaptive-expressions/lib/builtinFunctions";
 
 export {};
 

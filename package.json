@@ -126,6 +126,7 @@
     "sasl-digest-md5": "^0.1.0",
     "semver": "^7.5.4",
     "stream-buffers": "^3.0.2",
+    "string-width": "^7.0.0",
     "strip-ansi": "6.0.1",
     "ts-generic-collections-linq": "1.0.7",
     "uuid": "^9.0.1",

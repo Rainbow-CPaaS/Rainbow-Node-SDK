@@ -201,8 +201,9 @@ class Options {
         return this._concurrentRequests;
     }
 
-    get requestsRate(): { 
-        "maxReqByIntervalForRequestRate": number, 
+    get requestsRate(): {
+        "useRequestRateLimiter": number,
+        "maxReqByIntervalForRequestRate": number,
         "intervalForRequestRate": number, 
         "timeoutRequestForRequestRate": number } {
         return this._requestsRate;
