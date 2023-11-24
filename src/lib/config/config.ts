@@ -154,7 +154,8 @@ let conf =  {
     mode:"xmpp",
     "concurrentRequests": 1000,
     "requestsRate": {
-        "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+        "useRequestRateLimiter": true,
+        "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": 600, // nb seconds Request stay in queue before being rejected if queue is full.
     },

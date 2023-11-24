@@ -26,6 +26,7 @@ const debugHttp = require("debug-http");
 //const HttpsAgent = require('agentkeepalive').HttpsAgent;
 
 let Agent = require('keepalive-proxy-agent');
+//let Agent = require('agentkeepalive');
 
 import got, {Agents, Got} from "got";
 const _ = require('highland');
@@ -68,6 +69,9 @@ class HTTPService {
     private _core: any;
     private mergedGot: Got;
     private reqAgent: any;
+    private reqAgentHttp: any;
+    private reqAgentHttps: any;
+    public useRequestRateLimiter: boolean;
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
@@ -85,9 +89,54 @@ class HTTPService {
         let that = this;
         this.mergedGot = got;
 
+        if ( _options.requestsRate.useRequestRateLimiter !== undefined ) {
+            that.useRequestRateLimiter = _options.requestsRate.useRequestRateLimiter;
+        } else {
+            that.useRequestRateLimiter = true;
+        }
+
+        // ***** Start lib 'keepalive-proxy-agent' *****
+
         const liveOption : any = {
-            keepAlive: true,
-            maxSockets: 10,
+            /**
+             * Keep sockets around in a pool to be used by other requests in the future. Default = false
+             */
+            keepAlive: true, // ?: boolean | undefined;
+            /**
+             * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+             * Only relevant if keepAlive is set to true.
+             */
+            keepAliveMsecs: 1000, // ?: number | undefined;
+            /**
+             * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+             */
+            maxSockets : Infinity, // ?: number | undefined;
+            /**
+             * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+             */
+            maxTotalSockets : Infinity, // ?: number | undefined;
+            /**
+             * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+             */
+            maxFreeSockets : 256, // ?: number | undefined;
+            /**
+             * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+             */
+            timeout : 60000, // ?: number | undefined;
+            /**
+             * Scheduling strategy to apply when picking the next free socket to use.
+             * @default `lifo`
+             */
+            //scheduling?: "fifo" | "lifo" | undefined;
+
+
+            /* keepAlive: true,
+            //maxSockets: 10,
+            maxSockets: Infinity,
+            maxKeepAliveRequests: 0, // no limit on max requests per keepalive socket
+            maxKeepAliveTime: 30000, // keepalive for 30 seconds
+            maxFreeSockets: 30000, // free socket keepalive for 30 seconds
+            // */
         };
 
         if (that.proxy.isProxyConfigured ) {
@@ -98,8 +147,38 @@ class HTTPService {
             liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
         }
 
-        this.reqAgent =  new Agent(liveOption);
-        
+        this.reqAgentHttp = new Agent(liveOption);
+        this.reqAgentHttps = this.reqAgentHttp;
+
+        // ***** End lib 'keepalive-proxy-agent' *****
+
+
+        /*
+        // Start lib 'agentkeepalive'
+        let _ENV = process.env;
+        let _MAX_SOCKETS = parseInt(_ENV.NODE_MAX_SOCKETS, 10) || Infinity;
+        let _SOCKET_TIMEOUT = parseInt(_ENV.NODE_SOCKET_TIMEOUT, 10) || 15 * 1000;
+
+        let _AGENT_OPTIONS = {
+            keepAlive: true,
+            maxSockets: _MAX_SOCKETS,
+            timeout: _SOCKET_TIMEOUT
+        };
+
+        if (that.proxy.isProxyConfigured ) {
+            if (that.proxy.secureProtocol) {
+                //opt.secureProxy = true;
+            }
+            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+            // @ts-ignore
+            _AGENT_OPTIONS.proxy = urlLib.parse(that.proxy.proxyURL);
+        }
+
+        this.reqAgentHttp =  new Agent(_AGENT_OPTIONS);
+        this.reqAgentHttps =  new Agent.HttpsAgent(_AGENT_OPTIONS);
+        // End lib 'agentkeepalive'
+        // */
+
         function debugHandler(request, options?, cb?): any {
             options = typeof options === "string" ? urlParse(options) : options;
 
@@ -285,7 +364,11 @@ safeJsonParse(str) {
         req.method = that._getUrlRaw.bind(this);
         req.params = arguments;
         req.label = "getUrlRaw url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._getUrlRaw(url, headers, params);
+        }
     }
 
     _getUrlRaw(url, headers: any = {}, params): Promise<any> {
@@ -440,8 +523,10 @@ safeJsonParse(str) {
                             req.agent.https = new Agent(liveOption);
                         } // */
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.https = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -524,7 +609,11 @@ safeJsonParse(str) {
         req.method = that._headUrlRaw.bind(this);
         req.params = arguments;
         req.label = "head url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._headUrlRaw(url, headers);
+        }
     }
 
     _headUrlRaw(url, headers: any = {}): Promise<any> {
@@ -658,8 +747,10 @@ safeJsonParse(str) {
                             },
                         };
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.http = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -738,7 +829,11 @@ safeJsonParse(str) {
         req.method = that._postUrlRaw.bind(this);
         req.params = arguments;
         req.label = "postUrlRaw url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._postUrlRaw(url, headers, data);
+        }
     }
 
     _postUrlRaw(url, headers: any = {}, data): Promise<any> {
@@ -826,8 +921,10 @@ safeJsonParse(str) {
                             },
                         };
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.http = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -906,7 +1003,11 @@ safeJsonParse(str) {
         req.method = that._putUrlRaw.bind(this);
         req.params = arguments;
         req.label = "putUrlRaw url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._putUrlRaw(url, headers, data);
+        }
     }
 
     _putUrlRaw(url, headers: any = {}, data): Promise<any> {
@@ -984,8 +1085,10 @@ safeJsonParse(str) {
                             },
                         };
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.http = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -1057,7 +1160,12 @@ safeJsonParse(str) {
         req.method = that._deleteUrlRaw.bind(this);
         req.params = arguments;
         req.label = "deleteUrlRaw url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._deleteUrlRaw(url, headers, data);
+        }
+
     }
 
     _deleteUrlRaw(url, headers: any = {}, data : Object = undefined): Promise<any> {
@@ -1210,8 +1318,10 @@ safeJsonParse(str) {
                             req.body = body;
                         }
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.http = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -1293,7 +1403,11 @@ safeJsonParse(str) {
         req.method = that._getUrlJson.bind(this);
         req.params = arguments;
         req.label = "getUrl url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._getUrlJson(url, headers, params);
+        }
     }
 
     _getUrlJson(url, headers: any = {}, params): Promise<any> {
@@ -1472,8 +1586,10 @@ safeJsonParse(str) {
                             req.agent.https = new Agent(liveOption);
                         } // */
 
-                        req.agent.http = that.reqAgent;
-                        req.agent.https = that.reqAgent;
+                        req.agent.http = that.reqAgentHttp;
+                        req.agent.http = that.reqAgentHttps;
+                        // @ts-ignore
+                        // req.agent = false;
 
                         return req;
                     };
@@ -1596,7 +1712,11 @@ safeJsonParse(str) {
         req.method = that._get.bind(this);
         req.params = arguments;
         req.label = "get url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._get(url, headers, params, responseType, nbTryBeforeFailed, timeBetweenRetry);
+        }
     }
 
     _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
@@ -1780,9 +1900,10 @@ safeJsonParse(str) {
                                 req.agent.https = new Agent(liveOption);
                             } // */
 
-                            req.agent.http = that.reqAgent;
-                            req.agent.https = that.reqAgent;
-
+                            req.agent.http = that.reqAgentHttp;
+                            req.agent.http = that.reqAgentHttps;
+                            // @ts-ignore
+                            // req.agent = false;
                             return req;
                         };
 
@@ -2032,7 +2153,11 @@ safeJsonParse(str) {
         req.method = that._post.bind(this);
         req.params = arguments;
         req.label = "post url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._post(url, headers, data, contentType);
+        }
     }
 
     _post(url, headers: any = {}, data, contentType): Promise<any> {
@@ -2164,8 +2289,10 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -2313,7 +2440,11 @@ safeJsonParse(str) {
         req.method = that._head.bind(this);
         req.params = arguments;
         req.label = "head url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._head(url, headers);
+        }
     }
 
     _head(url, headers: any = {}): Promise<any> {
@@ -2489,8 +2620,10 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -2631,7 +2764,11 @@ safeJsonParse(str) {
         req.method = that._patch.bind(this);
         req.params = arguments;
         req.label = "patch url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._patch(url, headers,data, type);
+        }
     }
 
     _patch(url, headers: any = {}, data, type): Promise<any> {
@@ -2811,8 +2948,10 @@ safeJsonParse(str) {
                         req.body = body;
                     }
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -2960,7 +3099,11 @@ safeJsonParse(str) {
         req.method = that._put.bind(this);
         req.params = arguments;
         req.label = "put url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._put(url, headers,data, type);
+        }
     }
 
     _put(url, headers: any = {}, data, type): Promise<any> {
@@ -3148,8 +3291,10 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -3287,7 +3432,11 @@ safeJsonParse(str) {
         req.method = that._putBuffer.bind(this);
         req.params = arguments;
         req.label = "putBuffer url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._putBuffer(url, headers, buffer);
+        }
     }
 
     _putBuffer(url, headers: any = {}, buffer): Promise<any> {
@@ -3364,8 +3513,10 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -3589,8 +3740,10 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };
@@ -3608,7 +3761,9 @@ safeJsonParse(str) {
 
                     let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, newAliveAgent())), (err) => {
                         if (err) {
-                            console.error('Pipeline failed', err);
+//                            console.error('Pipeline failed', err);
+                            that.logger.warn("internal", LOG_ID + "(putStream) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+
                             reject(err);
                         } else {
                             console.log('Pipeline succeeded');
@@ -3750,7 +3905,11 @@ safeJsonParse(str) {
         req.method = that._delete.bind(this);
         req.params = arguments;
         req.label = "delete url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
-        return that.httpManager.add(req);
+        if (that.useRequestRateLimiter) {
+            return that.httpManager.add(req);
+        } else {
+            return that._delete(url, headers, data);
+        }
     }
 
     _delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
@@ -3924,8 +4083,10 @@ safeJsonParse(str) {
                         req.body = body;
                     }
 
-                    req.agent.http = that.reqAgent;
-                    req.agent.https = that.reqAgent;
+                    req.agent.http = that.reqAgentHttp;
+                    req.agent.http = that.reqAgentHttps;
+                    // @ts-ignore
+                    // req.agent = false;
 
                     return req;
                 };

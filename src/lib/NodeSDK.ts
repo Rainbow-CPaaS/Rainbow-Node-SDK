@@ -201,6 +201,7 @@ type OptionsType = {
     "testDNSEntry": boolean, 
     "httpoverxmppserver": false,
     "requestsRate":{
+        "useRequestRateLimiter": number,
         "maxReqByIntervalForRequestRate": number, // nb requests during the interval.
         "intervalForRequestRate": number, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": number // nb seconds Request stay in queue before being rejected if queue is full.
