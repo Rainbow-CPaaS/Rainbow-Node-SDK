@@ -672,7 +672,8 @@ class XmppClient  {
 
     emit(evtname, stanza) {
         let that = this;
-        let stanzaElmt : Element = parse(stanza);
+        //let stanzaElmt : Element = parse(stanza);
+        let stanzaElmt : any = parse(stanza);
 //        stanzaElmt.find("to") = that.fullJid;
         this.client.entity.emit(evtname, stanzaElmt);
     }
