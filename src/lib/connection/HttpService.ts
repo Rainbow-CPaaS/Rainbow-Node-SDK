@@ -110,7 +110,7 @@ class HTTPService {
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */
-            maxSockets : Infinity, // ?: number | undefined;
+            maxSockets : 25, // ?: number | undefined;
             /**
              * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
              */
