@@ -106,7 +106,7 @@ class HTTPService {
              * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
              * Only relevant if keepAlive is set to true.
              */
-            keepAliveMsecs: 10000, // ?: number | undefined;
+            keepAliveMsecs: 500, // ?: number | undefined;
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */
@@ -538,8 +538,9 @@ safeJsonParse(str) {
                         secondInstance.defaults.options.retry = defaults.retry;
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                        let getOptions = newAliveAgent();
 
-                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                        let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_getUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(_getUrlRaw) done.");
@@ -748,7 +749,7 @@ safeJsonParse(str) {
                         };
 
                         req.agent.http = that.reqAgentHttp;
-                        req.agent.http = that.reqAgentHttps;
+                        req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -762,8 +763,9 @@ safeJsonParse(str) {
                         secondInstance.defaults.options.retry = defaults.retry;
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                        let getOptions = newAliveAgent();
 
-                        let response = secondInstance.head(urlEncoded, newAliveAgent()).catch((error) => {
+                        let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(head) done.");
@@ -922,7 +924,7 @@ safeJsonParse(str) {
                         };
 
                         req.agent.http = that.reqAgentHttp;
-                        req.agent.http = that.reqAgentHttps;
+                        req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -936,8 +938,9 @@ safeJsonParse(str) {
                         secondInstance.defaults.options.retry = defaults.retry;
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                        let getOptions = newAliveAgent();
 
-                        let response = secondInstance.post(urlEncoded, newAliveAgent()).catch((error) => {
+                        let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_postUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(_postUrlRaw) done.");
@@ -1086,7 +1089,7 @@ safeJsonParse(str) {
                         };
 
                         req.agent.http = that.reqAgentHttp;
-                        req.agent.http = that.reqAgentHttps;
+                        req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -1097,7 +1100,8 @@ safeJsonParse(str) {
 
                         const secondInstance = that.mergedGot.extend({mutableDefaults: true});
 
-                        let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                        let getOptions = newAliveAgent();
+                        let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_putUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(_putUrlRaw) done.");
@@ -1319,7 +1323,7 @@ safeJsonParse(str) {
                         }
 
                         req.agent.http = that.reqAgentHttp;
-                        req.agent.http = that.reqAgentHttps;
+                        req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -1334,7 +1338,8 @@ safeJsonParse(str) {
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                        let response = secondInstance.delete(urlEncoded, newAliveAgent()).catch((error) => {
+                        let getOptions = newAliveAgent();
+                        let response = secondInstance.delete(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_deleteUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done.");
@@ -1587,7 +1592,7 @@ safeJsonParse(str) {
                         } // */
 
                         req.agent.http = that.reqAgentHttp;
-                        req.agent.http = that.reqAgentHttps;
+                        req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -1601,8 +1606,9 @@ safeJsonParse(str) {
                         secondInstance.defaults.options.retry = defaults.retry;
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                        let getOptions = newAliveAgent();
 
-                        let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                        let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
                         that.logger.log("info", LOG_ID + "(get) done.");
@@ -1740,6 +1746,8 @@ safeJsonParse(str) {
                                 agent: {
                                     http: undefined,
                                     https: undefined
+                                    //http: that.reqAgentHttp,
+                                    //https: that.reqAgentHttps
                                     //http: agent,
                                     //https: agent
 
@@ -1901,7 +1909,7 @@ safeJsonParse(str) {
                             } // */
 
                             req.agent.http = that.reqAgentHttp;
-                            req.agent.http = that.reqAgentHttps;
+                            req.agent.https = that.reqAgentHttps;
                             // @ts-ignore
                             // req.agent = false;
                             return req;
@@ -1914,8 +1922,9 @@ safeJsonParse(str) {
                             secondInstance.defaults.options.retry = defaults.retry;
                             secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                            let getOptions = newAliveAgent();
 
-                            let response = secondInstance.get(urlEncoded, newAliveAgent()).catch((error) => {
+                            let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                                 that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                             });
                             that.logger.log("info", LOG_ID + "(get) done.");
@@ -2290,7 +2299,7 @@ safeJsonParse(str) {
                     };
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -2305,7 +2314,8 @@ safeJsonParse(str) {
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let response = secondInstance.post(urlEncoded, newAliveAgent()).catch((error) => {
+                    let getOptions = newAliveAgent();
+                    let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(post) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(post) done.");
@@ -2621,7 +2631,7 @@ safeJsonParse(str) {
                     };
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -2635,8 +2645,9 @@ safeJsonParse(str) {
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                    let getOptions = newAliveAgent();
 
-                    let response = secondInstance.head(urlEncoded, newAliveAgent()).catch((error) => {
+                    let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(head) done.");
@@ -2949,7 +2960,7 @@ safeJsonParse(str) {
                     }
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -2964,7 +2975,8 @@ safeJsonParse(str) {
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let response = secondInstance.patch(urlEncoded, newAliveAgent()).catch((error) => {
+                    let getOptions = newAliveAgent();
+                    let response = secondInstance.patch(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(delete) done.");
@@ -3292,7 +3304,7 @@ safeJsonParse(str) {
                     };
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -3307,7 +3319,8 @@ safeJsonParse(str) {
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                    let getOptions = newAliveAgent();
+                    let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(put) done.");
@@ -3514,7 +3527,7 @@ safeJsonParse(str) {
                     };
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -3525,7 +3538,8 @@ safeJsonParse(str) {
 
                     const secondInstance = that.mergedGot.extend({mutableDefaults: true});
 
-                    let response = secondInstance.put(urlEncoded, newAliveAgent()).catch((error) => {
+                    let getOptions = newAliveAgent();
+                    let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(_putBuffer) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(_putBuffer) done.");
@@ -3741,7 +3755,7 @@ safeJsonParse(str) {
                     };
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -3759,7 +3773,8 @@ safeJsonParse(str) {
                     let verbose = 2;
                     let spinner = undefined;
 
-                    let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, newAliveAgent())), (err) => {
+                    let getOptions = newAliveAgent();
+                    let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, getOptions)), (err) => {
                         if (err) {
 //                            console.error('Pipeline failed', err);
                             that.logger.warn("internal", LOG_ID + "(putStream) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
@@ -4084,7 +4099,7 @@ safeJsonParse(str) {
                     }
 
                     req.agent.http = that.reqAgentHttp;
-                    req.agent.http = that.reqAgentHttps;
+                    req.agent.https = that.reqAgentHttps;
                     // @ts-ignore
                     // req.agent = false;
 
@@ -4099,7 +4114,8 @@ safeJsonParse(str) {
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let response = secondInstance.delete(urlEncoded, newAliveAgent()).catch((error) => {
+                    let getOptions = newAliveAgent();
+                    let response = secondInstance.delete(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
                     that.logger.log("info", LOG_ID + "(delete) done.");
