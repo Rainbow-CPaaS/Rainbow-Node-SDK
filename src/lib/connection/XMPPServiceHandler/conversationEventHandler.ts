@@ -2158,10 +2158,12 @@ class ConversationEventHandler extends GenericHandler {
                     case "poll":
                         if (node.attrs.xmlns==="jabber:iq:configuration") {
                             let action = node.attrs.action;
+                            let roomId = node.getChild("roomid") ? node.getChild("roomid").text() : (node.getChild("room-id") ? node.getChild("room-id").text() : undefined);
+                            let pollId = node.getChild("pollid") ? node.getChild("pollid").text() : (node.getChild("poll-id") ? node.getChild("poll-id").text() : undefined);
                             let pollObj = {
                                 "action": action,
-                                "roomid": node.getChild("roomid").text(),
-                                "pollid": node.getChild("pollid").text(),
+                                "roomid": roomId,
+                                "pollid": pollId,
                             };
                             that.logger.log("internal", LOG_ID + "(onChatMessageReceived) configure - poll : ", pollObj);
                             that.eventEmitter.emit("evt_internal_bubblepollconfiguration", pollObj);
