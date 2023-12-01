@@ -2349,6 +2349,35 @@ let urlS2S;
         }
     }
 
+    async  testfetchChannelItemsFromRNodeSdkChangeLog() {
+        let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
+        //let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
+        //let mychannel = mychannels ? mychannels[0]:null;
+        logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - getChannel mychannel : ", mychannel);
+        if (mychannel) {
+            for (let i = 0; i < 1; i++) {
+                let now = new Date().getTime();
+                let itemId = "";
+                let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - items.length : ", items.length);
+
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - First item itemId : ", items[0]);
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - Last item itemId : ", items[items.length - 1]);
+
+                /*itemId = items[0].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                });
+                itemId = items[items.length - 1].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                }); // */
+            }
+        } else {
+            logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - mychannel is empty, so can not publish.");
+        }
+    }
+
     async  testcreateChannel() {
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
@@ -3527,7 +3556,7 @@ let urlS2S;
         });
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "EngineVincent00 - uploadFileToBubble getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        logger.log("debug", "MAIN - (testUploadFileToBubble) getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             if (bubble.isActive==false) {
@@ -3535,7 +3564,7 @@ let urlS2S;
             }
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessage).then((result) => {
-                logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
+                logger.log("debug", "MAIN - (testUploadFileToBubble) uploadFileToBubble - result : ", result);
             });
         }
         //});
