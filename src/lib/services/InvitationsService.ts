@@ -1323,21 +1323,25 @@ class InvitationsService extends GenericService {
 		let that = this;
 		return new Promise(function (resolve) {
 			that._contacts.getContactById(contactDBId).then(function (contact) {
-				switch (status) {
-					case "ask":
-						contact.status = "unknown";
-						contact.ask = "ask";
-						contact.invitation = invitation;
-						break;
-					case "wait":
-						contact.status = "wait";
-						contact.ask = "subscribe";
-						contact.invitation = invitation;
-						break;
-					default:
-						contact.ask = "none";
-						contact.invitation = null;
-						break;
+				if (contact) {
+					switch (status) {
+						case "ask":
+							contact.status = "unknown";
+							contact.ask = "ask";
+							contact.invitation = invitation;
+							break;
+						case "wait":
+							contact.status = "wait";
+							contact.ask = "subscribe";
+							contact.invitation = invitation;
+							break;
+						default:
+							contact.ask = "none";
+							contact.invitation = null;
+							break;
+					}
+				} else {
+					that._logger.log("warn", LOG_ID + "(updateContactInvitationStatus) getContactById did not found the contact by id : ", contactDBId, " so ignore invitation : ", invitation);
 				}
 				// contact.updateRichStatus();
 				resolve(undefined);
