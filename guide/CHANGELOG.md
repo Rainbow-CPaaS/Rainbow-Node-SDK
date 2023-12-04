@@ -29,7 +29,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   None
-
+-   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+-   Add options `gotOptions` to customize the `got` lib for REST requests options.
+-   Add a header in REST requests : `x-rainbow-request-id`.
+ 
 #### Changed
 -   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 -   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
