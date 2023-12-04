@@ -97,46 +97,33 @@ class HTTPService {
 
         // ***** Start lib 'keepalive-proxy-agent' *****
 
-        const liveOption : any = {
+        const customLiveOption = _options._getRESTOptions()?.gotOptions;
+        const liveOption : any =  {
             /**
              * Keep sockets around in a pool to be used by other requests in the future. Default = false
              */
-            keepAlive: true, // ?: boolean | undefined;
+            keepAlive: customLiveOption?.keepAlive !== undefined ? customLiveOption.keepAlive :true, // ?: boolean | undefined;
             /**
              * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
              * Only relevant if keepAlive is set to true.
              */
-            keepAliveMsecs: 500, // ?: number | undefined;
+            keepAliveMsecs: customLiveOption?.keepAliveMsecs !== undefined ? customLiveOption.keepAliveMsecs :500, // ?: number | undefined;
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */
-            maxSockets : 25, // ?: number | undefined;
+            maxSockets : customLiveOption?.maxSockets !== undefined ? customLiveOption.maxSockets :25, // ?: number | undefined;
             /**
              * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
              */
-            maxTotalSockets : Infinity, // ?: number | undefined;
+            maxTotalSockets : customLiveOption?.maxTotalSockets !== undefined ? customLiveOption.maxTotalSockets :Infinity, // ?: number | undefined;
             /**
              * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
              */
-            maxFreeSockets : 1000, // ?: number | undefined;
+            maxFreeSockets : customLiveOption?.maxFreeSockets !== undefined ? customLiveOption.maxFreeSockets :1000, // ?: number | undefined;
             /**
              * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
              */
-            timeout : 60000, // ?: number | undefined;
-            /**
-             * Scheduling strategy to apply when picking the next free socket to use.
-             * @default `lifo`
-             */
-            //scheduling?: "fifo" | "lifo" | undefined;
-
-
-            /* keepAlive: true,
-            //maxSockets: 10,
-            maxSockets: Infinity,
-            maxKeepAliveRequests: 0, // no limit on max requests per keepalive socket
-            maxKeepAliveTime: 30000, // keepalive for 30 seconds
-            maxFreeSockets: 30000, // free socket keepalive for 30 seconds
-            // */
+            timeout : customLiveOption?.timeout !== undefined ? customLiveOption.timeout :60000, // ?: number | undefined;
         };
 
         if (that.proxy.isProxyConfigured ) {

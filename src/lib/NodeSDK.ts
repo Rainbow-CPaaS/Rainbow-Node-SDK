@@ -50,6 +50,30 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
  * @property {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
  * @property {string} options.rest.useRestAtStartup, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
+ * @property {string} options.rest.useGotLibForHttp, allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+ * @property {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is :
+ *  {
+ *
+ * //Keep sockets around in a pool to be used by other requests in the future. Default = false
+ * keepAlive: true, // ?: boolean | undefined;
+ *
+ * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+ * //Only relevant if keepAlive is set to true.
+ * keepAliveMsecs: 501, // ?: number | undefined;
+ * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+ * maxSockets: 26, // ?: number | undefined;
+ *
+ * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+ * maxTotalSockets: Infinity, // ?: number | undefined;
+ *
+ * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+ * maxFreeSockets: 1001, // ?: number | undefined;
+ *
+ * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+ * timeout: 60001 , // ?: number | undefined;
+ *
+ * }
+ *
  * @property {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
  * @property {string} options.credentials.password "XXXXX", The password.
  * @property {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -360,6 +384,30 @@ class NodeSDK {
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
+     * @param {string} options.rest.useGotLibForHttp allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+     * @param {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is :
+     *  {
+     *
+     * //Keep sockets around in a pool to be used by other requests in the future. Default = false
+     * keepAlive: true, // ?: boolean | undefined;
+     *
+     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+     * //Only relevant if keepAlive is set to true.
+     * keepAliveMsecs: 501, // ?: number | undefined;
+     * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+     * maxSockets: 26, // ?: number | undefined;
+     *
+     * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+     * maxTotalSockets: Infinity, // ?: number | undefined;
+     *
+     * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+     * maxFreeSockets: 1001, // ?: number | undefined;
+     *
+     * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+     * timeout: 60001 , // ?: number | undefined;
+     *
+     * }
+     *
      * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
      * @param {string} options.credentials.password "XXXXX", The password.
      * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
