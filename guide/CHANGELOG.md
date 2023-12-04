@@ -15,9 +15,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   Add options `maxBubbleJoinInProgress` to define the maximum of simultaneous "send initial presence of the bubbles".
-
+-   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+-   Add options `gotOptions` to customize the `got` lib for REST requests options.
+-   Add a header in REST requests : `x-rainbow-request-id`.
+ 
 #### Changed
--   Replace `request` lib by `got` lib for the Low layer http network request lib. Done for GET verb.
+-   Replace `request` lib by `got` lib for the Low layer http network request lib. Note the Request lib is even available with setting `useGotLibForHttp` option to false. 
 
 ### [2.25.2-lts.3] - 2023-10-20
 #### Removed
