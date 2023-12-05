@@ -17,7 +17,10 @@ import {GenericService} from "./GenericService.js";
 import pkg from 'dateformat';
 import {default as fs} from "fs";
 const { dateFormat } = pkg;
+import { FileStorageService } from "./FileStorageService";
+import {Core} from "../Core.js";
 
+let fs = require('fs');
 
 const LOG_ID = "ADMIN/SVCE - ";
 
@@ -68,38 +71,43 @@ enum CLOUDPBXCLIOPTIONPOLICY {
  */
 class AdminService extends GenericService {
     private _contacts: ContactsService;
+    private _fileStorage: FileStorageService;
 
     static getClassName(){ return 'AdminService'; }
     getClassName(){ return AdminService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
         this._startConfig = _startConfig;
-        this._xmpp = null;
-        this._rest = null;
+        //this._xmpp = null;
+        //this._rest = null;
         this._s2s = null;
         this._contacts = null;
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
         this._logger = _logger;
+
+        this._core = _core;
     }
 
-    start(_options, _core) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start(_options) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
 
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
 
                 that._options = _options;
-                that._s2s = _core._s2s;
-                that._contacts = _core._contacts;
+                that._s2s = that._core._s2s;
+                that._contacts = that._core._contacts;
+                that._fileStorage = that._core._fileStorage;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
 
@@ -139,6 +147,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method getRainbowSupportBotService
+     * @nodered true
      * @instance
      * @description
      *      This API can be used to get Rainbow support bot service (Emily) </BR>
@@ -191,6 +200,7 @@ class AdminService extends GenericService {
      * @method getABotServiceData
      * @instance
      * @param {string} botId Bot Service unique identifier
+     * @nodered true
      * @description
      *      This API can be used to get a bot service data. </BR>
      * @async
@@ -240,6 +250,7 @@ class AdminService extends GenericService {
      /**
       * @public
       * @method getAllBotServices
+      * @nodered true
       * @instance
       * @description
       *      This API can be used to retrieve the list of bot services. </BR>
@@ -303,6 +314,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAJoinCompanyLink
      * @instance
      * @description
@@ -314,7 +326,7 @@ class AdminService extends GenericService {
      * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
-     * Valeur par défaut : `true`
+     * Default value : `true`
      * @param {string} expirationDate Date of expiration of the Join company link </BR>
      * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
      * * `expirationDate` has to be provided in UTC timezone. </BR>
@@ -368,6 +380,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAJoinCompanyLink
      * @instance
      * @description
@@ -432,6 +445,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAJoinCompanyLink
      * @instance
      * @description
@@ -494,6 +508,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method getAllJoinCompanyLinks
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to list existing join company links for his company. </BR>
@@ -504,17 +519,17 @@ class AdminService extends GenericService {
      * > * `small`: id, companyId, isEnabled
      * > * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
      * > * `full`: all join company links fields
-     * Valeur par défaut : `small`. Valeurs autorisées : `small`, `medium`, `full`.
+     * Default value : `small`. Possibles values : `small`, `medium`, `full`.
      * @param {string} createdByAdminId List join company links created by the specified administrator id(s).
      * @param {boolean} isEnabled List join company links with the specified isEnabled value (true/false).
      * @param {string} fromExpirationDate List join company links expiring after the given date.
      * @param {string} toExpirationDate List join company links expiring before the given date.
      * @param {string} fromNbUsersRegistered List join company links that have been used by at least the given number (nbUsersRegistered greater than or equal to the requested toNbUsersRegistered number).
      * @param {string} toNbUsersRegistered List join company links that have been used by at less than the given number (nbUsersRegistered lower than or equal to the requested toNbUsersRegistered number).
-     * @param {number} limit Allow to specify the number of items to retrieve. Valeur par défaut : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Valeur par défaut : 0.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. Valeur par défaut : 1. Valeurs autorisées : -1, 1 .
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1 .
      * @category Company join companies links
      * @return {Promise<Object, ErrorManager>} - result
      *
@@ -576,6 +591,7 @@ class AdminService extends GenericService {
     /**
      * @public
      * @method updateAJoinCompanyLink
+     * @nodered true
      * @instance
      * @description
      *      This API can be used by company admin users to update a join company link for his company. </BR>
@@ -587,7 +603,7 @@ class AdminService extends GenericService {
      * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
-     * Valeur par défaut : `true` </BR>
+     * Default value : `true` </BR>
      * @param {string} expirationDate Date of expiration of the Join company link </BR>
      * If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. </BR>
      * `expirationDate` has to be provided in UTC timezone. </BR>
@@ -651,6 +667,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method createCompanyFromDefault
      * @instance
      * @description
@@ -679,11 +696,11 @@ class AdminService extends GenericService {
      * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
      * | name | String | Company name |
      * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
-     * | street optionnel | String | Company street<br><br>Ordre de grandeur : `0..255` |
-     * | city optionnel | String | Company city<br><br>Ordre de grandeur : `0..255` |
+     * | street optionnel | String | Company street<br> |
+     * | city optionnel | String | Company city<br> |
      * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
-     * | postalCode optionnel | String | Company postal code<br><br>Ordre de grandeur : `0..64` |
-     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Ordre de grandeur : `3`<br><br>Possibles values `USD`, `EUR`, `CNY` |
+     * | postalCode optionnel | String | Company postal code<br> |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values `USD`, `EUR`, `CNY` |
      * | status | String | Company status<br><br>Possibles values `initializing`, `active`, `alerting`, `hold`, `terminated` |
      * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values `public`, `private`, `organisation`, `closed`, `isolated` |
      * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
@@ -721,8 +738,8 @@ class AdminService extends GenericService {
      * | offerType | String | Allowed company offer types<br><br>Possibles values `freemium`, `premium` |
      * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
      * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values `HDS` |
-     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
-     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
      * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values `square`, `circle` |
      * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
      * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
@@ -731,7 +748,7 @@ class AdminService extends GenericService {
      * | dark optionnel | String | Set the selected theme dark for users of the company. |
      * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
      * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
-     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br><br>Ordre de grandeur : `0..256` |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br> |
      * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
      * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
      * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
@@ -819,8 +836,10 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCompaniesVisibleByUser
      * @instance
+     * @nodered true
      * @description
      *   This API allows users to get all companies. </BR>
      *   Users with user role can only retrieve their own company and companies they can see (companies with visibility=public, companies having user's companyId in visibleBy field, companies being in user's company organization and having visibility=organization, BP company of user's company). </BR>
@@ -845,7 +864,7 @@ class AdminService extends GenericService {
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. Ordre de grandeur : 0-1000
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -893,6 +912,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCompanyAdministrators
      * @instance
      * @description
@@ -928,7 +948,7 @@ class AdminService extends GenericService {
      * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
      * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. Ordre de grandeur : 0-1000
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
@@ -958,6 +978,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCompany
      * @instance
      * @description
@@ -1055,6 +1076,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createUserInCompany
      * @instance
      * @description
@@ -1147,6 +1169,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createUser
      * @since 2.21.0
      * @instance
@@ -1367,7 +1390,7 @@ class AdminService extends GenericService {
      * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
      * | assignationDate | String | Date when the subscription was attached to user profile |
      * | canBeSold | Boolean | Indicates if the offer is billed.  <br>Some offers will not be billed (Essential, Demo, ...). |
-     * | offerTechnicalDescription optionnel | string | Offer technical description.<br><br>Ordre de grandeur : `1..512` |
+     * | offerTechnicalDescription optionnel | string | Offer technical description.<br> |
      * | businessModel optionnel | string | Indicates the business model associated to this offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Subscriptions having this business model are billed according to the number of users bought for it.<br>* `usage`: Subscriptions having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer).<br>* `flat_fee`: Subscriptions having this business model are billed based on a flat fee (same price each month for the company which subscribe to this offer).<br>* `none`: no business model. Should be used for offers which are not sold (like Essential...).<br><br>Default value : `none`<br><br>Possibles values : `nb_users`, `usage`, `flat_fee`, `none` |
      * | businessSpecific optionnel | String\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Default value : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
      * | isExclusive optionnel | Boolean | Indicates if the offer is exclusive for assignation to a user profile (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer). |
@@ -1430,6 +1453,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createGuestUser
      * @instance
      * @description
@@ -1488,6 +1512,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAnonymousGuestUser
      * @since 1.31
      * @instance
@@ -1530,6 +1555,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method inviteUserInCompany
      * @instance
      * @description
@@ -1584,6 +1610,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method changePasswordForUser
      * @instance
      * @description
@@ -1633,6 +1660,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateInformationForUser
      * @instance
      * @description
@@ -1688,6 +1716,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteUser
      * @instance
      * @description
@@ -1729,6 +1758,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCompanies
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
      * - small: _id, name </BR>
@@ -1904,6 +1934,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsers
      * @instance
      * @description
@@ -1947,6 +1978,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByFilter
      * @instance
      * @category Companies and users management
@@ -2044,6 +2076,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersByCompanyId
      * @instance
      * @description
@@ -2089,6 +2122,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllUsersBySearchEmailByCompanyId
      * @instance
      * @description
@@ -2134,6 +2168,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactInfos
      * @instance
      * @description
@@ -2171,6 +2206,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateContactInfos
      * @instance
      * @description
@@ -2421,6 +2457,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method acceptJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2471,6 +2508,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method declineJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2521,6 +2559,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyInvitation
      * @instance
      * @since 2.21.0
@@ -2570,6 +2609,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyInvitations
      * @instance
      * @since 2.21.0
@@ -2632,6 +2672,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method cancelJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2688,6 +2729,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2744,6 +2786,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllJoinCompanyRequests
      * @instance
      * @since 2.21.0
@@ -2775,12 +2818,12 @@ class AdminService extends GenericService {
      * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
      * | companyAdminLoginEmail | String |     |
      *
-     * @param {string} sortField Sort items list based on the given field<br><br>Valeur par défaut : `lastNotificationDate`
-     * @param {string} status List all join company requests having the provided status(es). Valeurs autorisées : `=pending`, `accepted`, `declined`
-     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Valeur par défaut : `small`<br>Valeurs autorisées : `small`, `medium`, `full`
-     * @param {number} limit Allow to specify the number of items to retrieve.<br>Valeur par défaut : `100`
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Valeur par défaut : `0`
-     * @param {number} sortOrder Specify order when sorting items list.<br>Valeur par défaut : `1`. Valeurs autorisées : `-1`, `1`
+     * @param {string} sortField Sort items list based on the given field<br><br>Default value : `lastNotificationDate`
+     * @param {string} status List all join company requests having the provided status(es). Possibles values : `=pending`, `accepted`, `declined`
+     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Default value : `small`<br>Possibles values : `small`, `medium`, `full`
+     * @param {number} limit Allow to specify the number of items to retrieve.<br>Default value : `100`
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Default value : `0`
+     * @param {number} sortOrder Specify order when sorting items list.<br>Default value : `1`. Possibles values : `-1`, `1`
      */
     getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
@@ -2808,6 +2851,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resendJoinCompanyRequest
      * @instance
      * @since 2.21.0
@@ -2866,6 +2910,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method requestToJoinCompany
      * @instance
      * @since 2.21.0
@@ -2906,7 +2951,7 @@ class AdminService extends GenericService {
      * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory. 
      * @param {string} requestedCompanyLinkId  Id of the join company invite associated to the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
-     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Valeur par défaut : `en`
+     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
      */
     requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
         let that = this;
@@ -2940,6 +2985,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method applyCustomisationTemplates
      * @instance
      * @description
@@ -3015,6 +3061,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCustomisationTemplate
      * @instance
      * @description
@@ -3262,6 +3309,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCustomisationTemplate
      * @instance
      * @description
@@ -3305,6 +3353,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -3354,6 +3403,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllAvailableCustomisationTemplates
      * @instance
      * @description
@@ -3391,6 +3441,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCustomisationTemplate
      * @instance
      * @description
@@ -3641,6 +3692,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method askTokenOnBehalf
      * @instance
      * @description
@@ -3680,8 +3732,10 @@ class AdminService extends GenericService {
     /**
      *
      * @public
+     * @nodered true
      * @method getUserPresenceInformation
      * @instance
+     * @nodered true
      * @description
      *      Get presence informations about a user </BR>
      * </BR>
@@ -3721,6 +3775,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method retrieveAllOffersOfCompanyById
      * @since 1.73
      * @instance
@@ -3754,6 +3809,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrieveAllSubscriptionsOfCompanyById
      * @since 1.73
      * @instance
@@ -3791,6 +3847,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSubscriptionsOfCompanyByOfferId
      * @since 1.73
      * @instance
@@ -3823,6 +3880,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -3944,6 +4002,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -3979,6 +4038,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToAlertOffer
      * @since 1.73
      * @instance
@@ -4013,6 +4073,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -4048,6 +4109,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToVoiceEnterpriseOffer
      * @since 1.73
      * @instance
@@ -4082,6 +4144,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeCompanyToOfferById
      * @since 1.73
      * @instance
@@ -4128,6 +4191,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -4158,6 +4222,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unSubscribeUserToSubscription
      * @since 1.73
      * @instance
@@ -4188,6 +4253,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserId
      * @since 2.11.0
      * @instance
@@ -4247,6 +4313,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesByUserEmail
      * @since 2.11.0
      * @instance
@@ -4307,6 +4374,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserId
      * @since 2.11.0
      * @instance
@@ -4356,6 +4424,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAUserProfilesFeaturesByUserEmail
      * @since 2.11.0
      * @instance
@@ -6510,10 +6579,198 @@ class AdminService extends GenericService {
             }
         });
     }
-    
+
+    /**
+     * @public
+     * @method uploadLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {binary} binaryImgFile File to be sent
+     * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
+     * @description
+     *      This API can be used to upload avatar image for logged in user.</BR>
+     *      Rules:</BR>
+     *      Avatar file has to be sent directly in http body (no JSon).</BR>
+     *      Only jpeg, jpg and png files are supported. Appropriate content-type has to be set (image/jpeg or image/png).</BR>
+     *      If user already has an avatar, the existing one is overwritten.</BR>
+     *      By default, avatar file size is limited to 4194304 bytes (4 MB) (this limit can be changed by integration team in enduser portal config file).</BR>
+     *      When an avatar is uploaded, the field lastAvatarUpdateDate of the user is updated to the current date.</BR>
+     *      User vCard is also updated: the PHOTO element is set with avatar filename (i.e. user id) in base64 and the LASTAVATARUPDATE element is set to the current date.  </BR>
+     *
+     *      a 'rainbow_onXXX' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     * @example
+     * const mime = require('mime');
+     * const fs = require("fs");
+     * testuploadLdapAvatar() {
+     *      let that = this;
+     *      let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
+     *
+     *      let fd = fs.openSync(pathImg, "r+");
+     *      let fileStats = fs.statSync(pathImg);
+     *      let sizeToRead = fileStats.size;
+     *      let buf = new Buffer(sizeToRead);
+     *      fs.readSync(fd, buf, 0, sizeToRead, null);
+     *      let fileType = mime.lookup(pathImg);
+
+     *      rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+     *          ...
+     *      });
+     * }
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    uploadLdapAvatar(binaryImgFile : any, contentType: string) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!binaryImgFile) {
+                    this._logger.log("warn", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    this._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!contentType) {
+                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : ", contentType);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType);
+                that._logger.log("debug", "(uploadLdapAvatar) - sent.");
+                that._logger.log("internal", "(uploadLdapAvatar) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(uploadLdapAvatar) Error.");
+                that._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @description
+     *      This API can be used to delete avatar image for logged in user. </BR>
+     *      When an avatar is deleted, the field lastAvatarUpdateDate of the user is set to null. </BR>
+     *      User vCard is also updated: the PHOTO element is removed and the LASTAVATARUPDATE element is set to empty.   </BR>
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    deleteLdapAvatar() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let result = await that._rest.deleteLdapAvatar();
+                that._logger.log("debug", "(deleteLdapAvatar) - sent.");
+                that._logger.log("internal", "(deleteLdapAvatar) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteLdapAvatar) Error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteLdapAvatar) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
     //endregion LDAP APIs to use
     
     //endregion AD/LDAP
+
+    //region Connectors
+
+    /**
+     * @public
+     * @method createListOfEventsForConnector
+     * @since 2.14.0
+     * @instance
+     * @async
+     * @category Connectors
+     * @param {any} events The list of events for a connector : 
+     * { </BR> 
+     * events : [{ </BR>
+     *  eventId : string The identifier of an event  </BR>
+     *  level : string The level of an event. Possibles values : `ERROR`, `WARN`, `INFO`  </BR>
+     *  category : string The category of an event  </BR>
+     *  operation : string The operation of an event  </BR>
+     *  description : string The description of an event  </BR>
+     *  date : string The date an event  </BR>
+     * }]</BR>
+     * }</BR>
+     * 
+     * @description
+     *     This API allows the different connectors to store a list of events </BR>
+     *      </BR>
+     *      Each given events is stored in Rainbow database. If an event, identified by its eventId, already exists for a connector in database, it isn't duplicated. An event is created with a deleted field value as false. </BR>
+     *      It's associated eityher with a companyId or a systemId, according to the type of its connector. </BR>
+     *      It's stored during 30 days. After that, it's automatically removed from database. </BR>
+     * </BR>
+     * @return {Promise<any>} result.
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of connector event stored. |
+     * | id  | String | Event unique identifier. |
+     * | userId | String | User associated to the connector unique identifier. |
+     * | eventId | String | Event identifier in the connector scope |
+     * | level | String | Event level<br><br>Possibles values : `ERROR`, `WARN`, `INFO` |
+     * | category | String | Event category |
+     * | operation | String | Event operation |
+     * | description | String | Event description |
+     * | deleted | Boolean | Indicate if the event is considered as deleted |
+     * | date | Date-Time | Date of event |
+     * | companyId optionnel | String | Company linked to the connector. |
+     * | systemId optionnel | String | System linked to the connector. |
+     *
+     */
+    createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>) {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!events) {
+                    this._logger.log("warn", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter");
+                    this._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter : ", events);
+                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                let result = await that._rest.createListOfEventsForConnector(events);
+                that._logger.log("debug", "(createListOfEventsForConnector) - sent.");
+                that._logger.log("internal", "(createListOfEventsForConnector) - result : ", result);
+
+                resolve (result);
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createListOfEventsForConnector) Error.");
+                that._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Connectors
     
     //region Rainbow Voice Communication Platform Provisioning
     // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
@@ -6522,6 +6779,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxById
      * @since 2.1.0
      * @instance
@@ -6560,6 +6818,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBX
      * @since 2.1.0
      * @instance
@@ -6613,6 +6872,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBX
      * @since 2.1.0
      * @instance
@@ -6649,6 +6909,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPbxs
      * @since 2.1.0
      * @instance
@@ -6684,6 +6945,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createACloudPBX
      * @since 2.1.0
      * @instance
@@ -6729,6 +6991,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXCLIPolicyForOutboundCalls
      * @since 2.1.0
      * @instance
@@ -6766,6 +7029,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXCLIOptionsConfiguration
      * @since 2.1.0
      * @instance
@@ -6810,6 +7074,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXlanguages
      * @since 2.1.0
      * @instance
@@ -6846,6 +7111,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXDeviceModels
      * @since 2.1.0
      * @instance
@@ -6882,6 +7148,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXTrafficBarringOptions
      * @since 2.1.0
      * @instance
@@ -6918,6 +7185,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXEmergencyNumbersAndEmergencyOptions
      * @since 2.1.0
      * @instance
@@ -6957,6 +7225,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method CreateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7009,6 +7278,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method factoryResetCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7054,6 +7324,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPDeviceById
      * @since 2.1.0
      * @instance
@@ -7098,6 +7369,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7146,6 +7418,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7192,6 +7465,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7238,6 +7512,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPRegistrationsInformationDevice
      * @since 2.1.0
      * @instance
@@ -7285,6 +7560,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method grantCloudPBXAccessToDebugSession
      * @since 2.1.0
      * @instance
@@ -7341,6 +7617,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method revokeCloudPBXAccessFromDebugSession
      * @since 2.1.0
      * @instance
@@ -7390,6 +7667,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method rebootCloudPBXSIPDevice
      * @since 2.1.0
      * @instance
@@ -7443,6 +7721,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -7490,6 +7769,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXSubscriber
      * @since 2.1.0
      * @instance
@@ -7537,6 +7817,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXSubscriberRainbowUser
      * @since 2.1.0
      * @instance
@@ -7595,6 +7876,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSIPdeviceAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -7650,6 +7932,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method removeCloudPBXAssociationSubscriberAndSIPdevice
      * @since 2.1.0
      * @instance
@@ -7704,6 +7987,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXAllSIPdevicesAssignedSubscriber
      * @since 2.1.0
      * @instance
@@ -7745,6 +8029,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXInfoAllRegisteredSIPdevicesSubscriber
      * @since 2.1.0
      * @instance
@@ -7792,6 +8077,7 @@ class AdminService extends GenericService {
      
     /**
      * @public
+     * @nodered true
      * @method assignCloudPBXSIPDeviceToSubscriber
      * @since 2.1.0
      * @instance
@@ -7841,6 +8127,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXSubscriberCLIOptions
      * @since 2.1.0
      * @instance
@@ -7892,6 +8179,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCloudPBXUnassignedInternalPhonenumbers
      * @since 2.1.0
      * @instance
@@ -7932,6 +8220,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method listCloudPBXDDINumbersAssociated
      * @since 2.1.0
      * @instance
@@ -7982,6 +8271,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8029,6 +8319,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8077,6 +8368,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method associateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8132,6 +8424,7 @@ class AdminService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method disassociateCloudPBXDDINumber
      * @since 2.1.0
      * @instance
@@ -8186,6 +8479,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method setCloudPBXDDIAsdefault
      * @since 2.1.0
      * @instance
@@ -8237,6 +8531,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrieveExternalSIPTrunkById
      * @since 2.1.0
      * @instance
@@ -8277,6 +8572,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method retrievelistExternalSIPTrunks
      * @since 2.1.0
      * @instance
@@ -8323,6 +8619,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createASite
      * @since 2.1.1
      * @instance
@@ -8373,6 +8670,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSite
      * @since 2.1.1
      * @instance
@@ -8412,6 +8710,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSiteData
      * @since 2.1.1
      * @instance
@@ -8451,6 +8750,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSites
      * @since 2.1.1
      * @instance
@@ -8498,6 +8798,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSite
      * @since 2.1.1
      * @instance
@@ -8546,6 +8847,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createSystem
      * @since 2.20.0
      * @instance
@@ -8675,6 +8977,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSystem
      * @since 2.20.0
      * @instance
@@ -8731,6 +9034,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemConnectionState
      * @since 2.20.0
      * @instance
@@ -8799,6 +9103,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemDataByPbxId
      * @since 2.20.0
      * @instance
@@ -8885,6 +9190,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSystemData
      * @since 2.20.0
      * @instance
@@ -8971,6 +9277,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSystems
      * @since 2.20.0
      * @instance
@@ -9082,6 +9389,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListOfCountriesAllowedForSystems
      * @since 2.20.0
      * @instance
@@ -9118,6 +9426,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSystem
      * @since 2.20.0
      * @instance
@@ -9399,6 +9708,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -9481,6 +9791,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSystemPhoneNumbers
      * @since 2.20.0
      * @instance
@@ -9567,6 +9878,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateASystemPhoneNumber
      * @since 2.20.0
      * @instance
@@ -9662,7 +9974,7 @@ class AdminService extends GenericService {
         });
     }
 
-    // region systems phone numbers    
+    //endregion systems phone numbers    
 
     //endregion systems
     
@@ -9671,6 +9983,7 @@ class AdminService extends GenericService {
     //region directory
     /**
      * @public
+     * @nodered true
      * @method createDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -9763,6 +10076,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteCompanyDirectoryAllEntry
      * @since 2.2.0
      * @instance
@@ -9802,6 +10116,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -9841,6 +10156,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.2.0
      * @instance
@@ -9886,6 +10202,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListDirectoryEntriesData
      * @since 2.2.0
      * @instance
@@ -9951,23 +10268,23 @@ class AdminService extends GenericService {
      * | companyId optionnel | string | Id of the company |
      * | userId optionnel | string | Id of the user |
      * | type | string | Type of the directory entry</BR>* `user` if firstName and/or lastName are filled,</BR>* `company` if only companyName is filled (firstName and lastName empty)</BR>Possible values : `user`, `company` |
-     * | firstName optionnel | string | Contact First name</BR>Ordre de grandeur : `0..255` |
-     * | lastName optionnel | string | Contact Last name</BR>Ordre de grandeur : `0..255` |
-     * | companyName optionnel | string | Company Name of the contact</BR>Ordre de grandeur : `0..255` |
-     * | department optionnel | string | Contact address: Department</BR>Ordre de grandeur : `0..255` |
-     * | street optionnel | string | Contact address: Street</BR>Ordre de grandeur : `0..255` |
-     * | city optionnel | string | Contact address: City</BR>Ordre de grandeur : `0..255` |
+     * | firstName optionnel | string | Contact First name |
+     * | lastName optionnel | string | Contact Last name |
+     * | companyName optionnel | string | Company Name of the contact |
+     * | department optionnel | string | Contact address: Department |
+     * | street optionnel | string | Contact address: Street |
+     * | city optionnel | string | Contact address: City |
      * | state optionnel | string | When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY" |
-     * | postalCode optionnel | string | Contact address: postal code / ZIP</BR>Ordre de grandeur : `0..64` |
+     * | postalCode optionnel | string | Contact address: postal code / ZIP |
      * | country optionnel | string | Contact address: country (ISO 3166-1 alpha3 format) |
-     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format)</BR>Ordre de grandeur : `0..32` |
-     * | jobTitle optionnel | string | Contact Job title</BR>Ordre de grandeur : `0..255` |
-     * | eMail optionnel | string | Contact Email address</BR>Ordre de grandeur : `0..255` |
-     * | tags optionnel | string\[\] | An Array of free tags</BR>Ordre de grandeur : `1..64` |
-     * | custom1 optionnel | string | Custom field 1</BR>Ordre de grandeur : `0..255` |
-     * | custom2 optionnel | string | Custom field 2</BR>Ordre de grandeur : `0..255` |
+     * | workPhoneNumbers optionnel | string\[\] | Work phone numbers (E164 format) |
+     * | mobilePhoneNumbers optionnel | string\[\] | Mobile phone numbers (E164 format) |
+     * | otherPhoneNumbers optionnel | string\[\] | other phone numbers (E164 format) |
+     * | jobTitle optionnel | string | Contact Job title |
+     * | eMail optionnel | string | Contact Email address |
+     * | tags optionnel | string\[\] | An Array of free tags |
+     * | custom1 optionnel | string | Custom field 1 |
+     * | custom2 optionnel | string | Custom field 2 |
      * 
      * 
      */
@@ -10010,6 +10327,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -10277,6 +10595,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method exportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -10314,6 +10633,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method ImportDirectoryCsvFile
      * @since 2.2.0
      * @instance
@@ -10367,6 +10687,7 @@ class AdminService extends GenericService {
     //region directory tags
     /**
      * @public
+     * @nodered true
      * @method getAllTagsAssignedToDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10401,6 +10722,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeTagFromAllDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10438,6 +10760,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method renameTagForAllAssignedDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10481,6 +10804,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getStatsRegardingTagsOfDirectoryEntries
      * @since 2.2.0
      * @instance
@@ -10521,6 +10845,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createAClientVersion
      * @since 2.5.0
      * @instance
@@ -10572,6 +10897,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAClientVersion
      * @since 2.5.0
      * @instance
@@ -10608,6 +10934,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAClientVersionData
      * @since 2.5.0
      * @instance
@@ -10643,6 +10970,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllClientsVersions
      * @since 2.5.0
      * @instance
@@ -10683,6 +11011,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateAClientVersion
      * @since 2.5.0
      * @instance
@@ -10724,6 +11053,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getListOfCountries
      * @since 2.21.0
      * @instance
@@ -10773,6 +11103,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteTrustedApplication
      * @since 2.22.4
      * @instance
@@ -10812,6 +11143,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteAllTrustedApplications
      * @since 2.22.4
      * @instance
@@ -10851,6 +11183,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method disableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -10890,6 +11223,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method enableMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -10924,6 +11258,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -10966,6 +11301,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method verifyMultifactorInformation
      * @since 2.22.4
      * @instance
@@ -11007,6 +11343,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method resetRecoveryCodeForMultifactorAuthentication
      * @since 2.22.4
      * @instance
@@ -11046,6 +11383,1487 @@ class AdminService extends GenericService {
     }
 
     //endregion multifactor rainbow authentication
+
+    //region Customer Care
+
+    //region Customer Care - Administrators Group
+
+    /**
+     * @public
+     * @method getCustomerCareAdministratorsGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
+     * @return {Promise<any>} - result
+     *
+     * Result sample : </br> 
+     * { </br>
+     * [ { </br>
+     * "userId": "57347ea14a0327064fcb93fd", </br>
+     * "loginEmail": "alice.beneth@al-enterprise.com" </br>
+     * }, </br>
+     * { </br>
+     * "userId": "57347ea14a0327064fcb93fd", </br>
+     * "loginEmail": "bob.smith@al-enterprise.com" </br>
+     * } ] </br>
+     * }  </br>
+     */
+    getCustomerCareAdministratorsGroup() {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getCustomerCareAdministratorsGroup().then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method addAdministratorToGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId Superadmin or Support unique identifier. Default value is the connected user.
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows Add one administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
+     * @return {Promise<any>} - result
+     *
+     * 
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | userId | String | User unique identifier |
+     * | loginEmail | String | User email address (used for login) |
+     * 
+     */
+    addAdministratorToGroup(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.addAdministratorToGroup(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(addAdministratorToGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(addAdministratorToGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(addAdministratorToGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(addAdministratorToGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(addAdministratorToGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method removeAdministratorFromGroup
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId Superadmin or Support unique identifier
+     * @category Customer Care - Administrators Group
+     * @description
+     *     This API allows to remove one administrator from the group. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     */
+    removeAdministratorFromGroup(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.removeAdministratorFromGroup(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(removeAdministratorFromGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Administrators Group
+
+    //region Customer Care - Logs
+
+    /**
+     * @public
+     * @method getIssue
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} logId Logs context unique identifier
+     * @category Customer Care - Logs
+     * @description
+     *     This API allows to retrieve a given issue. </BR>
+     *     The logged in user must have administration rights on the company to which belong the user who created the issue. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     *
+     */
+    getIssue(logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getIssue(logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getIssue) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getIssue) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getIssue) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getIssue) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getIssue) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getListOfIssues
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Logs
+     * @param {number} limit Allow to specify the number of issues to retrieve. Default value : 100
+     * @param {number} offset Allow to specify the position of first issue to retrieve (first issue if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {String} sortField Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
+     * @param {number} sortOrder Specify sort order when sorting issues list. Default value : -1. Possibles values : -1, 1.
+     * @param {String} companyId Allows to filter issues list on the companyId(s) provided in this option. companyId parameter is optional: if companyId is not provided, all the issues created by users belonging to companies that the administrator manage are returned. If provided, the logged in user must have administration rights on the requested companyId(s).
+     * @param {String} bpId Allows to filter issues list on all the companyId(s) being linked to the BP company provided in this option. </br>
+     * For the case of BP companies with bpType= VAD, the query parameter customerCategory allows to specify the kind of companies for which the issues are requested (see more details in the doc of customerCategory parameter). </br>
+     * The list of returned issues depends on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *      *issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br> 
+     * * if bpId corresponds to a BP company with type=IR (customerCategory shouldn't be used), the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC).  </br>
+     * * if bpId corresponds to a BP company with type=DR (customerCategory shouldn't be used), the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC).  </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *   * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC).  </br>
+     * * if bpId corresponds to a BP company with bpType=IR, the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br> 
+     * * if bpId corresponds to a BP company with bpType=DR, the API will return: </br>
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP DR --> EC). </br>
+     *    </br>
+     * Only one BP's companyId can be provided in this filter. </br>
+     * If the companyIs set in the field bpId does not correspond to a BP company, no issues will match. </br>
+     * The filter companyId can be used additionally, for example to request the issues submitted by users belonging to the BP company as well. </br> 
+     * The user must have superadmin, support or bp_admin role to use this filter (not taken into account otherwise). </br> 
+     * If provided, the logged in user must have administration rights on the requested BP company. </br>
+     * @param {string} customerCategory Allows to specify the kind of companies associated to the requested bpId filter for which the list of issues is requested. </br>
+     * This query parameter is especially designed for the case of BP with bpType=VAD (to provide the flexibility on the list of issues returned depending on the client's needs). If the BP set in bpId don't have bpType=VAD, some values of customerCategory won't return any results (irs_only, ecs_of_irs_only and irs_with_ecs_of_irs_only should not be used if bpId correspond to a DR or an IR). </br>
+     * This query parameter is only taken into account if the bpId query parameter is also provided (not taken into account otherwise). </br>
+     * The logs will be returned depending on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
+     * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
+     * * if bpId corresponds to a BP company with type=IR, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to another BP company with type=IR). </br>
+     * * if bpId corresponds to a BP company with type=DR, the API will return: </br>
+     *   * if customerCategory=all: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC). </br>
+     *   * if customerCategory=ecs_only: </br>
+     *      * issues submitted by users belonging to any of the EC companies linked to this BP DR company (BP DR --> EC). </br>
+     *   * if customerCategory=irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     *   * if customerCategory=ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
+     *      * no results (a BP company with type=IR can't be linked to a BP company with type=DR). </br>
+     * </br>
+     * Default value : all. Possibles values : all, ecs_only, irs_only, ecs_of_irs_only, irs_with_ecs_of_irs_only </br>
+     * @param {string} name Allows to filter issues on the name provided in this option (filter on associated user's displayName and company's name). </br>
+     * The filtering is case insensitive and on partial name match: all issues having the user's displayName or the company's name containing the provided name value will be returned (whatever the position of the match). </br>
+     * Ex: if filtering is done on Phil, issues created by users or companies match the filter: 'Philip Smith' (user displayName), 'John Philip' (user displayName), 'Philip Morris' (company name), 'This company name is Philips' (company name), ... </br>
+     * @param {string} version Allows to filter issues list on the version(s) provided in this option. </br>
+     * The filtering is case insensitive and on partial version match. Ex: if filtering is done on 1.112, all issues with the version starting by 1.112 match the filter: '1.112' (exact match), '1.112.2', '1.112.3', '1.1121', ... </br>
+     * @param {string} device Allows to filter issues list on the device(s) provided in this option. </br> 
+     * Note: room corresponds to Rainbow Room </br>
+     * Default value : android,desktop,ios,room,web
+     * @param {string} fromCreationDate List issues which have been created after the given date (uses creationDate field).
+     * @param {string} toCreationDate List issues which have been created before the given date (uses creationDate field).
+     * @param {string} fromOccurrenceDate List issues which occurred after the given date (uses occurrenceDate field).
+     * @param {string} toOccurrenceDate List issues which occurred before the given date (uses occurrenceDate field).
+     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * * small: id userId companyId device description </br>
+     * * medium: id userId companyId device version description creationDate </br>
+     * * full: All fields </br>
+     * </br>
+     * Default value : small. Possibles values : small, medium, full </br>
+     * @description
+     *     This API allows to retrieve the list of issues. </BR>
+     *     The list of issues (logs contexts) that a user can retrieve depends on its roles: </BR>
+     *     * Users with `superadmin` or `support` role can retrieve all the issues. </br>
+     *     * Users with `bp_admin` role can retrieve all the issues created by users belonging to their EC companies and to their company. </br>
+     *     * In the case of BP with type VAD, they can retrieve all the issues created by users belonging to all the EC companies linked directly to the BP VAD and all the EC companies linked to their BP IR companies. </br>
+     *     * Users with `admin` role retrieve the issues created by users belonging to the companies they can manage: </br>
+     *      * an `organization_admin` gets all the issues created by users belonging to all the companies he manages (i.e. companies having organisationId equal to his organisationId) </br>
+     *      * a `company_admin` gets all the issues created by users belonging to his company </br>
+     *       </BR>
+     *      This API provides some query parameters allowing to filter the list of issues depending on the needs: </BR>
+     *      * `companyId` filter allows to retrieve only the issues created by users of a given company </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * 
+     */
+    getListOfIssues(limit : number = 100, offset : number = 0, sortField : string = "creationDate",
+                    sortOrder : number = -1, companyId : string, bpId : string, customerCategory : string = "all", name : string,
+                    version : string, device : string, fromCreationDate : string, toCreationDate : string,
+                    fromOccurrenceDate : string, toOccurrenceDate : string, format : string = "small") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfIssues(limit, offset, sortField, sortOrder, companyId, bpId, customerCategory, name,
+                        version, device, fromCreationDate, toCreationDate, fromOccurrenceDate, toOccurrenceDate, format).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfIssues) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfIssues) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfIssues) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfIssues) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfIssues) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+
+    //endregion Customer Care - Logs
+
+    //region Customer Care - Users Logs
+
+    /**
+     * @public
+     * @method getListOfIssuesForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * * small: id userId companyId device description </br>
+     * * medium: id userId companyId device version description creationDate </br>
+     * * full: All fields </br>
+     * Default value : small. Possibles values : small, medium, full
+     * @category Customer Care - Users Logs
+     * @description
+     *     This API allows to consult the list of issues associated to a user or a Rainbow Room. </BR>
+     *     So that, as administrator (BP, Organisation, Company), support, superadmin, it is then possible to start issue resolution process with Rainbow Customer Care team. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     *
+     */
+    getListOfIssuesForUser(userId : string, format : string = "small") {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfIssuesForUser(userId, format).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfIssuesForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfIssuesForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfIssuesForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getIssueForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @category Customer Care - Users Logs
+     * @description
+     *     This API allows to consult one issue associated to a user or a Rainbow Room. </BR>
+     *     So that, as administrator (BP, Organisation, Company), support, superadmin, it is then possible to start issue resolution process with Rainbow Customer Care team. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
+     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
+     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     *
+     */
+    getIssueForUser(userId : string, logId : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getIssueForUser(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getIssueForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getIssueForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getIssueForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getIssueForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getIssueForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method initiateLogsContext
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string}  occurrenceDate  Date when the issue occurred. If not provided, occurrenceDate is set by default to the issue's creation date.
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in IANA tz database. </BR>
+     * Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...) </BR>
+     *  </BR>
+     * If not provided, occurrenceDateTimezone is set to the user's timezone if available, to "UTC" otherwise. </BR>
+     * @param {string} type Initial scenario </BR>
+     * * `feedback`: The customer submits an issue. `userId` parameter must be the logged in user Id in this case. </BR>
+     * * `ask`: A bot or an admin has contacted a customer to complete an issue </BR>
+     * </BR>
+     * Possibles values : `feedback`, `ask` </BR>
+     * @param {string} description Issue description
+     * @param {string} resourceId Mandatory when type is ask, this is the resource of the device from which we need to get logs (in case of multi-devices configuration)
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {Array<string>} attachments An Array of file descriptor Id. </BR>
+     * Forbidden when type is ask </BR>
+     * Mandatory with at least one valid fileId when type is feedback When the logs context is created, the logged in user looses his ownership for theses files. </BR>
+     * @param {string} version Device version  
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred </BR>
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred </BR>
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred </BR>
+     * * model optionnel String When relevant, model of the device on which the issue occurred </BR>
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred </BR>
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred </BR>
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred </BR>
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred </BR>
+     * * name optionnel String When relevant, name of the browser on which the issue occurred </BR>
+     * * version optionnel String When relevant, name of the browser on which the issue occurred </BR>
+     * @description
+     *     This API allows to Initialise a context to submit logs. This logs context may contains all fields necessary to finally build a ticket to submit an issue. </BR>
+     * </BR>
+     * * userId </BR>
+     * * companyId </BR>
+     * * device </BR>
+     * * version </BR>
+     * * occurrenceDate </BR>
+     * * occurrenceDateTimezone </BR>
+     * * description </BR>
+     * * attachments </BR>
+     * </BR>
+     *  When type is `feedback`, some files **>may**\> be attached but are not mandatory. Inconsistencies may lead to an error (errorDetailsCode: 409003 / Attachments inconsistency) </BR>
+     *   </BR>
+     * * file doesn't exist </BR>
+     * * file not uploaded </BR>
+     * * file doesn't belong to the userId </BR>
+     * * file is not a log file (the file descriptor must include the field 'tags.purpose' = "logs" or 'tags.purpose' = "client_logs" </BR>
+     * </BR>
+     *  When type is `ask`, resourceId field is mandatory. So that the customercare portal is able to send a Stanza/Message to the right user's device to get his agreement to receive his logs. </BR>
+     *  For the case 'As Admin, ask to manage a user', the administrator must use the `getListOfResourcesForUser` API </BR>
+     *  to select the right resource. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
+                        description : string, resourceId : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.initiateLogsContext(userId, occurrenceDate, occurrenceDateTimezone, type,
+                        description, resourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(initiateLogsContext) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(initiateLogsContext) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(initiateLogsContext) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(initiateLogsContext) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(initiateLogsContext) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method completeLogsContext
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @param {string} occurrenceDate Date when the issue occurred (ISO-8601 UTC format).
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones). </BR>
+     * Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) </BR>
+     * @param {string} description Issue description
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {Array<string>} attachments An Array of file descriptor Id.
+     * * Forbidden when type is `feedback`. All attachments are awaited during the logs context creation in thi scenario.
+     * * Mandatory with at least one valid fileId when type is `feedback` and logged in user is a user or a Rainbow room (TV user) When the logs context is updated with some valid attachments, the logged in user looses his ownership for theses files.
+     * @param {string} version Device version
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
+     * * name optionnel String When relevant, name of the browser on which the issue occurred
+     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @description
+     *     This API allows to completethe logs context. </BR>
+     *     When an Admin or Emily bot ask to manage a user, this user must complete the logs context with all awaited data. </BR>
+     * </BR>
+     * * device </BR>
+     * * version </BR>
+     * * description </BR>
+     * * attachments </BR>
+     * </BR>
+     * We let administrators to update some logs context fields at anytime, like: </BR>
+     * </BR>
+     * * device </BR>
+     * * version </BR>
+     * * description </BR>
+     * * externalRef </BR>
+     * </BR>
+     * To discriminate the user and TV role from the administrator role we applies the following rules: </BR>
+     * </BR>
+     * * TV role is a single role then assimilated to a Rainbow user, we ask to complete an 'ask' log context. </BR>
+     * * When userId URL parameter is the logged in user id, then this user he is also assimilated to a Rainbow user we ask to complete an 'ask' log context. </BR>
+     * * When userId URL parameter is not the logged in user id, then we consider an administrator or a bot trying to update a logs context. </BR>
+     * </BR>
+     * Following constraints are applied (errorDetailsCode: 409004) </BR>
+     * </BR>
+     * * The logs context 'userId' field must match the value given as URL parameter </BR>
+     * * A user or a rainbow TV can't updates a logs contexts when 'userId' field is not his userId and when the logs context type is 'feedback' </BR>
+     * * Attachments are mandatory when a user or a rainbow TV updates a logs context, and no attachments are linked yet </BR>
+     * * Can't override 'attachments' field when logs context has already some attached files </BR>
+     * * An administrator updating a logs context can't set 'attachments' field </BR>
+     * * A user or a rainbow TV updating a logs context can't change the field externalRef reserved for administrators purpose. </BR>
+     * </BR>
+     * Obviously when some files need to be attached, some constraints may lead to an error (errorDetailsCode: 409003) </BR>
+     * </BR>
+     * * file doesn't exist </BR>
+     * * file not uploaded </BR>
+     * * file doesn't belong to the userId </BR>
+     * * file is not a log file (the file descriptor must include the field 'tags.purpose' = "logs" or 'tags.purpose' = "client_logs" </BR>
+     * * permission must be granted before attaching files. See `acknowledgeLogsRequest` </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * exemple of result :
+     * { 
+     * "id": "5e5f677a513f6721706bddeb", 
+     * "type": "feedback", 
+     * "permission": "granted", 
+     * "userId": "5cca97863cba1119f22f062f", 
+     * "userDisplayName": "John Doe", 
+     * "companyId": "57e2b30c89a091b21e843924", 
+     * "companyName": "My company", 
+     * "problemNumber": 2, 
+     * "creationDate": "2020-03-04T08:31:54.426Z", 
+     * "occurrenceDate": "2020-03-04T08:15:00.000Z", 
+     * "occurrenceDateTimezone": "Europe/Paris", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "device": "android", 
+     * "version": "1.67.5", 
+     * "deviceDetails": { 
+     *  "hardware": { 
+     *      "manufacturer": "Samsung", 
+     *      "model": "Galaxy S21" 
+     *  }, 
+     *  "os": { 
+     *      "name": "Android", 
+     *      "version": "11" 
+     *  } 
+     * }, 
+     * "attachments": \["5e5fecb299821728abb63e6d"\] 
+     * } 
+     *
+     */
+    completeLogsContext(userId : string, logId : string, occurrenceDate : string, occurrenceDateTimezone : string,
+                        description : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.completeLogsContext(userId, logId, occurrenceDate, occurrenceDateTimezone,
+                        description, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(completeLogsContext) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(completeLogsContext) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(completeLogsContext) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(completeLogsContext) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(completeLogsContext) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method cancelOrCloseLogsSubmission
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. 
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     This API can be called either as administrator (BP, Organisation, Company), support, superadmin to close a log submission. </BR>
+     *     It can be called also by Emily bot after the User or Rainbow room decides to cancel the Ticket submission. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     */
+    cancelOrCloseLogsSubmission(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.cancelOrCloseLogsSubmission(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method acknowledgeLogsRequest
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an event type management. </BR>
+     *     </BR>
+     *     </BR>
+     *      `rainbow_onlogsconfig` with an action equal to "request".
+     *     </BR>
+     *     Then it will have to: </BR>
+     *     acknowledge or reject the request </BR>
+     *     </BR>
+     *     Without an aknowledgment, it's forbidden to update the given logs context. </BR>
+     *     When the request is accepted, it's no more possible to reject the request. </BR>
+     *     </BR>
+     *     Some errors occurs when: </BR>
+     *     Logs context not found (resource not found) </BR>
+     *     The logged in user is not involved in this logs context </BR>
+     *     </BR>
+     *     This API can only be used by user himself (i.e. userId of logged in user). </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    acknowledgeLogsRequest(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.acknowledgeLogsRequest(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(acknowledgeLogsRequest) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method rejectLogsRequest
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     When an Admin or Emily bot ask to manage a user, the targeted device receives an event type management. </BR>
+     *     </BR>
+     *     </BR>
+     *      `rainbow_onlogsconfig` with an action equal to "request".
+     * </BR>
+     * Then it will have to: </BR>
+     * * acknowledge or reject the request </BR>
+     * </BR>
+     * This API is to reject de request. An event type management `rainbow_onlogsconfig` with an action equal to "reject" is raised.
+     * </BR>
+     * Then it's up to the administrator or the bot to delete the logs context and to stop interacting with the user. </BR>
+     * Without an aknowledgment, it's forbidden to update the given logs context. </BR>
+     * </BR>
+     * Some errors occurs when: </BR>
+     * * Logs context not found (resource not found) </BR>
+     * * The logged in user is not involved in this logs context </BR>
+     * * `Permission already granted. It can no longer be revoked` </BR>
+     * </BR>
+     * This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL) </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    rejectLogsRequest(userId : string, logId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.rejectLogsRequest(userId, logId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(rejectLogsRequest) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(rejectLogsRequest) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(rejectLogsRequest) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(rejectLogsRequest) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(rejectLogsRequest) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method sendCustomerCareReport
+     * @since 2.24.1
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs
+     * @param {string} logId Logs context unique identifier (received with an `rainbow_onlogsconfig` event with a "request" `action` parameter).
+     * @param {Array<string>} filesPath the path to the files to store in the logs context.
+     * @param {string} occurrenceDate Date when the issue occurred (ISO-8601 UTC format).
+     * @param {string} occurrenceDateTimezone Timezone name when the issue occurred. </BR>
+     * Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones). </BR>
+     * Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) </BR>
+     * @param {string} description Issue description
+     * @param {string} externalRef Free field
+     * @param {string} device Device type </BR>
+     * Note: room corresponds to Rainbow Room </BR>
+     * Possibles values : android, desktop, ios, room, web </BR>
+     * @param {string} version Device version
+     * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
+     * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
+     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
+     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
+     * * name optionnel String When relevant, name of the browser on which the issue occurred
+     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * @param {string} typeOfLog is Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue
+     * @description
+     *     This API allows to store files in rainbow, and then to complete the logs context with it and provided informations. </BR>
+     *
+     *     **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
+     * @return {Promise<any>} - result
+     *  The result of the completeLogsContext call.
+     *  
+     *  **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
+     */
+    sendCustomerCareReport(logId : string, filesPath : Array<string> = [], occurrenceDate : string, occurrenceDateTimezone : string,
+                           description : string, externalRef : string, device : string, version : string, deviceDetails : any, typeOfLog : string = "feedback") {
+        let that = this;
+        let proms = [];
+        let attachments = [];
+        let fileFailed = [];
+
+        return new Promise(function (resolve, reject) {
+            try {
+                for (let i = 0; i < filesPath.length; i++) {
+                    let filePath = filesPath[i];
+                    that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
+                    that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
+
+                    proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, false, true));
+                }
+
+                Promise.allSettled(proms).then((resultsOfUpload: Array<any>) => {
+                    let success = true;
+                    for (let i = 0; i < resultsOfUpload.length; i++) {
+                        let resultOfUpload = resultsOfUpload[i];
+                        that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) resultOfUpload.");
+                        that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) resultOfUpload : ", resultOfUpload);
+                        success = (success && (resultOfUpload.status!=="rejected"));
+                        if (success) {
+                            if (resultOfUpload.value) {
+                                attachments.push(resultOfUpload.value.id);
+                            }
+                        } else {
+                            fileFailed.push({
+                                filePath: filesPath[i],
+                                reason: resultOfUpload.reason
+                            })
+                        }
+                    }
+
+                    if (success) {
+                        let ressourceId = undefined;
+                        that.initiateLogsContext(undefined, occurrenceDate, occurrenceDateTimezone, typeOfLog,
+                        //that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
+                                description, ressourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                            return resolve(result);
+                        }).catch((err) => {
+                            return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in initiateLogsContext", "Error in initiateLogsContext", err));
+                        })
+                    } else {
+                        return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", fileFailed));
+                    }
+
+                    /*switch (success) {
+                        "rejected":
+                            break;
+                        "fulfilled":
+                            break;
+                        default:
+                            break;
+                    } // */
+                }). catch ((err) => {
+                    that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                    that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                    return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in waiting all proms.", "Error in waiting all proms.", err));
+                });
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", err));
+            }
+        });
+    }
+
+    //endregion Customer Care - Users Logs
+
+    //region Customer Care - Users Logs Append
+
+    /**
+     * @public
+     * @method adminOrBotAddAdditionalFiles
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users Logs Append
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} logId Logs context unique identifier
+     * @description
+     *     This api can be called either as administrator (BP, Organisation, Company), support, superadmin or Emily bot to append additional elements ( pictures, screenshot, ... or conversation content). </BR>
+     *     </BR>
+     *     For example in the [Cf Case As Emily Bot, ask to manage a user](/customercare/#api-_) scenario, the Emily bot should be able to add elements shared by a customer via the conversation the bot did with him. </BR>
+     *     </BR>
+     *     **Pre-checks:** </BR>
+     *     the loggedInUser is the creator of the log context or an authorized administrator. </BR>
+     *     </BR>
+     *     **Case file to add:** two types of files are uploaded : file generated from conversation and file belonging to logged in user. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Logs context unique identifier. |
+     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | String | Unique identifier of the userId 's Company |
+     * | companyName | String | Name of the userId 's Company |
+     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | problemNumber | Number | Ticket number (integer incremented per company) |
+     * | creationDate | Date-Time | Logs context creation date |
+     * | occurrenceDate | Date-Time | Date when the issue occurred |
+     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | String | Issue description |
+     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | String | Free field |
+     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | String | Device version |
+     * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
+     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     *
+     */
+    adminOrBotAddAdditionalFiles(userId : string, logId : string, attachments : Array<string>, conversationId : string, fileName : string ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.adminOrBotAddAdditionalFiles(userId, logId, attachments, conversationId, fileName).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users Logs Append
+
+    //region Customer Care - Users resources
+
+    /**
+     * @public
+     * @method getListOfResourcesForUser
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users resources
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to have the list of resources a user selected to connect to Rainbow infrastructure. </BR>
+     So that, as administrator (Superadmin, Support, BP, Organisation, Company), I can ask a user to upload logs if he agree. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * {
+     * "jid_im": \[ 
+     * { 
+     * "resource": "web\_win\_1.67.2_P0EnyMvN", 
+     * "date": "2020-02-11T17:45:18.231395Z" 
+     * }, 
+     * { 
+     * "resource": "web\_win\_1.67.2_ajqyiThi", 
+     * "date": "2020-02-11T17:31:31.409537Z", 
+     * "show": "xa", "status": "away" 
+     * } \]
+     * }
+     *
+     */
+    getListOfResourcesForUser( userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getListOfResourcesForUser(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(getListOfResourcesForUser) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(getListOfResourcesForUser) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(getListOfResourcesForUser) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users resources
+
+    //region Customer Care - Users ticket
+
+    /**
+     * @public
+     * @method createAnAtriumTicket
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} subject Subject of the new ticket
+     * @param {string} description Description of the new ticket
+     * @param {string} additionalDescription Additional information if necessary
+     * @param {string} resource  resource used to generate anomaly
+     * @param {string} externalRef external reference used  
+     * @param {Array<string>} logs An Array of log Id regarding the anomaly.
+     * @description
+     *     This API allows to Initialise a context from logs to submit a ticket to Zendesk. </BR> 
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.createAnAtriumTicket(userId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(createAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(createAnAtriumTicket) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(createAnAtriumTicket) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(createAnAtriumTicket) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(createAnAtriumTicket) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateAnAtriumTicket
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @param {string} ticketId ticketId Ticket unique identifier
+     * @param {string} subject Subject of the new ticket
+     * @param {string} description Description of the new ticket
+     * @param {string} additionalDescription Additional information if necessary
+     * @param {string} resource  resource used to generate anomaly
+     * @param {string} externalRef external reference used
+     * @param {Array<string>} logs An Array of log Id regarding the anomaly.
+     * @description
+     *     This API allows to update a context from logs to submit a ticket to Zendesk. </BR>
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     * 
+     */
+    updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.updateAnAtriumTicket(userId, ticketId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(updateAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(updateAnAtriumTicket) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(updateAnAtriumTicket) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAnAtriumTicketInformation
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier.
+     * @param {string} ticketId ticketId Ticket unique identifier
+     * @description
+     *     This API allows to delete an existing context in database from a submitted ticket to Zendesk. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteAnAtriumTicketInformation(userId, ticketId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method readAnAtriumTicketInformation
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to read a context from a submitted ticket to Zendesk. </BR>
+     *     This context may contains </BR>
+     * * externalRef </BR>
+     * * subject </BR>
+     * * description </BR>
+     * * additional description </BR>
+     * * resource </BR>
+     * * logs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Hello Houston, we've got a problem.", 
+     * "additionalDescription": "my phone neither", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\]
+     * }
+     *
+     */
+    readAnAtriumTicketInformation( userId : string, ticketId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.readAnAtriumTicketInformation(userId, ticketId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(readAnAtriumTicketInformation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method readAllTicketsOnASameCompany
+     * @since 2.24.0
+     * @instance
+     * @async
+     * @category Customer Care - Users ticket
+     * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
+     * @description
+     *     This API allows to read all context regarding submitted tickets to Zendesk in the same company . The company is calculated with userId information found in DB. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * example of result :
+     * \[ 
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "ringing problem", 
+     * "description": "Where is the volume button of my iphone?", 
+     * "additionalDescription": "Where is my rainbow icon on my mac? ", 
+     * "resource": "web\_win\_xxxxx", 
+     * "logs": \[\] 
+     * }, 
+     * { 
+     * "externalRef": "xxxxxxx", 
+     * "internalRef": "xxxxxxx", 
+     * "subject": "Screen problem", 
+     * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.", 
+     * "resource": "web\_win\_xxxxx" 
+     * }
+     * \]
+     *
+     */
+    readAllTicketsOnASameCompany(userId : string) {
+        let that = this;
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.readAllTicketsOnASameCompany(userId).then((result) => {
+                    that._logger.log("debug", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent. ");
+                    that._logger.log("internal", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error.");
+                that._logger.log("internalerror", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Customer Care - Users ticket
+    
+    //endregion Customer Care
     }
 
 // module.exports.AdminService = AdminService;

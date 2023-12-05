@@ -40,7 +40,7 @@ class FavoritesService extends GenericService{
     static getClassName(){ return 'FavoritesService'; }
     getClassName(){ return FavoritesService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -60,18 +60,21 @@ class FavoritesService extends GenericService{
         this._useS2S = false;
         this._logger = logger;
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
         this._eventEmitter.on("evt_internal_favoriteupdated_handle", this.onFavoriteUpdated.bind(this));
         this._eventEmitter.on("evt_internal_favoritedeleted_handle", this.onFavoriteDeleted.bind(this));
     }
 
 
-    public async start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    public async start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
-        that._xmpp = _core._xmpp;
-        that._rest = _core._rest;
+        that.initStartDate();
+        that._xmpp = that._core._xmpp;
+        that._rest = that._core._rest;
         that._options = _options;
-        that._s2s = _core._s2s;
+        that._s2s = that._core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
         this._favoriteHandlerToken = [];
@@ -121,9 +124,12 @@ class FavoritesService extends GenericService{
     public async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that.getServerFavorites().catch();
+            await that.getServerFavorites().then(()=> {
+                that.setInitialized();
+            }).catch(()=>{
+                that.setInitialized();
+            });
         }
-        that.setInitialized();
 
         /*await setTimeoutPromised(3000).then(() => {
             let startDate = new Date();
@@ -309,6 +315,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.56
      * @method createFavorite()
      * @category Favorites MANAGEMENT
@@ -358,6 +365,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method deleteFavorite()
      * @category Favorites MANAGEMENT
      * @instance
@@ -392,6 +400,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFavorite
      * @category Favorites GET
      * @instance
@@ -410,6 +419,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 1.56
+     * @nodered true
      * @method fetchAllFavorites
      * @category Favorites GET
      * @instance
@@ -439,6 +449,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method checkIsPeerSettedAsFavorite
      * @category Favorites GET
      * @instance
@@ -475,6 +486,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method getFavoriteById
      * @category Favorites GET
      * @instance
@@ -513,6 +525,7 @@ class FavoritesService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method getAllUserFavoriteList
      * @category Favorites GET
@@ -555,6 +568,7 @@ class FavoritesService extends GenericService{
     /**
      * @public
      * @since 2.21.0
+     * @nodered true
      * @method moveFavoriteToPosition
      * @category Favorites GET
      * @instance
@@ -644,11 +658,13 @@ class FavoritesService extends GenericService{
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
             favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
-            this.favorites.push(favorite);
-            //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
-            //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
+            if (favorite) {
+                this.favorites.push(favorite);
+                //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
+                //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
 
-            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+                that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            }
         }
     }
 
@@ -657,8 +673,10 @@ class FavoritesService extends GenericService{
         let favorite: Favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === fav.peerId; });
         if (!favorite) {
             favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
-            this.favorites.push(favorite);
-            that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            if (favorite) {
+                this.favorites.push(favorite);
+                that._eventEmitter.emit("evt_internal_favoritecreated", favorite);
+            }
         } else {
             favorite.id = fav.id;
             favorite.peerId = fav.peerId;

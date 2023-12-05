@@ -51,6 +51,16 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
+    "testOutdatedVersion": false,
+    "testDNSentry": false,
+    "httpoverxmppserver": false,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
+    "requestsRate": {
+        "useRequestRateLimiter": false,
+        "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+    },
     // IM options
     "im": {
         "sendReadReceipt": false,
@@ -197,7 +207,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
             let product = {};
             if (!changeLog) {
-                changeLog = "./CHANGELOG.md";
+                changeLog = "./guide/CHANGELOG.md";
                 logger.log("debug", "Set CHANGELOG file path to default one : ", changeLog);
             } else {
                 logger.log("debug", "CHANGELOG file path is externaly setted : ", changeLog);
@@ -235,12 +245,22 @@ rainbowSDK.start(undefined).then(async(result) => {
                     }
 
                     if (markdownElt[0] === "header" && markdownElt[1].level === 2) {
+                        return false;
+                    }
+
+                    if (markdownElt[0] === "header" && markdownElt[1].level === 3) {
                         // A version
                         version = markdownElt[2][2];
                         if (version.startsWith(minVersion)) {
                             return true;
                         } else {
                             version = null;
+                        }
+                    }
+
+                    if (markdownElt[0] === "header" && markdownElt[1].level === 4) {
+                        if (version) {
+                            return true;
                         }
                     }
 
@@ -257,7 +277,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 logger.log("debug", "html : ", html);
 
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null).then(async (res ) => {
+                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:["node"]}).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
                     if (res.publishResult && res.publishResult.data && res.publishResult.data[0]) {
                         await rainbowSDK.channels.likeItem(mychannel, res.publishResult.data[0].id, RainbowSDK.Appreciation.Fantastic).catch((err1) => {

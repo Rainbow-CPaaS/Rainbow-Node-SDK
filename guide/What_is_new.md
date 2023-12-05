@@ -6,7 +6,16 @@ Welcome to the new release of the Rainbow SDK for Node.JS.
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 Some of the key highlights include:
 
-### SDK for Node.JS 2.24.0 - STS Version - June 2023
+### SDK for Node.JS 2.24.0 - STS Version - August 2023
+
+---
+
+**3-Delivery Release SDK Breaking Changes**
+
+-   Warning: From version STS 2.24.0 this file will not be updated any more, because all the informations are now in the changelog file.
+
+
+### SDK for Node.JS 2.23.0 - STS Version - July 2023
 
 ---
 
@@ -22,34 +31,23 @@ Consequently, you need to update your Node.js version to 14.x in order to use th
 
 **API Changes**
 
--   None. 
+-   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
 
 **Others Changes**
 
--   None 
-
-
-### SDK for Node.JS 2.23.0 - STS Version - May 2023
-
----
-
-**3-Release SDK Breaking Changes**
-
--   Warning: The LTS active version of Node.js migrated to version 14.x. This version of SDK Node.js is only compliant with this LTS version up to 14.x.
-Consequently, you need to update your Node.js version to 14.x in order to use this release of the SDK Node.js.
-
-
-**API Breaking Changes**
-
--   None    
-
-**API Changes**
-
--    Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
-
-**Others Changes**
-
--   None 
+-   Update `AdminService::getAllUsersByFilter` with phonenumbers and phonenumber filters. 
+-   Add treatment of Http Status Code 429 while occurs.
+-   Add random delay (between 1 and 5000ms) to delay provided in headers RetryAfter on Http Status Code 429.
+-   Add `ContactsService::getContactIdByLoginEmail` to retrieve the Id of a contact by its email. 
+-   Add ability to log the call of API methods and parameters sent to it. It is an API module scoped feature. It is the `logEntryParameters` property in each services of the servicesToStart start options of the SDK.
+-   Add `ChannelsService::updateChannelUsersByLoginEmails` to Update a collection of channel users by loginEmail
+-   Add `ChannelsService::addOwnersToChannelByLoginEmails` to Add a list of owners to the channel by loginEmail
+-   Add `ChannelsService::addPublishersToChannelByLoginEmails` to Add a list of publishers to the channel by loginEmail
+-   Add `ChannelsService::addMembersToChannelByLoginEmails` to Add a list of members to the channel by loginEmail
+-   Add `ChannelsService::deleteUsersFromChannelByLoginEmails` to Remove a list of users from a channel by loginEmail
+-   Add log in `Conversation` class object.
+-   Fix the update of `Conversation.Messages` when _onReceipt event received.
+-   Fix `Message::alternativeContent` in pending Message sent.
 
 
 ### SDK for Node.JS 2.22.0 - STS Version - May 2023

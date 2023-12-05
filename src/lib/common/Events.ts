@@ -26,7 +26,7 @@ class Emitter extends EventEmitter {
     emit(type, ...args): boolean {
         let that = this;
         try {
-        that._logger.log("debug", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        that._logger.log("info", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
         } catch (e) {
             that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
         }
@@ -39,7 +39,7 @@ class Emitter extends EventEmitter {
         let that = this;
         let listenerWithLog = (...args: any[]) => {
             try {
-                that._logger.log("debug", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
+                that._logger.log("info", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
                 let iter = 0;
                 [...params] = args;
                 let data = "";
@@ -180,6 +180,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onrbvoicerawevent <br>
  * @fires Events#rainbow_onjoincompanyinvitereceived <br>
  * @fires Events#rainbow_onjoincompanyrequestreceived <br>
+ * @fires Events#rainbow_onlogsconfig <br>
 */
 class Events {
     get logEmitter(): EventEmitter {
@@ -292,7 +293,8 @@ class Events {
         "rainbow_onconnectorimportstatus",
         "rainbow_onrbvoicerawevent",
         "rainbow_onjoincompanyinvitereceived",
-        "rainbow_onjoincompanyrequestreceived"
+        "rainbow_onjoincompanyrequestreceived",
+        "rainbow_onlogsconfig"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1507,6 +1509,17 @@ class Events {
             that.publishEvent("joincompanyrequestreceived", data);
         });
 
+        this._evReceiver.on("evt_internal_logsconfig", function (data) {
+            /**
+             * @event Events#rainbow_onlogsconfig
+             * @public
+             * @param { Object } data informations about logs config
+             * @description
+             *      This event is fired when a logs config is received.
+             */
+            that.publishEvent("logsconfig", data);
+        });
+
     }
 
     get iee(): EventEmitter {
@@ -1616,7 +1629,7 @@ class Events {
          * @public
          * @param { Object } status The event status
          * @description
-         *      Fired when the SDK has successfully started (not yet signed in)
+         *      Fired when the SDK has successfully started (the object is contructed, but the bot is not yet signed in, and the SDK's APIs are not ready to be used.)
          */
 
         /**
@@ -1632,7 +1645,7 @@ class Events {
          * @public
          * @param { Object } status The event status
          * @description
-         *      Fired when the connection is successfull with Rainbow (signin complete)
+         *      Fired when the connection is successfull with Rainbow XMPP server (signin complete, but data for initialisation not yet retrieved)
          */
 
         /**
@@ -1668,19 +1681,19 @@ class Events {
          */
 
         /**
-         * @event Events#rainbow_onready
-         * @public
-         * @param { Object } status The event status
-         * @description
-         *      Fired when the SDK is connected to Rainbow and ready to be used
-         */
-
-        /**
          * @event Events#rainbow_onerror
          * @public
          * @param {Object} error The error received
          * @description
-         *      Fired when something goes wrong (ie: bad 'configurations' parameter...). Used by application to stop, start the sdk again.
+         *      Fired when something goes fatal on Xmpp server (ie: bad 'configurations' parameter...). Used by application to start the sdk again.
+         */
+
+        /**
+         * @event Events#rainbow_onready
+         * @public
+         * @param { Object } status The event status
+         * @description
+         *      Fired when the SDK is connected to Rainbow and ready to be used. It is this event which allows application to start the use of SDK's APIs.
          */
 
         //this._logger.log("info", LOG_ID + "(publish) event " + this._logger.colors.events("rainbow_on" + event) + " : ", info);

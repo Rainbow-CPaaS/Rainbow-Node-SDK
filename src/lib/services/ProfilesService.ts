@@ -11,6 +11,7 @@ import {EventEmitter} from "events";
 import {isStarted, logEntryExit} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
 import {S2SService} from "./S2SService.js";
+import {Core} from "../Core.js";
 
 const LOG_ID = "PROFILES/SVCE - ";
 
@@ -111,7 +112,7 @@ class ProfilesService extends GenericService {
     static getClassName(){ return 'ProfilesService'; }
     getClassName(){ return ProfilesService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -125,23 +126,27 @@ class ProfilesService extends GenericService {
         this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
+
+        this._core = _core;
+
     }
 
     /*********************************************************************/
     /** LIFECYCLE STUFF                                                 **/
     /*********************************************************************/
-    start (_options, _core, stats) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start (_options, stats) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
 
         //that._logger.log("debug", LOG_ID + "(start) ");
         that._logger.log("info", LOG_ID + "(start) [profileService] === STARTING ===");
 
         that.stats = stats ? stats : [];
 
-        that._xmpp = _core._xmpp;
-        that._rest = _core._rest;
+        that._xmpp = that._core._xmpp;
+        that._rest = that._core._rest;
         that._options = _options;
-        that._s2s = _core._s2s;
+        that._s2s = that._core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
         that.features = {};
@@ -169,10 +174,10 @@ class ProfilesService extends GenericService {
 
     init (useRest: boolean) {
         let that = this;
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (useRest) {
                 // Fetch profile from server
-                that.getServerProfile().then(function () {
+                await that.getServerProfile().then(function () {
                             // Consider service as started
                             that.setInitialized();
                             //that.stats.push({service: "profileService", startDuration: startDuration});
@@ -181,24 +186,25 @@ class ProfilesService extends GenericService {
                             that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                             that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
-                            // NED TO BE PORTED !!!!!!!
+                            // NEED TO BE PORTED !!!!!!!
                             // $rootScope.$on("$destroy", $rootScope.$on("ON_PROFILE_FEATURES_UPDATE_NEEDED", that.onUserUpdateNeeded));
 
-                            that.setInitialized();
-                            resolve(undefined);
+                            //that.setInitialized();
+                            //resolve(undefined);
                         })
                         .catch(function (error) {
                             that._logger.log("warn", LOG_ID + "([profileService] === getServerProfile FAILURE === ");
                             that._logger.log("internalerror", LOG_ID + "([profileService] === getServerProfile FAILURE === : " + error.message);
-                            resolve(undefined);
+                            that.setInitialized();
+                            //resolve(undefined);
                             //return reject(error);
                         });
             } else {
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
-        });
-    
+            resolve(undefined);
+        });    
     }
 
     onUserUpdateNeeded ()
@@ -217,10 +223,10 @@ class ProfilesService extends GenericService {
                         clearInterval(that.timer);
                         that.timer = null;
                     })
-                    .catch(function (error) {
+                    .catch(function (err) {
                         that.timer = null;
-                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE .");
-                        that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
+                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE error : ", err);
+                        //that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
                         // reject(error);
                     });
         }, 3000);
@@ -233,6 +239,7 @@ class ProfilesService extends GenericService {
     /*********************************************************************/
     /**
      * @public
+     * @nodered true
      * @method getServerProfile
      * @async
      * @category Profiles PROFILES
@@ -247,6 +254,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getServerProfiles
      * @async
      * @category Profiles PROFILES
@@ -293,6 +301,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileOffer
      * @category Profiles PROFILES
      * @description
@@ -310,6 +319,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileName
      * @category Profiles PROFILES
      * @description
@@ -328,6 +338,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfiles
      * @category Profiles PROFILES
      * @description
@@ -348,6 +359,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getThirdPartyApps
      * @async
      * @category Profiles PROFILES
@@ -382,6 +394,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method revokeThirdPartyAccess
      * @async
      * @category Profiles PROFILES
@@ -424,6 +437,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getServerProfilesFeatures
      * @async
      * @category Profiles FEATURES
@@ -493,6 +507,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method isFeatureEnabled
      * @category Profiles FEATURES
      * @description
@@ -512,6 +527,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMax
      * @category Profiles FEATURES
      * @description
@@ -531,6 +547,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getFeatureLimitMin
      * @category Profiles FEATURES
      * @description
@@ -550,6 +567,7 @@ class ProfilesService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyProfileFeatures
      * @category Profiles FEATURES
      * @description

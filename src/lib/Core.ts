@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils.js";
+import {getRandomInt, logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
 import {XMPPService} from "./connection/XMPPService.js";
 import {RESTService} from "./connection/RESTService.js";
 import {HTTPService} from "./connection/HttpService.js";
@@ -36,9 +36,8 @@ import {TimeOutManager} from "./common/TimeOutManager.js";
 
 export {};
 
-//const packageVersion = require("../package.json");
-//import  * as packageVersion from "../../package.json";
-import * as Utils from "./common/Utils.js"
+const packageVersion = require("../package.json");
+import * as Utils from "./common/Utils"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;
@@ -51,6 +50,11 @@ let packageVersion = {
     version:process.env.npm_package_version    
 };
  
+enum SIGNINMETHODNAME {
+    "SIGNIN" = "signin",
+    "SIGNINWSONLY" = "signinWSOnly"
+}
+
 @logEntryExit(LOG_ID)
 class Core {
     get timeOutManager(): TimeOutManager {
@@ -94,6 +98,9 @@ class Core {
     public _Utils: any;
     cleanningClassIntervalID: NodeJS.Timeout;
     private _timeOutManager : TimeOutManager;
+    private _signinmethodName : SIGNINMETHODNAME;
+    private lastConnectedOptions : {token : string, userInfos : any};
+    public startDate : Date;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
@@ -107,7 +114,10 @@ class Core {
         self.logger = loggerModule.log;
 
         self._Utils = Utils;
-        
+
+        // init property
+        self.lastConnectedOptions = {token:undefined, userInfos: {}};
+
         // Initialize the Events Emitter
         self._eventEmitter = new Events(self.logger, (jid) => {
             return self._botsjid.includes(jid);
@@ -137,16 +147,35 @@ class Core {
 
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
             let that = this;
+            let error = ErrorManager.getErrorManager().ERROR;
             self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
             await self.stop().then(function(result) {
-            }).catch(function(err) {
-                let error = ErrorManager.getErrorManager().ERROR;
+            }).catch(async function(err) {
                 error.msg = err;
-                self.events.publish("stopped", error);
+                //await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+                //self.events.publish("stopped", error);
             });
-            await self.start(undefined).then(async function() {
-                await self.signin(true, undefined);
-            })
+            await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+            if (that._signinmethodName == SIGNINMETHODNAME.SIGNIN ) {
+                await self.start(that.lastConnectedOptions.token).then(async function () {
+                    return await self.signin(true, that.lastConnectedOptions.token);
+                }).catch((err2) => {
+                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    setTimeout(() => {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }, 10000 + getRandomInt(40000));
+                });
+            } 
+            if (that._signinmethodName == SIGNINMETHODNAME.SIGNINWSONLY ) {
+                await self.start(that.lastConnectedOptions.token).then(async function () {
+                    return await self._signinWSOnly(true, that.lastConnectedOptions.token, that.lastConnectedOptions.userInfos);
+                }).catch((err2) => {
+                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    setTimeout(() => {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }, 10000 + getRandomInt(40000));
+                });
+            } 
         });
 
         self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
@@ -158,12 +187,17 @@ class Core {
             self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
-            }).catch(function(err) {
+            }).catch(async function(err) {
                 let error = ErrorManager.getErrorManager().ERROR;
                 error.msg = err;
-                self.events.publish("stopped", error);
+                await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+                //self.events.publish("stopped", error);
             });
-            await self._stateManager.transitTo(self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
+            if (! self.options.autoReconnectIgnoreErrors) {
+                await self._stateManager.transitTo(true, self._stateManager.ERROR, err); // set state to error, and send rainbow_onerror
+            } else {
+                self._eventEmitter.iee.emit("evt_internal_signinrequired");
+            }
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
@@ -172,7 +206,7 @@ class Core {
             self._rest.reconnect().then((data) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
-                return self._stateManager.transitTo(self._stateManager.CONNECTED).then(async (data2) => {
+                return self._stateManager.transitTo(true, self._stateManager.CONNECTED).then(async (data2) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     await that._bubbles.reset() ;
@@ -181,7 +215,7 @@ class Core {
             }).then((data3) => {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
                 self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
-                self._stateManager.transitTo(self._stateManager.READY).then((data4) => {
+                self._stateManager.transitTo(true, self._stateManager.READY).then((data4) => {
                     self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed.");
                     self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
                 });
@@ -193,7 +227,11 @@ class Core {
                     await self.stop().then(function(result) {
                     }).catch(function(err) {
                     });
-                    await self._stateManager.transitTo(self._stateManager.FAILED);
+                    if (! self.options.autoReconnectIgnoreErrors) {
+                        await self._stateManager.transitTo(true, self._stateManager.FAILED);
+                    } else {
+                        self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                    }
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
                         self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
@@ -201,7 +239,7 @@ class Core {
                         self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
                         self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
                         // ErrorManager in REST micro service, so let say it is disconnected
-                        await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                        await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
                         // relaunch the REST connection.
                         self._eventEmitter.iee.emit("rainbow_xmppreconnected");
                     }
@@ -210,16 +248,20 @@ class Core {
         });
 
         self._eventEmitter.iee.on("rainbow_xmppreconnectingattempt", async function () {
-            await self._stateManager.transitTo(self._stateManager.RECONNECTING);
+            await self._stateManager.transitTo(true, self._stateManager.RECONNECTING);
         });
 
         self._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
             if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
-                await self._stateManager.transitTo(self._stateManager.DISCONNECTED);
+                await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
             }  else {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
-                await self._stateManager.transitTo(self._stateManager.STOPPED);
+                if (! self.options.autoReconnectIgnoreErrors) {
+                    await self._stateManager.transitTo(true, self._stateManager.STOPPED);
+                } else {
+                    self._eventEmitter.iee.emit("evt_internal_signinrequired");
+                }
             }
         });
 
@@ -240,41 +282,48 @@ class Core {
 
         // Instantiate basic service
         self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
-        self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
-        self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options, self);
-        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
+        self._http = new HTTPService(self, self.options, self.logger, self._proxy, self._eventEmitter.iee);
+        self._rest = new RESTService(self, self.options, self._eventEmitter.iee, self.logger);
+        self._xmpp = new XMPPService(self, self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options);
+        self._s2s = new S2SService(self, self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
         self._stateManager = new StateManager(self._eventEmitter, self.logger, this._timeOutManager );
 
         // Instantiate others Services
-        self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
-        self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
-        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations);
-        self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
-        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
-        self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
-        self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
-        self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
-        self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
-        self._fileServer = new FileServerService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
-        self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
-        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
-        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
-        self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
-        self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
-        self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
-        self._rpcoverxmpp = new RPCoverXMPPService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
-        self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
-        self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
+        self._im = new ImsService(self, self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
+        self._presence = new PresenceService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
+        self._channels = new ChannelsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
+        self._contacts = new ContactsService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
+        self._conversations = new ConversationsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
+        self._profiles = new ProfilesService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
+        self._telephony = new TelephonyService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
+        self._bubbles = new BubblesService(self, self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
+        self._groups = new GroupsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
+        self._admin = new AdminService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
+        self._settings = new SettingsService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
+        self._fileServer = new FileServerService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
+        self._fileStorage = new FileStorageService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
+        self._calllog = new CallLogService(self, self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
+        self._favorites = new FavoritesService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
+        self._alerts = new AlertsService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
+        self._rbvoice = new RBVoiceService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
+        self._httpoverxmpp = new HTTPoverXMPP(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPPService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
+        self._webinars = new WebinarsService(self, self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
+        self._invitations = new InvitationsService(self, self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
 
         self._botsjid = [];
 
         self.startCleanningInterval();
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
+    }
+
+    getDurationSinceStart(label:string) {
+        let that = this;
+        let sinceCreateDuration =  Math.round((new Date()).getTime() - that.startDate?.getTime());
+        that.logger.log("info", LOG_ID + `=== ${label} - SINCE CREATION (${sinceCreateDuration} ms) ===`);
+        return sinceCreateDuration;
     }
 
     _signin (forceStopXMPP, token) {
@@ -422,7 +471,7 @@ class Core {
 
     _retrieveInformation () {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
+        that.logger.log("debug", LOG_ID + "(_retrieveInformation). " + `(${that.getDurationSinceStart("_retrieveInformation")} ms)`);
         //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
         return new Promise(async (resolve, reject) => {
 
@@ -501,6 +550,8 @@ class Core {
                 }
             }
 
+            that.getDurationSinceStart("_retrieveInformation after DNSEntry search ");
+
             if (that.options.useS2S) {
                 try {
                     if (that.options.imOptions.autoLoadContacts) {
@@ -511,7 +562,7 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that.presence._sendPresenceFromConfiguration().then(() => {
+                return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
@@ -560,7 +611,13 @@ class Core {
                     return Promise.resolve(undefined);
                 }).then(() => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                        return that._conversations.getServerConversations();
+                        if (that.options.imOptions.autoLoadConversationHistory) {
+                            return that._conversations.getServerConversations().then(() => {
+                                that._conversations.loadEveryConversationsHistory()
+                            });
+                        } else {
+                            return that._conversations.getServerConversations();
+                        }
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
@@ -603,8 +660,11 @@ class Core {
                 try {
                     if (that.options._restOptions.useRestAtStartup ) {
                         if (that.options.imOptions.autoLoadContacts) {
-                            let result = await that._contacts.getRosters();
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                            //let result = await that._contacts.getRosters();
+                            await that._contacts.getRosters().then((result)=> {
+                                that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                                that.getDurationSinceStart("_retrieveInformation after contacts from roster retrieved ");
+                            });
                         } else {
                             that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                         }
@@ -614,13 +674,15 @@ class Core {
                 } catch (e) {
                     that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that.presence._sendPresenceFromConfiguration().then(() => {
+                //return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration).then(() => {
+                return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
                 }).then(() => {
                     return that._s2s.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    //return Utils.traceExecutionTime(that,"_contacts.init", that._contacts.init, [that.options._restOptions.useRestAtStartup]);
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._telephony.init(that.options._restOptions.useRestAtStartup);
@@ -654,16 +716,22 @@ class Core {
                     return that.im.init(that.options._imOptions.enableCarbon, that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     if (that.options._restOptions.useRestAtStartup) {
-                        return that._rest.getBots();
+                        return that._rest.getBots().then((bots: any) => {
+                            that._botsjid = bots ? bots.map((bot) => {
+                                return bot.jid;
+                            }):[];
+                        });
                     }
-                }).then((bots: any) => {
-                    that._botsjid = bots ? bots.map((bot) => {
-                        return bot.jid;
-                    }) : [];
-                    return Promise.resolve(undefined);
-                }).then(() => {
+                }).then(async () => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
-                        return that._conversations.getServerConversations();
+                        if (that.options.imOptions.autoLoadConversationHistory) {
+                            return await that._conversations.getServerConversations().then(async () => {
+                                return await that._conversations.loadEveryConversationsHistory();
+                            });
+                        } else {
+                            return await that._conversations.getServerConversations();
+                        }
+                        that.getDurationSinceStart("_retrieveInformation after getServerConversations ");
                     } else {
                         that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
@@ -692,6 +760,7 @@ class Core {
                     reject(err);
                 });
             }
+            that.getDurationSinceStart("_retrieveInformation end ");
         });
     };
 
@@ -785,6 +854,8 @@ class Core {
     start(token) {
         let that = this;
 
+        that.startDate = new Date();
+
         // Initialize the logger
         //if (! that.logger) {
             let loggerModule = new Logger(that.options._options);
@@ -797,6 +868,8 @@ class Core {
         return new Promise(async function (resolve, reject) {
 
             try {
+
+                that.getDurationSinceStart("start begin ");
 
                 if (!that.options.hasCredentials && !token) {
                     that.logger.log("error", LOG_ID + "(start) No credentials. Stop loading...");
@@ -860,52 +933,53 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._s2s.start(that.options, that);
+                        return that._s2s.start(that.options);
                     }).then(() => {
-                        return that._settings.start(that.options, that);
+                        return that._settings.start(that.options);
                     }).then(() => {
-                        return that._presence.start(that.options,that) ;
+                        return that._presence.start(that.options) ;
                     }).then(() => {
-                        return  that._contacts.start(that.options, that ) ;
+                        return  that._contacts.start(that.options ) ;
                     }).then(() => {
-                       return that._bubbles.start(that.options, that) ;
+                       return that._bubbles.start(that.options) ;
                     }).then(() => {
-                        return that._conversations.start(that.options, that) ;
+                        return that._conversations.start(that.options) ;
                     }).then(() => {
-                        return that._profiles.start(that.options, that, []) ;
+                        return that._profiles.start(that.options, []) ;
                     }).then(() => {
-                        return that._telephony.start(that.options, that) ;
+                        return that._telephony.start(that.options) ;
                     }).then(() => {
-                        return that._im.start(that.options, that) ;
+                        return that._im.start(that.options) ;
                     }).then(() => {
-                        return that._channels.start(that.options, that) ;
+                        return that._channels.start(that.options) ;
                     }).then(() => {
-                        return that._groups.start(that.options, that) ;
+                        return that._groups.start(that.options) ;
                     }).then(() => {
-                        return that._admin.start(that.options,that) ;
+                        return that._admin.start(that.options) ;
                     }).then(() => {
-                        return that._fileServer.start(that.options, that) ;
+                        return that._fileServer.start(that.options) ;
                     }).then(() => {
-                        return that._fileStorage.start(that.options, that) ;
+                        return that._fileStorage.start(that.options) ;
                     }).then(() => {
-                        return that._calllog.start(that.options, that) ;
+                        return that._calllog.start(that.options) ;
                     }).then(() => {
-                        return that._favorites.start(that.options, that) ;
+                        return that._favorites.start(that.options) ;
                     }).then(() => {
-                        return that._alerts.start(that.options, that) ; 
+                        return that._alerts.start(that.options) ;
                     }).then(() => {
-                        return that._rbvoice.start(that.options, that) ;
+                        return that._rbvoice.start(that.options) ;
                     }).then(() => {
-                        return that._webinars.start(that.options, that) ;
+                        return that._webinars.start(that.options) ;
                     }).then(() => {
-                        return that._httpoverxmpp.start(that.options, that) ;
+                        return that._httpoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._rpcoverxmpp.start(that.options, that) ;
+                        return that._rpcoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._invitations.start(that.options, that, []) ;
+                        return that._invitations.start(that.options, []) ;
                     }).then(() => {
                         that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
-                        that._stateManager.transitTo(that._stateManager.STARTED).then(() => {
+                        that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
+                            that.getDurationSinceStart("start end ");
                             that.logger.log("debug", LOG_ID + "(start) _exiting_");
                             resolve(undefined);
                         }).catch((err) => {
@@ -932,22 +1006,29 @@ class Core {
 
         let that = this;
         return new Promise(function (resolve, reject) {
+            that._signinmethodName = SIGNINMETHODNAME.SIGNIN;
 
             let json = null;
+            that.getDurationSinceStart("signin begin ");
 
             return that._signin(forceStopXMPP, token).then(function (_json) {
+                that.lastConnectedOptions.token = token;
                 json = _json;
+                that.getDurationSinceStart("_signin done ");
+
                 that._tokenSurvey();
-                return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
+                    that.getDurationSinceStart("_retrieveInformation before ");
                     return that._retrieveInformation();
                 });
             }).then(() => {
-                that._stateManager.transitTo(that._stateManager.READY).then(() => {
+                that.getDurationSinceStart("_retrieveInformation done ");
+                that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
                     reject(err); 
                 });
-            }).catch((err) => {
+            }).catch(async (err) => {
                 reject(err);
             });
         });
@@ -957,20 +1038,23 @@ class Core {
 
         let that = this;
         return new Promise(function (resolve, reject) {
+            that._signinmethodName = SIGNINMETHODNAME.SIGNINWSONLY;
 
             let json = null;
 
             return that._signinWSOnly(forceStopXMPP, token, userInfos).then(function (_json) {
+                that.lastConnectedOptions.token = token;
+                that.lastConnectedOptions.userInfos = userInfos;
                 json = _json;
                 //that._tokenSurvey();
-                return that._stateManager.transitTo(that._stateManager.CONNECTED).then(() => {
+                return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     
                     return that._retrieveInformation().catch((err) => {
                         that.logger.log("internal", LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
                     });
                 });
             }).then(() => {
-                that._stateManager.transitTo(that._stateManager.READY).then(() => {
+                    that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
                     reject(err); 

@@ -617,12 +617,11 @@ class Bubble {
                 if (data.users) {
                     //data.users.forEach(async (userData: any) => {
                     for (const userData of data.users) {
-                        const contact = await  contactsService.getContactById(userData.userId);
-                        //if (contact) {                      
-                        if (contactsService.isUserContact(contact)) {
+                        //const contact = await  contactsService.getContactById(userData.userId);
+                        //if (contactsService.isUserContact(contact)) {
+                        if (contactsService.isUserContactId(userData.userId)) {
                             bubble.status = userData.status;
                         }
-                        //}
                     }
                     //})
                 }

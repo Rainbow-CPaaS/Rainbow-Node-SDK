@@ -10,6 +10,7 @@ class ProxyImpl {
 	public _port: any;
 	public _activated: any;
 	public _proxyURL: any;
+	//public _proxyJSON: any;
     private _user: string;
     private _password: string;
     private _secureProtocol: string ;
@@ -29,12 +30,15 @@ class ProxyImpl {
 
         if (this._user === "" || this._user ) {
             this._proxyURL =  encodeURI(this._protocol + "://" + this._user + ":" + this._password + "@" + this._host + ":" + this._port.toString());
+            //this._proxyJSON = {host:this._host,port:this._port, auth:this._user + ":" + this._password};
             //this._proxyURL = this._protocol + "://" + this._user + ":" + this._password + "@" + this._host + ":" + this._port.toString();
             this._logger.log("info", LOG_ID + "(constructor) proxy configured with authent");
             this._logger.log("internal", LOG_ID + "(constructor) proxy configured with authent : ", this._proxyURL);
+            //this._logger.log("internal", LOG_ID + "(constructor) proxy configured with authent : ", this._proxyJSON);
         } else {
 
             this._proxyURL = this._protocol + "://" + this._host + ":" + this._port.toString();
+            //this._proxyJSON = {host:this._host,port:this._port};
         }
         if (this._activated) {
             this._logger.log("info", LOG_ID + "(constructor) proxy configured.");
@@ -45,6 +49,12 @@ class ProxyImpl {
     get proxyURL() {
         return this._proxyURL;
     }
+
+/*
+    get proxyJson() {
+        return this._proxyJSON;
+    }
+*/
 
     get isProxyConfigured() {
         return this._activated;

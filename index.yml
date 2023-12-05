@@ -1,7 +1,7 @@
 ---
 - GUIDES:
   - Getting started: 'ref:doc/sdk/node/guides/Getting_Started.md'
-  - What's new ?: 'ref:doc/sdk/node/guides/What_is_new.md'
+  - ChangeLog: 'ref:doc/sdk/node/guides/CHANGELOG.md'
   - Get latest SDK News: 'ref:doc/sdk/node/guides/RainbowNodeSDKNews.md'
   - Connecting to Rainbow in XMPP Mode (Default, full features): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_XMPP_Mode.md'
   - Connecting to Rainbow in S2S MODE (Restricted API - Alpha delivery): 'ref:doc/sdk/node/guides/Connecting_to_Rainbow_S2S_Mode.md'

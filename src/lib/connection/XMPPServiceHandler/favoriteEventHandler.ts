@@ -168,6 +168,9 @@ class FavoriteEventHandler extends GenericHandler {
                     case "joincompanyrequest":
                         // treated in invitationEventHandler
                         break;
+                    case "logs":
+                        // treated in conversationEventHandler
+                        break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

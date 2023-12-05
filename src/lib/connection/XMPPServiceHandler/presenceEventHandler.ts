@@ -55,7 +55,10 @@ class PresenceEventHandler extends GenericHandler {
             let applyCalendarPresence = false;
 
             // Ignore muc presence
-            if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) { return true; }
+            if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) {
+                that.logger.log("internal", LOG_ID + "(onPresenceReceived) ignore Muc Name Space.");
+                return true; 
+            }
 
             if (stanza.find("applyMsTeamsPresence").length != 0) {
                 applyMsTeamsPresence = true;
@@ -179,6 +182,7 @@ class PresenceEventHandler extends GenericHandler {
                                                 break;
                                             default:
                                                 that.logger.log("internal", LOG_ID + "(onPresenceReceived) default - status not treated : ", item.attrs.code);
+                                                status = item.attrs.code;
                                                 break;
                                         }
                                         break;

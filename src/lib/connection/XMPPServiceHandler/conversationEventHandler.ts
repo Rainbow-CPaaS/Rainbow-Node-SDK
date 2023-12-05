@@ -679,7 +679,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "subject":
                         subject = node.getText();
-                        hasATextMessage = (!(!subject || subject===''));
+                        hasATextMessage = hasATextMessage || (!(!subject || subject===''));
                         break;
                     case "event":
                         eventName = node.attrs.name;
@@ -708,7 +708,7 @@ class ConversationEventHandler extends GenericHandler {
                             lang = "en";
                         }
                         that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - lang : ", lang);
-                        hasATextMessage = (!(!content || content===''));
+                        hasATextMessage = hasATextMessage || (!(!content || content===''));
                         break;
                     case "answeredMsg":
                         answeredMsgId = node.getText();
@@ -2063,7 +2063,7 @@ class ConversationEventHandler extends GenericHandler {
                     } // */
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                    that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
+                    //that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
                 });
             } else {
                 that.logger.log("internal", LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
@@ -2084,7 +2084,7 @@ class ConversationEventHandler extends GenericHandler {
                 } // */
                 that.eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
-                that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
+                //that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
@@ -2159,10 +2159,12 @@ class ConversationEventHandler extends GenericHandler {
                     case "poll":
                         if (node.attrs.xmlns==="jabber:iq:configuration") {
                             let action = node.attrs.action;
+                            let roomId = node.getChild("roomid") ? node.getChild("roomid").text() : (node.getChild("room-id") ? node.getChild("room-id").text() : undefined);
+                            let pollId = node.getChild("pollid") ? node.getChild("pollid").text() : (node.getChild("poll-id") ? node.getChild("poll-id").text() : undefined);
                             let pollObj = {
                                 "action": action,
-                                "roomid": node.getChild("roomid").text(),
-                                "pollid": node.getChild("pollid").text(),
+                                "roomid": roomId,
+                                "pollid": pollId,
                             };
                             that.logger.log("internal", LOG_ID + "(onChatMessageReceived) configure - poll : ", pollObj);
                             that.eventEmitter.emit("evt_internal_bubblepollconfiguration", pollObj);
@@ -2185,6 +2187,9 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "joincompanyrequest":
                         // treated in invitationEventHandler
+                        break;
+                    case "logs":
+                        that.onLogsMessageReceived(node);
                         break;
                     default:
                         that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
@@ -2481,7 +2486,7 @@ class ConversationEventHandler extends GenericHandler {
 
                     if (action === "delete") {
                         that.logger.log("debug", LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
-                        let conversationUnknown = new Conversation(conversationId);
+                        let conversationUnknown = new Conversation(conversationId, that.logger);
                         if (conversationUnknown) {
                             that._conversationService.removeConversation(conversationUnknown);
                         }
@@ -2851,6 +2856,28 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
             that.logger.log("internalerror", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+    
+    async onLogsMessageReceived(node) {
+        let that = this;
+        try {
+            that.logger.log("internal", LOG_ID + "(onLogsMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            let xmlNodeStr = node ? node.toString():"<xml></xml>";
+            let jsonNode = await getJsonFromXML(xmlNodeStr);
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration" 
+            let logsObj = jsonNode["logs"];
+            that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) logsObj : ", logsObj);
+            let action = logsObj["$attrs"]["action"];
+            let contextid = logsObj["$attrs"]["contextid"];
+
+            if (logsObj.$attrs.xmlns==="jabber:iq:configuration") {
+                that.logger.log("debug", LOG_ID + "(onLogsMessageReceived) connectorconfig with action : ", action, ", contextid : ", contextid);
+                that.eventEmitter.emit("evt_internal_logsconfig", {action, contextid});
+            } // */
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
+            that.logger.log("internalerror", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
         }
     };
     

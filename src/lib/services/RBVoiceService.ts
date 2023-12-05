@@ -42,7 +42,6 @@ class RBVoiceService extends GenericService {
 
     private rbvoiceEventHandler: RBVoiceEventHandler;
     private rbvoiceHandlerToken: any;
-    private _core: Core;
 
 
     static getClassName() {
@@ -53,7 +52,7 @@ class RBVoiceService extends GenericService {
         return RBVoiceService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
@@ -71,6 +70,8 @@ class RBVoiceService extends GenericService {
         this._host = _http.host;
         this._port = _http.port;
 
+        this._core = _core;
+
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
         this._eventEmitter.on("evt_internal_rbvoiceevent", this._onEventRBVoice.bind(this));
@@ -78,16 +79,16 @@ class RBVoiceService extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
+        that.initStartDate();
 
         return new Promise(async function (resolve, reject) {
             try {
-                that._core = _core;
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 //that._rbvoice = [];
@@ -151,6 +152,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice CLI Options
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveAllAvailableCallLineIdentifications
      * @async
      * @category Rainbow Voice CLI Options
@@ -190,6 +193,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveCurrentCallLineIdentification
      * @async
      * @category Rainbow Voice CLI Options
@@ -217,6 +222,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method setCurrentActiveCallLineIdentification
      * @async
      * @category Rainbow Voice CLI Options
@@ -262,6 +269,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Cloud PBX group
 
     /**
+     * @public
+     * @nodered true
      * @method addMemberToGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -318,6 +327,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method deleteVoiceMessageAssociatedToAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -348,6 +359,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getVoiceMessagesAssociatedToGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -403,6 +416,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getGroupForwards
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -439,6 +454,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getTheUserGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -484,6 +501,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method joinAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -529,6 +548,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method joinAllGroups
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -559,6 +580,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method leaveAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -604,6 +627,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method leaveAllGroups
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -647,6 +672,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method removeMemberFromGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -677,6 +704,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -719,6 +748,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updateAVoiceMessageAssociatedToAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -750,6 +781,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updateAGroup
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -802,6 +835,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updateGroupForward
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -861,6 +896,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updateGroupMember
      * @async
      * @category Rainbow Voice Cloud PBX group
@@ -914,6 +951,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Deskphones
 
     /**
+     * @public
+     * @nodered true
      * @method activateDeactivateDND
      * @async
      * @category Rainbow Voice Deskphones
@@ -942,6 +981,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method configureAndActivateDeactivateForward
      * @async
      * @category Rainbow Voice Deskphones
@@ -982,6 +1023,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveActiveForwards
      * @async
      * @category Rainbow Voice Deskphones
@@ -1010,6 +1053,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveDNDState
      * @async
      * @category Rainbow Voice Deskphones
@@ -1038,6 +1083,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method searchUsersGroupsContactsByName
      * @async
      * @category Rainbow Voice Deskphones
@@ -1099,6 +1146,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Personal Routines    
 
     /**
+     * @public
+     * @nodered true
      * @method activatePersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1149,6 +1198,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method createCustomPersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1222,6 +1273,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method deleteCustomPersonalRoutine
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1251,6 +1304,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getPersonalRoutineData
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1324,6 +1379,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getAllPersonalRoutines
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1375,6 +1432,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updatePersonalRoutineData
      * @async
      * @category Rainbow Voice Personal Routines
@@ -1485,6 +1544,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Routing
 
     /**
+     * @public
+     * @nodered true
      * @method manageUserRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -1523,6 +1584,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrievetransferRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -1559,6 +1622,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveUserRoutingData
      * @async
      * @category Rainbow Voice Routing
@@ -1599,6 +1664,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Settings 
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveVoiceUserSettings
      * @async
      * @category Rainbow Voice Voice
@@ -1636,6 +1703,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Voice
 
     /**
+     * @public
+     * @nodered true
      * @method addParticipant3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1667,6 +1736,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method answerCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1698,6 +1769,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method blindTransferCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1731,6 +1804,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method deflectCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1762,6 +1837,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method holdCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1793,6 +1870,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method makeCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1840,6 +1919,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method mergeCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1871,6 +1952,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method pickupCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1905,6 +1988,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method releaseCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1937,6 +2022,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method retrieveCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -1968,6 +2055,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method sendDTMF3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -2000,6 +2089,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method snapshot3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -2038,6 +2129,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method transferCall3PCC
      * @async
      * @category Rainbow Voice Voice
@@ -2069,6 +2162,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method deleteAVoiceMessage
      * @async
      * @category Rainbow Voice Voice
@@ -2099,6 +2194,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method deleteAllVoiceMessages
      * @async
      * @category Rainbow Voice Voice
@@ -2129,6 +2226,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getEmergencyNumbersAndEmergencyOptions
      * @async
      * @category Rainbow Voice Voice
@@ -2166,6 +2265,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getVoiceMessages
      * @async
      * @category Rainbow Voice Voice
@@ -2226,6 +2327,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getUserDevices
      * @async
      * @category Rainbow Voice Voice
@@ -2263,6 +2366,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method updateVoiceMessage
      * @async
      * @category Rainbow Voice Voice
@@ -2303,6 +2408,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Voice Forward
 
     /**
+     * @public
+     * @nodered true
      * @method forwardCall
      * @async
      * @category Rainbow Voice Voice Forward
@@ -2343,6 +2450,8 @@ class RBVoiceService extends GenericService {
     }
 
     /**
+     * @public
+     * @nodered true
      * @method getASubscriberForwards
      * @async
      * @category Rainbow Voice Voice Forward
@@ -2382,6 +2491,8 @@ class RBVoiceService extends GenericService {
     //region Rainbow Voice Voice Search Hunting Groups
 
     /**
+     * @public
+     * @nodered true
      * @method searchCloudPBXhuntingGroups
      * @async
      * @category Rainbow Voice Voice Search Hunting Groups

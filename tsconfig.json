@@ -1,20 +1,23 @@
 {
  // "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
+  //  "ignoreDeprecations": "5.0",
     "noImplicitAny": false,
     "module": "es2020",
     "target": "es2022",
+    //"moduleResolution": "node",
+    //"module": "node16",
+    //"moduleResolution": "node16",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
     "allowUnusedLabels": true,
-    "charset": "utf-8",
+//    "charset": "utf-8",
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "removeComments": false,
     "skipLibCheck": true,
-    //"moduleResolution": "node",
     //"noFallthroughCasesInSwitch": false,
     //"noImplicitReturns": true,
     "pretty": true,
@@ -25,6 +28,7 @@
     "resolveJsonModule": true,
     "outDir": "./",
     "lib": [
+      "es6",
       "es2020"
     ],
     //, "dom"

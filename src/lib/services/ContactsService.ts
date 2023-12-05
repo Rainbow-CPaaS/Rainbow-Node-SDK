@@ -182,7 +182,7 @@ class ContactsService extends GenericService {
         return ContactsService.getClassName();
     }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -202,6 +202,8 @@ class ContactsService extends GenericService {
         this._rosterPresenceQueue = new RosterPresenceQueue(_logger);
         this.userContact = new Contact();
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrostercontactinformationchanged", this._onRosterContactInfoChanged.bind(this));
@@ -213,20 +215,21 @@ class ContactsService extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _invitationsService : InvitationsService, _presenceService : PresenceService
 
         let that = this;
+        that.initStartDate();
 
         return new Promise(function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._invitationsService = _core.invitations;
-                that._presenceService = _core.presence;
+                that._invitationsService = that._core.invitations;
+                that._presenceService = that._core.presence;
                 that._contacts = [];
 
                 // Create the user contact
@@ -271,25 +274,26 @@ class ContactsService extends GenericService {
     }
 
     init(useRestAtStartup : boolean) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>(async(resolve, reject) => {
             let that = this;
             if (that._rest.account) {
                 if (that._rest.account.id) {
                     let userInfo = that.getContactById(that._rest.account.id, true);
-                    return Promise.all([userInfo]).then((contact: Contact[]) => {
+                    await Promise.all([userInfo]).then((contact: Contact[]) => {
                         //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
                         if (contact) {
                             that.userContact.updateFromUserData(contact[0]);
                         }
                         that.setInitialized();
-                        return resolve(undefined);
+                        //return resolve(undefined);
                     }).catch(() => {
-                        return resolve(undefined);
+                        //return resolve(undefined);
                         //return reject();
                     });
+                    return resolve();
                 }
                 if (that._rest.account.jid_im) {
-                    let userInfo = that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                    let userInfo = await that._rest.getAllUsersByFilter(undefined, undefined,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
@@ -302,21 +306,22 @@ class ContactsService extends GenericService {
                         that.userContact.updateFromUserData(contact);
                     }); 
                     // */
-                    return Promise.all([userInfo]).then(() => {
+                    await Promise.all([userInfo]).then(() => {
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                     }).catch((err) => {
                         that._logger.log("warn", LOG_ID + "(init) search by jid_im failed with error : ", err);
                         that.setInitialized();
-                        resolve(undefined);
+                        //resolve(undefined);
                         //return reject();
                     });
                 }
             } else {
                 that._logger.log("internal", LOG_ID + "(init) else from contact : ", that._rest.account);
                 that.setInitialized();
-                resolve(undefined);
+                //resolve(undefined);
             }
+            return resolve();
         });
     }
 
@@ -487,19 +492,37 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAll
      * @category Contacts INFORMATIONS
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
-     *  Return the list of _contacts that are in the network of the connected users (aka rosters) <br>
+     *  Return the list of _contacts in cache that are in the network of the connected users (aka rosters) <br>
      */
     getAll() : Array<Contact>{
+        return this._contacts?this._contacts.filter(contact => contact.roster):[];
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getAllContactsInCache
+     * @category Contacts INFORMATIONS
+     * @instance
+     * @return {Contact[]} the list of _contacts
+     * @description
+     *  Return the list of _contacts that are in the cache of the current instance of the connected users. </br>
+     *  `Note:` the stored contacts can be or not in the network. Rainbow SDK only receives event of contacts in the network. </br>
+     *  So others are only cache about previous exchange, and are cleaned with the clean memory process. The cleaning interval is defined by "intervalBetweenCleanMemoryCache" SDK's option.
+     */
+    getAllContactsInCache() : Array<Contact>{
         return this._contacts;
     }
 
     /**
      * @public
+     * @nodered true
      * @method getContactByJid
      * @instance
      * @category Contacts INFORMATIONS
@@ -575,6 +598,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactById
      * @instance
      * @category Contacts INFORMATIONS
@@ -653,6 +677,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -745,6 +770,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactIdByLoginEmail
      * @instance
      * @category Contacts INFORMATIONS
@@ -808,6 +834,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -833,6 +860,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getCompanyInfos
      * @instance
      * @category Contacts INFORMATIONS
@@ -1002,6 +1030,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAvatarByContactId
      * @instance
      * @category Contacts INFORMATIONS
@@ -1021,6 +1050,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getConnectedUser
      * @category Contacts INFORMATIONS
      * @instance
@@ -1054,6 +1084,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDisplayName
      * @instance
      * @category Contacts INFORMATIONS
@@ -1068,6 +1099,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateMyInformations
      * @instance
      * @category Contacts INFORMATIONS
@@ -1143,6 +1175,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createSource
      * @instance
      * @category Contacts SOURCES
@@ -1204,6 +1237,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteSource
      * @instance
      * @category Contacts SOURCES
@@ -1254,6 +1288,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getSourceData
      * @instance
      * @category Contacts SOURCES
@@ -1305,6 +1340,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSourcesByUserId
      * @instance
      * @category Contacts SOURCES
@@ -1362,6 +1398,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateSourceData
      * @instance
      * @category Contacts SOURCES
@@ -1424,6 +1461,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1524,6 +1562,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1672,6 +1711,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactData
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1752,6 +1792,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getContactsList
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1831,6 +1872,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteContact
      * @instance
      * @category Contacts Contacts API - Enduser portal
@@ -1920,6 +1962,14 @@ class ContactsService extends GenericService {
         return (that._rest.account.jid_im===jid);
     }
 
+    isUserContactId(id) {
+        let that = this;
+        if (!that._rest.account) {
+            return false;
+        }
+        return (that._rest.account.id===id);
+    }
+
     isUserContact(contact: Contact) {
         let that = this;
         if (!contact || !contact.jid) {
@@ -1935,6 +1985,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getRosters
      * @instance
      * @category Contacts NETWORK
@@ -2063,6 +2114,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method addToNetwork
      * @instance
      * @category Contacts NETWORK
@@ -2080,6 +2132,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method addToContactsList
      * @instance
@@ -2126,6 +2179,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method removeFromNetwork
      * @since 1.69
      * @instance
@@ -2163,6 +2217,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.64.0
+     * @nodered true
      * @method getInvitationById
      * @instance
      * @category Contacts NETWORK
@@ -2186,6 +2241,7 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @since 1.17
+     * @nodered true
      * @method acceptInvitation
      * @instance
      * @category Contacts NETWORK
@@ -2211,6 +2267,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.17
      * @method declineInvitation
      * @instance
@@ -2239,8 +2296,8 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @since 1.41
-     * @beta
      * @method joinContacts
      * @instance
      * @category Contacts NETWORK
@@ -2295,6 +2352,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method searchInAlldirectories
      * @since 2.8.9
      * @instance
@@ -2354,6 +2412,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method searchInPhonebook
      * @since 2.8.9
      * @instance
@@ -2424,6 +2483,7 @@ class ContactsService extends GenericService {
      
     /**
      * @public
+     * @nodered true
      * @method searchUserByPhonenumber
      * @since 2.8.9
      * @instance
@@ -2484,6 +2544,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method searchUsers
      * @since 2.8.9
      * @instance
@@ -2611,6 +2672,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createPersonalDirectoryEntry
      * @since 2.9.0
      * @instance
@@ -2700,6 +2762,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDirectoryEntryData
      * @since 2.10.0
      * @instance
@@ -2745,6 +2808,7 @@ class ContactsService extends GenericService {
    
     /**
      * @public
+     * @nodered true
      * @method getListPersonalDirectoryEntriesData
      * @since 2.9.0
      * @instance
@@ -2862,6 +2926,7 @@ class ContactsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updatePersonalDirectoryEntry
      * @since 2.2.0
      * @instance
@@ -2954,6 +3019,7 @@ class ContactsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deletePersonalDirectoryEntry
      * @since 2.9.0
      * @instance
@@ -3087,7 +3153,7 @@ class ContactsService extends GenericService {
                         if (resource.status==="EVT_CONNECTION_CLEARED" && resource.show===PresenceShow.Chat) {
                             on_the_phone = false;
                         }
-                        if (resourceId==="pcg2" && resource.show===PresenceShow.Dnd) {
+                        if (resourceId==="pcg2" && resource.show!==PresenceShow.Online) {
                             on_the_phone = true;
                         }
                     }
@@ -3386,7 +3452,7 @@ class ContactsService extends GenericService {
                         if (resource.status==="EVT_CONNECTION_CLEARED" && resource.show===PresenceShow.Chat) {
                             on_the_phone = false;
                         }
-                        if (resourceId==="pcg2" && resource.show===PresenceShow.Dnd) {
+                        if (resourceId==="pcg2" && resource.show!==PresenceShow.Online) {
                             on_the_phone = true;
                         }
                     }
@@ -3548,7 +3614,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("info", LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
+            this._logger.log("warn", LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
         });
     }
     /**
@@ -3594,7 +3660,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
+            this._logger.log("warn", LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
         });
     }
 

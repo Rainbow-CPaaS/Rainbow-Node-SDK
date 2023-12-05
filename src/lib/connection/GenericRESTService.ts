@@ -2,6 +2,7 @@
 
 import {default as btoa} from "btoa";
 import {default as CryptoJS} from "crypto-js";
+import {makeId} from "../common/Utils.js";
 //let packageVersion = require("../../package.json");
 let packageVersion = {
     name:process.env.npm_package_name,
@@ -67,7 +68,8 @@ class GenericRESTService {
             "Range": undefined,
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-id" :  makeId(9)
         };
 
         return headers;
@@ -81,7 +83,8 @@ class GenericRESTService {
             "accept": accept || "application/json",
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-id" :  makeId(9)
         };
 
         return headers;
@@ -122,7 +125,8 @@ class GenericRESTService {
             "Authorization": "Basic " + (auth || that._auth),
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-id" :  makeId(9)
         };
 
         let toEncrypt = that._application.appSecret + (password || that._credentials.password);
@@ -147,7 +151,8 @@ class GenericRESTService {
             "Content-Type": "application/json",
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-id" :  makeId(9)
         };
     };
     

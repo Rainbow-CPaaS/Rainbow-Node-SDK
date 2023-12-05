@@ -22,8 +22,12 @@ pipeline {
     }
     options {
         timeout(time: 1, unit: 'HOURS') 
-        disableConcurrentBuilds()
-        //withCredentials() 
+        disableConcurrentBuilds(),
+        //withCredentials()
+        buildDiscarder(logRotator(
+            numToKeepStr: '30',
+            artifactNumToKeepStr: '30'
+        ))
     }
     
     parameters {
@@ -285,6 +289,8 @@ pipeline {
                     ls 
                     ls ./src/**/*
                         
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
@@ -318,6 +324,8 @@ pipeline {
                     #npm view
                     npm token list
                         
+                    cp -R build/JSONDOCS guide/JSONDOCS
+
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         echo "Publish with sources of Branch : ${env.BRANCH_NAME}"
@@ -414,6 +422,9 @@ pipeline {
                                 echo "copy Docs and Debian config files to the folder Documentation ."
 
                                 cd "${workspace}"
+                                echo find debian in workspace
+                                find debian
+                                
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
@@ -421,27 +432,23 @@ pipeline {
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
                                 sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_RPCoverXMPP.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_RPCoverXMPP.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
-                                 
-                                 pwd 
-                                 
-                                 ls 
-                                 
-                                 
+                                
+
                                 """
 
                                  stash includes: 'Documentation/**', name: 'DocumentationFolder'
@@ -449,7 +456,7 @@ pipeline {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                          
+
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "

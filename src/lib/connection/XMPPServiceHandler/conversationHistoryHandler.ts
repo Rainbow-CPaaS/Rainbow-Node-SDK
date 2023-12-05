@@ -597,7 +597,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 });
                                 if (!messageUpdated) {
                                     that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.");
-                                    conversation.messages.unshift.apply(conversation.messages, historyFirstElement);
+                                    conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
+                                    that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages : ", conversation.messages);
                                 }  else {
                                     that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message updated from history.");
                                 }

@@ -22,8 +22,12 @@ pipeline {
     }
     options {
         timeout(time: 1, unit: 'HOURS') 
-        disableConcurrentBuilds()
-        //withCredentials() 
+        disableConcurrentBuilds(),
+        //withCredentials()
+           buildDiscarder(logRotator(
+                numToKeepStr: '30',
+                artifactNumToKeepStr: '30'
+           ))
     }
     
     parameters {
@@ -248,8 +252,15 @@ pipeline {
                     
                     sudo npm install --global npm@6
                         
+                    cd ${WORKSPACE}
+                    
                     echo ---------- STEP install the library :
                     npm install
+                    
+                    ls 
+                    ls ./src/**/*
+
+                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                         
                     echo ---------- STEP grunt : 
                     echo Sub Step 1 : To compil the sources
@@ -270,7 +281,9 @@ pipeline {
                         
                     #npm view
                     npm token list
-                        
+                      
+                    cp -R build/JSONDOCS guide/JSONDOCS
+
                     echo ---------- STEP publish :
                     ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
                         
@@ -343,32 +356,32 @@ pipeline {
                                 sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-lts/" debian/control |tee "${workspace}/Documentation/debian/control"      
                                 sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/lts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
                                 # more Documentation/debian/control
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md"
                                 # more Documentation/doc/sdk/node/lts/guides/RainbowNodeSDKNews.md
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/lts/guides/Answering_chat_message.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/lts/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/lts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Development_Kit.md"  |tee "Documentation/doc/sdk/node/lts/guides/Development_Kit.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Getting_Started.md"  |tee "Documentation/doc/sdk/node/lts/guides/Getting_Started.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Legals.md"  |tee "Documentation/doc/sdk/node/lts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_conferences.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_RPCoverXMPP.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "tutorials/What_is_new.md"  |tee "Documentation/doc/sdk/node/lts/guides/What_is_new.md"                      
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/lts/guides/Answering_chat_message.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/lts/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/lts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/lts/guides/Development_Kit.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/lts/guides/Getting_Started.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/lts/guides/Legals.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_conferences.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/lts/guides/Managing_RPCoverXMPP.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/lts/guides/What_is_new.md"                      
                                  
                                 sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/lts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/lts/index.yml"                      
                                 sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/lts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/lts/sitemap.xml"                      
                                 
-                                                
+
                                 """
-                                
+
                                  stash includes: 'Documentation/**', name: 'DocumentationFolder'
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                        
-                         stage("Generate documentation search index") {
+
+                        stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
                                    // unstash 'DocumentationFolder'
@@ -382,8 +395,8 @@ pipeline {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
                         }
-                          
-                         stage('Build Debian package') {
+
+                        stage('Build Debian package') {
                             try {
                                 echo "Build debian the package : "
                                 sh script: """
@@ -403,7 +416,7 @@ pipeline {
                                 //    notifyBuild(currentBuild.result)
                             }
                         }
-                            
+                          
                         stage('Debian Publish') {
                             try {
                                 echo "Publish Debian package : "

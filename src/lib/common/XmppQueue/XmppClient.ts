@@ -3,6 +3,7 @@
 import {NameSpacesLabels} from "../../connection/XMPPService.js";
 import {DataStoreType} from "../../config/config.js";
 import {Deferred, stackTrace, getJsonFromXML} from "../Utils.js";
+//import {Element} from "adaptive-expressions/lib/builtinFunctions";
 
 export {};
 
@@ -39,6 +40,7 @@ import {default as xml2js} from 'xml2js';
 
 import {default as ElementObj} from 'ltx';
 const Element = ElementObj.Element;
+const parse = require('ltx').parse;
 
 let LOG_ID='XMPPCLIENT';
 
@@ -676,6 +678,14 @@ class XmppClient  {
         this.client.entity.handle(evt,  cb);
     } // */
 
+    emit(evtname, stanza) {
+        let that = this;
+        //let stanzaElmt : Element = parse(stanza);
+        let stanzaElmt : any = parse(stanza);
+//        stanzaElmt.find("to") = that.fullJid;
+        this.client.entity.emit(evtname, stanzaElmt);
+    }
+    
     on(evt, cb) {
         this.client.entity.on(evt,  cb);
     }

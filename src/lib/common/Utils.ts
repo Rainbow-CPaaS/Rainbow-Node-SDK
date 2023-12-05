@@ -3,6 +3,8 @@
 
 import {config} from "../config/config.js";
 
+import {start} from "repl";
+
 //import {atob} from "atob";
 import pkg from 'atob';
 const { atob } = pkg;
@@ -385,7 +387,24 @@ function logEntryExit(LOG_ID) : any {
             // Keep the method store in a local variable
             const originalMethod = descriptor.value;
             descriptor.value = function (...args: any[]) {
-
+                let startDate = new Date();
+                /*let result = Promise.resolve();
+                try {
+                    if (parameters === undefined) {
+                        result =  await methodDefinition.apply(thisToUse,[]);
+                    } else {
+                        result =  await methodDefinition.apply(thisToUse,parameters);
+                        //result = await methodDefinition(...parameters);
+                    }
+                } catch (err) {
+                    result = Promise.reject(err);
+                } 
+                let stopDate = new Date();
+                // @ts-ignore
+                let startDuration = Math.round(stopDate - startDate);
+                //console.log("start duration of the method : " + methodName + " === STARTED (" + startDuration + " ms) ===");
+                */
+                
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
@@ -412,7 +431,10 @@ function logEntryExit(LOG_ID) : any {
                         } // */
 
                         returnValue = originalMethod.apply(this, args);
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_"));
+                        let stopDate = new Date();
+                        // @ts-ignore
+                        let startDuration = Math.round(stopDate - startDate);
+                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_ execution time : " + startDuration + " ms."));
                     } catch (err) {
                         logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
                         // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
@@ -630,6 +652,26 @@ function functionSignature(functionPtr) {
     return result;
 }
 
+async function traceExecutionTime(thisToUse, methodName, methodDefinition, parameters = undefined) {
+    let startDate = new Date();
+    let result = Promise.resolve();
+    try {
+        if (parameters === undefined) {
+            result =  await methodDefinition.apply(thisToUse,[]);
+        } else {
+            result =  await methodDefinition.apply(thisToUse,parameters);
+            //result = await methodDefinition(...parameters);
+        }
+    } catch (err) {
+        result = Promise.reject(err);
+    }
+    let stopDate = new Date();
+    // @ts-ignore
+    let startDuration = Math.round(stopDate - startDate);
+    console.log("start duration of the method : " + methodName + " === STARTED (" + startDuration + " ms) ===");
+    return result;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -661,7 +703,8 @@ export let objToExport = {
     generateRamdomEmail,
     getJsonFromXML,
     functionName,
-    functionSignature
+    functionSignature,
+    traceExecutionTime
 };
 
 // module.exports = objToExport;
@@ -696,7 +739,8 @@ export {
     generateRamdomEmail,
     getJsonFromXML,
     functionName,
-    functionSignature
+    functionSignature,
+    traceExecutionTime
 };
 
 export default {
@@ -730,5 +774,6 @@ export default {
     generateRamdomEmail,
     getJsonFromXML,
     functionName,
-    functionSignature
+    functionSignature,
+    traceExecutionTime
 };

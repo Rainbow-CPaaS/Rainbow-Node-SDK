@@ -25,8 +25,61 @@ import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
 import {GenericService} from "./GenericService.js";
 
-import {default as mime} from "mime";
-if ( ! mime.lookup) mime.lookup = mime.getType;
+import * as fs from "fs";
+import * as path from "path";
+import * as mime from "mime";
+// if ( ! mime.lookup) mime.lookup = mime.getType;
+
+function FileUpdated(input) {
+    var self = this;
+
+    function updateStat(stat) {
+        self.stat = stat;
+        self.lastModifiedDate = self.stat.mtime;
+        self.size = self.stat.size;
+    }
+    
+    if (input == undefined) return; 
+
+    if ('string' === typeof input) {
+        self.path = input;
+    } else {
+        Object.keys(input).forEach(function (k) {
+            self[k] = input[k];
+        });
+    }
+
+    self.name = self.name || path.basename(self.path||'');
+    if (!self.name) {
+        throw new Error("No name");
+    }
+    if ( ! mime.lookup)  {
+        self.type = self.type || mime.getType(self.name);
+    } else {
+        self.type = self.type || mime.lookup(self.name);
+    }
+
+    if (!self.path) {
+        if (self.buffer) {
+            self.size = self.buffer.length;
+        } else if (!self.stream) {
+            throw new Error('No input, nor stream, nor buffer.');
+        }
+        return;
+    }
+
+    if (!self.jsdom) {
+        return;
+    }
+
+    if (!self.async) {
+        updateStat(fs.statSync(self.path));
+    } else {
+        fs.stat(self.path, function (err, stat) {
+            updateStat(stat);
+        });
+    }
+}
 
 const LOG_ID = "FileStorage/SVCE - ";
 
@@ -68,7 +121,7 @@ class FileStorage extends GenericService{
     static getClassName(){ return 'FileStorage'; }
     getClassName(){ return FileStorage.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
     start_up:boolean,
     optional:boolean
 }) {
@@ -86,6 +139,8 @@ class FileStorage extends GenericService{
         this._fileServerService = null;
         this._conversations = null;
 
+        this._core = _core;
+
         this.fileDescriptors = [];
         this.fileDescriptorsByDate = [];
         this.fileDescriptorsByName = [];
@@ -97,21 +152,22 @@ class FileStorage extends GenericService{
         this.consumptionData = {};
     }
 
-    start(_options, _core : Core) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
+    start(_options) { // , __xmpp : XMPPService, _s2s : S2SService, __rest : RESTService, __fileServerService, __conversations
         let that = this;
+        that.initStartDate();
 
         return new Promise((resolve, reject) => {
             try {
 
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._fileServerService = _core.fileServer;
-                that._conversations = _core.conversations;
-                that._contactService = _core.contacts;
+                that._fileServerService = that._core.fileServer;
+                that._conversations = that._core.conversations;
+                that._contactService = that._core.contacts;
                 that.fileDescriptors = [];
                 that.fileDescriptorsByDate = [];
                 that.fileDescriptorsByName = [];
@@ -140,7 +196,7 @@ class FileStorage extends GenericService{
     init(useRestAtStartup : boolean) {
         let that = this;
 
-        return new Promise((resolve, reject)=> {
+        return new Promise(async(resolve, reject)=> {
             if (useRestAtStartup ) {
                 // No blocking service
                 let fileName : boolean = undefined; 
@@ -159,7 +215,7 @@ class FileStorage extends GenericService{
                 let sortField : string = undefined;
                 let sortOrder : number = undefined; 
                 let format : string = "full";
-                that.retrieveFileDescriptorsListPerOwner(fileNameStr , extension, typeMIME, purpose , isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
+                await that.retrieveFileDescriptorsListPerOwner(fileNameStr , extension, typeMIME, purpose , isUploaded, viewerId, path, limit, offset, sortField, sortOrder, format)
                         .then(() => {
                             return that.retrieveReceivedFiles(that._rest.userId /*_contactService.userContact.dbId*/, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder );
                         })
@@ -169,17 +225,20 @@ class FileStorage extends GenericService{
                         })
                         .then(() => {
                             that.setInitialized();
-                            resolve(undefined);
+                          //  resolve(undefined);
                         })
                         .catch((error) => {
                             that._logger.log("error", LOG_ID + "(init) === STARTING === failure -- " + error.message);
-                            resolve(undefined);
+                            that.setInitialized();
+                            //resolve(undefined);
                             //reject(error);
                         });
+                //resolve(undefined);
             } else {
                 that.setInitialized();
-                resolve (undefined);
+                //resolve (undefined);
             }
+            resolve(undefined);
         });
     }
 
@@ -190,6 +249,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToConversation
      * @instance
      * @async
@@ -247,6 +307,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method uploadFileToBubble
      * @instance
      * @async
@@ -326,15 +387,21 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.67.0
+     * @nodered true
      * @method uploadFileToStorage
      * @category Files TRANSFER
      * @async
      * @param {String|File} file An {size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
+     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
      * @instance
      * @description
      *   Send a file in user storage <br>
      */
-    async uploadFileToStorage( file) {
+    async uploadFileToStorage( file, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
         let that = this;
         return new Promise((resolve, reject) => {
             that._logger.log("info", LOG_ID + "sendFSMessage");
@@ -342,7 +409,9 @@ class FileStorage extends GenericService{
             // Allow to pass a file path (for test purpose)
             if ( typeof (file) === "string") {
                 try {
-                    let fileObj = new fileapi.File({
+
+                    let fileObj = new FileUpdated({
+                    //let fileObj = new fileapi.File({
 
                             //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                             "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read
@@ -381,7 +450,7 @@ class FileStorage extends GenericService{
             let currentFileDescriptor;
 
 
-            that.createFileDescriptor(file.name, fileExtension, file.size, viewers).then(async function (fileDescriptor: any) {
+            that.createFileDescriptor(file.name, fileExtension, file.size, viewers, voicemessage, duration, encoding, ccarelogs, ccareclientlogs).then(async function (fileDescriptor: any) {
                 currentFileDescriptor = fileDescriptor;
                 fileDescriptor.fileToSend = file;
                 if (fileDescriptor.isImage()) {
@@ -451,6 +520,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method downloadFile
      * @category Files TRANSFER
      * @async
@@ -504,6 +574,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.79.0
+     * @nodered true
      * @method downloadFileInPath
      * @instance
      * @category Files TRANSFER
@@ -628,6 +699,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method removeFile
      * @instance
      * @async
@@ -790,6 +862,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFileDescriptorFromId
      * @instance
@@ -805,6 +878,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesReceivedInConversation
      * @instance
@@ -851,15 +925,68 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesReceivedInBubble
      * @instance
      * @async
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Bubble} bubble   The bubble where to get the files
-     * @description
-     *    Get the list of all files received in a bubble <br>
-     *    Return a promise <br>
-     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+     * @param {string} ownerId Among all files shared with the user, allow to precify a provider.
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+     * typeMIME='image/jpeg' allows to get all jpeg file
+     * typeMime='image' allows to get all image files whatever the extension
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 1000
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
+     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+     *
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | data | Object | File descriptor Object |
+     *  | tags | Object | Wrap a set of data according with the file use |
+     *  | path | String | The path under which the owner will be able to classified the file. The folder management is not yet available; only a get files per path. For instance this facility is used to implement OXO visual voice mail feature on client side.<br><br>* /<br>* /voice-messages |
+     *  | msgId | String | When the file is generated by the Rainbow visual voice mail feature - The message Id (ex: "g0F6jhGrIXN5NQa") |
+     *  | messageType | String | When the file is generated by the Rainbow visual voice mail feature - The message type<br><br>Valeur par défaut : `voice_message`<br><br>Valeurs autorisées : `voice_message`, `conv_recording` |
+     *  | duration | Number | The message duration in second (voice message duration) |
+     *  | id  | String | File unique identifier (like 56d0277a0261b53142a5cab5) |
+     *  | fileName | String | Name of the file |
+     *  | extension | String | File extension (jpeg, txt, ...) |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (image/jpeg, text/plain, ...) |
+     *  | ownerId | String | Rainbow Id of the file owner. Useful to filter file descriptor for files shared inside a room. In this case the provider is also a viewer. |
+     *  | isUploaded | Boolean | true when the file was uploaded at least one time |
+     *  | size | Number | Size of the file (Default: value given by Rainbow clients). Refreshed from the backend file storage each time the file is uploaded. |
+     *  | viewers | Object\[\] | A set of objects including user or room Rainbow Id, type (user, room) |
+     *  | dateToSort | Date-Time | A processed date to help ordering descriptors not only from the file name.<br><br>dateToSort is processed as follow:<br><br>* `Default value`: either file is never uploaded : dateToSort = 1970-01-01T00:00:00.000Z or file is uploaded but no downloaded date is available : dateToSort = upLoadedDate<br>* In case of the viewerId is a user, a downloadedDate may override the default value. In this case dateToSort is the `downloadedDate`.<br>* When a query sorted by uploadedDate is wanted (`sort=uploadedDate`), no 'dateToSort' processing is done. The uploadedDate field is copied instead. |
+     *  | thumbnail | Object | Data of the thumbnail 'low resolution' (200X200 for images, 300x300 for .pdf, at least one dimension is 200 or 300)) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | thumbnail500 | Object | Data of the thumbnail 'High resolution' (500x500 - at least one dimension is 500) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | isClean | Boolean | Null when the file is not yet scanned by an anti-virus |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | avReport | String | Null when the file is not yet scanned by an anti-virus |
+     *
      */
     getFilesReceivedInBubble(bubble, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string, sortOrder : number ) {
         let that = this;
@@ -903,13 +1030,13 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor>} file descriptor
      *
      */
-    getCompleteFileDescriptorById(id) {
+    getCompleteFileDescriptorById(fileId) {
         let that = this;
         return new Promise((resolve, reject) => {
             let fileDescriptor = null;
 
             if (that.fileDescriptors.some((fd) => {
-                    if (fd.id === id) {
+                    if (fd.id === fileId) {
                         fileDescriptor = fd;
                         return true;
                     }
@@ -1047,6 +1174,7 @@ class FileStorage extends GenericService{
     }
 
     /**
+     * @nodered true
      * @method getReceivedFilesForRoom
      * @public
      *
@@ -1228,6 +1356,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveFileDescriptorsListPerOwner
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @async
@@ -1377,6 +1506,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveSentFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -1435,6 +1565,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      *
+     * @nodered true
      * @method retrieveReceivedFilesForRoom
      * @instance
      * @description
@@ -1464,6 +1595,39 @@ class FileStorage extends GenericService{
      * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
      * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+     *
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | data | Object | File descriptor Object |
+     *  | tags | Object | Wrap a set of data according with the file use |
+     *  | path | String | The path under which the owner will be able to classified the file. The folder management is not yet available; only a get files per path. For instance this facility is used to implement OXO visual voice mail feature on client side.<br><br>* /<br>* /voice-messages |
+     *  | msgId | String | When the file is generated by the Rainbow visual voice mail feature - The message Id (ex: "g0F6jhGrIXN5NQa") |
+     *  | messageType | String | When the file is generated by the Rainbow visual voice mail feature - The message type<br><br>Valeur par défaut : `voice_message`<br><br>Valeurs autorisées : `voice_message`, `conv_recording` |
+     *  | duration | Number | The message duration in second (voice message duration) |
+     *  | id  | String | File unique identifier (like 56d0277a0261b53142a5cab5) |
+     *  | fileName | String | Name of the file |
+     *  | extension | String | File extension (jpeg, txt, ...) |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (image/jpeg, text/plain, ...) |
+     *  | ownerId | String | Rainbow Id of the file owner. Useful to filter file descriptor for files shared inside a room. In this case the provider is also a viewer. |
+     *  | isUploaded | Boolean | true when the file was uploaded at least one time |
+     *  | size | Number | Size of the file (Default: value given by Rainbow clients). Refreshed from the backend file storage each time the file is uploaded. |
+     *  | viewers | Object\[\] | A set of objects including user or room Rainbow Id, type (user, room) |
+     *  | dateToSort | Date-Time | A processed date to help ordering descriptors not only from the file name.<br><br>dateToSort is processed as follow:<br><br>* `Default value`: either file is never uploaded : dateToSort = 1970-01-01T00:00:00.000Z or file is uploaded but no downloaded date is available : dateToSort = upLoadedDate<br>* In case of the viewerId is a user, a downloadedDate may override the default value. In this case dateToSort is the `downloadedDate`.<br>* When a query sorted by uploadedDate is wanted (`sort=uploadedDate`), no 'dateToSort' processing is done. The uploadedDate field is copied instead. |
+     *  | thumbnail | Object | Data of the thumbnail 'low resolution' (200X200 for images, 300x300 for .pdf, at least one dimension is 200 or 300)) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | thumbnail500 | Object | Data of the thumbnail 'High resolution' (500x500 - at least one dimension is 500) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | isClean | Boolean | Null when the file is not yet scanned by an anti-virus |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | avReport | String | Null when the file is not yet scanned by an anti-virus |
      *
      */
     retrieveReceivedFilesForRoom(bubbleId, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 1000, offset : number = 0, sortField : string = "fileName", sortOrder : number = 1) {
@@ -1500,6 +1664,7 @@ class FileStorage extends GenericService{
     /**
      *
      * @public
+     * @nodered true
      * @method retrieveReceivedFiles
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @instance
@@ -1572,6 +1737,7 @@ class FileStorage extends GenericService{
     /**
      * @public
      * @since 1.47.1
+     * @nodered true
      * @method getFilesSentInConversation
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -1635,6 +1801,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getFilesSentInBubble
      * @instance
@@ -1693,6 +1860,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getUserQuotaConsumption
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -1714,6 +1882,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesSent
      * @instance
@@ -1729,6 +1898,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.47.1
      * @method getAllFilesReceived
      * @instance
@@ -1879,6 +2049,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method retrieveOneFileDescriptor
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -1979,6 +2150,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getFileDescriptorsByCompanyId
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -2037,6 +2209,7 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method copyFileInPersonalCloudSpace
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES
@@ -2077,6 +2250,7 @@ class FileStorage extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method fileOwnershipChange
      * @instance
      * @category Files FILE MANAGEMENT / PROPERTIES

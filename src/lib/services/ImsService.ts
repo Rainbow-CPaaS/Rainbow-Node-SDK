@@ -49,7 +49,7 @@ class ImsService extends GenericService{
     static getClassName(){ return 'ImsService'; }
     getClassName(){ return ImsService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -67,23 +67,26 @@ class ImsService extends GenericService{
         this._pendingMessages = {};
         this._imOptions = _imOptions;
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
+    start(_options) { // , _xmpp : XMPPService, _s2s: S2SService, _rest: RESTService, __conversations : ConversationsService, __bubbles : BubblesService, _filestorage : FileStorageService
         let that = this;
+        that.initStartDate();
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._conversations = _core.conversations;
-                that._bulles = _core.bubbles;
-                that._fileStorage = _core.fileStorage;
-                that._presence = _core.presence;
+                that._conversations = that._core.conversations;
+                that._bulles = that._core.bubbles;
+                that._fileStorage = that._core.fileStorage;
+                that._presence = that._core.presence;
                 that.setStarted ();
                 resolve(undefined);
             } catch (err) {
@@ -108,16 +111,16 @@ class ImsService extends GenericService{
     async init (enableCarbonBool : boolean, useRestAtStartup : boolean) {
         let that = this;
         if (enableCarbonBool) {
-            that.enableCarbon().then((result) => {
+            await that.enableCarbon().then((result) => {
                 that.setInitialized();
             }).catch(() => {
-                //that.setInitialized();
+                that.setInitialized();
             });
         } else {
-            that.disableCarbon().then((result) => {
+            await that.disableCarbon().then((result) => {
                 that.setInitialized();
             }).catch(() => {
-                //that.setInitialized();
+                that.setInitialized();
             });
         }
     }
@@ -192,6 +195,7 @@ class ImsService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessagesFromConversation
      * @instance
@@ -222,6 +226,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromConversationById
      * @instance
@@ -257,6 +262,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method getMessageFromBubbleById
      * @instance
@@ -304,6 +310,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method markMessageAsRead
      * @instance
      * @description
@@ -344,6 +351,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 1.39
      * @method sendMessageToConversation
      * @instance
@@ -367,8 +375,8 @@ class ImsService extends GenericService{
     async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!conversation) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'conversation' parameter : ", conversation);
+            this._logger.log("warn", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
@@ -428,6 +436,7 @@ class ImsService extends GenericService{
 
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
+            this._logger.log("internal", LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;
@@ -437,6 +446,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToContact
      * @instance
      * @async
@@ -498,6 +508,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJid
      * @instance
      * @async
@@ -514,7 +525,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null) {
         let that = this;
@@ -570,6 +580,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAnswer
      * @instance
      * @async
@@ -643,6 +654,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidAcknowledged
      * @instance
      * @async
@@ -672,6 +684,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToJidIgnored
      * @instance
      * @async
@@ -701,6 +714,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubble
      * @instance
      * @async
@@ -714,11 +728,10 @@ class ImsService extends GenericService{
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
         if (!bubble || !bubble.jid) {
@@ -732,6 +745,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJid
      * @instance
      * @async
@@ -749,7 +763,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions = null, urgency: string = null) {
         let that = this;
@@ -808,6 +821,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendMessageToBubbleJidAnswer
      * @async
      * @category Ims MESSAGES
@@ -826,7 +840,6 @@ class ImsService extends GenericService{
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
-
      */
     async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null) {
         let that = this;
@@ -891,6 +904,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @since 2.21.0
      * @method retrieveXMPPMessagesByListOfMessageIds
      * @category Ims MESSAGES
@@ -965,6 +979,7 @@ class ImsService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInBubble
      * @async
      * @category Ims TYPING
@@ -1010,6 +1025,7 @@ class ImsService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method sendIsTypingStateInConversation
      * @instance
      * @async

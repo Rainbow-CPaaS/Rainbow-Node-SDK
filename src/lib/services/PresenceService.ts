@@ -48,7 +48,7 @@ class PresenceService extends GenericService{
     static getClassName(){ return 'PresenceService'; }
     getClassName(){ return PresenceService.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core,_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -65,6 +65,8 @@ class PresenceService extends GenericService{
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
 
+        that._core = _core;
+
         that.manualState = false;
         that._currentPresence = new PresenceRainbow(PresenceLevel.Online);
         that.RAINBOW_PRESENCE_ONLINE = PresenceLevel.Online;
@@ -77,21 +79,22 @@ class PresenceService extends GenericService{
         that._eventEmitter.on("evt_internal_mypresencechanged", that._onMyPresenceChanged.bind(that));
     }
 
-    start(_options, _core : Core ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
+    start(_options ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
         let that = this;
+        that.initStartDate();
         return new Promise(function(resolve, reject) {
             try {
                 that._options = _options;
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
-                that._s2s = _core._s2s;
-                that._settings = _core.settings;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
+                that._s2s = that._core._s2s;
+                that._settings = that._core.settings;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
-                that._bubbles = _core.bubbles;
+                that._bubbles = that._core.bubbles;
 
 
-                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, _core._contacts);
+                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, that._core._contacts);
                 that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler));
 
 /*
@@ -168,6 +171,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setPresenceTo
      * @instance
      * @async
@@ -234,6 +238,7 @@ class PresenceService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method getUserConnectedPresence
      * @instance
      * @category Presence CONNECTED USER
@@ -331,6 +336,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMyPresenceInformation
      * @since 2.16.0 
      * @instance
@@ -358,6 +364,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setApplyMsTeamsPresenceSettings
      * @instance
      * @async
@@ -448,17 +455,17 @@ class PresenceService extends GenericService{
                 reject({code:-1, label:"Bubble id is not defined!!!"});
             } else {
                 const attemptInfo = attempt ? " -- attempt " + attempt : "";
-                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble.id);
+                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
                 if (that._useXMPP) {
                     let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble);
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
                     // Wait for the bubble to be active
                     await until(() => {
                         return bubble.isActive === true;
                     }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
-                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
+                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid , " : ", err);
                     });
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble);
+                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
                     resolve(result);
                 }
                 if (that._useS2S) {
@@ -547,7 +554,9 @@ class PresenceService extends GenericService{
      */
     _onUserSettingsChanged() {
         let that = this;
-        that._sendPresenceFromConfiguration();
+        that._sendPresenceFromConfiguration().catch(err=>{
+            that._logger.log("warn", LOG_ID + "(_onUserSettingsChanged) _sendPresenceFromConfiguration error : ", err);
+        });
     }
 
     /**
@@ -575,6 +584,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getCalendarState
      * @instance
      * @category Presence CALENDAR
@@ -623,6 +633,7 @@ class PresenceService extends GenericService{
     
     /**
      * @public
+     * @nodered true
      * @method getCalendarStates
      * @instance
      * @category Presence CALENDAR
@@ -671,6 +682,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method setCalendarRegister
      * @instance
      * @category Presence CALENDAR
@@ -687,7 +699,6 @@ class PresenceService extends GenericService{
      *    "url" : string
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     async setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
         let that = this;
@@ -711,6 +722,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getCalendarAutomaticReplyStatus
      * @instance
      * @category Presence CALENDAR
@@ -734,7 +746,6 @@ class PresenceService extends GenericService{
      *    message_thtml : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     async getCalendarAutomaticReplyStatus(userId? : string ) {
         let that = this;
@@ -773,7 +784,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-     
      */
     private async enableCalendar( ) {
         let that = this;
@@ -836,6 +846,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method controlCalendarOrIgnoreAnEntry
      * @instance
      * @category Presence CALENDAR
@@ -852,7 +863,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
      */
     controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
         let that = this;
@@ -876,6 +886,7 @@ class PresenceService extends GenericService{
 
      /**
      * @public
+      * @nodered true
      * @method unregisterCalendar
      * @instance
      * @category Presence CALENDAR
@@ -890,7 +901,6 @@ class PresenceService extends GenericService{
      *       Status : string 
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
-
      */
     async unregisterCalendar ( ) {
         let that = this;
@@ -919,6 +929,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method controlMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -938,6 +949,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceState
      * @since 2.20.0
      * @instance
@@ -989,6 +1001,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method getMsteamsPresenceStates
      * @since 2.20.0
      * @instance
@@ -1027,6 +1040,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method registerMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -1050,6 +1064,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method unregisterMsteamsPresenceSharing
      * @since 2.20.0
      * @instance
@@ -1072,6 +1087,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method activateMsteamsPresence
      * @since 2.20.0
      * @instance
@@ -1094,6 +1110,7 @@ class PresenceService extends GenericService{
 
     /**
      * @public
+     * @nodered true
      * @method deactivateMsteamsPresence
      * @since 2.20.0
      * @instance

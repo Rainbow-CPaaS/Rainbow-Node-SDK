@@ -18,7 +18,7 @@ doc:
 	cp build/*.md doc/sdk/node/api && \
 	cp build/*.xml doc/sdk/node/api && \
 	mkdir -p doc/sdk/node/guides && \
-	cp tutorials/*.md doc/sdk/node/guides && \
+	cp guide/*.md doc/sdk/node/guides && \
 	grunt generatemermaid
 	mkdir -p doc/sdk/node/imgs && \
 	cp build/resources/. doc/sdk/node/imgs && \
@@ -33,7 +33,7 @@ docsts:
 	cp build/*.md doc/sdk/node/sts/api && \
 	cp build/*.xml doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/sts/guides && \
-	cp tutorials/*.md doc/sdk/node/sts/guides && \
+	cp guide/*.md doc/sdk/node/sts/guides && \
 	ls ./jsdoc/diagramsMermaid/*
 	ls -ls ./node_modules/.bin/*
 	# grunt generatemermaid -v
@@ -57,10 +57,10 @@ doclts:
 	cp build/*.md doc/sdk/node/lts/api && \
 	cp build/*.xml doc/sdk/node/lts/api && \
 	mkdir -p doc/sdk/node/lts/guides && \
-	cp tutorials/*.md doc/sdk/node/lts/guides && \
+	cp guide/*.md doc/sdk/node/lts/guides && \
 	grunt generatemermaid
 	mkdir -p doc/sdk/node/lts/imgs && \
-	cp build/resources/. doc/sdk/node/lts/imgs && \
+	cp -r build/resources/. doc/sdk/node/lts/imgs && \
 	cp index.yml doc/sdk/node/lts && \
 	cp lts_version.json doc/sdk/node/lts && \
 	cp sitemap.xml doc/sdk/node/lts  

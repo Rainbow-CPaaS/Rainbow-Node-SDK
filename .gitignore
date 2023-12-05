@@ -281,9 +281,9 @@ fabric.properties
 /Samples/testStop.d.ts
 /Samples/testStop.js.map
 /Samples/testStop.js
-/Samples/
+/xmpp.txt
 /Samples/samplesTests.js
 /Samples/samplesTests.js.map
-/xmpp.txt
 /Samples/testStop.js
 /Samples/testStop.js
+/tasks/generateWhatsNew.js

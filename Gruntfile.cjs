@@ -75,6 +75,7 @@ module.exports = function(grunt) {
             }
         }
     },
+      
 
     clean: {
         dist: ["build"],
@@ -158,11 +159,51 @@ module.exports = function(grunt) {
             },
             files: [
                 {
-                    src: "CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
+                    src: "guide/CHANGELOG.md", dest:"build/ChangeLogRSS.xml"
                 }
                 /* ,
                 {
-                src: "tutorials/What_is_new.md", dest: "build/What_is_new.rss"
+                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
+                } */
+                ]
+        }
+    },
+
+      generateJsDocToJSON:{
+        all: {
+            options: {
+                debugcode: true
+            },
+            files: [
+                {
+                    src: ["lib/services/**/*.js","lib/NodeSDK.js"], dest:"build/JSONDOCS/"
+                }
+                /*
+                {
+                    src: "lib/services/BubblesService.js", dest:"build/JSONDOCS/"
+                    src: "lib/services/ * * / *.js", dest:"build/JSONDOCS/"
+                }
+                // */
+                /* ,
+                {
+                    src: "./lib/services/ * * / *.js", dest:"build/JsDocJSON"
+                } */
+                ]
+        }
+    },
+
+      generateWhatsNew:{
+        all: {
+            options: {
+                debugcode: true
+            },
+            files: [
+                {
+                    src: "guide/CHANGELOG.md", dest:"build/What_is_new_generated.md"
+                }
+                /* ,
+                {
+                src: "guide/What_is_new.md", dest: "build/What_is_new.rss"
                 } */
                 ]
         }
@@ -237,7 +278,7 @@ module.exports = function(grunt) {
             options: {
                 template: "node_modules/rainbow_hub_sheets_generation/mermaidtemplate"
             }
-        }
+        }        
     },
 
     "copy-part-of-file": {
@@ -360,11 +401,11 @@ module.exports = function(grunt) {
     grunt.registerTask("preparecode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode"]);
   grunt.registerTask("default", ["preparecode"]); // Step 1 : grunt : to compil the sources
   //grunt.registerTask("default", ["touch", "preparecode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
+    grunt.registerTask("delivery", ["generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "generateWhatsNew", "nodesheets", "exec:sitemapGeneration", "generateJsDocToJSON"]); // Step 2 : grunt delivery : To pepare the sources + doc for package
 
   grunt.registerTask("prepareDEBUGcode", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode:debug"]);
   //grunt.registerTask("debugDelivery", ["touch", "prepareDEBUGcode", "jsdoc2md", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
-  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "nodesheets", "exec:sitemapGeneration"]);
+  grunt.registerTask("debugDeliveryDelivery", [ "generateFossRun", "jsdoc2md", "removeMacEOL", "generatemermaid", "generateRss", "generateWhatsNew", "nodesheets", "exec:sitemapGeneration", "generateJsDocToJSON"]);
   grunt.registerTask("debugDeliveryBuild", [ "prepareDEBUGcode"]);
 
   //    grunt.registerTask("default", ["clean:dist", "dtsGenerator", "ts:build", "removedebugcode", "jsdoc2md", "nodesheets", "exec:sitemapGeneration"]);

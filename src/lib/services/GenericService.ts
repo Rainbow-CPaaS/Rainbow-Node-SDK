@@ -23,6 +23,7 @@ class GenericService {
     protected _rest: RESTService;
     protected _started: boolean;
     protected _initialized: boolean;
+    protected _core: Core;
     
     protected _startConfig: {
         start_up:boolean,
@@ -34,11 +35,13 @@ class GenericService {
     protected ready: boolean = false;
     protected startingInfos : {
         constructorDate: Date,
+        startDate: Date,
         startedDate: Date,
         initilizedDate: Date
         readyDate: Date
     } = {
         constructorDate: new Date(),
+        startDate: new Date(),
         startedDate: new Date(),
         initilizedDate: new Date(),
         readyDate: new Date()
@@ -56,17 +59,21 @@ class GenericService {
         that.setConstructed();
     }
 
+    initStartDate(){
+        this.startingInfos.startDate = this._core?.startDate;
+    }
+
     cleanMemoryCache() {
         let that = this;
         // that._logger.log("debug", that._logId + "(GenericService::cleanMemoryCache) Not defined for this module." );
     }
 
     get startedDuration () {
-        return Math.round(this.startingInfos.startedDate.getTime() - this.startingInfos.constructorDate.getTime());
+        return Math.round(this.startingInfos.startedDate.getTime() - this.startingInfos.startDate.getTime());
     }
 
     get initializedDuration () {
-        return Math.round(this.startingInfos.initilizedDate.getTime() - this.startingInfos.constructorDate.getTime());
+        return Math.round(this.startingInfos.initilizedDate.getTime() - this.startingInfos.startDate.getTime());
     }
 
     setConstructed () {

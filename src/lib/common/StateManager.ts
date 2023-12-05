@@ -17,7 +17,7 @@ enum SDKSTATUSENUM {
     "DISCONNECTED" = "disconnected",
     "RECONNECTING" = "reconnecting",
     "FAILED" = "failed",
-    "ERROR" = "error"
+    "ERROR" = "error",
 }
 
 const LOG_ID = "STATEMGR - ";
@@ -52,7 +52,7 @@ class StateManager {
                 } else {
                     that.logger.log("error", LOG_ID + "(start) The Rainbow Node Sdk can not start because state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\"  state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
                     that.logger.log("debug", LOG_ID + "(start) _exiting_");
-                    let err = ErrorManager.getErrorManager().CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance");
+                    let err = ErrorManager.getErrorManager().CUSTOMERROR(-1, "The Rainbow Node Sdk can not start when it is not in an idle state.", "The Rainbow Node Sdk can not start. Current state \"" + that.state + "\" is not \"" + SDKSTATUSENUM.STOPPED + "\" state. Please, call the stop method before start, or create a new rainbow-node-sdk instance", undefined);
                     return reject(err);
                 }
             } catch (err) {
@@ -70,7 +70,7 @@ class StateManager {
 
         return new Promise(function(resolve, reject) {
             try {
-                that.transitTo(SDKSTATUSENUM.STOPPED).then(() => {
+                that.transitTo(true, SDKSTATUSENUM.STOPPED).then(() => {
                     that.logger.log("info", LOG_ID + "(stop) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                     resolve(undefined);
@@ -82,7 +82,7 @@ class StateManager {
         });
     }
 
-    async transitTo(state, data?) {
+    async transitTo(publishEvent : boolean = true, state : SDKSTATUSENUM, data?) {
         return new Promise( async (resolve, reject) => {
             if (this.state === state) {
                 this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
@@ -93,12 +93,12 @@ class StateManager {
                     await utils.setTimeoutPromised(1500).then(() => {
                     // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
                         this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                        this.eventEmitter.publish(state, data);
+                        if (publishEvent) { this.eventEmitter.publish(state, data); }
                         resolve(undefined);
                     });
                 } else {
                     this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                    this.eventEmitter.publish(state, data);
+                    if (publishEvent) { this.eventEmitter.publish(state, data); }
                     resolve(undefined);
                 }
             }

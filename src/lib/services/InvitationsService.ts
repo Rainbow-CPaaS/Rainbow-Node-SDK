@@ -53,7 +53,7 @@ class InvitationsService extends GenericService {
 	static getClassName(){ return 'InvitationsService'; }
 	getClassName(){ return InvitationsService.getClassName(); }
 
-	constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
+	constructor(_core:Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
 		super(_logger, LOG_ID);
 		let that = this;
 		this._startConfig = _startConfig;
@@ -65,6 +65,8 @@ class InvitationsService extends GenericService {
 		this._useS2S = false;
 		this._eventEmitter = _eventEmitter;
 		this._logger = _logger;
+
+		this._core = _core;
 
 		//update the sentInvitations list when new invitation is accepted
 		// DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));
@@ -79,20 +81,21 @@ class InvitationsService extends GenericService {
 	/** LIFECYCLE STUFF                                        **/
 
 	/************************************************************/
-	async start(_options, _core : Core, stats) { // , _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, stats
+	async start(_options, stats) { // , _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, stats
 		let that = this;
+		that.initStartDate();
 		that._logger.log("info", LOG_ID + "");
 		that._logger.log("info", LOG_ID + "[InvitationService] === STARTING ===");
 		that.stats = stats ? stats : [];
 
-		that._xmpp = _core._xmpp;
-		that._rest = _core._rest;
+		that._xmpp = that._core._xmpp;
+		that._rest = that._core._rest;
 		that._options = _options;
-		that._s2s = _core._s2s;
+		that._s2s = that._core._s2s;
 		that._useXMPP = that._options.useXMPP;
 		that._useS2S = that._options.useS2S;
-		that._contacts = _core.contacts;
-		that._bubbles = _core.bubbles;
+		that._contacts = that._core.contacts;
+		that._bubbles = that._core.bubbles;
 
 		let startDate: any = new Date();
 		// Private invitation storage
@@ -115,11 +118,16 @@ class InvitationsService extends GenericService {
 
 	public async init (useRestAtStartup : boolean) {
 		let that = this;
+		let prom = [];
 		if (useRestAtStartup) {
-			await that.getAllSentInvitations();
-			await that.getAllReceivedInvitations();
+			prom.push(that.getAllSentInvitations());
+			prom.push(that.getAllReceivedInvitations());
 		}
-		that.setInitialized();
+		await Promise.all(prom).then(()=>{
+			that.setInitialized();
+		}).catch(()=>{
+			that.setInitialized();
+		});
 	}
 
 	async stop() {
@@ -172,7 +180,9 @@ class InvitationsService extends GenericService {
 	onRosterChanged(data) {
 		let that = this;
 		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
-		return that.getAllSentInvitations();
+		that.getAllSentInvitations().catch(err=>{
+			that._logger.log("warn", LOG_ID + "(onRosterChanged) getAllSentInvitations error : ", err);
+		});
 	}
 
 	async onOpenInvitationManagementUpdate(openInvitation) {
@@ -309,6 +319,9 @@ class InvitationsService extends GenericService {
 						if (invitation.invitingUserId) {
 							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+							}).catch((err)=>{
+								that._logger.log("info", LOG_ID + "(handleReceivedInvitation) getContactById failed.");
+								that._logger.log("internal", LOG_ID + "(handleReceivedInvitation) getContactById failed : ", err);
 							});
 						}
 
@@ -334,6 +347,8 @@ class InvitationsService extends GenericService {
 
 				// Needed for SDK
 				// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATION_CHANGED", invitation);
+			}).catch(err=>{
+				that._logger.log("warn", LOG_ID + "(handleReceivedInvitation) getServerInvitation error : ", err);
 			});
 		}
 	};
@@ -370,6 +385,9 @@ class InvitationsService extends GenericService {
 									that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact: Contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										contact.roster = true;
+									}).catch((err)=>{
+										that._logger.log("info", LOG_ID + "(handleSentInvitation) getContactById failed.");
+										that._logger.log("internal", LOG_ID + "(handleSentInvitation) getContactById failed : ", err);
 									});
 								}
 								break;
@@ -394,7 +412,9 @@ class InvitationsService extends GenericService {
 							that.updateSentInvitationsArray();
 							resolve(undefined);
 						}
-					});
+					}).catch(err=>{
+					that._logger.log("warn", LOG_ID + "(handleSentInvitation) getServerInvitation error : ", err);
+				});
 
 				if (action === "resend") {
 					// TODO : VBR : DONE $rootScope.$broadcast("ON_INVITATIONS_RE_SEND", id);
@@ -494,6 +514,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getReceivedInvitations
 	 * @instance
@@ -509,6 +530,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method searchInvitationsReceivedFromServer
 	 * @instance
@@ -561,6 +583,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method 	getAcceptedInvitations
 	 * @instance
@@ -576,6 +599,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getInvitationsNumberForCounter
 	 * @category Invitations RECEIVED
@@ -591,6 +615,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getServerInvitation
 	 * @instance
@@ -621,6 +646,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getInvitation
 	 * @instance
@@ -660,6 +686,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method joinContactInvitation
 	 * @instance
@@ -695,6 +722,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method acceptInvitation
 	 * @instance
@@ -740,11 +768,13 @@ class InvitationsService extends GenericService {
 					function failure(err) {
 						//let error = errorHelperService.handleError(err);
 						if (err.errorDetailsCode && err.errorDetailsCode === 409605) {
-							that._contacts.getContactById(invitation.invitingUserId, true)
-									.then(function (contact) {
+							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										reject(err);
-									});
+							}).catch((err)=>{
+								that._logger.log("info", LOG_ID + "(acceptInvitation) getContactById failed.");
+								that._logger.log("internal", LOG_ID + "(acceptInvitation) getContactById failed : ", err);
+							});
 						} else {
 							that._logger.log("error", LOG_ID + "(acceptInvitation) error ");
 							that._logger.log("internalerror", LOG_ID + "(acceptInvitation) error : ", err);
@@ -756,6 +786,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method declineInvitation
 	 * @instance
@@ -844,6 +875,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getSentInvitations
 	 * @instance
@@ -859,6 +891,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method searchInvitationsSentFromServer
 	 * @instance
@@ -912,6 +945,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method sendInvitationByEmail
 	 * @instance
@@ -951,6 +985,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.9.0
 	 * @method sendInvitationByCriteria
 	 * @instance
@@ -1056,6 +1091,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method cancelOneSendInvitation
 	 * @instance
@@ -1085,6 +1121,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method reSendInvitation
 	 * @instance
@@ -1138,6 +1175,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method sendInvitationsByBulk
 	 * @instance
@@ -1217,6 +1255,7 @@ class InvitationsService extends GenericService {
 	
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 1.65
 	 * @method getAllInvitationsNumber
 	 * @instance
@@ -1232,6 +1271,7 @@ class InvitationsService extends GenericService {
 
 	/**
 	 * @public
+	 * @nodered true
 	 * @since 2.21.0
 	 * @method deleteAUserInvitation
 	 * @instance
@@ -1283,24 +1323,31 @@ class InvitationsService extends GenericService {
 		let that = this;
 		return new Promise(function (resolve) {
 			that._contacts.getContactById(contactDBId).then(function (contact) {
-				switch (status) {
-					case "ask":
-						contact.status = "unknown";
-						contact.ask = "ask";
-						contact.invitation = invitation;
-						break;
-					case "wait":
-						contact.status = "wait";
-						contact.ask = "subscribe";
-						contact.invitation = invitation;
-						break;
-					default:
-						contact.ask = "none";
-						contact.invitation = null;
-						break;
+				if (contact) {
+					switch (status) {
+						case "ask":
+							contact.status = "unknown";
+							contact.ask = "ask";
+							contact.invitation = invitation;
+							break;
+						case "wait":
+							contact.status = "wait";
+							contact.ask = "subscribe";
+							contact.invitation = invitation;
+							break;
+						default:
+							contact.ask = "none";
+							contact.invitation = null;
+							break;
+					}
+				} else {
+					that._logger.log("warn", LOG_ID + "(updateContactInvitationStatus) getContactById did not found the contact by id : ", contactDBId, " so ignore invitation : ", invitation);
 				}
 				// contact.updateRichStatus();
 				resolve(undefined);
+			}).catch((err)=>{
+				that._logger.log("info", LOG_ID + "(updateContactInvitationStatus) getContactById failed.");
+				that._logger.log("internal", LOG_ID + "(updateContactInvitationStatus) getContactById failed : ", err);
 			});
 		});
 	};

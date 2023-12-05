@@ -71,7 +71,7 @@ class ChannelsService extends GenericService {
     };
 
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
@@ -94,6 +94,8 @@ class ChannelsService extends GenericService {
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
         this._eventEmitter.on("evt_internal_channelbyidmyappreciationreceived", this._onChannelMyAppreciationReceived.bind(this));
         this._eventEmitter.on("evt_internal_addtochannel", this.onAddToChannel.bind(this));
@@ -107,15 +109,16 @@ class ChannelsService extends GenericService {
 
     }
 
-    start(_options,_core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
-                that._contacts = _core._contacts;
+                that._s2s = that._core._s2s;
+                that._contacts = that._core._contacts;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that._channels = [];
@@ -158,9 +161,12 @@ class ChannelsService extends GenericService {
     async init (useRestAtStartup : boolean) {
         let that = this;
         if (useRestAtStartup) {
-            await that.fetchMyChannels();
+            await that.fetchMyChannels().then((result)=>{
+                that.setInitialized();
+            }).catch((err)=>{
+                that.setInitialized();
+            });
         }
-        that.setInitialized();
     }
 
     attachHandlers() {
@@ -182,6 +188,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method createChannel
      * @instance
      * @async
@@ -200,6 +207,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createPublicChannel
      * @instance
      * @async
@@ -259,6 +267,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method createClosedChannel (ex: createPrivateChannel)
      * @instance
      * @async
@@ -297,6 +306,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteChannel
      * @instance
      * @async
@@ -342,6 +352,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method findChannelsByName
      * @instance
      * @async
@@ -365,6 +376,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method findChannelsByTopic
      * @instance
      * @async
@@ -453,6 +465,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannel
      * @instance
      * @async
@@ -493,6 +506,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelsByFilter
      * @since 1.55
      * @instance
@@ -578,6 +592,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchMyChannels
      * @since 1.38
      * @instance
@@ -656,6 +671,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -687,6 +703,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllOwnedChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -704,6 +721,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllPendingChannels
      * @category Channels MANAGEMENT
      * @instance
@@ -720,6 +738,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelTopic
      * @instance
      * @async
@@ -737,6 +756,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelDescription
      * @instance
      * @async
@@ -788,7 +808,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelName
      * @since 1.46
      * @instance
      * @category Channels MANAGEMENT
@@ -842,7 +863,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannel
      * @since 1.38
      * @category Channels MANAGEMENT
      * @instance
@@ -908,6 +930,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibility
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -966,6 +989,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToPublic
      * @since 1.55
      * @category Channels MANAGEMENT
@@ -983,6 +1007,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelVisibilityToClosed
      * @since 1.55
      * @instance
@@ -1001,7 +1026,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method updateChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -1055,7 +1081,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method deleteChannelAvatar
      * @since 1.43
      * @instance
      * @category Channels MANAGEMENT
@@ -1208,6 +1235,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method publishMessageToChannel
      * @instance
      * @async
@@ -1218,13 +1246,14 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server. 
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
         let that = this;
-        return that.createItem(channel, message, title, url, imagesIds, type);
+        return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
     }
 
     /**
@@ -1239,11 +1268,12 @@ class ChannelsService extends GenericService {
      * @param {string} [url = ""] An URL
      * @param {any} imagesIds An Array of ids of the files stored in Rainbow
      * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server.
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string) : Promise <{}> {
+    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
         let that = this;
         if (!channel || !channel.id) {
             that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'channel' parameter ");
@@ -1271,7 +1301,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
             type = type ? "urn:xmpp:channels:" + type : "urn:xmpp:channels:basic";
 
-            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type).then((status) => {
+            that._rest.publishMessage(channel.id, message, title, url, imagesIds, type, customDatas).then((status) => {
                 that._logger.log("info", LOG_ID + "(createItem) message published");
                 that._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
                 resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
@@ -1304,6 +1334,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelItems
      * @instance
      * @async
@@ -1394,6 +1425,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteItemFromChannel
      * @instance
      * @async
@@ -1449,6 +1481,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method likeItem
      * @instance
      * @async
@@ -1497,6 +1530,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getDetailedAppreciations
      * @instance
      * @async
@@ -1567,6 +1601,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method getAllSubscribedChannels
      * @instance
      * @category Channels SUBSCRIPTION
@@ -1584,6 +1619,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method subscribeToChannel
      * @instance
      * @async
@@ -1619,7 +1655,8 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
-     * @method
+     * @nodered true
+     * @method subscribeToChannelById
      * @since 1.47
      * @instance
      * @category Channels SUBSCRIPTION
@@ -1679,6 +1716,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method unsubscribeFromChannel
      * @instance
      * @async
@@ -1739,6 +1777,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method fetchChannelUsers
      * @instance
      * @async
@@ -1821,6 +1860,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deleteAllUsersFromChannel
      * @instance
      * @async
@@ -1865,6 +1905,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsers
      * @instance
      * @async
@@ -1875,7 +1916,7 @@ class ChannelsService extends GenericService {
      * [     
      *  {
      *  id : string, // Rainbow user Id
-     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
      *  } 
      *  ]
      *  
@@ -1919,6 +1960,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method updateChannelUsersByLoginEmails
      * @instance
      * @since 2.23.0
@@ -1930,7 +1972,7 @@ class ChannelsService extends GenericService {
      * [     
      *  {
      *  loginEmail : string, // Rainbow user loginEmail.
-     *  type : string // user channel affiliation. Valeurs autorisées : none, owner, publisher, member
+     *  type : string // user channel affiliation. Possibles values : none, owner, publisher, member
      *  } 
      *  ]
      *  
@@ -1989,6 +2031,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannel
      * @instance
      * @async
@@ -2024,6 +2067,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addOwnersToChannelByLoginEmails
      * @instance
      * @async
@@ -2082,6 +2126,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannel
      * @instance
      * @async
@@ -2118,6 +2163,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addPublishersToChannelByLoginEmails
      * @instance
      * @async
@@ -2175,6 +2221,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannel
      * @instance
      * @async
@@ -2219,6 +2266,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method addMembersToChannelByLoginEmails
      * @instance
      * @async
@@ -2306,6 +2354,7 @@ class ChannelsService extends GenericService {
     
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannel
      * @instance
      * @async
@@ -2342,6 +2391,7 @@ class ChannelsService extends GenericService {
 
     /**
      * @public
+     * @nodered true
      * @method deleteUsersFromChannelByLoginEmails
      * @instance
      * @async
@@ -2409,6 +2459,8 @@ class ChannelsService extends GenericService {
             message.channel = channel;
             delete message.channelId;
             that._eventEmitter.emit("evt_internal_channelmessagereceived", message);
+        }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(_onChannelMessageReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2444,6 +2496,8 @@ class ChannelsService extends GenericService {
             }
 
             that._eventEmitter.emit("evt_internal_channelmyappreciationreceived", appreciationObj);
+        }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(_onChannelMyAppreciationReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2485,7 +2539,9 @@ class ChannelsService extends GenericService {
                     } else { // */
                     that._eventEmitter.emit("evt_internal_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                     //}
-                });
+                }).catch((err)=>{
+            that._logger.log("warn", LOG_ID + "(onUpdateToChannel) getChannel error : ", err);
+        });
     }
 
     public  onAddToChannel(channelInfo: {id:string}): void {
@@ -2530,14 +2586,18 @@ class ChannelsService extends GenericService {
                                 });
                     }
 
-                });
+                }).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onAddToChannel) getChannel error : ", err);
+        });
     }
 
     private async onRemovedFromChannel(channelInfo : {id : string}): Promise<any> {
         let that = this;
         let channelId = channelInfo.id;
         that._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
-        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onRemovedFromChannel) removeChannelFromCache error : ", err);
+        });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.DELETE, channelId);
@@ -2559,7 +2619,9 @@ class ChannelsService extends GenericService {
                     .then(() => {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
-                    });
+                    }).catch(err=>{
+                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) retrieveLatests error : ", err);
+            });
         }
 
         // Handle self subscription case
@@ -2572,7 +2634,9 @@ class ChannelsService extends GenericService {
                     .then(() => {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
-                    });
+                    }).catch(err=>{
+                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) getChannel error : ", err);
+            });
         }
     }
 
@@ -2582,10 +2646,14 @@ class ChannelsService extends GenericService {
         let subscribersInfo: string = channelInfo.subscribers;
         that._logger.log("internal", LOG_ID + "(onUnsubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
         let subscribers = Number.parseInt(subscribersInfo);
-        let channel  : Channel = await that.fetchChannel(channelId);
-        if (channel) {
-            channel.subscribers_count = subscribers;
-            channel.subscribed = false;
+        try {
+            let channel: Channel = await that.fetchChannel(channelId);
+            if (channel) {
+                channel.subscribers_count = subscribers;
+                channel.subscribed = false;
+            }
+        } catch(err){
+            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) fetchChannel error : ", err);
         }
 
         // Update messagesList
@@ -2593,6 +2661,9 @@ class ChannelsService extends GenericService {
         that.retrieveLatests().then(() => {
             that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
             //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
+        }).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) retrieveLatests error : ", err);
+            return;
         });
     }
 
@@ -2600,7 +2671,9 @@ class ChannelsService extends GenericService {
         let that = this;
         let channelId: string = channelInfo.id;
         that._logger.log("debug", LOG_ID + "(onDeleteChannel) channelId : ", channelId);
-        let channelDeleted = await that.removeChannelFromCache(channelId);
+        let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onDeleteChannel) removeChannelFromCache error : ", err);
+        });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
 
         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
@@ -2610,7 +2683,9 @@ class ChannelsService extends GenericService {
     private async onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(onUserSubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel : Channel = await that.fetchChannel(info.id);
+        let channel = await that.fetchChannel(info.id).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUserSubscribeEvent) fetchChannel error : ", err);
+        });
         if (channel) {
             channel.subscribers_count = info.subscribers;
         }
@@ -2622,7 +2697,9 @@ class ChannelsService extends GenericService {
     private async onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
         that._logger.log("internal", LOG_ID + "(onUserUnsubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
-        let channel : Channel = await that.fetchChannel(info.id);
+        let channel = await that.fetchChannel(info.id).catch(err=>{
+            that._logger.log("warn", LOG_ID + "(onUserUnsubscribeEvent) fetchChannel error : ", err);
+        });
         if (channel) {
             channel.subscribers_count = info.subscribers;
         }

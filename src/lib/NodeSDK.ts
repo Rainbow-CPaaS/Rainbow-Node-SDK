@@ -49,6 +49,29 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
  * @property {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
  * @property {string} options.rest.useRestAtStartup, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
+ * @property {string} options.rest.useGotLibForHttp, allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+ * @property {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is :</BR>
+ *  {</BR>
+ * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
+ * keepAlive: true, // ?: boolean or undefined;</BR>
+ * </BR>
+ * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+ * //Only relevant if keepAlive is set to true.</BR>
+ * keepAliveMsecs: 501, // ?: number or undefined;</BR>
+ * </BR>
+ * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
+ * maxSockets: 26, // ?: number or undefined;</BR>
+ * </BR>
+ * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.</BR>
+ * maxTotalSockets: Infinity, // ?: number or undefined;</BR>
+ * </BR>
+ * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.</BR>
+ * maxFreeSockets: 1001, // ?: number or undefined;</BR>
+ * </BR>
+ * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
+ * timeout: 60001 , // ?: number or undefined;</BR>
+ * }</BR>
+ *
  * @property {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
  * @property {string} options.credentials.password "XXXXX", The password.
  * @property {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -88,9 +111,11 @@ let LOG_ID = "NodeSDK/IDX";
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  * @property {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
  * @property {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+ * @property {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
  * @property {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
  * @property {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed from it. Default value is true.
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+ * @property {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
  * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
  * @property {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
@@ -199,10 +224,12 @@ type OptionsType = {
     "testDNSEntry": boolean, 
     "httpoverxmppserver": false,
     "requestsRate":{
+        "useRequestRateLimiter": number,
         "maxReqByIntervalForRequestRate": number, // nb requests during the interval.
         "intervalForRequestRate": number, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": number // nb seconds Request stay in queue before being rejected if queue is full.
     },
+    "autoReconnectIgnoreErrors":boolean,
     // IM options
     "im": {
         "sendReadReceipt": boolean,
@@ -215,7 +242,9 @@ type OptionsType = {
         "rateLimitPerHour": number,
         "messagesDataStore": DataStoreType,
         "autoInitialBubblePresence": boolean,
+        "maxBubbleJoinInProgress": number,
         "autoLoadConversations": boolean,
+        "autoLoadConversationHistory": boolean,
         "autoLoadContacts": boolean,
         "enablesendurgentpushmessages": false
     },
@@ -351,6 +380,29 @@ class NodeSDK {
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
+     * @param {string} options.rest.useGotLibForHttp allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+     * @param {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is : </BR>
+     *  {</BR>
+     * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
+     * keepAlive: true, // ?: boolean or undefined;</BR>
+     * </BR>
+     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+     * //Only relevant if keepAlive is set to true.</BR>
+     * keepAliveMsecs: 501, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
+     * maxSockets: 26, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.</BR>
+     * maxTotalSockets: Infinity, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.</BR>
+     * maxFreeSockets: 1001, // ?: number or undefined;</BR>
+     * </BR>
+     * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
+     * timeout: 60001 , // ?: number or undefined;</BR>
+     * }</BR>
+     *
      * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
      * @param {string} options.credentials.password "XXXXX", The password.
      * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -390,9 +442,11 @@ class NodeSDK {
      *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
      * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
+     * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.   
      * @param {Object} options.servicesToStart <br>
@@ -494,6 +548,7 @@ class NodeSDK {
         return new Promise(function(resolve, reject) {
             return that._core.start( token).then(function() {
                 return that._core.signin(false, token);
+                //throw new Error("error test");
             }).then(function(result : any) {
                 let startDuration: number;
                 // @ts-ignore
@@ -508,7 +563,9 @@ class NodeSDK {
                 } catch (e) {
                     
                 }
-                
+                await setTimeoutPromised(500).then( () => {
+                    that._core._stateManager.transitTo(false, SDKSTATUSENUM.STOPPED);                    
+                });
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
                     // It looks that winston is close before this line :(, so console is used. 
@@ -557,7 +614,11 @@ class NodeSDK {
                 } catch (e) {
                     
                 }
-                
+
+                await setTimeoutPromised(500).then( () => {
+                    that._core._stateManager.transitTo(false, SDKSTATUSENUM.STOPPED);
+                });
+
                 if (err) {
                     console.log("[index ] : rainbow_onconnectionerror : ", inspect(err));
                     // It looks that winston is close before this line :(, so console is used. 
@@ -694,8 +755,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} im
+     * @property {ImsService} im
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the IM module
      * @return {ImsService}
@@ -706,8 +769,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} channels
+     * @property {ChannelsService} channels
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Channels module
      * @return {ChannelsService}
@@ -718,7 +783,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} contacts
+     * @property {ContactsService} contacts
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Contacts module
@@ -730,7 +797,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} conversations
+     * @property {ConversationsService} conversations
+     * @nodered true
+     * @service true
      * @instance
      * @description
      *    Get access to the Conversations module
@@ -742,8 +811,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} presence
+     * @property {PresenceService} presence
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Presence module
      * @return {PresenceService}
@@ -754,8 +825,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} bubbles
+     * @property {BubblesService} bubbles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Bubbles module
      * @return {BubblesService}
@@ -766,8 +839,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} groups
+     * @property {GroupsService} groups
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Groups module
      * @return {GroupsService}
@@ -778,8 +853,9 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} events
+     * @property {Events} events
      * @instance
+     * @nodered true
      * @description
      *    Get access to the Events module
      * @return {Events}
@@ -789,9 +865,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
-     * @property {Object} fileServer
+     * @public
+     * @property {FileServerService} fileServer
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Server module
      * @return {FileServerService}
@@ -801,9 +879,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
-     * @property {Object} fileStorage
+     * @public
+     * @property {FileStorageService} fileStorage
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the File Storage module
      * @return {FileStorageService}
@@ -814,8 +894,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} admin
+     * @property {AdminService} admin
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Admin module
      * @return {AdminService}
@@ -828,6 +910,8 @@ class NodeSDK {
      * @public
      * @property {Object} profiles
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Profiles module
      * @return {AdminService}
@@ -838,7 +922,7 @@ class NodeSDK {
 
     /**
      * @private
-     * @property {Object} rest
+     * @property {RESTService} rest
      * @instance
      * @description
      *    Get access to the REST module
@@ -850,8 +934,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} settings
+     * @property {SettingsService} settings
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the Settings module
      * @return {SettingsService}
@@ -864,6 +950,7 @@ class NodeSDK {
      * @public
      * @property {SDKSTATUSENUM} state
      * @instance
+     * @nodered true
      * @description
      *    Return the state of the SDK (eg: STOPPED, STARTED, CONNECTED, READY, DISCONNECTED, RECONNECTING, FAILED, ERROR)
      * @return {SDKSTATUSENUM}
@@ -876,6 +963,7 @@ class NodeSDK {
      * @public
      * @property {String} version
      * @instance
+     * @nodered true
      * @description
      *      Return the version of the SDK
      * @return {String}
@@ -888,6 +976,7 @@ class NodeSDK {
      * @public
      * @property {ConnectedUser} connectedUser
      * @instance
+     * @nodered true
      * @description
      *      Return the connected user information
      * @return {any}
@@ -898,8 +987,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} telephony
+     * @property {TelephonyService} telephony
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the telephony module
      * @return {TelephonyService}
@@ -910,8 +1001,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} calllog
+     * @property {CallLogService} calllog
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the calllog module
      * @return {CallLogService}
@@ -922,8 +1015,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} favorites
+     * @property {FavoritesService} favorites
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the favorite module
      * @return {FavoritesService}
@@ -934,8 +1029,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} invitations
+     * @property {InvitationsService} invitations
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the invitation module
      * @return {InvitationsService}
@@ -946,8 +1043,10 @@ class NodeSDK {
 
     /**
      * @public
-     * @property {Object} s2s
+     * @property {S2SService} s2s
      * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the s2s module
      * @return {S2SService}
@@ -959,6 +1058,9 @@ class NodeSDK {
     /**
      * @public
      * @property {AlertsService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the alerts module
      * @return {AlertsService}
@@ -970,6 +1072,9 @@ class NodeSDK {
     /**
      * @public
      * @property {RBVoiceService} alerts
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {RBVoiceService}
@@ -981,6 +1086,9 @@ class NodeSDK {
     /**
      * @public
      * @property {WebinarsService} alerts
+     * @intance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the webinar module
      * @return {WebinarsService}
@@ -992,6 +1100,9 @@ class NodeSDK {
     /**
      * @public
      * @property {HTTPoverXMPP} httpoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the httpoverxmpp module
      * @return {HTTPoverXMPP}
@@ -1003,6 +1114,9 @@ class NodeSDK {
     /**
      * @public
      * @property {RPCoverXMPPService} rpcoverxmpp
+     * @instance
+     * @nodered true
+     * @service true
      * @description
      *    Get access to the rpcoverxmpp module
      * @return {RPCoverXMPPService}
@@ -1030,6 +1144,7 @@ class NodeSDK {
      * @public
      * @method getConnectionStatus
      * @instance
+     * @nodered true
      * @description
      *    Get connections status of each low layer services, and also the full SDK state. <br>
      * <br>

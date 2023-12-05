@@ -181,13 +181,13 @@ class XMPPService extends GenericService {
     private maxPingAnswerTimer: number;
     private company: any;
     private xmppRessourceName: string;
-    private _core: Core;
+//    private _core: Core;
 
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
 
-    constructor(_xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options, _core) {
+    constructor(_core, _xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
         super(_logger, LOG_ID);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -245,9 +245,13 @@ class XMPPService extends GenericService {
     start(withXMPP) {
         let that = this;
         that.forceClose = false;
+        that.initStartDate();
 
         return new Promise(function (resolve, reject) {
             try {
+
+                //that.logger.log("info", LOG_ID + "(start) path to require https-proxy-agent :", require.resolve('https-proxy-agent'), ", HttpsProxyAgent : ", HttpsProxyAgent);
+                
                 if (withXMPP) {
                     that.logger.log("debug", LOG_ID + "(start) XMPP host used : ", that.host);
                     that.logger.log("info", LOG_ID + "(start) XMPP serverURL : ", that.serverURL);
@@ -476,6 +480,12 @@ class XMPPService extends GenericService {
         }
     }
 
+    mockStanza(stanza) {
+        let that = this;
+        that.xmppClient.emit(STANZA_EVENT, stanza);
+        that.logger.log("internal", LOG_ID + "(handleXMPPConnection) mockStanza - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
+    }
+        
     async handleXMPPConnection (headers) {
 
         let that = this;
@@ -485,7 +495,7 @@ class XMPPService extends GenericService {
         let options = {agent: null};
         //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
         let opt :any = url.parse(that.proxy.proxyURL);
-        if (that.proxy.isProxyConfigured) {
+        if (that.proxy.isProxyConfigured ) {
             if (that.proxy.secureProtocol) {
                 opt.secureProxy = true;
             }
@@ -652,7 +662,9 @@ class XMPPService extends GenericService {
             let delivered = PubSub.publish(eventId, stanza);
 
             stanza.children.forEach((child) => {
-                delivered |= PubSub.publish(that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : ""), stanza);
+                let eventIdForChilds = that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : "");
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventIdForChilds : ", eventIdForChilds);
+                delivered |= PubSub.publish(eventIdForChilds, stanza);
             });
 
             if (!delivered) {
@@ -706,7 +718,7 @@ class XMPPService extends GenericService {
                     that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 case "close":
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                     break;
                 default:
                     that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
@@ -805,7 +817,7 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(OFFLINE_EVENT, function fn_OFFLINE_EVENT (msg) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - OFFLINE_EVENT : " + OFFLINE_EVENT + " | " + msg);
         });
 
         that.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
@@ -826,32 +838,32 @@ class XMPPService extends GenericService {
                 if (!that.isReconnecting) {
                     that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : It is not already reconnecting, so try to reconnect...");
                     await that.reconnect.reconnect().catch((err) => {
-                        that.logger.log("info", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                        that.logger.log("warn", LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
                     });
                 } else {
-                    that.logger.log("info", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection)  event - DISCONNECT_EVENT : Do nothing, already trying to reconnect...");
                 }
             } else {
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
+                that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - DISCONNECT_EVENT : reconnection disabled so no reconnect");
             }
         });
 
         that.xmppClient.on(CLOSE_EVENT, function fn_CLOSE_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - CLOSE_EVENT : " + CLOSE_EVENT + " | " + msg);
             let stanza = xml("close", {
                 "xmlns": NameSpacesLabels.XmppFraming
             });
 
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
             return that.xmppClient.send(stanza);
         });
 
         that.xmppClient.on(END_EVENT, function fn_END_EVENT (msg) {
-            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) event - END_EVENT : " + END_EVENT + " | " + msg);
         });
 
         that.reconnect.on(RECONNECTING_EVENT, function fn_RECONNECTING_EVENT () {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) plugin event - RECONNECTING_EVENT : " + RECONNECTING_EVENT);
             if (that.reconnect) {
                 that.logger.log("info", `${LOG_ID} (handleXMPPConnection) RECONNECTING_EVENT that.reconnect - `, that.reconnect);
                 if (!that.isReconnecting) {
@@ -1128,13 +1140,18 @@ class XMPPService extends GenericService {
                     "xml:lang": lang
                 }, subject));
             }
-
+            
+            let alternativeContent = [];
             if (content && content.message) {
                 let contentType = content.type || "text/markdown";
                 stanza.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
                 }, content.message));
+                alternativeContent.push({
+                    "message": content.message,
+                    "type": contentType
+                });
             }
 
             // Handle urgency
@@ -1146,7 +1163,7 @@ class XMPPService extends GenericService {
             return new Promise((resolve, reject) => {
                 that.xmppClient.send(stanza).then(() => {
                     that.logger.log("debug", LOG_ID + "(sendChatMessage) sent");
-                    resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, urgency: urgency});
+                    resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, alternativeContent, urgency: urgency});
                 }).catch((err) => {
                     return reject(err);
                 });

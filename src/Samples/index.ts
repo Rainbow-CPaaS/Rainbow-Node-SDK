@@ -12,7 +12,7 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName
+    generateRamdomEmail, functionName, makeId, Deferred
 } from "../lib/common/Utils.js";
 import {TimeOutManager} from "../lib/common/TimeOutManager.js";
 import set = Reflect.set;
@@ -30,8 +30,19 @@ import {Contact} from "../lib/common/models/Contact.js";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession.js";
 import {DataStoreType} from "../lib/config/config.js";
 import { Server as MockServer, WebSocket as WS } from 'mock-socket';
+import { v4 as uuidv4 } from 'uuid';
 
 const xml = require("@xmpp/xml");
+
+import moment from 'moment';
+//const moment = global.get('moment');
+import serialize from 'safe-stable-stringify' ;
+//const serialize = global.get('safestablestringify');
+import * as ACData from "adaptivecards-templating";
+//const ACData = global.get('adaptivecardstemplating');
+import * as path from "path";
+const prettydata = require("../lib/connection/pretty-data").pd;
+const mime = require('mime');
 
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
@@ -82,7 +93,7 @@ import {default as fs} from "fs";
 //import fileapi from "file-api";
 //let fileapi = require('file-api');
 import {default as fileapi} from 'file-api';
-import {inspect} from "util";
+import {inspect, toUSVString} from "util";
 
 //const inquirer = require("inquirer");
 import {default as inquirer} from "inquirer";
@@ -141,8 +152,36 @@ let urlS2S;
             //"hostCallback": "http://70a0ee9d.ngrok.io",
             "locallistenningport": "4000"
         },
-        /*"rest":{
-            "useRestAtStartup" : true
+        "rest": {
+            "useRestAtStartup": true,
+            "useGotLibForHttp": true,
+            "gotOptions": {
+                /**
+                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                 */
+                keepAlive: true, // ?: boolean | undefined;
+                /**
+                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                 * Only relevant if keepAlive is set to true.
+                 */
+                keepAliveMsecs: 501, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                 */
+                maxSockets: 26, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                 */
+                maxTotalSockets: Infinity, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                 */
+                maxFreeSockets: 1001, // ?: number | undefined;
+                /**
+                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                 */
+                timeout: 60001 , // ?: number | undefined;
+            }
         }, // */
         "credentials": {
             "login": "",  // The Rainbow email account to use
@@ -167,19 +206,20 @@ let urlS2S;
         }, // */
         // Proxy configuration
 
+
         /*
         proxy: {
             host: "10.67.253.14",
             port: 8081,
             protocol: "http",
-           // user: "",
+            //user: "",
             //password: "",
             //secureProtocol: "SSLv3_method"
         }, // */
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
@@ -192,11 +232,11 @@ let urlS2S;
             },
             "file": {
                 "path": "c:/temp/",
-                "customFileName": "R-SDK-Node-Sample",
+                "customFileName": "R-SDK-Node-Sample-"+ Math.floor(Math.random() * 1000),
                 //"level": 'info',                    // Default log level used
-                "zippedArchive": false /*,
-            "maxSize" : '10m',
-            "maxFiles" : 10 // */
+                "zippedArchive": false ,
+            "maxSize" : '100m',
+            "maxFiles" : 2 // */
             }
         },
         "testOutdatedVersion": false,
@@ -204,10 +244,12 @@ let urlS2S;
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
-            "maxReqByIntervalForRequestRate": 600, // nb requests during the interval.
+            "useRequestRateLimiter": false,
+            "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
         },
+        "autoReconnectIgnoreErrors":false,
         // IM options
         "im": {
             "sendReadReceipt": true,
@@ -222,11 +264,13 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
+            "maxBubbleJoinInProgress": 6,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
             "autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
+            "autoLoadConversationHistory" : false,
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
@@ -256,7 +300,7 @@ let urlS2S;
                 "start_up": true,
             },
             "calllog": {
-                "start_up": true,
+                "start_up": false,
             },
             "favorites": {
                 "start_up": true,
@@ -289,7 +333,8 @@ let urlS2S;
             options.application.appSecret = `${val}`.substring(10);
         }
     });
-
+    
+    console.log("UUID:" + String(uuidv4()).toUpperCase());
 
     options.logs.customLabel = options.credentials.login;
 
@@ -408,6 +453,7 @@ let urlS2S;
         logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
     });
     rainbowSDK.events.on("rainbow_onstarted", () => {
+
         // do something when the SDK has been started
         logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
     });
@@ -424,6 +470,10 @@ let urlS2S;
     });
     rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
         logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
+    });
+
+    rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
+        logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
     });
 
     let bubbleInvitationReceived = null;
@@ -467,6 +517,9 @@ let urlS2S;
     });
     rainbowSDK.events.on("rainbow_onchannelmessagereceived", (data) => {
         logger.log("debug", "MAIN - (rainbow_onchannelmessagereceived) - rainbow event received.", data);
+    });
+    rainbowSDK.events.on("rainbow_onbubbleownaffiliationchanged", (data) => {
+        logger.log("debug", "MAIN - (rainbow_onbubbleownaffiliationchanged) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
         logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
@@ -730,15 +783,96 @@ let urlS2S;
             logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
             rainbowSDK._core._rest._renewAuthToken();            
         }
-        
+
+        async test_renewAuthToken_2() {
+            await rainbowSDK.stop().then(()=>{}).catch(()=>{});
+            logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
+            //rainbowSDK._core._rest._renewAuthToken("failedurl");
+        }
+
         testCloseXMPP() {
             let stanza = xml("close", {
                 "xmlns": NameSpacesLabels.XmppFraming
             });
             rainbowSDK._core._xmpp.sendStanza(stanza);
         }
+
+        /*async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+            rainbowSDK._core._xmpp.mockStanza(stanza);
+        } // */
+
+        // region File JSON
+        testloadDocJSON() {
+            let pathJson = path.join(__dirname,'../build/JSONDOCS/BubblesService.json');
+           // let pathJson = path.join(__dirname,'../node_modules/rainbow-node-sdk/build/JSONDOCS/BubblesService.json');
+            console.log("Rainbow pathJson : ", pathJson);
+            //const path = require("path");
+            let bubblesServiceDocJSONTab = require( pathJson);
+
+            //console.log("Rainbow BubblesService JSON : ", util.inspect(bubblesServiceDocJSONTab));
+            for (let i = 0; i < bubblesServiceDocJSONTab.length; i++) {
+                let bubblesServiceDocJSON = bubblesServiceDocJSONTab[i];
+                if (bubblesServiceDocJSON.tags) {
+
+                    let bubblesServiceDocJSONNodeRed = bubblesServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "nodered" && (item.value==="true" || item.value===true));
+                    });
+                    if (bubblesServiceDocJSONNodeRed ) {
+                        //console.log("Rainbow BubblesService bubblesServiceDocJSONNodeRed JSON : ", bubblesServiceDocJSONNodeRed);
+                        if ((bubblesServiceDocJSONNodeRed.value==="true" || bubblesServiceDocJSONNodeRed.value===true) && (bubblesServiceDocJSON["kind"]==="function" || bubblesServiceDocJSON["kind"]==="method")) {
+                            console.log("Rainbow BubblesService bubblesServiceDocJSON JSON : ", bubblesServiceDocJSON);
+                        }
+                    }
+                }
+            }
+
+        }
         
-    //region Contacts
+        testloadDocJSONServices() {
+            let sdkPublic=[];
+            console.log("Rainbow : rainbowsdkNodeSDKapi will get Services names and types from NodeSDK.");
+            let pathJson = path.join(__dirname, '../build/JSONDOCS/NodeSDK.json');
+            console.log("Rainbow pathJson : ", pathJson);
+            //const path = require("path");
+            let NodeSDKServiceDocJSONTab = require(pathJson);
+
+            // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
+            // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
+
+            for (let i = 0; i < NodeSDKServiceDocJSONTab.length; i++) {
+                let NodeSDKServiceDocJSON = NodeSDKServiceDocJSONTab[i];
+                if (NodeSDKServiceDocJSON.tags) {
+
+                    let NodeSDKServiceDocJSONNodeRed = NodeSDKServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "nodered" && (item.value === "true" || item.value === true));
+                    });
+                    let NodeSDKServiceDocJSONService = NodeSDKServiceDocJSON.tags.find((item) => {
+                        //console.log("Rainbow BubblesService item : ", item);
+                        return (item.title === "service" && (item.value === "true" || item.value === true));
+                    });
+                    if (NodeSDKServiceDocJSONNodeRed && NodeSDKServiceDocJSONService) {
+                        //console.log("Rainbow BubblesService NodeSDKServiceDocJSONNodeRed JSON : ", NodeSDKServiceDocJSONNodeRed);
+                        if ((NodeSDKServiceDocJSONNodeRed.value === "true" || NodeSDKServiceDocJSONNodeRed.value === true) && (NodeSDKServiceDocJSONService.value === "true" || NodeSDKServiceDocJSONService.value === true) && (NodeSDKServiceDocJSON["kind"] === "member")) {
+                            console.log("Rainbow NodeSDKServiceDocJSON JSON : ", NodeSDKServiceDocJSON);
+                            console.log("Rainbow NodeSDKServiceDocJSON properties : ", NodeSDKServiceDocJSON.properties);
+                            let serviceObj : any = {};
+                            if (Array.isArray(NodeSDKServiceDocJSON.properties) && NodeSDKServiceDocJSON.properties[0] != undefined) {
+                                serviceObj.name = NodeSDKServiceDocJSON.properties[0].name;
+                                serviceObj.typeService = NodeSDKServiceDocJSON.properties[0].type? NodeSDKServiceDocJSON.properties[0].type.names[0]: "";
+                            }
+                            sdkPublic.push(serviceObj);
+                        }
+                    }
+                }
+            }
+            console.log("SDK Services : ", sdkPublic);
+        }
+        
+        // endregion File JSON
+
+        // region Contacts
 
      testupdateMyInformations() {
         let contactInfo = {};
@@ -757,6 +891,14 @@ let urlS2S;
         });
     }
 
+     testgetContactByLoginEmail_natawi29() {
+        let usersToSearch = "natawi29@gmail.com";
+        rainbowSDK.contacts.getContactByLoginEmail(usersToSearch).then(contact => {
+            logger.log("debug", "MAIN - [testgetContactByLoginEmail_natawi29    ] ::  contact : ", contact);
+        }).catch((err) => {
+            logger.log("error", "MAIN - [testgetContactByLoginEmail_natawi29    ] :: catch reject contact : ", err);
+        });
+    }
      testgetContactByLoginEmail_UnknownUser() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
@@ -1739,6 +1881,37 @@ let urlS2S;
        }); //*/
    }
         
+    async  testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse() {
+        let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        let now = new Date().getTime();
+        let formattedMessage = that.formatCard2("original msg : ", now);
+        let content = {
+            "type": "form/json",
+            "message": formattedMessage
+        }
+        // Send message
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        msgsSent.push(msgSent);
+        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - wait for message to be in conversation : ", msgSent);
+        await until(() => {
+            return conversation.getMessageById(msgSent.id)!==undefined;
+        }, "Wait for message to be added in conversation.");
+        let msgSentOrig = msgsSent.slice(-1)[0];
+        let msgStrModified = "modified : " + msgSentOrig.content;
+        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - msgStrModified : ", msgStrModified);
+    }
+
     async  testsendCorrectedChatMessageWithContentAdaptiveCard() {
         let that = this;
         //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
@@ -1783,6 +1956,49 @@ let urlS2S;
             });
             logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
         }, 20000);
+    }
+
+        formatCardUrgent(msg, utc){
+            return JSON.stringify({
+                "version": "1.1",
+                "type": "AdaptiveCard",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [ { "type": "TextBlock", "text": msg + " Hey! How are you? " + utc, "wrap": "True" }]
+                    },
+                    {
+                        "type": "ActionSet", "actions": [
+                            { "title": "great", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_great" }, "text": "great" } } },
+                            { "title": "reply urgent", "type": "Action.Submit", "data": { "rainbow": { "type": "messageBack", "value": { "response": "mood_unhappy" }, "text": "reply urgent sad", "urgency" : "high" }, "urgency" : "high", "mentions" : "@vincent01", "urlMetadata" : "metadata" } }
+                        ]
+                    }
+                ],
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+            })
+        }
+
+        async  testsendChatMessageWithContentAdaptiveCardUrgent() {
+        let that = this;
+        //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+        //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        let nbMsgToSend = 1;
+        let msgsSent = [];
+        let now = new Date().getTime();
+        let formattedMessage = that.formatCardUrgent("original msg : ", now);
+        let content = {
+            "type": "form/json",
+            "message": formattedMessage
+        }
+        // Send message
+        let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
     }
 
     async  testdeleteMessageFromConversation() {
@@ -2052,13 +2268,29 @@ let urlS2S;
         });
     }
 
+    async  testPublishMessageToChannel() {
+        // use with vincent03@vbe.test.openrainbow.net sur .Net
+        let mychannels = rainbowSDK.channels.getAllOwnedChannels();
+        let mychannel = mychannels ? mychannels[0]:null;
+        if (mychannel) {
+            let now = new Date().getTime();
+            await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + now, "title_", null, null, null, {tag: ["tag1", "tag2"]}).then((res) => {
+                logger.log("debug", "MAIN - publishMessageToChannel - res : ", res);
+            });
+            pause(300);
+        } else {
+            logger.log("debug", "MAIN - publishMessageToChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+        }
+    }
+
     async  testPublishChannel() {
+        // use with vincent03@vbe.test.openrainbow.net sur .Net
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         if (mychannel) {
             for (let i = 0; i < 100; i++) {
                 let now = new Date().getTime();
-                await rainbowSDK.channels.createItem(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null, null).then((res) => {
+                await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null, null).then((res) => {
                     logger.log("debug", "MAIN - createItem - res : ", res);
                 });
                 pause(300);
@@ -2143,6 +2375,35 @@ let urlS2S;
             }
         } else {
             logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+        }
+    }
+
+    async  testfetchChannelItemsFromRNodeSdkChangeLog() {
+        let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
+        //let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
+        //let mychannel = mychannels ? mychannels[0]:null;
+        logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - getChannel mychannel : ", mychannel);
+        if (mychannel) {
+            for (let i = 0; i < 1; i++) {
+                let now = new Date().getTime();
+                let itemId = "";
+                let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - items.length : ", items.length);
+
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - First item itemId : ", items[0]);
+                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - Last item itemId : ", items[items.length - 1]);
+
+                /*itemId = items[0].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                });
+                itemId = items[items.length - 1].id;
+                rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
+                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                }); // */
+            }
+        } else {
+            logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - mychannel is empty, so can not publish.");
         }
     }
 
@@ -2510,19 +2771,41 @@ let urlS2S;
         //});
     }
 
-     testuploadFileToStorage() {
+    testgetRainbowNodeSdkPackagePublishedInfos() {
+         rainbowSDK._core._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+             logger.log("debug", "MAIN - testgetRainbowNodeSdkPackagePublishedInfos - infos : ", infos);
+        });
+    }
+
+    testuploadFileToStorage() {
         let that = this;
         // let conversation = null;
         let file = null;
         //let strMessage = {message: "message for the file"};
         let strMessage = "message for the file";
-        file = "c:\\temp\\IMG_20131005_173918XXXXXXXXXXX.jpg";
+        file = "c:\\temp\\IMG_20131005_173918.jpg";
         logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
         // Share the file
         return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
             logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);
         }).catch((errr) => {
             logger.log("error", "MAIN - uploadFileToStorage - error : ", errr);
+        });
+    }
+
+    testuploadFileToStorageBig() {
+        let that = this;
+        // let conversation = null;
+        let file = null;
+        //let strMessage = {message: "message for the file"};
+        let strMessage = "message for the file";
+        file = "c:\\temp\\fichiertestupload.txt";
+        logger.log("debug", "MAIN - testuploadFileToStorageBig - file : ", file);
+        // Share the file
+        return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
+            logger.log("debug", "MAIN - testuploadFileToStorageBig - uploadFileToStorage result : ", result);
+        }).catch((errr) => {
+            logger.log("error", "MAIN - testuploadFileToStorageBig - uploadFileToStorage error : ", errr);
         });
     }
 
@@ -2592,7 +2875,7 @@ let urlS2S;
 
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
         logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - allCompanies : ", allCompanies.length);
-        
+
         // */
 
         let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId(undefined, true);
@@ -2623,12 +2906,19 @@ let urlS2S;
 
     //region Bubbles
 
-     testgetContactById_aluno() {
-         rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
-             logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+     testgetContactById_65269b10bd1d36463da3c89d() {
+        // userid not existing in .Net platform
+         rainbowSDK.contacts.getContactById("65269b10bd1d36463da3c89d").then((contact: any) => {
+             logger.log("debug", "MAIN - [testgetContactById_65269b10bd1d36463da3c89d    ] :: getContactById contact : ", contact);
          });
      }
-     
+
+     testgetContactById_aluno() {
+         rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
+             logger.log("debug", "MAIN - [testgetContactById_aluno    ] :: getContactById contact : ", contact);
+         });
+     }
+
      testCreateBubble_Uniasselvi() {
         let loginEmail = "vincent02@vbe.test.openrainbow.net" ;
 
@@ -3068,7 +3358,7 @@ let urlS2S;
 //});
      testBubblesArchived() {
         /*let bubbles = rainbowSDK.bubbles.getAllBubbles();
-    
+
         bubbles.forEach((bubble) => {
             logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubble : ", bubble);
         }); */
@@ -3295,7 +3585,7 @@ let urlS2S;
         });
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "EngineVincent00 - uploadFileToBubble getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        logger.log("debug", "MAIN - (testUploadFileToBubble) getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             if (bubble.isActive==false) {
@@ -3303,7 +3593,7 @@ let urlS2S;
             }
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessage).then((result) => {
-                logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
+                logger.log("debug", "MAIN - (testUploadFileToBubble) uploadFileToBubble - result : ", result);
             });
         }
         //});
@@ -3353,7 +3643,7 @@ let urlS2S;
         if (result && result.length > 0 && result[0].name=="test") {
             let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(result[0], undefined);
             logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator - resultDelete : ", resultDelete);
-        } 
+        }
     }
 
      async testdeleteAllMessagesInRoomConversationFromMember() {
@@ -3408,7 +3698,7 @@ let urlS2S;
 
      async testdeleteAllMessagesInRoomConversationFromContactNotInBubble() {
          // to be used with vincent03 on .NET with bubble "test" jid room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net.
-         let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net"; 
+         let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net";
          let resultDelete = rainbowSDK._core._xmpp.deleteAllMessagesInRoomConversation(bubbleJid, undefined);
          logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble - resultDelete : ", resultDelete);
     }
@@ -3545,12 +3835,12 @@ let urlS2S;
         //                     rainbowSDK.bubbles.joinConference(bubble).then((result) => {
         //                         //let bubbles = rainbowSDK.bubbles.getAll();
         //                         logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
-        //                     }); 
+        //                     });
         //                 });
         //             });
         //         }
         //     }
-        // }); 
+        // });
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 // */
@@ -3605,8 +3895,671 @@ let urlS2S;
     }
 
     //endregion Guests
-        
-    async  testgetLastMessageOfConversation() {
+
+        async  testsendChatMessageWithContentAdaptiveCard() {
+            let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let msgsSent = [];
+            let now = new Date().getTime();
+            let formattedMessage = that.formatCard2("original msg : ", now);
+            let content = {
+                "type": "form/json",
+                "message": formattedMessage
+            }
+            /*
+            {
+    "title": "Report an issue",
+    "issueList": [
+        {
+            "category": "Rainbow",
+            "tag": "Sounds metallic",
+            "idcategory": "idcategory",
+            "idtag": "idtag",
+            "reported": "false"
+        },
+        {
+            "category": "Rainbow",
+            "tag": "Sounds low",
+            "idcategory": "idcategory1",
+            "idtag": "idtag1",
+            "reported": "true"
+        }
+    ]
+}
+             */
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            await until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation.");
+            let msgSentOrig = msgsSent.slice(-1)[0];
+            let msgStrModified = "modified : " + msgSentOrig.content;
+            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+        }
+
+
+        async testLoic() {
+       let alternateContent = null;
+
+       let msg : any = {};
+       msg.template = "{\n" +
+               "    \"type\": \"AdaptiveCard\",\n" +
+               "    \"backgroundImage\": \"data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%0A%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22600%22%3E%0A%20%20%3Crect%20fill%3D%22white%22%20x%3D%220%25%22%20y%3D%220%25%22%20width%3D%22100%25%22%20height%3D%22100%25%22%20%2F%3E%0A%3C%2Fsvg%3E%0A\",\n" +
+               "    \"body\": [\n" +
+               "        {\n" +
+               "            \"type\": \"TextBlock\",\n" +
+               "            \"size\": \"medium\",\n" +
+               "            \"weight\": \"bolder\",\n" +
+               "            \"text\": \"${title}\",\n" +
+               "            \"spacing\": \"large\",\n" +
+               "            \"height\": \"stretch\",\n" +
+               "            \"maxLines\": 1,\n" +
+               "            \"separator\": true\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"Container\",\n" +
+               "            \"spacing\": \"none\",\n" +
+               "            \"items\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"ColumnSet\",\n" +
+               "                    \"columns\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"31px\",\n" +
+               "                            \"spacing\": \"none\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"text\": \"CATEGORY\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Bottom\",\n" +
+               "                            \"minHeight\": \"20px\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"text\": \"ISSUE\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"horizontalAlignment\": \"Left\",\n" +
+               "                            \"verticalContentAlignment\": \"Bottom\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"weight\": \"Bolder\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"66px\"\n" +
+               "                        }\n" +
+               "                    ],\n" +
+               "                    \"horizontalAlignment\": \"Left\",\n" +
+               "                    \"minHeight\": \"30px\"\n" +
+               "                }\n" +
+               "            ]\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"Image\",\n" +
+               "            \"url\": \"https://st-exupery.ale-custo.com/greenbot/line.svg\",\n" +
+               "            \"height\": \"15px\",\n" +
+               "            \"spacing\": \"none\",\n" +
+               "            \"width\": \"383px\"\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"$data\": \"${issueList}\",\n" +
+               "            \"type\": \"Container\",\n" +
+               "            \"items\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"ColumnSet\",\n" +
+               "                    \"columns\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"id\": \"${idcategory};${idTag}\",\n" +
+               "                                    \"type\": \"Input.Toggle\",\n" +
+               "                                    \"title\": \"\",\n" +
+               "                                    \"value\": \"${reported}\",\n" +
+               "                                    \"spacing\": \"none\"\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"31px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"text\": \"${category}\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"TextBlock\",\n" +
+               "                                    \"text\": \"${tag}\",\n" +
+               "                                    \"wrap\": true\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Image\",\n" +
+               "                                    \"$when\": \"${reported=='true'}\",\n" +
+               "                                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/Off.svg\",\n" +
+               "                                    \"height\": \"19px\"\n" +
+               "                                },\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Image\",\n" +
+               "                                    \"$when\": \"${reported=='false'}\",\n" +
+               "                                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/Running.svg\",\n" +
+               "                                    \"height\": \"19px\"\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"150px\",\n" +
+               "                            \"verticalContentAlignment\": \"Center\",\n" +
+               "                            \"horizontalAlignment\": \"Left\",\n" +
+               "                            \"spacing\": \"none\"\n" +
+               "                        },\n" +
+               "                        {\n" +
+               "                            \"type\": \"Column\",\n" +
+               "                            \"spacing\": \"none\",\n" +
+               "                            \"items\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"ActionSet\",\n" +
+               "                                    \"actions\": [\n" +
+               "                                        {\n" +
+               "                                            \"type\": \"Action.Submit\",\n" +
+               "                                            \"$when\": \"${reported=='false'}\",\n" +
+               "                                            \"title\": \"Report\",\n" +
+               "                                            \"style\": \"destructive\",\n" +
+               "                                            \"data\": {\n" +
+               "                                                \"idCategory\": \"${idcategory}\",\n" +
+               "                                                \"idTag\": \"${idtag}\",\n" +
+               "                                                \"rainbow\": {\n" +
+               "                                                    \"text\": \"#report ${category} ${tag}\",\n" +
+               "                                                    \"type\": \"messageBack\",\n" +
+               "                                                    \"value\": {\n" +
+               "                                                        \"response\": \"report\",\n" +
+               "                                                        \"idCategory\": \"${idcategory}\",\n" +
+               "                                                        \"idTag\": \"${idtag}\"\n" +
+               "                                                    }\n" +
+               "                                                }\n" +
+               "                                            }\n" +
+               "                                        },\n" +
+               "                                        {\n" +
+               "                                            \"type\": \"Action.Submit\",\n" +
+               "                                            \"$when\": \"${reported=='true'}\",\n" +
+               "                                            \"title\": \"Cancel\",\n" +
+               "                                            \"style\": \"destructive\",\n" +
+               "                                            \"data\": {\n" +
+               "                                                \"idCategory\": \"${idcategory}\",\n" +
+               "                                                \"idTag\": \"${idtag}\",\n" +
+               "                                                \"rainbow\": {\n" +
+               "                                                    \"text\": \"#cancelreporting ${category} ${tag}\",\n" +
+               "                                                    \"type\": \"messageBack\",\n" +
+               "                                                    \"value\": {\n" +
+               "                                                        \"response\": \"cancelreporting\",\n" +
+               "                                                        \"idCategory\": \"${idcategory}\",\n" +
+               "                                                        \"idTag\": \"${idtag}\"\n" +
+               "                                                    }\n" +
+               "                                                }\n" +
+               "                                            }\n" +
+               "                                        }\n" +
+               "                                    ]\n" +
+               "                                }\n" +
+               "                            ],\n" +
+               "                            \"width\": \"66px\"\n" +
+               "                        }\n" +
+               "                    ]\n" +
+               "                },\n" +
+               "                {\n" +
+               "                    \"type\": \"Image\",\n" +
+               "                    \"url\": \"https://st-exupery.ale-custo.com/greenbot/line.svg\",\n" +
+               "                    \"spacing\": \"none\",\n" +
+               "                    \"height\": \"15px\",\n" +
+               "                    \"width\": \"383px\"\n" +
+               "                }\n" +
+               "            ],\n" +
+               "            \"spacing\": \"none\"\n" +
+               "        },\n" +
+               "        {\n" +
+               "            \"type\": \"ColumnSet\",\n" +
+               "            \"columns\": [\n" +
+               "                {\n" +
+               "                    \"type\": \"Column\",\n" +
+               "                    \"width\": \"auto\",\n" +
+               "                    \"items\": [\n" +
+               "                        {\n" +
+               "                            \"type\": \"ActionSet\",\n" +
+               "                            \"actions\": [\n" +
+               "                                {\n" +
+               "                                    \"type\": \"Action.Submit\",\n" +
+               "                                    \"title\": \"Report selected\",\n" +
+               "                                    \"style\": \"positive\",\n" +
+               "                                    \"data\": {\n" +
+               "                                        \"rainbow\": {\n" +
+               "                                            \"text\": \"#report-selected\",\n" +
+               "                                            \"type\": \"messageBack\",\n" +
+               "                                            \"value\": {\n" +
+               "                                                \"response\": \"#report-selected\"\n" +
+               "                                            }\n" +
+               "                                        }\n" +
+               "                                    }\n" +
+               "                                }\n" +
+               "                            ]\n" +
+               "                        }\n" +
+               "                    ]\n" +
+               "                }\n" +
+               "            ],\n" +
+               "            \"horizontalAlignment\": \"Center\",\n" +
+               "            \"spacing\": \"ExtraLarge\",\n" +
+               "            \"height\": \"stretch\"\n" +
+               "        }\n" +
+               "    ],\n" +
+               "    \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n" +
+               "    \"version\": \"1.3\"\n" +
+               "}";
+
+       const buildCard = (type) => {
+           const content = msg.template
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(content);
+           const context = {
+               $root: msg.sample
+           };
+           const card = template.expand(context);
+
+           return card;
+
+       }
+
+
+       alternateContent = {
+           type: 'form/json',
+           message: serialize.configure(buildCard(""))
+       };
+
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+
+       msg.conversation = rainbowSDK.conversations.getConversationById(conversation.id);
+
+       function getConversationHistory(conversation) {
+
+           return rainbowSDK.conversations.getHistoryPage(conversation, 100).then(function (conversationUpdated) {
+               msg.conversationUpdated = conversationUpdated
+               return conversationUpdated.historyComplete ? conversationUpdated : getConversationHistory(conversationUpdated);
+           });
+       }
+       getConversationHistory(msg.conversation).then(async conversation => {
+           msg.conversation = conversation
+           await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+           let msgSentOrig = conversation.getlastEditableMsg();
+
+           rainbowSDK.conversations.sendCorrectedChatMessage(msg.conversation, `${msgSentOrig.content} up`, msgSentOrig.id, alternateContent).then(message => {
+               msg.message = message;
+               //node.send([msg, null])
+               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+           }, error => {
+               msg.error = error
+               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+               //node.send([null, msg])
+           })
+       }, error => {
+           msg.error = error
+           logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+           //node.send([null, msg])
+       })
+   }
+
+   async testsendMessageToConversationFormJson() {
+       /*
+       const moment = global.get('moment');
+       const serialize = global.get('safestablestringify');
+       const ACData = global.get('adaptivecardstemplating');
+       // */
+
+       const message = "test"
+       let alternateContent = null;
+
+       const waitUntil = (condition, checkInterval = 500) => {
+           return new Promise(resolve => {
+               let iter = 100
+               let interval = setInterval(() => {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil")
+                   if (!condition() && iter-->0) return;
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil is true")
+                   clearInterval(interval);
+                   resolve(true);
+               }, checkInterval)
+           })
+       }
+       const buildCard = (type) => {
+           const content = "{\n" +
+                   "    \"title\": \"Report an issue\",\n" +
+                   "    \"title1\": \"Your Issue(s) reported\",\n" +
+                   "    \"issueList\": [\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds metallic\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag\",\n" +
+                   "            \"reported\": \"false\"\n" +
+                   "        },\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds high\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag2\",\n" +
+                   "            \"reported\": \"false\"\n" +
+                   "        },\n" +
+                   "        {\n" +
+                   "            \"category\": \"Rainbow\",\n" +
+                   "            \"tag\": \"Sounds low\",\n" +
+                   "            \"idcategory\": \"idcategory\",\n" +
+                   "            \"idtag\": \"idtag1\",\n" +
+                   "            \"reported\": \"true\",\n" +
+                   "            \"when\": \"August 19, 2022 23:15:30\",\n" +
+                   "            \"idIssue\": \"idIssue1\"\n" +
+                   "        }\n" +
+                   "    ]\n" +
+                   "}"
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(content);
+           const context = {
+               $root: JSON.parse(content)
+           };
+           const card = template.expand(context);
+
+           return card;
+
+       }
+
+
+       alternateContent = {
+           type: 'form/json',
+           message: serialize.configure(buildCard(""))
+       };
+
+       //let msg : any = {origin : {}};
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+       let conversationId = conversation.id;
+
+       await rainbowSDK.im.sendMessageToConversation(conversation,'ok', "fr", alternateContent, "alternate").then(async message => {
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+           await waitUntil(() => {
+               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) of waitUntil");
+               let conversation = rainbowSDK.conversations.getConversationById(conversationId);
+               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) conversation getConversationById : " + conversation.id);
+               let msgFound = conversation.getMessageById(message.id);
+               if (msgFound) {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) msgFound returned by getMessageById : " + msgFound.id);;
+               } else {
+                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) empty msgFound returned by getMessageById.");
+               }
+               return msgFound!==undefined
+           })
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil");
+
+       }, error => {
+       })
+
+       return null;
+   }
+
+   async testsendMessageAdaptiveCard() {
+       let alternateContent = null;
+
+
+       function treatmentOfAdaptiveCardMessage(adaptiveResponse) {
+           // Treatment of returned data by the adptive card.
+           if (adaptiveResponse?.rainbow?.value?.response === "adaptiveCard_responseIntervention") {
+               let firstName = adaptiveResponse?.firstName;
+               let lastName = adaptiveResponse?.lastName;
+               let soinDone = adaptiveResponse?.interventionDoneVal;
+               let quantity = adaptiveResponse?.quantity;
+               let dateVal = adaptiveResponse?.dateVal;
+               let timeVal = adaptiveResponse?.timeVal;
+               let dateRespVal = adaptiveResponse?.dateRespVal;
+               logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
+                       ", Quantité : ", quantity +
+                       ", le  : ", dateVal +
+                       ", à : ", timeVal +
+                       ", hidden dateRespVal : ", dateRespVal);
+           } else {
+               // The card is not the result of an intervention.
+           }
+       }
+
+       // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
+       rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
+           logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+           let responseObjJson = "";
+           if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
+
+               switch (message.alternativeContent[0].type) {
+                   case "rainbow/json":
+                       responseObjJson = JSON.parse(message.alternativeContent[0].message);
+                       treatmentOfAdaptiveCardMessage(responseObjJson);
+                   default:
+               }
+
+           }
+       });
+
+       const buildCard = (type) => {
+           let templateJson = {
+               "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+               "type": "AdaptiveCard",
+               "version": "1.4",
+               "body": [
+                   {
+                       "type": "TextBlock",
+                       "text": "${titleCard}"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "size": "Medium",
+                       "weight": "Bolder",
+                       "text": "${Survey.title}",
+                       "horizontalAlignment": "Center",
+                       "wrap": true,
+                       "style": "heading"
+                   },
+                   {
+                       "type": "Input.Text",
+                       "id": "firstName",
+                       "label": "${Survey.askFirstName}"
+                   },
+                   {
+                       "type": "Input.Text",
+                       "id": "lastName",
+                       "label": "${Survey.askLastName}"
+                   },
+                   { // start
+                       "type": "TextBlock",
+                       "text": "${Survey.askQuantity}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Number",
+                       "min": 0,
+                       "max": 5,
+                       "value": 1,
+                       "id": "quantity"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.askDate}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Date",
+                       "id": "dateVal",
+                       "value": "2023-11-06"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.askTime}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.Time",
+                       "id": "timeVal",
+                       "value": "16:59"
+                   },
+                   {
+                       "type": "TextBlock",
+                       "text": "${Survey.questions[0].question}",
+                       "wrap": true
+                   },
+                   {
+                       "type": "Input.ChoiceSet",
+                       "id": "interventionDoneVal",
+                       "style": "expanded",
+                       "value": "false",
+                       "choices": [
+                           {
+                               "$data": "${Survey.questions[0].items}",
+                               "title": "${title}",
+                               "value": "${value}"
+                           }
+                       ]
+                   },
+                   {
+                       "type": "Input.Date",
+                       "id": "dateRespVal",
+                       "isVisible": false,
+                       "value": "${formatDateTime(utcNow(), 'yyyy-MM-dd')}"
+                   },
+
+               ],
+               "actions": [
+                   {
+                       "type": "Action.Submit",
+                       "title": "Valider",
+                       "data": {
+                           "rainbow": {
+                               "text": "Retour fait.",
+                               "type": "messageBack",
+                               "value": {
+                                   "response": "adaptiveCard_responseIntervention"
+                               }
+                           }
+                       }
+                   }
+               ]
+           }; // */
+
+           let messageJson = {
+               "titleCard": "Retour de textes et choix.",
+               "Survey": {
+                   "title": "Résultat d'intervension : ",
+                   "askFirstName": "Votre prénom ?",
+                   "askLastName": "Votre nom ?",
+                   "askQuantity": "Quantité deliverée ? ",
+                   "askDate": "Date de réalisation : ",
+                   "askTime": "Start time : ",
+                   "questions": [
+                       {
+                           "question": "Avez-vous effectué l'intervension ? ",
+                           "items": [
+                               {
+                                   "title": "Oui",
+                                   "value": "true"
+                               },
+                               {
+                                   "title": "Non",
+                                   "value": "false"
+                               }
+                           ]
+                       }
+                   ]
+               }
+           };
+
+           // Create a Template instance from the template payload
+           const template = new ACData.Template(templateJson);
+           const context = {
+               $root: messageJson
+           };
+           const card = template.expand(context);
+           return JSON.stringify(card);
+       }
+
+       alternateContent = {
+           type: 'form/json',
+           //message: serialize.configure(buildCard(""))
+           message: buildCard("")
+       };
+
+       logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
+
+       let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+       let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+       let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+       //let conversationId = conversation.id;
+
+       await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+
+       }, error => {
+       })
+   }
+
+   async  testgetLastMessageOfConversation() {
         let that = this;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -4134,6 +5087,64 @@ let urlS2S;
 
     }
 
+    async  testCreateCompanyCreateUserAndDelete() {
+        // To use with rford@westworld.com
+
+        let utc = new Date().toJSON().replace(/-/g, '_');
+        let companyName = "MyVberderCompany_" + utc;
+        let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createCompany Error : ", e);
+        })) ;
+        await pause(2000);
+       /* let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeCompanyToDemoOffer Error : ", e);
+        }) ;
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeResult : ", subscribeResult);
+        // */
+        let generatedId = makeId(15);
+        let email = "vincentTest01"+ generatedId + "@vbe.test.openrainbow.com";
+        let password = "Password_123";
+        let firstname = "vincentTest01_"+generatedId;
+        let lastname = "berderTest01_"+generatedId;
+        await pause(2000);
+        /*logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+        }));
+        await pause(2000);
+// */
+        let newUser : any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createUserInCompany Error : ", e);
+        }) ;
+        await pause(10000);
+        /*
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testsubscribtestCreateCompanyCreateUserAndDeleteeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeUserToSubscription Error : ", e);
+        }));
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Error : ", e);
+        }));
+        // */
+
+        let result = await rainbowSDK.contacts.addToNetwork(newUser);
+        await pause(10000);
+        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - addToNetwork done Result : ", result);
+
+        let contacts = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts : ", contacts);
+
+        let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
+
+        let contacts2 = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts2 : ", contacts2);
+        await pause(10000);
+        let contacts3 = rainbowSDK.contacts.getAll();
+        logger.log("debug","MAIN - contacts3 : ", contacts3);
+        let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
+    }
+
     async  testJoinCompanyInvitations() {
         // To use with rford@westworld.com
 
@@ -4153,9 +5164,9 @@ let urlS2S;
         }));
         await pause(2000);
         // */
-            
+
         let loginEmail = rainbowSDK.Utils.generateRamdomEmail(email);
-        
+
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
         let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
                 p_mandatoryDefaultSubscription: boolean = false,
@@ -4250,9 +5261,9 @@ let urlS2S;
         }));
         await pause(2000);
         // */
-            
+
         let loginEmail = rainbowSDK.Utils.generateRamdomEmail(email);
-        
+
 //        let newUser : any = await rainbowSDK.admin.createUser(email, password, firstname, lastname, undefined, "en-US", false /* admin or not */, ["user"]).catch((e) => {
         let p_sendInvitationEmail: boolean = false, p_doNotAssignPaidLicense: boolean = false,
                 p_mandatoryDefaultSubscription: boolean = false,
@@ -4341,7 +5352,7 @@ let urlS2S;
         addPropertyToObj(user, "phoneNumber", phoneNumber, false);
         logger.log("debug", "MAIN - testaddPropertyToObj - user : ", user);
     }
-    
+
     async  testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
         logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
@@ -4683,7 +5694,7 @@ let urlS2S;
         /*let usersIds = [];
         usersIds.push(contactsIdentifier[0]);
         usersIds.push(contactsIdentifier[1]);
-        usersIds.push(contactsIdentifier[2]); 
+        usersIds.push(contactsIdentifier[2]);
         let result = await rainbowSDK.presence.getCalendarStates(usersIds);
         // */
         let result = await rainbowSDK.presence.getCalendarStates(contactsIdentifier);
@@ -4706,15 +5717,15 @@ let urlS2S;
         // To use with vincent.berder on Official
         /*  let result = await rainbowSDK.presence.disableCalendar();
           logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
-  
+
           let result2 = await rainbowSDK.presence.enableCalendar();
           logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
           // */
     }
 
-    //endregion    
+    //endregion
 
-    //region Country        
+    //region Country
 
         async  testgetListOfCountries() {
             try {
@@ -4723,10 +5734,10 @@ let urlS2S;
             } catch (e) {
                 logger.log("error", "MAIN - testgetListOfCountries - error : ", e);
             }
-        }   
-        
+        }
+
     //endregion Country
-    
+
     //region Bubble - dialIn
 
         async testdialIn() {
@@ -4734,7 +5745,7 @@ let urlS2S;
             try {
 
                 logger.log("debug", "MAIN - testdialIn - getAll bubbles : ", rainbowSDK.bubbles.getAll());
-                
+
                 let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
                 logger.log("debug", "MAIN - testdialIn - getAllOwnedBubbles bubble : ", bubbles);
                 let bubble = bubbles.find(element => element.name==="bulle1")
@@ -4774,7 +5785,7 @@ let urlS2S;
         }
 
         //endregion Bubble - dialIn
-        
+
     //region MS Teams
 
     async  testcontrolMsteamsPresenceDisable() {
@@ -4849,20 +5860,20 @@ let urlS2S;
     //endregion MS Teams
 
     //region Rainbow Voice
-         
+
     async  testgetCloudPbxById() {
-        // To use with 
+        // To use with
         let systemId = "5cf7dd229fb99523e4de0ea9";
         let result = await rainbowSDK.admin.getCloudPbxById(systemId);
         logger.log("debug", "MAIN - testgetCloudPbxById - result : ", result);
     }
 
     async  testgetCloudPbxs() {
-        // To use with 
+        // To use with
         let result = await rainbowSDK.admin.getCloudPbxs(100, 0, "companyId", 1, connectedUser.companyId, null);
         logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
     }
-    
+
     async testmakeCall3PCC () {
         // to use with user851@pqa.test.openrainbow.net
         /* Data sent by Web UI : {
@@ -4886,7 +5897,7 @@ let urlS2S;
                 sipDeviceId = userDevices[i].deviceId;
             }
         }
-        
+
         let callData : any =  {
             deviceId: sipDeviceId,
             callerAutoAnswer: true,
@@ -4895,17 +5906,17 @@ let urlS2S;
             calleePbxId: contactDom1.phoneNumbers[0].pbxId,
             calleeShortNumber: contactDom1.phoneNumbers[0].shortNumber,
             calleeCountry: contactDom1.phoneNumbers[0].country,
-            //dialPadCalleeNumber: string 
+            //dialPadCalleeNumber: string
             };
         logger.log("debug", "MAIN - testmakeCall3PCC - callData : ", callData);
         let result = await rainbowSDK.rbvoice.makeCall3PCC(callData);
         logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
     }
-    
+
     //endregion
 
     //region Company
-    
+
     //region Company From enduser
 
         async  testgetAllCompaniesVisibleByUser() {
@@ -4913,13 +5924,13 @@ let urlS2S;
             let allCompanies: any = await rainbowSDK.admin.getAllCompaniesVisibleByUser();
             logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser - allCompanies : ", allCompanies.length);
         }
-        
+
         async  testgetCompanyAdministrators() {
             logger.log("debug", "MAIN - testgetCompanyAdministrators. ");
             let allCompanies: any = await rainbowSDK.admin.getCompanyAdministrators();
             logger.log("debug", "MAIN - testgetCompanyAdministrators - allCompanies : ", allCompanies.length);
         }
-        
+
     //endregion Company From enduser
 
     async  testgetAllCompanies() {
@@ -5359,7 +6370,35 @@ let urlS2S;
 
     //region ldap
 
-    async  testsynchronizeUsersAndDeviceswithCSV() {
+  // testmockStanza("<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>")
+   async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+        rainbowSDK._core._xmpp.mockStanza(stanza);
+   }
+
+   async testmockStanzaBubbleResume(){
+        let stanza : string = "<presence xmlns='jabber:client' to='37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw' from='room_c6afe2d3d1e24cf19d532f90bd46a32d@muc.openrainbow.net'><x  xmlns='http://jabber.org/protocol/muc#user'><item><reason>Room resumed</reason></item><status code='339'/><status code='110'/></x></presence>"
+       await this.testmockStanza(stanza);
+   }
+
+   async testmockStanzaBubbleStatus110(){
+        let stanza : string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
+        await rainbowSDK._core._xmpp.mockStanza(stanza);
+   }
+
+   async testmockDiconnect() {
+        let stanza = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
+       await rainbowSDK._core._xmpp.mockStanza(stanza);
+   }
+
+   async testmockUploadLdapAvatarPresence() {
+
+        let stanzaStr = "<presence from='3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com'> <x xmlns='vcard-temp:x:update'>    <avatar/> </x>    <actor xmlns='jabber:iq:configuration'/x>   </presence>";
+       let stanza = prettydata.xmlmin(stanzaStr);
+       logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
+        await rainbowSDK._core._xmpp.mockStanza(stanza);
+   }
+
+   async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
         logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
@@ -5419,12 +6458,38 @@ let urlS2S;
         logger.log("debug", "MAIN - testretrieveRainbowEntriesList - companyId : ", companyId);
 
         //companyId? : string, format : string = "json", ldap_id : boolean = true
-        
+
         //let result = await rainbowSDK.admin.retrieveRainbowEntriesList(companyId, "json", true);
         let result = await rainbowSDK.admin.retrieveRainbowEntriesList(null, "json", false);
         logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
 
     }
+
+    testundefined2(){
+        let result = undefined;
+        logger.log("debug", "MAIN - testundefined2 - with undefined result : ", result?.id);
+        result = {"id":"423412345145325"};
+        logger.log("debug", "MAIN - testundefined2 - with initialized result : ", result?.id);
+    }
+
+   testuploadLdapAvatar() {
+       let that = this;
+       let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
+
+       let fd = fs.openSync(pathImg, "r+");
+       let fileStats = fs.statSync(pathImg);
+       let sizeToRead = fileStats.size;
+       let buf = new Buffer(sizeToRead);
+       logger.log("debug", "MAIN - testuploadLdapAvatar sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
+       let promiseDeferred = new Deferred();
+       fs.readSync(fd, buf, 0, sizeToRead, null);
+
+       let fileType = mime.lookup(pathImg);
+
+       rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+           logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
+       });
+   }
 
     //endregion ldap
 
@@ -5515,7 +6580,7 @@ let urlS2S;
 
         // To be used with vincent.berder COM
         //let bubbleId = '5e56968c6f18201dde44fa7c'; // name: 'Bulle_NodeSDK',
-                
+
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
         logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: bubble : ", bubble);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
@@ -5528,7 +6593,7 @@ let urlS2S;
                     logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request ok, result : ", result);
                 }).catch(err => {
                     logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request not ok, err : ", err);
-                });                
+                });
             }).catch(err => {
                 logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
             });
@@ -6033,6 +7098,25 @@ let urlS2S;
         logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
     }
 
+    async  testputHTTPoverXMPP_2(urlToPut: string = "https://reqbin.com/echo/put/json") {
+        let that = this;
+        //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
+        //let urlToGet = "https://www.javatpoint.com/oprweb/test.jsp?filename=SimpleHTMLPages1";
+        let headers = {
+            "dateOfRequest": new Date().toLocaleDateString(),
+            "Content-Type": "application/json"
+        };
+        //let headers = {};
+        let data = "{\n" +
+                "  \"Id\": 12345,\n" +
+                "  \"Customer\": \"John Smith\",\n" +
+                "  \"Quantity\": 1,\n" +
+                "  \"Price\": 10.00\n" +
+                "}";
+        let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
+        logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
+    }
+
     async  testdeleteHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
         let that = this;
         //let urlToGet = "https://xmpp.org/extensions/xep-0332.html";
@@ -6271,7 +7355,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testdiscover, res : ", res);
     }
 
-    //endregion Rainbow HTTPoverXMPP 
+    //endregion Rainbow HTTPoverXMPP
 
     //region Presence
 
@@ -6318,7 +7402,7 @@ let urlS2S;
     }
 
     async  testgetAVoiceMessageFromPbx() {
-        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
         let messageId: string, messageDate: string, messageFrom: string;
@@ -6327,7 +7411,7 @@ let urlS2S;
     }
 
     async  testgetDetailedListOfVoiceMessages() {
-        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
+        // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list
         // GET /api/rainbow/telephony/v1.0/voicemessages
         let that = this;
         try {
@@ -6363,7 +7447,7 @@ let urlS2S;
         logger.log("debug", "MAIN - testgetABotServiceData, getRainbowSupportBotService res : ", res);
         let res2 = await rainbowSDK.admin.getABotServiceData(res.id);
         logger.log("debug", "MAIN - testgetABotServiceData, getABotServiceData res2 : ", res2);
-        
+
     }
 
     async  testgetAllBotServices() {
@@ -6372,38 +7456,38 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
     }
 
-    // endregion Bots    
-    
+    // endregion Bots
+
     //region PBXS
-    
+
     async  testgetAllPbxs() {
        let that = this;
        let res = await rainbowSDK.admin.getAllPbxs();
        logger.log("debug", "MAIN - testgetAllPbxs, res : ", res);
     }
 
-    //endregion PBXS    
-        
+    //endregion PBXS
+
     //region RPC
-        
+
         testFunctionName () {
             let fn1 = function (arg1) {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn1 : ", functionName(fn1));
-            
+
             let fn2 = function fn2(arg1) {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn2 : ", functionName(fn2));
-            
+
             let fn3 = (arg1) => {
                 return arg1;
             }
             logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn3 : ", functionName(fn3));
         }
-        
-        
+
+
         async testcallRPCMethod_system () {
             let that = this;
             let methodNames : any = await rainbowSDK.rpcoverxmpp.callRPCMethod();
@@ -6416,10 +7500,10 @@ let urlS2S;
                 logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
             }
         }
-        
+
         async testaddRPCMethod () {
             let that = this;
-            
+
             let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
                 logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
                 logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
@@ -6431,13 +7515,13 @@ let urlS2S;
                     arg2,
                     arg3,
                     arg4,
-                    arg5                    
+                    arg5
                 }
                 return result;
             }, "example.trace description", "example.trace help");
             logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
         }
-        
+
         async testcallRPCMethod_withParams () {
             let that = this;
             let param = [];
@@ -6476,13 +7560,43 @@ let urlS2S;
             param.push(obj);
             param.push({"propertyOne":"valueproperty"});
             param.push(["valArrayOne"]);
-            
+
             let res = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"example.trace", param);
             logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
         }
-        
+
     //endregion RPC
-        
+
+   //region Customer Care
+
+        async testsendCustomerCareReport() {
+            let logId: string, filesPath: Array<string> = [], occurrenceDate: string, occurrenceDateTimezone: string,
+                    description: string, externalRef: string, device: string, version: string, deviceDetails: any;
+            try {
+                logId = "1234";
+
+                filesPath.push("c:\\temp\\test.txt");
+                filesPath.push("c:\\temp\\test2.txt");
+
+                occurrenceDate = new Date().toLocaleString();
+                occurrenceDateTimezone = "Europe/Paris";
+                description = "test of log return by node SDK";
+                externalRef = undefined;
+                device = "web";
+                version = "2.24.1";
+                deviceDetails = undefined;
+
+                let res = await rainbowSDK.admin.sendCustomerCareReport(logId, filesPath, occurrenceDate, occurrenceDateTimezone,
+                        description, externalRef, device, version, deviceDetails);
+                logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
+            } catch (err) {
+                logger.log("error", "MAIN - CATCH error.");
+                logger.log("internalerror", "MAIN - CATCH error !!! : ", err);
+            }
+        }
+
+    //endregion Customer Care
+
     // region TimeOutManager
 
     async  testtimeOutManagersetTimeout() {
@@ -6560,7 +7674,7 @@ let urlS2S;
     }
 
     // endregion TimeOutManager
-        
+
         testundefined() {
             try {
                 // @ts-ignore
@@ -6569,7 +7683,7 @@ let urlS2S;
                 logger.log("debug", "MAIN - testundefined, CATCH Error !!! : ", err);
             }
         }
-        
+
      testresolveDns(url: string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result) => {
             logger.log("debug", "MAIN - testresolveDns, result : ", result);
@@ -6641,7 +7755,7 @@ let urlS2S;
 
     async  testStopAndStart() {
         let result = await this.start();
-        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result)); 
+        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result));
         await rainbowSDK.stop();
         let token = undefined;
 
@@ -6652,7 +7766,7 @@ let urlS2S;
         });
         await rainbowSDK.stop();
     }
-    
+
     async  testsend429Appid() {
 
         logger.log("debug", "MAIN - (testsend429Appid) rainbow SDK stopped.");
@@ -6674,14 +7788,35 @@ let urlS2S;
 
         });
     }
-    
+
+    async  testsendMultiHttpRequest() {
+
+        logger.log("debug", "MAIN - (testsendMultiHttpRequest) .");
+        let headers = rainbowSDK._core._rest.getRequestHeader();
+
+        for (let i = 0; i < 102; i++) {
+            rainbowSDK._core._rest.http.get("/api/rainbow/enduser/v1.0/users/jids/209c7d9cf1fe4b818ae4004899cbd03c@openrainbow.com", headers, undefined).then(
+                    async (result) => {
+                        logger.log("debug", "MAIN - (testsendMultiHttpRequest) rainbow get result : ", logger.colors.green(result));
+                    }
+            ).catch(async error => {
+                logger.log("error", "MAIN - (testsendMultiHttpRequest) CATCH Error !!! : ", logger.colors.green(error));
+                let connectionStatus = await rainbowSDK.getConnectionStatus().catch(err => {
+                    return err;
+                });
+                logger.log("debug", "MAIN - [testsendMultiHttpRequest    ] :: connectionStatus : ", connectionStatus);
+
+            });
+        }
+    }
+
     async  test5Start() {
         logger.log("debug", "MAIN - (test5Start) __ begin __.");
         let options1: any={};
         let options2: any={};
         let options3: any={};
         let options4: any={};
-        
+
         Object.assign(options1, options);
         options1.logs.customLabel = options1.credentials.login + "_1";
         options1.logs.file.customFileName = "R-SDK-Node-" + options1.credentials.login + "_1";
@@ -6694,7 +7829,7 @@ let urlS2S;
             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK1 = undefined;
         });
-        
+
         Object.assign(options2, options);
         options2.logs.customLabel = options2.credentials.login + "_2";
         options2.logs.file.customFileName = "R-SDK-Node-" + options2.credentials.login + "_2";
@@ -6743,7 +7878,7 @@ let urlS2S;
             // Do something when the SDK is started
             logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
-        // */         
+        // */
         /*
         await rainbowSDK2.start(token).then(async (result2) => {
             // Do something when the SDK is started
@@ -6760,7 +7895,7 @@ let urlS2S;
         */
         // await rainbowSDK.stop();
     }
-    
+
      startWSOnly() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
@@ -6790,7 +7925,7 @@ let urlS2S;
             }
         });
     }
-    
+
      startMockXMPP() {
          let options1: any={};
 
@@ -6813,7 +7948,7 @@ let urlS2S;
          let resource = "";
          let alice = {loggedInUser : {jid_im : "98091bcde14d4eadac763d9cc0851719@openrainbow.net"}};
          //alice.loggedInUser.jid_im
-         
+
          const mockServer = new MockServer("wss://openrainbow.net:443/websocket");
          mockServer.on("connection", (socket) => {
              logger.log("debug", "MAIN - (startMockXMPP) (on) MockServer.connection : " + "socket : " + socket);
@@ -6879,7 +8014,7 @@ let urlS2S;
              logger.log("debug", "MAIN - (startMockXMPP) (on) message : ", message);
          });
 
-         
+
          rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
              // do something when the SDK has been started
              logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
@@ -6910,9 +8045,9 @@ let urlS2S;
              }
          });
 
-         
-         
-         
+
+
+
          rainbowSDK1.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
             try {
@@ -6934,7 +8069,7 @@ let urlS2S;
             console.log("MAIN - Error during starting : ", inspect(err));
         }); // */
     }
-    
+
      start() {
         rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
@@ -6948,7 +8083,7 @@ let urlS2S;
                             let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
                                 logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
                             });
-                
+
                             logger.log("debug", "MAIN - company infos :" , companyInfo);
                 // */
                 /*
@@ -7034,7 +8169,7 @@ let urlS2S;
                 //logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                 /*
                 let list = rainbowSDK.contacts.getAll();
-        
+
                 if (list) {
                     list.forEach(function (contact) {
                         logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
@@ -7046,7 +8181,7 @@ let urlS2S;
 
                 /*let roster = await rainbowSDK.contacts.getRosters();
                 logger.log("debug", "MAIN - getRosters - roster : ", roster);
-        
+
                  */
                 class Dog {
                     private name: any;
@@ -7088,7 +8223,7 @@ let urlS2S;
                  await rainbowSDK4.start();
                  await rainbowSDK5.start();
                  //await rainbowSDK6.start();
-         
+
                 // */
 
                 //  rainbowSDK.stop().then(() => { process.exit(0); }); // testCreate50BubblesAndArchiveThem()
@@ -7098,7 +8233,7 @@ let urlS2S;
                      readline.question("Command>", cmd => {
                          //console.log(`run ${cmd}!`);
                          logger.log("debug", "MAIN - run : ", cmd); //logger.colors.green(JSON.stringify(result)));
-        
+
                          try {
                              if (cmd === "by") {
                                  process.exit(0);
@@ -7106,7 +8241,7 @@ let urlS2S;
                              eval(cmd);
                          } catch (e) {
                              logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
-        
+
                          }
                          readline.close();
                      });
@@ -7118,11 +8253,11 @@ let urlS2S;
                     let bubbles = rainbowSDK.bubbles.getAll();
                     let bubblesCount = bubbles.length;
                     //logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " : ", bubbles);
-        
+
                     let conversationBubblePromises=[];
                     let bubblesWithLastModificationDate=[];
-        
-        
+
+
                     if(bubblesCount>0) {
                         let bubblesInfos = "";
                         for (let bubble of bubbles) {
@@ -7205,7 +8340,7 @@ let urlS2S;
                     }).catch((error) => {
                         logger.log("debug", "MAIN - [makeCallByPhoneNumber] error ", error);
                     });
-        
+
                     setTimeout(() => {
                         calls.forEach((c) => {
                             rainbowSDK.telephony.releaseCall(c);
@@ -7218,7 +8353,7 @@ let urlS2S;
                      console.log("getAllCompanies companies", restresult);
                  }); //*/
                 /* rainbowSDK.im.sendMessageToJid("😔😎😜😋👀😁😁🐣🐦🐷🐴🐮🦋🐗🙊🐧🐔🐻💿⏱⏱🎞🖨📻🇧🇴🇦🇱🇧🇼✡💔🚖🚗🚘🚜🛫🚔🚲🛫🛬\ntest  sample node : ° ✈ :airplane::airplane: ) : " + utc + ", randow : " + Math.random() * 10,
-        
+
                  "ca648c9e335f481d9b732dd99990b789@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im")
              /*    then((msg) => {
                      "6a2010ca31864df79b958113785492ae@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im"
@@ -7252,7 +8387,7 @@ let urlS2S;
                                                 console.log('delete user', id);
                                                 removeUsers.push(rainbowSDK.admin.deleteUser(id));
                                             });
-        
+
                                             Promise.all(removeUsers).then(
                                                 () => {
                                                     rainbowSDK.admin.removeCompany(company).then((data) => {
@@ -7262,7 +8397,7 @@ let urlS2S;
                                                             console.log("deleteCompany after user delete, error", err2);
                                                         }
                                                     );
-        
+
                                                 });
                                         } else {
                                             console.log("error during deleting company : ", err);
@@ -7293,8 +8428,8 @@ let urlS2S;
                         } else {
                             logger.log("debug", "MAIN - [start    ] :: contacts list empty");
                         }
-        
-        
+
+
                     })
                     ;
                 }); // */
@@ -7318,6 +8453,29 @@ let urlS2S;
                    });
                }); // */
 //# sourceMappingURL=index.js.map
+            } catch (err) {
+                console.log("MAIN - Error during starting : ", inspect(err));
+            }
+        }).catch((err) => {
+            console.log("MAIN - Error during starting : ", inspect(err));
+        }); // */
+    }
+
+     startstop() {
+        rainbowSDK.start(token).then(async (result: any) => {
+            try {
+                // Do something when the SDK is started
+                connectedUser = result.loggedInUser;
+                token = result.token;
+                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+
+                //let startDuration = Math.round(new Date() - startDate);
+                let startDuration = result.startDuration;
+                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                console.log("MAIN === STARTED (" + startDuration + " ms) ===");
+
+               rainbowSDK.stop();
             } catch (err) {
                 console.log("MAIN - Error during starting : ", inspect(err));
             }
@@ -7381,6 +8539,11 @@ let urlS2S;
                             eval("tests.start()");
                             enterCmd();
                             break;
+                        case "startstop":
+                            logger.log("debug", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
+                            eval("tests.startstop()");
+                            enterCmd();
+                            break;
                         case "stop":
                             logger.log("debug", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.stop()");
@@ -7389,8 +8552,15 @@ let urlS2S;
                         default:
                             logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                             if (answers.cmd) {
-                                let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
-                                eval(cmdStr);
+                                if (answers.cmd?.indexOf("eval:")===0) {
+                                    let cmdStr = answers.cmd.substring("eval:".length);
+                                    logger.log("debug", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    eval(cmdStr);
+                                } else {
+                                    let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
+                                    logger.log("debug", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    eval(cmdStr);
+                                }
                             }
                             enterCmd();
                             break;
