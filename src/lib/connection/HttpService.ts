@@ -37,6 +37,9 @@ const urlLib = require('url');
 
 //import {HttpsProxyAgent} from 'hpagent';
 
+
+// https://nodejs.org/api/module.html#modulecreaterequirefilename  If needed, a require function can be constructed within an ES module using module.createRequire().
+
 const LOG_ID = "HTTP - ";
 
 let colorCodes = {
