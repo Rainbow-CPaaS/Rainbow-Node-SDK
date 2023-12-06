@@ -1,7 +1,7 @@
 "use strict";
 
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import * as deepEqual from "deep-equal";
+import {default as deepEqual } from "deep-equal";
 import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService.js";
 import {ErrorManager} from "../common/ErrorManager.js";
 import {XMPPService} from "../connection/XMPPService.js";
@@ -12,7 +12,7 @@ import {ContactsService} from "./ContactsService.js";
 import {ProfilesService} from "./ProfilesService.js";
 import {S2SService} from "./S2SService.js";
 import {Core} from "../Core.js";
-import * as PubSub from "pubsub-js";
+import {default as PubSub } from "pubsub-js";
 import {GenericService} from "./GenericService.js";
 //import {RBVoice} from "../common/models/rbvoice.js";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler.js";

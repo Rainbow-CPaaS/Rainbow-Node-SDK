@@ -1,5 +1,5 @@
 "use strict";
-import {getRandomInt, logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils";
+import {getRandomInt, logEntryExit, pause, resolveDns, setTimeoutPromised, stackTrace, until} from "./common/Utils.js";
 import {XMPPService} from "./connection/XMPPService.js";
 import {RESTService} from "./connection/RESTService.js";
 import {HTTPService} from "./connection/HttpService.js";
@@ -36,8 +36,8 @@ import {TimeOutManager} from "./common/TimeOutManager.js";
 
 export {};
 
-const packageVersion = require("../package.json");
-import * as Utils from "./common/Utils"
+//const packageVersion = require("../package.json");
+import {default as Utils } from "./common/Utils.js"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 
 /*let _signin;

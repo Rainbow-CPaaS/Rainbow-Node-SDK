@@ -10,7 +10,8 @@ import {Bubble} from "./models/Bubble.js";
 
 export {};
 
-let AsyncLock = require('async-lock');
+//let AsyncLock = require('async-lock');
+import {default as AsyncLock} from 'async-lock';
 
 let LOG_ID = 'RPC/MGR - ';
 
@@ -216,7 +217,7 @@ class RPCManager{
     private lockKey = "LOCK_RPC_LIST";
 }
 
-module.exports.RPCManager = RPCManager;
-module.exports.RPCmethod = RPCmethod;
+//module.exports.RPCManager = RPCManager;
+//module.exports.RPCmethod = RPCmethod;
 
 export {RPCManager, RPCmethod};

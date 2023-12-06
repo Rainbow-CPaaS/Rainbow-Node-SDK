@@ -124,7 +124,7 @@ class TelephonyService extends GenericService {
         that.initStartDate();
         this.telephonyHandlerToken = [];
         this.telephonyHistoryHandlerToken = [];
-        this.voiceMail = VoiceMail.createVoiceMail(this._core._profiles);
+        this.voiceMail = createVoiceMail(this._core._profiles);
 
         return new Promise((resolve, reject) => {
             try {

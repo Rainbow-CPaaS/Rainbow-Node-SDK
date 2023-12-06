@@ -3,10 +3,10 @@ import {XMPPService} from "../XMPPService.js";
 import {XMPPUTils} from "../../common/XMPPUtils.js";
 //const Conversation = require("../../common/models/Conversation");
 //const Call = require("../../common/models/Call");
-import {Call} from "../../common/models/Call";
+import {Call} from "../../common/models/Call.js";
 import {getJsonFromXML, logEntryExit} from "../../common/Utils.js";
 //const config = require("../../config/config");
-import {config} from "../../config/config";
+import {config} from "../../config/config.js";
 import {GenericHandler} from "./GenericHandler.js";
 import { Core } from "../../Core.js";
 import {RBVoiceService} from "../../services/RBVoiceService.js";
@@ -16,10 +16,12 @@ import {ContactsService} from "../../services/ContactsService.js";
 export {};
 
 
-const Utils = require("../../common/Utils.js");
+//const Utils = require("../../common/Utils.js");
+import {default as Utils} from "../../common/Utils.js";
 
-const xml = require("@xmpp/xml");
-const PromiseQueue = require("../../common/promiseQueue.js");
+//const xml = require("@xmpp/xml");
+//const PromiseQueue = require("../../common/promiseQueue.js");
+import {createPromiseQueue } from "../../common/promiseQueue.js";
 
 //const prettydata = require("../pretty-data").pd;
 import {pd as prettydata} from "../pretty-data.js";
@@ -69,7 +71,7 @@ class RBVoiceEventHandler extends GenericHandler {
         this._core = core;
         this.contactsService = core.contacts;
         this._profilesService = core.profiles;
-        this.promiseQueue = PromiseQueue.createPromiseQueue(that.logger);
+        this.promiseQueue = createPromiseQueue(that.logger);
 
     }
 
@@ -201,5 +203,5 @@ class RBVoiceEventHandler extends GenericHandler {
     
 }
 
-module.exports.RBVoiceEventHandler = RBVoiceEventHandler;
+//module.exports.RBVoiceEventHandler = RBVoiceEventHandler;
 export {RBVoiceEventHandler};

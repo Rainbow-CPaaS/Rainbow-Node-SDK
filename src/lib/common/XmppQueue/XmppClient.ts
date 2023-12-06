@@ -40,7 +40,8 @@ import {default as xml2js} from 'xml2js';
 
 import {default as ElementObj} from 'ltx';
 const Element = ElementObj.Element;
-const parse = require('ltx').parse;
+import {default as ltx} from 'ltx';
+const parse = ltx.parse;
 
 let LOG_ID='XMPPCLIENT';
 

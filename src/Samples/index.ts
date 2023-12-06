@@ -32,17 +32,20 @@ import {DataStoreType} from "../lib/config/config.js";
 import { Server as MockServer, WebSocket as WS } from 'mock-socket';
 import { v4 as uuidv4 } from 'uuid';
 
-const xml = require("@xmpp/xml");
+import xml from "@xmpp/xml";
 
 import moment from 'moment';
 //const moment = global.get('moment');
 import serialize from 'safe-stable-stringify' ;
 //const serialize = global.get('safestablestringify');
-import * as ACData from "adaptivecards-templating";
+import {default as ACData } from "adaptivecards-templating";
 //const ACData = global.get('adaptivecardstemplating');
-import * as path from "path";
-const prettydata = require("../lib/connection/pretty-data").pd;
-const mime = require('mime');
+import {default as path } from "path";
+//const prettydata = require("../lib/connection/pretty-data").pd;
+import {pd as prettydata} from "../lib/connection/pretty-data.js";
+
+//const mime = require('mime');
+import {default as mime } from 'mime';
 
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
@@ -87,7 +90,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 import Bubble_1 from "../lib/common/models/Bubble.js";
 import {NodeSDK as RainbowSDK} from "../index.js";
-import * as Utils from "../lib/common/Utils.js";
+import {default as Utils } from "../lib/common/Utils.js";
 //let fs = require("fs");
 import {default as fs} from "fs";
 //import fileapi from "file-api";

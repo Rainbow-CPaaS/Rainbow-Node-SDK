@@ -12,8 +12,10 @@ const { atob } = pkg;
 import {default as Jimp} from 'jimp';
 import {default as dns} from 'dns';
 //import * as utilTypes from 'util'
-const xml2js = require('xml2js');
-const util = require("util");
+import {default as xml2js} from 'xml2js';
+//const xml2js = require('xml2js');
+import {default as util} from "util";
+//const util = require("util");
 import {types as utilTypes} from "util";
 
 

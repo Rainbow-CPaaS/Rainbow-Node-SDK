@@ -17,10 +17,10 @@ import {GenericService} from "./GenericService.js";
 import pkg from 'dateformat';
 import {default as fs} from "fs";
 const { dateFormat } = pkg;
-import { FileStorageService } from "./FileStorageService";
+import { FileStorageService } from "./FileStorageService.js";
 import {Core} from "../Core.js";
 
-let fs = require('fs');
+//let fs = require('fs');
 
 const LOG_ID = "ADMIN/SVCE - ";
 

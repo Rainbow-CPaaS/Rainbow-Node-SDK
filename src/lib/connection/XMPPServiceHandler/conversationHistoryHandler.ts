@@ -7,23 +7,20 @@ import {ConversationEventHandler} from "./conversationEventHandler.js";
 export {};
 
 
-//const moment = require("moment");
-import { default as moment, Moment } from 'moment' 
 //const prettydata = require("../pretty-data").pd;
 import {pd as prettydata} from "../pretty-data.js";
 
 // @ts-ignore
 global.window = {};
 
+//const moment = require("moment");
+import moment from 'moment';
 //const momentDurationFormatSetup = require("moment-duration-format");
 //import * as momentDurationFormatSetupPkg from "moment-duration-format";
 //let momentDurationFormatSetup = momentDurationFormatSetupPkg.momentDurationFormatSetup;
-import momentDurationFormatSetup from 'moment-duration-format';
-
+//import momentDurationFormatSetup from 'moment-duration-format';
 //const momentDurationFormatSetup= momentDurationFormatSetupPkg.momentDurationFormatSetup;
-
-// @ts-ignore
-momentDurationFormatSetup(moment);
+//momentDurationFormatSetup(moment);
 
 // @ts-ignore
 global.window = undefined;

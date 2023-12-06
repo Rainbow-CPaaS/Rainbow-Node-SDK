@@ -3,11 +3,12 @@
   "compilerOptions": {
   //  "ignoreDeprecations": "5.0",
     "noImplicitAny": false,
-    "module": "es2020",
+    //"module": "es2020",
     "target": "es2022",
     //"moduleResolution": "node",
-    //"module": "node16",
-    //"moduleResolution": "node16",
+    "module": "node16",
+    "moduleResolution": "node16",
+    //"moduleResolution": "node",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
@@ -38,7 +39,6 @@
     "explainFiles": true,
     "diagnostics": true,
     "traceResolution": true,
-    "moduleResolution": "node",
     "strict": false,
     "forceConsistentCasingInFileNames": true
   },

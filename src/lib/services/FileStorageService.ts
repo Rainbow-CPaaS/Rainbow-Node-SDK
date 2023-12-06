@@ -25,9 +25,9 @@ import {setInterval} from "timers";
 import {isMainThread} from "worker_threads";
 import {GenericService} from "./GenericService.js";
 
-import * as fs from "fs";
-import * as path from "path";
-import * as mime from "mime";
+import {default as fs } from "fs";
+import {default as path } from "path";
+import {default as mime } from "mime";
 // if ( ! mime.lookup) mime.lookup = mime.getType;
 
 function FileUpdated(input) {

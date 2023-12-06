@@ -8,8 +8,12 @@ import {RPCoverXMPPService} from "../../services/RPCoverXMPPService.js";
 import {RPCManager} from "../../common/RPCManager.js";
 
 
-const xml = require("@xmpp/xml");
-const packageVersion = require("../../../package");
+import xml from "@xmpp/xml";
+//const packageVersion = require("../../../package");
+let packageVersion = {
+    name:process.env.npm_package_name,
+    version:process.env.npm_package_version
+};
 
 //const prettydata = require("../pretty-data").pd;
 import {pd as prettydata} from "../pretty-data.js";
@@ -483,5 +487,5 @@ class RpcoverxmppEventHandler extends GenericHandler {
     
 }
 
-module.exports.RpcoverxmppEventHandler = RpcoverxmppEventHandler;
+//module.exports.RpcoverxmppEventHandler = RpcoverxmppEventHandler;
 export {RpcoverxmppEventHandler};

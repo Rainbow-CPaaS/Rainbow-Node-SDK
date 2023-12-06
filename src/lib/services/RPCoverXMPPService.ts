@@ -1,23 +1,23 @@
 "use strict";
 
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
-import * as deepEqual from "deep-equal";
-import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
+import {default as deepEqual } from "deep-equal";
+import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService.js";
 import {ErrorManager} from "../common/ErrorManager.js";
-import {XMPPService} from "../connection/XMPPService";
+import {XMPPService} from "../connection/XMPPService.js";
 import {EventEmitter} from "events";
 import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
-import {ContactsService} from "./ContactsService";
-import {ProfilesService} from "./ProfilesService";
-import {S2SService} from "./S2SService";
+import {ContactsService} from "./ContactsService.js";
+import {ProfilesService} from "./ProfilesService.js";
+import {S2SService} from "./S2SService.js";
 import {Core} from "../Core.js";
-import * as PubSub from "pubsub-js";
+import {default as PubSub } from "pubsub-js";
 import {GenericService} from "./GenericService.js";
 //import {RBVoice} from "../common/models/rbvoice";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
-import {Channel} from "../common/models/Channel";
-import {RpcoverxmppEventHandler} from "../connection/XMPPServiceHandler/rpcoverxmppEventHandler";
+import {Channel} from "../common/models/Channel.js";
+import {RpcoverxmppEventHandler} from "../connection/XMPPServiceHandler/rpcoverxmppEventHandler.js";
 import {RPCManager, RPCmethod} from "../common/RPCManager.js";
 
 export {};
@@ -412,6 +412,6 @@ class RPCoverXMPPService extends GenericService {
 
 }
 
-module.exports.RPCoverXMPPService = RPCoverXMPPService;
+//module.exports.RPCoverXMPPService = RPCoverXMPPService;
 export {RPCoverXMPPService as RPCoverXMPPService};
 

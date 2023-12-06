@@ -46,6 +46,7 @@
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^10.2.2",
     "@tsconfig/node14": "^14.1.0",
+    "@types/moment-duration-format": "^2.2.6",
     "@types/node": "^20.10.3",
     "@xmpp/debug": "^0.13.0",
     "chai": "^4.3.7",
@@ -54,7 +55,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-node": "^11.1.0",
     "git-commit-info": "^2.0.2",
-    "got": "^13.0.0",
+    "got": "^14.0.0",
     "grunt": "^1.6.1",
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-copy": "^1.0.0",
@@ -88,7 +89,6 @@
   },
   "dependencies": {
     "@types/backoff": "^2.5.5",
-    "@types/moment-duration-format": "^2.2.3",
     "@xmpp/client": "^0.13.1",
     "@xmpp/plugin": "^0.3.0",
     "@xmpp/plugins": "^0.3.0",

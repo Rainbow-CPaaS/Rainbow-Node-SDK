@@ -1,5 +1,8 @@
 "use strict";
 
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
 //let unirest = require("unirest");
 import {logEntryExit, pause} from "../common/Utils.js";
 import {HttpManager, RequestForQueue} from "./HttpManager.js";
@@ -40,13 +43,13 @@ import {default as debugHttp} from "debug-http";
 //const HttpAgent = require('agentkeepalive');
 //const HttpsAgent = require('agentkeepalive').HttpsAgent;
 
-let Agent = require('keepalive-proxy-agent');
+import {default as Agent} from 'keepalive-proxy-agent';
 //let Agent = require('agentkeepalive');
 
-import got, {Agents, Got} from "got";
-const _ = require('highland');
-const { pipeline } = require('stream');
-const urlLib = require('url');
+import got from "got";
+import {default as _} from 'highland';
+import { pipeline } from 'stream';
+import {default as urlLib} from 'url';
 
 //const {HttpsProxyAgent} = require("https-proxy-agent");
 
@@ -85,7 +88,7 @@ class HTTPService {
     public httpManager : HttpManager;
     private _options: any;
     private _core: any;
-    private mergedGot: Got;
+    private mergedGot: any;
     private reqAgent: any;
     private reqAgentHttp: any;
     private reqAgentHttps: any;
