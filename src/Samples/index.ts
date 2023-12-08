@@ -6484,7 +6484,7 @@ let urlS2S;
        let fileType = mime.lookup(pathImg);
 
        rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
-           logger.log("debug", "EngineVincent00 - uploadFileToBubble - result : ", result);
+           logger.log("debug", "EngineVincent00 - uploadLdapAvatar - result : ", result);
        });
    }
 

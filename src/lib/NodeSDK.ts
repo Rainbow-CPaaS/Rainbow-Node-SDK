@@ -1,5 +1,7 @@
 "use strict";
 
+require("fix-esm").register();
+
 import {Core} from "./Core";
 import {Appreciation} from "./common/models/Channel";
 import {ErrorManager} from "./common/ErrorManager";
