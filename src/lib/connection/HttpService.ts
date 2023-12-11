@@ -3598,7 +3598,7 @@ safeJsonParse(str) {
                             //
                         },
                         headers,
-                        body : stream,
+                        //body : stream,
                         //searchParams: params,
                         retry: {
                             limit: 0,
@@ -3769,6 +3769,7 @@ safeJsonParse(str) {
 
                     let getOptions = newAliveAgent();
 
+                    /*
                     result = secondInstance.put(urlEncoded, getOptions).catch((err) => {
                         if (err) {
 //                            console.error('Pipeline failed', err);
@@ -3784,8 +3785,9 @@ safeJsonParse(str) {
                     stream.push(null);
                     stream.resume();
                     return (result);
+                    // */
 
-                    /*
+
                     let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, getOptions)), (err) => {
                         if (err) {
 //                            console.error('Pipeline failed', err);
