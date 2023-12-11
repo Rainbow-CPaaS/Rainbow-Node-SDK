@@ -312,6 +312,7 @@ class Core {
         self._botsjid = [];
 
         self.startCleanningInterval();
+
         self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
     }
 
