@@ -241,7 +241,7 @@ let urlS2S;
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
-            "useRequestRateLimiter": false,
+            "useRequestRateLimiter": true,
             "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
