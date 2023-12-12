@@ -12,12 +12,14 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix `429` error for got lib.
+-   Fix "roomid" and "pollid" when a poll event is received.
 
 #### Added
 -   Add options `maxBubbleJoinInProgress` to define the maximum of simultaneous "send initial presence of the bubbles".
 -   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
 -   Add options `gotOptions` to customize the `got` lib for REST requests options.
 -   Add a header in REST requests : `x-rainbow-request-id`.
+-   Add `fix-esm` lib to load node package of type `ES Modules`.
  
 #### Changed
 -   Replace `request` lib by `got` lib for the Low layer http network request lib. Note the Request lib is even available with setting `useGotLibForHttp` option to false. 
