@@ -12,6 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
+-   Fix "roomid" and "pollid" when a poll event is received.
 
 #### Added
 -   Add Offended `raw in` and `raw out` xmpp stanza in `debug` level.
@@ -32,6 +33,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
 -   Add options `gotOptions` to customize the `got` lib for REST requests options.
 -   Add a header in REST requests : `x-rainbow-request-id`.
+-   Add `fix-esm` lib to load node package of type `ES Modules`.
  
 #### Changed
 -   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
