@@ -42,7 +42,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix `429` error for got lib.
 
 #### Added
 -   None

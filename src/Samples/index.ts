@@ -2231,7 +2231,7 @@ let urlS2S;
         //let group = groups.find(group => group.name === GROUP_NAME);
         let GROUP_NAME = "Services";
         //let forceSearchOnServer = false;
-        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, forceSearchOnServer!=null ? forceSearchOnServer:false)
+        let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, forceSearchOnServer!=null ? forceSearchOnServer:false);
         if (group) {
             let users = group.users.map(user => user.id)
             logger.log("debug", "MAIN - testgetGroupByName - result users.length : ", users.length, ", users : ", users);
@@ -2239,6 +2239,48 @@ let urlS2S;
             logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
         }
     }
+
+    async  testgetGroupsAndUpdateName(forceSearchOnServer) {
+        let groups = await rainbowSDK.groups.getGroups();
+        if (groups) {
+            //let users = group.users.map(user => user.id)
+            logger.log("debug", "MAIN - testgetGroupByName - result groups : ", groups);
+            await rainbowSDK.groups.updateGroupName(groups[0], "updatedGroupName_" + new Date().getTime());
+            let groupsUpdated = await rainbowSDK.groups.getGroups();
+            if (groupsUpdated) {
+                //let users = group.users.map(user => user.id)
+                logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated : ", groupsUpdated);
+            } else {
+                logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated not found.");
+            }
+        } else {
+            logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
+        }
+    }
+
+    async  testsetGroupAsFavoriteAndUpdateIsFavorite() {
+        let that = this;
+        //logger.log("debug", "testsetGroupAsFavorite before delete");
+        let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+        let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+        let groups = await rainbowSDK.groups.getGroups();
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groups : ", groups);
+
+        await setTimeoutPromised(1500);
+
+        let groups2 = await rainbowSDK.groups.getGroups();
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groups2 : ", groups2);
+
+
+        let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+        await setTimeoutPromised(1500);
+        let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
+        logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
+    }
+
 
     //endregion group
 

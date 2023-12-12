@@ -6,7 +6,7 @@ import BackoffError from './BackoffError';
 
 
 export default class RequestRateLimiter {
-    private backoffTime: number;
+    public backoffTime: number;
     private requestRate: number;
     private interval: number;
     private timeout: number;
