@@ -1,4 +1,5 @@
 const package = require('./package.json');
+require("fix-esm").register();
 const got = require('got');
 
 let licences_Def = {
