@@ -3682,8 +3682,11 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             let data = binaryData.data;
+            //let bufferArray = new Array(data.length);
+            //bufferArray[0] = data;
+            //let buffer = Buffer.concat(bufferArray);
 
-            that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleid + "/avatar", that.getRequestHeader("application/json"), data, "image/" + binaryData.type).then(function (json) {
+            that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleid + "/avatar", that.getRequestHeader("application/json"),  Buffer.from(data), "image/" + binaryData.type).then(function (json) {
                 that.logger.log("info", LOG_ID + "(setAvatarRoom) successfull");
                 that.logger.log("internal", LOG_ID + "(setAvatarRoom) REST result : ", json);
                 resolve(json.data);

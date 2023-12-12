@@ -343,7 +343,7 @@ class FileStorage extends GenericService{
                 }); // */
             } else {
                 let conversation = await that._conversations.getConversationByBubbleId(bubble.id); // getConversationByRoomDbId(bubble.dbId);
-                that._logger.log("internal", LOG_ID + "(uploadFileToBubble) ::  conversation : ", conversation, " by the bubble id ", bubble.id);
+                that._logger.log("internal", LOG_ID + "(uploadFileToBubble) ::  conversation found with id : ", conversation?.id, " by the bubble id ", bubble.id);
 
                 if (!conversation) {
                     let errorMessage = "Parameter 'bubble' don't have a conversation";
