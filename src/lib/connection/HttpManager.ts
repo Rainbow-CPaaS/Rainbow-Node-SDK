@@ -43,10 +43,12 @@ class RequestForQueue {
 
 class MyRequestHandler {
     private httpManager : HttpManager;
+    private limiter: RequestRateLimiter;
     
 
     constructor (_httpManager: HttpManager) {
         this.httpManager = _httpManager;
+        this.limiter = this.httpManager.limiter;
     }
     // this method is the only required interface to implement
     // it gets passed the request onfig that is passed by the 
@@ -56,18 +58,30 @@ class MyRequestHandler {
     async request(req : RequestForQueue) {
         let nbRunningReq = await this.httpManager.incNbRunningReq();
         this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req will run nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
-        const response = req.method(...req.params).then((result) => {
+        const response = await req.method(...req.params).then((result) => {
             this.httpManager.decNbRunningReq();
             this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call SUCCEED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             return result;
         }).catch((err) => {
             this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call FAILED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
-            throw err;
+            if (err.code !== 429) {
+                throw err;
+            } else {
+                return err;
+            }
         })
         // */
 
-        if (response.statusCode === 429) throw new BackoffError(`Need to nack off guys!`);
-        else return response;
+        if (response.code === 429 || response.statusCode === 429) {
+            if (response.headers) {
+                let retryAfterTime = (response.headers["retry-after"] ? Number.parseInt(response.headers["retry-after"]):10) * 1;
+                this.limiter.backoffTime = retryAfterTime;
+            }
+
+            throw new BackoffError(`Need to nack off guys!`);
+        } else {
+            return response;
+        }
     }
 }
 

@@ -11,7 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix `429` error for got lib.
 
 #### Added
 -   Add options `maxBubbleJoinInProgress` to define the maximum of simultaneous "send initial presence of the bubbles".
