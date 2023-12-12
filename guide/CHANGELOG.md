@@ -6,6 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+
 ### [2.26.0] - 2023-11-XX
 #### Removed
 -   None
@@ -23,6 +24,19 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
  
 #### Changed
 -   Replace `request` lib by `got` lib for the Low layer http network request lib. Note the Request lib is even available with setting `useGotLibForHttp` option to false. 
+
+### [2.25.2-lts.4] - 2023-10-20
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Update the dependencies versions.
 
 ### [2.25.2-lts.3] - 2023-10-20
 #### Removed
