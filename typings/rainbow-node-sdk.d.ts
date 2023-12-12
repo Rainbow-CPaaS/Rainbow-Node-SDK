@@ -622,6 +622,34 @@ declare module 'lib/config/config' {
         };
         rest: {
             useRestAtStartup: boolean;
+            useGotLibForHttp: boolean;
+            gotOptions: {
+                /**
+                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                 */
+                keepAlive: boolean;
+                /**
+                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                 * Only relevant if keepAlive is set to true.
+                 */
+                keepAliveMsecs: number;
+                /**
+                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                 */
+                maxSockets: number;
+                /**
+                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                 */
+                maxTotalSockets: number;
+                /**
+                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                 */
+                maxFreeSockets: number;
+                /**
+                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                 */
+                timeout: number;
+            };
         };
     };
     official: {
@@ -647,6 +675,34 @@ declare module 'lib/config/config' {
         };
         rest: {
             useRestAtStartup: boolean;
+            useGotLibForHttp: boolean;
+            gotOptions: {
+                /**
+                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                 */
+                keepAlive: boolean;
+                /**
+                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                 * Only relevant if keepAlive is set to true.
+                 */
+                keepAliveMsecs: number;
+                /**
+                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                 */
+                maxSockets: number;
+                /**
+                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                 */
+                maxTotalSockets: number;
+                /**
+                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                 */
+                maxFreeSockets: number;
+                /**
+                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                 */
+                timeout: number;
+            };
         };
     };
     any: {
@@ -672,6 +728,34 @@ declare module 'lib/config/config' {
         };
         rest: {
             useRestAtStartup: boolean;
+            useGotLibForHttp: boolean;
+            gotOptions: {
+                /**
+                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                 */
+                keepAlive: boolean;
+                /**
+                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                 * Only relevant if keepAlive is set to true.
+                 */
+                keepAliveMsecs: number;
+                /**
+                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                 */
+                maxSockets: number;
+                /**
+                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                 */
+                maxTotalSockets: number;
+                /**
+                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                 */
+                maxFreeSockets: number;
+                /**
+                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                 */
+                timeout: number;
+            };
         };
     };
     logs: {
@@ -701,6 +785,7 @@ declare module 'lib/config/config' {
         messagesDataStore: DataStoreType;
         autoInitialGetBubbles: boolean;
         autoInitialBubblePresence: boolean;
+        maxBubbleJoinInProgress: number;
         autoInitialBubbleFormat: string;
         autoInitialBubbleUnsubscribed: boolean;
         autoLoadConversations: boolean;
@@ -713,6 +798,7 @@ declare module 'lib/config/config' {
     mode: string;
     concurrentRequests: number;
     requestsRate: {
+        useRequestRateLimiter: boolean;
         maxReqByIntervalForRequestRate: number;
         intervalForRequestRate: number;
         timeoutRequestForRequestRate: number;
@@ -1584,11 +1670,11 @@ import { GenericService } from 'lib/services/GenericService'; class FavoritesSer
     private favorites;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<void>;
+    start(_options: any): Promise<void>;
     stop(): Promise<void>;
     init(useRestAtStartup: boolean): Promise<void>;
     private attachHandlers;
@@ -1957,7 +2043,8 @@ declare module 'lib/services/ProfilesService' {
 import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
-import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
+import { Logger } from 'lib/common/Logger';
+import { Core } from 'lib/Core.js'; const FeaturesEnum: {
     COMPANY_ADMIN_COUNT: string;
     COMPANY_LOGO_MODIFICATION: string;
     COMPANY_DOMAIN_NAME_MODIFICATION: string;
@@ -2010,14 +2097,14 @@ import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
     private timer;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
     /*********************************************************************/
     /** LIFECYCLE STUFF                                                 **/
     /*********************************************************************/
-    start(_options: any, _core: any, stats: any): void;
+    start(_options: any, stats: any): void;
     stop(): Promise<any>;
     restart(): void;
     init(useRest: boolean): Promise<unknown>;
@@ -2498,6 +2585,8 @@ export {}; class BubblesManager {
     private lockKey;
     private nbBubbleAdded;
     private delay;
+    private MAXBUBBLEJOJNINPROGRESS;
+    private maxBubbleJoinInProgress;
     static getClassName(): string;
     getClassName(): string;
     constructor(_eventEmitter: EventEmitter, _logger: Logger);
@@ -2656,12 +2745,12 @@ import { GenericService } from 'lib/services/GenericService'; class FileServer e
     ONE_KILOBYTE: any;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
     get capabilities(): Promise<any>;
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<unknown>;
     /**
@@ -2839,11 +2928,11 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
     private _helpersService;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<unknown>;
     /**************** API ***************/
@@ -3011,10 +3100,62 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
      * @async
      * @category Files FILE MANAGEMENT / PROPERTIES
      * @param {Bubble} bubble   The bubble where to get the files
-     * @description
-     *    Get the list of all files received in a bubble <br>
-     *    Return a promise <br>
-     * @return {FileDescriptor[]} Return an array of file descriptors found or an empty array if no file descriptor has been found
+     * @param {string} ownerId Among all files shared with the user, allow to precify a provider.
+     * @param {boolean} fileName Allows to filter file descriptors by fileName criterion.
+     * @param {string} extension Allows to filter file descriptors by extension criterion.
+     * @param {string} typeMIME Allows to filter file descriptors by typeMIME criterion.
+     * typeMIME='image/jpeg' allows to get all jpeg file
+     * typeMime='image' allows to get all image files whatever the extension
+     * typeMIME='image/jpeg'&typeMIME='image/png' allows to get all jpeg and png files
+     * typeMIME='image'&typeMIME='video' allows to get all image and video files whatever the extension
+     * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
+     * @param {string} purpose Allows to filter file descriptors by the utility of the file (conference_record for instance). purpose=conference_record allows to get all records of conference
+     * @param {string} roomName A word of the conference name. When purpose=conference_record is used, allow to reduce the list of results focusing of the recording name.
+     * @param {boolean} overall When true, allow to get all files (my files and received files) in the same paginated list
+     * @param {string} format Allows to retrieve viewers of each file when the format is full.
+     * small: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * medium: _id fileName extension typeMIME ownerId isUploaded uploadedDate size thumbnail thumbnail500 isClean tags
+     * full: _id fileName extension typeMIME ownerId isUploaded uploadedDate size viewers thumbnail thumbnail500 isClean tags
+     * Default value : full Possibles values : small, medium, full
+     * @param {number} limit Allow to specify the number of fileDescriptors to retrieve. Default value : 1000
+     * @param {number} offset Allow to specify the position of first fileDescriptor to retrieve (first fileDescriptor if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
+     * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
+     * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+     *
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | data | Object | File descriptor Object |
+     *  | tags | Object | Wrap a set of data according with the file use |
+     *  | path | String | The path under which the owner will be able to classified the file. The folder management is not yet available; only a get files per path. For instance this facility is used to implement OXO visual voice mail feature on client side.<br><br>* /<br>* /voice-messages |
+     *  | msgId | String | When the file is generated by the Rainbow visual voice mail feature - The message Id (ex: "g0F6jhGrIXN5NQa") |
+     *  | messageType | String | When the file is generated by the Rainbow visual voice mail feature - The message type<br><br>Valeur par défaut : `voice_message`<br><br>Valeurs autorisées : `voice_message`, `conv_recording` |
+     *  | duration | Number | The message duration in second (voice message duration) |
+     *  | id  | String | File unique identifier (like 56d0277a0261b53142a5cab5) |
+     *  | fileName | String | Name of the file |
+     *  | extension | String | File extension (jpeg, txt, ...) |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (image/jpeg, text/plain, ...) |
+     *  | ownerId | String | Rainbow Id of the file owner. Useful to filter file descriptor for files shared inside a room. In this case the provider is also a viewer. |
+     *  | isUploaded | Boolean | true when the file was uploaded at least one time |
+     *  | size | Number | Size of the file (Default: value given by Rainbow clients). Refreshed from the backend file storage each time the file is uploaded. |
+     *  | viewers | Object\[\] | A set of objects including user or room Rainbow Id, type (user, room) |
+     *  | dateToSort | Date-Time | A processed date to help ordering descriptors not only from the file name.<br><br>dateToSort is processed as follow:<br><br>* `Default value`: either file is never uploaded : dateToSort = 1970-01-01T00:00:00.000Z or file is uploaded but no downloaded date is available : dateToSort = upLoadedDate<br>* In case of the viewerId is a user, a downloadedDate may override the default value. In this case dateToSort is the `downloadedDate`.<br>* When a query sorted by uploadedDate is wanted (`sort=uploadedDate`), no 'dateToSort' processing is done. The uploadedDate field is copied instead. |
+     *  | thumbnail | Object | Data of the thumbnail 'low resolution' (200X200 for images, 300x300 for .pdf, at least one dimension is 200 or 300)) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | thumbnail500 | Object | Data of the thumbnail 'High resolution' (500x500 - at least one dimension is 500) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | isClean | Boolean | Null when the file is not yet scanned by an anti-virus |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | avReport | String | Null when the file is not yet scanned by an anti-virus |
+     *
      */
     getFilesReceivedInBubble(bubble: any, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string, limit: number, offset: number, sortField: string, sortOrder: number): Promise<unknown>;
     /**
@@ -3028,7 +3169,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
      * @return {Promise<FileDescriptor>} file descriptor
      *
      */
-    getCompleteFileDescriptorById(id: any): Promise<unknown>;
+    getCompleteFileDescriptorById(fileId: any): Promise<unknown>;
     /**
      *
      * @private
@@ -3286,6 +3427,39 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
      * @param {string} sortField Sort fileDescriptor list based on the given field. Default value : fileName
      * @param {number} sortOrder Specify order when sorting fileDescriptor list (1: arranged in alphabetical order, -1: reverse order). Default value : 1 Possibles values : -1, 1
      * @return {Promise<FileDescriptor[]>} : list of received files descriptors
+     *
+     *
+     *  | Champ | Type | Description |
+     *  | --- | --- | --- |
+     *  | data | Object | File descriptor Object |
+     *  | tags | Object | Wrap a set of data according with the file use |
+     *  | path | String | The path under which the owner will be able to classified the file. The folder management is not yet available; only a get files per path. For instance this facility is used to implement OXO visual voice mail feature on client side.<br><br>* /<br>* /voice-messages |
+     *  | msgId | String | When the file is generated by the Rainbow visual voice mail feature - The message Id (ex: "g0F6jhGrIXN5NQa") |
+     *  | messageType | String | When the file is generated by the Rainbow visual voice mail feature - The message type<br><br>Valeur par défaut : `voice_message`<br><br>Valeurs autorisées : `voice_message`, `conv_recording` |
+     *  | duration | Number | The message duration in second (voice message duration) |
+     *  | id  | String | File unique identifier (like 56d0277a0261b53142a5cab5) |
+     *  | fileName | String | Name of the file |
+     *  | extension | String | File extension (jpeg, txt, ...) |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (image/jpeg, text/plain, ...) |
+     *  | ownerId | String | Rainbow Id of the file owner. Useful to filter file descriptor for files shared inside a room. In this case the provider is also a viewer. |
+     *  | isUploaded | Boolean | true when the file was uploaded at least one time |
+     *  | size | Number | Size of the file (Default: value given by Rainbow clients). Refreshed from the backend file storage each time the file is uploaded. |
+     *  | viewers | Object\[\] | A set of objects including user or room Rainbow Id, type (user, room) |
+     *  | dateToSort | Date-Time | A processed date to help ordering descriptors not only from the file name.<br><br>dateToSort is processed as follow:<br><br>* `Default value`: either file is never uploaded : dateToSort = 1970-01-01T00:00:00.000Z or file is uploaded but no downloaded date is available : dateToSort = upLoadedDate<br>* In case of the viewerId is a user, a downloadedDate may override the default value. In this case dateToSort is the `downloadedDate`.<br>* When a query sorted by uploadedDate is wanted (`sort=uploadedDate`), no 'dateToSort' processing is done. The uploadedDate field is copied instead. |
+     *  | thumbnail | Object | Data of the thumbnail 'low resolution' (200X200 for images, 300x300 for .pdf, at least one dimension is 200 or 300)) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | thumbnail500 | Object | Data of the thumbnail 'High resolution' (500x500 - at least one dimension is 500) |
+     *  | availableThumbnail | Boolean | Thumbnail availability |
+     *  | wantThumbnailDate | Date-Time | When the thumbnail is ordered |
+     *  | size | Number | Thumbnail size |
+     *  | md5sum | String | md5 of the thumbnail get from the backend file storage |
+     *  | isClean | Boolean | Null when the file is not yet scanned by an anti-virus |
+     *  | typeMIME | String | https://fr.wikipedia.org/wiki/Type_MIME (application/octet-stream) |
+     *  | avReport | String | Null when the file is not yet scanned by an anti-virus |
      *
      */
     retrieveReceivedFilesForRoom(bubbleId: any, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
@@ -4092,11 +4266,11 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     };
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     }, _conversationsRetrievedFormat: string, _nbMaxConversations: number, _autoLoadConversations: boolean, _autoLoadConversationHistory: boolean);
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -4783,7 +4957,7 @@ export {}; class Bubbles extends GenericService {
     private bubblesManager;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
@@ -4792,7 +4966,7 @@ export {}; class Bubbles extends GenericService {
      * @private
      * @return {Promise<void>}
      */
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     /**
      * @method stop
      * @private
@@ -7216,11 +7390,11 @@ import { Core } from 'lib/Core'; class GroupsService extends GenericService {
     private _groups;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     /**
@@ -7505,21 +7679,21 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     private stats;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
     /************************************************************/
     /** LIFECYCLE STUFF                                        **/
     /************************************************************/
-    start(_options: any, _core: Core, stats: any): Promise<void>;
+    start(_options: any, stats: any): Promise<void>;
     init(useRestAtStartup: boolean): Promise<void>;
     stop(): Promise<void>;
     /************************************************************/
     /** EVENT HANDLING STUFF                                   **/
     /************************************************************/
     attachHandlers(): void;
-    onRosterChanged(data: any): Promise<unknown>;
+    onRosterChanged(data: any): void;
     onOpenInvitationManagementUpdate(openInvitation: any): Promise<boolean>;
     onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
     onJoinCompanyInviteManagementMessageReceived(joincompanyinvite: any): Promise<boolean>;
@@ -8072,11 +8246,11 @@ export {}; class ContactsService extends GenericService {
     private _presenceService;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     cleanMemoryCache(): void;
@@ -8799,6 +8973,7 @@ export {}; class ContactsService extends GenericService {
     getImJid(jid: any): any;
     getRessourceFromJid(jid: any): string;
     isUserContactJid(jid: any): boolean;
+    isUserContactId(id: any): boolean;
     isUserContact(contact: Contact): boolean;
     /**
      * @public
@@ -9450,11 +9625,11 @@ import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core'; class Settings extends GenericService {
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     /**
@@ -9539,11 +9714,11 @@ export {}; class PresenceService extends GenericService {
     private _bubbles;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     /**
@@ -10251,7 +10426,7 @@ declare module 'lib/connection/request-rate-limiter/src/BackoffError' {
 }
 declare module 'lib/connection/request-rate-limiter/src/RequestRateLimiter' {
 	export default class RequestRateLimiter {
-    private backoffTime;
+    backoffTime: number;
     private requestRate;
     private interval;
     private timeout;
@@ -10432,9 +10607,14 @@ declare module 'lib/connection/HttpService' {
     httpManager: HttpManager;
     private _options;
     private _core;
+    private mergedGot;
+    private reqAgent;
+    private reqAgentHttp;
+    private reqAgentHttps;
+    useRequestRateLimiter: boolean;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_options: any, _logger: any, _proxy: any, _evtEmitter: any, _core: any);
+    constructor(_core: any, _options: any, _logger: any, _proxy: any, _evtEmitter: any);
     checkHTTPStatus(): Promise<{
         nbHttpAdded: number;
         httpQueueSize: number;
@@ -10512,6 +10692,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getRequestHeaderLowercaseAccept(accept?: string): {
         Authorization: string;
@@ -10519,6 +10700,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getRequestHeaderWithRange(accept?: string, range?: string): {
         Authorization: string;
@@ -10527,6 +10709,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getPostHeader(contentType?: string): {
         Authorization: string;
@@ -10535,6 +10718,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getPostHeaderWithRange(accept?: string, initialSize?: string, minRange?: string, maxRange?: string): {
         Authorization: string;
@@ -10543,6 +10727,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getLoginHeader(auth?: string, password?: string): {
         Accept: string;
@@ -10551,6 +10736,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
     getDefaultHeader(): {
         Accept: string;
@@ -10558,6 +10744,7 @@ declare module 'lib/connection/GenericRESTService' {
         "x-rainbow-client": string;
         "x-rainbow-client-version": any;
         "x-rainbow-client-id": any;
+        "x-rainbow-request-id": string;
     };
 }
 export { GenericRESTService as GenericRESTService };
@@ -10703,7 +10890,7 @@ import { GenericRESTService } from 'lib/connection/GenericRESTService'; enum MED
     private timeOutManager;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_options: any, evtEmitter: EventEmitter, _logger: Logger, core: Core);
+    constructor(core: Core, _options: any, evtEmitter: EventEmitter, _logger: Logger);
     get userId(): any;
     get loggedInUser(): any;
     start(http: any): Promise<any[]>;
@@ -11176,6 +11363,8 @@ import { GenericRESTService } from 'lib/connection/GenericRESTService'; enum MED
     retrieveLdapConnectorAllConfigs(companyId: string): Promise<unknown>;
     retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId: string): Promise<unknown>;
     updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
+    uploadLdapAvatar(binaryImgFile: string, contentType?: string): Promise<unknown>;
+    deleteLdapAvatar(): Promise<unknown>;
     createListOfEventsForConnector(events: Array<{
         eventId: string;
         level: string;
@@ -11534,7 +11723,8 @@ declare module 'lib/services/S2SService' {
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { ProxyImpl } from 'lib/ProxyImpl';
-import { GenericService } from 'lib/services/GenericService'; class S2SService extends GenericService {
+import { GenericService } from 'lib/services/GenericService';
+import { Core } from 'lib/Core.js'; class S2SService extends GenericService {
     private serverURL;
     private host;
     version: any;
@@ -11556,14 +11746,14 @@ import { GenericService } from 'lib/services/GenericService'; class S2SService e
     private _conversations;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_s2s: {
+    constructor(_core: Core, _s2s: {
         hostCallback: string;
         locallistenningport: string;
     }, _im: any, _application: any, _eventEmitter: EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: any): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     /**
      * @private
      * @name signin
@@ -11738,6 +11928,7 @@ declare module 'lib/services/GenericService' {
 	/// <reference types="node" />
 import { XMPPService } from 'lib/connection/XMPPService';
 export {};
+import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger';
 import { S2SService } from 'lib/services/S2SService';
 import { EventEmitter } from 'events';
@@ -11753,6 +11944,7 @@ import { RESTService } from 'lib/connection/RESTService'; class GenericService {
     protected _rest: RESTService;
     protected _started: boolean;
     protected _initialized: boolean;
+    protected _core: Core;
     protected _startConfig: {
         start_up: boolean;
         optional: boolean;
@@ -11764,11 +11956,13 @@ import { RESTService } from 'lib/connection/RESTService'; class GenericService {
     protected ready: boolean;
     protected startingInfos: {
         constructorDate: Date;
+        startDate: Date;
         startedDate: Date;
         initilizedDate: Date;
         readyDate: Date;
     };
     constructor(_logger: Logger, logId?: string);
+    initStartDate(): void;
     cleanMemoryCache(): void;
     get startedDuration(): number;
     get initializedDuration(): number;
@@ -11845,11 +12039,11 @@ export {}; class RPCoverXMPPService extends GenericService {
     rpcManager: RPCManager;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -12041,10 +12235,9 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     private maxPingAnswerTimer;
     private company;
     private xmppRessourceName;
-    private _core;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _rest: any, _options: any, _core: any);
+    constructor(_core: any, _xmpp: any, _im: any, _application: any, _eventEmitter: any, _logger: any, _proxy: any, _rest: any, _options: any);
     start(withXMPP: any): Promise<unknown>;
     signin(account: any, headers: any): Promise<unknown>;
     stop(forceStop: any): Promise<unknown>;
@@ -12130,11 +12323,11 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
     private _presence;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _imOptions: any, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(enableCarbonBool: boolean, useRestAtStartup: boolean): Promise<void>;
     /**
@@ -12379,7 +12572,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -12583,11 +12776,11 @@ export {}; class ChannelsService extends GenericService {
         PUBLISHER: string;
         MEMBER: string;
     };
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -13547,11 +13740,11 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
     private stats;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     attachHandlers(): void;
     init(useRestAtStartup: boolean): Promise<unknown>;
@@ -14270,7 +14463,8 @@ export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Contact } from 'lib/common/models/Contact';
-import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
+import { GenericService } from 'lib/services/GenericService';
+import { Core } from 'lib/Core.js'; enum OFFERTYPES {
     /** freemium licence offer */
     "FREEMIUM" = "freemium",
     /** premium licence offer */
@@ -14285,11 +14479,11 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     private _fileStorage;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: any): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     /**
@@ -18337,6 +18531,75 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
     /**
      * @public
+     * @method uploadLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {binary} binaryImgFile File to be sent
+     * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
+     * @description
+     *      This API can be used to upload avatar image for logged in user.</BR>
+     *      Rules:</BR>
+     *      Avatar file has to be sent directly in http body (no JSon).</BR>
+     *      Only jpeg, jpg and png files are supported. Appropriate content-type has to be set (image/jpeg or image/png).</BR>
+     *      If user already has an avatar, the existing one is overwritten.</BR>
+     *      By default, avatar file size is limited to 4194304 bytes (4 MB) (this limit can be changed by integration team in enduser portal config file).</BR>
+     *      When an avatar is uploaded, the field lastAvatarUpdateDate of the user is updated to the current date.</BR>
+     *      User vCard is also updated: the PHOTO element is set with avatar filename (i.e. user id) in base64 and the LASTAVATARUPDATE element is set to the current date.  </BR>
+     *
+     *      a 'rainbow_onXXX' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     * @example
+     * const mime = require('mime');
+     * const fs = require("fs");
+     * testuploadLdapAvatar() {
+     *      let that = this;
+     *      let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
+     *
+     *      let fd = fs.openSync(pathImg, "r+");
+     *      let fileStats = fs.statSync(pathImg);
+     *      let sizeToRead = fileStats.size;
+     *      let buf = new Buffer(sizeToRead);
+     *      fs.readSync(fd, buf, 0, sizeToRead, null);
+     *      let fileType = mime.lookup(pathImg);
+
+     *      rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+     *          ...
+     *      });
+     * }
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    uploadLdapAvatar(binaryImgFile: any, contentType: string): Promise<unknown>;
+    /**
+     * @public
+     * @method deleteLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @description
+     *      This API can be used to delete avatar image for logged in user. </BR>
+     *      When an avatar is deleted, the field lastAvatarUpdateDate of the user is set to null. </BR>
+     *      User vCard is also updated: the PHOTO element is removed and the LASTAVATARUPDATE element is set to empty.   </BR>
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    deleteLdapAvatar(): Promise<unknown>;
+    /**
+     * @public
      * @method createListOfEventsForConnector
      * @since 2.14.0
      * @instance
@@ -21458,11 +21721,11 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     private _telephony;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<void>;
+    start(_options: any): Promise<void>;
     stop(): Promise<void>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -21570,9 +21833,6 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
      * @return {Boolean} True if the call logs have been retrieved. False elsewhere.
      */
     isInitialized(): boolean;
-    /*********************************************************/
-    /**                  EVENT HANDLERS                     **/
-    /*********************************************************/
     onCallLogUpdated(calllogs: any): Promise<void>;
     onCallLogAckReceived(calllogs: any): Promise<void>;
     /*********************************************************/
@@ -21751,6 +22011,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     get credentials(): any;
     get concurrentRequests(): number;
     get requestsRate(): {
+        "useRequestRateLimiter": number;
         "maxReqByIntervalForRequestRate": number;
         "intervalForRequestRate": number;
         "timeoutRequestForRequestRate": number;
@@ -21784,9 +22045,19 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     };
     _getRESTOptions(): {
         useRestAtStartup: boolean;
+        useGotLibForHttp: boolean;
+        gotOptions: {
+            keepAlive: boolean;
+            keepAliveMsecs: number;
+            maxSockets: number;
+            maxTotalSockets: number;
+            maxFreeSockets: number;
+            timeout: number;
+        };
     };
     _getModeOption(): string;
     _getRequestsRateOption(): {
+        useRequestRateLimiter: boolean;
         maxReqByIntervalForRequestRate: number;
         intervalForRequestRate: number;
         timeoutRequestForRequestRate: number;
@@ -21811,6 +22082,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
         messagesDataStore: DataStoreType;
         autoInitialGetBubbles: boolean;
         autoInitialBubblePresence: boolean;
+        maxBubbleJoinInProgress: number;
         autoInitialBubbleFormat: string;
         autoInitialBubbleUnsubscribed: boolean;
         autoLoadConversations: boolean;
@@ -21990,11 +22262,11 @@ import { GenericService } from 'lib/services/GenericService'; class AlertsServic
     private delayInfoLoggued;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<void>;
+    start(_options: any): Promise<void>;
     stop(): Promise<void>;
     init(useRestAtStartup: boolean): Promise<void>;
     private attachHandlers;
@@ -22658,11 +22930,11 @@ export {}; class WebinarsService extends GenericService {
     private webinarHandlerToken;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -22914,14 +23186,13 @@ export {}; class RBVoiceService extends GenericService {
     private readonly _port;
     private rbvoiceEventHandler;
     private rbvoiceHandlerToken;
-    private _core;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -24404,11 +24675,11 @@ export {}; class HTTPoverXMPP extends GenericService {
     private hTTPoverXMPPHandlerToken;
     static getClassName(): string;
     getClassName(): string;
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core: Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean;
         optional: boolean;
     });
-    start(_options: any, _core: Core): Promise<unknown>;
+    start(_options: any): Promise<unknown>;
     stop(): Promise<unknown>;
     init(useRestAtStartup: boolean): Promise<void>;
     attachHandlers(): void;
@@ -24613,9 +24884,11 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class C
     private _timeOutManager;
     private _signinmethodName;
     private lastConnectedOptions;
+    startDate: Date;
     static getClassName(): string;
     getClassName(): string;
     constructor(options: any);
+    getDurationSinceStart(label: string): number;
     _signin(forceStopXMPP: any, token: any): Promise<unknown>;
     _signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
     _retrieveInformation(): Promise<unknown>;
@@ -24715,6 +24988,29 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
+     * @param {string} options.rest.useGotLibForHttp allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+     * @param {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is : </BR>
+     *  {</BR>
+     * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
+     * keepAlive: true, // ?: boolean or undefined;</BR>
+     * </BR>
+     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+     * //Only relevant if keepAlive is set to true.</BR>
+     * keepAliveMsecs: 501, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
+     * maxSockets: 26, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.</BR>
+     * maxTotalSockets: Infinity, // ?: number or undefined;</BR>
+     * </BR>
+     * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.</BR>
+     * maxFreeSockets: 1001, // ?: number or undefined;</BR>
+     * </BR>
+     * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
+     * timeout: 60001 , // ?: number or undefined;</BR>
+     * }</BR>
+     *
      * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
      * @param {string} options.credentials.password "XXXXX", The password.
      * @param {string} options.application.appID "XXXXXXXXXXXXXXXXXXXXXXXXXXXX", The Rainbow Application Identifier.
@@ -24754,6 +25050,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
      * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.

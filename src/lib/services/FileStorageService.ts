@@ -27,7 +27,7 @@ import {GenericService} from "./GenericService";
 
 import * as fs from "fs";
 import * as path from "path";
-import * as mime from "mime";
+import { default as mime} from "mime";
 // if ( ! mime.lookup) mime.lookup = mime.getType;
 
 function FileUpdated(input) {
@@ -53,11 +53,13 @@ function FileUpdated(input) {
     if (!self.name) {
         throw new Error("No name");
     }
-    if ( ! mime.lookup)  {
-        self.type = self.type || mime.getType(self.name);
+    /* if ( ! mime?.lookup)  {
+        self.type = self.type || mime?.getType(self.name);
     } else {
-        self.type = self.type || mime.lookup(self.name);
-    }
+        self.type = self.type || mime?.lookup(self.name);
+    } // */
+
+    self.type = self.type || mime?.getType(self.name);
 
     if (!self.path) {
         if (self.buffer) {
