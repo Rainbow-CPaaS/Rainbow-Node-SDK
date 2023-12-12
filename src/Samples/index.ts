@@ -94,11 +94,11 @@ let fileapi = require('file-api');
 import {inspect, toUSVString} from "util";
 
 const inquirer = require("inquirer");
-import jwt from "jwt-decode";
 import * as util from "util";
 import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";
 import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
+import {jwtDecode} from "jwt-decode";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -7778,7 +7778,7 @@ let urlS2S;
         token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
         logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
         try {
-            logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwt(token));
+            logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwtDecode(token));
         } catch (err) {
             logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
         }
