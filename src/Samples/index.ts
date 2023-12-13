@@ -1,4 +1,5 @@
 "use strict";
+import {NodeSDK as RainbowSDK} from "../index";
 /*
  * @name index.ts
  *
@@ -86,14 +87,14 @@ Object.defineProperty(exports, "__esModule", {value: true});
 // For using the fiddler proxy which logs requests to server
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 import Bubble_1 from "../lib/common/models/Bubble";
-import {NodeSDK as RainbowSDK} from "../index";
 import * as Utils from "../lib/common/Utils";
 import fs = require("fs");
 //import fileapi from "file-api";
 let fileapi = require('file-api');
 import {inspect, toUSVString} from "util";
 
-const inquirer = require("inquirer");
+//const inquirer = require("inquirer");
+import inquirer from "inquirer";
 import * as util from "util";
 import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";

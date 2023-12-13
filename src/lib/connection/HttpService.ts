@@ -17,7 +17,8 @@ const packageVersion = require("../../package.json");
 const urlParse = require("url").parse;
 const EventEmitter = require("events").EventEmitter;
 const humanize = require("humanize-number");
-const chalk = require("chalk");
+//const chalk = require("chalk");
+import chalk from 'chalk';
 
 const debugHttp = require("debug-http");
 
