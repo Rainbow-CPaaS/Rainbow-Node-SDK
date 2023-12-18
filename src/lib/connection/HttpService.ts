@@ -2796,10 +2796,13 @@ safeJsonParse(str) {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
                     headers["Content-Type"] = "application/json";
-                    body = JSON.stringify(data);
+                   // body = JSON.stringify(data);
                 }
             } // */
 
+            if (headers["Content-Type"] === "application/json" ) {
+                body = typeof data !== "string" ? JSON.stringify(data) : data;
+            }
 
             if (that._options.restOptions.useGotLibForHttp) {
                 const newAliveAgent: any = () => {
@@ -3001,9 +3004,14 @@ safeJsonParse(str) {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
                     headers["Content-Type"] = "application/json";
-                    body = JSON.stringify(data);
+                    //body = JSON.stringify(data);
                 }
             } // */
+            if (headers["Content-Type"] === "application/json" ) {
+                body = typeof data !== "string" ? JSON.stringify(data) : data;
+            }
+
+
             Request({
                 method: 'PATCH',
                 preambleCRLF: true,
@@ -3132,10 +3140,13 @@ safeJsonParse(str) {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
                     headers["Content-Type"] = "application/json";
-                    body = JSON.stringify(data);
+                    //body = JSON.stringify(data);
                 }
             } // */
 
+            if (headers["Content-Type"] === "application/json" ) {
+                body = typeof data !== "string" ? JSON.stringify(data) : data;
+            }
 
             if (that._options.restOptions.useGotLibForHttp) {
                 const newAliveAgent: any = () => {
