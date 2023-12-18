@@ -1601,9 +1601,9 @@ safeJsonParse(str) {
                         let getOptions = newAliveAgent();
 
                         let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                            that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
+                            that.logger.warn("internal", LOG_ID + "(_getUrlJson) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(get) done.");
+                        that.logger.log("info", LOG_ID + "(_getUrlJson) done.");
 
                         /*
                         if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
@@ -1616,8 +1616,8 @@ safeJsonParse(str) {
                         //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
                         //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
                         //
-                        that.logger.warn("warn", LOG_ID + "(get) HTTP error.");
-                        that.logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
+                        that.logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP error.");
+                        that.logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP error statusCode : ", error?.statusCode);
                     }
 
                     return;
@@ -2176,9 +2176,13 @@ safeJsonParse(str) {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
                     headers["Content-Type"] = "application/json";
-                    body = JSON.stringify(data);
+                    //body = JSON.stringify(data);
                 }
             } // */
+
+            if (headers["Content-Type"] === "application/json" ) {
+                body = typeof data !== "string" ? JSON.stringify(data) : data;
+            }
 
             that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
@@ -2345,8 +2349,8 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 if (error) {
-                    that.logger.log("internalerror", LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
-                    return reject("post failed");
+                    that.logger.log("warn", LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
+                    return reject({"msg": "post failed", "error" : error});
                 } else {
                     if (response) {
                         if (response.statusCode) {
