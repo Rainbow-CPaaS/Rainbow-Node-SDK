@@ -493,12 +493,16 @@ class ChannelsService extends GenericService {
                     that._logger.log("info", LOG_ID + "(fetchChannel) channel found locally");
                     that._logger.log("internal", LOG_ID + "(fetchChannel) channel found locally : ", channelFound);
                     resolve(channelFound);
-                }
-                else {
-                    that._logger.log("debug", LOG_ID + "(fetchChannel) channel not found locally. Ask the server...");
-                    let channel = await that.getChannel(id);
-                    let channelObj : Channel = that.addOrUpdateChannelToCache(channel);
-                    resolve(channelObj);
+                } else {
+                    that._logger.log("debug", LOG_ID + "(fetchChannel) channel not found locally. Ask the server for id : ", id);
+                    try {
+                        let channel = await that.getChannel(id);
+                        let channelObj: Channel = that.addOrUpdateChannelToCache(channel);
+                        resolve(channelObj);
+                    } catch (err) {
+                        that._logger.log("internal", LOG_ID + "(fetchChannel) channel not found on serveur, err : ", err);
+                        reject(err);
+                    }
                 }
             }
         });
