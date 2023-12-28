@@ -94,6 +94,20 @@ export class XMPPUTils {
         return fullJid;
     }
 
+    getRoomJIDWithOutDomainFromFullJID(fullJid) {
+        let index = 0;
+
+        if (fullJid.indexOf("tel_") === 0) {
+            index = 4;
+        }
+
+        if (fullJid.includes("@")) {
+            fullJid = fullJid.substring(index, fullJid.lastIndexOf("@"));
+        }
+
+        return fullJid;
+    }
+
     getDomainFromFullJID(fullJid) {
         let domain = "";
 

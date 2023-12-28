@@ -88,6 +88,7 @@
   "dependencies": {
     "@types/backoff": "^2.5.5",
     "@xmpp/client": "^0.13.1",
+    "@xmpp/sasl-scram-sha-1": "^0.13.1",
     "@xmpp/xml": "^0.13.1",
     "adaptive-expressions": "^4.21.3",
     "adaptivecards-templating": "^2.3.1",

@@ -522,10 +522,10 @@ class XMPPService extends GenericService {
             "service": urlToConnect,
             "domain": domain,
             "resource": that.resourceId,
-            "username": that.fullJid,
+            "username": this.xmppUtils.getRoomJIDWithOutDomainFromFullJID(that.jid),
             "password": that.jid_password,
-            "options": options,
-            "mechanism": "PLAIN"
+            "options": options
+            //"mechanisms": ["SCRAM-SHA-1"]
         };
 
         that.logger.log("internal", LOG_ID + "(handleXMPPConnection) ", " xmppLinkOptions : ", xmppLinkOptions);

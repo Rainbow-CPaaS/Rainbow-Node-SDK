@@ -2,6 +2,7 @@
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService";
+import {HTTPService} from "../HttpService.js";
 
 const ErrorCase = require('../../common/ErrorManager');
 const util = require('util');
@@ -9,7 +10,7 @@ const LOG_ID = "REST/CONFV2 - ";
 
 @logEntryExit(LOG_ID)
 class RESTConferenceV2 extends GenericRESTService{
-    public http: any;
+    public http: HTTPService;
     public logger: any;
     public _logger: any;
     public evtEmitter: any;
@@ -31,7 +32,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
     }
 
-    start(http) {
+    start(http : HTTPService) {
         return new Promise((resolve) => {
             let that = this;
             that.http = http;
@@ -57,12 +58,12 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/add", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(inviteContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
+                that.logger.log("info", LOG_ID + "(addPSTNParticipantToConference) successfull");
+                that.logger.log("internal", LOG_ID + "(addPSTNParticipantToConference) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
+                that.logger.log("error", LOG_ID, "(addPSTNParticipantToConference) error");
+                that.logger.log("internalerror", LOG_ID, "(addPSTNParticipantToConference) error : ", err);
                 return reject(err);
             });
         });

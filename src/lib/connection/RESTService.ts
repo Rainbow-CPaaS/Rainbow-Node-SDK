@@ -1,12 +1,12 @@
 "use strict";
 
-import jwtDecode from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import * as btoa from "btoa";
 import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {addParamToUrl, addPropertyToObj, logEntryExit, makeId} from "../common/Utils.js";
+import {addParamToUrl, addPropertyToObj, logEntryExit, makeId, msToTime} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -28,7 +28,6 @@ import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
 
-const jwt : any = jwtDecode;
 
 let packageVersion = require("../../package.json");
 
@@ -421,7 +420,7 @@ class RESTService extends GenericRESTService {
             /*
             try {
                 that.logger.log("internal", LOG_ID + "(signin) with token : ", token, " : ", that.getLoginHeader());
-                let decodedtoken = jwt(token);
+                let decodedtoken = jwtDecode(token);
                 let JSON = {
                     "loggedInUser": decodedtoken.user,
                     "loggedInApplication": decodedtoken.app,
@@ -567,7 +566,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
 
-        let decodedToken = jwt(that.token);
+        let decodedToken : any = jwtDecode(that.token);
         //that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token.");
         that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
         that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token oauth, decodedToken : ", decodedToken);
@@ -1788,7 +1787,7 @@ class RESTService extends GenericRESTService {
         let that = this;
         try {
             that.logger.log("internal", LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
-            let decodedtoken = jwt(token);
+            let decodedtoken :any = jwtDecode(token);
             let JSON = {
                 "loggedInUser": decodedtoken.user,
                 "loggedInApplication": decodedtoken.app,

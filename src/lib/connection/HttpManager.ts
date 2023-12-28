@@ -274,9 +274,9 @@ class HttpManager {
             that.nbHttpAdded++;
         }
         req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-        this._logger.log("internal", LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+        this._logger.log("debug", LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
         if (that.retryAfterEndTime > Date.now()) {
-            this._logger.log("internal", LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+            this._logger.log("debug", LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             let error = {
                 code: 429,
                 url: req.params[0],
@@ -295,13 +295,13 @@ class HttpManager {
             return Promise.reject(error);
         }  else {
             return this.limiter.request(req).catch((error) => {
-                that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                that._logger.log("warn", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
                 if (error && error.code == 429 && error.headers) {
                     that.retryAfterTime = (error.headers["retry-after"] ? Number.parseInt(error.headers["retry-after"]):10) * 1000;
                     //that.retryAfterActivated = true;
                     that.retryAfterStartTime = Date.now();
                     that.retryAfterEndTime = that.retryAfterStartTime + that.retryAfterTime + getRandomInt(5000);
-                    that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.retryAfterStartTime : ", that.retryAfterStartTime, ", that.retryAfterEndTime : ", that.retryAfterEndTime,"that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                    that._logger.log("warn", LOG_ID + "(add) The req failed. that.retryAfterStartTime : ", that.retryAfterStartTime, ", that.retryAfterEndTime : ", that.retryAfterEndTime,"that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
                     /*
                      that._core.timeOutManager.setTimeout(() => {
                         that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
