@@ -236,7 +236,7 @@ let conf =  {
     "concurrentRequests": 1000,
     "requestsRate": {
         "useRequestRateLimiter": true,
-        "maxReqByIntervalForRequestRate": 60, // nb requests during the interval.
+        "maxReqByIntervalForRequestRate": 120, // nb requests during the interval.
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": 120, // nb seconds Request stay in queue before being rejected if queue is full.
     },

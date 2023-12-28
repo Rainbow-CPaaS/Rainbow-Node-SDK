@@ -14,6 +14,37 @@ let options = {
     "rainbow": {
          "host": "official",                      // Can be "sandbox" (developer platform), "official" or any other hostname when using dedicated AIO
     },
+    "rest": {
+        "useRestAtStartup": true,
+        "useGotLibForHttp": true,
+        "gotOptions": {
+            /**
+             * Keep sockets around in a pool to be used by other requests in the future. Default = false
+             */
+            keepAlive: true, // ?: boolean | undefined;
+            /**
+             * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+             * Only relevant if keepAlive is set to true.
+             */
+            keepAliveMsecs: 501, // ?: number | undefined;
+            /**
+             * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+             */
+            maxSockets: 26, // ?: number | undefined;
+            /**
+             * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+             */
+            maxTotalSockets: Infinity, // ?: number | undefined;
+            /**
+             * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+             */
+            maxFreeSockets: 1001, // ?: number | undefined;
+            /**
+             * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+             */
+            timeout: 60001 , // ?: number | undefined;
+        }
+    }, // */
     "credentials": {
         "login": "",  // The Rainbow email account to use
         "password": "",   // The Rainbow associated password to use
@@ -53,6 +84,17 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
+    "testOutdatedVersion": false,
+    "testDNSentry": false,
+    "httpoverxmppserver": false,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
+    "requestsRate": {
+        "useRequestRateLimiter": true,
+        "maxReqByIntervalForRequestRate": 120, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+    },
+    "autoReconnectIgnoreErrors":false,
     // IM options
     "im": {
         "sendReadReceipt": false,
