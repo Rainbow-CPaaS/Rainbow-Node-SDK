@@ -65,8 +65,12 @@ class GenericRESTService {
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-id" :  makeId(9)
+            "x-rainbow-request-node-id" :  makeId(9)
         };
+
+        //let caller = arguments.callee.caller.toString();
+        // let caller = arguments.callee.caller.prototype;
+        //console.log("caller : ", caller);
 
         return headers;
     }
@@ -80,7 +84,7 @@ class GenericRESTService {
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-id" :  makeId(9)
+            "x-rainbow-request-node-id" :  makeId(9)
         };
 
         return headers;
@@ -122,7 +126,7 @@ class GenericRESTService {
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-id" :  makeId(9)
+            "x-rainbow-request-node-id" :  makeId(9)
         };
 
         let toEncrypt = that._application.appSecret + (password || that._credentials.password);
@@ -148,7 +152,7 @@ class GenericRESTService {
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-id" :  makeId(9)
+            "x-rainbow-request-node-id" :  makeId(9)
         };
     };
     

@@ -22,6 +22,7 @@ const _sessionEstablishment = require('@xmpp/session-establishment');
 
 // SASL mechanisms - order matters and define priority
 //const scramsha1 = require('@xmpp/sasl-scram-sha-1');
+const scramsha1 = require("@xmpp/sasl-scram-sha-1");
 const plain = require('@xmpp/sasl-plain');
 //const anonymous = require('@xmpp/sasl-anonymous');
 
@@ -61,7 +62,7 @@ function client(options = {}) {
   const resourceBinding = _resourceBinding({iqCaller, streamFeatures}, resource);
   const sessionEstablishment = _sessionEstablishment({iqCaller, streamFeatures});
   // SASL mechanisms - order matters and define priority
-  const mechanisms = Object.entries({ plain}).map(
+  const mechanisms = Object.entries({ scramsha1, plain}).map(
     ([k, v]) => ({[k]: v(sasl)})
   );
 

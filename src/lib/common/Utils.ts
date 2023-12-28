@@ -3,7 +3,7 @@
 
 //import util from "util";
 
-import {start} from "repl";
+//import {start} from "repl";
 
 const config = require ("../config/config");
 import {atob} from "atob";
@@ -107,7 +107,14 @@ let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
 
-let setTimeoutPromised = function(timeOutMs) : Promise<any> {
+/**
+ * @name setTimeoutPromised
+ * @description
+ *  function to wait for milliseconds and return a resolved promise.
+ * @param {number} timeOutMs milliseconds to wait.
+ * @returns {Promise<any>}
+ */
+let setTimeoutPromised = function(timeOutMs: number) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
           try {
@@ -119,6 +126,13 @@ let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     });
 };
 
+/**
+ * @name pause
+ * @description
+ *  function to wait for milliseconds and return a resolved promise.
+ * @param {number} timeOutMs milliseconds to wait.
+ * @returns {Promise<any>}
+ */
 let pause = setTimeoutPromised;
 /*let pause = function (timeToWaitMS) : Promise<any> {
     return setTimeoutPromised(timeToWaitMS);
@@ -143,13 +157,14 @@ async function myFunction(number) {
 
 //where until() is this utility function
 /**
+ * @name until
  * @description
  * function to wait for a condition for a few time before it is resolved of rejected.
  * To be used with asynchrone function :
  * myFunction() is the code using until function.
  *
  * async function myFunction(number) {
-  *    let x=number;
+ *    let x=number;
  * ... more initializations
  *
  *    await until(_ => flag == true);
@@ -158,9 +173,11 @@ async function myFunction(number) {
  * }
  *
  * @param conditionFunction
+ * @param labelOfWaitingCondition
+ * @param waitMsTimeBeforeReject
  * @returns {Promise<any>}
  */
-function until(conditionFunction : Function, labelOfWaitingCondition : string, waitMsTimeBeforeReject : number = 5000) {
+function until(conditionFunction : Function, labelOfWaitingCondition : string, waitMsTimeBeforeReject : number = 5000): Promise<any> {
 
     let now = new Date();//.toJSON().replace(/-/g, '_');
 
@@ -550,8 +567,20 @@ function getRandomInt(max) {
 }
 
 function stackTrace() {
-    var err = new Error();
-    return err.stack;
+
+    try {
+        throw new Error();
+    }
+    catch (e) {
+        try {
+            //return e.stack.split('at ')[3].split(' ')[0];
+            return e.stack;
+        } catch (e) {
+            return '';
+        }
+    }
+    /*var err = new Error();
+    return err.stack;// */
 }
 
 function isPromise (x) {
@@ -622,6 +651,27 @@ function generateRamdomEmail(email){
     return emailGenerated.toLowerCase();
 }
 
+function callerName() {
+    try {
+        throw new Error();
+    }
+    catch (e) {
+        try {
+            let callerNameStr = e.stack.split('at ')[6].split(' ')[0];
+            return callerNameStr?callerNameStr.substring("descriptor.value.".length):'';
+            //return e;
+        } catch (e) {
+            return '';
+        }
+    }
+
+}
+
+function currentFunction(){
+    let whoCallMe = callerName();
+    console.log(whoCallMe);
+}
+
 function functionName(functionPtr) {
     let methodCallbackStr = functionPtr?functionPtr.toString():undefined;                // 
     //let result1 = methodCallbackStr?methodCallbackStr.match(/function\s*(.*?)\s*{/):"";
@@ -668,6 +718,30 @@ async function traceExecutionTime(thisToUse, methodName, methodDefinition, param
     return result;
 }
 
+/**
+ * convert time in milliseconds to hours, minutes ands seconds in human readable time.
+ * @param {number} duration in milliseconds
+ * @returns {string} time
+ */
+function msToTime(duration: number): string {
+    let ms: number = duration % 1000;
+    duration = (duration - ms) / 1000;
+    let secs: number = duration % 60;
+    duration = (duration - secs) / 60;
+    let mins: number = duration % 60;
+    duration = (duration - mins) / 60;
+    let hrs: number = duration % 60;
+    let days: number = (duration - hrs) / 24;
+
+    let hours: string = (hrs < 10) ? "0" + hrs : hrs.toString();
+    let minutes: string = (mins < 10) ? "0" + mins : mins.toString();
+    let seconds: string = (secs < 10) ? "0" + secs : secs.toString();
+    let milliseconds: string = (ms < 10) ? "0" + ms : ms.toString();
+
+    //return hrs + ':' + mins + ':' + secs + '.' + ms;
+    return (days + " Jrs " + hours + ":" + minutes + ":" + seconds + "." + milliseconds);
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -698,9 +772,11 @@ export let objToExport = {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime
 };
 
 module.exports = objToExport;
@@ -734,9 +810,11 @@ export {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime
 };
 
 export default {
@@ -769,7 +847,9 @@ export default {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime
 };

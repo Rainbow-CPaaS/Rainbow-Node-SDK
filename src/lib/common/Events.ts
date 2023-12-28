@@ -11,6 +11,8 @@ import {Logger} from "./Logger";
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
 
+EventEmitter.captureRejections = true;
+
  // dev-code //
  // @ class  Emitter EventEmitter class extended to log the event names and parameters.
 class Emitter extends EventEmitter {
@@ -1520,6 +1522,21 @@ class Events {
             that.publishEvent("logsconfig", data);
         });
 
+    }
+
+    listenerData() {
+        let that = this;
+
+        let eventsData = {
+            receiver : {
+                "listenerCount" : that._evReceiver.listenerCount("rainbow_onready")
+            },
+            emitter : {
+                "listenerCount" : that._evPublisher.listenerCount("rainbow_onready")
+            }
+        };
+
+        return eventsData;
     }
 
     get iee(): EventEmitter {
