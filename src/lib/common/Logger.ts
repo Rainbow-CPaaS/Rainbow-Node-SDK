@@ -9,7 +9,7 @@ const DailyRotateFile = require('winston-daily-rotate-file');
 const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
-const stripAnsi = require('strip-ansi');
+import {default as stripAnsi} from 'strip-ansi';
 const Cryptr = require('cryptr');
 //import stripAnsi from 'strip-ansi';
 /* let stripAnsi;
@@ -38,7 +38,9 @@ const myFormat = winston.format.printf(info => {
 });
 
 const myFormatNoColors = winston.format.printf(info => {
-    return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
+    return `${tsFormat()} - ${info.level}: ${info.message}`;
+    // The following code is necessary when the colors lib disabled.
+    //return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
 }) ;
 
 
@@ -139,8 +141,10 @@ class Logger {
         }
 
         if (!logColor) {
+            this.colors?.disable();
             logFormat=myFormatNoColors;
         } else {
+            this.colors?.enable();
             logFormat=myFormat;
         }
 
