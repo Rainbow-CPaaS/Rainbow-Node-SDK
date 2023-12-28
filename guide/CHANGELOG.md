@@ -7,6 +7,21 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.25.2-lts.6] - 2024-02-23
+### [2.27.0] - 2023-12-XX
+#### Removed
+-   None
+
+#### Fixed
+-   Fix "jwt-decode" import.
+
+#### Added
+-   Add method's caller name in HTTP request logs.
+-   Add "x-rainbow-request-node-id" header in HTTP request to link with the resulting "x-rainbow-request-id" header received in response.
+
+#### Changed
+-   Update to use "SCRAM-SHA-1" on Xmpp link instead of "PLAIN".
+-   Update `Logger` to enable or disable colors with "colors" lib and without removing ansi colors caracters.
+
 #### Removed
 -   None
 
