@@ -9530,13 +9530,13 @@ Request Method: PUT
         });
     }
 
-    uploadLdapAvatar(binaryImgFile: string, contentType: string = "") {
+    uploadLdapAvatar(binaryImgFile: string, contentType: string = "", ldapId : string = null) {
         // API https://api.openrainbow.org/admin/#api-connectors-uploadLdapAvatar
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/avatar
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar";
+            let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar" + (ldapId?"/"+ldapId:"");
             that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
             let data: any = binaryImgFile;
 
@@ -9552,13 +9552,14 @@ Request Method: PUT
         });
     }
 
-    deleteLdapAvatar() {
+    deleteLdapAvatar(ldapId : string = null) {
         // API https://api.openrainbow.org/admin/#api-connectors-deleteLdapAvatar
         // DELETE /api/rainbow/admin/v1.0/connectors/ldaps/avatar
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/admin/v1.0/connectors/ldaps/avatar", that.getRequestHeader()).then(function (json) {
+            let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar" + (ldapId?"/"+ldapId:"")
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) successfull");
                 that.logger.log("internal", LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
                 resolve(json);

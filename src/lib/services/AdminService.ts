@@ -6585,8 +6585,9 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category AD/LDAP - LDAP APIs to use
-     * @param {binary} binaryImgFile File to be sent
+     * @param {any} binaryImgFile File to be sent
      * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
+     * @param {string} ldapId user unique identifier in ldap
      * @description
      *      This API can be used to upload avatar image for logged in user.</BR>
      *      Rules:</BR>
@@ -6625,7 +6626,7 @@ class AdminService extends GenericService {
      * | status | String | Avatar upload status message. |
      *
      */
-    uploadLdapAvatar(binaryImgFile : any, contentType: string) {
+    uploadLdapAvatar(binaryImgFile : any, contentType: string, ldapId : string = null) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
@@ -6642,7 +6643,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
-                let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType);
+                let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType, ldapId);
                 that._logger.log("debug", "(uploadLdapAvatar) - sent.");
                 that._logger.log("internal", "(uploadLdapAvatar) - result : ", result);
 
@@ -6660,6 +6661,7 @@ class AdminService extends GenericService {
      * @method deleteLdapAvatar
      * @since 2.25.2-lts.3
      * @instance
+     * @param {string} ldapId user unique identifier in ldap
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @description
@@ -6675,12 +6677,12 @@ class AdminService extends GenericService {
      * | status | String | Avatar upload status message. |
      *
      */
-    deleteLdapAvatar() {
+    deleteLdapAvatar( ldapId : string = null) {
         let that = this;
 
         return new Promise(async (resolve, reject) => {
             try {
-                let result = await that._rest.deleteLdapAvatar();
+                let result = await that._rest.deleteLdapAvatar(ldapId);
                 that._logger.log("debug", "(deleteLdapAvatar) - sent.");
                 that._logger.log("internal", "(deleteLdapAvatar) - result : ", result);
 
