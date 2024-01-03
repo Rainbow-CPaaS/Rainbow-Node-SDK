@@ -6,6 +6,21 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.5] - 2024-01-XX
+#### Removed
+-   None
+
+#### Fixed
+-   Fix RESTConferenceV2::addPSTNParticipantToConference
+-   Fix ChannelsService::fetchChannel when an error occurred.
+
+#### Added
+-   None
+
+#### Changed
+-   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+
 ### [2.25.2-lts.4] - 2023-10-20
 #### Removed
 -   None
