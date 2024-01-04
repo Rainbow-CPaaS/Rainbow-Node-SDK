@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.25.2-lts.6] - 2024-02-23
-### [2.27.0] - 2023-12-XX
+### [2.27.0] - 2024-01-XX
 #### Removed
 -   None
 
@@ -21,6 +21,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   Update to use "SCRAM-SHA-1" on Xmpp link instead of "PLAIN".
 -   Update `Logger` to enable or disable colors with "colors" lib and without removing ansi colors caracters.
+-   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 
 #### Removed
 -   None
