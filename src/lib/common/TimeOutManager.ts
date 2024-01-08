@@ -4,6 +4,7 @@ import {Dictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
 import {isFunction} from "util";
+import {clearTimeout} from "node:timers";
 
 export {};
 
@@ -17,7 +18,7 @@ class ItemForTimeOutQueue {
     private defered : Deferred;
     private itemFunction : any;
     public id : string;
-    private label: string;
+    private _label: string;
     public typePromised: boolean;
     public timeoutId: NodeJS.Timeout;
     public timetoutInProgress: boolean;
@@ -30,11 +31,15 @@ class ItemForTimeOutQueue {
         that.id = xmppUtils.getUniqueId("TimeOutQueue");
         that.timeoutId = null;
         that.timetoutInProgress = false;
-        that.label = label;
+        that._label = label;
         
         if (typeof (itemFunction) !== 'function') {
             throw new Error('You must pass a function to execute');
         }
+    }
+
+    getLabel(): string {
+        return this._label;
     }
 
     getId() {
@@ -73,7 +78,7 @@ class ItemForTimeOutQueue {
             that.timetoutInProgress = false;
             clearTimeout(that.timeoutId );
             if (that.typePromised) {
-                that.reject("stop the ItemForTimeOutQueue : " + that.getId() + " for : " + that.label);
+                that.reject("stop the ItemForTimeOutQueue : " + that.getId() + " for : " + that._label);
             } 
             return that.timeoutId;
         } catch (err) {
@@ -310,7 +315,7 @@ class TimeOutManager {
         let id = timeoutItemQueue.getId();
         that.lock(async () => {
             try {
-                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue will stop.");
+                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue will stop. label : ", timeoutItemQueue.getLabel());
                 that.timeoutFnTab.remove( (item : KeyValuePair<string, ItemForTimeOutQueue>) => {
                     return timeoutItemQueue.getId()=== timeoutItemQueue.getId();
                 });
@@ -336,7 +341,7 @@ class TimeOutManager {
                 if (that.timeoutFnTab) {
                     for (let i = 0; i < that.timeoutFnTab.length ; i++) {
                         let item = that.timeoutFnTab.elementAt(i);
-                        that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key, "] : ", item.value);
+                        that.logger.log("info", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key, "] id : ", item.value?.getId(), ", label : ", item.value?.getLabel());
                         if (item.value && item.value.timetoutInProgress===true) {
                             item.value.stop();
                         }

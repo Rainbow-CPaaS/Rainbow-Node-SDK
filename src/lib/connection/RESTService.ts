@@ -6,7 +6,7 @@ import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {addParamToUrl, addPropertyToObj, logEntryExit, makeId, msToTime} from "../common/Utils.js";
+import {addParamToUrl, addPropertyToObj, getRandomInt, logEntryExit, makeId, msToTime} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -581,21 +581,36 @@ class RESTService extends GenericRESTService {
         let halftokenExpirationDuration = tokenExpirationTimestamp - currentTimestamp;
         let fulltokenExpirationDuration = (decodedToken.exp * 1000) - currentTimestamp;
 
-        let usedExpirationDuration = halftokenExpirationDuration - 3600000; // Refresh 1 hour before the token expiration - negative values are well treated by settimeout
-        that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+        let usedExpirationDuration = 0; // Refresh before the token expiration - negative values are well treated by settimeout
+        that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
 
         if (decodedToken && !decodedToken.oauth) {
             if (halftokenExpirationDuration < 0) {
                 that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token has already expired, re-new it immediately");
                 that._renewAuthToken();
-            } else if (halftokenExpirationDuration < 300000) {
+            } else {
+                let randomTimeToWaitAddedTousedExpirationDurationBeforeRenew = getRandomInt((halftokenExpirationDuration/8) ) ; // add random time to the halftokenExpirationDuration.
+                // let timeToRemoveTousedExpirationDurationBeforeRenew = 0 //
+                let usedExpirationDuration = halftokenExpirationDuration + randomTimeToWaitAddedTousedExpirationDurationBeforeRenew; // Refresh before the token expiration - negative values are well treated by settimeout
+                that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+                if (that.renewTokenInterval) {
+                    that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                    clearTimeout(that.renewTokenInterval);
+                }
+                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token usedExpirationDuration in ", usedExpirationDuration, " ms => ", msToTime(usedExpirationDuration));
+                that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
+                    that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
+                    that._renewAuthToken();
+                }, usedExpirationDuration, "startTokenSurvey 1");
+            }
+            /* if (halftokenExpirationDuration < 300000) {
                 that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token will expire in less 5 minutes, re-new it immediately : ", halftokenExpirationDuration);
                 that._renewAuthToken();
             } else {
-                let timeToRemoveTousedExpirationDurationBeforeRenew = 3600000 // 1 hour 
+                let timeToRemoveTousedExpirationDurationBeforeRenew = (halftokenExpirationDuration > 3600000) ? getRandomInt((halftokenExpirationDuration/2) ) : getRandomInt(3600000); // remove 1 hour if the halftokenExpirationDuration is less than 1 hour
                 // let timeToRemoveTousedExpirationDurationBeforeRenew = 0 //  
                 let usedExpirationDuration = halftokenExpirationDuration - timeToRemoveTousedExpirationDurationBeforeRenew; // Refresh timeToRemoveTousedExpirationDurationBeforeRenew before the token expiration - negative values are well treated by settimeout
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+                that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
                 if (that.renewTokenInterval) {
                     that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
                     clearTimeout(that.renewTokenInterval);
@@ -605,7 +620,7 @@ class RESTService extends GenericRESTService {
                     that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
                     that._renewAuthToken();
                 }, usedExpirationDuration, "startTokenSurvey 1");
-            }
+            } // */
         } else if (decodedToken) { // token is from oauth external login, so we can not refresh it by ourself.
             usedExpirationDuration = halftokenExpirationDuration;
             that.logger.log("info", LOG_ID + "(startTokenSurvey) start token oauth survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");

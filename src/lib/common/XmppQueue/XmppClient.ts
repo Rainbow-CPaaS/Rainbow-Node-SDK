@@ -408,7 +408,7 @@ class XmppClient  {
                     //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
 
                     if (that.socketClosed) {
-                        that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                        that.logger.log("warn", LOG_ID + "(send) Error the socket is close, so do not send data on it.");
                         //return Promise.reject("Error the socket is close, so do not send data on it.")
                         return reject2({
                             timestamp: (new Date()).toLocaleTimeString(),
