@@ -23,6 +23,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `Logger` to enable or disable colors with "colors" lib and without removing ansi colors caracters.
 -   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 -   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update reconnexion when token expired.
 
 ### [2.26.0] - 2023-11-XX
 #### Removed
