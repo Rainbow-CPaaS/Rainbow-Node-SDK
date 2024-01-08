@@ -152,6 +152,11 @@ class Core {
                 //self.events.publish("stopped", error);
             });
             await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+
+            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) pause before continue the reconnection !");
+            await pause(20000);
+            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) pause done, so continue the reconnection !");
+
             if (that._signinmethodName == SIGNINMETHODNAME.SIGNIN ) {
                 await self.start(that.lastConnectedOptions.token).then(async function () {
                     return await self.signin(true, that.lastConnectedOptions.token);
@@ -1013,13 +1018,13 @@ class Core {
                 json = _json;
                 that.getDurationSinceStart("_signin done ");
 
-                that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     that.getDurationSinceStart("_retrieveInformation before ");
                     return that._retrieveInformation();
                 });
             }).then(() => {
                 that.getDurationSinceStart("_retrieveInformation done ");
+                that._tokenSurvey();
                 that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
@@ -1043,7 +1048,6 @@ class Core {
                 that.lastConnectedOptions.token = token;
                 that.lastConnectedOptions.userInfos = userInfos;
                 json = _json;
-                //that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     
                     return that._retrieveInformation().catch((err) => {
@@ -1051,6 +1055,7 @@ class Core {
                     });
                 });
             }).then(() => {
+                //that._tokenSurvey();
                     that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 

@@ -566,10 +566,14 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max?max:10));
 }
 
+function throwError() {
+    throw new Error();
+}
+
 function stackTrace() {
 
     try {
-        throw new Error();
+        throwError();
     }
     catch (e) {
         try {

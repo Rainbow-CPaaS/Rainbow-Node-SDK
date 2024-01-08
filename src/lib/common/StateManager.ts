@@ -82,22 +82,31 @@ class StateManager {
     }
 
     async transitTo(publishEvent : boolean = true, state : SDKSTATUSENUM, data?) {
+        let that = this;
         return new Promise( async (resolve, reject) => {
-            if (this.state === state) {
-                this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
+            if (that.state === state) {
+                that.logger.log("info", LOG_ID + "(transitTo) the state is yet ", that.state, ", so ignore it.");
                 resolve(undefined);
             } else {
-                this.state = state;
-                if (this.isSTOPPED() || this.isREADY()) {
-                    await utils.setTimeoutPromised(1500).then(() => {
-                    // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
-                        this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                        if (publishEvent) { this.eventEmitter.publish(state, data); }
-                        resolve(undefined);
-                    });
+                that.state = state;
+                if (that.isSTOPPED() || that.isREADY()) {
+                    try {
+                        await that.timeOutManager.setTimeoutPromised(() => {
+                            // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
+                            that.logger.log("info", LOG_ID + "(transitTo) set state : ", that.state);
+                            if (publishEvent) {
+                                that.eventEmitter.publish(state, data);
+                            }
+                            resolve(undefined);
+                        }, 1500, "(transitTo) set state : " + that.state);
+                    } catch (err) {
+                        that.logger.log("warn", LOG_ID + "(transitTo) CATCH Error !!! error : ", err);
+                    }
                 } else {
-                    this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                    if (publishEvent) { this.eventEmitter.publish(state, data); }
+                    that.logger.log("info", LOG_ID + "(transitTo) set state : ", that.state);
+                    if (publishEvent) {
+                        that.eventEmitter.publish(state, data);
+                    }
                     resolve(undefined);
                 }
             }
