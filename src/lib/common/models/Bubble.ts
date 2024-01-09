@@ -144,6 +144,7 @@ class Bubble {
     public isOwnedByGroup : boolean
     public isActiveLastChange : boolean
     public processId : any
+    public confEndpoints : string
 
 
     public static RoomUserStatus = {
@@ -204,7 +205,7 @@ class Bubble {
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
-                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null) {
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null) {
 
         /**
          * @public
@@ -450,6 +451,8 @@ class Bubble {
         this.isOwnedByGroup = _isOwnedByGroup;
         this.isActiveLastChange = _isActiveLastChange;
         this.processId = _processId;
+        this.confEndpoints = _confEndpoints;
+
     }
 
     /**
@@ -580,7 +583,8 @@ class Bubble {
                 data.isAlertNotificationEnabled,
                 data.isOwnedByGroup,
                 data.isActiveLastChange,
-                data.processId
+                data.processId,
+                data.confEndpoints
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);
