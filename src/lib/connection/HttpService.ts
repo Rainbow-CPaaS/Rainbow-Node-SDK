@@ -540,7 +540,7 @@ safeJsonParse(str) {
                         let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_getUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(_getUrlRaw) done.");
+                        that.logger.log("debug", LOG_ID + "(_getUrlRaw) done.");
 
                         /*
                         if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
@@ -773,7 +773,7 @@ safeJsonParse(str) {
                         let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(head) done.");
+                        that.logger.log("debug", LOG_ID + "(head) done.");
 
                     } catch (error) {
                         //
@@ -956,7 +956,7 @@ safeJsonParse(str) {
                         let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_postUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(_postUrlRaw) done.");
+                        that.logger.log("debug", LOG_ID + "(_postUrlRaw) done.");
 
                     } catch (error) {
                         //
@@ -1126,7 +1126,7 @@ safeJsonParse(str) {
                         let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_putUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(_putUrlRaw) done.");
+                        that.logger.log("debug", LOG_ID + "(_putUrlRaw) done.");
 
                     } catch (error) {
                         //
@@ -1373,7 +1373,7 @@ safeJsonParse(str) {
                         let response = secondInstance.delete(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_deleteUrlRaw) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done.");
+                        that.logger.log("debug", LOG_ID + "(_deleteUrlRaw) done.");
 
                     } catch (error) {
                         //
@@ -1649,7 +1649,7 @@ safeJsonParse(str) {
                         let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                             that.logger.warn("internal", LOG_ID + "(_getUrlJson) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                         });
-                        that.logger.log("info", LOG_ID + "(_getUrlJson) done.");
+                        that.logger.log("debug", LOG_ID + "(_getUrlJson) done.");
 
                         /*
                         if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
@@ -1975,7 +1975,7 @@ safeJsonParse(str) {
                             let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                                 that.logger.warn("internal", LOG_ID + "(get) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                             });
-                            that.logger.log("info", LOG_ID + "(get) done.");
+                            that.logger.log("debug", LOG_ID + "(get) done.");
 
                             /*
                             if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
@@ -2382,7 +2382,7 @@ safeJsonParse(str) {
                     let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(post) error.code : ", error?.code, ", error : ", error, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(post) done.");
+                    that.logger.log("debug", LOG_ID + "(post) done.");
 
                 } catch (error) {
                     //
@@ -2723,7 +2723,7 @@ safeJsonParse(str) {
                     let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(head) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(head) done.");
+                    that.logger.log("debug", LOG_ID + "(head) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
                     that.logger.log("info", LOG_ID + "(head) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
@@ -3066,7 +3066,7 @@ safeJsonParse(str) {
                     let response = secondInstance.patch(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(patch) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(patch) done.");
+                    that.logger.log("debug", LOG_ID + "(patch) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
                     that.logger.log("info", LOG_ID + "(patch) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
@@ -3429,7 +3429,7 @@ safeJsonParse(str) {
                     let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(put) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(put) done.");
+                    that.logger.log("debug", LOG_ID + "(put) done.");
 
                 } catch (error) {
                     //
@@ -3658,7 +3658,7 @@ safeJsonParse(str) {
                     let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(_putBuffer) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(_putBuffer) done.");
+                    that.logger.log("debug", LOG_ID + "(_putBuffer) done.");
 
                 } catch (error) {
                     //
@@ -4258,7 +4258,7 @@ safeJsonParse(str) {
                     let response = secondInstance.delete(urlEncoded, getOptions).catch((error) => {
                         that.logger.warn("internal", LOG_ID + "(delete) error.code : ", error?.code, ", urlEncoded : ", urlEncoded);
                     });
-                    that.logger.log("info", LOG_ID + "(delete) done.");
+                    that.logger.log("debug", LOG_ID + "(delete) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
                     that.logger.log("info", LOG_ID + "(delete) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 

@@ -34,7 +34,7 @@ const xml = require("@xmpp/xml");
 const Element = require('ltx').Element;
 const parse = require('ltx').parse;
 
-let LOG_ID='XMPPCLIENT';
+let LOG_ID='XMPPCLIENT - ';
 
 
 class XmppClient  {
@@ -294,8 +294,13 @@ class XmppClient  {
 
             //that.logger.log("debug", LOG_ID + "(send) this.client.websocket : ", this.client.Socket);
 
-            if (that.socketClosed) {
-                that.logger.log("error", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+            let stanza = args[0];
+            let stanzaJson = await getJsonFromXML(stanza);
+            that.logger.log("debug", LOG_ID + "(send) JSONstanza : ", stanzaJson);
+
+            //if (that.socketClosed ) {
+            if (that.socketClosed && !stanzaJson.close) { // The "</close>" stanza is ignored
+                that.logger.log("warn", LOG_ID + "(send) Error the socket is close, so do not send data on it. this.client.websocket closed. ");
                 //return Promise.reject("Error the socket is close, so do not send data on it.")
                 return reject2({
                     timestamp: (new Date()).toLocaleTimeString(),
@@ -309,21 +314,19 @@ class XmppClient  {
                  // */
             }
 
-            let stanza = args[0];
-
             if (that.enablesendurgentpushmessages && stanza && stanza.name=="message") {
-                let stanzaJson = await getJsonFromXML(stanza);
-                that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
+                //stanzaJson = await getJsonFromXML(stanza);
+                //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, and of type message, JSONstanza is : ", stanzaJson);
                 //if (stanzaJson && stanzaJson.message != undefined) {
                 //that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message.");
                 if (stanzaJson.message.body && stanzaJson.message.body!="") {
-                    that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                    //that.logger.log("debug", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
                     // <retry-push xmlns='urn:xmpp:hints'/> 
                     let retryPush = "retry-push";
                     stanza.append(xml(retryPush, {
                         "xmlns": NameSpacesLabels.HintsNameSpace
                     }));
-                    that.logger.log("internal", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
+                    that.logger.log("debug", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
                 }
                 //} 
             }
@@ -576,7 +579,7 @@ class XmppClient  {
                 let prom = this.xmppQueue.add(async (resolve2, reject2, id) => {
                     // return ; // To do failed the lock acquire.
                         if (that.socketClosed) {
-                            that.logger.log("error", LOG_ID + "(send) - id : ", id, " - Error the socket is close, so do not send data on it. this.client.websocket : ", this.client.Socket);
+                            that.logger.log("error", LOG_ID + "(send) - id : ", id, " - Error the socket is close, so do not send data on it.");
                             //return Promise.reject("Error the socket is close, so do not send data on it.")
                             return reject2({
                                 timestamp: (new Date()).toLocaleTimeString(),

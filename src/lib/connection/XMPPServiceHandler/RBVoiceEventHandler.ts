@@ -115,7 +115,7 @@ class RBVoiceEventHandler extends GenericHandler {
 
             let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("internal", LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
+            that.logger.log("debug", LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
 
             // Ignore "Offline" message
             let delay = stanzaElem.getChild("delay");
