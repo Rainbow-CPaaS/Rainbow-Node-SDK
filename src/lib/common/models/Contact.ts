@@ -189,11 +189,27 @@ class Contact {
     
     public outOfOffice : any;
     public lastSeenDate : string;
-    public eLearningCustomisation : any;
-    public eLearningGamificationCustomisation : any;
+    public eLearningCustomisation : boolean;
+    public eLearningGamificationCustomisation : boolean;
     public useRoomAsRBVoiceUser : boolean;
     public useWebRTCAudioAsRBVoiceUser : boolean;
     public msTeamsPresence : any;
+
+    public useWebRTCOnlyIfMobileLoggedCustomisation : boolean;
+    public meetingRecordingCustomisation : boolean;
+    public useOtherPhoneMode : boolean;
+    public useComputerMode : boolean;
+    public useSoftPhoneMode : boolean;
+    public imPopupDuration : number;
+    public canAccessWhatsNew : boolean;
+    public canAccessFaqCustomisation : boolean;
+    public canAccessHelpCenterCustomisation : boolean;
+    public canAccessStoreCustomisation : boolean;
+    public canDownloadAppCustomisation : boolean;
+    public canCallParticipantPbxNumberCustomisation : string;
+    public useExternalStorage : boolean;
+    public useRainbowStorage : boolean;
+    public mainStorage : string;
 
     constructor() {
 
@@ -1234,9 +1250,8 @@ class Contact {
          * @property {boolean} eLearningCustomisation Activate/Deactivate the capability for a user to participate on a Elearning training. </BR>
          * Defines if a user can particapate on an Elearning training. </BR>
          * eLearningCustomisation can be: </BR>
-         * * same_than_company: The same eLearningCustomisation setting than the user's company's is applied to the user. if the eLearningCustomisation of the company is changed the user's eLearningCustomisation will use this company new setting. </BR>
-         * * enabled: The user can participate on an Elearning training. </BR>
-         * * disabled: The user can't participate on an Elearning training. </BR>
+         * * true: The user can participate on an Elearning training. </BR>
+         * * false: The user can't participate on an Elearning training. </BR>
          * @readonly
          */
         this.eLearningCustomisation = null;
@@ -1246,9 +1261,8 @@ class Contact {
          * @property {string} eLearningGamificationCustomisation Activate/Deactivate the capability for a user to earn badges for Elearning progress. </BR>
          * Defines if a user can earn badges for Elearning progress. </BR>
          * eLearningGamificationCustomisation can be: </BR>
-         * * same_than_company: The same eLearningGamificationCustomisation setting than the user's company's is applied to the user. if the eLearningGamificationCustomisation of the company is changed the user's eLearningGamificationCustomisation will use this company new setting. </BR>
-         * * enabled: The user can earn badges for Elearning progress. </BR>
-         * * disabled: The user can't earn badges for Elearning progress. </BR>
+         * * true: The user can earn badges for Elearning progress. </BR>
+         * * false: The user can't earn badges for Elearning progress. </BR>
          * @readonly
          */
         this.eLearningGamificationCustomisation = null;
@@ -1274,6 +1288,164 @@ class Contact {
          */
         this.msTeamsPresence = null;
 
+        /**
+         * @public
+         * @property {boolean} useWebRTCOnlyIfMobileLoggedCustomisation Activate/Deactivate the capability for a user to receive web RTC call if mobile app is signed in. </BR>
+         * Define if a user has the right to be joined via audio (WebRTC) if he has a mobile application signed in. </BR>
+         * can be: </BR>
+         *     * true: The user of the company can receive a web RTC call if mobile app is signed in. </BR>
+         *     * false: The user can't receive a web RTC call if mobile app is signed in. </BR>
+         * @readonly
+         */
+        this.useWebRTCOnlyIfMobileLoggedCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} meetingRecordingCustomisation Activate/Deactivate the capability for a user to record a meeting. </BR>
+         * Defines if a user can record a meeting. </BR>
+         * can be: </BR>
+         *     * true: The user can record a meeting. </BR>
+         *     * false: The user can't record a meeting. </BR>
+         * @readonly
+         */
+        this.meetingRecordingCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} useOtherPhoneMode Activate/Deactivate the capability for a user to use the other phone mode. </BR>
+         * Defines if a user can use the other phone mode. </BR>
+         * can be: </BR>
+         *     * true: The user can use the other phone mode. </BR>
+         *     * false: The user can't use the other phone mode. </BR>
+         * @readonly
+         */
+        this.useOtherPhoneMode = null;
+
+        /**
+         * @public
+         * @property {boolean} useComputerMode Activate/Deactivate the capability for a user to use the computer mode. </BR>
+         * Defines if a user can use the computer mode. </BR>
+         * can be: </BR>
+         *     * true: The user can use the computer mode. </BR>
+         *     * false: The user can't use the computer mode. </BR>
+         * @readonly
+         */
+        this.useComputerMode = null;
+
+        /**
+         * @public
+         * @property {boolean} useSoftPhoneMode Activate/Deactivate the capability for a user to use the softphone mode. </BR>
+         * Defines if a user can use the softphone mode. </BR>
+         * can be: </BR>
+         *     * true: The user can use the softphone mode. </BR>
+         *     * false: The user can't use the softphone mode. </BR>
+         * @readonly
+         */
+        this.useSoftPhoneMode = null;
+
+        /**
+         * @public
+         * @property {boolean} imPopupDurationDefines the IM popup duration. </BR>
+         *     * If the imPopupDuration is not defined or null, the same imPopupDuration setting than the user's company's is applied to the user. </BR>
+         *     * Otherwise, a new imPopupDuration is set for the user. </BR>
+         * @readonly
+         */
+        this.imPopupDuration = null;
+
+        /**
+         * @public
+         * @property {boolean} canAccessWhatsNew Activate/Deactivate the capability for a user to access to what's new. </BR>
+         * Defines if a user can access to what's new. </BR>
+         * can be: </BR>
+         *     * true: The user can access to what's new. </BR>
+         *     * false: The user can't access to what's new. </BR>
+         * @readonly
+         */
+        this.canAccessWhatsNew = null;
+
+        /**
+         * @public
+         * @property {boolean} canAccessFaqCustomisation Activate/Deactivate the capability for a user to access to the FAQ. </BR>
+         * Defines if a user can access to the FAQ. </BR>
+         * can be: </BR>
+         *     * true: The user can access to the FAQ. </BR>
+         *     * false: The user can't access to the FAQ. </BR>
+         * @readonly
+         */
+        this.canAccessFaqCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} canAccessHelpCenterCustomisation Activate/Deactivate the capability for a user to access to Rainbow help center. </BR>
+         * Defines if a user can access to Rainbow help center. </BR>
+         * can be: </BR>
+         *     * true: The user can access to Rainbow help center. </BR>
+         *     * false: The user can't access to Rainbow help center. </BR>
+         * @readonly
+         */
+        this.canAccessHelpCenterCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} canAccessStoreCustomisation Activate/Deactivate the capability for a user to access to Rainbow store. </BR>
+         * Defines if a user can access to Rainbow store. </BR>
+         * can be: </BR>
+         *     * true: The user can access to Rainbow store. </BR>
+         *     * false: The user can't access to Rainbow store. </BR>
+         * @readonly
+         */
+        this.canAccessStoreCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} canDownloadAppCustomisation Activate/Deactivate the capability for a user to download Rainbow application. </BR>
+         * Defines if a user can download Rainbow application. </BR>
+         * can be: </BR>
+         *     * true: The user can download Rainbow application. </BR>
+         *     * false: The user can't download Rainbow application. </BR>
+         * @readonly
+         */
+        this.canDownloadAppCustomisation = null;
+
+        /**
+         * @public
+         * @property {string} canCallParticipantPbxNumberCustomisation Select the capability for a user to call participant via a PBX number. </BR>
+         * Defines if a user can call participant via a PBX number. </BR>
+         * can be: </BR>
+         *     * enabled: The user can call participant with all number. </BR>
+         *     * disabled: The user can't call participant. </BR>
+         *     * internal: The user can call participant only with internal number. </BR>
+         *     * national: The user can call participant with national number. </BR>
+         * @readonly
+         */
+        this.canCallParticipantPbxNumberCustomisation = null;
+
+        /**
+         * @public
+         * @property {boolean} useExternalStorage In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useExternalStorage' allows a user to be assigned to a file server. </BR>
+         *     * true: Assign all users to the External File Storage. </BR>
+         *     * false: Unassign all users from the External File Storage. </BR>
+         * @readonly
+         */
+        this.useExternalStorage = null;
+
+        /**
+         * @public
+         * @property {boolean} useRainbowStorage In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useRainbowStorage' allows a user to be assigned to a file server. </BR>
+         *     * true: Assign all users to the default Rainbow File Storage. </BR>
+         *     * false: Unassign all users from the default Rainbow File Storage. </BR>
+         * @readonly
+         */
+        this.useRainbowStorage = null;
+
+        /**
+         * @public
+         * @property {string} mainStorage an environment where a company uses the Rainbow file server and an External file server at the same time, 'mainStorage' allows to decide which file server must be used when a user is assigned to both file servers. </BR>
+         *     * Rainbow Storage: Assigment to the Rainbow file server. </BR>
+         *     * External Storage: Assigment to the External file server. </BR>
+         * @readonly
+         */
+        this.mainStorage = null;
     }
 
     updateLastContactCacheUpdate() {
@@ -1714,21 +1886,59 @@ class Contact {
         if (userData.lastSeenDate) {
             this.lastSeenDate = userData.lastSeenDate;
         }
-        if (userData.eLearningCustomisation) {
-            this.eLearningCustomisation = userData.eLearningCustomisation;
+        if (userData.eLearningCustomisation === "enabled" || userData.eLearningCustomisation === "disabled") {
+            this.eLearningCustomisation = userData.eLearningCustomisation==="enabled";
         }
-        if (userData.eLearningGamificationCustomisation) {
-            this.eLearningGamificationCustomisation = userData.eLearningGamificationCustomisation;
+        if (userData.eLearningGamificationCustomisation === "enabled" || userData.eLearningGamificationCustomisation === "disabled") {
+            this.eLearningGamificationCustomisation = userData.eLearningGamificationCustomisation==="enabled";
         }
-        if (userData.useRoomAsRBVoiceUser) {
-            this.useRoomAsRBVoiceUser = userData.useRoomAsRBVoiceUser;
+        if (userData.useRoomAsRBVoiceUser === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
+            this.useRoomAsRBVoiceUser = userData.useRoomAsRBVoiceUser==="enabled";
         }
-        if (userData.useWebRTCAudioAsRBVoiceUser) {
-            this.useWebRTCAudioAsRBVoiceUser = userData.useWebRTCAudioAsRBVoiceUser;
+        if (userData.useWebRTCAudioAsRBVoiceUser === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
+            this.useWebRTCAudioAsRBVoiceUser = userData.useWebRTCAudioAsRBVoiceUser==="enabled";
         }
         if (userData.msTeamsPresence) {
             this.msTeamsPresence = userData.msTeamsPresence;
         }
+        if (userData.useWebRTCOnlyIfMobileLoggedCustomisation === "enabled" || userData.useWebRTCOnlyIfMobileLoggedCustomisation === "disabled") {
+            this.useWebRTCOnlyIfMobileLoggedCustomisation = userData.useWebRTCOnlyIfMobileLoggedCustomisation==="enabled";
+        }
+        if (userData.meetingRecordingCustomisation === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
+            this.meetingRecordingCustomisation = userData.meetingRecordingCustomisation==="enabled";
+        }
+        if (userData.useOtherPhoneMode === "enabled" || userData.useOtherPhoneMode === "disabled") {
+            this.useOtherPhoneMode = userData.useOtherPhoneMode==="enabled";
+        }
+        if (userData.useComputerMode === "enabled" || userData.useComputerMode === "disabled") {
+            this.useComputerMode = userData.useComputerMode==="enabled";
+        }
+        if (userData.useSoftPhoneMode === "enabled" || userData.useSoftPhoneMode === "disabled") {
+            this.useSoftPhoneMode = userData.useSoftPhoneMode==="enabled";
+        }
+        if (userData.canAccessWhatsNew === "enabled" || userData.canAccessWhatsNew === "disabled") {
+            this.canAccessWhatsNew = userData.canAccessWhatsNew==="enabled";
+        }
+        if (userData.canAccessFaqCustomisation === "enabled" || userData.canAccessFaqCustomisation === "disabled") {
+            this.canAccessFaqCustomisation = userData.canAccessFaqCustomisation==="enabled";
+        }
+        if (userData.canAccessHelpCenterCustomisation === "enabled" || userData.canAccessHelpCenterCustomisation === "disabled") {
+            this.canAccessHelpCenterCustomisation = userData.canAccessHelpCenterCustomisation==="enabled";
+        }
+        if (userData.canAccessStoreCustomisation === "enabled" || userData.canAccessStoreCustomisation === "disabled") {
+            this.canAccessStoreCustomisation = userData.canAccessStoreCustomisation==="enabled";
+        }
+        if (userData.canDownloadAppCustomisation === "enabled" || userData.canDownloadAppCustomisation === "disabled") {
+            this.canDownloadAppCustomisation = userData.canDownloadAppCustomisation==="enabled";
+        }
+        this.canCallParticipantPbxNumberCustomisation = userData.canCallParticipantPbxNumberCustomisation;
+        if (userData.useExternalStorage === "enabled" || userData.useExternalStorage === "disabled") {
+            this.useExternalStorage = userData.useExternalStorage==="enabled";
+        }
+        if (userData.useRainbowStorage === "enabled" || userData.useRainbowStorage === "disabled") {
+            this.useRainbowStorage = userData.useRainbowStorage==="enabled";
+        }
+        this.mainStorage = userData.mainStorage;
 
         // Compute display name
         that.computeDisplayName();
