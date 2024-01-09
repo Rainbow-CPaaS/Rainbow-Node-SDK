@@ -450,7 +450,7 @@ class ConversationEventHandler extends GenericHandler {
                 switch (node.getName()) {
                     case "sent":
                         if (node.attrs.xmlns==="urn:xmpp:carbons:2") {
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' received");
+                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' received");
                             let forwarded = node.children[0];
                             if (forwarded && forwarded.getName()==="forwarded") {
                                 let message = forwarded.children[0];
@@ -473,11 +473,11 @@ class ConversationEventHandler extends GenericHandler {
                                             answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
                                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
                                         }
-                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ",message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ",message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
                                         childs.forEach(async (nodeChild) => {
                                             if (nodeChild.getName()==="body") {
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' of type chat received ");
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' of type chat received ");
 
                                                 let data = {
                                                     "fromJid": fromJid,
@@ -577,7 +577,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "received":
                         if (node.attrs.xmlns==="urn:xmpp:carbons:2") {
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'received' received");
+                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'received' received");
                             let forwarded = node.children[0];
                             if (forwarded && forwarded.getName()==="forwarded") {
                                 let message = forwarded.children[0];
@@ -604,7 +604,7 @@ class ConversationEventHandler extends GenericHandler {
 
                                         childs.forEach(async function (nodeChild) {
                                             if (nodeChild.getName()==="body") {
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' of type chat received ");
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' of type chat received ");
 
                                                 let data = {
                                                     "fromJid": fromJid,
@@ -654,7 +654,7 @@ class ConversationEventHandler extends GenericHandler {
                                 fromJid: fromJid,
                                 resource: resource
                             };
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - receipt received");
+                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - receipt received");
                             that.eventEmitter.emit("evt_internal_onreceipt", receipt);
                         }
                         break;
@@ -698,7 +698,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "body":
                         content = node.getText();
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - content : ", "***");
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - content : ", "***");
                         if (node.attrs["xml:lang"]) { // in <body>
                             lang = node.attrs["xml:lang"];
                         } else if (node.parent.attrs["xml:lang"]) { // in <message>
@@ -706,14 +706,14 @@ class ConversationEventHandler extends GenericHandler {
                         } else {
                             lang = "en";
                         }
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - lang : ", lang);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - lang : ", lang);
                         hasATextMessage = hasATextMessage || (!(!content || content===''));
                         break;
                     case "answeredMsg":
                         answeredMsgId = node.getText();
                         answeredMsgStamp = node.attrs["stamp"];
                         answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
                         break;
                     case "content":
                         alternativeContent.push({
@@ -745,7 +745,7 @@ class ConversationEventHandler extends GenericHandler {
                         }
                         break;
                     case "request":
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - asked for receipt");
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - asked for receipt");
                         // Acknowledge 'received'
                         let stanzaReceived = xml("message", {
                                     "to": fromJid,
@@ -781,7 +781,7 @@ class ConversationEventHandler extends GenericHandler {
                         }
                         break;
                     case "recording":
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - recording message");
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - recording message");
                         // TODO
                         break;
                     case "timestamp":
@@ -797,7 +797,7 @@ class ConversationEventHandler extends GenericHandler {
                                 conference = true;
                                 conferencebubbleId = node.attrs.thread;
                                 conferencebubbleJid = node.attrs.jid;
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference received");
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference received");
                             }
                                 break;
                             case "jabber:x:oob" : {
@@ -812,7 +812,7 @@ class ConversationEventHandler extends GenericHandler {
                                     filesize: node.getChild("size").getText(),
                                     fileId: fileId
                                 };
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
                                 break;
                             }
                             default:
@@ -827,10 +827,10 @@ class ConversationEventHandler extends GenericHandler {
                                 confOwnerId = node.attrs.userid;
                                 confOwnerDisplayName = node.attrs.displayname;
                                 confOwnerJid = node.attrs.jid;
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", y owner received, y : ", node, ": confOwnerId : ", confOwnerId, ", confOwnerDisplayName : ", confOwnerDisplayName, " confOwnerJid : ", confOwnerJid);
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", y owner received, y : ", node, ": confOwnerId : ", confOwnerId, ", confOwnerDisplayName : ", confOwnerDisplayName, " confOwnerJid : ", confOwnerJid);
                                 break;
                             default:
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ",  y received");
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ",  y received");
                                 break;
                         }
                         break;
@@ -874,7 +874,7 @@ class ConversationEventHandler extends GenericHandler {
                         if (idDeleted==="all") {
                             let conversation = that._conversationService.getConversationById(conversationJid);
                             if (conversation) {
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conversation with all messages deleted received ", conversation.id);
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conversation with all messages deleted received ", conversation.id);
                                 conversation.reset();
                                 that.eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                             }
@@ -924,7 +924,7 @@ class ConversationEventHandler extends GenericHandler {
                                 if (mention['jid'] && mention['size']) {
                                     mentions.push(mention);
                                 }
-                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - mention : ", mention);
+                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - mention : ", mention);
                             });
                         } else {
                             const mention = {};
@@ -935,7 +935,7 @@ class ConversationEventHandler extends GenericHandler {
                             if (mention['jid'] && mention['size']) {
                                 mentions.push(mention);
                             }
-                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - mention : ", mention);
+                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - mention : ", mention);
                         }
                     }
                         break;
@@ -959,7 +959,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                         break;
                     case "conference-info": {
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - conference-info : ", node);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - conference-info : ", node);
                         that.logger.log("internal", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference-info : ", "\n", node.root ? prettydata.xml(node.root().toString()):node);
 
                         let ignoreConferenceInfo = false;
@@ -1042,7 +1042,7 @@ class ConversationEventHandler extends GenericHandler {
                         };
                         //let contact = await that._contactsService.getContactByJid(eventJid);
                         //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else,\n  content (=body) : ", content, ", subject : ", subject);
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else,\n  content (=body) : ", content, ", subject : ", subject);
                         that.eventEmitter.emit("evt_internal_contactinvitationreceived", invitation);
                     } else {
                         let invitation = {
@@ -1052,25 +1052,25 @@ class ConversationEventHandler extends GenericHandler {
                             fromJid: fromJid,
                             resource: resource
                         };
-                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
+                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received");
                         that.eventEmitter.emit("evt_internal_invitationreceived", invitation);
                     }
                 }
                     break;
                 case "conferenceAdd": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
                 case "conferenceRemove": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                 }
                     break;
                 case "conferenceDelegate": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference delegate received, userIdEvent : ", userIdEvent);
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference delegate received, userIdEvent : ", userIdEvent);
                     if (!conferencebubbleJid) {
                         conferencebubbleJid = fromJid;
                     }
@@ -1081,14 +1081,14 @@ class ConversationEventHandler extends GenericHandler {
                 }
                     break;
                 case "startConference": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
                     conferencebubbleJid = fromJid;
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
                 case "stopConference": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
                     conferencebubbleJid = fromJid;
                     let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
@@ -1099,7 +1099,7 @@ class ConversationEventHandler extends GenericHandler {
                 case "pollPublish": 
                 case "pollDelete":
                 case "pollVote": {
-                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", poll event received : ", eventName);
+                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", poll event received : ", eventName);
                     let obj = {
                         roomid,
                         pollid,
@@ -1110,7 +1110,7 @@ class ConversationEventHandler extends GenericHandler {
                 }
                     break;
                 case undefined: {
-                    //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", not an eventName for msg : " , msg);
+                    //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", not an eventName for msg : " , msg);
                 }
                     break;
                 default:
@@ -1126,7 +1126,7 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             if ((messageType===TYPE_GROUPCHAT && fromBubbleUserJid!==that.fullJid) || (messageType===TYPE_CHAT && fromJid!==that.fullJid)) {
-                that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - chat message received");
+                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", message - chat message received");
 
                 timestamp = stanza.getChildren("archived").length &&
                 stanza.getChildren("archived")[0] &&
