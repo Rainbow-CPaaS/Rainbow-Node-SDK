@@ -165,7 +165,7 @@ class ConversationEventHandler extends GenericHandler {
     async parseConferenceV2UpdatedEvent(stanza, id, node) {
         let that = this;
 
-        that.logger.log("info", LOG_ID + "(parseConferenceV2UpdatedEvent) __entering__ ");
+        that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) __entering__ ");
         that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, ", node : ", node);
 
         let xmlNodeStr = node ? node.toString():"<xml></xml>";
@@ -600,7 +600,7 @@ class ConversationEventHandler extends GenericHandler {
                                             answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
                                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
                                         }
-                                        that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                                        that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
                                         childs.forEach(async function (nodeChild) {
                                             if (nodeChild.getName()==="body") {

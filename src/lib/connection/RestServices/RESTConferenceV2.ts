@@ -58,7 +58,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/add", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(addPSTNParticipantToConference) successfull");
+                that.logger.log("debug", LOG_ID + "(addPSTNParticipantToConference) successfull");
                 that.logger.log("internal", LOG_ID + "(addPSTNParticipantToConference) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -83,7 +83,7 @@ class RESTConferenceV2 extends GenericRESTService{
             that.logger.log("internal", LOG_ID + "(snapshotConference) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(snapshotConference) successfull");
+                that.logger.log("debug", LOG_ID + "(snapshotConference) successfull");
                 that.logger.log("internal", LOG_ID + "(snapshotConference) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -106,7 +106,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {  
-                that.logger.log("info", LOG_ID + "(delegateConference) successfull");
+                that.logger.log("debug", LOG_ID + "(delegateConference) successfull");
                 that.logger.log("internal", LOG_ID + "(delegateConference) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -130,7 +130,7 @@ class RESTConferenceV2 extends GenericRESTService{
             // */
 
             that.http.delete(url, that.getRequestHeader()).then((response) => {
-                that.logger.log("info", LOG_ID + "(removeTagFromAllDirectoryEntries) (" + roomId + ") -- success");
+                that.logger.log("debug", LOG_ID + "(removeTagFromAllDirectoryEntries) (" + roomId + ") -- success");
                 resolve(response);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(removeTagFromAllDirectoryEntries) (" + roomId + ") -- failure -- ");
@@ -153,7 +153,7 @@ class RESTConferenceV2 extends GenericRESTService{
             // */
 
             that.http.delete(url, that.getRequestHeader()).then((response) => {
-                that.logger.log("info", LOG_ID + "(disconnectParticipantFromConference) (" + roomId + ") -- success");
+                that.logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) (" + roomId + ") -- success");
                 resolve(response);
             }).catch((err) => {
                 that.logger.log("error", LOG_ID, "(disconnectParticipantFromConference) (" + roomId + ") -- failure -- ");
@@ -177,7 +177,7 @@ class RESTConferenceV2 extends GenericRESTService{
             that.logger.log("internal", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) successfull");
+                that.logger.log("debug", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) successfull");
                 that.logger.log("internal", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -222,11 +222,11 @@ class RESTConferenceV2 extends GenericRESTService{
             colors : true,
             maxArrayLength : 3
         };
-        that.logger.log("info", LOG_ID + "(joinConference) arguments : ", util.inspect(args, options));
+        that.logger.log("debug", LOG_ID + "(joinConference) arguments : ", util.inspect(args, options));
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), JSON.stringify(data), undefined).then(function (json) {
             //that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/join", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(joinConference) successfull");
+                that.logger.log("debug", LOG_ID + "(joinConference) successfull");
                 that.logger.log("internal", LOG_ID + "(joinConference) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -249,7 +249,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(pauseRecording) successfull");
+                that.logger.log("debug", LOG_ID + "(pauseRecording) successfull");
                 that.logger.log("internal", LOG_ID + "(pauseRecording) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -272,7 +272,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(resumeRecording) successfull");
+                that.logger.log("debug", LOG_ID + "(resumeRecording) successfull");
                 that.logger.log("internal", LOG_ID + "(resumeRecording) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -295,7 +295,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(startRecording) successfull");
+                that.logger.log("debug", LOG_ID + "(startRecording) successfull");
                 that.logger.log("internal", LOG_ID + "(startRecording) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -318,7 +318,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(stopRecording) successfull");
+                that.logger.log("debug", LOG_ID + "(stopRecording) successfull");
                 that.logger.log("internal", LOG_ID + "(stopRecording) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -341,7 +341,7 @@ class RESTConferenceV2 extends GenericRESTService{
             let data = undefined;
 
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(rejectAVideoConference) successfull");
+                that.logger.log("debug", LOG_ID + "(rejectAVideoConference) successfull");
                 that.logger.log("internal", LOG_ID + "(rejectAVideoConference) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -376,7 +376,7 @@ class RESTConferenceV2 extends GenericRESTService{
             // */
             that.logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) services : ", services );
             that.http.post(url, that.getRequestHeader(), services, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(startConferenceOrWebinarInARoom) successfull");
+                that.logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) successfull");
                 that.logger.log("internal", LOG_ID + "(startConferenceOrWebinarInARoom) REST leave bubble : ", json.data);
                 resolve(json);
             }).catch(function (err) {
@@ -401,7 +401,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("info", LOG_ID + "(stopConferenceOrWebinar) (" + roomId + ") -- success");
+                        that.logger.log("debug", LOG_ID + "(stopConferenceOrWebinar) (" + roomId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
@@ -423,7 +423,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/users/" + userId + "/subscribe", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(inviteContactToBubble) successfull");
+                that.logger.log("debug", LOG_ID + "(inviteContactToBubble) successfull");
                 that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -444,7 +444,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/phone-numbers", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(updatePSTNParticipantParameters) successfull");
+                that.logger.log("debug", LOG_ID + "(updatePSTNParticipantParameters) successfull");
                 that.logger.log("internal", LOG_ID + "(updatePSTNParticipantParameters) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -464,7 +464,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/update", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(updateConferenceParameters) successfull");
+                that.logger.log("debug", LOG_ID + "(updateConferenceParameters) successfull");
                 that.logger.log("internal", LOG_ID + "(updateConferenceParameters) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -484,7 +484,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/users/" + userId, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(updateConferenceParameters) successfull");
+                that.logger.log("debug", LOG_ID + "(updateConferenceParameters) successfull");
                 that.logger.log("internal", LOG_ID + "(updateConferenceParameters) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -502,7 +502,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId+ "/users/" + userId + "/allow-talk", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(allowTalkWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(allowTalkWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(allowTalkWebinar) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -520,7 +520,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId+ "/users/" + userId + "/disable-talk", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(disableTalkWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(disableTalkWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(disableTalkWebinar) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -538,7 +538,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/lowerhand", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(lowerHandWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(lowerHandWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(lowerHandWebinar) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -556,7 +556,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/raisehand", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(raiseHandWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(raiseHandWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(raiseHandWebinar) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -574,7 +574,7 @@ class RESTConferenceV2 extends GenericRESTService{
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/conference/v1.0/rooms/" + roomId + "/stage", that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(stageDescriptionWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(stageDescriptionWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(stageDescriptionWebinar) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {

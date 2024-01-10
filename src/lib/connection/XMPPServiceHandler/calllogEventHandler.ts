@@ -103,11 +103,11 @@ class CallLogEventHandler extends GenericHandler {
             else if (stanza.find("count").length > 0 && stanza.find("query").length > 0) {
                 //save last message timestamp
                 that.calllogs.lastTimestamp = stanza.find("last").text();
-                that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : all call logs received");
+                that.logger.log("debug", LOG_ID + "(onIqCallLogReceived) : all call logs received");
 
                 if (that.callLogsPromises.length > 0) {
                     Promise.all(that.callLogsPromises).then(() => {
-                        that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : all call logs are ready");
+                        that.logger.log("debug", LOG_ID + "(onIqCallLogReceived) : all call logs are ready");
 
                         that.callLogsPromises = [];
 
@@ -128,7 +128,7 @@ class CallLogEventHandler extends GenericHandler {
             }
             //handle other messages
             else {
-                that.logger.log("info", LOG_ID + "(onIqCallLogReceived) : ignored stanza for calllog !");
+                that.logger.log("debug", LOG_ID + "(onIqCallLogReceived) : ignored stanza for calllog !");
             }
         } catch (error) {
             that.logger.log("error", LOG_ID + "(onIqCallLogReceived) CATCH Error !!! ");
@@ -143,7 +143,7 @@ class CallLogEventHandler extends GenericHandler {
         let that = this;
         that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
         try {
-            that.logger.log("info", LOG_ID + "(onCallLogAckReceived) received");
+            that.logger.log("debug", LOG_ID + "(onCallLogAckReceived) received");
             //console.log(stanza);
 
             let read = stanza.find("read");
@@ -173,32 +173,32 @@ class CallLogEventHandler extends GenericHandler {
         let that = this;
 
         that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-        that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) received");
+        that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived) received");
         //console.log(stanza);
 
         try {
             let deleted_call_log = stanza.find("deleted_call_log");
             let updated_call_log = stanza.find("updated_call_log");
             if (deleted_call_log.length > 0) {
-                that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) deleted IQ");
+                that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived) deleted IQ");
                 let peer = stanza.find("deleted_call_log").attr("peer");
 
                 //no given user JID, reset all call-logs
                 if (!peer) {
-                    that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) no given user JID, reset all call-logs");
+                    that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived) no given user JID, reset all call-logs");
                     await that.resetCallLogs();
                     await that.calllogService.getCallLogHistoryPage();
                 } else {
                     that.removeCallLogsForUser(peer);
                 }
             } else if (updated_call_log.length > 0) {
-                that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived)  : Update call-logs");
+                that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived)  : Update call-logs");
 
                 that.callLogsPromises.push(that.createCallLogFromMessage(stanza));
 
                 Promise.all(that.callLogsPromises)
                     .then(function () {
-                        that.logger.log("info", LOG_ID + "(onIqCallLogNotificationReceived) : update is done");
+                        that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived) : update is done");
 
                         that.callLogsPromises = [];
 
@@ -245,7 +245,7 @@ class CallLogEventHandler extends GenericHandler {
             // Ticket 2629 : remove @_ from jid added by server for JIDisation...
             jid = jid.substring(0, jid.length - 2);
         }
-        that.logger.log("info", LOG_ID + "removeCallLogsForUser with jid: " + jid);
+        that.logger.log("debug", LOG_ID + "removeCallLogsForUser with jid: " + jid);
 
         let newLogs = [];
         for (let i = 0; i < that.calllogs.callLogs.length; i++) {
@@ -294,12 +294,12 @@ class CallLogEventHandler extends GenericHandler {
         let type = "webrtc";
 
         if ((callerJid && callerJid.indexOf("janusgateway") !== -1) || (calleeJid && calleeJid.indexOf("janusgateway") !== -1)) {
-            that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore janusgateway call-logs");
+            that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage ignore janusgateway call-logs");
             return;
         }
 
         if ((callerJid && this.isMediaPillarJid(callerJid)) || (calleeJid && this.isMediaPillarJid(calleeJid))) {
-            that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore janusgateway call-logs");
+            that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage ignore janusgateway call-logs");
             return;
         }
 
@@ -364,8 +364,8 @@ class CallLogEventHandler extends GenericHandler {
 
         if (otherParticipantJid || otherParticipantNumber) {
             this.contactService.getOrCreateContact(otherParticipantJid, otherParticipantNumber).then((contact) => {
-                that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + " => contact retrieved (temp:" + contact.temp + ")");
-                that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + "  Number:" + otherParticipantNumber + " => contact retrieved (temp:" + contact.temp + ")");
+                that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + " => contact retrieved (temp:" + contact.temp + ")");
+                that.logger.log("internal", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage otherParticipant jid:" + otherParticipantJid + "  Number:" + otherParticipantNumber + " => contact retrieved (temp:" + contact.temp + ")");
                     if (!conference && !otherParticipantJid && contact.temp) { //only in case of temp contact
                         //find Xnames from directories
                         if (foundidentity && foundidentity.length) {
@@ -380,7 +380,7 @@ class CallLogEventHandler extends GenericHandler {
                             }
                             if (identityFirstName.length || identityLastName.length) {
                                 //update contact
-                                that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  xNames updated from directories for contact " + contact.id);
+                                that.logger.log("internal", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage  xNames updated from directories for contact " + contact.id);
                                 contact.updateName(identityFirstName, identityLastName);
                             }
                         } else { //try to find in outlook
@@ -393,13 +393,13 @@ class CallLogEventHandler extends GenericHandler {
                                     .then(
                                         function successCallback(updateStatus) {
                                             if (updateStatus) {
-                                                that.logger.log("debug", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  xNames updated from outlook for contact " + contact.id);
+                                                that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage  xNames updated from outlook for contact " + contact.id);
                                             } else {
-                                                that.logger.log("debug", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage no update from outlook for contact :" + contact.id);
+                                                that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage no update from outlook for contact :" + contact.id);
                                             }
                                         },
                                         function errorCallback() {
-                                            that.logger.log("debug", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  no Outlook search available");
+                                            that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage  no Outlook search available");
                                         }
                                     );
                             } catch (error) {
@@ -429,21 +429,21 @@ class CallLogEventHandler extends GenericHandler {
                     if (!that.logAlreadyExists(callLog) && state !== "failed" && state !== "ongoing") {
                         that.calllogs.callLogs.push(callLog);
                     } else {
-                        that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore call log, state: " + state);
-                        that.logger.log("internal", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage ignore call log with id: " + id + ", state: " + state);
+                        that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage ignore call log, state: " + state);
+                        that.logger.log("internal", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage ignore call log with id: " + id + ", state: " + state);
                     }
 
-                    that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage success");
+                    that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage success");
 
                     defered.resolve(callLog);
                 })
                 .catch(function (error) {
-                    that.logger.log("error", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error ");
-                    that.logger.log("internalerror", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage error : " + error);
+                    that.logger.log("error", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error ");
+                    that.logger.log("internalerror", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error : " + error);
                     defered.resolve(undefined);
                 });
         } else {
-            that.logger.log("info", LOG_ID + "[createCallLogFromMessage] createCallLogFromMessage  No jid or no phoneNumber ");
+            that.logger.log("debug", LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage  No jid or no phoneNumber ");
             defered.resolve(undefined);
         }
         return defered.promise;
@@ -463,7 +463,7 @@ class CallLogEventHandler extends GenericHandler {
 
     orderCallLogsFunction() {
         let that = this;
-        that.logger.log("info", LOG_ID + "[orderCallLogsFunction] orderByFunction");
+        that.logger.log("debug", LOG_ID + "(orderCallLogsFunction) orderByFunction");
         that.calllogs.orderByNameCallLogsBruts = orderByFilter(that.calllogs.callLogs, CallLog.getNames, false, CallLog.sortByContact);
         that.calllogs.orderByDateCallLogsBruts = orderByFilter(that.calllogs.callLogs, CallLog.getDate, false, CallLog.sortByDate);
 
@@ -558,7 +558,7 @@ class CallLogEventHandler extends GenericHandler {
 
     async resetCallLogs() {
         let that = this;
-        that.logger.log("info", LOG_ID + "[resetCallLogs] resetCallLogs");
+        that.logger.log("info", LOG_ID + "(resetCallLogs) resetCallLogs");
         that.calllogs = {
             "callLogs": [],
             "orderByNameCallLogs": [],

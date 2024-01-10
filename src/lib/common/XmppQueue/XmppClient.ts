@@ -167,8 +167,8 @@ class XmppClient  {
     iqGetEventPing (ctx) {
         let that = this;
         //that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
-        that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
-        return {}
+        that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
+        return {};
     }
 
     iqSetEventRoster (ctx ) {
@@ -186,12 +186,12 @@ class XmppClient  {
             let stanza = ctx.stanza;
             //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
             //let reqObj = await getJsonFromXML(xmlstanzaStr);
-            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp ctx.stanza : ", ctx.stanza);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqSetEventHttp ctx.stanza : ", ctx.stanza);
             //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
             let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
             that.pendingRequests.push(eventWaited);
             result = await eventWaited.prom.promise;
-            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventHttp prom result : ", result);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqSetEventHttp prom result : ", result);
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventHttp CATCH Error !!! error : ", e);
         }
@@ -208,12 +208,12 @@ class XmppClient  {
             let stanza = ctx.stanza;
             //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
             //let reqObj = await getJsonFromXML(xmlstanzaStr);
-            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc ctx.stanza : ", ctx.stanza);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqSetEventRpc ctx.stanza : ", ctx.stanza);
             //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
             let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
             that.pendingRequests.push(eventWaited);
             result = await eventWaited.prom.promise;
-            that.logger.log("info", LOG_ID + "(XmmpClient) iqSetEventRpc prom result : ", result);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqSetEventRpc prom result : ", result);
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventRpc CATCH Error !!! error : ", e);
         }

@@ -93,7 +93,7 @@ class IQEventHandler extends GenericHandler {
                         // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "bind":
-                        that.logger.log("info", LOG_ID + "(onIqResultReceived)  - 'stanza'", node.getName());
+                        that.logger.log("info", LOG_ID + "(onIqResultReceived)  - 'stanza' ", node.getName());
                         break;
                     case "pbxagentstatus":
                         // The treatment is in telephonyEventHandler
@@ -143,7 +143,7 @@ class IQEventHandler extends GenericHandler {
             }
         });
 
-        that.logger.log("info", LOG_ID + "(_onIqGetPbxAgentStatusReceived) (handleXMPPConnection) _onIqGetPbxAgentStatusReceived - 'pbxagentstatus'", pbxagentstatus.toString());
+        that.logger.log("debug", LOG_ID + "(_onIqGetPbxAgentStatusReceived) (handleXMPPConnection) _onIqGetPbxAgentStatusReceived - 'pbxagentstatus'", pbxagentstatus.toString());
         that.eventEmitter.emit("rainbow_onpbxagentstatusreceived_xmpp", pbxagentstatus);
     };
 
@@ -159,7 +159,7 @@ class IQEventHandler extends GenericHandler {
                 "xmlns": stanza.getNS(),
                 "type": "result"
             });
-            that.logger.log("info", LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) send ping answer - 'stanza' for Rainbow Node SDK version : ", that.logger.colors.magenta(packageVersion.version));
+            that.logger.log("debug", LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) send ping answer - 'stanza' for Rainbow Node SDK version : ", that.logger.colors.magenta(packageVersion.version));
 //        .log("info", LOG_ID + "(handleXMPPConnection) answered - 'stanza'", stanzaResponse.toString(), " for Rainbow Node SDK version : ", packageVersion.version);
             that.xmppClient.send(stanzaResponse);
         } catch (err) {

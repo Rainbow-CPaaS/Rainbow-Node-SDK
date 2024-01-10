@@ -322,8 +322,8 @@ safeJsonParse(str) {
     start(): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("debug", LOG_ID + "(start) host used", that._host);
-            that.logger.log("info", LOG_ID + "(start) REST URL", that.serverURL);
+            that.logger.log("debug", LOG_ID + "(start) host used : ", that._host);
+            that.logger.log("info", LOG_ID + "(start) REST URL : ", that.serverURL);
             
             that.httpManager.init(that._options,that._core).then(() => {            
             }).catch((err)=>{
@@ -451,11 +451,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_getUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_getUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                // that.logger.log("info", LOG_ID + "(_getUrlRaw) HTTP statusCode defined : ", response.statusCode);
                                                 if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                     //if (response) {
                                                         //response.body = body;
@@ -576,7 +576,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that.logger.log("info", LOG_ID + "(_getUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_getUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -706,11 +706,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_headUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_headUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                // that.logger.log("info", LOG_ID + "(_headUrlRaw) HTTP statusCode defined : ", response.statusCode);
                                                 if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                     //if (response) {
                                                     //    response.body = body;
@@ -805,7 +805,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that.logger.log("info", LOG_ID + "(_headUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_headUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -894,11 +894,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_postUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_postUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                // that.logger.log("info", LOG_ID + "(_postUrlRaw) HTTP statusCode defined : ", response.statusCode);
                                                 if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                     //if (response) {
                                                       //  response.body = body;
@@ -987,7 +987,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_postUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     that.logger.log("internal", LOG_ID + "(_postUrlRaw) successfull - error : ", error, ", body : ", body);
                     if (error) {
                         return reject({
@@ -1068,11 +1068,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_putUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_putUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                                // that.logger.log("info", LOG_ID + "(_putUrlRaw) HTTP statusCode defined : ", response.statusCode);
                                                 if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                     //if (response) {
                                                     //  response.body = body;
@@ -1155,7 +1155,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that.logger.log("info", LOG_ID + "(_putUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_putUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -1288,11 +1288,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_deleteUrlRaw) HTTP code", response.code);
+                                                // that.logger.log("info", LOG_ID + "(_deleteUrlRaw) HTTP code", response.code);
                                                 if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                     //if (response) {
                                                       //  response.body = body;
@@ -1406,8 +1406,8 @@ safeJsonParse(str) {
 
                 let request = Request.delete(deleteOptions, (error, response, body) => {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    that.logger.log("info", LOG_ID + "(_deleteUrlRaw) successfull");
+                    that.logger.log("info", LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    // that.logger.log("info", LOG_ID + "(_deleteUrlRaw) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -1537,11 +1537,11 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that.logger.log("info", LOG_ID + "(_getUrlJson) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that.logger.log("info", LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
-                                                that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
+                                                // that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
                                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                                         let json = {};
@@ -1684,7 +1684,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that.logger.log("info", LOG_ID + "(_getUrlJson) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(_getUrlJson) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -1695,7 +1695,7 @@ safeJsonParse(str) {
                     } else {
                         if (response) {
                             if (response.statusCode) {
-                                that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
+                                // that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
@@ -1860,7 +1860,7 @@ safeJsonParse(str) {
                                         (response, retryWithMergedOptions) => {
                                             let body;
                                             let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                            that.logger.log("info", LOG_ID + "(get) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                            that.logger.log("info", LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                             if (response?.statusCode >= 200 && response?.statusCode <= 206) {
                                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
@@ -2019,7 +2019,7 @@ safeJsonParse(str) {
                             let request = Request(req, (error, response, body) => {
                                 that.logger.log("debug", LOG_ID + "(get) done.");
                                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                that.logger.log("info", LOG_ID + "(get) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                that.logger.log("info", LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                 if (error) {
                                     responseRequest = {
@@ -2038,7 +2038,7 @@ safeJsonParse(str) {
                                                 "The server didn't respond in time.\n" +
                                                 "</body></html>\n";
                                                 // */
-                                            that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
+                                            // that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
                                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                                     let json = {};
@@ -2159,10 +2159,10 @@ safeJsonParse(str) {
                             secureProtocol: that.proxy.secureProtocol
                         }
                     }).on("response", function (response) {
-                        that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200
+                        // that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200
                         that.logger.log("debug", LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                        that.logger.log("info", LOG_ID + "(get) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        that.logger.log("info", LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                         if (response.statusCode === 400) {
                             req.abort();
                             err.statusCode = response.statusCode;
@@ -2182,8 +2182,8 @@ safeJsonParse(str) {
                             details: ""
                         });
                     }).on("end", () => {
-                        that.logger.log("info", LOG_ID + "(get) successfull");
-                        that.logger.log("info", LOG_ID + "(get) get file buffer from Url");
+                        // that.logger.log("info", LOG_ID + "(get) successfull");
+                        that.logger.log("info", LOG_ID + "(get) get file buffer from Url successfull");
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
                         if (!err.statusCode) {
                             let data = Buffer.concat(buff);
@@ -2276,7 +2276,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(post) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -2418,14 +2418,14 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(post) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that.logger.log("warn", LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
                     return reject({"msg": "post failed", "error" : error});
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(post) HTTP statusCode", response.statusCode);
+                            // that.logger.log("info", LOG_ID + "(post) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -2612,7 +2612,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(head) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -2726,7 +2726,7 @@ safeJsonParse(str) {
                     });
                     that.logger.log("debug", LOG_ID + "(head) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(head) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
                     //
@@ -2761,14 +2761,14 @@ safeJsonParse(str) {
                 body: undefined
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that.logger.log("info", LOG_ID + "(head) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that.logger.log("info", LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that.logger.log("internalerror", LOG_ID + "(head) failed:", error, ", url:", urlEncoded);
                     return reject("post failed");
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(head) HTTP statusCode", response.statusCode);
+                            // that.logger.log("info", LOG_ID + "(head) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -2963,10 +2963,10 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(patch) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
-                                        that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                                        // that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
                                         if (response.statusCode >= 200 && response.statusCode <= 206) {
                                             if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                                 let json = {};
@@ -3069,7 +3069,7 @@ safeJsonParse(str) {
                     });
                     that.logger.log("debug", LOG_ID + "(patch) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(patch) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
                     //
@@ -3117,14 +3117,14 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that.logger.log("info", LOG_ID + "(patch) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that.logger.log("info", LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that.logger.log("internalerror", LOG_ID + "(patch) patch failed:", error, ', url : ', urlEncoded);
                     return reject("patch failed");
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                            // that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -3318,7 +3318,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(put) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -3463,7 +3463,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that.logger.log("info", LOG_ID + "(put) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that.logger.log("info", LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 if (error) {
                     that.logger.log("internalerror", LOG_ID + "(put) put failed:", error, ', url : ', urlEncoded);
@@ -3471,7 +3471,7 @@ safeJsonParse(str) {
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(put) HTTP statusCode", response.statusCode);
+                            // that.logger.log("info", LOG_ID + "(put) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -3601,11 +3601,11 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(_putBuffer) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(_putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response) {
                                         if (response?.statusCode) {
-                                            that.logger.log("info", LOG_ID + "(_putBuffer) HTTP statusCode defined : ", response.statusCode);
+                                            // that.logger.log("info", LOG_ID + "(_putBuffer) HTTP statusCode defined : ", response.statusCode);
                                             if (response.statusCode >= 200 && response.statusCode <= 400) {
                                                 //if (response) {
                                                   //  response.body = body;
@@ -3689,7 +3689,7 @@ safeJsonParse(str) {
                 },
                 function (error, response, body) {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(put) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         that.logger.log("internalerror", LOG_ID + "(putBuffer) upload failed:", error);
                         return reject("upload failed");
@@ -3789,7 +3789,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(putStream) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -3999,8 +3999,8 @@ safeJsonParse(str) {
                             return;
                         }
 
-                        that.logger.log("info", LOG_ID + "(putStream) successfull");
-                        that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url");
+                        // that.logger.log("info", LOG_ID + "(putStream) successfull");
+                        that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url succesfull");
                         // otherwise resolve
                         resolve("done");
                     });
@@ -4033,13 +4033,13 @@ safeJsonParse(str) {
                     secureProtocol: that.proxy.secureProtocol
                 }
             }).on("response", function (response) {
-                that.logger.log("info", LOG_ID + "(putStream) status code:" + response?.statusCode); // 200
+                // that.logger.log("info", LOG_ID + "(putStream) status code:" + response?.statusCode); // 200
                 that.logger.log("debug", LOG_ID + "(putStream) response headers: " + response?.headers["content-type"]); // 'image/png'
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that.logger.log("info", LOG_ID + "(putStream) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that.logger.log("info", LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
             }).on("end", () => {
-                that.logger.log("info", LOG_ID + "(putStream) successfull");
-                that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url");
+                // that.logger.log("info", LOG_ID + "(putStream) successfull");
+                that.logger.log("info", LOG_ID + "(putStream) put file buffer in Url successfull");
                 resolve("done");
             });
 
@@ -4151,7 +4151,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that.logger.log("info", LOG_ID + "(delete) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that.logger.log("info", LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -4175,7 +4175,7 @@ safeJsonParse(str) {
                                             that.logger.warn("warn", LOG_ID + "(delete) afterResponseHTTP response.code != 200");
                                             that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
                                             that.logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
+                                            // that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
                                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                                 let bodyjs = {};
                                                 if (response.body) {
@@ -4261,7 +4261,7 @@ safeJsonParse(str) {
                     });
                     that.logger.log("debug", LOG_ID + "(delete) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(delete) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
                     //
@@ -4304,9 +4304,9 @@ safeJsonParse(str) {
                     });
                 } else {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that.logger.log("info", LOG_ID + "(delete) done for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that.logger.log("info", LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (response) {
-                        that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
+                        // that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
                         if (response.statusCode >= 200 && response.statusCode <= 206) {
                             let bodyjs = {};
                             if (response.body) {

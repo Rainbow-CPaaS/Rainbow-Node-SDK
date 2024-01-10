@@ -59,7 +59,7 @@ class Options {
         }
 
         if (!this._options.proxy) {
-            this._logger.log("info", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
+            this._logger.log("debug", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
             this._options.proxy = {host: "", protocol: "http", port: 80, user : undefined, password : undefined, secureProtocol: undefined};
         }
 
@@ -425,31 +425,31 @@ class Options {
             proxyOptions.host = this._options.proxy.host;
         }
         if (!("port" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'port' property is not defined. Use default 80");
+            this._logger.log("debug", LOG_ID + "(constructor) 'port' property is not defined. Use default 80");
         }
         else {
             proxyOptions.port = this._options.proxy.port;
         }
         if (!("protocol" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'protocol' property not defined. Use default 'http'");
+            this._logger.log("debug", LOG_ID + "(constructor) 'protocol' property not defined. Use default 'http'");
         }
         else {
             proxyOptions.protocol = this._options.proxy.protocol;
         }
         if (!("user" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
+            this._logger.log("debug", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
         }
         else {
             proxyOptions.user = this._options.proxy.user;
         }
         if (!("password" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
+            this._logger.log("debug", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
         }
         else {
             proxyOptions.password = this._options.proxy.password;
         }
         if (!("secureProtocol" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
+            this._logger.log("debug", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
         }
         else {
             proxyOptions.secureProtocol = this._options.proxy.secureProtocol;
@@ -484,7 +484,7 @@ class Options {
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'sendReadReceipt' property is not defined. Use default true");
+            this._logger.log("debug", LOG_ID + "(constructor) 'sendReadReceipt' property is not defined. Use default true");
         }
         else {
                 optionsIM.sendReadReceipt = this._options.im.sendReadReceipt;

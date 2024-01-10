@@ -56,8 +56,8 @@ class RESTTelephony {
 
 
             that.http.post("/api/rainbow/telephony/v1.0/calls", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(makeCall) successfull");
-                that.logger.log("info", LOG_ID + "(makeCall) REST conversation created");
+                that.logger.log("debug", LOG_ID + "(makeCall) successfull");
+                that.logger.log("debug", LOG_ID + "(makeCall) REST conversation created");
                 that.logger.log("internal", LOG_ID + "(makeCall) REST conversation created : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -76,8 +76,8 @@ class RESTTelephony {
 
 
                 that.http.delete("/api/rainbow/telephony/v1.0/calls/" + data, requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(releasecall) successfull");
-                    that.logger.log("info", LOG_ID + "(releasecall) REST conversation released");
+                    that.logger.log("debug", LOG_ID + "(releasecall) successfull");
+                    that.logger.log("debug", LOG_ID + "(releasecall) REST conversation released");
                     that.logger.log("internal", LOG_ID + "(releasecall) REST conversation released : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -108,8 +108,8 @@ class RESTTelephony {
                 };
 
                 that.http.post("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(callId) + '/consultation', requestHeader, data).then((json) => {
-                    that.logger.log("info", LOG_ID + "(makeConsultationCall) successfull");
-                    that.logger.log("info", LOG_ID + "(makeConsultationCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(makeConsultationCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(makeConsultationCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -130,8 +130,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (call) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/answer', requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(answerCall) successfull");
-                    that.logger.log("info", LOG_ID + "(answerCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(answerCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(answerCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(answerCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -153,8 +153,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (call) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/hold', requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(holdCall) successfull");
-                    that.logger.log("info", LOG_ID + "(holdCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(holdCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(holdCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(holdCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -176,8 +176,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (call) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/retrieve', requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(retrieveCall) successfull");
-                    that.logger.log("info", LOG_ID + "(retrieveCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(retrieveCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(retrieveCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(retrieveCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -199,8 +199,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (call) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/deflect', requestHeader, VMInfos).then((json) => {
-                    that.logger.log("info", LOG_ID + "(deflectCallToVM) successfull");
-                    that.logger.log("info", LOG_ID + "(deflectCallToVM) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(deflectCallToVM) successfull");
+                    that.logger.log("debug", LOG_ID + "(deflectCallToVM) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(deflectCallToVM) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -222,8 +222,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (call) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(call.connectionId) + '/deflect', requestHeader, VMInfos).then((json) => {
-                    that.logger.log("info", LOG_ID + "(deflectCall) successfull");
-                    that.logger.log("info", LOG_ID + "(deflectCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(deflectCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(deflectCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(deflectCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -245,8 +245,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (activeCall && heldCall) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(activeCall.connectionId) + '/transfer/' + encodeURIComponent(heldCall.connectionId), requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(transfertCall) successfull");
-                    that.logger.log("info", LOG_ID + "(transfertCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(transfertCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(transfertCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(transfertCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -268,8 +268,8 @@ class RESTTelephony {
         return new Promise((resolve, reject) => {
             if (activeCall && heldCall) {
                 that.http.put("/api/rainbow/telephony/v1.0/calls/" + encodeURIComponent(activeCall.connectionId) + '/conference/' + encodeURIComponent(heldCall.connectionId), requestHeader).then((json) => {
-                    that.logger.log("info", LOG_ID + "(conferenceCall) successfull");
-                    that.logger.log("info", LOG_ID + "(conferenceCall) REST conversation consulted");
+                    that.logger.log("debug", LOG_ID + "(conferenceCall) successfull");
+                    that.logger.log("debug", LOG_ID + "(conferenceCall) REST conversation consulted");
                     that.logger.log("internal", LOG_ID + "(conferenceCall) REST conversation consulted : ", json.data);
                     resolve(json.data);
                 }).catch((err) => {
@@ -298,8 +298,8 @@ class RESTTelephony {
             };
 
             that.http.post("/api/rainbow/telephony/v1.0/calls/forward", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(forwardToDevice) successfull");
-                that.logger.log("info", LOG_ID + "(forwardToDevice) REST conversation consulted");
+                that.logger.log("debug", LOG_ID + "(forwardToDevice) successfull");
+                that.logger.log("debug", LOG_ID + "(forwardToDevice) REST conversation consulted");
                 that.logger.log("internal", LOG_ID + "(forwardToDevice) REST conversation consulted : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -314,8 +314,8 @@ class RESTTelephony {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/telephony/v1.0/forward", requestHeader).then((json) => {
-                that.logger.log("info", LOG_ID + "(getForwardStatus) successfull");
-                that.logger.log("info", LOG_ID + "(getForwardStatus) REST conversation consulted");
+                that.logger.log("debug", LOG_ID + "(getForwardStatus) successfull");
+                that.logger.log("debug", LOG_ID + "(getForwardStatus) REST conversation consulted");
                 that.logger.log("internal", LOG_ID + "(getForwardStatus) REST conversation consulted : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -340,8 +340,8 @@ class RESTTelephony {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/telephony/v1.0/calls/" + callId + "%23" + deviceId + "/dtmf", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(sendDtmf) successfull");
-                that.logger.log("info", LOG_ID + "(sendDtmf) REST conversation consulted");
+                that.logger.log("debug", LOG_ID + "(sendDtmf) successfull");
+                that.logger.log("debug", LOG_ID + "(sendDtmf) REST conversation consulted");
                 that.logger.log("internal", LOG_ID + "(sendDtmf) REST conversation consulted : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -357,8 +357,8 @@ class RESTTelephony {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/telephony/v1.0/nomadic", requestHeader).then((json) => {
-                that.logger.log("info", LOG_ID + "(getNomadicStatus) successfull");
-                that.logger.log("info", LOG_ID + "(getNomadicStatus) REST conversation consulted");
+                that.logger.log("debug", LOG_ID + "(getNomadicStatus) successfull");
+                that.logger.log("debug", LOG_ID + "(getNomadicStatus) REST conversation consulted");
                 that.logger.log("internal", LOG_ID + "(getNomadicStatus) REST conversation consulted : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -373,8 +373,8 @@ class RESTTelephony {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.put("/api/rainbow/telephony/v1.0/nomadic/login", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(nomadicLogin) successfull");
-                that.logger.log("info", LOG_ID + "(nomadicLogin) REST nomadic login succeed");
+                that.logger.log("debug", LOG_ID + "(nomadicLogin) successfull");
+                that.logger.log("debug", LOG_ID + "(nomadicLogin) REST nomadic login succeed");
                 that.logger.log("internal", LOG_ID + "(nomadicLogin) REST nomadic login succeed : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
@@ -396,8 +396,8 @@ class RESTTelephony {
             };
 
             that.http.post("/api/rainbow/telephony/v1.0/ccd/logon", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(login) successfull");
-                that.logger.log("info", LOG_ID + "(login) REST conversation created");
+                that.logger.log("debug", LOG_ID + "(login) successfull");
+                that.logger.log("debug", LOG_ID + "(login) REST conversation created");
                 that.logger.log("internal", LOG_ID + "(login) REST conversation created : ", json);
                 resolve(json.data);
             }).catch((err) => {
@@ -419,8 +419,8 @@ class RESTTelephony {
             };
 
             that.http.post("/api/rainbow/telephony/v1.0/ccd/logoff", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(logoff) successfull");
-                that.logger.log("info", LOG_ID + "(logoff) REST conversation created");
+                that.logger.log("debug", LOG_ID + "(logoff) successfull");
+                that.logger.log("debug", LOG_ID + "(logoff) REST conversation created");
                 that.logger.log("internal", LOG_ID + "(logoff) REST conversation created : ", json);
                 resolve(json.data);
             }).catch((err) => {
@@ -441,8 +441,8 @@ class RESTTelephony {
             };
 
             that.http.post("/api/rainbow/telephony/v1.0/ccd/withdrawal", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(withdrawal) successfull");
-                that.logger.log("info", LOG_ID + "(withdrawal) REST conversation created");
+                that.logger.log("debug", LOG_ID + "(withdrawal) successfull");
+                that.logger.log("debug", LOG_ID + "(withdrawal) REST conversation created");
                 that.logger.log("internal", LOG_ID + "(withdrawal) REST conversation created : ", json);
                 resolve(json.data);
             }).catch((err) => {
@@ -464,8 +464,8 @@ class RESTTelephony {
             };
 
             that.http.post("/api/rainbow/telephony/v1.0/ccd/wrapup", requestHeader, data).then((json) => {
-                that.logger.log("info", LOG_ID + "(wrapup) successfull");
-                that.logger.log("info", LOG_ID + "(wrapup) REST conversation created");
+                that.logger.log("debug", LOG_ID + "(wrapup) successfull");
+                that.logger.log("debug", LOG_ID + "(wrapup) REST conversation created");
                 that.logger.log("internal", LOG_ID + "(wrapup) REST conversation created : ", json);
                 resolve(json.data);
             }).catch((err) => {
@@ -488,7 +488,7 @@ class RESTTelephony {
             that.logger.log("internal", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) REST .");
 
             that.http.delete("/api/rainbow/telephony/v1.0/voicemessages/all"  , postHeader, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) successfull");
+                that.logger.log("debug", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) successfull");
                 that.logger.log("internal", LOG_ID + "(deleteAllMyVoiceMessagesFromPbx) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
@@ -510,7 +510,7 @@ class RESTTelephony {
             that.logger.log("internal", LOG_ID + "(deleteAVoiceMessageFromPbx) REST messageId : ", messageId);
 
             that.http.delete("/api/rainbow/telephony/v1.0/voicemessages/" + messageId  , postHeader, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(deleteAVoiceMessageFromPbx) successfull");
+                that.logger.log("debug", LOG_ID + "(deleteAVoiceMessageFromPbx) successfull");
                 that.logger.log("internal", LOG_ID + "(deleteAVoiceMessageFromPbx) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
@@ -538,7 +538,7 @@ class RESTTelephony {
             that.logger.log("internal", LOG_ID + "(getAVoiceMessageFromPbx) REST url : ", url);
 
             that.http.get(url, requestHeader, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getAVoiceMessageFromPbx) successfull");
+                that.logger.log("debug", LOG_ID + "(getAVoiceMessageFromPbx) successfull");
                 that.logger.log("internal", LOG_ID + "(getAVoiceMessageFromPbx) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
@@ -565,7 +565,7 @@ class RESTTelephony {
             that.logger.log("internal", LOG_ID + "(getDetailedListOfVoiceMessages) REST url : ", url);
 
             that.http.get(url, requestHeader, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getDetailedListOfVoiceMessages) successfull");
+                that.logger.log("debug", LOG_ID + "(getDetailedListOfVoiceMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(getDetailedListOfVoiceMessages) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -592,7 +592,7 @@ class RESTTelephony {
             that.logger.log("internal", LOG_ID + "(getNumbersOfVoiceMessages) REST url : ", url);
 
             that.http.get(url, requestHeader, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getNumbersOfVoiceMessages) successfull");
+                that.logger.log("debug", LOG_ID + "(getNumbersOfVoiceMessages) successfull");
                 that.logger.log("internal", LOG_ID + "(getNumbersOfVoiceMessages) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {

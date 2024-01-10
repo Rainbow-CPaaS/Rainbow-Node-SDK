@@ -1079,90 +1079,90 @@ class Core {
                 return resolve ("core already stopped !");
             }
 
-            that.logger.log("debug", LOG_ID + "(stop) stop all modules !");
+            that.logger.log("info", LOG_ID + "(stop) stop all modules !");
 
             await that._s2s.stop().then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped s2s.");
+                that.logger.log("info", LOG_ID + "(stop) stopped s2s.");
                 if (that.options._restOptions.useRestAtStartup) {
                     return that._rest.stop();
                 }
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rest");
+                that.logger.log("info", LOG_ID + "(stop) stopped rest");
                 return that._http.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped http");
+                that.logger.log("info", LOG_ID + "(stop) stopped http");
                 return that._xmpp.stop(that.options.useXMPP);
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped xmpp");
+                that.logger.log("info", LOG_ID + "(stop) stopped xmpp");
                 return that._im.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped im");
+                that.logger.log("info", LOG_ID + "(stop) stopped im");
                 return that._settings.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped settings");
+                that.logger.log("info", LOG_ID + "(stop) stopped settings");
                 return that._presence.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped presence");
+                that.logger.log("info", LOG_ID + "(stop) stopped presence");
                 return that._conversations.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped conversations");
+                that.logger.log("info", LOG_ID + "(stop) stopped conversations");
                 return that._telephony.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped telephony");
+                that.logger.log("info", LOG_ID + "(stop) stopped telephony");
                 return that._contacts.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped contacts");
+                that.logger.log("info", LOG_ID + "(stop) stopped contacts");
                 return that._bubbles.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped bubbles");
+                that.logger.log("info", LOG_ID + "(stop) stopped bubbles");
                 return that._channels.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped channels");
+                that.logger.log("info", LOG_ID + "(stop) stopped channels");
                 return that._groups.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped groups");
+                that.logger.log("info", LOG_ID + "(stop) stopped groups");
                 return that._admin.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped admin");
+                that.logger.log("info", LOG_ID + "(stop) stopped admin");
                 return that._fileServer.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped fileServer");
+                that.logger.log("info", LOG_ID + "(stop) stopped fileServer");
                 return that._fileStorage.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped fileStorage");
+                that.logger.log("info", LOG_ID + "(stop) stopped fileStorage");
                 return that._stateManager.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped stateManager");
+                that.logger.log("info", LOG_ID + "(stop) stopped stateManager");
                 return that._calllog.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped calllog");
+                that.logger.log("info", LOG_ID + "(stop) stopped calllog");
                 return that._favorites.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped favorites");
+                that.logger.log("info", LOG_ID + "(stop) stopped favorites");
                 return that._alerts.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped alerts");
+                that.logger.log("info", LOG_ID + "(stop) stopped alerts");
                 return that._rbvoice.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rbvoice");
+                that.logger.log("info", LOG_ID + "(stop) stopped rbvoice");
                 return that._webinars.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped webinar");
+                that.logger.log("info", LOG_ID + "(stop) stopped webinar");
                 return that._httpoverxmpp.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped httpoverxmpp");
+                that.logger.log("info", LOG_ID + "(stop) stopped httpoverxmpp");
                 return that._rpcoverxmpp.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rpcoverxmpp");
+                that.logger.log("info", LOG_ID + "(stop) stopped rpcoverxmpp");
                 return that._invitations.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped invitations");
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.logger.log("info", LOG_ID + "(stop) stopped invitations");
+                that.logger.log("info", LOG_ID + "(stop) _exiting_");
                 resolve("core stopped");
             }).catch((err) => {
-                that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! ");
+                that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! Error : ", err);
                 that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that.logger.log("info", LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
             
