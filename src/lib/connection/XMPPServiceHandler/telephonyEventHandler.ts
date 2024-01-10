@@ -138,7 +138,7 @@ class TelephonyEventHandler extends GenericHandler {
             let xmppAgent = pbxagentstatus.xmppagent;
             let agentVersion = pbxagentstatus.version;
             let agentStatus = { "phoneApi": phoneApi, "xmppAgent": xmppAgent, "agentVersion": agentVersion };
-            that.logger.log("debug", LOG_ID + "(onIqGetPbxAgentStatusReceived)  - send rainbow_onpbxagentstatusreceived 'agentStatus'", agentStatus);
+            that.logger.log("debug", LOG_ID + "(onIqGetPbxAgentStatusReceived)  - send rainbow_onpbxagentstatusreceived 'agentStatus' ", agentStatus);
             that.eventEmitter.emit("rainbow_onpbxagentstatusreceived", agentStatus);
         }
     };

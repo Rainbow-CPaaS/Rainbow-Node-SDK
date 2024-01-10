@@ -5,6 +5,7 @@ export {};
 
 
 import {ErrorManager} from "./ErrorManager";
+import {stackTrace} from "./Utils.js";
 const utils= require("./Utils");
 
 enum SDKSTATUSENUM {
@@ -91,19 +92,22 @@ class StateManager {
                 that.state = state;
                 if (that.isSTOPPED() || that.isREADY()) {
                     try {
-                        await that.timeOutManager.setTimeoutPromised(() => {
+                            await that.timeOutManager.setTimeoutPromised(() => {
                             // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
-                            that.logger.log("info", LOG_ID + "(transitTo) set state : ", that.state);
+                            that.logger.log("info", LOG_ID + "(transitTo) setTimeoutPromised set state : ", that.state);
                             if (publishEvent) {
                                 that.eventEmitter.publish(state, data);
                             }
                             resolve(undefined);
-                        }, 1500, "(transitTo) set state : " + that.state);
+                        }, 1500, "(transitTo) setTimeoutPromised set state : " + that.state);
                     } catch (err) {
                         that.logger.log("warn", LOG_ID + "(transitTo) CATCH Error !!! error : ", err);
                     }
                 } else {
                     that.logger.log("info", LOG_ID + "(transitTo) set state : ", that.state);
+                    if (that.isERROR() || that.isFAILED()) {
+                        that.logger.log("warn", LOG_ID + "(transitTo) stackTrace : ", stackTrace());
+                    }
                     if (publishEvent) {
                         that.eventEmitter.publish(state, data);
                     }

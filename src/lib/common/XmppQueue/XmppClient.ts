@@ -170,7 +170,7 @@ class XmppClient  {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
         that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
-        return {}
+        return {};
     }
 
     iqSetEventRoster (ctx ) {

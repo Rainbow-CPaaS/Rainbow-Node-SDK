@@ -93,7 +93,7 @@ class IQEventHandler extends GenericHandler {
                         // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "bind":
-                        that.logger.log("debug", LOG_ID + "(onIqResultReceived)  - 'stanza'", node.getName());
+                        that.logger.log("info", LOG_ID + "(onIqResultReceived)  - 'stanza' ", node.getName());
                         break;
                     case "pbxagentstatus":
                         // The treatment is in telephonyEventHandler

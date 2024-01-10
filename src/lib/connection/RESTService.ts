@@ -389,25 +389,30 @@ class RESTService extends GenericRESTService {
 
     stop() {
         let that = this;
-        return new Promise((resolve, reject) => {
-            that.restTelephony.stop().then(() => {
-                that.logger.log("internal", LOG_ID + "(stop) restTelephony.");
-            });
+        return new Promise(async(resolve, reject) => {
+            try {
+                await that.restTelephony.stop().then(() => {
+                    that.logger.log("internal", LOG_ID + "(stop) restTelephony.");
+                });
 
-            that.restConferenceV2.stop().then(() => {
-                that.logger.log("internal", LOG_ID + "(stop) restConferenceV2.");
-            });
+                await that.restConferenceV2.stop().then(() => {
+                    that.logger.log("internal", LOG_ID + "(stop) restConferenceV2.");
+                });
 
-            that.restWebinar.stop().then(() => {
-                that.logger.log("internal", LOG_ID + "(stop) restWebinar.");
-            });
+                await that.restWebinar.stop().then(() => {
+                    that.logger.log("internal", LOG_ID + "(stop) restWebinar.");
+                });
 
-            that.signout().then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) Successfully stopped");
-                resolve(undefined);
-            }).catch((err) => {
+                await that.signout().then(() => {
+                    that.logger.log("debug", LOG_ID + "(stop) Successfully stopped");
+                    resolve(undefined);
+                })/* .catch((err) => {
                 return reject(err);
-            });
+            }) */;
+            } catch (err) {
+                that.logger.log("debug", LOG_ID + "(stop) !!! CATCH Error : ", err, ". But send Successfully stopped to upper layer.");
+                resolve(undefined);
+            }
         });
     }
 
@@ -3161,7 +3166,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid;
             if (bubbleJid===undefined) {
-                that.logger.log("debug", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
+                that.logger.log("warn", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             let urlParamsTab: string[] = [];
@@ -6343,16 +6348,16 @@ Request Method: PUT
 
         if (this._isOfficialRainbow) {
             let authenticationAbout = that.http.get("/api/rainbow/authentication/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) authentication about : ", portalAbout);
+                that.logger.log("info", LOG_ID + "(checkEveryPortals) authentication about : ", portalAbout);
             });
             let enduserAbout = that.http.get("/api/rainbow/enduser/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) enduser about : ", portalAbout);
+                that.logger.log("info", LOG_ID + "(checkEveryPortals) enduser about : ", portalAbout);
             });
             let telephonyAbout = that.http.get("/api/rainbow/telephony/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) telephony about : ", portalAbout);
             });
             let adminAbout = that.http.get("/api/rainbow/admin/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) admin about : ", portalAbout);
+                that.logger.log("info", LOG_ID + "(checkEveryPortals) admin about : ", portalAbout);
             });
             let channelsAbout = that.http.get("/api/rainbow/channels/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
                 that.logger.log("debug", LOG_ID + "(checkEveryPortals) channels about : ", portalAbout);
