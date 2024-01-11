@@ -13,7 +13,7 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName, makeId, Deferred
+    generateRamdomEmail, functionName, makeId, Deferred, msToTime
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -218,12 +218,12 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": true,
+            "enableFileLogs": false,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
-            "color": true,
+            "color": false,
             "level": "info",
-            //"level": "debug",
+            "level": "info",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": false,
@@ -946,6 +946,10 @@ let urlS2S;
         });
     }
 
+    async testEvents() {
+        let listenerData = await rainbowSDK.events.listenerData();
+        logger.log("debug", "MAIN - [testEvents    ] ::  listenerData : ", prettydata.json(listenerData));
+    }
 
     async  testgetContactByLoginEmailCaseSensitiveTest() {
         let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
@@ -3244,6 +3248,91 @@ let urlS2S;
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
 
+     testCreateBubblesAndInviteUnknownContactsByEmails() {
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
+            logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: createBubble request ok", bubble);
+
+            let contacts = [];
+            let d = new Date();
+            let t = d.getTime();
+            let y = Math.round(t);
+            contacts.push("vincent09@vbe.test.openrainbow.net");
+            rainbowSDK.bubbles.inviteContactsByEmailsToBubble(contacts, bubble).then(async () => {
+/*                let message = "message de test";
+                await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                    "type": "text/markdown",
+                    "message": message
+                }, "subject", undefined, "middle");
+ */
+                await pause(45000);
+                let invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "pending", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: invitationsSent : ", invitationsSent);
+
+                rainbowSDK.contacts.getContactByLoginEmail("vincent09@vbe.test.openrainbow.net").then(async contact => {
+                    if (contact) {
+                        logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
+
+                    }
+                });
+            });
+            rainbowSDK.bubbles.deleteBubble(bubble);
+        });
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
+
+     testCreateBubblesAndInviteVincentALEContactsByEmails() {
+        // To be used with vincent01 on COM (needs vincent.berder@al-enterprise.com to not be already in rooster).
+        let utc = new Date().toJSON().replace(/-/g, "/");
+        rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then(async (bubble: any) => {
+            logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: createBubble request ok", bubble);
+
+            let contacts = [];
+            let d = new Date();
+            let t = d.getTime();
+            let y = Math.round(t);
+            let contactEmail="vincent.berder@al-enterprise.com";
+            contacts.push(contactEmail);
+
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmail);
+            if (contact) {
+                await rainbowSDK.contacts.removeFromNetwork(contact);
+            }
+            await rainbowSDK.invitations.sendInvitationByEmail(contactEmail, "fr", "salut from rainbow bot.");
+            await rainbowSDK.bubbles.inviteContactsByEmailsToBubble(contacts, bubble).then(async () => {
+/*                let message = "message de test";
+                await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                    "type": "text/markdown",
+                    "message": message
+                }, "subject", undefined, "middle");
+ */
+                await pause(15000);
+
+                let sentInvitations = await rainbowSDK.invitations.getAllSentInvitations();
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: sentInvitations : ", sentInvitations);
+                let invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "accepted", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent accepted : ", invitationsSent);
+                invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "pending", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent pending : ", invitationsSent);
+                invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "auto-accepted", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent auto-accepted : ", invitationsSent);
+                invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "canceled", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent canceled : ", invitationsSent);
+                invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "failed", "full", 50, 0, 1);
+                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent failed : ", invitationsSent);
+
+                await rainbowSDK.contacts.getContactByLoginEmail(contactEmail).then(async contact => {
+                    if (contact) {
+                        logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
+
+                    }
+                });
+            });
+            //await rainbowSDK.bubbles.deleteBubble(bubble);
+        });
+        //    let utc = new Date().toJSON().replace(/-/g, '/');
+    }
+
      testCreateBubblesOnly() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
@@ -3666,6 +3755,20 @@ let urlS2S;
         //});
     }
 
+     testGetUsersFullFromBubble() {
+        //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+        let result = rainbowSDK.bubbles.getAllActiveBubbles();
+        logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+        if (result.length > 0) {
+            let bubble = result[0];
+            // Share the file
+            return rainbowSDK.bubbles.getUsersFromBubble(bubble, {"format":"full"}).then((users) => {
+                logger.log("debug", "MAIN - testGetUsersFromBubble - users : ", users);
+            });
+        }
+        //});
+    }
+
      testupdateAvatarForBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
         logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
@@ -3804,6 +3907,20 @@ let urlS2S;
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
             logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
         });
+    }
+
+
+    testaddPSTNParticipantToConference() {
+        let that = this;
+        let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+        if (bubbles.length > 0) {
+            let bubble = bubbles[0];
+            rainbowSDK.bubbles.addPSTNParticipantToConference(bubble.id, "0622413746", "FRA").then(async function (result) {
+                logger.log("debug", "MAIN - testaddPSTNParticipantToConference - result : ", result);
+            }).catch ((err) => {
+                logger.log("warn", "MAIN - testaddPSTNParticipantToConference - err : ", err);
+            });
+        }
     }
 
     /*
@@ -7792,6 +7909,37 @@ let urlS2S;
         await rainbowSDK.stop();
     }
 
+        async  testTokenJwtDecode() {
+            //let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
+//let token = 'sdfsqfsqfsdfsdfgdf';
+            let token = undefined;
+
+//token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWY3NWEwZGQxZGI5NDY0ZDY3ZTMyNDYzIiwibG9naW5FbWFpbCI6ImxkYXAuY29ubmVjdG9yLmFkbWluMUBjbWEudGVzdC5vcGVucmFpbmJvdy5jb20ifSwiYXBwIjp7ImlkIjoiMDczMGY2ZTBhMGUwMTFlYjhlNjE3YjhlMWVkZTcwYjEiLCJuYW1lIjoiTERBUCAgY29ubmVjdG9yIn0sIm9hdXRoIjp7InRva2VuSWQiOiItZW1zcXpIa3F2IiwidHlwZSI6ImFjY2Vzc190b2tlbiIsInNjb3BlIjoiYWxsIiwiZ3JhbnQiOiJpbXBsaWNpdCJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MjkxOTE1ODAsImV4cCI6MTYyOTE5MTg4MH0.p-GJWuIbJzb7eeY9Bi-4oq_t3PUxEr_E-0IrAad0LJbgXVprmIMiieBJamB4SXZhVSN2yqz68_I6yS7veFoLvcVU8coi4L_TebO8R5mnKB8Ocs66SqhjotggmXZNsWmaMNOGNCZRpaCJF9eHz04ux9BZTv7UJmfXpbg7xhce9GXDxT4OAoJYN7XYglymerueWZ8CArQ1Vtc_ahWdeOjp7dQYQ3DMKowmPO1_LdJTmcmAlwVZTG6RGZJNHckPyb4aGTesUYObJIyf_CHwZaIhyk-qcISCAPxzKG-x3qDZ_kCqzNGB3ojP9YkrBy1X5nTmDrt7UfV85gMaW5ew1AIFHQ";
+
+//token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWMzZGY5Mzc3NmYzNTE4OTc4YzFkMDhhIn0sImFwcCI6eyJpZCI6IjIzNWFjNjAwMDk4MzExZWNiN2I4NGQ2OTk4MjVkNmQzIiwibmFtZSI6InZiZXJkZXItb2F1dGgtYXBwIn0sIm9hdXRoIjp7InRva2VuSWQiOiJMU19qV1VvcmpKIiwicmVmcmVzaFRva2VuSWQiOiI2MTJlNjhjMThkZDU3MTc4NTdmZTU1ZjIiLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwic2NvcGUiOiJhbGwiLCJncmFudCI6ImF1dGhvcml6YXRpb25fY29kZSJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MzA0MzE0MjUsImV4cCI6MTYzMDQzMTcyNX0.DeWye85KexHllKsMwvJMfnC5ajl_NBXLzzE7DHaDuisrN3g3WA27C3Z1Saa7cGAQGixI5zK1DZScJPQaCC6Bv-gR3MJAfuyidF_HA5pjp7oHV40Dt6791NaMCQQDHhlpzbabDWL0pw9gqrO55y4bgtJ07EXg4j-H34nue6SxKfupXqmgx3A_4IM_rIn_HMMpNgooFOv2ktQIPNmRkXL8nUwyiyNIeIhCWtO8KQ4j23zXdgPP30jfS14vSEpRS19dlbCZ3dcdckj42cV8lPm_XEspk-F_x5DcjwGhtfvjrCcqWMn8mQ6x50lcnk_gfqB6K8lIrwWPZXw5PKdruHB40g";
+
+            logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+            token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
+            logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+            try {
+                let decodedToken = jwtDecode(token);
+                logger.log("debug", "MAIN - (testTokenJwtDecode) token decodedToken : ", decodedToken);
+
+                logger.log("debug", "MAIN - (testTokenJwtDecode) token full duration : ", msToTime((decodedToken.exp - decodedToken.iat)*1000 ));
+                // 1 jours = 86400000, 1 heure = 3600000, 1 min = 60000, 1 seconde = 1000
+                let timToTest = 86400000 * 15 + 3600000 * 6 + 60000 * 24 + 1000 *3 ;
+                logger.log("debug", "MAIN - (testTokenJwtDecode) timToTest full duration : ", msToTime(timToTest));
+                /* await rainbowSDK._core._rest.getContactByToken(token).then(async (result2) => {
+                    // Do something when the SDK is started
+                    logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+                }); // */
+
+            } catch (err) {
+                logger.log("error", "MAIN - (testTokenJwtDecode) token decoded error : ", token);
+            }
+        }
+
+
 // */
 
     async  testStopAndStart() {
@@ -7945,6 +8093,7 @@ let urlS2S;
                 connectedUser = result.loggedInUser;
                 token = result.token;
                 logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
                 logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
@@ -8096,6 +8245,7 @@ let urlS2S;
                 connectedUser = result.loggedInUser;
                 token = result.token;
                 logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
                 logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
@@ -8118,8 +8268,9 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
-                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+                logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
+                logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
                 /*
                             let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
                                 logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
@@ -8508,8 +8659,9 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
-                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+                logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
+                logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
                 let startDuration = result.startDuration;
@@ -8537,7 +8689,7 @@ let urlS2S;
         let tests = new Tests();
         let testsFunctions = findTests(tests);
 
-        logger.log("debug", "MAIN - findTests : ", testsFunctions);
+        logger.log("info", "MAIN - findTests : ", testsFunctions);
         let questions = [
             {
                 type: "input",
@@ -8548,20 +8700,20 @@ let urlS2S;
         ];
         
         function enterCmd () {
-            logger.log("debug", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+            logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
             inquirer.prompt(questions).then(answers => {
                 //console.log(`Hi ${answers.cmd}!`);
-                logger.log("debug", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                logger.log("info", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                 try {
                     switch (answers.cmd) {
                         case "exit":
                         case "by":
-                            logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                                 if (rainbowSDK) {
                                     rainbowSDK.stop().then(() => {
                                         process.exit(0);
                                 }).catch((err)=>{
-                                    logger.log("debug", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                                    logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
                                     process.exit(0);
                                     });
                                 } else {
@@ -8569,37 +8721,37 @@ let urlS2S;
                                 }
                             break;
                         case "help":
-                            logger.log("debug", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
                             for (const testsFunction of testsFunctions) {
-                                logger.log("debug", "MAIN - testsFunction : tests.",testsFunction ); //logger.colors.green(JSON.stringify(result)));
+                                logger.log("info", "MAIN - testsFunction : tests.",testsFunction ); //logger.colors.green(JSON.stringify(result)));
                             }
                             enterCmd();
                             break;
                         case "start":
-                            logger.log("debug", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
                             enterCmd();
                             break;
                         case "startstop":
-                            logger.log("debug", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.startstop()");
                             enterCmd();
                             break;
                         case "stop":
-                            logger.log("debug", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.stop()");
                             enterCmd();
                             break;
                         default:
-                            logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                            logger.log("info", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                             if (answers.cmd) {
                                 if (answers.cmd?.indexOf("eval:")===0) {
                                     let cmdStr = answers.cmd.substring("eval:".length);
-                                    logger.log("debug", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    logger.log("info", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 } else {
                                     let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
-                                    logger.log("debug", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    logger.log("info", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 }
                             }
@@ -8661,7 +8813,7 @@ let urlS2S;
                             if (typeof props[property] === "function") {
                                 //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
                                 if (!(property in privateAPI)) {
-                                    logger.log("debug", "MAIN - (findTests) found in props a test function : tests." + property + "()");
+                                    logger.log("info", "MAIN - (findTests) found in props a test function : tests." + property + "()");
                                     /*servicesList[currentStack] = currentStack;
                                     var item = {
                                         "serviceName": currentStack,
@@ -8701,7 +8853,7 @@ let urlS2S;
                                     if (typeof obj[property] === "function") {
                                         //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
                                         if (!(property in privateAPI)) {
-                                             logger.log("debug","MAIN - (findTests) found in propreties a test function : tests." + property + "()");
+                                             logger.log("info","MAIN - (findTests) found in propreties a test function : tests." + property + "()");
                                             /*
                                             servicesList[currentStack] = currentStack;
                                             var item = {
