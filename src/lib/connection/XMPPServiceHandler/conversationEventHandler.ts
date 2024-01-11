@@ -692,6 +692,11 @@ class ConversationEventHandler extends GenericHandler {
                     case "poll-id":
                         pollid = node.getText();
                         break;
+                    case "poll-info":
+                        roomid = node.find("room-id").text();
+                        pollid = node.attrs["id"];
+                        //<room-name>A bubble for pollData</room-name>
+                        break;
                     case "questions":
                         let xmlNodeStr = node ? node.toString():"<xml></xml>";
                         questions = await getJsonFromXML(xmlNodeStr);
