@@ -17,6 +17,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Added
 -   Add method's caller name in HTTP request logs.
 -   Add "x-rainbow-request-node-id" header in HTTP request to link with the resulting "x-rainbow-request-id" header received in response.
+-   Add missing properties in Contact and Bubble class.
+-   Add method's caller name in HTTP request logs.
 
 #### Changed
 -   Update to use "SCRAM-SHA-1" on Xmpp link instead of "PLAIN".
@@ -24,8 +26,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 -   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 -   Update reconnexion when token expired.
+-   Update postTestRunOpenrainbowDotNet sdk's options
+-   Update of logs from debug to info if not needed.
+-   Update of stop sdk when error occured.
 
-### [2.26.0] - 2023-11-XX
+### [2.26.0] - 2023-12-12
 #### Removed
 -   None
 
