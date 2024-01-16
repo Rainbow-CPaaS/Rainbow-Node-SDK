@@ -272,6 +272,10 @@ class Logger {
             return cryptr.decrypt(str);            
         };
 
+        this._logger.stripStringForLogs = function (value : string) {
+            return self.logLevel !== "info" ? value : (!value ? value : value?.charAt(0) + value?.replace(/[^\s](?=.{1,}$)/g, "*")?.substr(1));
+        }
+
         this.hideId = function (url) {
             return url.replace(/[\/="'][a-f\d]{24}[\/\?&"']?/ig, (x) => {
                 let ret = x.toUpperCase();
@@ -492,6 +496,10 @@ class Logger {
     
     get log() {
         return this._logger;
+    }
+
+    stripStringForLogs = function (value : string) {
+        return this._logger?.stripStringForLogs(value);
     }
 
     argumentsToStringReduced (v, delemiter : string = " "){

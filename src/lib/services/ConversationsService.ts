@@ -30,6 +30,7 @@ import {Bubble} from "../common/models/Bubble";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -442,6 +443,7 @@ class ConversationsService extends GenericService {
      */
     async getHistoryPage(conversation : Conversation, size: number = 30) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getHistoryPage) conversation.id : ", conversation?.id);
 
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
@@ -519,7 +521,7 @@ class ConversationsService extends GenericService {
      */
     loadConversationHistory(conversation, pageSize : number = 30) {
         let that = this;
-        that._logger.log("debug", "(loadConversationHistory)");
+        that._logger.log("info", LOG_ID + API_ID + "(loadConversationHistory) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
         return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
             that._logger.log("debug", "(loadConversationHistory) getHistoryPage.");
@@ -586,6 +588,7 @@ class ConversationsService extends GenericService {
      */
     getOneMessageFromConversationId(conversationId:string, messageId : string, stamp:string) : Promise<Message> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId);
         return new Promise(async (resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId, ", messageId : ", messageId);
             let conversation = that.getConversationById(conversationId);
@@ -643,8 +646,9 @@ class ConversationsService extends GenericService {
      */
     async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) userId : ", userId);
 
-        that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) parameters : userId : ", userId);
+        //that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -685,6 +689,7 @@ class ConversationsService extends GenericService {
      */
     async getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getContactsMessagesFromConversationId) conversationId : ", conversationId);
 
         if (!conversationId) {
             that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) bad or empty 'conversationId' parameter : ", conversationId);
@@ -917,9 +922,9 @@ class ConversationsService extends GenericService {
      * @param {any} fileDescriptor
      */
      sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any) {
-
-         let that = this;
-        //conversation.sendAckReadMessages();
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(sendExistingFSMessage) conversation.id : ", conversation?.id);
+       //conversation.sendAckReadMessages();
         let unicodeData = message ;
 
         if (!message) {
@@ -998,6 +1003,7 @@ class ConversationsService extends GenericService {
      */
     async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string, content : { message : string, type : string } = null) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(sendCorrectedChatMessage) conversation.id : ", conversation?.id);
 
         if (!conversation) {
             this._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter");
@@ -1086,6 +1092,7 @@ class ConversationsService extends GenericService {
      */
     async deleteMessage (conversation : Conversation, messageId : string) : Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteMessage) conversation.id : ", conversation?.id, ", messageId : ", messageId);
 
         if (!conversation) {
             that._logger.log("error", LOG_ID + "(deleteMessage) Parameter 'conversation' is missing or null");
@@ -1118,6 +1125,8 @@ class ConversationsService extends GenericService {
      */
     deleteAllMessageInOneToOneConversation (conversation : Conversation) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteAllMessageInOneToOneConversation) conversation.id : ", conversation?.id);
+
         if (!conversation) {
             this._logger.log("error", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter.");
             this._logger.log("internalerror", LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter : ", conversation);
@@ -1180,6 +1189,8 @@ class ConversationsService extends GenericService {
      */
     removeAllMessages(conversation : Conversation) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(removeAllMessages) conversation.id : ", conversation?.id);
+
         return new Promise((resolve) => {
             if (!conversation) {
                 this._logger.log("error", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter.");
@@ -1244,9 +1255,11 @@ class ConversationsService extends GenericService {
      */
     removeMessagesFromConversation(conversation : Conversation, date : Date, number : number) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(removeMessagesFromConversation) conversation.id : ", conversation?.id, " removing number : " + number + " messages after :" + date);
+
         return new Promise((resolve) => {
-            that._logger.log("debug", LOG_ID + " removeMessagesFromConversation " + conversation.id);
-            that._logger.log("debug", LOG_ID + " removing " + number + " messages after " + date);
+            // that._logger.log("info", LOG_ID + " removeMessagesFromConversation " + conversation.id);
+            // that._logger.log("info", LOG_ID + " removing " + number + " messages after " + date);
 
             let mamRequest = {
                 "deleteid": "remove_" + conversation.id,
@@ -1285,6 +1298,8 @@ class ConversationsService extends GenericService {
      */
     sendIsTypingState(conversation : Conversation, status : boolean) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(sendIsTypingState) conversation.id : ", conversation?.id, " status : ", status);
+
         return new Promise((resolve, reject) => {
             if (!conversation) {
                 return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
@@ -1327,8 +1342,9 @@ class ConversationsService extends GenericService {
      */
     updateConversationBookmark (userId : string, conversationId	: string, messageId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateConversationBookmark) conversationId : ", conversationId, " userId : ", userId, ", messageId : ", messageId);
 
-        that._logger.log("internal", LOG_ID + "(updateConversationBookmark) parameters : userId : ", userId);
+        //that._logger.log("internal", LOG_ID + "(updateConversationBookmark) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1384,8 +1400,8 @@ class ConversationsService extends GenericService {
      */
     deleteConversationBookmark (userId : string, conversationId	: string) {
         let that = this;
-
-        that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) parameters : userId : ", userId);
+        that._logger.log("info", LOG_ID + API_ID + "(deleteConversationBookmark) conversationId : ", conversationId, " userId : ", userId);
+    //    that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1437,8 +1453,9 @@ class ConversationsService extends GenericService {
      */    
     showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(showAllMatchingMessagesForAPeer) substring : ", substring, " userId : ", userId);
 
-        that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) parameters : userId : ", userId);
+        //that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1487,6 +1504,7 @@ class ConversationsService extends GenericService {
      */
     getAllConversations() {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllConversations) ");
         return that.getConversations();
     };
 
@@ -1525,6 +1543,8 @@ class ConversationsService extends GenericService {
      */
     openConversationForContact (contact : Contact): Promise<Conversation> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(openConversationForContact) contact : ", contact);
+
         return new Promise(function (resolve, __reject) {
 
             if (!contact) {
@@ -1570,6 +1590,8 @@ class ConversationsService extends GenericService {
      */
     openConversationForBubble(bubble : Bubble) : Promise<Conversation>{
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(openConversationForBubble) bubble.id : ", bubble?.id);
+
         return new Promise(function (resolve, __reject) {
 
             if (!bubble) {
@@ -1607,6 +1629,8 @@ class ConversationsService extends GenericService {
      */
     getS2SServerConversation(conversationId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getS2SServerConversation) conversationId : ", conversationId);
+
         return new Promise(function (resolve, __reject) {
 
             if (!conversationId) {
@@ -1658,8 +1682,8 @@ class ConversationsService extends GenericService {
      */
     deleteServerConversation(conversationId : string) {
         let that = this;
-
-        that._logger.log("debug", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
+        that._logger.log("info", LOG_ID + API_ID + "(deleteServerConversation) conversationId : ", conversationId);
+        //that._logger.log("info", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
 
         // Ignore conversation without dbId
         if (!conversationId) { return Promise.resolve(undefined); }
@@ -1722,6 +1746,8 @@ class ConversationsService extends GenericService {
      * @category async
      */
     sendConversationByEmail(conversationDbId, emails : Array<string> = undefined, lang : string = "en"  ) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(sendConversationByEmail) conversationDbId : ", conversationDbId);
         return this._rest.sendConversationByEmail(conversationDbId, emails, lang);
     }
 
@@ -1791,7 +1817,8 @@ class ConversationsService extends GenericService {
      */
     getConversationById(conversationId : string) {
         let that = this;
-        that._logger.log("debug", LOG_ID + " (getConversationById) conversationId : ", conversationId);
+        that._logger.log("info", LOG_ID + API_ID + "(getConversationById) conversationId : ", conversationId);
+        //that._logger.log("debug", LOG_ID + " (getConversationById) conversationId : ", conversationId);
         if (!this.conversations) {
             return null;
         }
@@ -1817,6 +1844,8 @@ class ConversationsService extends GenericService {
      */
     getConversationByDbId(dbId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getConversationByDbId) dbId : ", dbId);
+
         if (that.conversations) {
             for (let key in that.conversations) {
                 if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId) {
@@ -1839,6 +1868,10 @@ class ConversationsService extends GenericService {
      * @return {Conversation} The conversation to retrieve
      */
     async getConversationByBubbleId(bubbleId : string) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getConversationByBubbleId) bubbleId : ", bubbleId);
+//        that._logger.log("info", LOG_ID + API_ID + "(getConversationByBubbleId) bubbleId : ", bubbleId);
+
         if (this.conversations) {
             for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.id === bubbleId) {
@@ -1861,6 +1894,10 @@ class ConversationsService extends GenericService {
      * @return {Conversation} The conversation to retrieve
      */
     getConversationByBubbleJid(bubbleJid : string) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getConversationByBubbleJid) bubbleJid : ", bubbleJid);
+        //that._logger.log("info", LOG_ID + API_ID + "(getConversationByBubbleJid) bubbleJid : ", bubbleJid);
+
         if (this.conversations) {
             for (let key in this.conversations) {
                 if (this.conversations.hasOwnProperty(key) && this.conversations[key].bubble && this.conversations[key].bubble.jid === bubbleJid) {
@@ -1895,8 +1932,10 @@ class ConversationsService extends GenericService {
      */
     getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : Date, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : Date, lastMessageSender? : string) : Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid, ", conversationDbId : ", conversationDbId);
+        // that._logger.log("info", LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid);
 
-        that._logger.log("internal", LOG_ID + "getBubbleConversation bubbleJib : ", bubbleJid);
+        //that._logger.log("internal", LOG_ID + "getBubbleConversation bubbleJib : ", bubbleJid);
 
         // Fetch the conversation in memory
         let conversationResult = that.getConversationById(conversationDbId);
@@ -1918,7 +1957,7 @@ class ConversationsService extends GenericService {
             // Get the associated bubble
             that._bubblesService.getBubbleByJid(bubbleJid).then((bubble) => {
                 if (!bubble) {
-                    that._logger.log("debug", LOG_ID + "getBubbleConversation (" + bubbleJid + ") failure : no such bubble");
+                    that._logger.log("debug", LOG_ID + "(getBubbleConversation) (" + bubbleJid + ") failure : no such bubble");
 
                     let obj = {
                         jid: bubbleJid,
@@ -1967,7 +2006,7 @@ class ConversationsService extends GenericService {
                             that._eventEmitter.emit("evt_internal_conversationupdated", __conversation);
                             resolve(__conversation);
                         }).catch(async function (error) {
-                            let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
+                            let errorMessage = "(getBubbleConversation) (" + bubbleJid + ") failure : " + error.message;
                             that._logger.log("error", LOG_ID + "Error.");
                             that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                             await that.deleteServerConversation(conversationDbId);
@@ -1980,7 +2019,7 @@ class ConversationsService extends GenericService {
                     }
                 }
             }).catch(async (error) => {
-                let errorMessage = "getBubbleConversation (" + bubbleJid + ") failure : " + error.message;
+                let errorMessage = "(getBubbleConversation) (" + bubbleJid + ") failure : " + error.message;
                 that._logger.log("error", LOG_ID + "Error.");
                 that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                 await that.deleteServerConversation(conversationDbId);
@@ -2011,8 +2050,10 @@ class ConversationsService extends GenericService {
      */
     closeConversation(conversation : Conversation) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(closeConversation) conversation.id : ", conversation?.id);
+
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "closeConversation " + conversation.id);
+            //that._logger.log("info", LOG_ID + "closeConversation " + conversation.id);
 
             // Remove this contact from favorite group
             that
@@ -2039,7 +2080,8 @@ class ConversationsService extends GenericService {
      */
     removeConversation(conversation : Conversation) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "remove conversation " + conversation.id);
+        that._logger.log("info", LOG_ID + API_ID + "(removeConversation) conversation.id : ", conversation?.id);
+        //that._logger.log("info", LOG_ID + "remove conversation " + conversation.id);
 
         if (conversation.videoCall && conversation.videoCall.status !== Call.Status.UNKNOWN) {
             that._logger.log("debug", LOG_ID + "Ignore conversation deletion message for conversation" + conversation.id);
@@ -2087,6 +2129,8 @@ class ConversationsService extends GenericService {
      */
     async cleanConversations() {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(cleanConversations) ");
+
         return new Promise((resolve,reject) => {
              that._rest.getServerConversations(that.conversationsRetrievedFormat).then(async (conversations: []) => {
                 resolve (await that.removeOlderConversations(conversations));
