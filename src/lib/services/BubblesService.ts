@@ -26,6 +26,7 @@ import {ConversationsService} from "./ConversationsService.js";
 export {};
 
 const LOG_ID = "BUBBLES/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -875,6 +876,7 @@ class Bubbles extends GenericService {
      */
     conferenceAllowed(): boolean {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(conferenceAllowed) ");
         return that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED) //that._profileService.get.IsFeatureEnabled(Feature.WEBRTC_CONFERENCE_ALLOWED);
     }
 
@@ -894,6 +896,7 @@ class Bubbles extends GenericService {
     {
         let result: any = null; // Conference
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getConferenceByIdFromCache) conferenceId : ", conferenceId);
         //lock (lockConferenceDictionary)
         //{
         if (that._conferencesSessionById.containsKey(conferenceId)) {
@@ -918,6 +921,7 @@ class Bubbles extends GenericService {
     conferenceGetListFromCache(): List<ConferenceSession> // List<Conference>
     {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(conferenceGetListFromCache) ");
         let result: List<ConferenceSession> = new List();
         that._conferencesSessionById.forEach((item) => {
             result.add(item.value);
@@ -1175,6 +1179,8 @@ class Bubbles extends GenericService {
          */
         getBubblesConsumption() {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getBubblesConsumption) ");
+
             return new Promise((resolve, reject) => {
                 that._logger.log("internal", LOG_ID + "(getBubblesConsumption) ");
     
@@ -1230,8 +1236,10 @@ class Bubbles extends GenericService {
          */
         getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getBubbleById) id : ", id, ", force : ", force);
+
             return new Promise((resolve, reject) => {
-                that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
+                // that._logger.log("debug", LOG_ID + "(getBubbleById) bubble id  " + id);
     
                 if (!id) {
                     that._logger.log("debug", LOG_ID + "(getBubbleById) bad or empty 'id' parameter : ", id);
@@ -1311,8 +1319,10 @@ class Bubbles extends GenericService {
          */
         async getBubbleByJid(jid, force?: boolean, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getBubbleByJid) jid : ", jid, ", force : ", force);
+
             return new Promise(async (resolve, reject) => {
-                that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
+                // that._logger.log("debug", LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
     
                 if (!jid) {
                     that._logger.log("debug", LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter : ", jid);
@@ -1394,6 +1404,8 @@ class Bubbles extends GenericService {
          */
         getAllBubblesJidsOfAUserIsMemberOf (isActive ? : boolean, webinar ? : boolean, unsubscribed : boolean = true, limit : number = 100, offset : number = 0, sortField ? : string, sortOrder : number = 1 ) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllBubblesJidsOfAUserIsMemberOf) isActive : ", isActive);
+
             return new Promise(async (resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) ");
 
@@ -1521,21 +1533,23 @@ class Bubbles extends GenericService {
      */
      getAllBubblesVisibleByTheUser(format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, isActive ? : boolean, name ? : string, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, creator ? : string, context ? : string, needIsAlertNotificationEnabled : string = "true") {
-            let that = this;
-            return new Promise(async (resolve, reject) => {
-                that._logger.log("debug", LOG_ID + "(getAllBubblesVisibleByTheUser) ");
-    
-                try {
-                    return await that._rest.getAllBubblesVisibleByTheUser(format, userId, status, confId, scheduled, hasConf, isActive, name, sortField , sortOrder,
-                            unsubscribed,webinar, limit, offset, nbUsersToKeep, creator, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
-                        that._logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) listOfBubbles from server : ", listOfBubbles);
-                        resolve(listOfBubbles);
-                    });
-                } catch (err) {
-                    reject (err);
-                }
-            });
-     }
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllBubblesVisibleByTheUser) format : ", format, ", userId : ", userId);
+
+        return new Promise(async (resolve, reject) => {
+            //that._logger.log("debug", LOG_ID + "(getAllBubblesVisibleByTheUser) ");
+
+            try {
+                return await that._rest.getAllBubblesVisibleByTheUser(format, userId, status, confId, scheduled, hasConf, isActive, name, sortField, sortOrder,
+                        unsubscribed, webinar, limit, offset, nbUsersToKeep, creator, context, needIsAlertNotificationEnabled).then(async (listOfBubbles) => {
+                    that._logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) listOfBubbles from server : ", listOfBubbles);
+                    resolve(listOfBubbles);
+                });
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
         
     /**
      * @public
@@ -1644,8 +1658,10 @@ class Bubbles extends GenericService {
     getBubblesDataByListOfBubblesIds (bubblesIds : Array<string>, format : string = "small", userId ? : string, status ? : string, confId ? : string, scheduled ? : boolean, hasConf ? : boolean, sortField ? : string, sortOrder : number = 1,
                                       unsubscribed : boolean = false, webinar ? : boolean, limit : number = 100, offset : number = 0 , nbUsersToKeep : number = 100, context ? : string, needIsAlertNotificationEnabled : string = "true") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getBubblesDataByListOfBubblesIds) bubblesIds.length : ", bubblesIds?.length, ", format : ", format, ", userId : ", userId);
+
         return new Promise(async (resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
+            //that._logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) ");
 
             try {
                 return await that._rest.getBubblesDataByListOfBubblesIds(bubblesIds, format, userId, status, confId, scheduled, hasConf, sortField, sortOrder,
@@ -1670,8 +1686,8 @@ class Bubbles extends GenericService {
          *  Get the list of Bubbles that have a pending invitation not yet accepted of declined <br>
          */
         getAllPendingBubbles() {
-    
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllPendingBubbles) ");
     
             return this._bubbles.filter((bubble) => {
     
@@ -1695,7 +1711,8 @@ class Bubbles extends GenericService {
          */
         getAllActiveBubbles() {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(getAllActiveBubbles) ");
+
             return this._bubbles.filter((bubble) => {
     
                 return bubble.users.find((user) => {
@@ -1717,7 +1734,8 @@ class Bubbles extends GenericService {
          */
         getAllClosedBubbles() {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(getAllClosedBubbles) ");
+
             return this._bubbles.filter((bubble) => {
     
                 return bubble.users.find((user) => {
@@ -1743,8 +1761,8 @@ class Bubbles extends GenericService {
     
          */
         async createBubble(name, description, withHistory = false) {
-    
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(createBubble) name : ",  that._logger.stripStringForLogs(name), ", description : ",  that._logger.stripStringForLogs(description), ", withHistory : ", withHistory);
             
             return new Promise((resolve, reject) => {
 
@@ -1812,8 +1830,10 @@ class Bubbles extends GenericService {
          * @description
          *  Check if the bubble is closed or not. <br>
          */
-        isBubbleClosed(bubble) {
-    
+        isBubbleClosed(bubble: Bubble): boolean {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(isBubbleClosed) bubble.name : ",  that._logger.stripStringForLogs(bubble?.name), ", bubble.id : ",  bubble?.id);
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(isBubbleClosed) bad or empty 'bubble' parameter : ", bubble);
@@ -1842,7 +1862,8 @@ class Bubbles extends GenericService {
         public async isBubbleArchived(bubble: Bubble): Promise<boolean> {
             let that = this;
             let isArchived = true;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(isBubbleArchived) bubble.name : ",  that._logger.stripStringForLogs(bubble?.name), ", bubble.id : ",  bubble?.id);
+
             // update bubble with internal copy to avoid user/moderator/owner side effects
             bubble = bubble && bubble.id ? await that.getBubbleById(bubble.id):null;
     
@@ -1876,6 +1897,7 @@ class Bubbles extends GenericService {
          */
         public async getAllOwnedNotArchivedBubbles(): Promise<[Bubble]> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllOwnedNotArchivedBubbles) ");
             let allOwnedBubbles = that.getAllOwnedBubbles();
             that._logger.log("debug", "(getAllOwnedNotArchivedBubbles) nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
     
@@ -1909,6 +1931,7 @@ class Bubbles extends GenericService {
          */
         public async getAllOwnedArchivedBubbles(): Promise<[Bubble]> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllOwnedArchivedBubbles) ");
             let allOwnedBubbles = that.getAllOwnedBubbles();
             that._logger.log("debug", "(getAllOwnedArchivedBubbles) nb owned bulles : ", allOwnedBubbles ? allOwnedBubbles.length:0);
     
@@ -1941,6 +1964,8 @@ class Bubbles extends GenericService {
          */
         deleteAllBubbles() {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(deleteAllBubbles) ");
+
             let deleteallBubblePromiseQueue = createPromiseQueue(that._logger);
     
             let bubbles = that.getAll();
@@ -1977,6 +2002,8 @@ class Bubbles extends GenericService {
          */
         closeAnddeleteAllBubbles() {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(closeAnddeleteAllBubbles) ");
+
             let deleteallBubblePromiseQueue = createPromiseQueue(that._logger);
     
             let bubbles = that.getAll();
@@ -2007,7 +2034,8 @@ class Bubbles extends GenericService {
          */
         deleteBubble(bubble) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(deleteBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
@@ -2082,7 +2110,8 @@ class Bubbles extends GenericService {
          */
         closeAndDeleteBubble(bubble) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(closeAndDeleteBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(async function (resolve, reject) {
                 if (!bubble) {
                     that._logger.log("warn", LOG_ID + "(closeAndDeleteBubble) bad or empty 'bubble' parameter ");
@@ -2137,7 +2166,8 @@ class Bubbles extends GenericService {
          */
         closeBubble(bubble) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(closeBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             let unsubscribeParticipants = (participantsIDList) => {
     
                 return new Promise((resolve, reject) => {
@@ -2242,6 +2272,8 @@ class Bubbles extends GenericService {
          */
         archiveBubble(bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(archiveBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
@@ -2288,6 +2320,8 @@ class Bubbles extends GenericService {
          */
         leaveBubble(bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(leaveBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(async function (resolve, reject) {
                 let otherModerator = null;
                 let userStatus = "none";
@@ -2417,6 +2451,8 @@ class Bubbles extends GenericService {
          *  Return the list of existing bubbles <br>
          */
         getAll() {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAll) ");
             return this._bubbles;
         }
     
@@ -2432,6 +2468,8 @@ class Bubbles extends GenericService {
          *  Return the list of existing bubbles <br>
          */
         getAllBubbles() {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllBubbles) ");
             return this.getAll();
         }
     
@@ -2447,8 +2485,9 @@ class Bubbles extends GenericService {
          */
         getAllOwnedBubbles() {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAllOwnedBubbles) ");
     //        return new Promise(function (resolve, reject) {
-            that._logger.log("debug", LOG_ID + "(getAllOwnedBubbles) ");
+//            that._logger.log("debug", LOG_ID + "(getAllOwnedBubbles) ");
             //resolve(that._bubbles.filter(function (room) {
             return (that._bubbles.filter(function (room) {
                 return (room.creator===that._rest.userId);
@@ -2468,7 +2507,8 @@ class Bubbles extends GenericService {
          */
         getAllOwnedIdBubbles() {
             let that = this;
-            that._logger.log("debug", LOG_ID + "(getAllOwnedIdBubbles) ");
+            that._logger.log("info", LOG_ID + API_ID + "(getAllOwnedIdBubbles) ");
+//            that._logger.log("debug", LOG_ID + "(getAllOwnedIdBubbles) ");
             let allOwnedIdBubbles = [];
             let allOwnedBubbles = that.getAllOwnedBubbles();
             for (let i = 0; i < allOwnedBubbles.length ; i++) {
@@ -2620,7 +2660,8 @@ class Bubbles extends GenericService {
          */
         promoteContactInBubble(contact, bubble, isModerator) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(promoteContactInBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(function (resolve, reject) {
     
                 if (!contact) {
@@ -2705,6 +2746,7 @@ class Bubbles extends GenericService {
          */
         promoteContactToModerator(contact, bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(promoteContactToModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
@@ -2733,6 +2775,7 @@ class Bubbles extends GenericService {
          */
         demoteContactFromModerator(contact, bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(demoteContactFromModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
@@ -2764,9 +2807,9 @@ class Bubbles extends GenericService {
     
          */
         acceptInvitationToJoinBubble(bubble: Bubble) {
-    
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(acceptInvitationToJoinBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -2818,9 +2861,9 @@ class Bubbles extends GenericService {
     
          */
         declineInvitationToJoinBubble(bubble) {
-    
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(declineInvitationToJoinBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -2877,7 +2920,8 @@ class Bubbles extends GenericService {
          */
         inviteContactToBubble(contact, bubble, isModerator, withInvitation, reason = null) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(inviteContactToBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(function (resolve, reject) {
                 that._logger.log("internal", LOG_ID + "(inviteContactToBubble) arguments : ", ...arguments);
     
@@ -2967,7 +3011,8 @@ class Bubbles extends GenericService {
          */
         inviteContactsByEmailsToBubble(contactsEmails, bubble) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(inviteContactsByEmailsToBubble) contactsEmails : ", that._logger.stripStringForLogs(contactsEmails), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(function (resolve, reject) {
                 that._logger.log("internal", LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
     
@@ -3046,7 +3091,8 @@ class Bubbles extends GenericService {
     numberE164 ? : string } >, includeAllPhoneNumbers ? : boolean ) {
     
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(updateBubbleData) bubbleId : ", that._logger.stripStringForLogs(bubbleId));
+
             if (!bubbleId) {
                 this._logger.log("warn", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter : ", bubbleId);
@@ -3120,9 +3166,9 @@ class Bubbles extends GenericService {
     
          */
         setBubbleCustomData(bubble, customData) {
-    
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(setBubbleCustomData) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter : ", bubble);
@@ -3205,7 +3251,8 @@ class Bubbles extends GenericService {
          */
         setBubbleVisibilityStatus(bubble, status) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(setBubbleVisibilityStatus) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter : ", bubble);
@@ -3243,9 +3290,9 @@ class Bubbles extends GenericService {
     
          */
         setBubbleTopic(bubble, topic) {
-    
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(setBubbleTopic) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter : ", bubble);
@@ -3282,9 +3329,9 @@ class Bubbles extends GenericService {
     
          */
         setBubbleName(bubble, name) {
-    
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(setBubbleName) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter : ", bubble);
@@ -3343,6 +3390,8 @@ class Bubbles extends GenericService {
          * @return {Bubble} A bubble object of null if not found
          */
         updateAvatarForBubble(urlAvatar, bubble) {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(updateAvatarForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.setAvatarBubble(bubble, urlAvatar);
         }
     
@@ -3356,7 +3405,8 @@ class Bubbles extends GenericService {
          */
         setAvatarBubble(bubble, roomAvatarPath) {
             let that = this;
-    
+            that._logger.log("info", LOG_ID + API_ID + "(setAvatarBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -3409,6 +3459,8 @@ class Bubbles extends GenericService {
          * @return {Bubble} A bubble object of null if not found
          */
         deleteAvatarFromBubble(bubble) {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(deleteAvatarFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!bubble) {
                 this._logger.log("warn", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
                 this._logger.log("internalerror", LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -3472,7 +3524,9 @@ class Bubbles extends GenericService {
          * @return {Promise<Bubble>} The updated Bubble
          */
         async updateCustomDataForBubble(customData, bubble) {
-            this._logger.log("internalerror", LOG_ID + "(updateCustomDataForBubble) customData : ", customData);
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(updateCustomDataForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            this._logger.log("internal", LOG_ID + "(updateCustomDataForBubble) customData : ", customData);
     
             return await this.setBubbleCustomData(bubble, customData).then((bubbleUpdated) => {
                 return bubbleUpdated
@@ -3519,6 +3573,8 @@ class Bubbles extends GenericService {
          * @return {Promise<Bubble>} The updated Bubble
          */
         deleteCustomDataForBubble(bubble) {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(deleteCustomDataForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.updateCustomDataForBubble("", bubble);
         }
     
@@ -3537,6 +3593,8 @@ class Bubbles extends GenericService {
          * @return {Bubble} A bubble object of null if not found
          */
         async updateDescriptionForBubble(bubble, strDescription) {
+            let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(updateDescriptionForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.setBubbleTopic(bubble, strDescription);
             /*let that = this;
             // update bubble with internal copy to avoid user/moderator/owner side effects
@@ -3578,8 +3636,8 @@ class Bubbles extends GenericService {
     
          */
         changeBubbleOwner(bubble, contact) {
-    
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(changeBubbleOwner) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
     
             if (!contact) {
                 that._logger.log("warn", LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter ");
@@ -3622,8 +3680,8 @@ class Bubbles extends GenericService {
     
          */
         removeContactFromBubble(contact, bubble) {
-    
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(removeContactFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name), ", contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
     
             return new Promise(function (resolve, reject) {
     
@@ -3740,6 +3798,8 @@ class Bubbles extends GenericService {
             Type MIME : image/jpeg
              */
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getAvatarFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise((resolve, reject) => {
                 that._logger.log("internal", LOG_ID + "(getBubbleById) bubble : ", bubble);
     
@@ -3789,6 +3849,8 @@ class Bubbles extends GenericService {
          */
         refreshMemberAndOrganizerLists(bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(refreshMemberAndOrganizerLists) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 that._logger.log("debug", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter.");
                 that._logger.log("internal", LOG_ID + "(refreshMemberAndOrganizerLists) bad or empty 'bubble' parameter : ", bubble);
@@ -3836,6 +3898,8 @@ class Bubbles extends GenericService {
          */
         getUsersFromBubble(bubble, options: Object = {}) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getUsersFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise(function (resolve, reject) {
     
                 /*let filterToApply = "format=medium";
@@ -3885,6 +3949,8 @@ class Bubbles extends GenericService {
          */
         getStatusForConnectedUserInBubble(bubble) {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(getStatusForConnectedUserInBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             if (!bubble) {
                 that._logger.log("warn", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter.");
                 that._logger.log("internalerror", LOG_ID + "(getStatusForConnectedUserInBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -3928,36 +3994,38 @@ class Bubbles extends GenericService {
          * @description
          *  Get a list of {Bubble} filtered by tags. <br>
          */
-        retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100): Promise<any> {
-            let that = this;
-            return new Promise((resolve, reject) => {
-                that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
-    
-                if (!tags) {
-                    that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter : ", tags);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                }
-    
-                return that._rest.retrieveAllBubblesByTags(tags, format, nbUsersToKeep).then(async (result) => {
-                    that._logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) result from server : ", result);
-    
-                    if (result) {
-                        /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
-                        if (bubble.isActive) {
-                            that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
-                            await that._presence.sendInitialBubblePresence(bubble);
-                        } else {
-                            that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
-                        } // */
-                        resolve(result);
+    retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveAllBubblesByTags) ");
+
+        return new Promise((resolve, reject) => {
+            that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
+
+            if (!tags) {
+                that._logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter : ", tags);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            return that._rest.retrieveAllBubblesByTags(tags, format, nbUsersToKeep).then(async (result) => {
+                that._logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) result from server : ", result);
+
+                if (result) {
+                    /* let bubble = await that.addOrUpdateBubbleToCache(bubbleFromServer);
+                    if (bubble.isActive) {
+                        that._logger.log("debug", LOG_ID + "(getBubbleById) send initial presence to room : ", bubble.jid);
+                        await that._presence.sendInitialBubblePresence(bubble);
                     } else {
-                        resolve(null);
-                    }
-                }).catch((err) => {
-                    return reject(err);
-                });
+                        that._logger.log("debug", LOG_ID + "(getBubbleById) bubble not active, so do not send initial presence to room : ", bubble.jid);
+                    } // */
+                    resolve(result);
+                } else {
+                    resolve(null);
+                }
+            }).catch((err) => {
+                return reject(err);
             });
-        }
+        });
+    }
     
         /**
          * @public
@@ -3974,6 +4042,8 @@ class Bubbles extends GenericService {
          */
         setTagsOnABubble(bubble: Bubble, tags: Array<string>): Promise<any> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(setTagsOnABubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+
             return new Promise((resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(setTagsOnABubble) bubble tags  " + tags);
     
@@ -4017,6 +4087,8 @@ class Bubbles extends GenericService {
          */
         deleteTagOnABubble(bubbles: Array<Bubble>, tag: string): Promise<any> {
             let that = this;
+            that._logger.log("info", LOG_ID + API_ID + "(deleteTagOnABubble) bubbles.length : ", bubbles?.length);
+
             return new Promise((resolve, reject) => {
                 that._logger.log("debug", LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag);
                 that._logger.log("internal", LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag, " on bubble : ", bubbles);
@@ -4075,6 +4147,8 @@ class Bubbles extends GenericService {
      */
     getAllBubblesContainers(name: string = null) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllBubblesContainers) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getAllBubblesContainers) containers name  " + name);
 
@@ -4108,6 +4182,8 @@ class Bubbles extends GenericService {
      */
     getABubblesContainersById(id: string = null) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getABubblesContainersById) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getABubblesContainersById) containers id " + id);
 
@@ -4142,6 +4218,8 @@ class Bubbles extends GenericService {
      */
     addBubblesToContainerById(containerId: string, bubbleIds: Array<string>) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(addBubblesToContainerById) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(addBubblesToContainerById) containers containerId : " + containerId, ", bubbleIds : ", bubbleIds);
 
@@ -4187,6 +4265,8 @@ class Bubbles extends GenericService {
      */
     updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateBubbleContainerNameAndDescriptionById) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(updateBubbleContainerNameAndDescriptionById) containers containerId : " + containerId, ", name : ", name);
 
@@ -4232,6 +4312,8 @@ class Bubbles extends GenericService {
      */
     createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createBubbleContainer) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(createBubbleContainer) containers bubbleIds : " + bubbleIds, ", name : ", name);
 
@@ -4270,6 +4352,8 @@ class Bubbles extends GenericService {
      */
     deleteBubbleContainer(containerId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteBubbleContainer) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(deleteBubbleContainer) containerId : " + containerId);
 
@@ -4309,6 +4393,8 @@ class Bubbles extends GenericService {
      */
     removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(removeBubblesFromContainer) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(removeBubblesFromContainer) bubbleIds : " + bubbleIds, ", containerId : ", containerId);
 
@@ -4357,6 +4443,8 @@ class Bubbles extends GenericService {
      */
     async getABubblePublicLinkAsModerator(bubbleId?: string , emailContent ?: boolean,  language ?: string) : Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getABubblePublicLinkAsModerator) ");
+
         if (!bubbleId) {
             this._logger.log("warn", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter.");
             this._logger.log("internalerror", LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter : ", bubbleId);
@@ -4365,7 +4453,7 @@ class Bubbles extends GenericService {
         return that._rest.getABubblePublicLinkAsModerator(bubbleId, emailContent, language);
     }
     
-        /**
+    /**
          * @private
          * @method getInfoForPublicUrlFromOpenInvite
          * @since 1.72
@@ -4375,24 +4463,26 @@ class Bubbles extends GenericService {
          * @description
          *     get infos for the PublicUrl <br>
          * @return {Promise<any>}
-         */
-        async getInfoForPublicUrlFromOpenInvite(openInvite) {
-            let that = this;
-            let publicUrlObject: any = {
-                "publicUrl": that.getPublicURLFromResponseContent(openInvite)
-            };
-            if (openInvite.roomId) {
-                publicUrlObject.bubble = await that.getBubbleById(openInvite.roomId);
-            } else {
-                publicUrlObject.bubbleType = openInvite.roomType;
-            }
-            if (openInvite.userId) {
-                publicUrlObject.contact = await that._contacts.getContactById(openInvite.userId);
-            }
-            return publicUrlObject;
+    */
+    async getInfoForPublicUrlFromOpenInvite(openInvite) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getInfoForPublicUrlFromOpenInvite) ");
+
+        let publicUrlObject: any = {
+            "publicUrl": that.getPublicURLFromResponseContent(openInvite)
+        };
+        if (openInvite.roomId) {
+            publicUrlObject.bubble = await that.getBubbleById(openInvite.roomId);
+        } else {
+            publicUrlObject.bubbleType = openInvite.roomType;
         }
+        if (openInvite.userId) {
+            publicUrlObject.contact = await that._contacts.getContactById(openInvite.userId);
+        }
+        return publicUrlObject;
+    }
     
-        /**
+    /**
          *
          * @public
          * @nodered true
@@ -4403,18 +4493,20 @@ class Bubbles extends GenericService {
          * @description
          *     get all the PublicUrl belongs to the connected user <br>
          * @return {Promise<any>}
-         */
-        async getAllPublicUrlOfBubbles(): Promise<any> {
-            let that = this;
-            let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser();
-            let allPublicUrl = [];
-            for (let openInvite of allOpenInviteObj) {
-                allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
-            }
-            return Promise.all(allPublicUrl);
+    */
+    async getAllPublicUrlOfBubbles(): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllPublicUrlOfBubbles) ");
+
+        let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser();
+        let allPublicUrl = [];
+        for (let openInvite of allOpenInviteObj) {
+            allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
         }
+        return Promise.all(allPublicUrl);
+    }
     
-        /**
+    /**
          *
          * @public
          * @nodered true
@@ -4426,18 +4518,20 @@ class Bubbles extends GenericService {
          * @description
          *     get all the PublicUrl belongs to a user <br>
          * @return {Promise<any>}
-         */
-        async getAllPublicUrlOfBubblesOfAUser(contact: Contact = new Contact()): Promise<any> {
-            let that = this;
-            let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(contact.id);
-            let allPublicUrl = [];
-            for (let openInvite of allOpenInviteObj) {
-                allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
-            }
-            return Promise.all(allPublicUrl);
+    */
+    async getAllPublicUrlOfBubblesOfAUser(contact: Contact = new Contact()): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllPublicUrlOfBubblesOfAUser) ");
+
+        let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(contact.id);
+        let allPublicUrl = [];
+        for (let openInvite of allOpenInviteObj) {
+            allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
         }
+        return Promise.all(allPublicUrl);
+    }
     
-        /**
+    /**
          *
          * @public
          * @nodered true
@@ -4449,24 +4543,26 @@ class Bubbles extends GenericService {
          * @description
          *     get all the PublicUrl of a bubble belongs to the connected user <br>
          * @return {Promise<any>}
-         */
-        async getAllPublicUrlOfABubble(bubble): Promise<any> {
-            let that = this;
-            if (!bubble) {
-                this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(undefined, undefined, bubble.id);
-            let allPublicUrl = [];
-            for (let openInvite of allOpenInviteObj) {
-                allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
-            }
-            return Promise.all(allPublicUrl);
-    
+    */
+    async getAllPublicUrlOfABubble(bubble): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllPublicUrlOfABubble) ");
+
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-    
-        /**
+        let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(undefined, undefined, bubble.id);
+        let allPublicUrl = [];
+        for (let openInvite of allOpenInviteObj) {
+            allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
+        }
+        return Promise.all(allPublicUrl);
+
+    }
+
+    /**
          *
          * @public
          * @nodered true
@@ -4479,28 +4575,30 @@ class Bubbles extends GenericService {
          * @description
          *     get all the PublicUrl of a bubble belong's to a user <br>
          * @return {Promise<any>}
-         */
-        async getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any> {
-            let that = this;
-            if (!contact) {
-                this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter : ", contact);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            if (!bubble) {
-                this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(contact.id, undefined, bubble.id);
-            let allPublicUrl = [];
-            for (let openInvite of allOpenInviteObj) {
-                allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
-            }
-            return Promise.all(allPublicUrl);
+    */
+    async getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllPublicUrlOfABubbleOfAUser) ");
+
+        if (!contact) {
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(contact.id, undefined, bubble.id);
+        let allPublicUrl = [];
+        for (let openInvite of allOpenInviteObj) {
+            allPublicUrl.push(this.getInfoForPublicUrlFromOpenInvite(openInvite));
+        }
+        return Promise.all(allPublicUrl);
+    }
     
-        /**
+    /**
          * @public
          * @nodered true
          * @method createPublicUrl
@@ -4512,21 +4610,23 @@ class Bubbles extends GenericService {
          *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url is requested.
          * @return {Promise<string>} The public url
-         */
-        async createPublicUrl(bubble: Bubble): Promise<any> {
-            let that = this;
-            if (!bubble || !bubble.id) {
-                this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            this._logger.log("internal", LOG_ID + "(createPublicUrl) bubble parameter : ", bubble?.id);
-    
-            let bubbleId: string = bubble.id;
-            return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
+    */
+    async createPublicUrl(bubble: Bubble): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createPublicUrl) ");
+
+        if (!bubble || !bubble.id) {
+            this._logger.log("warn", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+        this._logger.log("internal", LOG_ID + "(createPublicUrl) bubble parameter : ", bubble?.id);
+
+        let bubbleId: string = bubble.id;
+        return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
+    }
     
-        /**
+    /**
          * @public
          * @nodered true
          * @method generateNewPublicUrl
@@ -4540,19 +4640,20 @@ class Bubbles extends GenericService {
          *    !!! The previous URL is no more functional !!! <br>
          * @param {Bubble} bubble The bubble on which the public url is requested.
          * @return {Promise<string>} The public url
-         */
-        async generateNewPublicUrl(bubble: Bubble): Promise<any> {
-            let that = this;
-            if (!bubble) {
-                this._logger.log("warn", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            let bubbleId: string = bubble.id;
-            return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
+    */
+    async generateNewPublicUrl(bubble: Bubble): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(generateNewPublicUrl) ");
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+        let bubbleId: string = bubble.id;
+        return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
+    }
     
-        /**
+    /**
          * @public
          * @nodered true
          * @method removePublicUrl
@@ -4564,14 +4665,15 @@ class Bubbles extends GenericService {
          *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url must be deleted.
          * @return {Promise<any>} An object of the result
-         */
-        removePublicUrl(bubble: Bubble): Promise<any> {
-            let that = this;
-            let bubbleId = bubble.id;
-            return that._rest.removePublicUrl(bubbleId);
-        }
+    */
+    removePublicUrl(bubble: Bubble): Promise<any> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(removePublicUrl) ");
+        let bubbleId = bubble.id;
+        return that._rest.removePublicUrl(bubbleId);
+    }
     
-        /**
+    /**
          * @public
          * @nodered true
          * @method setBubbleAutoRegister
@@ -4588,32 +4690,33 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble The bubble on which the public url must be deleted.
          * @param {string} autoRegister value of the share of public URL to set.
          * @return {Promise<Bubble>} An object of the result
-         */
-        setBubbleAutoRegister(bubble: Bubble, autoRegister: string = "unlock"): Promise<Bubble> {
-            let that = this;
-    
-            if (!bubble) {
-                this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter.");
-                this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-    
-            return new Promise((resolve, reject) => {
-    
-                that._rest.setBubbleAutoRegister(bubble.id, autoRegister).then(async (bubbleData) => {
-                    that._logger.log("info", LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
-                    that._logger.log("internal", LOG_ID + "(setBubbleAutoRegister) autoRegister set : ", bubbleData);
-                    let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubbleData);
-                    resolve(bubbleObj);
-                }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(setBubbleAutoRegister) error");
-                    that._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) error : ", err);
-                    return reject(err);
-                });
-            });
+    */
+    setBubbleAutoRegister(bubble: Bubble, autoRegister: string = "unlock"): Promise<Bubble> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(setBubbleAutoRegister) ");
+
+        if (!bubble) {
+            this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter.");
+            this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter : ", bubble);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+
+        return new Promise((resolve, reject) => {
+
+            that._rest.setBubbleAutoRegister(bubble.id, autoRegister).then(async (bubbleData) => {
+                that._logger.log("info", LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
+                that._logger.log("internal", LOG_ID + "(setBubbleAutoRegister) autoRegister set : ", bubbleData);
+                let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubbleData);
+                resolve(bubbleObj);
+            }).catch((err) => {
+                that._logger.log("error", LOG_ID + "(setBubbleAutoRegister) error");
+                that._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) error : ", err);
+                return reject(err);
+            });
+        });
+    }
     
-        /**
+    /**
          * @private
          * @method GetPublicURLFromResponseContent
          * @since 1.72
@@ -4623,34 +4726,35 @@ class Bubbles extends GenericService {
          *    retrieve the public url from public url object. <br>
          * @param {Object} content   Id of the bubble
          * @return {string} An url
-         */
-        getPublicURLFromResponseContent(content: any): string {
-            let that = this;
-            let url: string = null;
-            /*
-            let openInviteId = content.openInviteId;
-    
-            if (openInviteId) {
-                let strPort: string;
-                if (((that._protocol=="https") && (that._port==="443")) || ((that._protocol=="http") && (that._port==="80")))
-                    strPort = "";
-                else
-                    strPort = ":" + that._port;
-    
-                url = that._protocol + "://meet." + that._host + strPort + "/" + openInviteId;
-            }
-            return url;
-            
-             */
+    */
+    getPublicURLFromResponseContent(content: any): string {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getPublicURLFromResponseContent) ");
 
-            if ((content != null) )
-            {
-                    url = content.invitationURL;
-            }
-            return url;
+        let url: string = null;
+        /*
+        let openInviteId = content.openInviteId;
+
+        if (openInviteId) {
+            let strPort: string;
+            if (((that._protocol=="https") && (that._port==="443")) || ((that._protocol=="http") && (that._port==="80")))
+                strPort = "";
+            else
+                strPort = ":" + that._port;
+
+            url = that._protocol + "://meet." + that._host + strPort + "/" + openInviteId;
         }
+        return url;
+
+         */
+
+        if ((content!=null)) {
+            url = content.invitationURL;
+        }
+        return url;
+    }
     
-        /**
+    /**
          * @public
          * @nodered true
          * @method registerGuestForAPublicURL
@@ -4674,37 +4778,39 @@ class Bubbles extends GenericService {
          * @param {string} jobTitle
          * @param {string} department
          * @return {Promise<any>} An object of the result
-         */
-        registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string) {
-            let that = this;
-            if (!publicUrl) {
-                that._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter ");
-                that._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter : ", publicUrl);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            if (!loginEmail) {
-                this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter ");
-                this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter : ", loginEmail);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            if (!password) {
-                this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter ");
-                this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter : ", password);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
-            }
-            return new Promise(async function (resolve, reject) {
-                that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) decode openInviteId.");
-                let openInviteId = publicUrl.split("/").pop();
-                that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) openInviteId found : ", openInviteId);
-                let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, null, firstName, lastName, nickName, title, jobTitle, department);
-                that._rest.registerGuest(guestParam).then(function (joinResult: any) {
-                    resolve(joinResult);
-                }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(registerGuestForAPublicURL) error");
-                    return reject(err);
-                });
-            });
+    */
+    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(registerGuestForAPublicURL) ");
+
+        if (!publicUrl) {
+            that._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter ");
+            that._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter : ", publicUrl);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
+        if (!loginEmail) {
+            this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter : ", loginEmail);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!password) {
+            this._logger.log("warn", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter ");
+            this._logger.log("internalerror", LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter : ", password);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        return new Promise(async function (resolve, reject) {
+            that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) decode openInviteId.");
+            let openInviteId = publicUrl.split("/").pop();
+            that._logger.log("internal", LOG_ID + "(registerGuestForAPublicURL) openInviteId found : ", openInviteId);
+            let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, null, firstName, lastName, nickName, title, jobTitle, department);
+            that._rest.registerGuest(guestParam).then(function (joinResult: any) {
+                resolve(joinResult);
+            }).catch(function (err) {
+                that._logger.log("error", LOG_ID + "(registerGuestForAPublicURL) error");
+                return reject(err);
+            });
+        });
+    }
     
     //endregion Bubbles PUBLIC URL
 
@@ -4737,6 +4843,8 @@ class Bubbles extends GenericService {
      */
     checkOpenInviteIdValidity(openInviteId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(checkOpenInviteIdValidity) ");
+
         if (!openInviteId) {
             that._logger.log("warn", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter : ", openInviteId);
@@ -4777,6 +4885,8 @@ class Bubbles extends GenericService {
      */
     joinBubbleByOpenInviteId (openInviteId : string ) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(joinBubbleByOpenInviteId) ");
+
         if (!openInviteId) {
             that._logger.log("warn", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter : ", openInviteId);
@@ -4827,6 +4937,8 @@ class Bubbles extends GenericService {
      */
     createBubblePoll(bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createBubblePoll) ");
+
         if (!bubbleId) {
             that._logger.log("warn", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
@@ -4870,6 +4982,8 @@ class Bubbles extends GenericService {
      */
     deleteBubblePoll(pollId) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -4904,6 +5018,8 @@ class Bubbles extends GenericService {
      */
     getBubblePoll(pollId : string, format : string = "small") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -4967,6 +5083,8 @@ class Bubbles extends GenericService {
      */
     getBubblePollsByBubble (bubbleId : string, format : string = "small", limit : number = 100, offset : number) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getBubblePollsByBubble) ");
+
         if (!bubbleId) {
             that._logger.log("warn", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter : ", bubbleId);
@@ -5001,6 +5119,8 @@ class Bubbles extends GenericService {
      */
     publishBubblePoll (pollId: string ) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(publishBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -5033,8 +5153,10 @@ class Bubbles extends GenericService {
      * @return {Promise<any>} An object of the result
      *
      */
-    terminateBubblePoll (pollId: string ) {
+    terminateBubblePoll (pollId: string ): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(terminateBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -5069,6 +5191,8 @@ class Bubbles extends GenericService {
      */
     unpublishBubblePoll (pollId: string ) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(unpublishBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -5115,6 +5239,8 @@ class Bubbles extends GenericService {
      */
     updateBubblePoll(pollId : string, bubbleId : string, title : string = "", questions 	: Array <{ text: string, multipleChoice: boolean, answers: Array<{ text : string }> }>, anonymous : boolean = false, duration : number = 0) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -5167,6 +5293,8 @@ class Bubbles extends GenericService {
      */
     votesForBubblePoll (pollId: string, votes : Array<{ question : number, answers : Array <number> }> ) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(votesForBubblePoll) ");
+
         if (!pollId) {
             that._logger.log("warn", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter ");
             that._logger.log("internalerror", LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter : ", pollId);
@@ -5214,6 +5342,7 @@ class Bubbles extends GenericService {
      */
     async deleteAllMessagesInBubble( bubble: Bubble, forContactJid: string = undefined) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteAllMessagesInBubble) ");
 
         if (!bubble) {
             that._logger.log("error", LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter.");
@@ -5255,6 +5384,8 @@ class Bubbles extends GenericService {
      */
     addPSTNParticipantToConference(roomId: string, participantPhoneNumber: string, country: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(addPSTNParticipantToConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(addPSTNParticipantToConference) roomId : " + roomId);
 
@@ -5304,6 +5435,8 @@ class Bubbles extends GenericService {
      */
     snapshotConference(roomId: string, limit: number = 100, offset: number = 0) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(snapshotConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(snapshotConference) roomId : " + roomId);
 
@@ -5464,6 +5597,8 @@ class Bubbles extends GenericService {
      */
     delegateConference(roomId: string, userId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(delegateConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(delegateConference) roomId : " + roomId);
 
@@ -5511,6 +5646,8 @@ class Bubbles extends GenericService {
      */
     disconnectPSTNParticipantFromConference(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(disconnectPSTNParticipantFromConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(disconnectPSTNParticipantFromConference) roomId : " + roomId);
 
@@ -5554,6 +5691,8 @@ class Bubbles extends GenericService {
      */
     disconnectParticipantFromConference(bubbleId: string, userId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(disconnectParticipantFromConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(disconnectParticipantFromConference) bubbleId : " + bubbleId);
 
@@ -5603,6 +5742,8 @@ class Bubbles extends GenericService {
      */
     getTalkingTimeForAllPparticipantsInConference(roomId: string, limit: number = 100, offset: number = 0) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getTalkingTimeForAllPparticipantsInConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) roomId : " + roomId);
 
@@ -5660,6 +5801,8 @@ class Bubbles extends GenericService {
      */
     joinConferenceV2(bubbleId: string, participantPhoneNumber: string = undefined, country: string = undefined, deskphone : boolean = false, dc: Array<string> = ["rdeu"], mute: boolean = false, microphone: boolean = false, media : Array<string> = ["video"], resourceId : string  = undefined) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(joinConferenceV2) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(joinConferenceV2) bubbleId : " + bubbleId);
 
@@ -5710,6 +5853,8 @@ class Bubbles extends GenericService {
      */
     pauseRecording(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(pauseRecording) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(pauseRecording) roomId : " + roomId);
 
@@ -5748,6 +5893,8 @@ class Bubbles extends GenericService {
      */
     resumeRecording(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(resumeRecording) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(resumeRecording) roomId : " + roomId);
 
@@ -5786,6 +5933,8 @@ class Bubbles extends GenericService {
      */
     startRecording(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(startRecording) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(startRecording) roomId : " + roomId);
 
@@ -5824,6 +5973,8 @@ class Bubbles extends GenericService {
      */
     stopRecording(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(stopRecording) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(stopRecording) roomId : " + roomId);
 
@@ -5863,6 +6014,8 @@ class Bubbles extends GenericService {
      */
     rejectAVideoConference(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(rejectAVideoConference) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(rejectAVideoConference) roomId : " + roomId);
 
@@ -5902,6 +6055,8 @@ class Bubbles extends GenericService {
      */
     startConferenceOrWebinarInARoom(bubbleId: string, services  : { "services": [] } = undefined) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(startConferenceOrWebinarInARoom) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(startConferenceOrWebinarInARoom) bubbleId : " + bubbleId);
 
@@ -5944,6 +6099,8 @@ class Bubbles extends GenericService {
      */
     stopConferenceOrWebinar(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(stopConferenceOrWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(stopConferenceOrWebinar) roomId : " + roomId);
 
@@ -5990,6 +6147,8 @@ class Bubbles extends GenericService {
      */
     subscribeForParticipantVideoStream(roomId: string, userId: string, media: string = "video", subStreamLevel: number = 0, dynamicFeed: boolean = false) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(subscribeForParticipantVideoStream) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(subscribeForParticipantVideoStream) roomId : " + roomId);
 
@@ -6036,6 +6195,8 @@ class Bubbles extends GenericService {
      */
     updatePSTNParticipantParameters(roomId: string, phoneNumber: string, option: string = " unmute") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updatePSTNParticipantParameters) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(updatePSTNParticipantParameters) roomId : " + roomId);
 
@@ -6086,6 +6247,8 @@ class Bubbles extends GenericService {
      */
     updateConferenceParameters(roomId: string, option: string = "unmute") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateConferenceParameters) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(updateConferenceParameters) roomId : " + roomId);
 
@@ -6143,6 +6306,8 @@ class Bubbles extends GenericService {
      */
     updateParticipantParameters(roomId: string, userId: string, option: string, media: string, bitRate: number, subStreamLevel: number, publisherId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateParticipantParameters) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(updateParticipantParameters) roomId : " + roomId);
 
@@ -6187,6 +6352,8 @@ class Bubbles extends GenericService {
      */
     allowTalkWebinar(roomId: string, userId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(allowTalkWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(allowTalkWebinar) roomId : " + roomId);
 
@@ -6231,6 +6398,8 @@ class Bubbles extends GenericService {
      */
     disableTalkWebinar(roomId: string, userId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(disableTalkWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(disableTalkWebinar) roomId : " + roomId);
 
@@ -6274,6 +6443,8 @@ class Bubbles extends GenericService {
      */
     lowerHandWebinar(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(lowerHandWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(lowerHandWebinar) roomId : " + roomId);
 
@@ -6312,6 +6483,8 @@ class Bubbles extends GenericService {
      */
     raiseHandWebinar(roomId: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(raiseHandWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(raiseHandWebinar) roomId : " + roomId);
 
@@ -6354,6 +6527,8 @@ class Bubbles extends GenericService {
      */
     stageDescriptionWebinar(roomId: string, userId: string, type: string, properties: Array<string>) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(stageDescriptionWebinar) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(stageDescriptionWebinar) roomId : " + roomId);
 
@@ -6416,6 +6591,8 @@ class Bubbles extends GenericService {
      */
     disableDialInForABubble(bubbleId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(disableDialInForABubble) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(disableDialInForABubble) bubbleId : " + bubbleId);
 
@@ -6454,6 +6631,8 @@ class Bubbles extends GenericService {
      */
     enableDialInForABubble(bubbleId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(enableDialInForABubble) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(enableDialInForABubble) bubbleId : " + bubbleId);
 
@@ -6492,6 +6671,8 @@ class Bubbles extends GenericService {
      */
     resetDialInCodeForABubble(bubbleId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(resetDialInCodeForABubble) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
 
@@ -6543,6 +6724,8 @@ class Bubbles extends GenericService {
      */
     getDialInPhoneNumbersList ( shortList : boolean) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getDialInPhoneNumbersList) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) shortList : " + shortList);
 
