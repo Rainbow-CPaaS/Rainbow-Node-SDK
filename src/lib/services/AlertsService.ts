@@ -21,6 +21,8 @@ import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "ALERTS/SVCE - ";
+const API_ID = "API_CALL - ";
+
 @logEntryExit(LOG_ID)
 @isStarted([])
     /**
@@ -205,6 +207,7 @@ class AlertsService extends GenericService{
             callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
             return;
         } // */
+        that._logger.log("info", LOG_ID + API_ID + "(markAlertMessageAsRead) companyId : ", that._logger.stripStringForLogs(jid), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(messageXmppId));
 
         return that._xmpp.markMessageAsRead({
             "fromJid": jid,
@@ -233,6 +236,9 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertDevice>} the result of the operation.
      */
     createDevice(device: AlertDevice): Promise<AlertDevice> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
+
         return this.createOrUpdateDevice(true, device);
     }
 
@@ -253,6 +259,8 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertDevice>} the result of the operation.   <br>
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
         return this.createOrUpdateDevice(false, device);
     }
 
@@ -393,6 +401,8 @@ class AlertsService extends GenericService{
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -464,6 +474,8 @@ class AlertsService extends GenericService{
      */
     getDevice(deviceId: string): Promise<AlertDevice> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getDevice) deviceId : ", that._logger.stripStringForLogs(deviceId));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -540,6 +552,8 @@ class AlertsService extends GenericService{
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getDevices) companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
+
         return new Promise((resolve, reject) => {
 
             that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(async function (json) {
@@ -599,6 +613,8 @@ class AlertsService extends GenericService{
      */
     getDevicesTags(companyId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId));
+
         return new Promise((resolve, reject) => {
 
             that._rest.getDevicesTags(companyId).then(function (json) {
@@ -628,9 +644,10 @@ class AlertsService extends GenericService{
      * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
      */
-    renameDevicesTags(newTagName : string, tag: string, companyId: string) {
-
+    renameDevicesTags(newTagName : string, tag: string, companyId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(renameDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
+
         return new Promise(function (resolve, reject) {
             if (newTagName === null) {
                 that._logger.log("warn", LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter");
@@ -672,8 +689,10 @@ class AlertsService extends GenericService{
      * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
      * @return {Promise<any>} the result of the operation.
      */
-    deleteDevicesTags(tag: string, companyId: string) {
+    deleteDevicesTags(tag: string, companyId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
+
         return new Promise(function (resolve, reject) {
 
             if (tag == null) {
@@ -708,9 +727,11 @@ class AlertsService extends GenericService{
      * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
      * @return {Promise<any>} the result of the operation.
      */
-    getstatsTags(companyId: string) {
+    getstatsTags(companyId: string): Promise<any> {
         // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getstatsTags) companyId : ", that._logger.stripStringForLogs(companyId));
+
         return new Promise(function (resolve, reject) {
 
             that._rest.getstatsTags( companyId).then(function (json) {
@@ -742,6 +763,9 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertTemplate>} the result of the operation.
      */
     createTemplate(template: AlertTemplate): Promise<AlertTemplate> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createTemplate) template.name : ", that._logger.stripStringForLogs(template?.name));
+
         return this.createOrUpdateTemplate(true, template);
     }
 
@@ -758,6 +782,9 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertTemplate>} the result of the operation.
      */
     updateTemplate(template: AlertTemplate): Promise<AlertTemplate> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
+
         return this.createOrUpdateTemplate(false, template);
     }
 
@@ -879,6 +906,8 @@ class AlertsService extends GenericService{
      */
     deleteTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -945,6 +974,8 @@ class AlertsService extends GenericService{
      */
     getTemplate(templateId: string): Promise<AlertTemplate> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -1014,6 +1045,8 @@ class AlertsService extends GenericService{
      */
     getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<AlertTemplatesData> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
+
         return new Promise((resolve, reject) => {
 
             that._rest.getTemplates(companyId, offset, limit).then(async function (json) {
@@ -1074,6 +1107,8 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertFilter>} the result of the operation.
      */
     createFilter(filter: AlertFilter): Promise<AlertFilter> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createFilter) filter.name : ", that._logger.stripStringForLogs(filter?.name));
         return this.createOrUpdateFilter(true, filter);
     }
 
@@ -1089,6 +1124,9 @@ class AlertsService extends GenericService{
      * @return {Promise<AlertFilter>} the result of the operation.
      */
     updateFilter(filter: AlertFilter) : Promise<AlertFilter> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
+
         return this.createOrUpdateFilter(false, filter);
     }
 
@@ -1166,6 +1204,8 @@ class AlertsService extends GenericService{
      */
     deleteFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -1217,6 +1257,8 @@ class AlertsService extends GenericService{
      */
     getFilter(filterId: string): Promise<AlertFilter> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilter) filterId : ", that._logger.stripStringForLogs(filterId));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -1270,6 +1312,8 @@ class AlertsService extends GenericService{
      */
     getFilters(offset: number = 0, limit: number = 100): Promise<AlertFiltersData> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilters) ");
+
         return new Promise((resolve, reject) => {
 
             that._rest.getFilters(offset, limit).then(async function (json:any) {
@@ -1324,6 +1368,8 @@ class AlertsService extends GenericService{
      * @return {Promise<Alert>} the result of the operation.  
      */
     createAlert(alert: Alert): Promise<Alert> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(createAlert) alert.name : ", that._logger.stripStringForLogs(alert?.name));
         return this.createOrUpdateAlert(true, alert);
     }
 
@@ -1344,6 +1390,9 @@ class AlertsService extends GenericService{
      
      */
     updateAlert(alert: Alert): Promise<Alert> {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(updateAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
+
         return this.createOrUpdateAlert(false, alert);
     }
 
@@ -1463,6 +1512,8 @@ class AlertsService extends GenericService{
      */
     deleteAlert(alert: Alert): Promise<Alert> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -1518,6 +1569,8 @@ class AlertsService extends GenericService{
      */
     getAlert(alertId: string): Promise<Alert> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAlert) alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
             /*
             if (!application.Restrictions.AlertMessage)
@@ -1573,6 +1626,8 @@ class AlertsService extends GenericService{
      */
     getAlerts(offset: number = 0, limit: number = 100): Promise<AlertsData> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAlerts) ");
+
         return new Promise((resolve, reject) => {
 
             that._rest.getAlerts(offset, limit).then(async function (json : any) {
@@ -1634,6 +1689,8 @@ class AlertsService extends GenericService{
      */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(sendAlertFeedback) deviceId : ", that._logger.stripStringForLogs(deviceId), ", alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
 
             if (deviceId == null) {
@@ -1700,6 +1757,8 @@ class AlertsService extends GenericService{
      */
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAlertFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
+
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
                 that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
@@ -1745,6 +1804,8 @@ class AlertsService extends GenericService{
      */
     getAlertFeedbackSentForAnAlert(alertId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAlertFeedbackSentForAnAlert) alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
             if (alertId == null) {
                 that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter");
@@ -1783,6 +1844,8 @@ class AlertsService extends GenericService{
      */
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAlertStatsFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
+
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
                 that._logger.log("warn", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
@@ -1820,6 +1883,8 @@ class AlertsService extends GenericService{
      */
     getReportSummary(alertId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getReportSummary) alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
             if (alertId == null) {
                 that._logger.log("warn", LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter");
@@ -1854,6 +1919,8 @@ class AlertsService extends GenericService{
      */
     getReportDetails(alertId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getReportDetails) alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
             if (alertId == null) {
                 that._logger.log("warn", LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter");
@@ -1898,6 +1965,8 @@ class AlertsService extends GenericService{
      */
     getReportComplete(alertId: string): Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getReportComplete) alertId : ", that._logger.stripStringForLogs(alertId));
+
         return new Promise((resolve, reject) => {
             if (alertId == null) {
                 that._logger.log("warn", LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter");
