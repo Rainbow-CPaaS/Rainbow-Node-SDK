@@ -5771,7 +5771,7 @@ class AdminService extends GenericService {
      */
     retrieveRainbowEntriesList(companyId? : string, format : string = "json", ldap_id : boolean = true) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", that._logger.stripStringForLogs(ldap_id));
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
