@@ -790,7 +790,8 @@ class FileStorage extends GenericService{
                 // Allow to pass a file path (for test purpose)
                 if ( typeof (file) === "string") {
                     try {
-                        let fileObj = new fileapi.File({
+                        let fileObj = new FileUpdated({
+                        //let fileObj = new fileapi.File({
 
                                     //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                                     "path": file,//"c:\\temp\\IMG_20131005_173918.jpg",   // path of file to read

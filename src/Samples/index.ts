@@ -43,7 +43,7 @@ import * as ACData from "adaptivecards-templating";
 //const ACData = global.get('adaptivecardstemplating');
 import * as path from "path";
 const prettydata = require("../lib/connection/pretty-data").pd;
-const mime = require('mime');
+import mime from 'mime';
 
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
