@@ -84,6 +84,7 @@ function FileUpdated(input) {
 }
 
 const LOG_ID = "FileStorage/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -264,8 +265,9 @@ class FileStorage extends GenericService{
      *    Return the promise <br>
      * @return {Message} Return the message sent <br>
      */
-    async uploadFileToConversation(conversation, file, strMessage) {
+    async uploadFileToConversation(conversation: Conversation, file, strMessage: string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(uploadFileToConversation) conversation.id : ", that._logger.stripStringForLogs(conversation?.id));
 
         return new Promise(function(resolve, reject) {
             if (!conversation) {
@@ -324,6 +326,7 @@ class FileStorage extends GenericService{
      */
     async uploadFileToBubble(bubble, file, strMessage) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(uploadFileToBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id));
 
         return new Promise(async function(resolve, reject) {
 
@@ -403,8 +406,10 @@ class FileStorage extends GenericService{
      * @description
      *   Send a file in user storage <br>
      */
-    async uploadFileToStorage( file, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
+    async uploadFileToStorage( file : any, voicemessage : boolean = undefined, duration : number = undefined, encoding : boolean = undefined, ccarelogs : boolean = undefined, ccareclientlogs : boolean = undefined) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(uploadFileToStorage) ");
+
         return new Promise((resolve, reject) => {
             that._logger.log("debug", LOG_ID + "sendFSMessage");
 
@@ -534,8 +539,10 @@ class FileStorage extends GenericService{
      *    Return a promise <br>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    async downloadFile(fileDescriptor, path: string = null) {
+    async downloadFile(fileDescriptor : any, path: string = null) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(downloadFile) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
+
         return new Promise(function(resolve, reject) {
 
 
@@ -599,8 +606,9 @@ class FileStorage extends GenericService{
      *  Warning !!! : <br>
      *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br>
      */
-    async downloadFileInPath(fileDescriptor, path: string): Promise<Observable<any>> {
+    async downloadFileInPath(fileDescriptor:any, path: string): Promise<Observable<any>> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(downloadFileInPath) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
 
         if (!fileDescriptor) {
             let errorMessage = "Parameter 'fileDescriptor' is missing or null";
@@ -712,8 +720,9 @@ class FileStorage extends GenericService{
      *    Return a promise <br>
      * @return {Object} Return a SDK OK Object or a SDK error object depending the result
      */
-    async removeFile(fileDescriptor) {
+    async removeFile(fileDescriptor : any) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(removeFile) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
 
         return new Promise(function(resolve, reject) {
 
@@ -772,7 +781,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br>
      * @return {Message} Return the message sent
      */
-    _addFileToConversation(conversation, file, data) {
+    _addFileToConversation(conversation: Conversation, file: any, data: string | any[]): any {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -875,6 +884,9 @@ class FileStorage extends GenericService{
      * @return {FileDescriptor} Return a file descriptors found or null if no file descriptor has been found
      */
     getFileDescriptorFromId(id) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFileDescriptorFromId) id : ", that._logger.stripStringForLogs(id));
+
         return this.getFileDescriptorById(id);
     }
 
@@ -894,6 +906,7 @@ class FileStorage extends GenericService{
      */
     async getFilesReceivedInConversation(conversation) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilesReceivedInConversation) conversation.id : ", that._logger.stripStringForLogs(conversation?.id));
 
         return new Promise(function(resolve, reject) {
             if (!conversation) {
@@ -992,6 +1005,7 @@ class FileStorage extends GenericService{
      */
     getFilesReceivedInBubble(bubble, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string, sortOrder : number ) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilesReceivedInBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id));
 
         return new Promise(function(resolve, reject) {
 
@@ -1034,6 +1048,8 @@ class FileStorage extends GenericService{
      */
     getCompleteFileDescriptorById(fileId) {
         let that = this;
+        // that._logger.log("info", LOG_ID + API_ID + "(getCompleteFileDescriptorById) fileId : ", that._logger.stripStringForLogs(fileId));
+
         return new Promise((resolve, reject) => {
             let fileDescriptor = null;
 
@@ -1188,6 +1204,9 @@ class FileStorage extends GenericService{
      * @return {FileDescriptor[]}
      */
     getReceivedFilesForRoom(bubbleId) {
+        let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getReceivedFilesForRoom) bubbleId : ", that._logger.stripStringForLogs(bubbleId));
+
         let files = this.receivedFileDescriptorsByDate.filter((file) => {
             for (let i = 0; i < file.viewers.length; i++) {
                 if (file.viewers[i].viewerId === bubbleId && file.ownerId !== this._contactService.userContact.id) {
@@ -1391,6 +1410,8 @@ class FileStorage extends GenericService{
      */
     retrieveFileDescriptorsListPerOwner(fileName : string = undefined, extension : string = undefined, typeMIME : string = undefined, purpose : string = undefined, isUploaded : boolean = undefined, viewerId : string = undefined, path : string = undefined, limit : number = 1000, offset : number = 0, sortField : string = undefined, sortOrder : number = 1, format : string = "full") : Promise<[any]> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveFileDescriptorsListPerOwner) fileName : ", that._logger.stripStringForLogs(fileName));
+
         that.fileDescriptors = [];
         return new Promise((resolve, reject) => {
             //that._rest.receivedFileDescriptors("full", 1000)
@@ -1540,6 +1561,8 @@ class FileStorage extends GenericService{
      */
     retrieveSentFiles(peerId : string, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number = 0, sortField : string, sortOrder : number = 1, format : string = "full") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveSentFiles) peerId : ", that._logger.stripStringForLogs(peerId));
+
         return new Promise((resolve, reject) => {
             //that._rest.retrieveFileDescriptors("full", null, null, peerId)
             that._rest.retrieveFileDescriptors(fileName, extension, typeMIME, purpose, isUploaded, peerId, path, limit, offset, sortField, sortOrder, format)
@@ -1634,6 +1657,8 @@ class FileStorage extends GenericService{
      */
     retrieveReceivedFilesForRoom(bubbleId, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 1000, offset : number = 0, sortField : string = "fileName", sortOrder : number = 1) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveReceivedFilesForRoom) bubbleId : ", that._logger.stripStringForLogs(bubbleId));
+
         return new Promise((resolve, reject) => {
             that._rest.retrieveReceivedFilesForRoomOrViewer(bubbleId, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder  )
                 .then((response : any) => {
@@ -1701,6 +1726,8 @@ class FileStorage extends GenericService{
      */
     async retrieveReceivedFiles(viewerId : string, ownerId : string, fileName : boolean, extension : string, typeMIME : string, isUploaded : boolean, purpose : string, roomName : string, overall : boolean, format : string = "full", limit : number = 100, offset : number, sortField : string = "fileName", sortOrder : number = 1) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveReceivedFiles) viewerId : ", that._logger.stripStringForLogs(viewerId));
+
         return new Promise((resolve, reject) => {
             that._rest.retrieveReceivedFilesForRoomOrViewer(viewerId, ownerId , fileName , extension , typeMIME , isUploaded , purpose , roomName , overall , format , limit , offset , sortField , sortOrder)
                 .then((response : any) => {
@@ -1769,6 +1796,8 @@ class FileStorage extends GenericService{
      */
     getFilesSentInConversation(conversation, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilesSentInConversation) conversation.id : ", that._logger.stripStringForLogs(conversation?.id));
+
         return new Promise(function(resolve, reject) {
             if (!conversation) {
                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
@@ -1835,6 +1864,8 @@ class FileStorage extends GenericService{
      */
     getFilesSentInBubble(bubble, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number, sortField : string, sortOrder : number, format : string = "full") {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFilesSentInBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id));
+
         return new Promise(function(resolve, reject) {
 
             if (!bubble) {
@@ -1874,6 +1905,7 @@ class FileStorage extends GenericService{
      */
     getUserQuotaConsumption() {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getUserQuotaConsumption) ");
 
         return new Promise(function(resolve, __reject) {
             that.retrieveUserConsumption().then(function(consumptionData) {
@@ -1895,6 +1927,8 @@ class FileStorage extends GenericService{
      */
     getAllFilesSent() {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllFilesSent) ");
+
         return that.getDocuments();
     }
 
@@ -1911,6 +1945,8 @@ class FileStorage extends GenericService{
      */
      getAllFilesReceived() {
          let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getAllFilesReceived) ");
+
         return that.getReceivedDocuments();
     }
 
@@ -1960,6 +1996,8 @@ class FileStorage extends GenericService{
      */
     deleteFileViewer(viewerId, fileId) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(deleteFileViewer) viewerId : ", that._logger.stripStringForLogs(viewerId));
+
         return new Promise((resolve, reject) => {
             that._rest.deleteFileViewer(viewerId, fileId).then(
                 (response : any) => {
@@ -2064,6 +2102,8 @@ class FileStorage extends GenericService{
      */
     retrieveOneFileDescriptor(fileId) : Promise<any> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(retrieveOneFileDescriptor) fileId : ", that._logger.stripStringForLogs(fileId));
+
         return new Promise((resolve, reject) => {
             that._rest.retrieveOneFileDescriptor(fileId )
                 .then((response) => {
@@ -2194,6 +2234,8 @@ class FileStorage extends GenericService{
      */
     getFileDescriptorsByCompanyId (companyId: string = undefined, fileName : boolean = undefined, extension : string = undefined, typeMIME : string = undefined, purpose : string = undefined, isUploaded :boolean = undefined, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "fileName", sortOrder : number = 1) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(getFileDescriptorsByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId));
+
         return new Promise((resolve, reject) => {
             companyId = companyId? companyId : that._rest.account.companyId;
             that._rest.getFileDescriptorsByCompanyId(companyId, fileName, extension, typeMIME, purpose, isUploaded, format, limit, offset, sortField, sortOrder  )
@@ -2236,6 +2278,8 @@ class FileStorage extends GenericService{
      */ 
     copyFileInPersonalCloudSpace (fileId : string) {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(copyFileInPersonalCloudSpace) fileId : ", that._logger.stripStringForLogs(fileId));
+
         return new Promise((resolve, reject) => {
             that._rest.copyFileInPersonalCloudSpace(fileId).then((response) => {
                 let fileDescriptor = that.createFileDescriptorFromData(response);
@@ -2317,6 +2361,8 @@ class FileStorage extends GenericService{
      */
     fileOwnershipChange(fileId, userId) : Promise<FileDescriptor> {
         let that = this;
+        that._logger.log("info", LOG_ID + API_ID + "(fileOwnershipChange) fileId : ", that._logger.stripStringForLogs(fileId), ", userId : ", that._logger.stripStringForLogs(userId));
+
         return new Promise((resolve, reject) => {
             that._rest.fileOwnershipChange(fileId, userId).then((response) => {
                 let fileDescriptor = that.createFileDescriptorFromData(response);
