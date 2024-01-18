@@ -6867,7 +6867,16 @@ let urlS2S;
        let promiseDeferred = new Deferred();
        fs.readSync(fd, buf, 0, sizeToRead, null);
 
-       let fileType = mime.lookup(pathImg);
+       let fileType :any = undefined;
+
+       // @ts-ignore
+       if (mime.lookup) {
+           // @ts-ignore
+           fileType = mime.lookup(pathImg);
+       }
+       if (mime.getType) {
+           fileType = mime.getType(pathImg);
+       }
 
        rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
            logger.log("debug", "EngineVincent00 - uploadLdapAvatar - result : ", result);
