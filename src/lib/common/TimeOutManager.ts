@@ -332,10 +332,10 @@ class TimeOutManager {
         // return timeoutId;
     }
     
-    clearEveryTimeout() {
+    async clearEveryTimeout() {
         let that = this;
         that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - __ entering __ ");
-        that.lock(async () => {
+        return that.lock(async () => {
             try {
                 that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout.");
                 if (that.timeoutFnTab) {
