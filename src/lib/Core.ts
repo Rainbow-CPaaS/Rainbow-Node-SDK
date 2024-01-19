@@ -259,7 +259,7 @@ class Core {
             }  else {
                 self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
                 if (! self.options.autoReconnectIgnoreErrors) {
-                    await self._stateManager.transitTo(true, self._stateManager.STOPPED);
+            //        await self._stateManager.transitTo(true, self._stateManager.STOPPED);
                 } else {
                     self._eventEmitter.iee.emit("evt_internal_signinrequired");
                 }
@@ -1070,13 +1070,13 @@ class Core {
     stop() {
         let that = this;
         this.logger.log("internal", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
-        
+
         return new Promise(async function (resolve, reject) {
 
-            that.timeOutManager.clearEveryTimeout();
-            
+            await that.timeOutManager.clearEveryTimeout();
+
             if (that._stateManager.isSTOPPED()) {
-                return resolve ("core already stopped !");
+                return resolve("core already stopped !");
             }
 
             that.logger.log("info", LOG_ID + "(stop) stop all modules !");
@@ -1130,9 +1130,6 @@ class Core {
                 return that._fileStorage.stop();
             }).then(() => {
                 that.logger.log("info", LOG_ID + "(stop) stopped fileStorage");
-                return that._stateManager.stop();
-            }).then(() => {
-                that.logger.log("info", LOG_ID + "(stop) stopped stateManager");
                 return that._calllog.stop();
             }).then(() => {
                 that.logger.log("info", LOG_ID + "(stop) stopped calllog");
@@ -1165,9 +1162,18 @@ class Core {
                 that.logger.log("info", LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
-            
-            that.timeOutManager.clearEveryTimeout();
-            
+
+            await that.timeOutManager.clearEveryTimeout();
+
+            await that._stateManager.stop().then(() => {
+                that.logger.log("info", LOG_ID + "(stop) stopped stateManager");
+            }).catch((err) => {
+                that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! Error : ", err);
+                that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
+                that.logger.log("info", LOG_ID + "(stop) _exiting_");
+                reject(err);
+            });
+
             // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
             that.logger.stop();
             //that.logger = null;
