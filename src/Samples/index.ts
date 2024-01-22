@@ -222,7 +222,7 @@ let urlS2S;
             "enableEncryptedLogs": false,
             "color": false,
             //"level": "info",
-            "level": "info",
+            "level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": false,
@@ -1751,6 +1751,16 @@ let urlS2S;
     async  testSendMessageToJid() {
         let that = this;
         let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
+            logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
+        });
+    }
+
+    async  testSendMessageToVincent02() {
+        let that = this;
+        let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
