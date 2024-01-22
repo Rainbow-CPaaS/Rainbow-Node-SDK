@@ -7,6 +7,24 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.27.1] - 2024-01-22
+#### Removed
+-   None
+
+#### Fixed
+-   Fix FileStorageService.
+-   Fix grunt compil of mime.
+
+#### Added
+-   Update logs API_ID in `AdminService`.
+-   Update logs API_ID in `AlertsService`.
+-   Update logs API_ID in `FileStorageService`.
+-   Update `HttpService` logs
+-   Update stop of sdk.
+
+#### Changed
+-   None.
+
 ### [2.27.0] - 2024-01-12
 #### Removed
 -   None
