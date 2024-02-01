@@ -319,7 +319,7 @@ class Logger {
                         if ( level === "internal") {
                             level = "debug";
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
-                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog] );
                             that.emit(level, that._logger.customLabel + datatolog);
                         }
                         else
