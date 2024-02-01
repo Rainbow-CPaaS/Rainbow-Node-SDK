@@ -83,7 +83,7 @@ let options = {
                               
         "autoInitialGetBubbles" : true, // to allow automatic opening of the bubbles the user is in. Default value is true.
         "autoInitialBubblePresence": true, // Define if the presence should be sent automatically to bubbles. This allows to receive the messages from the bubbles.
-        "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is true.
+        "autoInitialBubbleFormat": "small", // to allow modify format of data received at getting the bubbles. Default value is small. Value can be "small" of "full"
         "autoInitialBubbleUnsubscribed": true, // to allow get the bubbles when the user is unsubscribed from it. Default value is true.
         "autoLoadConversations": true, // Define if the existing conversations on server side should be downloaded at startup. On bot with lot of contacts exchange it can slower the startup. 
         "autoLoadContacts": true // Define if the contacts from the network (the roster) should be loaded at startup. 
