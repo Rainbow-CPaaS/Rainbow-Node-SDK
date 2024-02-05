@@ -29,7 +29,7 @@ const tsFormat = () => {
 
     let date = new Date();
 
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString() + " [" + date.valueOf() + "]";
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]";
 };
 
 const myFormat = winston.format.printf(info => {
