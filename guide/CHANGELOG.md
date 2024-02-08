@@ -21,9 +21,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update logs API_ID in `FileStorageService`.
 -   Update `HttpService` logs
 -   Update stop of sdk.
+-   Update `gotOptions` with a new layer : gotRequestOptions to manage the `got` request timeout.
 
 #### Changed
--   None.
+-   Update `gotOptions` with a new layer : agentOptions containing previous values.
 
 ### [2.27.0] - 2024-01-12
 #### Removed
