@@ -188,9 +188,9 @@ let urlS2S;
                         lookup: 802, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                         connect: 1252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
                         secureConnect: 1252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 2002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
                         send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 2002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                        response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 } // */
             }
