@@ -17,32 +17,44 @@ let options = {
     "rest": {
         "useRestAtStartup": true,
         "useGotLibForHttp": true,
-        "gotOptions": {
-            /**
-             * Keep sockets around in a pool to be used by other requests in the future. Default = false
-             */
-            keepAlive: true, // ?: boolean | undefined;
-            /**
-             * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-             * Only relevant if keepAlive is set to true.
-             */
-            keepAliveMsecs: 501, // ?: number | undefined;
-            /**
-             * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
-             */
-            maxSockets: 26, // ?: number | undefined;
-            /**
-             * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
-             */
-            maxTotalSockets: Infinity, // ?: number | undefined;
-            /**
-             * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
-             */
-            maxFreeSockets: 1001, // ?: number | undefined;
-            /**
-             * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
-             */
-            timeout: 60001 , // ?: number | undefined;
+        "gotOptions":  {
+            agentOptions: {
+                /**
+                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                 */
+                keepAlive: true, // ?: boolean | undefined;
+                /**
+                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                 * Only relevant if keepAlive is set to true.
+                 */
+                keepAliveMsecs: 15000, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                 */
+                maxSockets: 25, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                 */
+                maxTotalSockets: Infinity, // ?: number | undefined;
+                /**
+                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                 */
+                maxFreeSockets: 1000, // ?: number | undefined;
+                /**
+                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                 */
+                timeout: 60000, // ?: number | undefined;
+            },
+            gotRequestOptions : {
+                timeout: { // This object describes the maximum allowed time for particular events.
+                    lookup: 800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                    connect: 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                    secureConnect: 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                    socket: 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                    send: 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                    response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                }
+            }
         }
     }, // */
     "credentials": {

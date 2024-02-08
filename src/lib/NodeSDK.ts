@@ -55,12 +55,13 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.rest.useGotLibForHttp, allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
  * @property {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is :</BR>
  *  {</BR>
+ *  agentOptions: { </BR>
  * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
  * keepAlive: true, // ?: boolean or undefined;</BR>
  * </BR>
  * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
  * //Only relevant if keepAlive is set to true.</BR>
- * keepAliveMsecs: 501, // ?: number or undefined;</BR>
+ * keepAliveMsecs: 15001, // ?: number or undefined;</BR>
  * </BR>
  * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
  * maxSockets: 26, // ?: number or undefined;</BR>
@@ -73,6 +74,17 @@ let LOG_ID = "NodeSDK/IDX";
  * </BR>
  * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
  * timeout: 60001 , // ?: number or undefined;</BR>
+ * }</BR>,
+ * gotRequestOptions : {</BR>
+ *  timeout: { // This object describes the maximum allowed time for particular events.</BR>
+ *      lookup: 800, // Starts when a socket is assigned.  Ends when the hostname has been resolved.</BR>
+ *      connect: 1250, // Starts when lookup completes.  Ends when the socket is fully connected.</BR>
+ *      secureConnect: 1250, // Starts when connect completes. Ends when the handshake process completes.</BR>
+ *      socket: 2000, // Starts when the socket is connected. Resets when new data is transferred.</BR>
+ *      send: 90000, // Starts when the socket is connected. Ends when all data have been written to the socket.</BR>
+ *      response: 2000 // Starts when request has been flushed. Ends when the headers are received.</BR>
+ *   }</BR>
+ *  }</BR>
  * }</BR>
  *
  * @property {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
@@ -388,12 +400,13 @@ class NodeSDK {
      * @param {string} options.rest.useGotLibForHttp allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
      * @param {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is : </BR>
      *  {</BR>
+     *  agentOptions: { </BR>
      * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
      * keepAlive: true, // ?: boolean or undefined;</BR>
      * </BR>
      * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
      * //Only relevant if keepAlive is set to true.</BR>
-     * keepAliveMsecs: 501, // ?: number or undefined;</BR>
+     * keepAliveMsecs: 15001, // ?: number or undefined;</BR>
      * </BR>
      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
      * maxSockets: 26, // ?: number or undefined;</BR>
@@ -406,6 +419,17 @@ class NodeSDK {
      * </BR>
      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
      * timeout: 60001 , // ?: number or undefined;</BR>
+     * }</BR> ,
+     * gotRequestOptions : {</BR>
+     *  timeout: { // This object describes the maximum allowed time for particular events.</BR>
+     *      lookup: 800, // Starts when a socket is assigned.  Ends when the hostname has been resolved.</BR>
+     *      connect: 1250, // Starts when lookup completes.  Ends when the socket is fully connected.</BR>
+     *      secureConnect: 1250, // Starts when connect completes. Ends when the handshake process completes.</BR>
+     *      socket: 2000, // Starts when the socket is connected. Resets when new data is transferred.</BR>
+     *      send: 90000, // Starts when the socket is connected. Ends when all data have been written to the socket.</BR>
+     *      response: 2000 // Starts when request has been flushed. Ends when the headers are received.</BR>
+     *   }</BR>
+     *  }</BR>
      * }</BR>
      *
      * @param {string} options.credentials.login "user@xxxx.xxx", The Rainbow email account to use.
