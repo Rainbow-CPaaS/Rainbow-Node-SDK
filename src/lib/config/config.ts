@@ -205,16 +205,16 @@ let conf =  {
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 60001, // ?: number | undefined;
+                    timeout: 120001, // ?: number | undefined;
                 },
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 801, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        lookup: 5251, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                         connect: 5251, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
                         secureConnect: 5251, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 10001, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 180001, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 20001 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                        socket: 120001, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        send: 120001, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        response: 120001 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 }
             }
