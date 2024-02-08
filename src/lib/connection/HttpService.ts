@@ -82,19 +82,19 @@ class HTTPService {
     getClassName(){ return HTTPService.getClassName(); }
 
     constructor(_core, _options, _logger, _proxy, _evtEmitter ) {
-        this._options= _options;
-        let _http  = _options.httpOptions;
+        this._options = _options;
+        let _http = _options.httpOptions;
         this.serverURL = _http.protocol + "://" + _http.host + ":" + _http.port;
         this._host = _http.host;
         this.logger = _logger;
         this.proxy = _proxy;
         this.eventEmitter = _evtEmitter;
         this._core = _core;
-        this.httpManager = new HttpManager(_evtEmitter,_logger);
+        this.httpManager = new HttpManager(_evtEmitter, _logger);
         let that = this;
         this.mergedGot = got;
 
-        if ( _options.requestsRate.useRequestRateLimiter !== undefined ) {
+        if (_options.requestsRate.useRequestRateLimiter!==undefined) {
             that.useRequestRateLimiter = _options.requestsRate.useRequestRateLimiter;
         } else {
             that.useRequestRateLimiter = true;
@@ -103,35 +103,35 @@ class HTTPService {
         // ***** Start lib 'keepalive-proxy-agent' *****
 
         const customLiveOption = _options._getRESTOptions()?.gotOptions;
-        const liveOption : any =  {
+        const liveOption: any = {
             /**
              * Keep sockets around in a pool to be used by other requests in the future. Default = false
              */
-            keepAlive: customLiveOption?.keepAlive !== undefined ? customLiveOption.keepAlive :true, // ?: boolean | undefined;
+            keepAlive: customLiveOption?.agentOptions?.keepAlive!==undefined ? customLiveOption.agentOptions.keepAlive:true, // ?: boolean | undefined;
             /**
              * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
              * Only relevant if keepAlive is set to true.
              */
-            keepAliveMsecs: customLiveOption?.keepAliveMsecs !== undefined ? customLiveOption.keepAliveMsecs :500, // ?: number | undefined;
+            keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:15000, // ?: number | undefined;
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */
-            maxSockets : customLiveOption?.maxSockets !== undefined ? customLiveOption.maxSockets :25, // ?: number | undefined;
+            maxSockets: customLiveOption?.agentOptions?.maxSockets!==undefined ? customLiveOption.agentOptions.maxSockets:25, // ?: number | undefined;
             /**
              * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
              */
-            maxTotalSockets : customLiveOption?.maxTotalSockets !== undefined ? customLiveOption.maxTotalSockets :Infinity, // ?: number | undefined;
+            maxTotalSockets: customLiveOption?.agentOptions?.maxTotalSockets!==undefined ? customLiveOption.agentOptions.maxTotalSockets:Infinity, // ?: number | undefined;
             /**
              * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
              */
-            maxFreeSockets : customLiveOption?.maxFreeSockets !== undefined ? customLiveOption.maxFreeSockets :1000, // ?: number | undefined;
+            maxFreeSockets: customLiveOption?.agentOptions?.maxFreeSockets!==undefined ? customLiveOption.agentOptions.maxFreeSockets:1000, // ?: number | undefined;
             /**
              * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
              */
-            timeout : customLiveOption?.timeout !== undefined ? customLiveOption.timeout :60000, // ?: number | undefined;
+            timeout: customLiveOption?.agentOptions?.timeout!==undefined ? customLiveOption.agentOptions.timeout:60000, // ?: number | undefined;
         };
 
-        if (that.proxy.isProxyConfigured ) {
+        if (that.proxy.isProxyConfigured) {
             if (that.proxy.secureProtocol) {
                 //opt.secureProxy = true;
             }
@@ -172,32 +172,32 @@ class HTTPService {
         // */
 
         function debugHandler(request, options?, cb?): any {
-            options = typeof options === "string" ? urlParse(options) : options;
+            options = typeof options==="string" ? urlParse(options):options;
 
             let url = options.href || (options.protocol || "http:") + "//" + (options.host || options.hostname) + options.path;
             let method = (options.method || "GET").toUpperCase();
             let signature = method + " " + url;
             let start = new Date();
-            let wasHandled = typeof cb === "function";
+            let wasHandled = typeof cb==="function";
 
             //setImmediate(console.log, chalk.gray('      → ' + signature));
             that.logger.log("internal", LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
 
             return request(options, cb)
-                .on("response", function (response) {
-                    // Workaround for res._dump in Node.JS http client
-                    // https://github.com/nodejs/node/blob/20285ad17755187ece16b8a5effeaa87f5407da2/lib/_http_client.js#L421-L427
-                    if (!wasHandled && EventEmitter.listenerCount(response?.req, "response") === 0) {
-                        response?.resume();
-                    }
+                    .on("response", function (response) {
+                        // Workaround for res._dump in Node.JS http client
+                        // https://github.com/nodejs/node/blob/20285ad17755187ece16b8a5effeaa87f5407da2/lib/_http_client.js#L421-L427
+                        if (!wasHandled && EventEmitter.listenerCount(response?.req, "response")===0) {
+                            response?.resume();
+                        }
 
-                    let status = response?.statusCode;
-                    let s = status / 100 | 0;
-                    that.logger.log("internal", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
-                })
-                .on("error", function (err) {
-                    that.logger.log("internalerror", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
-                });
+                        let status = response?.statusCode;
+                        let s = status / 100 | 0;
+                        that.logger.log("internal", LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
+                    })
+                    .on("error", function (err) {
+                        that.logger.log("internalerror", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
+                    });
         }
 
         if (that.logger.logHttp) {
@@ -213,8 +213,9 @@ class HTTPService {
             });
 
             try {
-                that.mergedGot = got.extend(
-                        logger,
+                that.mergedGot = got.extend({
+                            logger
+                        }
                 );
             } catch (error) {
 
@@ -222,8 +223,8 @@ class HTTPService {
 
             // @ts-ignore
             let fnerror = console.error;
-            console.error = function(error, url, line) {
-                that.logger.log("debug", LOG_ID, chalk.red("DEBUG CONSOLE")  , ...arguments);
+            console.error = function (error, url, line) {
+                that.logger.log("debug", LOG_ID, chalk.red("DEBUG CONSOLE"), ...arguments);
                 //that.logger.log("debug", LOG_ID, chalk.red("DEBUG CONSOLE")  , {acc:'error', data:'ERR:'+error+' URL:'+url+' L:'+line});
                 // fnerror(...arguments);
             };
@@ -237,8 +238,16 @@ class HTTPService {
             }
         }
 
-
-
+        that.mergedGot = that.mergedGot.extend({
+            timeout: { // This object describes the maximum allowed time for particular events.
+                lookup: customLiveOption?.gotRequestOptions?.timeout?.lookup!==undefined ? customLiveOption.gotRequestOptions.timeout.lookup:800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                connect: customLiveOption?.gotRequestOptions?.timeout?.connect!==undefined ? customLiveOption.gotRequestOptions.timeout.connect: 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                secureConnect: customLiveOption?.gotRequestOptions?.timeout?.secureConnect!==undefined ? customLiveOption.gotRequestOptions.timeout.secureConnect: 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                socket: customLiveOption?.gotRequestOptions?.timeout?.socket!==undefined ? customLiveOption.gotRequestOptions.timeout.socket: 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                send: customLiveOption?.gotRequestOptions?.timeout?.send!==undefined ? customLiveOption.gotRequestOptions.timeout.send: 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                response: customLiveOption?.gotRequestOptions?.timeout?.response!==undefined ? customLiveOption.gotRequestOptions.timeout.response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+            }
+        });
     }
 
     /*
@@ -376,8 +385,8 @@ safeJsonParse(str) {
                 let urlEncoded = url;
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_getUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
-                that.logger.log("internal", LOG_ID + "(_getUrlRaw) url : ", url, ", headers : ", headers, ", params : ", params);
+                that.logger.log("info", LOG_ID + "(_getUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("internal", LOG_ID + "(_getUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (that._options.restOptions.useGotLibForHttp) {
                     const newAliveAgent: any = () => {
@@ -629,7 +638,7 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_headUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("info", LOG_ID + "(_headUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
                 that.logger.log("internal", LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
 
 
@@ -869,7 +878,7 @@ safeJsonParse(str) {
                 } // */
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_postUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("info", LOG_ID + "(_postUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
                 that.logger.log("internal", LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
                 if (that._options.restOptions.useGotLibForHttp) {
@@ -1022,7 +1031,7 @@ safeJsonParse(str) {
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (putUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (putUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1039,7 +1048,7 @@ safeJsonParse(str) {
                 let urlEncoded = url;
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_putUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("info", LOG_ID + "(_putUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
                 that.logger.log("internal", LOG_ID + "(_putUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -1189,7 +1198,7 @@ safeJsonParse(str) {
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (deleteUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (deleteUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1211,7 +1220,7 @@ safeJsonParse(str) {
                 let body = data;
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_deleteUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("info", LOG_ID + "(_deleteUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
                 that.logger.log("internal", LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
@@ -1461,9 +1470,9 @@ safeJsonParse(str) {
                 let urlEncoded = url;
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(_getUrlJson) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                that.logger.log("info", LOG_ID + "(_getUrlJson) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
-                that.logger.log("internal", LOG_ID + "(_getUrlJson) url : ", url, ", headers : ", headers, ", params : ", params);
+                that.logger.log("internal", LOG_ID + "(_getUrlJson) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (that._options.restOptions.useGotLibForHttp) {
                     const newAliveAgent: any = () => {
@@ -1482,9 +1491,9 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                limit: 0,
+                                //limit: 0,
                                 //limit: nbTryBeforeFailed,
-                                //limit: 1,
+                                limit: 1,
                                 // calculateDelay: ({retryObject}) => {
                                 //     /* interface RetryObject {
                                 //         attemptCount: number;
@@ -1776,13 +1785,13 @@ safeJsonParse(str) {
             try {
                 headers["user-agent"] = USER_AGENT;
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
-
-                that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers, ", params : ", params);
-
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
+
+                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+                that.logger.log("info", LOG_ID + "(get) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+
+                that.logger.log("internal", LOG_ID + "(get) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
 
@@ -2249,7 +2258,7 @@ safeJsonParse(str) {
             }
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(post) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(post) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             that.logger.log("internal", LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
@@ -2271,6 +2280,56 @@ safeJsonParse(str) {
                         headers,
                         body,
                         //searchParams: params,
+                        retry: {
+                            //limit: 0,
+                            limit: 1,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that.logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            calculateDelay: ({computedValue}) => computedValue,
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
                         hooks: {
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
@@ -2535,7 +2594,7 @@ safeJsonParse(str) {
             headers["user-agent"] = USER_AGENT;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(head) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(head) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             that.logger.log("internal", LOG_ID + "(head) url : ", urlEncoded, ", headers : ", headers);
 
@@ -2870,7 +2929,7 @@ safeJsonParse(str) {
             let urlEncoded = that.serverURL + url;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(patch) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(patch) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
             that.logger.log("internal", LOG_ID + "(patch) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -3225,7 +3284,7 @@ safeJsonParse(str) {
             let urlEncoded = that.serverURL + url;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(put) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
             that.logger.log("internal", LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -3264,8 +3323,8 @@ safeJsonParse(str) {
                         body,
                         //searchParams: params,
                         retry: {
-                            limit: 0,
-                            //limit: 1,
+                            //limit: 0,
+                            limit: 1,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
                             //         attemptCount: number;
@@ -3574,7 +3633,7 @@ safeJsonParse(str) {
             let urlEncoded = that.serverURL + url;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(_putBuffer) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(_putBuffer) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
 
@@ -3708,7 +3767,7 @@ safeJsonParse(str) {
             let urlEncoded = that.serverURL + url;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(putStream) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(putStream) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             that.logger.log("internal", LOG_ID + "(putStream) url : ", urlEncoded, " stream path : ", stream?.path);
 
@@ -4072,7 +4131,7 @@ safeJsonParse(str) {
             let urlEncoded = that.serverURL + url;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that.logger.log("info", LOG_ID + "(delete) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            that.logger.log("info", LOG_ID + "(delete) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             let body = data;
             headers["user-agent"] = USER_AGENT;

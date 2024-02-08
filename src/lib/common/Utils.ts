@@ -5,6 +5,8 @@
 
 //import {start} from "repl";
 
+import src from "../../index.js";
+
 const config = require ("../config/config");
 import {atob} from "atob";
 const Jimp = require('jimp');
@@ -293,6 +295,42 @@ function addPropertyToObj(objetToUpdate : Object, methodName : string, methodVal
         objetToUpdate[methodName] = methodValue;
     }
 }
+
+
+function updateObjectPropertiesFromAnOtherObject (dstObjectArray: number | any[], srcObject: { [x: string]: any; }) {
+    if (!Array.isArray(dstObjectArray)) {
+        return {};
+    }
+
+    let dstObject = dstObjectArray[0];
+    Object.getOwnPropertyNames(srcObject).forEach((val, idx, array) => {
+                //console.log(val + " -> " + data[val]);
+                if (dstObject.hasOwnProperty(val)) {
+                    // dev-code //
+                    // console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                    // end-dev-code //
+
+                    if (srcObject && (typeof srcObject[val] === "object" || typeof srcObject[val] === "function") ) {
+                        // dev-code //
+                       // console.log("One property of the dst Object is found in dst and is an Object, so recursivly try to update.");
+                        // end-dev-code //
+                        let dstArray = [];
+                        dstArray.push(dstObject[val]);
+                        updateObjectPropertiesFromAnOtherObject(dstArray, srcObject[val]);
+                    } else {
+                        // dev-code //
+                        //console.log("One property of the dst Object is found in dst and is an Object, so update it.");
+                        // end-dev-code //
+                        dstObject[val] = srcObject[val];
+                    }
+                } else {
+                    // dev-code-console //
+                    //console.log("WARNING : One property of the dst Object is not present in src Object default value, so ignore it : ", val);
+                    // end-dev-code-console //
+                }
+            });
+}
+
 
 function cleanEmptyMembersFromObject(objParams : Object) {
     if (objParams) {
@@ -759,6 +797,7 @@ export let objToExport = {
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,
@@ -797,6 +836,7 @@ export {
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,
@@ -834,6 +874,7 @@ export default {
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,

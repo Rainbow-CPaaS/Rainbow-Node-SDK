@@ -104,8 +104,9 @@ import {jwtDecode} from "jwt-decode";
     input: process.stdin,
     output: process.stdout
 }); // */
- let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+// let rainbowMode = "s2s" ;
+
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -154,31 +155,43 @@ let urlS2S;
             "useRestAtStartup": true,
             "useGotLibForHttp": true,
             "gotOptions": {
-                /**
-                 * Keep sockets around in a pool to be used by other requests in the future. Default = false
-                 */
-                keepAlive: true, // ?: boolean | undefined;
-                /**
-                 * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-                 * Only relevant if keepAlive is set to true.
-                 */
-                keepAliveMsecs: 501, // ?: number | undefined;
-                /**
-                 * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
-                 */
-                maxSockets: 26, // ?: number | undefined;
-                /**
-                 * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
-                 */
-                maxTotalSockets: Infinity, // ?: number | undefined;
-                /**
-                 * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
-                 */
-                maxFreeSockets: 1001, // ?: number | undefined;
-                /**
-                 * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
-                 */
-                timeout: 60001 , // ?: number | undefined;
+                agentOptions: {
+                    /**
+                     * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                     */
+                    keepAlive: true, // ?: boolean | undefined;
+                    /**
+                     * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                     * Only relevant if keepAlive is set to true.
+                     */
+                    keepAliveMsecs: 15002, // ?: number | undefined;
+                    /**
+                     * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                     */
+                    maxSockets: 25, // ?: number | undefined;
+                    /**
+                     * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                     */
+                    maxTotalSockets: Infinity, // ?: number | undefined;
+                    /**
+                     * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                     */
+                    maxFreeSockets: 1002, // ?: number | undefined;
+                    /**
+                     * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                     */
+                    timeout: 60002, // ?: number | undefined;
+                } ,
+                gotRequestOptions : {
+                    timeout: { // This object describes the maximum allowed time for particular events.
+                        lookup: 802, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        connect: 1252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        secureConnect: 1252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        socket: 2002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        response: 2002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                    }
+                } // */
             }
         }, // */
         "credentials": {
@@ -234,7 +247,7 @@ let urlS2S;
                 //"level": 'info',                    // Default log level used
                 "zippedArchive": false ,
             "maxSize" : '100m',
-            "maxFiles" : 2 // */
+            "maxFiles" : 1 // */
             }
         },
         "testOutdatedVersion": false,
@@ -1684,27 +1697,15 @@ let urlS2S;
         let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        // Retrieve the associated conversation
-        //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
         let nbMsgToSend = 1;
         let msgsSent = [];
         for (let i = 1; i <= nbMsgToSend; i++) {
             let now = new Date().getTime();
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
             logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
-            /*await Utils.until(() => {
-                return conversation.getMessageById(msgSent.id) !== undefined;
-            }, "Wait for message to be added in conversation num : " + i);
-            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            logger.log("debug", "MAIN - testsendMessageToJid - deleted in conversation the message : ", msgDeleted);
-            // */
         }
-        // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-        // logger.log("debug", "MAIN - testsendMessageToJid - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
      testsendMessageToConversation() {
