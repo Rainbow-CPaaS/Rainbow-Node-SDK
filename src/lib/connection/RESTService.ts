@@ -313,13 +313,11 @@ class RESTService extends GenericRESTService {
     private _options: any;
     private timeOutManager: TimeOutManager;
 
-    static getClassName() {
-        return 'RESTService';
-    }
+    static getClassName() { return 'RESTService'; }
+    getClassName() { return RESTService.getClassName(); }
 
-    getClassName() {
-        return RESTService.getClassName();
-    }
+    static getAccessorName(){ return 'rest'; }
+    getAccessorName(){ return RESTService.getAccessorName(); }
 
     constructor(core: Core, _options, evtEmitter: EventEmitter, _logger: Logger) {
         super();
@@ -6755,8 +6753,8 @@ Request Method: PUT
                 }; // */
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
                     that.logger.log("debug", LOG_ID + "(joinS2SRoom) successfull");
-                    that.logger.log("internal", LOG_ID + "(joinS2SRoom) REST result : ", json.data);
-                    resolve(json.data);
+                    that.logger.log("internal", LOG_ID + "(joinS2SRoom) REST result : ", json);
+                    resolve(json);
                 }).catch(function (err) {
                     that.logger.log("error", LOG_ID, "(joinS2SRoom) error");
                     that.logger.log("internalerror", LOG_ID, "(joinS2SRoom) error : ", err);
