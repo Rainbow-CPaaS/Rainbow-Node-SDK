@@ -67,6 +67,9 @@ class BubblesManager {
         return BubblesManager.getClassName();
     }
 
+    static getAccessorName(){ return 'bubblemanager'; }
+    getAccessorName(){ return BubblesManager.getAccessorName(); }
+
     constructor(_eventEmitter: EventEmitter, _logger: Logger) {
         let that = this;
         that._xmpp = null;
@@ -82,6 +85,7 @@ class BubblesManager {
 
 
         //this._eventEmitter.on("evt_internal_affiliationdetailschanged", this._onAffiliationDetailsChanged.bind(this));
+        this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
 
         that._logger.log("debug", LOG_ID + "(constructor) BubblesManager created successfull");
@@ -240,12 +244,11 @@ class BubblesManager {
                 let start = true;
                 that.fibonacciStrategy.reset();
                 that.delay = that.fibonacciStrategy.getInitialDelay();
-
                 while ((that.poolBubbleToJoin.length > 0 || that.poolBubbleJoinInProgress.length > 0 ) || start == true) {
-                    that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of " + that.maxBubbleJoinInProgress + " bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                    that._logger.log("debug", LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of " + that.maxBubbleJoinInProgress + " bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
                     start = false;
                     let prom = [];
-                    for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress+1)  && iterBubbleToJoin < that.maxBubbleJoinInProgress; iterBubbleToJoin++) {
+                    for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress+1)  && iterBubbleToJoin < that.maxBubbleJoinInProgress ; iterBubbleToJoin++ ) {
                         let bubble = await that.getBubbleToJoin();
                         if ( bubble ) {
                             that._logger.log("internal", LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubble : ", bubble);
@@ -311,6 +314,25 @@ class BubblesManager {
         let that = this;
         that._logger.log("internal", LOG_ID + "(_onAffiliationDetailsChanged) bubble : ", bubble);
         if (bubble) {
+            await that.removeBubbleToJoinInProgress(bubble);
+            await that.addBubbleAlreadyJoined(bubble);
+        }
+    }
+
+    /**
+     * @private
+     * @method _onOwnAffiliationChanged
+     * @instance
+     * @param {Object} affiliation contains information about bubble and user's jid
+     * @description
+     *      Method called when affilitation (presence) to a bubble changed
+     */
+    async _onOwnAffiliationChanged(bubble) {
+        let that = this;
+        that._logger.log("internal", LOG_ID + "(_onOwnAffiliationChanged) bubble : ", bubble);
+        if (bubble) {
+            if (!bubble.jid) bubble.jid = bubble.bubbleJid;
+            if (!bubble.id) bubble.Id = bubble.bubbleId;
             await that.removeBubbleToJoinInProgress(bubble);
             await that.addBubbleAlreadyJoined(bubble);
         }

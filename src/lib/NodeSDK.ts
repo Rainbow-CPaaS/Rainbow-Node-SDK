@@ -943,7 +943,7 @@ class NodeSDK {
      * @service true
      * @description
      *    Get access to the Profiles module
-     * @return {AdminService}
+     * @return {ProfilesService}
      */
     get profiles() : ProfilesService{
         return this._core.profiles;
