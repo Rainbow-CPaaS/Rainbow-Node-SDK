@@ -48,11 +48,15 @@ class FileServer extends GenericService{
     static getClassName(){ return 'FileServer'; }
     getClassName(){ return FileServer.getClassName(); }
 
+    static getAccessorName(){ return 'fileServer'; }
+    getAccessorName(){ return FileServer.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._eventEmitter = _eventEmitter;
         this._xmpp = null;

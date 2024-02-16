@@ -20,6 +20,7 @@ import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {GenericService} from "./GenericService";
 import {Message} from "../common/models/Message";
+import {HTTPoverXMPP} from "./HTTPoverXMPPService.js";
 
 const LOG_ID = "IM/SVCE - ";
 
@@ -49,11 +50,15 @@ class ImsService extends GenericService{
     static getClassName(){ return 'ImsService'; }
     getClassName(){ return ImsService.getClassName(); }
 
+    static getAccessorName(){ return 'im'; }
+    getAccessorName(){ return ImsService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;

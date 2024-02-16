@@ -32,6 +32,9 @@ class HttpoverxmppEventHandler extends GenericHandler {
     static getClassName(){ return 'HttpoverxmppEventHandler'; }
     getClassName(){ return HttpoverxmppEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'httpoverxmppevent'; }
+    getAccessorName(){ return HttpoverxmppEventHandler.getAccessorName(); }
+
     constructor(xmppService: XMPPService, restService: RESTService, options: any) {
         super( xmppService);
         let that = this;

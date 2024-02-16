@@ -43,6 +43,9 @@ class ConversationHistoryHandler  extends GenericHandler {
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
 
+    static getAccessorName(){ return 'conversationhistory'; }
+    getAccessorName(){ return ConversationHistoryHandler.getAccessorName(); }
+
     constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService) {
         super( xmppService);
 

@@ -19,6 +19,7 @@ import {GenericService} from "./GenericService";
 import {Channel} from "../common/models/Channel";
 import {RpcoverxmppEventHandler} from "../connection/XMPPServiceHandler/rpcoverxmppEventHandler";
 import {RPCManager, RPCmethod} from "../common/RPCManager.js";
+import {RBVoiceService} from "./RBVoiceService.js";
 
 export {};
 
@@ -46,19 +47,18 @@ class RPCoverXMPPService extends GenericService {
     private RPCoverXMPPHandlerToken: any;
     public rpcManager: RPCManager;
 
-    static getClassName() {
-        return 'RPCoverXMPPService';
-    }
+    static getClassName() { return 'RPCoverXMPPService'; }
+    getClassName() { return RPCoverXMPPService.getClassName(); }
 
-    getClassName() {
-        return RPCoverXMPPService.getClassName();
-    }
+    static getAccessorName(){ return 'rpcoverxmpp'; }
+    getAccessorName(){ return RPCoverXMPPService.getAccessorName(); }
 
     constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;

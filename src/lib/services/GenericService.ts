@@ -10,6 +10,7 @@ import {Contact} from "../common/models/Contact";
 import {EventEmitter} from "events";
 import {RESTService} from "../connection/RESTService";
 import {ContactsService} from "./ContactsService";
+import {stackTrace} from "../common/Utils.js";
 
 class GenericService {
     protected _logger : Logger;
@@ -24,7 +25,20 @@ class GenericService {
     protected _started: boolean;
     protected _initialized: boolean;
     protected _core: Core;
-    
+
+    protected INFO: any;
+    protected DEBUG: any;
+    protected INTERNAL: any;
+    protected WARN: any;
+    protected ERROR: any;
+    protected INTERNALERROR: any;
+    protected INFOAPI: any;
+    protected DEBUGAPI: any;
+    protected INTERNALAPI: any;
+    protected WARNAPI: any;
+    protected ERRORAPI: any;
+    protected INTERNALERRORAPI: any;
+
     protected _startConfig: {
         start_up:boolean,
         optional:boolean
@@ -55,8 +69,30 @@ class GenericService {
         if (logId) {
             that._logId = logId;
         }
+
+        that.setLogLevels(this);
+
         // that._logger.log("debug", that._logId + "(GenericService::constructor) " );
         that.setConstructed();
+    }
+
+    setLogLevels (obj) {
+        if (obj) {
+            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
+            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
+            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
+            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
+            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
+            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
+            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
+            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
+            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
+            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
+            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
+            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
+        } else {
+            console.log("Can not set Logs Levels : ", stackTrace());
+        }
     }
 
     initStartDate(){
@@ -79,20 +115,20 @@ class GenericService {
     setConstructed () {
         let that = this;
         that.startingInfos.constructorDate = new Date();
-        that._logger.log("info", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log(that.INFO, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
     }
 
     setStarted () {
         let that = this;
         that.startingInfos.startedDate = new Date();
-        that._logger.log("info", that._logId + `=== STARTED (${that.startedDuration} ms) ===`);
+        that._logger.log(that.INFO, that._logId + `=== STARTED (${that.startedDuration} ms) ===`);
         that._started = true;
     }
 
     setInitialized () {
         let that = this;
         that.startingInfos.initilizedDate = new Date();
-        that._logger.log("info", that._logId + `=== INITIALIZED (${that.initializedDuration} ms) ===`);
+        that._logger.log(that.INFO, that._logId + `=== INITIALIZED (${that.initializedDuration} ms) ===`);
         that._initialized = true;
     }
 
@@ -100,7 +136,7 @@ class GenericService {
         let that = this;
         that._started = false;
         that._initialized = false;
-        that._logger.log("info", that._logId + `=== STOPPED () ===`);
+        that._logger.log(that.INFO, that._logId + `=== STOPPED () ===`);
     }
 
 }

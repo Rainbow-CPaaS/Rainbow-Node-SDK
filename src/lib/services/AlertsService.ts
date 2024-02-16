@@ -19,6 +19,7 @@ import {AlertDevice, AlertDevicesData} from "../common/models/AlertDevice";
 import {AlertTemplate, AlertTemplatesData} from "../common/models/AlertTemplate";
 import {AlertFilter, AlertFiltersData} from "../common/models/AlertFilter";
 import {GenericService} from "./GenericService";
+import {AdminService} from "./AdminService.js";
 
 const LOG_ID = "ALERTS/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -45,19 +46,18 @@ class AlertsService extends GenericService{
     private readonly delayToSendReceiptRead: number; // TimeSpan;
     private delayInfoLoggued: boolean = false;
 
-    static getClassName() {
-        return 'AlertsService';
-    }
+    static getClassName() { return 'AlertsService'; }
+    getClassName() { return AlertsService.getClassName(); }
 
-    getClassName() {
-        return AlertsService.getClassName();
-    }
+    static getAccessorName(){ return 'alerts'; }
+    getAccessorName(){ return AlertsService.getAccessorName(); }
 
     constructor(_core:Core, _eventEmitter: EventEmitter, logger: Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(logger, LOG_ID);
+        this.setLogLevels(this);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -90,8 +90,8 @@ class AlertsService extends GenericService{
         that._useS2S = that._options.useS2S;
         this._alertHandlerToken = [];
 
-        that._logger.log("info", LOG_ID + " ");
-        that._logger.log("info", LOG_ID + "[start] === STARTING ===");
+        that._logger.log(that.INFO, LOG_ID + " ");
+        that._logger.log(that.INFO, LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
 
         //this.conversationService.alertService = this;
@@ -105,7 +105,7 @@ class AlertsService extends GenericService{
     public async stop() {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "[stop] Stopping");
+        that._logger.log(that.INFO, LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
         this._initialized = false;
@@ -121,7 +121,7 @@ class AlertsService extends GenericService{
         that._alertHandlerToken = [];
 
         that.setStopped ();
-        that._logger.log("info", LOG_ID + "[stop] Stopped");
+        that._logger.log(that.INFO, LOG_ID + "[stop] Stopped");
     }
 
     public async init(useRestAtStartup : boolean) {
@@ -133,7 +133,7 @@ class AlertsService extends GenericService{
     private attachHandlers() {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
+        that._logger.log(that.INFO, LOG_ID + "[attachHandlers] attachHandlers");
 
         that._alertEventHandler = new AlertEventHandler(that._xmpp, that, that._options);
         that._alertHandlerToken = [
@@ -178,7 +178,7 @@ class AlertsService extends GenericService{
 
         if (!that.delayInfoLoggued) {
             that.delayInfoLoggued = true;
-            that._logger.log("debug", LOG_ID + "(markAlertMessageAsReceived) DelayToSendReceipt (in ms) - Received:", that.delayToSendReceiptReceived, " - Read: ", that.delayToSendReceiptRead - that.delayToSendReceiptReceived);
+            that._logger.log(that.INFO, LOG_ID + "(markAlertMessageAsReceived) DelayToSendReceipt (in ms) - Received:", that.delayToSendReceiptReceived, " - Read: ", that.delayToSendReceiptRead - that.delayToSendReceiptReceived);
         }
 
         return that._xmpp.markMessageAsReceived({
@@ -207,7 +207,7 @@ class AlertsService extends GenericService{
             callback?.Invoke(new SdkResult<Boolean>("AlertMessage has not been allowed in Application.Restrictions object"));
             return;
         } // */
-        that._logger.log("info", LOG_ID + API_ID + "(markAlertMessageAsRead) companyId : ", that._logger.stripStringForLogs(jid), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(messageXmppId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(markAlertMessageAsRead) companyId : ", that._logger.stripStringForLogs(jid), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(messageXmppId));
 
         return that._xmpp.markMessageAsRead({
             "fromJid": jid,
@@ -237,7 +237,7 @@ class AlertsService extends GenericService{
      */
     createDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
 
         return this.createOrUpdateDevice(true, device);
     }
@@ -260,7 +260,7 @@ class AlertsService extends GenericService{
      */
     updateDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
         return this.createOrUpdateDevice(false, device);
     }
 
@@ -277,8 +277,8 @@ class AlertsService extends GenericService{
 
 
             if (device == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter : ", device);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter : ", device);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -312,7 +312,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createDevice(body).then(function (json: any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateDevice) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let type: string= json.type
@@ -336,20 +336,20 @@ class AlertsService extends GenericService{
                     let geolocation: string = json.geolocation;
                     
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
-                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
+                    // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
                     resolve(deviceCreated);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateDevice) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) error : ", err);
                     return reject(err);
                 });
             } else {
                 // resource = rest.GetResource("notificationsadmin", $"devices/{device.Id}");
                 // restRequest = rest.GetRestRequest(resource, Method.PUT);
                 that._rest.updateDevice(device.id, body).then(function (json : any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateDevice) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let type: string= json.type
@@ -373,13 +373,13 @@ class AlertsService extends GenericService{
                     let geolocation: string = json.geolocation;
 
                     let deviceCreated = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
-                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
+                    // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice created : ", deviceCreated);
 
                     resolve(deviceCreated);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateDevice) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateDevice) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) error : ", err);
                     return reject(err);
                 });
             }
@@ -401,7 +401,7 @@ class AlertsService extends GenericService{
      */
     deleteDevice(device: AlertDevice): Promise<AlertDevice> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteDevice) device.id : ", that._logger.stripStringForLogs(device?.id));
 
         return new Promise((resolve, reject) => {
             /*
@@ -414,14 +414,14 @@ class AlertsService extends GenericService{
 
 
             if (device == null) {
-                that._logger.log("warn", LOG_ID + "(deleteDevice) bad or empty 'device' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteDevice) bad or empty 'device' parameter : ", device);
+                that._logger.log(that.WARN, LOG_ID + "(deleteDevice) bad or empty 'device' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevice) bad or empty 'device' parameter : ", device);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteDevice(device.id).then(function (json: any) {
-                that._logger.log("debug", LOG_ID + "(deleteDevice) delete successfull");
+                that._logger.log(that.INFO, LOG_ID + "(deleteDevice) delete successfull");
                 let id: string = json.id;
                 let name: string = json.name;
                 let type: string= json.type
@@ -445,15 +445,15 @@ class AlertsService extends GenericService{
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
-                //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
-                that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice deleted : ", deviceDeleted);
+                //that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice deleted : ", deviceDeleted);
 
                 resolve(deviceDeleted);
 
                 //resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteDevice) error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteDevice) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevice) error : ", err);
                 return reject(err);
             });
 
@@ -474,7 +474,7 @@ class AlertsService extends GenericService{
      */
     getDevice(deviceId: string): Promise<AlertDevice> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDevice) deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDevice) deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise((resolve, reject) => {
             /*
@@ -487,14 +487,14 @@ class AlertsService extends GenericService{
 
 
             if (deviceId == null) {
-                that._logger.log("warn", LOG_ID + "(getDevice) bad or empty 'deviceId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                that._logger.log(that.WARN, LOG_ID + "(getDevice) bad or empty 'deviceId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDevice) bad or empty 'deviceId' parameter : ", deviceId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getDevice(deviceId).then(function (json : any) {
-                that._logger.log("debug", LOG_ID + "(getDevice) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getDevice) get successfull");
                 let id: string = json.id;
                 let name: string = json.name;
                 let type: string= json.type
@@ -518,14 +518,14 @@ class AlertsService extends GenericService{
                 let geolocation: string = json.geolocation;
 
                 let deviceDeleted = new AlertDevice( id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
-                //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
-                that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", deviceDeleted);
+                //that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", deviceDeleted);
                 resolve(deviceDeleted);
 
                 // resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getDevice) error.");
-                that._logger.log("internalerror", LOG_ID + "(getDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getDevice) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDevice) error : ", err);
                 return reject(err);
             });
 
@@ -552,12 +552,12 @@ class AlertsService extends GenericService{
      */
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number = 0, limit: number = 100): Promise<AlertDevicesData> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDevices) companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDevices) companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise((resolve, reject) => {
 
             that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(async function (json) {
-                that._logger.log("debug", LOG_ID + "(getDevices) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getDevices) get successfull");
                 let alertDevices = new AlertDevicesData(1000);
                 if (Array.isArray( json)) {
                     for (const optionsKey in json) {
@@ -584,16 +584,16 @@ class AlertsService extends GenericService{
                         let geolocation: string = json[optionsKey].geolocation;
 
                         let alertDevice = new AlertDevice(id, name, type, userId, companyId, jid_im, jid_resource, creationDate, ipAddresses, macAddresses, tags, geolocation);
-                        //that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
-                        that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", alertDevice);
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json deleted : ", json);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' AlertDevice retrieved : ", alertDevice);
                         await alertDevices.addAlertDevice(alertDevice);
                     }
                 }
                 resolve(alertDevices);                
                 //resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getDevices) error.");
-                that._logger.log("internalerror", LOG_ID + "(getDevices) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getDevices) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDevices) error : ", err);
                 return reject(err);
             });
         });
@@ -613,17 +613,17 @@ class AlertsService extends GenericService{
      */
     getDevicesTags(companyId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise((resolve, reject) => {
 
             that._rest.getDevicesTags(companyId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getDevicesTags) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getDevicesTags) error.");
-                that._logger.log("internalerror", LOG_ID + "(getDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getDevicesTags) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -646,30 +646,30 @@ class AlertsService extends GenericService{
      */
     renameDevicesTags(newTagName : string, tag: string, companyId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(renameDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(renameDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
 
         return new Promise(function (resolve, reject) {
             if (newTagName === null) {
-                that._logger.log("warn", LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter");
-                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter : ", newTagName);
+                that._logger.log(that.WARN, LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter : ", newTagName);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             if (tag === null) {
-                that._logger.log("warn", LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter");
-                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter : ", tag);
+                that._logger.log(that.WARN, LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter : ", tag);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             
             that._rest.renameDevicesTags(newTagName, tag, companyId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(renameDevicesTags) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(renameDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(renameDevicesTags) error.");
-                that._logger.log("internalerror", LOG_ID + "(renameDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(renameDevicesTags) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -691,24 +691,24 @@ class AlertsService extends GenericService{
      */
     deleteDevicesTags(tag: string, companyId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteDevicesTags) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
 
         return new Promise(function (resolve, reject) {
 
             if (tag == null) {
-                that._logger.log("warn", LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter : ", tag);
+                that._logger.log(that.WARN, LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter : ", tag);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteDevicesTags( tag, companyId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(deleteDevicesTags) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(deleteDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteDevicesTags) error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteDevicesTags) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -730,17 +730,17 @@ class AlertsService extends GenericService{
     getstatsTags(companyId: string): Promise<any> {
         // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getstatsTags) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getstatsTags) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
 
             that._rest.getstatsTags( companyId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getstatsTags) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getstatsTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getstatsTags) error.");
-                that._logger.log("internalerror", LOG_ID + "(getstatsTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getstatsTags) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getstatsTags) error : ", err);
                 return reject(err);
             });
         });
@@ -764,7 +764,7 @@ class AlertsService extends GenericService{
      */
     createTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createTemplate) template.name : ", that._logger.stripStringForLogs(template?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createTemplate) template.name : ", that._logger.stripStringForLogs(template?.name));
 
         return this.createOrUpdateTemplate(true, template);
     }
@@ -783,7 +783,7 @@ class AlertsService extends GenericService{
      */
     updateTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
 
         return this.createOrUpdateTemplate(false, template);
     }
@@ -793,8 +793,8 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (template == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter : ", template);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter : ", template);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -822,7 +822,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createTemplate(body).then(function (json:any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateDevice) create successfull");
                     //resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -844,18 +844,18 @@ class AlertsService extends GenericService{
 
 
                     let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
-                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+                    // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
 
                     resolve(templateCreated);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateTemplate) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateTemplate) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateTemplate) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateTemplate) error : ", err);
                     return reject(err);
                 });
             } else {
                 that._rest.updateTemplate(template.id, body).then(function (json : any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateTemplate) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateTemplate) create successfull");
                     // resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -877,14 +877,14 @@ class AlertsService extends GenericService{
 
 
                     let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
-                    // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+                    // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
 
                     resolve(templateCreated);
 
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateTemplate) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateTemplate) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateTemplate) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateTemplate) error : ", err);
                     return reject(err);
                 });
             }
@@ -906,7 +906,7 @@ class AlertsService extends GenericService{
      */
     deleteTemplate(template: AlertTemplate): Promise<AlertTemplate> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteTemplate) template.id : ", that._logger.stripStringForLogs(template?.id));
 
         return new Promise((resolve, reject) => {
             /*
@@ -919,14 +919,14 @@ class AlertsService extends GenericService{
 
 
             if (template == null) {
-                that._logger.log("warn", LOG_ID + "(deleteTemplate) bad or empty 'template' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteTemplate) bad or empty 'template' parameter : ", template);
+                that._logger.log(that.WARN, LOG_ID + "(deleteTemplate) bad or empty 'template' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTemplate) bad or empty 'template' parameter : ", template);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteTemplate(template.id).then(function (json:any) {
-                that._logger.log("debug", LOG_ID + "(deleteTemplate) delete successfull");
+                that._logger.log(that.INFO, LOG_ID + "(deleteTemplate) delete successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -948,13 +948,13 @@ class AlertsService extends GenericService{
 
 
                 let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
-                // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+                // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
 
                 resolve(templateCreated);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteTemplate) error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteTemplate) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTemplate) error : ", err);
                 return reject(err);
             });
         });      
@@ -974,7 +974,7 @@ class AlertsService extends GenericService{
      */
     getTemplate(templateId: string): Promise<AlertTemplate> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise((resolve, reject) => {
             /*
@@ -987,14 +987,14 @@ class AlertsService extends GenericService{
 
 
             if (templateId == null) {
-                that._logger.log("warn", LOG_ID + "(getTemplate) bad or empty 'templateId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getTemplate) bad or empty 'templateId' parameter : ", templateId);
+                that._logger.log(that.WARN, LOG_ID + "(getTemplate) bad or empty 'templateId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTemplate) bad or empty 'templateId' parameter : ", templateId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getTemplate(templateId).then(function (json:any) {
-                that._logger.log("debug", LOG_ID + "(getTemplate) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getTemplate) get successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1016,13 +1016,13 @@ class AlertsService extends GenericService{
 
 
                 let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
-                // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+                // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
 
                 resolve(templateCreated);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getTemplate) error.");
-                that._logger.log("internalerror", LOG_ID + "(getTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getTemplate) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTemplate) error : ", err);
                 return reject(err);
             });
 
@@ -1045,12 +1045,12 @@ class AlertsService extends GenericService{
      */
     getTemplates(companyId: string, offset: number = 0, limit: number = 100): Promise<AlertTemplatesData> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise((resolve, reject) => {
 
             that._rest.getTemplates(companyId, offset, limit).then(async function (json) {
-                that._logger.log("debug", LOG_ID + "(getTemplates) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getTemplates) get successfull");
                 // resolve(json);
                 let alertTemplatesData = new AlertTemplatesData(1000);
                 if (Array.isArray( json)) {
@@ -1075,16 +1075,16 @@ class AlertsService extends GenericService{
 
 
                         let templateCreated = new AlertTemplate(id, name, companyId, event, description, mimeType, senderName, headline, instruction, contact, type, status, scope, category, urgency, severity, certainty);
-                        // that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
-                        that._logger.log("internal", LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
+                        // that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'device' json received : ", json);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateTemplate) 'template' AlertTemplate created : ", templateCreated);
 
                         await alertTemplatesData.addAlertTemplate(templateCreated);
                     }
                 }
                 resolve(alertTemplatesData);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getTemplates) error.");
-                that._logger.log("internalerror", LOG_ID + "(getTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getTemplates) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -1108,7 +1108,7 @@ class AlertsService extends GenericService{
      */
     createFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createFilter) filter.name : ", that._logger.stripStringForLogs(filter?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createFilter) filter.name : ", that._logger.stripStringForLogs(filter?.name));
         return this.createOrUpdateFilter(true, filter);
     }
 
@@ -1125,7 +1125,7 @@ class AlertsService extends GenericService{
      */
     updateFilter(filter: AlertFilter) : Promise<AlertFilter> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
 
         return this.createOrUpdateFilter(false, filter);
     }
@@ -1135,8 +1135,8 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (filter == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter : ", filter);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter : ", filter);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -1153,7 +1153,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createFilter(body).then(function (json: any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateFilter) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateFilter) create successfull");
                  //   resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -1161,28 +1161,28 @@ class AlertsService extends GenericService{
                     let tags: List<string> = json.tags;
 
                     let alertFilter = new AlertFilter(id, name, companyId, tags);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateDevice) 'filter' AlertFilter retrieved : ", alertFilter);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateDevice) 'filter' AlertFilter retrieved : ", alertFilter);
                     resolve(alertFilter);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateFilter) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateFilter) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateFilter) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateFilter) error : ", err);
                     return reject(err);
                 });
             } else {
                 that._rest.updateFilter(filter.id, body).then(function (json : any) {
-                    that._logger.log("debug", LOG_ID + "(createOrUpdateFilter) create successfull");
+                    that._logger.log(that.INFO, LOG_ID + "(createOrUpdateFilter) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let companyId: string = json.companyId;
                     let tags: List<string> = json.tags;
 
                     let alertFilter = new AlertFilter(id, name, companyId, tags);
-                    that._logger.log("internal", LOG_ID + "(createOrUpdateFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateFilter) 'filter' AlertFilter retrieved : ", alertFilter);
                     resolve(alertFilter);
                     //resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createOrUpdateFilter) error.");
-                    that._logger.log("internalerror", LOG_ID + "(createOrUpdateFilter) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateFilter) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateFilter) error : ", err);
                     return reject(err);
                 });
             }
@@ -1204,7 +1204,7 @@ class AlertsService extends GenericService{
      */
     deleteFilter(filter: AlertFilter): Promise<AlertFilter> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteFilter) filter.id : ", that._logger.stripStringForLogs(filter?.id));
 
         return new Promise((resolve, reject) => {
             /*
@@ -1217,14 +1217,14 @@ class AlertsService extends GenericService{
 
 
             if (filter == null) {
-                that._logger.log("warn", LOG_ID + "(deleteFilter) bad or empty 'filter' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteFilter) bad or empty 'filter' parameter : ", filter);
+                that._logger.log(that.WARN, LOG_ID + "(deleteFilter) bad or empty 'filter' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteFilter) bad or empty 'filter' parameter : ", filter);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteFilter(filter.id).then(function (json:any) {
-                that._logger.log("debug", LOG_ID + "(deleteFilter) delete successfull");
+                that._logger.log(that.INFO, LOG_ID + "(deleteFilter) delete successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1232,11 +1232,11 @@ class AlertsService extends GenericService{
                 let tags: List<string> = json.tags;
 
                 let alertFilter = new AlertFilter(id, name, companyId, tags);
-                that._logger.log("internal", LOG_ID + "(deleteFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteFilter) 'filter' AlertFilter retrieved : ", alertFilter);
                 resolve(alertFilter);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteFilter) error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteFilter) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteFilter) error : ", err);
                 return reject(err);
             });
 
@@ -1257,7 +1257,7 @@ class AlertsService extends GenericService{
      */
     getFilter(filterId: string): Promise<AlertFilter> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getFilter) filterId : ", that._logger.stripStringForLogs(filterId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getFilter) filterId : ", that._logger.stripStringForLogs(filterId));
 
         return new Promise((resolve, reject) => {
             /*
@@ -1270,14 +1270,14 @@ class AlertsService extends GenericService{
 
 
             if (filterId == null) {
-                that._logger.log("warn", LOG_ID + "(getFilter) bad or empty 'filterId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getFilter) bad or empty 'filterId' parameter : ", filterId);
+                that._logger.log(that.WARN, LOG_ID + "(getFilter) bad or empty 'filterId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getFilter) bad or empty 'filterId' parameter : ", filterId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getFilter(filterId).then(function (json:any) {
-                that._logger.log("debug", LOG_ID + "(getFilter) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getFilter) get successfull");
                 //resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1285,12 +1285,12 @@ class AlertsService extends GenericService{
                 let tags: List<string> = json.tags;
 
                 let alertFilter = new AlertFilter(id, name, companyId, tags);
-                that._logger.log("internal", LOG_ID + "(getFilter) 'filter' AlertFilter retrieved : ", alertFilter);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFilter) 'filter' AlertFilter retrieved : ", alertFilter);
                 resolve(alertFilter);
 
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getFilter) error.");
-                that._logger.log("internalerror", LOG_ID + "(getFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getFilter) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getFilter) error : ", err);
                 return reject(err);
             });
 
@@ -1312,13 +1312,13 @@ class AlertsService extends GenericService{
      */
     getFilters(offset: number = 0, limit: number = 100): Promise<AlertFiltersData> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getFilters) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getFilters) ");
 
         return new Promise((resolve, reject) => {
 
             that._rest.getFilters(offset, limit).then(async function (json:any) {
-                that._logger.log("debug", LOG_ID + "(getFilters) get successfull");
-                that._logger.log("internal", LOG_ID + "(getFilters) get successfull : ", json);
+                that._logger.log(that.INFO, LOG_ID + "(getFilters) get successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) get successfull : ", json);
                 //resolve(json);
 
                 let alertFilters = new AlertFiltersData(1000);
@@ -1335,15 +1335,15 @@ class AlertsService extends GenericService{
                         tags.addRange(json[optionsKey].tags);
 
                         let alertFilter = new AlertFilter(id, name, companyId, tags);
-                        that._logger.log("internal", LOG_ID + "(getFilters) 'filter' AlertFilter retrieved : ", alertFilter);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) 'filter' AlertFilter retrieved : ", alertFilter);
                         await alertFilters.addAlertFilter(alertFilter);
                     }
                 }
                 resolve(alertFilters);
 
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getFilters) error.");
-                that._logger.log("internalerror", LOG_ID + "(getFilters) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getFilters) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getFilters) error : ", err);
                 return reject(err);
             });
         });
@@ -1369,7 +1369,7 @@ class AlertsService extends GenericService{
      */
     createAlert(alert: Alert): Promise<Alert> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createAlert) alert.name : ", that._logger.stripStringForLogs(alert?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAlert) alert.name : ", that._logger.stripStringForLogs(alert?.name));
         return this.createOrUpdateAlert(true, alert);
     }
 
@@ -1391,7 +1391,7 @@ class AlertsService extends GenericService{
      */
     updateAlert(alert: Alert): Promise<Alert> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
 
         return this.createOrUpdateAlert(false, alert);
     }
@@ -1401,8 +1401,8 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (alert == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter : ", alert);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter : ", alert);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -1442,11 +1442,11 @@ class AlertsService extends GenericService{
                 body.startDate = date.toISOString();
                 body.expirationDate = expirationDate.toISOString();
 
-                that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) body : ", body);
+                that._logger.log(that.INFO, LOG_ID + "(createOrUpdateAlert) body : ", body);
 
                 if (create) {
                     that._rest.createAlert(body).then(function (json : any) {
-                        that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        that._logger.log(that.INFO, LOG_ID + "(createOrUpdateAlert) create successfull");
                         let  id: string = json.id;
                         let  name: string = json.name;
                         let  description: string = json.description;
@@ -1459,16 +1459,16 @@ class AlertsService extends GenericService{
 
                         let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
                         alert.id = id;
-                        that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
                         resolve(alert);                            
                     }).catch(function (err) {
-                        that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
-                        that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateAlert) error.");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) error : ", err);
                         return reject(err);
                     });
                 } else {
                     that._rest.updateAlert(alert.id, body).then(function (json : any) {
-                        that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        that._logger.log(that.INFO, LOG_ID + "(createOrUpdateAlert) create successfull");
                         let  id: string = json.id;
                         let  name: string = json.name;
                         let  description: string = json.description;
@@ -1481,17 +1481,17 @@ class AlertsService extends GenericService{
 
                         let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
                         alert.id = id;
-                        that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert updated : ", alert);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateAlert) 'Alert' Alert updated : ", alert);
                         resolve(alert);
                     }).catch(function (err) {
-                        that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
-                        that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateAlert) error.");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) error : ", err);
                         return reject(err);
                     });
                 }
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createOrUpdateAlert) CATCH Error !!!");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) CATCH Error !!! error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateAlert) CATCH Error !!!");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) CATCH Error !!! error : ", err);
                 return reject(err);
             }
         });
@@ -1512,7 +1512,7 @@ class AlertsService extends GenericService{
      */
     deleteAlert(alert: Alert): Promise<Alert> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAlert) alert.id : ", that._logger.stripStringForLogs(alert?.id));
 
         return new Promise((resolve, reject) => {
             /*
@@ -1525,14 +1525,14 @@ class AlertsService extends GenericService{
 
 
             if (alert == null) {
-                that._logger.log("warn", LOG_ID + "(deleteAlert) bad or empty 'alert' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteAlert) bad or empty 'alert' parameter : ", alert);
+                that._logger.log(that.WARN, LOG_ID + "(deleteAlert) bad or empty 'alert' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAlert) bad or empty 'alert' parameter : ", alert);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteAlert(alert.id).then(function (json : any) {
-                that._logger.log("debug", LOG_ID + "(deleteAlert) delete successfull");
+                that._logger.log(that.INFO, LOG_ID + "(deleteAlert) delete successfull");
                 let  id: string = json.id;
                 let  name: string = json.name;
                 let  description: string = json.description;
@@ -1545,11 +1545,11 @@ class AlertsService extends GenericService{
 
                 let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
                 alert.id = id;
-                that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert deleted : ", alert);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateAlert) 'Alert' Alert deleted : ", alert);
                 resolve(alert);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(deleteAlert) error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAlert) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -1569,7 +1569,7 @@ class AlertsService extends GenericService{
      */
     getAlert(alertId: string): Promise<Alert> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAlert) alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAlert) alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
             /*
@@ -1581,14 +1581,14 @@ class AlertsService extends GenericService{
             // */
 
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(getAlert) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getAlert) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(getAlert) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlert) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getAlert(alertId).then(function (json: any) {
-                that._logger.log("debug", LOG_ID + "(getAlert) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getAlert) get successfull");
                 let  id: string = json.id;
                 let  name: string = json.name;
                 let  description: string = json.description;
@@ -1601,11 +1601,11 @@ class AlertsService extends GenericService{
 
                 let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
                 alert.id = id;
-                that._logger.log("internal", LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdateAlert) 'Alert' Alert created : ", alert);
                 resolve(alert);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getAlert) error.");
-                that._logger.log("internalerror", LOG_ID + "(getAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAlert) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -1626,12 +1626,12 @@ class AlertsService extends GenericService{
      */
     getAlerts(offset: number = 0, limit: number = 100): Promise<AlertsData> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAlerts) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAlerts) ");
 
         return new Promise((resolve, reject) => {
 
             that._rest.getAlerts(offset, limit).then(async function (json : any) {
-                that._logger.log("debug", LOG_ID + "(getAlerts) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getAlerts) get successfull");
 
                 let alerts : AlertsData = new AlertsData(json.limit);
                 alerts.offset = json.offset;
@@ -1659,14 +1659,14 @@ class AlertsService extends GenericService{
 
                         let alert = new Alert(name, description, status, templateId, filterId, companyId, startDate, expirationDate);
                         alert.id = id;
-                        that._logger.log("internal", LOG_ID + "(getAlerts) 'alert' Alert retrieved : ", alert);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getAlerts) 'alert' Alert retrieved : ", alert);
                         await alerts.addAlert(alert);
                     }
                 }
                 resolve(alerts);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getAlerts) error.");
-                that._logger.log("internalerror", LOG_ID + "(getAlerts) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAlerts) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlerts) error : ", err);
                 return reject(err);
             });
         });      
@@ -1689,25 +1689,25 @@ class AlertsService extends GenericService{
      */
     sendAlertFeedback(deviceId: string, alertId: string, answerId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(sendAlertFeedback) deviceId : ", that._logger.stripStringForLogs(deviceId), ", alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendAlertFeedback) deviceId : ", that._logger.stripStringForLogs(deviceId), ", alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
 
             if (deviceId == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter : ", deviceId);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter : ", deviceId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             if (answerId == null) {
-                that._logger.log("warn", LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter : ", answerId);
+                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter : ", answerId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -1719,13 +1719,13 @@ class AlertsService extends GenericService{
 
 
             that._rest.sendAlertFeedback(alertId, body).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
+                that._logger.log(that.INFO, LOG_ID + "(createOrUpdateAlert) create successfull");
                 resolve(json);
 // TODO : make the Alert with the result. And maybe the AlertDeviceData.
 
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(createOrUpdateAlert) error.");
-                that._logger.log("internalerror", LOG_ID + "(createOrUpdateAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createOrUpdateAlert) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) error : ", err);
                 return reject(err);
             });
         });        
@@ -1757,22 +1757,22 @@ class AlertsService extends GenericService{
      */
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAlertFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAlertFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
 
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
-                that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
+                that._logger.log(that.WARN, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getAlertFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) get successfull");
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error.");
-                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -1804,22 +1804,22 @@ class AlertsService extends GenericService{
      */
     getAlertFeedbackSentForAnAlert(alertId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAlertFeedbackSentForAnAlert) alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAlertFeedbackSentForAnAlert) alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getAlertFeedbackSentForAnAlert(alertId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getAlertFeedbackSentForAnAlert) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getAlertFeedbackSentForAnAlert) get successfull");
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForAnAlert) error.");
-                that._logger.log("internalerror", LOG_ID + "(getAlertFeedbackSentForAnAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAlertFeedbackSentForAnAlert) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForAnAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -1844,22 +1844,22 @@ class AlertsService extends GenericService{
      */
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAlertStatsFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAlertStatsFeedbackSentForANotificationMessage) notificationHistoryId : ", that._logger.stripStringForLogs(notificationHistoryId));
 
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
-                that._logger.log("warn", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
+                that._logger.log(that.WARN, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) get successfull");
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error.");
-                that._logger.log("internalerror", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -1883,23 +1883,23 @@ class AlertsService extends GenericService{
      */
     getReportSummary(alertId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getReportSummary) alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getReportSummary) alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getReportSummary(alertId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getReportSummary) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getReportSummary) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getReportSummary) error.");
-                that._logger.log("internalerror", LOG_ID + "(getReportSummary) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getReportSummary) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportSummary) error : ", err);
                 return reject(err);
             });
         });
@@ -1919,23 +1919,23 @@ class AlertsService extends GenericService{
      */
     getReportDetails(alertId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getReportDetails) alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getReportDetails) alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getReportDetails(alertId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getReportDetails) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getReportDetails) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getReportDetails) error.");
-                that._logger.log("internalerror", LOG_ID + "(getReportDetails) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getReportDetails) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportDetails) error : ", err);
                 return reject(err);
             });
         });        
@@ -1965,22 +1965,22 @@ class AlertsService extends GenericService{
      */
     getReportComplete(alertId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getReportComplete) alertId : ", that._logger.stripStringForLogs(alertId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getReportComplete) alertId : ", that._logger.stripStringForLogs(alertId));
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log("warn", LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter");
-                that._logger.log("internalerror", LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter : ", alertId);
+                that._logger.log(that.WARN, LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter : ", alertId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getReportComplete(alertId).then(function (json) {
-                that._logger.log("debug", LOG_ID + "(getReportComplete) get successfull");
+                that._logger.log(that.INFO, LOG_ID + "(getReportComplete) get successfull");
                 resolve(json);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(getReportComplete) error.");
-                that._logger.log("internalerror", LOG_ID + "(getReportComplete) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getReportComplete) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportComplete) error : ", err);
                 return reject(err);
             });
         });

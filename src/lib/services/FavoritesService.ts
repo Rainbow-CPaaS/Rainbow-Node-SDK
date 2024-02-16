@@ -15,6 +15,7 @@ import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
+import {ConversationsService} from "./ConversationsService.js";
 
 const LOG_ID = "FAVTE/SVCE - ";
 
@@ -40,11 +41,15 @@ class FavoritesService extends GenericService{
     static getClassName(){ return 'FavoritesService'; }
     getClassName(){ return FavoritesService.getClassName(); }
 
+    static getAccessorName(){ return 'favorites'; }
+    getAccessorName(){ return FavoritesService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(logger, LOG_ID);
+        this.setLogLevels(this);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/

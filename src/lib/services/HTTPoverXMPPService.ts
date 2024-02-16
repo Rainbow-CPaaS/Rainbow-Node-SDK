@@ -18,6 +18,7 @@ import {GenericService} from "./GenericService";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
 import {Channel} from "../common/models/Channel";
 import {HttpoverxmppEventHandler} from "../connection/XMPPServiceHandler/httpoverxmppEventHandler";
+import {GroupsService} from "./GroupsService.js";
 
 export {};
 
@@ -45,19 +46,18 @@ class HTTPoverXMPP extends GenericService {
     private hTTPoverXMPPHandlerToken: any;
 
 
-    static getClassName() {
-        return 'HTTPoverXMPP';
-    }
+    static getClassName() { return 'HTTPoverXMPP'; }
+    getClassName() { return HTTPoverXMPP.getClassName(); }
 
-    getClassName() {
-        return HTTPoverXMPP.getClassName();
-    }
+    static getAccessorName(){ return 'httpoverxmpp'; }
+    getAccessorName(){ return HTTPoverXMPP.getAccessorName(); }
 
     constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;

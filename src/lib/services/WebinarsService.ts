@@ -17,6 +17,7 @@ import {GenericService} from "./GenericService";
 import {Webinar} from "../common/models/webinar";
 import {WebinarEventHandler} from "../connection/XMPPServiceHandler/webinarEventHandler";
 import {Channel} from "../common/models/Channel";
+import {TelephonyService} from "./TelephonyService.js";
 
 export {};
 
@@ -46,11 +47,15 @@ class WebinarsService extends GenericService {
     static getClassName(){ return 'WebinarsService'; }
     getClassName(){ return WebinarsService.getClassName(); }
 
+    static getAccessorName(){ return 'webinars'; }
+    getAccessorName(){ return WebinarsService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;

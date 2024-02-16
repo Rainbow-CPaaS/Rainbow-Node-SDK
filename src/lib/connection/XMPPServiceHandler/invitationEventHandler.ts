@@ -36,6 +36,9 @@ class InvitationEventHandler extends GenericHandler {
     static getClassName(){ return 'InvitationEventHandler'; }
     getClassName(){ return InvitationEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'invitationevent'; }
+    getAccessorName(){ return InvitationEventHandler.getAccessorName(); }
+
     constructor(xmppService, invitationService) {
         super(xmppService);
 

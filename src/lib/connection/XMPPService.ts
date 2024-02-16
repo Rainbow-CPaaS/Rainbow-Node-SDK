@@ -172,9 +172,12 @@ class XMPPService extends GenericService {
     static getClassName(){ return 'XMPPService'; }
     getClassName(){ return XMPPService.getClassName(); }
 
+    static getAccessorName(){ return 'xmpp'; }
+    getAccessorName(){ return XMPPService.getAccessorName(); }
 
     constructor(_core, _xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
         that.host = _xmpp.host;

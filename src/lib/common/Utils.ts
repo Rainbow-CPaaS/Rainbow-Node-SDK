@@ -344,10 +344,12 @@ function cleanEmptyMembersFromObject(objParams : Object) {
 
 function  isStart_upService( serviceoptions) {
     let start_up = true;
-    if (!serviceoptions.optional) {
-        start_up = true;
-    } else {
-        start_up = !!serviceoptions.start_up;
+    if (serviceoptions !== undefined) {
+        if (!serviceoptions.optional) {
+            start_up = true;
+        } else {
+            start_up = !!serviceoptions.start_up;
+        }
     }
     return start_up;
 }
@@ -368,7 +370,7 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers", "getClassName", "cleanMemoryCache"] ;
+                let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers", "getClassName", "cleanMemoryCache", "getAccessorName", "setLogLevels"] ;
                 methodsToIgnoreStartedState = methodsToIgnoreStartedState.concat(_methodsToIgnoreStartedState[0]);
                 let ignoreTheStartedState : boolean = (methodsToIgnoreStartedState.find((elt) => { return elt === propertyName; } ) != undefined);
                 if (this == null) {
@@ -459,7 +461,7 @@ function logEntryExit(LOG_ID) : any {
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName") {
+                if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName" || originalMethod.name==="getAccessorName" || propertyName==="getAccessorName" || originalMethod.name==="setLogLevels" || propertyName==="setLogLevels") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
                     let logger = this.logger ? this.logger:this._logger ? this._logger:{log : ()=> {console.log( arguments);}, colors:{data : function (param) {return param} }};

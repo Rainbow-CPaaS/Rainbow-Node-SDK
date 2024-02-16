@@ -15,6 +15,7 @@ import {Logger} from "../common/Logger";
 import {ProxyImpl} from "../ProxyImpl";
 import {GenericService} from "./GenericService";
 import {Core} from "../Core.js";
+import {RPCoverXMPPService} from "./RPCoverXMPPService.js";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
@@ -61,8 +62,12 @@ class S2SService extends GenericService{
     static getClassName(){ return 'S2SService'; }
     getClassName(){ return S2SService.getClassName(); }
 
+    static getAccessorName(){ return 's2s'; }
+    getAccessorName(){ return S2SService.getAccessorName(); }
+
     constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;

@@ -18,6 +18,9 @@ class RESTTelephony {
     static getClassName(){ return 'RESTTelephony'; }
     getClassName(){ return RESTTelephony.getClassName(); }
 
+    static getAccessorName(){ return 'resttelephony'; }
+    getAccessorName(){ return RESTTelephony.getAccessorName(); }
+
     constructor(evtEmitter, logger) {
         let that = this;
         that.evtEmitter = evtEmitter;

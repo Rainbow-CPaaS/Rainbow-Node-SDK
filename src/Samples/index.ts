@@ -18,7 +18,7 @@ import {
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
-import {OFFERTYPES} from "../lib/services/AdminService";
+import {AdminService, OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation} from "../lib/common/models/Conversation";
 import {createWriteStream, readFileSync, writeFileSync, appendFileSync  } from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
@@ -104,9 +104,9 @@ import {jwtDecode} from "jwt-decode";
     input: process.stdin,
     output: process.stdout
 }); // */
-// let rainbowMode = "s2s" ;
 
-let rainbowMode = "xmpp";
+let rainbowMode = "s2s" ;
+//let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -165,11 +165,11 @@ let urlS2S;
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      */
-                    keepAliveMsecs: 15002, // ?: number | undefined;
+                    keepAliveMsecs: 1002, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    maxSockets: 25, // ?: number | undefined;
+                    maxSockets: Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
@@ -181,13 +181,13 @@ let urlS2S;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 60002, // ?: number | undefined;
+                    timeout: 120002, // ?: number | undefined;
                 } ,
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.
                         lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 5252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 5252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
                         socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
                         send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
                         response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
@@ -242,6 +242,117 @@ let urlS2S;
                 "internals": true,
                 "http": true,
             },
+            "filter" : "",
+            "areas" : {
+                "services": {
+                    "admin": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "alerts": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "bubbles": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "calllog": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "channels": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "connectedUser": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "contacts": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "conversations": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "events": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "favorites": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "fileServer": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "fileStorage": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "groups": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "im": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "httpoverxmpp": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "invitations": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "presence": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "profiles": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "rbvoice": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "rest": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "rpcoverxmpp": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "s2s": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "settings": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "telephony": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "version": {
+                        "api": true,
+                        "level": "debug"
+                    },
+                    "webinars": {
+                        "api": true,
+                        "level": "debug"
+                    }
+                },
+                "xmppin": true,
+                "xmppout": true
+            },
             "file": {
                 "path": "c:/temp/",
                 "customFileName": "R-SDK-Node-Sample-"+ Math.floor(Math.random() * 1000),
@@ -257,7 +368,7 @@ let urlS2S;
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
             "useRequestRateLimiter": true,
-            "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
+            "maxReqByIntervalForRequestRate": 250, // nb requests during the interval.
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
         },
