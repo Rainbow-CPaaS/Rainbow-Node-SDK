@@ -308,28 +308,40 @@ class Logger {
             return that._winston.end();
         }
 
-        this._logger.log = function (level) {
+        this._logger.log = function (options : {"callerObj" : any, "level" : string} | string, isApi:boolean) {
             try {
-                if (level === "internal" || level === "internalerror") {
-                    if (logInternals === true) {
+
+                let caller;
+                let level ;
+                if (typeof options==="object") {
+                    let callerObj = options?.callerObj;
+                    let callerName = "unknown";
+                    if (callerObj && (typeof callerObj.getAccessorName) === "function") {
+                        callerName = callerObj.getAccessorName();
+                    }
+                    level = options.level;
+                    // console.log("callerName : ", callerName, ", level : ", level);
+                } else {
+                    level = options;
+                }
+                if (level==="internal" || level==="internalerror") {
+                    if (logInternals===true) {
                         //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
                         // dev-code-internal //
-                        if ( level === "internal") {
+                        if (level==="internal") {
                             level = "debug";
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
-                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog] );
+                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
+                            that.emit(level, that._logger.customLabel + datatolog);
+                        } else if (level==="internalerror") {
+                            level = "error";
+                            datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
+                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
                             that.emit(level, that._logger.customLabel + datatolog);
                         }
-                        else
-                            if (level === "internalerror") {
-                                level = "error";
-                                datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
-                                that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
-                                that.emit(level, that._logger.customLabel + datatolog);
-                            }
-                            /* */
+                        /* */
                         // end-dev-code-internal //
                         /*
                         if ( level === "internal") {

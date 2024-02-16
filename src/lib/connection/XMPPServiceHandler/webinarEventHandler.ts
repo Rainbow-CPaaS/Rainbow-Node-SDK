@@ -39,6 +39,9 @@ class WebinarEventHandler extends GenericHandler {
     static getClassName(){ return 'WebinarEventHandler'; }
     getClassName(){ return WebinarEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'webinarevent'; }
+    getAccessorName(){ return WebinarEventHandler.getAccessorName(); }
+
     constructor(xmppService, channelsService) {
         super(xmppService);
 

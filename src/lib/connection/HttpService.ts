@@ -19,6 +19,7 @@ const EventEmitter = require("events").EventEmitter;
 const humanize = require("humanize-number");
 //const chalk = require("chalk");
 import chalk from 'chalk';
+import {HTTPoverXMPP} from "../services/HTTPoverXMPPService.js";
 
 const debugHttp = require("debug-http");
 
@@ -80,6 +81,9 @@ class HTTPService {
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
+
+    static getAccessorName(){ return 'httpservice'; }
+    getAccessorName(){ return HTTPService.getAccessorName(); }
 
     constructor(_core, _options, _logger, _proxy, _evtEmitter ) {
         this._options = _options;

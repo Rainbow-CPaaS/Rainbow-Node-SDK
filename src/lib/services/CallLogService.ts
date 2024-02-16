@@ -88,12 +88,16 @@ function CallLogsBean() : ICallLogsBean {
     static getClassName(){ return 'CallLogService'; }
     getClassName(){ return CallLogService.getClassName(); }
 
+    static getAccessorName(){ return 'calllog'; }
+    getAccessorName(){ return CallLogService.getAccessorName(); }
+
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
     constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(logger, LOG_ID);
+        this.setLogLevels(this);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -135,6 +139,19 @@ function CallLogsBean() : ICallLogsBean {
         this.callLogComplete = false;
         this.callLogIndex = -1;
 
+        this.INFO = {"callerObj" : this, "level" : "info", isApi:false};
+        this.DEBUG = {"callerObj" : this, "level" : "debug", isApi:false};
+        this.INTERNAL = {"callerObj" : this, "level" : "internal", isApi:false};
+        this.WARN = {"callerObj" : this, "level" : "warn", isApi:false};
+        this.ERROR = {"callerObj" : this, "level" : "error", isApi:false};
+        this.INTERNALERROR = {"callerObj" : this, "level" : "internalerror", isApi:false};
+        this.INFOAPI = {"callerObj" : this, "level" : "info", isApi:true};
+        this.DEBUGAPI = {"callerObj" : this, "level" : "debug", isApi:true};
+        this.INTERNALAPI = {"callerObj" : this, "level" : "internal", isApi:true};
+        this.WARNAPI = {"callerObj" : this, "level" : "warn", isApi:true};
+        this.ERRORAPI = {"callerObj" : this, "level" : "error", isApi:true};
+        this.INTERNALERRORAPI = {"callerObj" : this, "level" : "internalerror", isApi:true};
+
         this._eventEmitter.on("evt_internal_calllogupdated", this.onCallLogUpdated.bind(this));
         this._eventEmitter.on("evt_internal_calllogackupdated", this.onCallLogAckReceived.bind(this));
 
@@ -155,8 +172,8 @@ function CallLogsBean() : ICallLogsBean {
 
         this.calllogHandlerToken = [];
 
-       that._logger.log("info", LOG_ID + " ");
-       that._logger.log("info", LOG_ID + "[start] === STARTING ===");
+       that._logger.log(that.INFO, LOG_ID + " ");
+       that._logger.log(that.INFO, LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
         that.setStarted ();
     }
@@ -164,7 +181,7 @@ function CallLogsBean() : ICallLogsBean {
     async stop() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "[stop] Stopping");
+       that._logger.log(that.INFO, LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
         this._initialized = false;
@@ -195,7 +212,7 @@ function CallLogsBean() : ICallLogsBean {
         }
         that.calllogHandlerToken = [];
         that.setStopped ();
-       that._logger.log("info", LOG_ID + "[stop] Stopped");
+       that._logger.log(that.INFO, LOG_ID + "[stop] Stopped");
     }
 
     async init(useRestAtStartup : boolean) {
@@ -210,8 +227,8 @@ function CallLogsBean() : ICallLogsBean {
                             that.setInitialized();
                         })
                         .catch((error) => {
-                            that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
-                            that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
+                            that._logger.log(that.ERROR, LOG_ID + "[start] === STARTING FAILURE ===");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "[start] === STARTING FAILURE === : ", error);
                             that.setInitialized();
                         });
             });
@@ -223,7 +240,7 @@ function CallLogsBean() : ICallLogsBean {
     attachHandlers() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(attachHandlers)");
+       that._logger.log(that.INFO, LOG_ID + "(attachHandlers)");
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
@@ -251,7 +268,7 @@ function CallLogsBean() : ICallLogsBean {
     async getCallLogHistoryPage(useAfter?) {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(getCallLogHistoryPage)");
+       that._logger.log(that.INFO, LOG_ID + "(getCallLogHistoryPage)");
         if (that._useXMPP) {
             return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
         }
@@ -318,7 +335,7 @@ function CallLogsBean() : ICallLogsBean {
 
         that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
-               that._logger.log("info", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
+               that._logger.log(that.INFO, LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
                 num++;
             }
         });
@@ -342,7 +359,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteOneCallLog(id) {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(deleteOneCallLog) id : ", id);
+       that._logger.log(that.INFO, LOG_ID + "(deleteOneCallLog) id : ", id);
         return that._xmpp.deleteOneCallLog(id);
     }
 
@@ -361,7 +378,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteCallLogsForContact(jid) {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
+       that._logger.log(that.INFO, LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
         return that._xmpp.deleteCallLogsForContact(jid);
     }
 
@@ -379,7 +396,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteAllCallLogs() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(deleteAllCallLogs)");
+       that._logger.log(that.INFO, LOG_ID + "(deleteAllCallLogs)");
         return that._xmpp.deleteAllCallLogs();
     }
 
@@ -398,7 +415,7 @@ function CallLogsBean() : ICallLogsBean {
     markCallLogAsRead(id) {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(markCallLogAsRead) id : ", id);
+       that._logger.log(that.INFO, LOG_ID + "(markCallLogAsRead) id : ", id);
         return that._xmpp.markCallLogAsRead(id);
     }
 
@@ -416,8 +433,8 @@ function CallLogsBean() : ICallLogsBean {
     async markAllCallsLogsAsRead() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(markAllCallsLogsAsRead) ");
-       that._logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
+       that._logger.log(that.INFO, LOG_ID + "(markAllCallsLogsAsRead) ");
+       that._logger.log(that.INTERNAL, LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
     //endregion CallLog MANAGEMENT
@@ -504,7 +521,7 @@ function CallLogsBean() : ICallLogsBean {
 
     async resetCallLogs() {
         let that = this;
-       that._logger.log("info", LOG_ID + "[resetCallLogs] resetCallLogs");
+       that._logger.log(that.INFO, LOG_ID + "[resetCallLogs] resetCallLogs");
         that.calllogs = CallLogsBean();
         await this._calllogEventHandler.resetCallLogs();
 

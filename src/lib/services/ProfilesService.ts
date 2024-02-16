@@ -112,11 +112,15 @@ class ProfilesService extends GenericService {
     static getClassName(){ return 'ProfilesService'; }
     getClassName(){ return ProfilesService.getClassName(); }
 
+    static getAccessorName(){ return 'profiles'; }
+    getAccessorName(){ return ProfilesService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;

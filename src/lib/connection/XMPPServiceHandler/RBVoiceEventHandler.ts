@@ -43,6 +43,9 @@ class RBVoiceEventHandler extends GenericHandler {
     static getClassName(){ return 'RBVoiceEventHandler'; }
     getClassName(){ return RBVoiceEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'rbvoiceevent'; }
+    getAccessorName(){ return RBVoiceEventHandler.getAccessorName(); }
+
     constructor(xmppService : XMPPService, core: Core) {
         super(xmppService);
 

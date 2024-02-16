@@ -51,6 +51,9 @@ class S2SServiceEventHandler {
     static getClassName(){ return 'S2SServiceEventHandler'; }
     getClassName(){ return S2SServiceEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 's2sevent'; }
+    getAccessorName(){ return S2SServiceEventHandler.getAccessorName(); }
+
     constructor(_im, _application, _eventEmitter, _logger, _hostCallback) {
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;

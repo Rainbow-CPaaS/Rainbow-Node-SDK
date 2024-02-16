@@ -80,11 +80,15 @@ class ConversationsService extends GenericService {
     static getClassName(){ return 'ConversationsService'; }
     getClassName(){ return ConversationsService.getClassName(); }
 
+    static getAccessorName(){ return 'conversations'; }
+    getAccessorName(){ return ConversationsService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean, _autoLoadConversationHistory: boolean) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -152,7 +156,7 @@ class ConversationsService extends GenericService {
                 resolve(undefined);
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(start) !!! Catch error.");
+                that._logger.log(that.ERROR, LOG_ID + "(start) !!! Catch error.");
                 that._logger.log("internalerror", LOG_ID + "(start) !!! Catch error : ", err);
                 return reject(err);
             }
@@ -275,17 +279,17 @@ class ConversationsService extends GenericService {
             //that._logger.log("internal", LOG_ID + "(_onReceipt) with data updated Message : ", data);
 
 
-            that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ")");
+            that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ")");
             that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack (" + conversation.id + ", " + message.id + ") : ", conversation);
             //message.setReceiptStatus(Message.ReceiptStatus.SENT);
             if (conversation && conversation.id) {
                 conversation = await that.getConversationById(conversation.id);
-                that._logger.log("debug", LOG_ID + "(_onReceipt) getConversationById conversation received.");
+                that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) getConversationById conversation received.");
                 // that._logger.log("internal", LOG_ID + "(_onReceipt) getConversationById method result : ", conversation);
                 if (conversation) {
                     message.conversation = conversation;
                     if (conversation.addOrUpdateMessage) {
-                        that._logger.log("debug", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage.");
                         that._logger.log("internal", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage : ", message);
                         conversation.addOrUpdateMessage(message);
                         that.removePendingMessage(message);
@@ -294,18 +298,18 @@ class ConversationsService extends GenericService {
                         that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
                         //that._logger.log("internal", LOG_ID + "(_onReceipt) after sent evt_internal_conversationupdated, conversations : ", that.getConversations());
                     } else {
-                        that._logger.log("error", LOG_ID + "(_onReceipt) Error addMessage method not defined in Conversation, so message not added to conversation (" + conversation.id, ") : ", conversation);
+                        that._logger.log(that.ERROR, LOG_ID + "(_onReceipt) Error addMessage method not defined in Conversation, so message not added to conversation (" + conversation.id, ") : ", conversation);
                     }
                 } else {
-                    that._logger.log("debug", LOG_ID + "(_onReceipt) conversation unknown can not store the pending message to conversation : ", conversation);
+                    that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) conversation unknown can not store the pending message to conversation : ", conversation);
                     // that._logger.log("internal", LOG_ID + "(_onReceipt) conversation unknown can not store the pending message to conversation : ", conversation);
                 }
             } else {
-                that._logger.log("debug", LOG_ID + "(_onReceipt) conversation not saved with pending message.");
+                that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) conversation not saved with pending message.");
                 that._logger.log("internal", LOG_ID + "(_onReceipt) conversation not saved with pending message : ", conversation);
             }
         } else {
-            that._logger.log("debug", LOG_ID + "(_onReceipt) Receive server ack message not found.");
+            that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) Receive server ack message not found.");
             that._logger.log("internal", LOG_ID + "(_onReceipt) Receive server ack message not found : ", messageInfo);
         }
     }
@@ -420,10 +424,10 @@ class ConversationsService extends GenericService {
     resetHistoryPageForConversation(conversation : Conversation) {
         let that = this;
         if (!conversation) {
-            that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) undefined conversation.id so no reset done.");
+            that._logger.log(that.DEBUG, LOG_ID + "(resetHistoryPageForConversation) undefined conversation.id so no reset done.");
             return;
         }
-        that._logger.log("debug", LOG_ID + "(resetHistoryPageForConversation) id : ", conversation.id, ", dbid : ", conversation.dbId);
+        that._logger.log(that.DEBUG, LOG_ID + "(resetHistoryPageForConversation) id : ", conversation.id, ", dbid : ", conversation.dbId);
         conversation.resetHistory();
     }
 
@@ -447,12 +451,12 @@ class ConversationsService extends GenericService {
 
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
-            that._logger.log("debug", LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
+            that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
             return Promise.resolve(undefined);
         }
         conversation.currentHistoryId = conversation.historyIndex;
 
-        that._logger.log("debug", LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ")");
+        that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ")");
 
         // Create the defered object
         let defered = conversation.historyDefered = new Deferred();
@@ -464,7 +468,7 @@ class ConversationsService extends GenericService {
         }
 
         if (conversation.historyComplete) {
-            that._logger.log("debug", LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
+            that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
             defered.resolve(conversation);
             return defered.promise;
         }
@@ -524,7 +528,7 @@ class ConversationsService extends GenericService {
         that._logger.log("info", LOG_ID + API_ID + "(loadConversationHistory) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
         return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
-            that._logger.log("debug", "(loadConversationHistory) getHistoryPage.");
+            that._logger.log(that.DEBUG, "(loadConversationHistory) getHistoryPage.");
 
             let result = conversationUpdated.historyComplete ? conversationUpdated:that.getHistoryPage(conversationUpdated, pageSize);
             //that._logger.log("internal", "(loadConversationHistory) getHistoryPage result : ", result);
@@ -549,7 +553,7 @@ class ConversationsService extends GenericService {
     loadEveryConversationsHistory( pageSize : number = 30) {
         let that = this;
         let nbConversations = that.conversations?that.conversations.length:0 ;
-        that._logger.log("debug", "(loadEveryConversationsHistory).");
+        that._logger.log(that.DEBUG, "(loadEveryConversationsHistory).");
 
         for (let variableKey in that.conversations){
             if (that.conversations.hasOwnProperty(variableKey)){
@@ -557,11 +561,11 @@ class ConversationsService extends GenericService {
                 //that.openConversationForContact(conversation).then(async function (conversationOpenned) {
                     //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
                     let conversationOpenned = conversation;
-                    that._logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversationOpenned.messages.length);
+                    that._logger.log(that.DEBUG, "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversationOpenned.messages.length);
                     that.loadConversationHistory(conversationOpenned, pageSize).then((conversationLoadedHistory) => {
-                        that._logger.log("debug", "(loadEveryConversationsHistory) loadConversationHistory result : ", conversationLoadedHistory.messages.length);
+                        that._logger.log(that.DEBUG, "(loadEveryConversationsHistory) loadConversationHistory result : ", conversationLoadedHistory.messages.length);
                     }, (err) => {
-                        that._logger.log("debug", "(loadEveryConversationsHistory) loadConversationHistory error : ", err);
+                        that._logger.log(that.DEBUG, "(loadEveryConversationsHistory) loadConversationHistory error : ", err);
                     });
                 //});
             }
@@ -590,16 +594,16 @@ class ConversationsService extends GenericService {
         let that = this;
         that._logger.log("info", LOG_ID + API_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId);
         return new Promise(async (resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId, ", messageId : ", messageId);
+            that._logger.log(that.DEBUG, LOG_ID + "(getOneMessageFromConversationId) conversationId : ", conversationId, ", messageId : ", messageId);
             let conversation = that.getConversationById(conversationId);
-            that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) conversation found, conversation.id: ", conversation.id);
+            that._logger.log(that.DEBUG, LOG_ID + "(getOneMessageFromConversationId) conversation found, conversation.id: ", conversation.id);
             if (conversation) {
                 let msg = conversation.getMessageById(messageId);
                 if (msg != null) {
                     return resolve(msg);
                 } else {
                     if (that._useS2S) {
-                        that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) S2S is used, so can not retrieve message from server, it can only be used in XMPP Event Mode context.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(getOneMessageFromConversationId) S2S is used, so can not retrieve message from server, it can only be used in XMPP Event Mode context.");
                         return reject();
                     }
 
@@ -613,7 +617,7 @@ class ConversationsService extends GenericService {
                     // */
                 }
             } else {
-                that._logger.log("debug", LOG_ID + "(getOneMessageFromConversationId) No conversation found with this conversation ID : ", conversationId);
+                that._logger.log(that.DEBUG, LOG_ID + "(getOneMessageFromConversationId) No conversation found with this conversation ID : ", conversationId);
                 return reject(undefined);
             }
         });
@@ -655,7 +659,7 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!substring) {
-                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -663,7 +667,7 @@ class ConversationsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error when updating informations.");
+                    that._logger.log(that.ERROR, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error when updating informations.");
                     that._logger.log("internalerror", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) Error : ", err);
                     return reject(err);
                 });
@@ -692,7 +696,7 @@ class ConversationsService extends GenericService {
         that._logger.log("info", LOG_ID + API_ID + "(getContactsMessagesFromConversationId) conversationId : ", conversationId);
 
         if (!conversationId) {
-            that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) bad or empty 'conversationId' parameter : ", conversationId);
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactsMessagesFromConversationId) bad or empty 'conversationId' parameter : ", conversationId);
             return null;
         }
 
@@ -700,10 +704,10 @@ class ConversationsService extends GenericService {
         if (!conversation) {
             return null;
         }
-        that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) conversation found, conversation.id: ", conversation.id);
+        that._logger.log(that.DEBUG, LOG_ID + "(getContactsMessagesFromConversationId) conversation found, conversation.id: ", conversation.id);
 
         if (!conversation.messages) {
-            that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' undefined!");
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' undefined!");
             return null;
         }
 
@@ -726,17 +730,17 @@ class ConversationsService extends GenericService {
         /*
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
-            that._logger.log("debug", LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
+            that._logger.log(that.DEBUG, LOG_ID + "[conversationServiceHistory] getHistoryPage(", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
             return Promise.resolve(undefined);
         }
         conversation.currentHistoryId = conversation.historyIndex;
         // */
-        that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversationId : ", conversation.id, ", messageId", messageId, ", stamp : ", stamp, ")");
+        that._logger.log(that.DEBUG, LOG_ID + "(searchMessageArchivedFromServer) conversationId : ", conversation.id, ", messageId", messageId, ", stamp : ", stamp, ")");
 
         if (conversation.historyDefered && conversation.historyDefered.promise) {
-            that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, wait for end promise's treatment.");
+            that._logger.log(that.DEBUG, LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, wait for end promise's treatment.");
             await conversation.historyDefered.promise;
-            that._logger.log("debug", LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, promise's treatment Ended.");
+            that._logger.log(that.DEBUG, LOG_ID + "(searchMessageArchivedFromServer) conversation.historyDefered already defined, promise's treatment Ended.");
         }
         // Create the defered object
         let defered = conversation.historyDefered = new Deferred();
@@ -747,7 +751,7 @@ class ConversationsService extends GenericService {
         }
         /*
           if (conversation.historyComplete) {
-              that._logger.log("debug", LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
+              that._logger.log(that.DEBUG, LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
               defered.reject();
               return defered.promise;
           }
@@ -847,12 +851,12 @@ class ConversationsService extends GenericService {
                         }
                     } */)
                         .then(function successCallback(fileDesc) {
-                                that._logger.log("debug", LOG_ID + "uploadAFileByChunk success");
+                                that._logger.log(that.DEBUG, LOG_ID + "uploadAFileByChunk success");
                                // resolve(fileDescriptor);
                                 return Promise.resolve(fileDesc);
                             },
                             function errorCallback(error) {
-                                that._logger.log("error", LOG_ID + "uploadAFileByChunk error.");
+                                that._logger.log(that.ERROR, LOG_ID + "uploadAFileByChunk error.");
                                 that._logger.log("internalerror", LOG_ID + "uploadAFileByChunk error : ", error);
 
                                 //do we need to delete the file descriptor from the server if error ??
@@ -890,7 +894,7 @@ class ConversationsService extends GenericService {
                         resolve(messagefs);
                     },
                     function errorCallback(error) {
-                        that._logger.log("error", LOG_ID + "createFileDescriptor error");
+                        that._logger.log(that.ERROR, LOG_ID + "createFileDescriptor error");
                         return reject(error);
                     });
 
@@ -1029,7 +1033,7 @@ class ConversationsService extends GenericService {
         if (originalMessage) {
             let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
             if (originalMessageFrom!==that._rest.loggedInUser.jid_im) {
-                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+                that._logger.log(that.ERROR, LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
                 throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified", "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
             }
 
@@ -1037,7 +1041,7 @@ class ConversationsService extends GenericService {
             let lastEditableMsg = conversation.getlastEditableMsg();
 
             if (lastEditableMsg.id!==originalMessage.id) {
-                that._logger.log("error", LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
+                that._logger.log(that.ERROR, LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
                 throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified", "(sendCorrectedChatMessage) forbidden Action - only last sent message can be modified");
             }
             // */
@@ -1057,7 +1061,7 @@ class ConversationsService extends GenericService {
                 this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
                 return newMsg;
             } catch (err) {
-                that._logger.log("error", LOG_ID + "sendCorrectedChatMessage error");
+                that._logger.log(that.ERROR, LOG_ID + "sendCorrectedChatMessage error");
                 let error = ErrorManager.getErrorManager().OTHERERROR(err.message, "(sendCorrectedChatMessage) error while sending corrected message : " + err);
                 // @ts-ignore
                 error.newMessageText = data;
@@ -1095,12 +1099,12 @@ class ConversationsService extends GenericService {
         that._logger.log("info", LOG_ID + API_ID + "(deleteMessage) conversation.id : ", conversation?.id, ", messageId : ", messageId);
 
         if (!conversation) {
-            that._logger.log("error", LOG_ID + "(deleteMessage) Parameter 'conversation' is missing or null");
+            that._logger.log(that.ERROR, LOG_ID + "(deleteMessage) Parameter 'conversation' is missing or null");
             throw ErrorManager.getErrorManager().BAD_REQUEST();
         }
 
         if (!messageId) {
-            that._logger.log("error", LOG_ID + "(deleteMessage) Parameter 'messageId' is missing or empty");
+            that._logger.log(that.ERROR, LOG_ID + "(deleteMessage) Parameter 'messageId' is missing or empty");
             throw ErrorManager.getErrorManager().BAD_REQUEST();
         }
 
@@ -1222,7 +1226,7 @@ class ConversationsService extends GenericService {
                     .utc()
                     .format("YYYY-MM-DDTHH:mm:ss") + "Z",
                 "onComplete": function (result) {
-                    that._logger.log("debug", LOG_ID + " removeAllMessage " + conversation.id, ", result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + " removeAllMessage " + conversation.id, ", result : ", result);
                     // FIXME : handle error message (ask Andreï)
                     resolve(result);
                 }
@@ -1351,13 +1355,13 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!conversationId) {
-                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'conversationId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateConversationBookmark) bad or empty 'conversationId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!messageId) {
-                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) bad or empty 'messageId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateConversationBookmark) bad or empty 'messageId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -1366,7 +1370,7 @@ class ConversationsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(updateConversationBookmark) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateConversationBookmark) Error when updating informations.");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateConversationBookmark) Error when updating informations.");
                     that._logger.log("internalerror", LOG_ID + "(updateConversationBookmark) Error : ", err);
                     return reject(err);
                 });
@@ -1408,7 +1412,7 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!conversationId) {
-                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) bad or empty 'conversationId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteConversationBookmark) bad or empty 'conversationId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -1417,7 +1421,7 @@ class ConversationsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(deleteConversationBookmark) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteConversationBookmark) Error when updating informations.");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteConversationBookmark) Error when updating informations.");
                     that._logger.log("internalerror", LOG_ID + "(deleteConversationBookmark) Error : ", err);
                     return reject(err);
                 });
@@ -1462,13 +1466,13 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!substring) {
-                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!peer) {
-                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -1477,7 +1481,7 @@ class ConversationsService extends GenericService {
                     that._logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(showAllMatchingMessagesForAPeer) Error when updating informations.");
+                    that._logger.log(that.ERROR, LOG_ID + "(showAllMatchingMessagesForAPeer) Error when updating informations.");
                     that._logger.log("internalerror", LOG_ID + "(showAllMatchingMessagesForAPeer) Error : ", err);
                     return reject(err);
                 });
@@ -1566,7 +1570,7 @@ class ConversationsService extends GenericService {
 
                     resolve(conversation);
                 }).catch(function (result) {
-                    that._logger.log("error", LOG_ID + "(openConversationForContact) Error.");
+                    that._logger.log(that.ERROR, LOG_ID + "(openConversationForContact) Error.");
                     that._logger.log("internalerror", LOG_ID + "(openConversationForContact) Error : ", result);
                     return __reject(result);
                 });
@@ -1796,7 +1800,7 @@ class ConversationsService extends GenericService {
                 })
                 .catch( (error) => {
                     let errorMessage = "getOrCreateOneToOneConversation " + conversationId + " failure " + error.message;
-                    that._logger.log("error", LOG_ID + "(getOrCreateOneToOneConversation) Error : ", error );
+                    that._logger.log(that.ERROR, LOG_ID + "(getOrCreateOneToOneConversation) Error : ", error );
                     that._logger.log("internalerror", LOG_ID + "(getOrCreateOneToOneConversation) Error : ", errorMessage);
 
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
@@ -1818,7 +1822,7 @@ class ConversationsService extends GenericService {
     getConversationById(conversationId : string) {
         let that = this;
         that._logger.log("info", LOG_ID + API_ID + "(getConversationById) conversationId : ", conversationId);
-        //that._logger.log("debug", LOG_ID + " (getConversationById) conversationId : ", conversationId);
+        //that._logger.log(that.DEBUG, LOG_ID + " (getConversationById) conversationId : ", conversationId);
         if (!this.conversations) {
             return null;
         }
@@ -1957,7 +1961,7 @@ class ConversationsService extends GenericService {
             // Get the associated bubble
             that._bubblesService.getBubbleByJid(bubbleJid).then((bubble) => {
                 if (!bubble) {
-                    that._logger.log("debug", LOG_ID + "(getBubbleConversation) (" + bubbleJid + ") failure : no such bubble");
+                    that._logger.log(that.DEBUG, LOG_ID + "(getBubbleConversation) (" + bubbleJid + ") failure : no such bubble");
 
                     let obj = {
                         jid: bubbleJid,
@@ -2007,7 +2011,7 @@ class ConversationsService extends GenericService {
                             resolve(__conversation);
                         }).catch(async function (error) {
                             let errorMessage = "(getBubbleConversation) (" + bubbleJid + ") failure : " + error.message;
-                            that._logger.log("error", LOG_ID + "Error.");
+                            that._logger.log(that.ERROR, LOG_ID + "Error.");
                             that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                             await that.deleteServerConversation(conversationDbId);
                             if (noError) {
@@ -2020,7 +2024,7 @@ class ConversationsService extends GenericService {
                 }
             }).catch(async (error) => {
                 let errorMessage = "(getBubbleConversation) (" + bubbleJid + ") failure : " + error.message;
-                that._logger.log("error", LOG_ID + "Error.");
+                that._logger.log(that.ERROR, LOG_ID + "Error.");
                 that._logger.log("internalerror", LOG_ID + "Error : ", errorMessage);
                 await that.deleteServerConversation(conversationDbId);
                 if (noError) {
@@ -2167,12 +2171,12 @@ class ConversationsService extends GenericService {
             that._rest.getServerConversations(that.conversationsRetrievedFormat).then((conversations : []) => {
                 // Create conversation promises
                 let conversationPromises = [];
-                that._logger.log("debug", LOG_ID + "(getServerConversations) conversations.length retrieved : ", conversations.length);
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerConversations) conversations.length retrieved : ", conversations.length);
                 conversations.forEach(function (conversationData : any) {
                     let missedImCounter = parseInt(conversationData.unreadMessageNumber, 10);
                     let conversationPromise: Promise<any>;
                     let muted = (conversationData.mute === true);
-                    //that._logger.log("debug", LOG_ID + "getServerConversations conversationData retrieved : ", conversationData);
+                    //that._logger.log(that.DEBUG, LOG_ID + "getServerConversations conversationData retrieved : ", conversationData);
                     if (conversationData.type === "user") {
                         conversationPromise = that.getOrCreateOneToOneConversation(conversationData.jid_im, conversationData.id, conversationData.lastMessageDate, conversationData.lastMessageText, missedImCounter, muted, conversationData.creationDate).catch( (err) => {
                             that._logger.log("warn", LOG_ID + "(getServerConversations) getOrCreateOneToOneConversation warn error : ", err);
@@ -2200,7 +2204,7 @@ class ConversationsService extends GenericService {
                     })
                     .catch((error) => {
                         let errorMessage = "(getServerConversations) failure: " + error.message;
-                        that._logger.log("error", LOG_ID + "error.");
+                        that._logger.log(that.ERROR, LOG_ID + "error.");
                         that._logger.log("internalerror", LOG_ID + "error : ", errorMessage);
                         return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                     });
@@ -2212,7 +2216,7 @@ class ConversationsService extends GenericService {
                         errorMessage = "(getServerConversations) failure: " + JSON.stringify(err);
                     }
 
-                    that._logger.log("error", LOG_ID + "(getServerConversations) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getServerConversations) error : ", err);
                     that._logger.log("internalerror", LOG_ID + "(getServerConversations) error : ", errorMessage);
                     return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
                 });
@@ -2285,7 +2289,7 @@ class ConversationsService extends GenericService {
             return Promise.resolve(conversation);
         }).catch( (err) => {
             let errorMessage = "createServerConversation failure: " + err.errorDetails;
-            that._logger.log("error", LOG_ID + "" + errorMessage);
+            that._logger.log(that.ERROR, LOG_ID + "" + errorMessage);
             return Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
         });
     } // */
@@ -2302,16 +2306,16 @@ class ConversationsService extends GenericService {
             }
 
             let orderedConversations = conversations? conversations.sort(that.sortFunction) : that.getConversations().sort(that.sortFunction);
-            that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- maxConversations : ", maxConversations);
+            that._logger.log(that.DEBUG, LOG_ID + "(removeOlderConversations) -- maxConversations : ", maxConversations);
             if (orderedConversations.length > maxConversations) {
-                that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- orderedConversations : ", orderedConversations.length);
+                that._logger.log(that.DEBUG, LOG_ID + "(removeOlderConversations) -- orderedConversations : ", orderedConversations.length);
                 let removePromises = [];
                 for (let index = maxConversations; index < orderedConversations.length; index++) {
                     let conv = orderedConversations[index];
                     if (conv) {
                         removePromises.push(that.deleteServerConversation(conv.id));
                     } else {
-                        that._logger.log("debug", LOG_ID + "(removeOlderConversations) -- conversation undefined, so cannot delete it.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(removeOlderConversations) -- conversation undefined, so cannot delete it.");
                     }
                 }
                 Promise.all(removePromises).then((result) => {

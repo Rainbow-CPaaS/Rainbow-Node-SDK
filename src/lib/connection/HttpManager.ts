@@ -107,13 +107,11 @@ class HttpManager {
     _core;
     public limiter: RequestRateLimiter;
 
-    static getClassName() {
-        return 'HttpManager';
-    }
+    static getClassName() { return 'HttpManager'; }
+    getClassName() { return HttpManager.getClassName(); }
 
-    getClassName() {
-        return HttpManager.getClassName();
-    }
+    static getAccessorName(){ return 'httpmanager'; }
+    getAccessorName(){ return HttpManager.getAccessorName(); }
 
     constructor(_eventEmitter: EventEmitter, _logger: Logger) {
         let that = this;

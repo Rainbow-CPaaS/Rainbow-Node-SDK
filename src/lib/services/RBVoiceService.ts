@@ -44,19 +44,18 @@ class RBVoiceService extends GenericService {
     private rbvoiceHandlerToken: any;
 
 
-    static getClassName() {
-        return 'RBVoiceService';
-    }
+    static getClassName() { return 'RBVoiceService'; }
+    getClassName() { return RBVoiceService.getClassName(); }
 
-    getClassName() {
-        return RBVoiceService.getClassName();
-    }
+    static getAccessorName(){ return 'rbvoice'; }
+    getAccessorName(){ return RBVoiceService.getAccessorName(); }
 
     constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;

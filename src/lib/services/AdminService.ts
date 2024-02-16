@@ -75,11 +75,15 @@ class AdminService extends GenericService {
     static getClassName(){ return 'AdminService'; }
     getClassName(){ return AdminService.getClassName(); }
 
+    static getAccessorName(){ return 'admin'; }
+    getAccessorName(){ return AdminService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         //this._xmpp = null;
         //this._rest = null;
@@ -91,6 +95,7 @@ class AdminService extends GenericService {
         this._logger = _logger;
 
         this._core = _core;
+
     }
 
     start(_options) { //  _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
@@ -113,7 +118,7 @@ class AdminService extends GenericService {
                 that.setStarted ();
                 resolve(undefined);
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(start) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(start) error : ", err);
                 return reject();
             }
         });
@@ -130,7 +135,7 @@ class AdminService extends GenericService {
                 that.setStopped ();
                 resolve(undefined);
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(stop) error : ", err);
                 return reject(err);
             }
         });
@@ -153,8 +158,8 @@ class AdminService extends GenericService {
      * @async
      * @category Bots
      * @return {Promise<Object, ErrorManager>} - result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | String | Bot service unique identifier. |
@@ -165,35 +170,35 @@ class AdminService extends GenericService {
      * | createdByUserId | String | Unique identifier of the bot service owner. |
      * | avatarId | String | Identifier of the Bot service's avatar.<br> |
      * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
-     * 
+     *
      * @fulfil {Object} - result
      * @category async
      */
     getRainbowSupportBotService() : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getRainbowSupportBotService) ");
-        //that._logger.log("internal", LOG_ID + "(getRainbowSupportBotService) __ entering __");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRainbowSupportBotService) ");
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) __ entering __");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getRainbowSupportBotService().then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getRainbowSupportBotService) Success result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) Success result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getRainbowSupportBotService) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(getRainbowSupportBotService) Error error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getRainbowSupportBotService) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getRainbowSupportBotService) Error error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getRainbowSupportBotService) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getRainbowSupportBotService) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method getABotServiceData
@@ -223,30 +228,30 @@ class AdminService extends GenericService {
      */
     getABotServiceData(botId : string) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getABotServiceData) botId : ", that._logger.stripStringForLogs(botId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getABotServiceData) botId : ", that._logger.stripStringForLogs(botId));
 
-    //    that._logger.log("internal", LOG_ID + "(getABotServiceData) __ entering __");
+    //    that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) __ entering __");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getABotServiceData(botId).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getABotServiceData) Success result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) Success result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getABotServiceData) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(getABotServiceData) Error error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getABotServiceData) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getABotServiceData) Error error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getABotServiceData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getABotServiceData) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
      /**
       * @public
       * @method getAllBotServices
@@ -284,32 +289,32 @@ class AdminService extends GenericService {
       */
      getAllBotServices(format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) : any {
         let that = this;
-         that._logger.log("info", LOG_ID + API_ID + "(getAllBotServices) ");
+         that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllBotServices) ");
 
-       // that._logger.log("internal", LOG_ID + "(getAllBotServices) __ entering __");
+       // that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) __ entering __");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllBotServices(format, limit, offset, sortField, sortOrder).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getAllBotServices) Success result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) Success result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllBotServices) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(getAllBotServices) Error error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllBotServices) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllBotServices) Error error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllBotServices) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllBotServices) error : ", err);
                 return reject(err);
             }
         });
     }
-    
-    // endregion Bots    
-    
+
+    // endregion Bots
+
     // region Companies and users management
     //region Company join companies links
 
@@ -355,26 +360,26 @@ class AdminService extends GenericService {
     createAJoinCompanyLink(companyId : string = undefined, description : string = undefined, isEnabled : boolean = true,
                            expirationDate : string = undefined, maxNumberUsers : number= undefined ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId));
 
-//        that._logger.log("internal", LOG_ID + "(createAJoinCompanyLink) parameters : companyId : ", companyId);
+//        that._logger.log(that.INTERNAL, LOG_ID + "(createAJoinCompanyLink) parameters : companyId : ", companyId);
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
-                
+
                 that._rest.createAJoinCompanyLink( companyId, description, isEnabled, expirationDate, maxNumberUsers ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createAJoinCompanyLink) Successfully created.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(createAJoinCompanyLink) Successfully created.");
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createAJoinCompanyLink) ErrorManager .");
-                    that._logger.log("internalerror", LOG_ID + "(createAJoinCompanyLink) ErrorManager  : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createAJoinCompanyLink) ErrorManager .");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createAJoinCompanyLink) ErrorManager  : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createAJoinCompanyLink) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createAJoinCompanyLink) error : ", err);
                 return reject(err);
             }
         });
@@ -415,32 +420,32 @@ class AdminService extends GenericService {
      */
     deleteAJoinCompanyLink(companyId : string, joinCompanyLinkId : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
-       // that._logger.log("internal", LOG_ID + "(deleteAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
+       // that._logger.log(that.INTERNAL, LOG_ID + "(deleteAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
-                
+
                 if (!joinCompanyLinkId) {
-                    that._logger.log("error", LOG_ID + "(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.deleteAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
-                    that._logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) Successfully done.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAJoinCompanyLink) Successfully done.");
                     resolve(company);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteAJoinCompanyLink) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(deleteAJoinCompanyLink) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAJoinCompanyLink) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAJoinCompanyLink) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteAJoinCompanyLink) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAJoinCompanyLink) error : ", err);
                 return reject(err);
             }
         });
@@ -479,31 +484,31 @@ class AdminService extends GenericService {
      */
     getAJoinCompanyLink(companyId : string, joinCompanyLinkId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
-                that._logger.log("internal", LOG_ID + "(getAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
 
                 if (!joinCompanyLinkId) {
-                    that._logger.log("error", LOG_ID + "(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.getAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
-                    that._logger.log("internal", LOG_ID + "(getAJoinCompanyLink) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAJoinCompanyLink) Successfully done.");
                     resolve(company);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAJoinCompanyLink) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getAJoinCompanyLink) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAJoinCompanyLink) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAJoinCompanyLink) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAJoinCompanyLink) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAJoinCompanyLink) error : ", err);
                 return reject(err);
             }
         });
@@ -556,37 +561,37 @@ class AdminService extends GenericService {
      *
      * @fulfil {Object} - result
      * @category async
-     */   
+     */
     getAllJoinCompanyLinks(companyId, format : string = "small", createdByAdminId : string = undefined, isEnabled : boolean = undefined, fromExpirationDate : string = undefined, toExpirationDate : string = undefined,
                            fromNbUsersRegistered : string = undefined, toNbUsersRegistered : string = undefined, limit : number = 100, offset : number = 0, sortField : string = undefined, sortOrder : number = 1 ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllJoinCompanyLinks) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyLinks) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
-                that._logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) parameters : companyId : ", companyId);
-                
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyLinks) parameters : companyId : ", companyId);
+
                 /* if (!name) {
-                    that._logger.log("error", LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 } // */
 
                 that._rest.getAllJoinCompanyLinks(companyId, format, createdByAdminId, isEnabled, fromExpirationDate, toExpirationDate,
                         fromNbUsersRegistered, toNbUsersRegistered, limit, offset, sortField, sortOrder).then((company) => {
-                    that._logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) Successfully.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyLinks) Successfully.");
                     resolve(company);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllJoinCompanyLinks) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyLinks) ErrorManager : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllJoinCompanyLinks) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllJoinCompanyLinks) ErrorManager : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyLinks) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllJoinCompanyLinks) error : ", err);
                 return reject(err);
             }
         });
@@ -633,43 +638,43 @@ class AdminService extends GenericService {
      *
      * @fulfil {Object} - result
      * @category async
-     */   
+     */
     updateAJoinCompanyLink(companyId : string, joinCompanyLinkId : string, description : string, isEnabled : boolean = true,
                            expirationDate : string, maxNumberUsers : number ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
-                that._logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) parameters : companyId : ", companyId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAJoinCompanyLink) parameters : companyId : ", companyId);
 
                 /*if (!name) {
-                    that._logger.log("error", LOG_ID + "(updateAJoinCompanyLink) bad or empty 'name' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateAJoinCompanyLink) bad or empty 'name' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 } // */
 
                 that._rest.updateAJoinCompanyLink(companyId, joinCompanyLinkId, description, isEnabled, expirationDate, maxNumberUsers ).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) Successfully.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateAJoinCompanyLink) Successfully.");
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateAJoinCompanyLink) ErrorManager when creating");
-                    that._logger.log("internalerror", LOG_ID + "(updateAJoinCompanyLink) ErrorManager : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateAJoinCompanyLink) ErrorManager when creating");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAJoinCompanyLink) ErrorManager : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateAJoinCompanyLink) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAJoinCompanyLink) error : ", err);
                 return reject(err);
             }
         });
     }
 
     //endregion Company join companies links
-    
+
     /**
      * @public
      * @nodered true
@@ -683,7 +688,7 @@ class AdminService extends GenericService {
      *      The logged in user musn't have already an admin or superadmin role </BR>
      *      </BR>
      *      The company is created with visibility='public' and userSelfRegisterEnabled=false. The user, promoted to 'company_admin', can then update these values. </BR>
-     * @async   
+     * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>} - result
      *
@@ -811,29 +816,29 @@ class AdminService extends GenericService {
      */
     createCompanyFromDefault(name : string, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCompanyFromDefault) ");
-        //that._logger.log("internal", LOG_ID + "(createCompanyFromDefault) parameters : strName : ", name,", country : ", country);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCompanyFromDefault) ");
+        //that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyFromDefault) parameters : strName : ", name,", country : ", country);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!name) {
-                    that._logger.log("error", LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createCompanyFromDefault(name, visibility, country, state, slogan, description, size, economicActivityClassification , website, avatarShape, giphyEnabled).then((company) => {
-                    that._logger.log("internal", LOG_ID + "(createCompanyFromDefault) Successfully created company : ", name);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyFromDefault) Successfully created company : ", name);
                     resolve(company);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createCompanyFromDefault) ErrorManager when creating");
-                    that._logger.log("internalerror", LOG_ID + "(createCompanyFromDefault) ErrorManager when creating : ", name);
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompanyFromDefault) ErrorManager when creating");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyFromDefault) ErrorManager when creating : ", name);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createCompanyFromDefault) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyFromDefault) error : ", err);
                 return reject(err);
             }
         });
@@ -852,15 +857,15 @@ class AdminService extends GenericService {
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>} - result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | List of company Objects. |
      * | limit | Number | Number of requested items |
      * | offset | Number | Requested position of the first item to retrieve |
      * | total | Number | Total number of items |
-     * 
+     *
      * @fulfil {Object} - the result
      * @category async
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
@@ -869,7 +874,7 @@ class AdminService extends GenericService {
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -893,24 +898,24 @@ class AdminService extends GenericService {
      */
     getAllCompaniesVisibleByUser ( format : string = "small", sortField : string = "name", limit  : number = 100, offset  : number = 0, sortOrder : number = 1, name ? : string, status ? : string, visibility ? : string, organisationId ? : string, isBP ? : boolean, hasBP ? : boolean, bpType ? : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllCompaniesVisibleByUser) name : ", that._logger.stripStringForLogs(name), ", joinCompanyLinkId : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCompaniesVisibleByUser) name : ", that._logger.stripStringForLogs(name), ", joinCompanyLinkId : ", format);
 
-        //that._logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) parameters : strName : ", name);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompaniesVisibleByUser) parameters : strName : ", name);
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getAllCompaniesVisibleByUser(format, sortField, limit, offset, sortOrder, name, status, visibility, organisationId , isBP, hasBP, bpType).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) Successfully getted : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompaniesVisibleByUser) Successfully getted : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCompaniesVisibleByUser) ErrorManager : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
                 return reject(err);
             }
         });
@@ -954,30 +959,30 @@ class AdminService extends GenericService {
      * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
      * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCompanyAdministrators) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCompanyAdministrators) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
-        //that._logger.log("internal", LOG_ID + "(getCompanyAdministrators) parameters : companyId : ", companyId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyAdministrators) parameters : companyId : ", companyId);
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
 
                 that._rest.getCompanyAdministrators (companyId, format, limit, offset).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getCompanyAdministrators) Successfully getted : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyAdministrators) Successfully getted : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCompanyAdministrators) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getCompanyAdministrators) ErrorManager : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCompanyAdministrators) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyAdministrators) ErrorManager : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCompaniesVisibleByUser) error : ", err);
                 return reject(err);
             }
         });
@@ -1002,30 +1007,30 @@ class AdminService extends GenericService {
      */
     createCompany(strName :string, country : string, state : string, offerType? : OFFERTYPES) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCompany) strName : ", that._logger.stripStringForLogs(strName), ", country : ", country);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCompany) strName : ", that._logger.stripStringForLogs(strName), ", country : ", country);
 
-      //  that._logger.log("internal", LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
+      //  that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!strName) {
-                    that._logger.log("error", LOG_ID + "(createCompany) bad or empty 'strName' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompany) bad or empty 'strName' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createCompany(strName, country, state, offerType).then((company) => {
-                    that._logger.log("internal", LOG_ID + "(createCompany) Successfully created company : ", strName);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) Successfully created company : ", strName);
                     resolve(company);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createCompany) ErrorManager when creating");
-                    that._logger.log("internalerror", LOG_ID + "(createCompany) ErrorManager when creating : ", strName);
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompany) ErrorManager when creating");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompany) ErrorManager when creating : ", strName);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createCompany) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompany) error : ", err);
                 return reject(err);
             }
         });
@@ -1037,7 +1042,7 @@ class AdminService extends GenericService {
      */
     removeUserFromCompany(user) : Promise<any> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(removeUserFromCompany) requested to delete user : ", user);
+        that._logger.log(that.INTERNAL, LOG_ID + "(removeUserFromCompany) requested to delete user : ", user);
 
         return that.deleteUser(user.id);
     }
@@ -1050,33 +1055,33 @@ class AdminService extends GenericService {
 
         let that = this;
 
-        that._logger.log("internal", LOG_ID + "(setVisibilityForCompany) parameters : company : ", company);
+        that._logger.log(that.INTERNAL, LOG_ID + "(setVisibilityForCompany) parameters : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!company) {
-                    that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!visibleByCompany) {
-                    that._logger.log("error", LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.setVisibilityForCompany(company.id, visibleByCompany.id).then((user) => {
-                    that._logger.log("internal", LOG_ID + "(setVisibilityForCompany) Successfully set visibility for company : ", company);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(setVisibilityForCompany) Successfully set visibility for company : ", company);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company");
-                    that._logger.log("internalerror", LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company : ", company);
+                    that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setVisibilityForCompany) ErrorManager when set visibility for company : ", company);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(setVisibilityForCompany) _exiting_");
+                that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) _exiting_");
                 return reject(err);
             }
         });
@@ -1105,7 +1110,7 @@ class AdminService extends GenericService {
      */
     createUserInCompany(email: string, password : string, firstname : string, lastname : string, companyId : string, language : string, isCompanyAdmin: boolean = false, roles: Array<string> = ["user"])  : Promise<Contact> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createUserInCompany) email : ", that._logger.stripStringForLogs(email), ", lastname : ", that._logger.stripStringForLogs(lastname));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createUserInCompany) email : ", that._logger.stripStringForLogs(email), ", lastname : ", that._logger.stripStringForLogs(lastname));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1115,25 +1120,25 @@ class AdminService extends GenericService {
                 let isAdmin = isCompanyAdmin || false;
 
                 if (!email) {
-                    that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!password) {
-                    that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!firstname) {
-                    that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!lastname) {
-                    that._logger.log("error", LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -1157,20 +1162,20 @@ class AdminService extends GenericService {
                         p_nickName , p_title , p_jobTitle , p_department , p_tags , p_emails , p_phoneNumbers , p_country , p_state , p_language ,
                         p_timezone , p_accountType , p_roles , p_adminType , p_isActive , p_isInitialized , p_visibility, p_timeToLive , p_authenticationType ,
                         p_authenticationExternalUid , p_userInfo1 , p_selectedTheme , p_userInfo2 , p_isAdmin ).then((user : any) => {
-                    that._logger.log("debug", LOG_ID + "(createUserInCompany) Successfully created user for account : ", email);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createUserInCompany) Successfully created user for account : ", email);
                     let contact = that._contacts.createBasicContact(user.jid_im, undefined);
-                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
                     contact.updateFromUserData(user);
                     contact.avatar = that._contacts.getAvatarByContactId(user.id, user.lastAvatarUpdateDate);
                     resolve(contact);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account ");
-                    that._logger.log("internalerror", LOG_ID + "(createUserInCompany) ErrorManager when creating user for account : ", email);
+                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) ErrorManager when creating user for account ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createUserInCompany) ErrorManager when creating user for account : ", email);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createUserInCompany) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createUserInCompany) error : ", err);
                 reject(err);
             }
         });
@@ -1363,7 +1368,7 @@ class AdminService extends GenericService {
      * | organisationId | String | In addition to User companyId, optional identifier to indicate the user belongs also to an organization |
      * | siteId | String | In addition to User companyId, optional identifier to indicate the user belongs also to a site |
      * | companyName | String | User company name |
-     * | isInDefaultCompany | Boolean | Is user in default company | 
+     * | isInDefaultCompany | Boolean | Is user in default company |
      * | isActive | Boolean | Is user active |
      * | isInitialized | Boolean | Is user initialized |
      * | initializationDate | Date-Time | User initialization date |
@@ -1429,9 +1434,9 @@ class AdminService extends GenericService {
                timeToLive: number = -1, authenticationType: string = undefined,
                authenticationExternalUid: string = undefined, userInfo1: string = undefined,
                selectedTheme: string = undefined, userInfo2: string = undefined, isAdmin: boolean = false): Promise<Contact> {
-        
+
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createUser) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createUser) ");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1440,22 +1445,22 @@ class AdminService extends GenericService {
                         nickName, title, jobTitle, department, tags, emails, phoneNumbers, country, state, language,
                         timezone, accountType, roles, adminType, isActive, isInitialized, visibility, timeToLive, authenticationType,
                         authenticationExternalUid, userInfo1, selectedTheme, userInfo2, isAdmin).then((user: any) => {
-                    that._logger.log("debug", LOG_ID + "(createUser) Successfully created user for account : ", loginEmail);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createUser) Successfully created user for account : ", loginEmail);
                     /* let contact = that._contacts.createBasicContact(user.jid_im, undefined);
-                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
                     contact.updateFromUserData(user);
                     contact.avatar = that._contacts.getAvatarByContactId(user.id, user.lastAvatarUpdateDate);
                     resolve(contact);
                     // */
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createUser) ErrorManager when creating user for account ");
-                    that._logger.log("internalerror", LOG_ID + "(createUser) ErrorManager when creating user for account : ", loginEmail);
+                    that._logger.log(that.ERROR, LOG_ID + "(createUser) ErrorManager when creating user for account ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createUser) ErrorManager when creating user for account : ", loginEmail);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createUser) error : ", err);
                 reject(err);
             }
         });
@@ -1480,7 +1485,7 @@ class AdminService extends GenericService {
      */
     createGuestUser(firstname, lastname, language, timeToLive) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createGuestUser) lastname : ", that._logger.stripStringForLogs(lastname), ", firstname : ", that._logger.stripStringForLogs(firstname));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createGuestUser) lastname : ", that._logger.stripStringForLogs(lastname), ", firstname : ", that._logger.stripStringForLogs(firstname));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1488,34 +1493,34 @@ class AdminService extends GenericService {
                 language = language || "en-US";
 
                 if (!firstname) {
-                    that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!lastname) {
-                    that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (timeToLive && isNaN(timeToLive)) {
-                    that._logger.log("error", LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user : any) => {
-                    that._logger.log("debug", LOG_ID + "(createGuestUser) Successfully created guest user for account : ", user.loginEmail);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createGuestUser) Successfully created guest user for account : ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + `(createGuestUser) Error when creating guest user`);
-                    that._logger.log("internalerror", LOG_ID + `(createGuestUser) Error when creating guest user with firstname: ${firstname}, lastname: ${lastname}`);
+                    that._logger.log(that.ERROR, LOG_ID + `(createGuestUser) Error when creating guest user`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createGuestUser) Error when creating guest user with firstname: ${firstname}, lastname: ${lastname}`);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createGuestUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createGuestUser) error : ", err);
                 return reject(err);
             }
         });
@@ -1539,27 +1544,27 @@ class AdminService extends GenericService {
      */
     createAnonymousGuestUser(timeToLive) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createAnonymousGuestUser) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAnonymousGuestUser) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (timeToLive && isNaN(timeToLive)) {
-                    that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createGuestUser(null, null, null, timeToLive).then((user : any) => {
-                    that._logger.log("internal", LOG_ID + "(createAnonymousGuestUser) Successfully created guest user for account : ", user.loginEmail);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createAnonymousGuestUser) Successfully created guest user for account : ", user.loginEmail);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createAnonymousGuestUser) ErrorManager when creating anonymous guest user");
+                    that._logger.log(that.ERROR, LOG_ID + "(createAnonymousGuestUser) ErrorManager when creating anonymous guest user");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createAnonymousGuestUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createAnonymousGuestUser) error : ", err);
                 reject(err);
             }
         });
@@ -1584,7 +1589,7 @@ class AdminService extends GenericService {
      */
     inviteUserInCompany(email, companyId, language, message) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(inviteUserInCompany) companyId : ", that._logger.stripStringForLogs(companyId), ", email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(inviteUserInCompany) companyId : ", that._logger.stripStringForLogs(companyId), ", email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1594,28 +1599,28 @@ class AdminService extends GenericService {
                 message = message || null;
 
                 if (!email) {
-                    that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!companyId) {
-                    that._logger.log("error", LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.inviteUser(email, companyId, language, message).then((user) => {
-                    that._logger.log("internal", LOG_ID + "(inviteUserInCompany) Successfully inviting user for account : ", email);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(inviteUserInCompany) Successfully inviting user for account : ", email);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account");
-                    that._logger.log("internalerror", LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account : ", email, ", error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteUserInCompany) ErrorManager when inviting user for account : ", email, ", error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(inviteUserInCompany) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteUserInCompany) error : ", err);
                 return reject(err);
             }
         });
@@ -1638,34 +1643,34 @@ class AdminService extends GenericService {
      */
     changePasswordForUser(password, userId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(changePasswordForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(changePasswordForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!password) {
-                    that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!userId) {
-                    that._logger.log("error", LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.changePassword(password, userId).then((user) => {
-                    that._logger.log("internal", LOG_ID + "(changePasswordToUser) Successfully changing password for user account : ", userId);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(changePasswordToUser) Successfully changing password for user account : ", userId);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account");
-                    that._logger.log("internalerror", LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account : ", userId);
+                    that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(changePasswordToUser) ErrorManager when changing password for user account : ", userId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(changePasswordToUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(changePasswordToUser) error : ", err);
                 return reject(err);
             }
         });
@@ -1688,40 +1693,40 @@ class AdminService extends GenericService {
      */
     updateInformationForUser(objData, userId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateInformationForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateInformationForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!objData) {
-                    that._logger.log("error", LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if ("loginEmail" in objData) {
-                    that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if ("password" in objData) {
-                    that._logger.log("error", LOG_ID + "(updateInformationForUser) can't change the password with that API");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the password with that API");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.updateInformation(objData, userId).then((user) => {
-                    that._logger.log("internal", LOG_ID + "(updateInformationForUser) Successfully changing information for user account : ", userId);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateInformationForUser) Successfully changing information for user account : ", userId);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account");
-                    that._logger.log("internalerror", LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account : ", userId);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateInformationForUser) ErrorManager when changing information for user account : ", userId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateInformationForUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateInformationForUser) error : ", err);
                 return reject(err);
             }
         });
@@ -1743,28 +1748,28 @@ class AdminService extends GenericService {
      */
     deleteUser(userId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!userId) {
-                    that._logger.log("error", LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.deleteUser(userId).then((user) => {
-                    that._logger.log("debug", LOG_ID + "(deleteUser) Successfully deleting user account ");
-                    that._logger.log("internal", LOG_ID + "(deleteUser) Successfully deleting user : ", user);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteUser) Successfully deleting user account ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteUser) Successfully deleting user : ", user);
                     resolve(user);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteUser) ErrorManager when deleting user account : ", userId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteUser) ErrorManager when deleting user account : ", userId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUser) error : ", err);
                 return reject(err);
             }
         });
@@ -1787,11 +1792,11 @@ class AdminService extends GenericService {
      * This filter allow to get all the End Customer companies associated to a given Business Partner company. </BR>
      * </BR>
      *  Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. </BR>
-     *  Users with role bp_admin or bp_finance can use this filter on their own company. 
+     *  Users with role bp_admin or bp_finance can use this filter on their own company.
      * @param {string} catalogId Allows to filter companies list on catalogId field. </BR>
      *     This filter allow to get all the companies linked to a given catalogId. </BR>
      *         </BR>
-     *             Only users with role superadmin, support or business_admin can use this filter. 
+     *             Only users with role superadmin, support or business_admin can use this filter.
      * @param {string} offerId Allows to filter companies list on companies having subscribed to the provided offerId.
      * @param {boolean} offerCanBeSold Allows to filter companies list on companies having subscribed to offers with canBeSold=true. </BR>
      *     This filter can only be used with the value true (false is not relevant, as all companies have a subscription to Essential which has canBeSold=false, so all companies would match offerCanBeSold=false).
@@ -1806,14 +1811,14 @@ class AdminService extends GenericService {
      * @param {string} salesforceAccountId Allows to filter companies list on salesforceAccountId field. </BR>
      * The search is done on the whole salesforceAccountId, case sensitive (no partial search). </BR>
      *  </BR>
-     * Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. 
+     * Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter.
      * @param {string} selectedAppCustomisationTemplate Allows to filter companies list on application customisation template applied for the company. </BR>
      *     This filter allows to get a list of companies for which we have applied the same application customisation template. </BR>
      *         </BR>
      *     Only users with role superadmin, support, bp_admin, admin can use this filter.
      * @param {boolean} selectedThemeObj Allows to return selectedTheme attribute as an object: </BR>
      * - true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }), </BR>
-     * - false return selectedTheme as a string. 
+     * - false return selectedTheme as a string.
      * @param {string} offerGroupName Allows to filter companies list on companies having subscribed to offers with provided groupName(s). </BR>
      *    Only users with role superadmin, support, business_admin, bp_admin or bp_finance can use this filter. </BR>
      *    groupName can be retrieved from API GET /api/rainbow/subscription/v1.0/companies/:companyId/offers </BR>
@@ -1824,7 +1829,7 @@ class AdminService extends GenericService {
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). </BR>
      *     Warning: if offset > total, no results are returned.
      * @param {number} sortOrder Specify order when sorting items list. </BR>
-     *     Default value : 1 </BR> 
+     *     Default value : 1 </BR>
      *     Possible values : -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
      *      </BR>
@@ -1869,23 +1874,23 @@ class AdminService extends GenericService {
      */
     getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllCompanies) format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCompanies) format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType).then((companies : any) => {
-                    that._logger.log("debug", LOG_ID + "(getAllCompanies) Successfully get all companies");
-                    that._logger.log("internal", LOG_ID + "(getAllCompanies) : companies values : ", companies);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) Successfully get all companies");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) : companies values : ", companies);
                     resolve(companies);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllCompanies) ErrorManager when get All companies");
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllCompanies) ErrorManager when get All companies");
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllCompanies) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCompanies) error : ", err);
                 return reject(err);
             }
         });
@@ -1902,17 +1907,17 @@ class AdminService extends GenericService {
             try {
 
                 that._rest.getCompany(companyId).then((company : any) => {
-                    that._logger.log("debug", LOG_ID + "(getCompanyById) Successfully get a company");
-                    that._logger.log("internal", LOG_ID + "(getCompanyById) : companies values : ", company.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCompanyById) Successfully get a company");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyById) : companies values : ", company.data);
                     resolve(company.data);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCompanyById) ErrorManager when get a company");
+                    that._logger.log(that.ERROR, LOG_ID + "(getCompanyById) ErrorManager when get a company");
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCompanyById) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyById) error : ", err);
                 return reject(err);
             }
         });
@@ -1925,23 +1930,23 @@ class AdminService extends GenericService {
     removeCompany(company) {
         let that = this;
 
-        this._logger.log("internal", LOG_ID + "(removeCompany) parameters : company : ", company);
+        that._logger.log(that.INTERNAL, LOG_ID + "(removeCompany) parameters : company : ", company);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.deleteCompany(company.id).then((companies : any) => {
-                    that._logger.log("debug", LOG_ID + "(removeCompany) Successfully remove company");
-                    that._logger.log("internal", LOG_ID + "(removeCompany) : companies values : ", companies.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeCompany) Successfully remove company");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeCompany) : companies values : ", companies.data);
                     resolve(companies);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(removeCompany) ErrorManager when removing company");
+                    that._logger.log(that.ERROR, LOG_ID + "(removeCompany) ErrorManager when removing company");
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCompany) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompany) error : ", err);
                 return reject(err);
             }
         });
@@ -1969,24 +1974,24 @@ class AdminService extends GenericService {
      */
     getAllUsers(format = "small", offset = 0, limit = 100, sortField="loginEmail") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllUsers) sortField : ", sortField, ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsers) sortField : ", sortField, ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllUsers(format, offset, limit, sortField).then((users : any) => {
-                    that._logger.log("debug", LOG_ID + "(getAllUsers) Successfully get all companies");
-                    that._logger.log("internal", LOG_ID + "(getAllUsers) : companies values : ", users.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllUsers) Successfully get all companies");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsers) : companies values : ", users.data);
                     resolve(users.data);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllUsers) ErrorManager when get All companies");
-                    that._logger.log("internalerror", LOG_ID + "(getAllUsers) ErrorManager when get All companies : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllUsers) ErrorManager when get All companies");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsers) ErrorManager when get All companies : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllUsers) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsers) error : ", err);
                 return reject(err);
             }
         });
@@ -2071,10 +2076,10 @@ class AdminService extends GenericService {
                         selectedAppCustomisationTemplate : string, format : string = "small", limit : string = "100",
                         offset : string, sortField : string = "displayName", sortOrder : string, displayName : string, useEmails : boolean, companyName : string, loginEmail : string, email : string, visibility : string, organisationId : string, siteId : string, jid_im : string, jid_tel : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllUsersByFilter) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersByFilter) ");
 
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getAllUsersByFilter) contact, Ask the server...");
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) contact, Ask the server...");
             that._rest.getAllUsersByFilter(phoneNumbers,  phoneNumber, searchEmail , companyId , roles , excludeRoles , tags , departments , isTerminated  , isActivated , fileSharingCustomisation , userTitleNameCustomisation , softphoneOnlyCustomisation ,
                     useRoomCustomisation ,  phoneMeetingCustomisation ,
                     useChannelCustomisation , useScreenSharingCustomisation , useWebRTCVideoCustomisation , useWebRTCAudioCustomisation , instantMessagesCustomisation , userProfileCustomisation , fileStorageCustomisation ,
@@ -2114,24 +2119,24 @@ class AdminService extends GenericService {
      */
     getAllUsersByCompanyId(format = "small", offset = 0, limit = 100, sortField="loginEmail", companyId: string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllUsersByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", sortField : ", sortField);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", sortField : ", sortField);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId).then((users : any) => {
-                    that._logger.log("debug", LOG_ID + "(getAllUsersByCompanyId) Successfully get all companies");
-                    that._logger.log("internal", LOG_ID + "(getAllUsersByCompanyId) : companies values : ", users.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByCompanyId) Successfully get all companies");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsersByCompanyId) : companies values : ", users.data);
                     resolve(users.data);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllUsersByCompanyId) ErrorManager when get All companies");
-                    that._logger.log("internalerror", LOG_ID + "(getAllUsersByCompanyId) ErrorManager when get All companies : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllUsersByCompanyId) ErrorManager when get All companies");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) ErrorManager when get All companies : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllUsersByCompanyId) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) error : ", err);
                 return reject(err);
             }
         });
@@ -2161,24 +2166,24 @@ class AdminService extends GenericService {
      */
     getAllUsersBySearchEmailByCompanyId(format = "small", offset = 0, limit = 100, sortField="loginEmail", companyId: string, searchEmail: string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllUsersBySearchEmailByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersBySearchEmailByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId, searchEmail).then((users : any) => {
-                    that._logger.log("debug", LOG_ID + "(getAllUsersBySearchEmailByCompanyId) Successfully get all companies");
-                    that._logger.log("internal", LOG_ID + "(getAllUsersBySearchEmailByCompanyId) : companies values : ", users.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) Successfully get all companies");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) : companies values : ", users.data);
                     resolve(users.data);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllUsersBySearchEmailByCompanyId) ErrorManager when get All companies");
-                    that._logger.log("internalerror", LOG_ID + "(getAllUsersBySearchEmailByCompanyId) ErrorManager when get All companies : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) ErrorManager when get All companies");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) ErrorManager when get All companies : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllUsersBySearchEmailByCompanyId) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) error : ", err);
                 return reject(err);
             }
         });
@@ -2200,24 +2205,24 @@ class AdminService extends GenericService {
      */
     getContactInfos(userId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactInfos) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactInfos) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getContactInfos(userId).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(getContactInfos) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(getContactInfos) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactInfos) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getContactInfos) ErrorManager when get contact infos ");
-                    that._logger.log("internalerror", LOG_ID + "(getContactInfos) ErrorManager when get contact infos : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactInfos) ErrorManager when get contact infos ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactInfos) ErrorManager when get contact infos : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getContactInfos) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getContactInfos) error : ", err);
                 return reject(err);
             }
         });
@@ -2334,7 +2339,7 @@ class AdminService extends GenericService {
      * <li> <code>SK</code>: "Saskatchewan", </BR>
      * <li> <code>YT</code>: "Yukon" </BR>
      * {string="/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"}     [infos.language]      User language </BR>
-     * </BR> 
+     * </BR>
      * </BR> Language format is composed of locale using format <code>ISO 639-1</code>, with optionally the regional variation using <code>ISO 3166‑1 alpha-2</code> (separated by hyphen). </BR>
      * </BR> Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... </BR>
      * </BR> More information about the format can be found on this <a href="https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes">link</a>. </BR>
@@ -2386,10 +2391,10 @@ class AdminService extends GenericService {
      *    key1 	string User's custom data key1. </BR>
      *    key2 	string Company's custom data key2. </BR>
      *  customData can only be created/updated by: </BR>
-     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. </BR> 
+     *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. </BR>
      *   Restrictions on customData Object: </BR>
      *   max 20 keys, </BR>
-     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). </BR>   
+     *   max key length: 64 characters, max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). </BR>
      *
      * @async
      * @return {Promise<Object, ErrorManager>}
@@ -2398,7 +2403,7 @@ class AdminService extends GenericService {
      */
     updateContactInfos(userId, infos) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateContactInfos) userId : ", that._logger.stripStringForLogs(userId), ", infos : ", that._logger.stripStringForLogs(infos));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateContactInfos) userId : ", that._logger.stripStringForLogs(userId), ", infos : ", that._logger.stripStringForLogs(infos));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2457,12 +2462,12 @@ class AdminService extends GenericService {
                  */
 
                 that._rest.putContactInfos(userId, data).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(updateContactInfos) Successfully put all infos");
-                    that._logger.log("internal", LOG_ID + "(updateContactInfos) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateContactInfos) Successfully put all infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateContactInfos) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(updateContactInfos) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(updateContactInfos) ErrorManager when put infos");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateContactInfos) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateContactInfos) ErrorManager when put infos");
                     return reject(err);
                 });
 
@@ -2509,18 +2514,18 @@ class AdminService extends GenericService {
      */
     acceptJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(acceptJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(acceptJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
-          //  that._logger.log("debug", LOG_ID + "(acceptJoinCompanyInvitation) invitationId : " + invitationId);
+          //  that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log("debug", LOG_ID + "(acceptJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.acceptJoinCompanyInvitation(invitationId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(acceptJoinCompanyInvitation) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(acceptJoinCompanyInvitation) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -2562,18 +2567,18 @@ class AdminService extends GenericService {
      */
     declineJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(declineJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(declineJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
-          //  that._logger.log("debug", LOG_ID + "(declineJoinCompanyInvitation) invitationId : " + invitationId);
+          //  that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log("debug", LOG_ID + "(declineJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.declineJoinCompanyInvitation(invitationId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(declineJoinCompanyInvitation) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(declineJoinCompanyInvitation) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -2614,18 +2619,18 @@ class AdminService extends GenericService {
      */
     getJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
-            // that._logger.log("debug", LOG_ID + "(getJoinCompanyInvitation) invitationId : " + invitationId);
+            // that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log("debug", LOG_ID + "(getJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
+                that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.getJoinCompanyInvitation(invitationId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyInvitation) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -2679,13 +2684,13 @@ class AdminService extends GenericService {
      */
     getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllJoinCompanyInvitations) format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyInvitations) format : ", format);
 
         return new Promise((resolve, reject) => {
-            //that._logger.log("debug", LOG_ID + "(getAllJoinCompanyInvitations) . ");
- 
+            //that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyInvitations) . ");
+
             that._rest.getAllJoinCompanyInvitations(sortField, status, format, limit, offset, sortOrder ).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyInvitations) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -2732,24 +2737,24 @@ class AdminService extends GenericService {
      */
     cancelJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(cancelJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(cancelJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.cancelJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(cancelJoinCompanyRequest) Successfully.");
-                    that._logger.log("internal", LOG_ID + "(cancelJoinCompanyRequest) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(cancelJoinCompanyRequest) Successfully.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(cancelJoinCompanyRequest) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(cancelJoinCompanyRequest) ErrorManager. ");
-                    that._logger.log("internalerror", LOG_ID + "(cancelJoinCompanyRequest) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(cancelJoinCompanyRequest) ErrorManager. ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(cancelJoinCompanyRequest) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(cancelJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(cancelJoinCompanyRequest) error : ", err);
                 return reject(err);
             }
         });
@@ -2790,24 +2795,24 @@ class AdminService extends GenericService {
      */
     getJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(getJoinCompanyRequest) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(getJoinCompanyRequest) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyRequest) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyRequest) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getJoinCompanyRequest) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getJoinCompanyRequest) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getJoinCompanyRequest) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getJoinCompanyRequest) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getJoinCompanyRequest) error : ", err);
                 return reject(err);
             }
         });
@@ -2856,24 +2861,24 @@ class AdminService extends GenericService {
      */
     getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllJoinCompanyRequests) sortField : ", sortField, ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyRequests) sortField : ", sortField, ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllJoinCompanyRequests(sortField , status, format, limit, offset, sortOrder ).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(getAllJoinCompanyRequests) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyRequests) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyRequests) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllJoinCompanyRequests) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(getAllJoinCompanyRequests) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllJoinCompanyRequests) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllJoinCompanyRequests) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAllJoinCompanyRequests) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAllJoinCompanyRequests) error : ", err);
                 return reject(err);
             }
         });
@@ -2916,24 +2921,24 @@ class AdminService extends GenericService {
      */
     resendJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(resendJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(resendJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.resendJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(resendJoinCompanyRequest) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(resendJoinCompanyRequest) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(resendJoinCompanyRequest) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(resendJoinCompanyRequest) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(resendJoinCompanyRequest) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(resendJoinCompanyRequest) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(resendJoinCompanyRequest) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(resendJoinCompanyRequest) ErrorManager error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(resendJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(resendJoinCompanyRequest) error : ", err);
                 return reject(err);
             }
         });
@@ -2980,30 +2985,30 @@ class AdminService extends GenericService {
      * | companyAdminLoginEmail | String |     |
      *
      * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
-     * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory. 
+     * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyLinkId  Id of the join company invite associated to the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
      */
     requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(requestToJoinCompany) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(requestToJoinCompany) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.requestToJoinCompany(requestedCompanyId, requestedCompanyAdminId, requestedCompanyLinkId, lang).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(requestToJoinCompany) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(requestToJoinCompany) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(requestToJoinCompany) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(requestToJoinCompany) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(requestToJoinCompany) ErrorManager.");
-                    that._logger.log("internalerror", LOG_ID + "(requestToJoinCompany) ErrorManager : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(requestToJoinCompany) ErrorManager.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(requestToJoinCompany) ErrorManager : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(requestToJoinCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(requestToJoinCompany) error : ", err);
                 return reject(err);
             }
         });
@@ -3070,23 +3075,23 @@ class AdminService extends GenericService {
      */
     applyCustomisationTemplates(name : string, companyId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(applyCustomisationTemplates) name : ", that._logger.stripStringForLogs(name), ", companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(applyCustomisationTemplates) name : ", that._logger.stripStringForLogs(name), ", companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
-                //that._logger.log("internal", LOG_ID + "(applyTemplates) : name : ", name, " companyId : ", companyId, " userId : ", userId);
-                //that._logger.log("info", LOG_ID + "(applyTemplates) enter.");
+                //that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) : name : ", name, " companyId : ", companyId, " userId : ", userId);
+                //that._logger.log(that.INFO, LOG_ID + "(applyTemplates) enter.");
                 that._rest.applyCustomisationTemplates(name, companyId, userId).then(json => {
-                    that._logger.log("debug", LOG_ID + "(applyTemplates) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(applyTemplates) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(applyTemplates) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(applyTemplates) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(applyTemplates) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(applyTemplates) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(applyTemplates) error : ", err);
                 return reject(err);
             }
         });
@@ -3099,7 +3104,7 @@ class AdminService extends GenericService {
      * @instance
      * @description
      *      This API allows an administrator to create an application customisation template for the given company.
-     *      
+     *
      *      - The name of the template must be unique among all of its belonging to the company.
      *      - The template is always private. So it has automatically private visibility.
      *      - It can include following items. When some of them are missing, the default value enabled is used. So the body can include only items to set with the statedisabled.
@@ -3115,7 +3120,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.</BR>
      * </BR>
      * instantMessagesCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can use instant messages.</BR>
      * - disabled: No user of the company can use instant messages.</BR>
      * </BR>
@@ -3124,7 +3129,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the is allowed to send animated GIFs in conversations</BR>
      * </BR>
      * useGifCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can send animated GIFs in conversations.</BR>
      * - disabled: The user can't send animated GIFs in conversations.</BR>
      * </BR>
@@ -3133,7 +3138,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.</BR>
      * </BR>
      * fileSharingCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.</BR>
      * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.</BR>
      * </BR>
@@ -3142,7 +3147,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to upload/download/copy or share documents.</BR>
      * </BR>
      * fileStorageCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can manage and share files.</BR>
      * - disabled: No user of the company can manage and share files.</BR>
      * </BR>
@@ -3160,7 +3165,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.</BR>
      * </BR>
      * useDialOutCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can be called by the Rainbow conference bridge.</BR>
      * - disabled: The user can't be called by the Rainbow conference bridge.</BR>
      *</BR>
@@ -3169,7 +3174,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to create channels or be a member of channels.</BR>
      * </BR>
      * useChannelCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can use some channels.</BR>
      * - disabled: No user of the company can use some channel.</BR>
      * </BR>
@@ -3178,7 +3183,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).</BR>
      * </BR>
      * useRoomCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can use bubbles.</BR>
      * - disabled: No user of the company can use bubbles.</BR>
      *</BR>
@@ -3187,7 +3192,7 @@ class AdminService extends GenericService {
      * Define if a user has the right to share his screen.</BR>
      * </BR>
      * useScreenSharingCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can share his screen.</BR>
      * - disabled: No user of the company can share his screen.</BR>
      * </BR>
@@ -3195,7 +3200,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).</BR>
      * </BR>
      * useWebRTCVideoCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can switch to a Web RTC audio conversation.</BR>
      * - disabled: No user of the company can switch to a Web RTC audio conversation.</BR>
      *</BR>
@@ -3204,7 +3209,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).</BR>
      * </BR>
      * useWebRTCVideoCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can switch to a Web RTC video conversation.</BR>
      * - disabled: No user of the company can switch to a Web RTC video conversation.</BR>
      * </BR>
@@ -3213,7 +3218,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).</BR>
      * </BR>
      * recordingConversationCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can record a peer to peer or a multi-party call.</BR>
      * - disabled: The user can't record a peer to peer or a multi-party call.</BR>
      * </BR>
@@ -3222,7 +3227,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to change his presence manually or only use automatic states.</BR>
      * </BR>
      * overridePresenceCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can change his presence.</BR>
      * - disabled: No user of the company can change his presence.</BR>
      * </BR>
@@ -3231,7 +3236,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).</BR>
      * </BR>
      * userProfileCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can modify his profile.</BR>
      * - disabled: No user of the company can modify his profile.</BR>
      *</BR>
@@ -3240,7 +3245,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company is allowed to change some profile data.</BR>
      * </BR>
      * userTitleNameCustomisation can be:</BR>
-     * 
+     *
      * - enabled: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.</BR>
      * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.</BR>
      *</BR>
@@ -3249,7 +3254,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to modify telephony settings like forward activation ....</BR>
      * </BR>
      * changeTelephonyCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can modify telephony settings.</BR>
      * - disabled: The user can't modify telephony settings.</BR>
      * </BR>
@@ -3258,7 +3263,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to change his client general settings.</BR>
      * </BR>
      * changeSettingsCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can change all client general settings.</BR>
      * - disabled: The user can't change any client general setting.</BR>
      * </BR>
@@ -3267,7 +3272,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.</BR>
      * </BR>
      * fileCopyCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can make a copy of a file to his personal cloud space.</BR>
      * - disabled: The user can't make a copy of a file to his personal cloud space.</BR>
      * </BR>
@@ -3276,7 +3281,7 @@ class AdminService extends GenericService {
      * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.</BR>
      * </BR>
      * fileTransferCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can transfer a file doesn't belong to him.</BR>
      * - disabled: The user can't transfer a file doesn't belong to him.</BR>
      * </BR>
@@ -3285,7 +3290,7 @@ class AdminService extends GenericService {
      * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company</BR>
      * </BR>
      * forbidFileOwnerChangeCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user can't give the ownership of his file.</BR>
      * - disabled: The user can give the ownership of his file.</BR>
      * </BR>
@@ -3294,7 +3299,7 @@ class AdminService extends GenericService {
      * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.</BR>
      * </BR>
      * readReceiptsCustomisation can be:</BR>
-     * 
+     *
      * - enabled: The user allow the sender to check if an IM is read.</BR>
      * - disabled: The user doesn't allow the sender to check if an IM is read.</BR>
      * </BR>
@@ -3303,7 +3308,7 @@ class AdminService extends GenericService {
      * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.</BR>
      * </BR>
      * useSpeakingTimeStatistics can be:</BR>
-     * 
+     *
      * - enabled: The user can use meeting speaking time statistics.</BR>
      * - disabled: The user can't can use meeting speaking time statistics.</BR>
      * </BR>
@@ -3315,27 +3320,27 @@ class AdminService extends GenericService {
                                  userProfileCustomisation : string, userTitleNameCustomisation : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, fileCopyCustomisation : string,
                                  fileTransferCustomisation : string, forbidFileOwnerChangeCustomisation : string, readReceiptsCustomisation : string, useSpeakingTimeStatistics : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCustomisationTemplate) name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCustomisationTemplate) name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(createCustomisationTemplate) : name : ", name);
-                that._logger.log("info", LOG_ID + "(createCustomisationTemplate) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCustomisationTemplate) : name : ", name);
+                that._logger.log(that.INFO, LOG_ID + "(createCustomisationTemplate) enter.");
                 that._rest.createCustomisationTemplate(name , ownedByCompany , visibleBy , instantMessagesCustomisation , useGifCustomisation ,
                         fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
                         useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
                         userProfileCustomisation , userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
                         fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics ).then(json => {
-                    that._logger.log("debug", LOG_ID + "(createCustomisationTemplate) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(createCustomisationTemplate) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createCustomisationTemplate) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCustomisationTemplate) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(createCustomisationTemplate) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(createCustomisationTemplate) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createCustomisationTemplate) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCustomisationTemplate) error : ", err);
                 return reject(err);
             }
         });
@@ -3348,13 +3353,13 @@ class AdminService extends GenericService {
      * @instance
      * @description
      *      This API allows an administrator to delete an application customisation template.
-     *      
+     *
      *      Users with superadmin role can delete any private template.
-     *      
+     *
      *      Users with bp_admin or admin role can only delete template they owned.
      *      The template to delete may have been applied to one or several companies. So, before the template deletion, we have to go back to the application of this template. A default template is applyed instead (Full)
      *      This is done automitically and it could be necessary to advice the administrator before deleting the template.
-     *      You can find on which companies the template has been applied by using the API getAllCompanies using the parameter selectedAppCustomisationTemplate=:templateId       
+     *      You can find on which companies the template has been applied by using the API getAllCompanies using the parameter selectedAppCustomisationTemplate=:templateId
      * @async
      * @category Customisation Template
      * @return {Promise<any>}
@@ -3364,23 +3369,23 @@ class AdminService extends GenericService {
      */
      deleteCustomisationTemplate(templateId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(deleteCustomisationTemplate) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log(that.INFO, LOG_ID + "(deleteCustomisationTemplate) enter.");
                 that._rest.deleteCustomisationTemplate(templateId).then(json => {
-                    that._logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomisationTemplate) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomisationTemplate) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(deleteCustomisationTemplate) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCustomisationTemplate) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCustomisationTemplate) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCustomisationTemplate) error : ", err);
                 return reject(err);
             }
         });
@@ -3393,7 +3398,7 @@ class AdminService extends GenericService {
      * @instance
      * @description
      *      This API allows administrator to retrieve application customisation templates supported by a given company.
-     *      
+     *
      *      superadmin and support can get templates available for any company (the requested company has to be specified in companyId query parameter. bp_admin and company_admin get templates for its own company (no need to specify companyId parameter).
      * @async
      * @category Customisation Template
@@ -3401,7 +3406,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Json object containing the result of the method
      * @category async
      * @param {string} companyId Select a company other than the one the user belongs to (must be an admin of the company)
-     * @param {string} format Allows to retrieve more or less templates details in response.</BR>  
+     * @param {string} format Allows to retrieve more or less templates details in response.</BR>
      * - small: id, name, visibility</BR>
      * - medium: id, name, visibility, visibleBy, type, createdBy, creationDate, ownedByCompany</BR>
      * - full: all fields</BR>
@@ -3415,23 +3420,23 @@ class AdminService extends GenericService {
      */
     getAllAvailableCustomisationTemplates (companyId : string = undefined, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllAvailableCustomisationTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllAvailableCustomisationTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : companyId : ", companyId, " format : ", format, " limit : ", limit);
-                that._logger.log("info", LOG_ID + "(getAllAvailableCustomisationTemplates) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) : companyId : ", companyId, " format : ", format, " limit : ", limit);
+                that._logger.log(that.INFO, LOG_ID + "(getAllAvailableCustomisationTemplates) enter.");
                 that._rest.getAllAvailableCustomisationTemplates(companyId , format , limit , offset , sortField , sortOrder).then(json => {
-                    that._logger.log("debug", LOG_ID + "(getAllAvailableCustomisationTemplates) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllAvailableCustomisationTemplates) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getAllAvailableCustomisationTemplates) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllAvailableCustomisationTemplates) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllAvailableCustomisationTemplates) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllAvailableCustomisationTemplates) error : ", err);
                 return reject(err);
             }
         });
@@ -3444,7 +3449,7 @@ class AdminService extends GenericService {
      * @instance
      * @description
      *      This API allows administrator to retrieve the requested application customisation template
-     *      
+     *
      * @async
      * @category Customisation Template
      * @return {Promise<any>}
@@ -3454,23 +3459,23 @@ class AdminService extends GenericService {
      */
     getRequestedCustomisationTemplate (templateId : string = undefined): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getRequestedCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRequestedCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(getRequestedCustomisationTemplate) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log(that.INFO, LOG_ID + "(getRequestedCustomisationTemplate) enter.");
                 that._rest.getRequestedCustomisationTemplate(templateId).then(json => {
-                    that._logger.log("debug", LOG_ID + "(getRequestedCustomisationTemplate) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getRequestedCustomisationTemplate) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getRequestedCustomisationTemplate) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(getRequestedCustomisationTemplate) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getRequestedCustomisationTemplate) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getRequestedCustomisationTemplate) error : ", err);
                 return reject(err);
             }
         });
@@ -3483,8 +3488,8 @@ class AdminService extends GenericService {
      * @instance
      * @description
      *     This API allows an administrator to update an application customisation template.
-     *     
-     *     A public template can't be updated using this API. Update is only allowed via a database migration.     
+     *
+     *     A public template can't be updated using this API. Update is only allowed via a database migration.
      * @async
      * @category Customisation Template
      * @return {Promise<any>}
@@ -3698,35 +3703,35 @@ class AdminService extends GenericService {
                                  userTitleNameCustomisation : string = "enabled", changeTelephonyCustomisation : string = "enabled", changeSettingsCustomisation : string = "enabled", fileCopyCustomisation : string = "enabled",
                                  fileTransferCustomisation : string = "enabled", forbidFileOwnerChangeCustomisation : string = "enabled", readReceiptsCustomisation : string = "enabled", useSpeakingTimeStatistics : string  = "enabled"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(updateCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(updateCustomisationTemplate) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCustomisationTemplate) : templateId : ", templateId);
+                that._logger.log(that.INFO, LOG_ID + "(updateCustomisationTemplate) enter.");
                 that._rest.updateCustomisationTemplate(templateId, name, visibleBy ,
                         instantMessagesCustomisation , useGifCustomisation , fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation ,
                         useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation , useScreenSharingCustomisation , useWebRTCAudioCustomisation ,
                         useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation , userProfileCustomisation ,
                         userTitleNameCustomisation , changeTelephonyCustomisation , changeSettingsCustomisation , fileCopyCustomisation ,
                         fileTransferCustomisation , forbidFileOwnerChangeCustomisation , readReceiptsCustomisation , useSpeakingTimeStatistics).then(json => {
-                    that._logger.log("debug", LOG_ID + "(updateCustomisationTemplate) Successfully done.");
-                    that._logger.log("internal", LOG_ID + "(updateCustomisationTemplate) : result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCustomisationTemplate) Successfully done.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCustomisationTemplate) : result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(updateCustomisationTemplate) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCustomisationTemplate) Error when getting a token");
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateCustomisationTemplate) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCustomisationTemplate) error : ", err);
                 return reject(err);
             }
-        });   
+        });
     }
-    
+
     //endregion Customisation Template
-    
-    //region Users at running 
+
+    //region Users at running
 
     /**
      * @public
@@ -3746,23 +3751,23 @@ class AdminService extends GenericService {
      */
     askTokenOnBehalf(loginEmail: string, password: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(askTokenOnBehalf) loginEmail : ", that._logger.stripStringForLogs(loginEmail));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(askTokenOnBehalf) loginEmail : ", that._logger.stripStringForLogs(loginEmail));
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
-                that._logger.log("info", LOG_ID + "(askTokenOnBehalf) enter.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
+                that._logger.log(that.INFO, LOG_ID + "(askTokenOnBehalf) enter.");
                 that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
-                    that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
-                    that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(askTokenOnBehalf) : user data : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(askTokenOnBehalf) Error when getting a token");
+                    that._logger.log(that.ERROR, LOG_ID + "(askTokenOnBehalf) Error when getting a token");
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(askTokenOnBehalf) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(askTokenOnBehalf) error : ", err);
                 return reject(err);
             }
         });
@@ -3789,30 +3794,30 @@ class AdminService extends GenericService {
      */
     getUserPresenceInformation(userId?:undefined) : Promise <any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getUserPresenceInformation) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getUserPresenceInformation) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getUserPresenceInformation(userId).then((result : any) => {
-                    that._logger.log("debug", LOG_ID + "(getUserPresenceInformation) Successfully get Contact Infos");
-                    that._logger.log("internal", LOG_ID + "(getUserPresenceInformation) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getUserPresenceInformation) Successfully get Contact Infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getUserPresenceInformation) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("error", LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos ");
-                    that._logger.log("internalerror", LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getUserPresenceInformation) ErrorManager when get contact infos : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getUserPresenceInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getUserPresenceInformation) error : ", err);
                 return reject(err);
             }
         });
     }
-    
-    //endregion Users at running 
-    
+
+    //endregion Users at running
+
     //region Offers and Subscriptions.
-    
+
     /**
      * @public
      * @nodered true
@@ -3828,18 +3833,18 @@ class AdminService extends GenericService {
      */
     retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveAllOffersOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllOffersOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 that._rest.retrieveAllCompanyOffers(companyId).then((result: any) => {
-                    that._logger.log("debug", LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
-                    that._logger.log("internal", LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(retrieveAllOffersOfCompanyById) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
@@ -3867,18 +3872,18 @@ class AdminService extends GenericService {
      */
     retrieveAllSubscriptionsOfCompanyById(companyId?: string, format : string = "small") : Promise<Array<any>> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveAllSubscriptionsOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllSubscriptionsOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 that._rest.retrieveAllCompanySubscriptions(companyId, format ).then((result: any) => {
-                    that._logger.log("debug", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) Successfully get all infos");
-                    that._logger.log("internal", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) Successfully get all infos");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(retrieveAllSubscriptionsOfCompanyById) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
@@ -3903,15 +3908,15 @@ class AdminService extends GenericService {
      */
     async getSubscriptionsOfCompanyByOfferId(offerId: string, companyId: string) : Promise<any>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSubscriptionsOfCompanyByOfferId) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSubscriptionsOfCompanyByOfferId) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(async function (resolve, reject) {
             try {        //let Offers =  await that.retrieveAllOffersOfCompanyById(companyId);
                 let subscriptions : Array<any> = await that.retrieveAllSubscriptionsOfCompanyById(companyId);
                 for (let subscription of subscriptions) {
-                    //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+                    //that._logger.log(that.DEBUG, "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
                     if (subscription.offerId === offerId) {
-                        that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription found : ", subscription);
+                        that._logger.log(that.DEBUG, "(getSubscriptionsOfCompanyByOfferId) subscription found : ", subscription);
                         return resolve(subscription);
                     }
                 }
@@ -3940,25 +3945,25 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToOfferById(offerId: string, companyId? : string, maxNumberUsers? : number, autoRenew? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(subscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!offerId) {
-                    that._logger.log("warn", LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
+                    that._logger.log(that.WARN, LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 companyId = companyId? companyId : that._rest.account.companyId;
                 that._rest.subscribeCompanyToOffer(companyId, offerId, maxNumberUsers, autoRenew ).then((result: any) => {
-                    that._logger.log("debug", LOG_ID + "(subscribeCompanyToOfferById) Successfully subscribe.");
-                    that._logger.log("internal", LOG_ID + "(subscribeCompanyToOfferById) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(subscribeCompanyToOfferById) Successfully subscribe.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(subscribeCompanyToOfferById) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(subscribeCompanyToOfferById) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
@@ -3982,19 +3987,19 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToDemoOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(subscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
-                that._logger.log("debug", "(subscribeCompanyToDemoOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(subscribeCompanyToDemoOffer) - Offers : ", Offers);
                 let found = false;
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(subscribeCompanyToDemoOffer) offer : ", offer);
                     if (offer.name === "Enterprise Demo" || offer.name === "Enterprise Custom" ) {
                         found = true;
-                        that._logger.log("debug", "(subscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
+                        that._logger.log(that.DEBUG, "(subscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
                         return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
                 }
@@ -4022,18 +4027,18 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToDemoOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(unSubscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
                 let found = false
-                that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(unSubscribeCompanyToDemoOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(unSubscribeCompanyToDemoOffer) offer : ", offer);
                     if (offer.name === "Enterprise Demo" || offer.name === "Enterprise Custom") {
-                        that._logger.log("debug", "(unSubscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
+                        that._logger.log(that.DEBUG, "(unSubscribeCompanyToDemoOffer) offer Enterprise Demo found : ", offer);
                         found = true;
                         return resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }
@@ -4063,17 +4068,17 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToAlertOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(subscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
-                that._logger.log("debug", "(subscribeCompanyToAlertOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(subscribeCompanyToAlertOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(subscribeCompanyToAlertOffer) offer : ", offer);
                     if (offer.name === "Alert Demo" || offer.name === "Alert Custom") { //
-                        that._logger.log("debug", "(subscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
+                        that._logger.log(that.DEBUG, "(subscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
                         return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
                 }
@@ -4100,17 +4105,17 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToAlertOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(unSubscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
-                that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(unSubscribeCompanyToAlertOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(unSubscribeCompanyToAlertOffer) offer : ", offer);
                     if (offer.name === "Alert Demo" || offer.name === "Alert Custom") {
-                        that._logger.log("debug", "(unSubscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
+                        that._logger.log(that.DEBUG, "(unSubscribeCompanyToAlertOffer) offer Alert Custom found : ", offer);
                         resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }
                 }
@@ -4136,17 +4141,17 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToVoiceEnterpriseOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(subscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
-                that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(subscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(subscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
                     if ( offer.name === "Voice Enterprise Custom") { //
-                        that._logger.log("debug", "(subscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
+                        that._logger.log(that.DEBUG, "(subscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
                         return resolve (await that.subscribeCompanyToOfferById(offer.id, companyId, 10, true));
                     }
                 }
@@ -4173,17 +4178,17 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToVoiceEnterpriseOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(unSubscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
                 let Offers = await that.retrieveAllOffersOfCompanyById(companyId);
-                that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
+                that._logger.log(that.DEBUG, "(unSubscribeCompanyToVoiceEnterpriseOffer) - Offers : ", Offers);
                 for (let offer of Offers) {
-                    that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
+                    that._logger.log(that.DEBUG, "(unSubscribeCompanyToVoiceEnterpriseOffer) offer : ", offer);
                     if (offer.name === "Voice Enterprise Custom") {
-                        that._logger.log("debug", "(unSubscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
+                        that._logger.log(that.DEBUG, "(unSubscribeCompanyToVoiceEnterpriseOffer) offer Voice Enterprise Custom found : ", offer);
                         resolve (await that.unSubscribeCompanyToOfferById(offer.id, companyId));
                     }
                 }
@@ -4209,13 +4214,13 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToOfferById(offerId: string, companyId? : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(unSubscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!offerId) {
-                    that._logger.log("warn", LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
+                    that._logger.log(that.WARN, LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
@@ -4227,12 +4232,12 @@ class AdminService extends GenericService {
                 }
 
                 that._rest.unSubscribeCompanyToSubscription(companyId, subscription.id ).then((result: any) => {
-                    that._logger.log("debug", LOG_ID + "(unSubscribeCompanyToOfferById) Successfully unsubscribe.");
-                    that._logger.log("internal", LOG_ID + "(unSubscribeCompanyToOfferById) : result : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeCompanyToOfferById) Successfully unsubscribe.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToOfferById) : result : ", result);
                     resolve(result);
                 }).catch(function (err) {
-                    that._logger.log("internalerror", LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos", err);
-                    that._logger.log("error", LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
@@ -4257,17 +4262,17 @@ class AdminService extends GenericService {
      */
     subscribeUserToSubscription(userId? : string, subscriptionId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(subscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let subscriptionResult = await that._rest.subscribeUserToSubscription(userId,  subscriptionId);
-                that._logger.log("debug", "(subscribeUserToSubscription) - subscription sent.");
-                that._logger.log("internal", "(subscribeUserToSubscription) - subscription result : ", subscriptionResult);
+                that._logger.log(that.DEBUG, "(subscribeUserToSubscription) - subscription sent.");
+                that._logger.log(that.INTERNAL, "(subscribeUserToSubscription) - subscription result : ", subscriptionResult);
                 resolve (subscriptionResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(subscribeUserToSubscription) Error.");
-                that._logger.log("internalerror", LOG_ID + "(subscribeUserToSubscription) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(subscribeUserToSubscription) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeUserToSubscription) Error : ", err);
                 return reject(err);
             }
         });
@@ -4289,17 +4294,17 @@ class AdminService extends GenericService {
      */
     unSubscribeUserToSubscription(userId? : string, subscriptionId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(unSubscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let subscriptionResult = await that._rest.unSubscribeUserToSubscription(userId,  subscriptionId);
-                that._logger.log("debug", "(unSubscribeUserToSubscription) - unsubscription sent.");
-                that._logger.log("internal", "(unSubscribeUserToSubscription) - unsubscription result : ", subscriptionResult);
+                that._logger.log(that.DEBUG, "(unSubscribeUserToSubscription) - unsubscription sent.");
+                that._logger.log(that.INTERNAL, "(unSubscribeUserToSubscription) - unsubscription result : ", subscriptionResult);
                 resolve (subscriptionResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(unSubscribeUserToSubscription) Error.");
-                that._logger.log("internalerror", LOG_ID + "(unSubscribeUserToSubscription) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(unSubscribeUserToSubscription) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeUserToSubscription) Error : ", err);
                 return reject(err);
             }
         });
@@ -4317,7 +4322,7 @@ class AdminService extends GenericService {
      * @description
      *      Method to retrieve the profiles of a user by his id. </BR>
      * @return {Promise<any>} result.
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
@@ -4341,31 +4346,31 @@ class AdminService extends GenericService {
      * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
      * | provisioningStartDate | string | Provisioning starting date |
      * | assignationDate | string | Date when the subscription was attached to user profile |
-     * 
+     *
      */
     getAUserProfilesByUserId(userId? : string): Promise<any>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAUserProfilesByUserId) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesByUserId) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
-                
+
                 if (!userId) {
                     userId = that._rest.account.id;
                 }
-                
+
                 let result = await that._rest.getAUserProfiles(userId);
-                that._logger.log("debug", "(getAUserProfilesByUserId) - request sent.");
-                that._logger.log("internal", "(getAUserProfilesByUserId) - request result : ", result);
+                that._logger.log(that.DEBUG, "(getAUserProfilesByUserId) - request sent.");
+                that._logger.log(that.INTERNAL, "(getAUserProfilesByUserId) - request result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserId) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserId) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAUserProfilesByUserId) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAUserProfilesByUserId) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -4378,7 +4383,7 @@ class AdminService extends GenericService {
      * @description
      *      Method to retrieve the profiles of a user by his email. </BR>
      * @return {Promise<any>} result.
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
@@ -4402,27 +4407,27 @@ class AdminService extends GenericService {
      * | provisioningOngoing | boolean | boolean indicating if the account is being provisioned on the other component. If set to false, the account has been successfully created on the component. |
      * | provisioningStartDate | string | Provisioning starting date |
      * | assignationDate | string | Date when the subscription was attached to user profile |
-     * 
+     *
      */
     getAUserProfilesByUserEmail(email? : string): Promise<any>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAUserProfilesByUserEmail) email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesByUserEmail) email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let userId = that._rest.account.id;
-                
+
                 if (email) {
                     userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
                 }
-                
+
                 let result = await that._rest.getAUserProfiles(userId);
-                that._logger.log("debug", "(getAUserProfilesByUserEmail) - request sent.");
-                that._logger.log("internal", "(getAUserProfilesByUserEmail) - request result : ", result);
+                that._logger.log(that.DEBUG, "(getAUserProfilesByUserEmail) - request sent.");
+                that._logger.log(that.INTERNAL, "(getAUserProfilesByUserEmail) - request result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAUserProfilesByUserEmail) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesByUserEmail) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAUserProfilesByUserEmail) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAUserProfilesByUserEmail) Error : ", err);
                 return reject(err);
             }
         });
@@ -4440,7 +4445,7 @@ class AdminService extends GenericService {
      * @description
      *      Method to retrieve the features profiles of a user by his id. </BR>
      * @return {Promise<any>} result.
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | List of feature Objects. |
@@ -4457,7 +4462,7 @@ class AdminService extends GenericService {
      */
      getAUserProfilesFeaturesByUserId(userId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserId) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserId) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4467,17 +4472,17 @@ class AdminService extends GenericService {
                 }
 
                 let result = await that._rest.getAUserProfilesFeaturesByUserId(userId);
-                that._logger.log("debug", "(getAUserProfilesFeaturesByUserId) - request sent.");
-                that._logger.log("internal", "(getAUserProfilesFeaturesByUserId) - request result : ", result);
+                that._logger.log(that.DEBUG, "(getAUserProfilesFeaturesByUserId) - request sent.");
+                that._logger.log(that.INTERNAL, "(getAUserProfilesFeaturesByUserId) - request result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserId) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAUserProfilesFeaturesByUserId) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAUserProfilesFeaturesByUserId) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
 
     /**
      * @public
@@ -4491,7 +4496,7 @@ class AdminService extends GenericService {
      * @description
      *      Method to retrieve the features profiles of a user by his email. </BR>
      * @return {Promise<any>} result.
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | List of feature Objects. |
@@ -4508,7 +4513,7 @@ class AdminService extends GenericService {
      */
      getAUserProfilesFeaturesByUserEmail(email? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserEmail) email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserEmail) email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4517,19 +4522,19 @@ class AdminService extends GenericService {
                 if (email) {
                     userId = (await that._contacts.getContactByLoginEmail(email, false)).id;
                 }
-                
+
                 let result = await that._rest.getAUserProfilesFeaturesByUserId(userId);
-                that._logger.log("debug", "(getAUserProfilesFeaturesByUserEmail) - request sent.");
-                that._logger.log("internal", "(getAUserProfilesFeaturesByUserEmail) - request result : ", result);
+                that._logger.log(that.DEBUG, "(getAUserProfilesFeaturesByUserEmail) - request sent.");
+                that._logger.log(that.INTERNAL, "(getAUserProfilesFeaturesByUserEmail) - request result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAUserProfilesFeaturesByUserEmail) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Offers and Subscriptions.
 
     //region AD/LDAP
@@ -4550,8 +4555,8 @@ class AdminService extends GenericService {
      *     This API checks a CSV UTF-8 content for mass-provisioning. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. </BR>
      * </BR>
      * @return {Promise<any>} result.
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * check results summary |
@@ -4572,26 +4577,26 @@ class AdminService extends GenericService {
      * | assignedBefore | Number | * the assigned number of managed profiles before this import |
      * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
      * | max | Number | * the maximum number of managed profiles available |
-     * 
+     *
      */
     checkCSVdata( data?: any, companyId? : string, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(checkCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let checkCSVRestResult = await that._rest.checkCSVdata(data, companyId , delimiter, comment);
-                that._logger.log("debug", "(checkCSVdata) - sent.");
-                that._logger.log("internal", "(checkCSVdata) - checkCSVRestResult : ", checkCSVRestResult);               
+                that._logger.log(that.DEBUG, "(checkCSVdata) - sent.");
+                that._logger.log(that.INTERNAL, "(checkCSVdata) - checkCSVRestResult : ", checkCSVRestResult);
                 resolve (checkCSVRestResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(checkCSVdata) Error.");
-                that._logger.log("internalerror", LOG_ID + "(checkCSVdata) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(checkCSVdata) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVdata) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method deleteAnImportStatusReport
@@ -4604,28 +4609,28 @@ class AdminService extends GenericService {
      *     This API allows to delete the report of an import identified by its reqId. </BR>
      * </BR>
      * @return {Promise<any>} result.
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * delete status |
      * | reqId | String | * deleted reqId |
      * | status | String | * delete status |
-     * 
+     *
      */
     deleteAnImportStatusReport(reqId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAnImportStatusReport) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAnImportStatusReport) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteAnImportStatusReport(reqId);
-                that._logger.log("debug", "(deleteAnImportStatusReport) - sent.");
-                that._logger.log("internal", "(deleteAnImportStatusReport) - result : ", result);               
+                that._logger.log(that.DEBUG, "(deleteAnImportStatusReport) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteAnImportStatusReport) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAnImportStatusReport) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAnImportStatusReport) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAnImportStatusReport) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAnImportStatusReport) Error : ", err);
                 return reject(err);
             }
         });
@@ -4680,17 +4685,17 @@ class AdminService extends GenericService {
      */
     getAnImportStatusReport(reqId? : string, format : string= "full"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAnImportStatusReport) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAnImportStatusReport) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getAnImportStatusReport(reqId, format);
-                that._logger.log("debug", "(getAnImportStatusReport) - sent.");
-                that._logger.log("internal", "(getAnImportStatusReport) - result : ", result);
+                that._logger.log(that.DEBUG, "(getAnImportStatusReport) - sent.");
+                that._logger.log(that.INTERNAL, "(getAnImportStatusReport) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAnImportStatusReport) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAnImportStatusReport) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAnImportStatusReport) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAnImportStatusReport) Error : ", err);
                 return reject(err);
             }
         });
@@ -4727,23 +4732,23 @@ class AdminService extends GenericService {
      * | startTime | String | Import processing start time |
      * | created | Integer | Count of created entries |
      * | failed | Integer | Count of failed entries |
-     * 
+     *
      */
     getAnImportStatus(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAnImportStatus) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAnImportStatus) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
-                
+
                 let result = await that._rest.getAnImportStatus(companyId);
-                that._logger.log("debug", "(getAnImportStatus) - sent.");
-                that._logger.log("internal", "(getAnImportStatus) - result : ", result);
+                that._logger.log(that.DEBUG, "(getAnImportStatus) - sent.");
+                that._logger.log(that.INTERNAL, "(getAnImportStatus) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAnImportStatus) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAnImportStatus) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAnImportStatus) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAnImportStatus) Error : ", err);
                 return reject(err);
             }
         });
@@ -4783,17 +4788,17 @@ class AdminService extends GenericService {
      */
     getInformationOnImports(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getInformationOnImports) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getInformationOnImports) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getInformationOnImports(companyId);
-                that._logger.log("debug", "(getInformationOnImports) - sent.");
-                that._logger.log("internal", "(getInformationOnImports) - result : ", result);
+                that._logger.log(that.DEBUG, "(getInformationOnImports) - sent.");
+                that._logger.log(that.INTERNAL, "(getInformationOnImports) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getInformationOnImports) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getInformationOnImports) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getInformationOnImports) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getInformationOnImports) Error : ", err);
                 return reject(err);
             }
         });
@@ -4814,7 +4819,7 @@ class AdminService extends GenericService {
      * Default value : json
      * Possible values : csv, json, all
      * @description
-     *     This API retrieves data describing all operations required to synchronize an Office365 tenant (csv or json format). 
+     *     This API retrieves data describing all operations required to synchronize an Office365 tenant (csv or json format).
      *     This API returns the result of a prior SynchronizeTenantTaskStart that triggers an asynchronous processing for a given tenant. </BR>
      * </BR>
      * @return {Promise<any>} result.
@@ -4828,17 +4833,17 @@ class AdminService extends GenericService {
      */
     getResultOfStartedOffice365TenantSynchronizationTask(tenant? : string, format : string = "json") : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getResultOfStartedOffice365TenantSynchronizationTask(tenant, format);
-                that._logger.log("debug", "(getResultOfStartedOffice365TenantSynchronizationTask) - sent.");
-                that._logger.log("internal", "(getResultOfStartedOffice365TenantSynchronizationTask) - result : ", result);
+                that._logger.log(that.DEBUG, "(getResultOfStartedOffice365TenantSynchronizationTask) - sent.");
+                that._logger.log(that.INTERNAL, "(getResultOfStartedOffice365TenantSynchronizationTask) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) Error : ", err);
                 return reject(err);
             }
         });
@@ -4881,17 +4886,17 @@ class AdminService extends GenericService {
      */
     importCSVData(data?: any, companyId? : string, label : string = "none", noemails : boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(importCSVData) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(importCSVData) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.importCSVData(data, companyId, label, noemails, nostrict, delimiter, comment );
-                that._logger.log("debug", "(importCSVData) - sent.");
-                that._logger.log("internal", "(importCSVData) - result : ", result);
+                that._logger.log(that.DEBUG, "(importCSVData) - sent.");
+                that._logger.log(that.INTERNAL, "(importCSVData) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(importCSVData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(importCSVData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(importCSVData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(importCSVData) Error : ", err);
                 return reject(err);
             }
         });
@@ -4918,17 +4923,17 @@ class AdminService extends GenericService {
      */
     startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant);
-                that._logger.log("debug", "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - sent.");
-                that._logger.log("internal", "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - result : ", result);
+                that._logger.log(that.DEBUG, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - sent.");
+                that._logger.log(that.INTERNAL, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error.");
-                that._logger.log("internalerror", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) Error : ", err);
                 return reject(err);
             }
         });
@@ -4961,17 +4966,17 @@ class AdminService extends GenericService {
      */
     synchronizeOffice365TenantUserList(tenant? : string, format  : string = "json") : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(synchronizeOffice365TenantUserList) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(synchronizeOffice365TenantUserList) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.synchronizeOffice365TenantUserList(tenant, format );
-                that._logger.log("debug", "(synchronizeOffice365TenantUserList) - sent.");
-                that._logger.log("internal", "(synchronizeOffice365TenantUserList) - result : ", result);
+                that._logger.log(that.DEBUG, "(synchronizeOffice365TenantUserList) - sent.");
+                that._logger.log(that.INTERNAL, "(synchronizeOffice365TenantUserList) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(synchronizeOffice365TenantUserList) Error.");
-                that._logger.log("internalerror", LOG_ID + "(synchronizeOffice365TenantUserList) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(synchronizeOffice365TenantUserList) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(synchronizeOffice365TenantUserList) Error : ", err);
                 return reject(err);
             }
         });
@@ -5015,17 +5020,17 @@ class AdminService extends GenericService {
      */
     checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data?: any, companyId? : string, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data, companyId , delimiter, comment);
-                that._logger.log("debug", "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - sent.");
-                that._logger.log("internal", "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - result : ", result);
+                that._logger.log(that.DEBUG, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - sent.");
+                that._logger.log(that.INTERNAL, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error.");
-                that._logger.log("internalerror", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) Error : ", err);
                 return reject(err);
             }
         });
@@ -5041,8 +5046,8 @@ class AdminService extends GenericService {
      * @param {string} data body of the POST. Body : {
      * status : `success` or `failure`, // status for the execution of the command
      * details : string // details that can be provided about the command execution
-     * } 
-     * 
+     * }
+     *
      * @param {string} commandId commandId which came from connector on behalf of admin command
      * @description
      *    This API is used to update the status of the commandId. </br>
@@ -5052,17 +5057,17 @@ class AdminService extends GenericService {
      */
     updateCommandIdStatus(data? : any, commandId? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateCommandIdStatus) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCommandIdStatus) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateCommandIdStatus(data, commandId);
-                that._logger.log("debug", "(updateCommandIdStatus) - sent.");
-                that._logger.log("internal", "(updateCommandIdStatus) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateCommandIdStatus) - sent.");
+                that._logger.log(that.INTERNAL, "(updateCommandIdStatus) - result : ", result);
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateCommandIdStatus) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateCommandIdStatus) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateCommandIdStatus) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCommandIdStatus) Error : ", err);
                 return reject(err);
             }
         });
@@ -5078,7 +5083,7 @@ class AdminService extends GenericService {
      * @param {string} csvTxt the csv of the user and device to synchronize.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import
-     * @param {boolean} noemails disable email sending 
+     * @param {boolean} noemails disable email sending
      * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
@@ -5139,13 +5144,13 @@ class AdminService extends GenericService {
         startTime : string
     }>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(synchronizeUsersAndDeviceswithCSV) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(synchronizeUsersAndDeviceswithCSV) ");
 
         return new Promise(async (resolve, reject) => {
             try {
-                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment, commandId);                
-                that._logger.log("debug", "(synchronizeUsersAndDeviceswithCSV) - sent.");
-                that._logger.log("internal", "(synchronizeUsersAndDeviceswithCSV) - synchronizeRestResult : ", synchronizeRestResult);
+                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment, commandId);
+                that._logger.log(that.DEBUG, "(synchronizeUsersAndDeviceswithCSV) - sent.");
+                that._logger.log(that.INTERNAL, "(synchronizeUsersAndDeviceswithCSV) - synchronizeRestResult : ", synchronizeRestResult);
                 let synchronizeResult : {
                     reqId : string,
                     mode : string,
@@ -5158,8 +5163,8 @@ class AdminService extends GenericService {
                 // synchronizeRestResult;
                 resolve (synchronizeResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error.");
-                that._logger.log("internalerror", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(synchronizeUsersAndDeviceswithCSV) Error : ", err);
                 return reject(err);
             }
         });
@@ -5182,7 +5187,7 @@ class AdminService extends GenericService {
      * @description
      *      This API provides a CSV template. </BR>
      *      result : </BR>
-     *      CSV {Object[]} lines with all supported headers and some samples : </BR> 
+     *      CSV {Object[]} lines with all supported headers and some samples : </BR>
      *      __action__ {string} Action to perform values : create, update, delete, upsert, detach </BR>
      *      loginEmail {string} email address - Main or professional email used as login </BR>
      *      password optionnel {string} (>= 8 chars with 1 capital+1 number+1 special char) (e.g. This1Pwd!) </BR>
@@ -5208,18 +5213,18 @@ class AdminService extends GenericService {
      */
     getCSVTemplate(companyId? : string, mode : string = "useranddevice", comment? : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCSVTemplate) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCSVTemplate) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let CSVResult = await that._rest.getCSVTemplate(companyId, mode, comment);
-                that._logger.log("debug", "(getCSVTemplate) - sent.");
-                that._logger.log("internal", "(getCSVTemplate) - result : ", CSVResult);
-               
+                that._logger.log(that.DEBUG, "(getCSVTemplate) - sent.");
+                that._logger.log(that.INTERNAL, "(getCSVTemplate) - result : ", CSVResult);
+
                 resolve (CSVResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCSVTemplate) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCSVTemplate) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCSVTemplate) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCSVTemplate) Error : ", err);
                 return reject(err);
             }
         });
@@ -5261,18 +5266,18 @@ class AdminService extends GenericService {
      */
     checkCSVforSynchronization(CSVTxt: string, companyId? : string, delimiter?  : string, comment : string  = "%", commandId? : string) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(checkCSVforSynchronization) companyId : ", that._logger.stripStringForLogs(companyId), ", commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVforSynchronization) companyId : ", that._logger.stripStringForLogs(companyId), ", commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let CSVResult = await that._rest.checkCSVforSynchronization(CSVTxt, companyId, delimiter, comment, commandId);
-                that._logger.log("debug", "(checkCSVforSynchronization) - sent.");
-                that._logger.log("internal", "(checkCSVforSynchronization) - result : ", CSVResult);
+                that._logger.log(that.DEBUG, "(checkCSVforSynchronization) - sent.");
+                that._logger.log(that.INTERNAL, "(checkCSVforSynchronization) - result : ", CSVResult);
 
                 resolve (CSVResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(checkCSVforSynchronization) Error.");
-                that._logger.log("internalerror", LOG_ID + "(checkCSVforSynchronization) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(checkCSVforSynchronization) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVforSynchronization) Error : ", err);
                 return reject(err);
             }
         });
@@ -5289,8 +5294,8 @@ class AdminService extends GenericService {
      * @description
      *      This API retrieves the last checks CSV UTF-8 content for mass-provisioning for useranddevice mode, performed by an admin (using a commandId). </BR>
      * @return {Promise<any>}
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | report | Object | * check results summary |
@@ -5310,27 +5315,27 @@ class AdminService extends GenericService {
      * | assignedBefore | Number | * the assigned number of managed profiles before this import |
      * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
      * | max | Number | * the maximum number of managed profiles available |
-     * 
-     */          
+     *
+     */
     getCheckCSVReport(commandId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCheckCSVReport) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCheckCSVReport) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let CSVResult = await that._rest.getCheckCSVReport(commandId);
-                that._logger.log("debug", "(getCheckCSVReport) - sent.");
-                that._logger.log("internal", "(getCheckCSVReport) - result : ", CSVResult);
+                that._logger.log(that.DEBUG, "(getCheckCSVReport) - sent.");
+                that._logger.log(that.INTERNAL, "(getCheckCSVReport) - result : ", CSVResult);
 
                 resolve (CSVResult);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCheckCSVReport) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCheckCSVReport) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCheckCSVReport) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCheckCSVReport) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method importRainbowVoiceUsersWithCSVdata
@@ -5356,7 +5361,7 @@ class AdminService extends GenericService {
      *      Supported fields for "user" management are: </BR>
      *      __action__    upsert, delete or detach </BR>
      *      loginEmail    (mandatory) </BR>
-     *      password    (mandatory) </BR> 
+     *      password    (mandatory) </BR>
      *      title </BR>
      *      firstName </BR>
      *      lastName </BR>
@@ -5431,7 +5436,7 @@ class AdminService extends GenericService {
      *      2021 'failed to detach this DDI {ddiE164Number} with this user {userId}' </BR>
      *      2022 'failed to detach this Sip Device {macAddress} with this user {userId}' </BR>
      *      </BR>
-     *      
+     *
      *      Sample :
      *      <code class="  language-csv">
      *          __action__;loginEmail                   ;shortNumber;   macAddress        ; ddiE164Number    ;password     ;title;firstName  ;lastName;language;service0         ;service1
@@ -5440,24 +5445,24 @@ class AdminService extends GenericService {
      *          upsert    ;lupin02@ejo.company.com      ; 81012     ;   aa:bb:cc:dd:ee:02 ;                  ;Password_123 ;Mr   ;Arsene02   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
      *          delete    ;lupin13@ejo.company.com      ; 81023     ;   aa:bb:cc:dd:ee:13 ; 33298300513      ;Password_123 ;Mr   ;Arsene13   ;Lupin   ;fr      ;"Enterprise Demo";"Voice Enterprise 3-Year prepaid"
      *          delete    ;lupin14@ejo.company.com      ;           ;                     ;                  ;             ;     ;           ;        ;        ;                 ;</code>
-     *          
+     *
      *      return an {Object}  . </BR>
      * @return {Promise<any>}
      */
     importRainbowVoiceUsersWithCSVdata(companyId : string, label : string = null, noemails: boolean = true, nostrict : boolean = false, delimiter : string = null, comment : string = "%", csvData : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.importRainbowVoiceUsersWithCSVdata(companyId, label, noemails, nostrict, delimiter, comment, csvData);
-                that._logger.log("debug", "(importRainbowVoiceUsersWithCSVdata) - sent.");
-                that._logger.log("internal", "(importRainbowVoiceUsersWithCSVdata) - result : ", result);
+                that._logger.log(that.DEBUG, "(importRainbowVoiceUsersWithCSVdata) - sent.");
+                that._logger.log(that.INTERNAL, "(importRainbowVoiceUsersWithCSVdata) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error.");
-                that._logger.log("internalerror", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) Error : ", err);
                 return reject(err);
             }
         });
@@ -5480,18 +5485,18 @@ class AdminService extends GenericService {
      */
     retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true): Promise<any> {
         let that = this;
-         that._logger.log("info", LOG_ID + API_ID + "(retrieveRainbowUserList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
+         that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveRainbowUserList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveRainbowUserList(companyId, format, ldap_id);
-                that._logger.log("debug", "(retrieveRainbowUserList) - sent.");
-                that._logger.log("internal", "(retrieveRainbowUserList) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveRainbowUserList) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveRainbowUserList) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveRainbowUserList) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveRainbowUserList) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveRainbowUserList) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveRainbowUserList) Error : ", err);
                 return reject(err);
             }
         });
@@ -5532,8 +5537,8 @@ class AdminService extends GenericService {
      *      custom1</BR>
      *      custom2</BR>
      *      </BR>
-     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.</BR> 
-     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.</BR> 
+     *      delete: allows to delete an entry. upsert: allows to modify an entry (update or create if doesn't exists) with filled fields.</BR>
+     *      Remark: empty fields are not taken into account. sync: allows to modify an entry (update or create if doesn't exists) with filled fields.</BR>
      *      Remark: empty fields are taken into account (if a field is empty we will try to update it with empty value).</BR>
      *      </BR>
      *      return an {Object}  of synchronization data. </BR>
@@ -5545,30 +5550,30 @@ class AdminService extends GenericService {
      */
     checkCSVdataForSynchronizeDirectory (delimiter : string = "%", comment : string, commandId : string, csvData: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(checkCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!csvData) {
-                    that._logger.log("warn", LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
+                    that._logger.log(that.WARN, LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 let result = await that._rest.checkCSVdataForSynchronizeDirectory(delimiter, comment, commandId, csvData);
-                that._logger.log("debug", "(checkCSVdataForSynchronizeDirectory) - sent.");
-                that._logger.log("internal", "(checkCSVdataForSynchronizeDirectory) - result : ", result);
+                that._logger.log(that.DEBUG, "(checkCSVdataForSynchronizeDirectory) - sent.");
+                that._logger.log(that.INTERNAL, "(checkCSVdataForSynchronizeDirectory) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error.");
-                that._logger.log("internalerror", LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVdataForSynchronizeDirectory) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method importCSVdataForSynchronizeDirectory
@@ -5618,30 +5623,30 @@ class AdminService extends GenericService {
      */
     importCSVdataForSynchronizeDirectory(delimiter : string = "%", comment : string, commandId : string, label : string = "none", csvData: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(importCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(importCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!csvData) {
-                    that._logger.log("warn", LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
+                    that._logger.log(that.WARN, LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 let result = await that._rest.importCSVdataForSynchronizeDirectory(delimiter, comment, commandId, label, csvData);
-                that._logger.log("debug", "(importCSVdataForSynchronizeDirectory) - sent.");
-                that._logger.log("internal", "(importCSVdataForSynchronizeDirectory) - result : ", result);
+                that._logger.log(that.DEBUG, "(importCSVdataForSynchronizeDirectory) - sent.");
+                that._logger.log(that.INTERNAL, "(importCSVdataForSynchronizeDirectory) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(importCSVdataForSynchronizeDirectory) Error.");
-                that._logger.log("internalerror", LOG_ID + "(importCSVdataForSynchronizeDirectory) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(importCSVdataForSynchronizeDirectory) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(importCSVdataForSynchronizeDirectory) Error : ", err);
                 return reject(err);
             }
         });
     }
-       
+
     /**
      * @public
      * @method getCSVReportByCommandId
@@ -5652,7 +5657,7 @@ class AdminService extends GenericService {
      * @description
      *      This API retrieves the last import CSV UTF-8 content for mass-provisioning for directory mode, performed by an admin (using a commandId). </BR>
      *           </BR>
-     *      return { </BR> 
+     *      return { </BR>
      *           status : string, // status of the check csv. Possible values : success, failure, pending  </BR>
      *          report : Object,  // check results summary </BR>
      *              companyId : string, // Id of the company of the directory </BR>
@@ -5666,37 +5671,37 @@ class AdminService extends GenericService {
      *              deleted : number Count of deleted entries </BR>
      *              failed : 	Integer Count of failed entries </BR>
      *        } </BR>
-     *                          
+     *
      *      return an {Object}  of synchronization data. </BR>
      * @return {Promise<any>}
      * @param {string} commandId commandId used in the import csv request which came from connector on behalf of admin command.
      */
     getCSVReportByCommandId(commandId : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!commandId) {
-                    that._logger.log("warn", LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 let result = await that._rest.getCSVReportByCommandId(commandId);
-                that._logger.log("debug", "(getCSVReportByCommandId) - sent.");
-                that._logger.log("internal", "(getCSVReportByCommandId) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCSVReportByCommandId) - sent.");
+                that._logger.log(that.INTERNAL, "(getCSVReportByCommandId) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCSVReportByCommandId) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCSVReportByCommandId) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCSVReportByCommandId) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCSVReportByCommandId) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method createCSVReportByCommandId
@@ -5707,7 +5712,7 @@ class AdminService extends GenericService {
      * @description
      *      This API allows to create a report for a commandId in case no other API is called (no action to be performed, error, ...). </BR>
      *           </BR>
-     *      return { </BR> 
+     *      return { </BR>
      *           status : string, // status of the check csv. Possible values : success, failure, pending  </BR>
      *          report : Object,  // check results summary </BR>
      *              details : string details for for report </BR>
@@ -5723,30 +5728,30 @@ class AdminService extends GenericService {
      */
     createCSVReportByCommandId(commandId : string, data : any): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!commandId) {
-                    that._logger.log("warn", LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
+                    that._logger.log(that.WARN, LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 let result = await that._rest.createCSVReportByCommandId(commandId, data);
-                that._logger.log("debug", "(createCSVReportByCommandId) - sent.");
-                that._logger.log("internal", "(createCSVReportByCommandId) - result : ", result);
+                that._logger.log(that.DEBUG, "(createCSVReportByCommandId) - sent.");
+                that._logger.log(that.INTERNAL, "(createCSVReportByCommandId) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createCSVReportByCommandId) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createCSVReportByCommandId) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createCSVReportByCommandId) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCSVReportByCommandId) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method retrieveRainbowEntriesList
@@ -5771,25 +5776,25 @@ class AdminService extends GenericService {
      */
     retrieveRainbowEntriesList(companyId? : string, format : string = "json", ldap_id : boolean = true) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveRainbowEntriesList(companyId, format, ldap_id);
-                that._logger.log("debug", "(retrieveRainbowEntriesList) - sent.");
-                that._logger.log("internal", "(retrieveRainbowEntriesList) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveRainbowEntriesList) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveRainbowEntriesList) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveRainbowEntriesList) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveRainbowEntriesList) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveRainbowEntriesList) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveRainbowEntriesList) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion AD/LDAP Massprovisioning
-    
+
     //region LDAP APIs to use
 
     /**
@@ -5807,31 +5812,31 @@ class AdminService extends GenericService {
      *      Note 2 Ldap's company should have an active subscription to to activate Ldap. If subscription linked to Ldap is not active or it has no more remaining licenses, error 403 is thrown </BR>
      *      Note 3 Ldap's company should have an SSO authentication Type, and it must be the default authentication Type for users. If company doesn't have an SSO or have one but not a default one, error 403 is thrown </BR>
      *       </BR>
-     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>} - 
+     * @return {Promise<{ id : string, companyId : string, loginEmail : string, password : string}>} -
      * </BR>
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | string | Ldap connector unique identifier. |
      * | companyId | string | Company linked to the Ldap connector. |
      * | loginEmail | string | Generated Ldap connector user login ("throwaway" email address, never used by rainbow to send email). |
      * | password | string | Generated Ldap connector user password. |
-     * 
+     *
      */
     ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(ActivateALdapConnectorUser) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(ActivateALdapConnectorUser) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.ActivateALdapConnectorUser();
-                that._logger.log("debug", "(ActivateALdapConnectorUser) - sent.");
-                that._logger.log("internal", "(ActivateALdapConnectorUser) - result : ", result);
+                that._logger.log(that.DEBUG, "(ActivateALdapConnectorUser) - sent.");
+                that._logger.log(that.INTERNAL, "(ActivateALdapConnectorUser) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(ActivateALdapConnectorUser) Error.");
-                that._logger.log("internalerror", LOG_ID + "(ActivateALdapConnectorUser) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(ActivateALdapConnectorUser) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(ActivateALdapConnectorUser) Error : ", err);
                 return reject(err);
             }
         });
@@ -5856,18 +5861,18 @@ class AdminService extends GenericService {
      */
     deleteLdapConnector(ldapId : string) : Promise<{ status : string }> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteLdapConnector) ldapId : ", that._logger.stripStringForLogs(ldapId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapConnector) ldapId : ", that._logger.stripStringForLogs(ldapId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteLdapConnector(ldapId);
-                that._logger.log("debug", "(deleteLdapConnector) - sent.");
-                that._logger.log("internal", "(deleteLdapConnector) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteLdapConnector) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteLdapConnector) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteLdapConnector) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteLdapConnector) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteLdapConnector) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteLdapConnector) Error : ", err);
                 return reject(err);
             }
         });
@@ -6094,18 +6099,18 @@ class AdminService extends GenericService {
      */
     retrieveAllLdapConnectorUsersData (companyId? : string, format : string = "small", limit : number = 100, offset : number = undefined, sortField : string = "displayName", sortOrder : number = 1) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveAllLdapConnectorUsersData) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllLdapConnectorUsersData) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveAllLdapConnectorUsersData (companyId, format, limit, offset, sortField, sortOrder );
-                that._logger.log("debug", "(retrieveAllLdapConnectorUsersData) - sent.");
-                that._logger.log("internal", "(retrieveAllLdapConnectorUsersData) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveAllLdapConnectorUsersData) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveAllLdapConnectorUsersData) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveAllLdapConnectorUsersData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveAllLdapConnectorUsersData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveAllLdapConnectorUsersData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveAllLdapConnectorUsersData) Error : ", err);
                 return reject(err);
             }
         });
@@ -6137,35 +6142,35 @@ class AdminService extends GenericService {
      */
     sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(sendCommandToLdapConnectorUser) ldapId : ", that._logger.stripStringForLogs(ldapId), ", command : ", command);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendCommandToLdapConnectorUser) ldapId : ", that._logger.stripStringForLogs(ldapId), ", command : ", command);
 
         return new Promise(async (resolve, reject) => {
             if (!ldapId) {
-                this._logger.log("warn", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter");
-                this._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter : ", ldapId);
+                that._logger.log(that.WARN, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter : ", ldapId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!command) {
-                this._logger.log("warn", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter");
-                this._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter : ", command);
+                that._logger.log(that.WARN, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter : ", command);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             try {
                 let result = await that._rest.sendCommandToLdapConnectorUser (ldapId, command);
-                that._logger.log("debug", "(sendCommandToLdapConnectorUser) - sent.");
-                that._logger.log("internal", "(sendCommandToLdapConnectorUser) - result : ", result);
+                that._logger.log(that.DEBUG, "(sendCommandToLdapConnectorUser) - sent.");
+                that._logger.log(that.INTERNAL, "(sendCommandToLdapConnectorUser) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(sendCommandToLdapConnectorUser) Error.");
-                that._logger.log("internalerror", LOG_ID + "(sendCommandToLdapConnectorUser) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(sendCommandToLdapConnectorUser) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCommandToLdapConnectorUser) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @method createConfigurationForLdapConnector
@@ -6227,26 +6232,26 @@ class AdminService extends GenericService {
      */
     createConfigurationForLdapConnector (companyId: string, settings: object, name: string, type: string = "ldap_config"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createConfigurationForLdapConnector) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createConfigurationForLdapConnector) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
-                
+
                 if (!settings) {
-                    this._logger.log("warn", LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter : ", settings);
+                    that._logger.log(that.WARN, LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter : ", settings);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
-                
+
                 let result = await that._rest.createConfigurationForLdapConnector(companyId, settings, name, type);
-                that._logger.log("debug", "(createConfigurationForLdapConnector) - sent.");
-                that._logger.log("internal", "(createConfigurationForLdapConnector) - result : ", result);
+                that._logger.log(that.DEBUG, "(createConfigurationForLdapConnector) - sent.");
+                that._logger.log(that.INTERNAL, "(createConfigurationForLdapConnector) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createConfigurationForLdapConnector) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createConfigurationForLdapConnector) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createConfigurationForLdapConnector) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createConfigurationForLdapConnector) Error : ", err);
                 return reject(err);
             }
         });
@@ -6269,18 +6274,18 @@ class AdminService extends GenericService {
      */
     deleteLdapConnectorConfig(ldapConfigId : string) : Promise<{ status : string }> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteLdapConnectorConfig) ldapConfigId : ", ldapConfigId);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapConnectorConfig) ldapConfigId : ", ldapConfigId);
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteLdapConnectorConfig(ldapConfigId);
-                that._logger.log("debug", "(deleteLdapConnectorConfig) - sent.");
-                that._logger.log("internal", "(deleteLdapConnectorConfig) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteLdapConnectorConfig) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteLdapConnectorConfig) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteLdapConnectorConfig) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteLdapConnectorConfig) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteLdapConnectorConfig) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteLdapConnectorConfig) Error : ", err);
                 return reject(err);
             }
         });
@@ -6319,26 +6324,26 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorConfig (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveLdapConnectorConfig) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorConfig) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter : ", companyId);
+                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.retrieveLdapConnectorConfig(companyId);
-                that._logger.log("debug", "(retrieveLdapConnectorConfig) - sent.");
-                that._logger.log("internal", "(retrieveLdapConnectorConfig) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveLdapConnectorConfig) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveLdapConnectorConfig) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorConfig) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfig) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveLdapConnectorConfig) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorConfig) Error : ", err);
                 return reject(err);
             }
         });
@@ -6371,18 +6376,18 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorConfigTemplate(type: string = "ldap_template"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveLdapConnectorConfigTemplate) type : ", type);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorConfigTemplate) type : ", type);
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveLdapConnectorConfigTemplate(type);
-                that._logger.log("debug", "(retrieveLdapConnectorConfigTemplate) - sent.");
-                that._logger.log("internal", "(retrieveLdapConnectorConfigTemplate) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveLdapConnectorConfigTemplate) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveLdapConnectorConfigTemplate) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorConfigTemplate) Error : ", err);
                 return reject(err);
             }
         });
@@ -6416,18 +6421,18 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorAllConfigTemplates(): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigTemplates) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigTemplates) ");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveLdapConnectorAllConfigTemplates();
-                that._logger.log("debug", "(retrieveLdapConnectorAllConfigTemplates) - sent.");
-                that._logger.log("internal", "(retrieveLdapConnectorAllConfigTemplates) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveLdapConnectorAllConfigTemplates) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveLdapConnectorAllConfigTemplates) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) Error : ", err);
                 return reject(err);
             }
         });
@@ -6473,26 +6478,26 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorAllConfigs (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigs) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigs) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter : ", companyId);
+                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.retrieveLdapConnectorAllConfigs(companyId);
-                that._logger.log("debug", "(retrieveLdapConnectorAllConfigs) - sent.");
-                that._logger.log("internal", "(retrieveLdapConnectorAllConfigs) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveLdapConnectorAllConfigs) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveLdapConnectorAllConfigs) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveLdapConnectorAllConfigs) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) Error : ", err);
                 return reject(err);
             }
         });
@@ -6538,31 +6543,31 @@ class AdminService extends GenericService {
      */
     retrieveLDAPConnectorConfigByLdapConfigId (ldapConfigId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!ldapConfigId) {
-                    this._logger.log("warn", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter : ", ldapConfigId);
+                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter : ", ldapConfigId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId);
-                that._logger.log("debug", "(retrieveLDAPConnectorConfigByLdapConfigId) - sent.");
-                that._logger.log("internal", "(retrieveLDAPConnectorConfigByLdapConfigId) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveLDAPConnectorConfigByLdapConfigId) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveLDAPConnectorConfigByLdapConfigId) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) Error : ", err);
                 return reject(err);
             }
         });
     }
 
     /*
-    
+
      * @param {Object} settings config settings
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
@@ -6574,7 +6579,7 @@ class AdminService extends GenericService {
      * @param {boolean} strict Allows to specify if all the previous fields must be erased or just update/push new fields.
 
      */
-    
+
 
     /**
      * @public
@@ -6610,13 +6615,13 @@ class AdminService extends GenericService {
      *      Users with admin role can only update the connectors configuration in companies they can manage. That is to say: </BR>
      *      an organization_admin can update the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) </BR>
      *      a company_admin can only update the connectors configuration in his company. </BR>
-     *          
+     *
      *      a 'rainbow_onconnectorconfig' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
-     *     
+     *
      * @return {Promise<any>} -
      * </BR>
-     *     
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Config Object. |
@@ -6639,34 +6644,34 @@ class AdminService extends GenericService {
      * | search_rule | string | filters to use when requesting the ldap server. |
      * | lastSynchronization | string | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
      * | softwareVersion | string | software Version of the ldap connector (filled by the ldap connector). |
-     * 
+     *
      */
     updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false, name : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateConfigurationForLdapConnector) name : ", that._logger.stripStringForLogs(name), ", ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateConfigurationForLdapConnector) name : ", that._logger.stripStringForLogs(name), ", ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!ldapConfigId) {
-                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter : ", settings);
+                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter : ", settings);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!settings) {
-                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter : ", settings);
+                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter : ", settings);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.updateConfigurationForLdapConnector(ldapConfigId, settings, strict, name);
-                that._logger.log("debug", "(updateConfigurationForLdapConnector) - sent.");
-                that._logger.log("internal", "(updateConfigurationForLdapConnector) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateConfigurationForLdapConnector) - sent.");
+                that._logger.log(that.INTERNAL, "(updateConfigurationForLdapConnector) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateConfigurationForLdapConnector) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateConfigurationForLdapConnector) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) Error : ", err);
                 return reject(err);
             }
         });
@@ -6722,30 +6727,30 @@ class AdminService extends GenericService {
      */
     uploadLdapAvatar(binaryImgFile : any, contentType: string, ldapId : string = null): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(uploadLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId), ", contentType : ", that._logger.stripStringForLogs(contentType));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(uploadLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId), ", contentType : ", that._logger.stripStringForLogs(contentType));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!binaryImgFile) {
-                    this._logger.log("warn", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
-                    this._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    that._logger.log(that.WARN, LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!contentType) {
-                    this._logger.log("warn", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : ", contentType);
+                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : ", contentType);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType, ldapId);
-                that._logger.log("debug", "(uploadLdapAvatar) - sent.");
-                that._logger.log("internal", "(uploadLdapAvatar) - result : ", result);
+                that._logger.log(that.DEBUG, "(uploadLdapAvatar) - sent.");
+                that._logger.log(that.INTERNAL, "(uploadLdapAvatar) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(uploadLdapAvatar) Error.");
-                that._logger.log("internalerror", LOG_ID + "(uploadLdapAvatar) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(uploadLdapAvatar) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(uploadLdapAvatar) Error : ", err);
                 return reject(err);
             }
         });
@@ -6774,25 +6779,25 @@ class AdminService extends GenericService {
      */
     deleteLdapAvatar( ldapId : string = null): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteLdapAvatar(ldapId);
-                that._logger.log("debug", "(deleteLdapAvatar) - sent.");
-                that._logger.log("internal", "(deleteLdapAvatar) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteLdapAvatar) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteLdapAvatar) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteLdapAvatar) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteLdapAvatar) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteLdapAvatar) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteLdapAvatar) Error : ", err);
                 return reject(err);
             }
         });
     }
 
     //endregion LDAP APIs to use
-    
+
     //endregion AD/LDAP
 
     //region Connectors
@@ -6804,8 +6809,8 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Connectors
-     * @param {any} events The list of events for a connector : 
-     * { </BR> 
+     * @param {any} events The list of events for a connector :
+     * { </BR>
      * events : [{ </BR>
      *  eventId : string The identifier of an event  </BR>
      *  level : string The level of an event. Possibles values : `ERROR`, `WARN`, `INFO`  </BR>
@@ -6815,7 +6820,7 @@ class AdminService extends GenericService {
      *  date : string The date an event  </BR>
      * }]</BR>
      * }</BR>
-     * 
+     *
      * @description
      *     This API allows the different connectors to store a list of events </BR>
      *      </BR>
@@ -6844,36 +6849,36 @@ class AdminService extends GenericService {
      */
     createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createListOfEventsForConnector) events.length : ", that._logger.stripStringForLogs( "" + events?.length ));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createListOfEventsForConnector) events.length : ", that._logger.stripStringForLogs( "" + events?.length ));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!events) {
-                    this._logger.log("warn", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter : ", events);
+                    that._logger.log(that.WARN, LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter : ", events);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.createListOfEventsForConnector(events);
-                that._logger.log("debug", "(createListOfEventsForConnector) - sent.");
-                that._logger.log("internal", "(createListOfEventsForConnector) - result : ", result);
+                that._logger.log(that.DEBUG, "(createListOfEventsForConnector) - sent.");
+                that._logger.log(that.INTERNAL, "(createListOfEventsForConnector) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createListOfEventsForConnector) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createListOfEventsForConnector) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createListOfEventsForConnector) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createListOfEventsForConnector) Error : ", err);
                 return reject(err);
             }
         });
     }
 
     //endregion Connectors
-    
+
     //region Rainbow Voice Communication Platform Provisioning
     // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
 
     //region CloudPBX
-    
+
     /**
      * @public
      * @nodered true
@@ -6889,26 +6894,26 @@ class AdminService extends GenericService {
      */
     getCloudPbxById (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPbxById) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPbxById) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 //companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPbxById(systemId);
-                that._logger.log("debug", "(getCloudPbxById) - sent.");
-                that._logger.log("internal", "(getCloudPbxById) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPbxById) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPbxById) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPbxById) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPbxById) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPbxById) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPbxById) Error : ", err);
                 return reject(err);
             }
         });
@@ -6930,7 +6935,7 @@ class AdminService extends GenericService {
      * @param {string} customSipHeader_2 Value to put as Custom SIP Header 2 into SIP data for an external outgoing call
      * @param {boolean} emergencyOptions_callAuthorizationWithSoftPhone Indicates if SoftPhone can perform an emergency call over voip
      * @param {boolean} emergencyOptions_emergencyGroupActivated Indicates if emergency Group is active
-     * @param {string} externalTrunkId External trunk that should be linked to this CloudPBX 
+     * @param {string} externalTrunkId External trunk that should be linked to this CloudPBX
      * @param {string} language New language for this CloudPBX. Values : "ro" "es" "it" "de" "ru" "fr" "en" "ar" "he" "nl"
      * @param {string} name New CloudPBX name
      * @param {number} numberingDigits Number of digits for CloudPBX numbering plan. If a numberingPrefix is provided, this parameter is mandatory.
@@ -6944,26 +6949,26 @@ class AdminService extends GenericService {
      */
     updateCloudPBX (systemId: string, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
                 //companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.updateCloudPBX(systemId, barringOptions_permissions , barringOptions_restrictions , callForwardOptions_externalCallForward , customSipHeader_1 , customSipHeader_2 , emergencyOptions_callAuthorizationWithSoftPhone , emergencyOptions_emergencyGroupActivated , externalTrunkId , language , name , numberingDigits , numberingPrefix , outgoingPrefix ,routeInternalCallsToPeer);
-                that._logger.log("debug", "(updateCloudPBX) - sent.");
-                that._logger.log("internal", "(updateCloudPBX) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateCloudPBX) - sent.");
+                that._logger.log(that.INTERNAL, "(updateCloudPBX) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateCloudPBX) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateCloudPBX) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBX) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBX) Error : ", err);
                 return reject(err);
             }
         });
@@ -6984,29 +6989,29 @@ class AdminService extends GenericService {
      */
     deleteCloudPBX (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.deleteCloudPBX(systemId);
-                that._logger.log("debug", "(deleteCloudPBX) - sent.");
-                that._logger.log("internal", "(deleteCloudPBX) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteCloudPBX) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteCloudPBX) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteCloudPBX) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBX) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBX) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBX) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -7027,18 +7032,18 @@ class AdminService extends GenericService {
      */
     getCloudPbxs ( limit : number = 100, offset : number = 0, sortField : string = "companyId", sortOrder : number = 1, companyId : string, bpId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPbxs) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPbxs) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getCloudPbxs( limit, offset, sortField, sortOrder, companyId, bpId );
-                that._logger.log("debug", "(getCloudPbxs) - sent.");
-                that._logger.log("internal", "(getCloudPbxs) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPbxs) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPbxs) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPbxs) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPbxs) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPbxs) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPbxs) Error : ", err);
                 return reject(err);
             }
         });
@@ -7072,20 +7077,20 @@ class AdminService extends GenericService {
      */
     async createACloudPBX (bpId : string, companyId : string, customSipHeader_1 : string, customSipHeader_2 : string, externalTrunkId : string, language : string, name : string, noReplyDelay : number, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number, routeInternalCallsToPeer : boolean, siteId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createACloudPBX) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createACloudPBX) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 let result = await that._rest.createACloudPBX(bpId, companyId, customSipHeader_1, customSipHeader_2, externalTrunkId, language, name, noReplyDelay, numberingDigits, numberingPrefix, outgoingPrefix, routeInternalCallsToPeer, siteId );
-                that._logger.log("debug", "(createACloudPBX) - sent.");
-                that._logger.log("internal", "(createACloudPBX) - result : ", result);
+                that._logger.log(that.DEBUG, "(createACloudPBX) - sent.");
+                that._logger.log(that.INTERNAL, "(createACloudPBX) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createACloudPBX) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createACloudPBX) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createACloudPBX) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createACloudPBX) Error : ", err);
                 return reject(err);
             }
         });
@@ -7106,30 +7111,30 @@ class AdminService extends GenericService {
      */
     getCloudPBXCLIPolicyForOutboundCalls (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXCLIPolicyForOutboundCalls) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXCLIPolicyForOutboundCalls) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXCLIPolicyForOutboundCalls(systemId);
-                that._logger.log("debug", "(getCloudPBXCLIPolicyForOutboundCalls) - sent.");
-                that._logger.log("internal", "(getCloudPBXCLIPolicyForOutboundCalls) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXCLIPolicyForOutboundCalls) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXCLIPolicyForOutboundCalls) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -7139,38 +7144,38 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - CloudPBX
      * @param {string} systemId CloudPBX unique identifier.
-     * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number". 
+     * @param {CLOUDPBXCLIOPTIONPOLICY} policy CLI policy to apply. Values : "installation_ddi_number" or "user_ddi_number".
      * @description
      *      This API allows to update a CloudPBX using its identifier. </BR>
      * @return {Promise<any>}
      */
     updateCloudPBXCLIOptionsConfiguration (systemId : string, policy: CLOUDPBXCLIOPTIONPOLICY): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateCloudPBXCLIOptionsConfiguration) systemId : ", that._logger.stripStringForLogs(systemId), ", policy : ", that._logger.stripStringForLogs(policy));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBXCLIOptionsConfiguration) systemId : ", that._logger.stripStringForLogs(systemId), ", policy : ", that._logger.stripStringForLogs(policy));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!policy) {
-                    this._logger.log("warn", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter : ", policy);
+                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter : ", policy);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.updateCloudPBXCLIOptionsConfiguration(systemId, policy);
-                that._logger.log("debug", "(updateCloudPBXCLIOptionsConfiguration) - sent.");
-                that._logger.log("internal", "(updateCloudPBXCLIOptionsConfiguration) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateCloudPBXCLIOptionsConfiguration) - sent.");
+                that._logger.log(that.INTERNAL, "(updateCloudPBXCLIOptionsConfiguration) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) Error : ", err);
                 return reject(err);
             }
         });
@@ -7191,24 +7196,24 @@ class AdminService extends GenericService {
      */
     getCloudPBXlanguages(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXlanguages) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXlanguages) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXlanguages(systemId);
-                that._logger.log("debug", "(getCloudPBXlanguages) - sent.");
-                that._logger.log("internal", "(getCloudPBXlanguages) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXlanguages) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXlanguages) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXlanguages) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXlanguages) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) Error : ", err);
                 return reject(err);
             }
         });
@@ -7229,24 +7234,24 @@ class AdminService extends GenericService {
      */
     getCloudPBXDeviceModels(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXDeviceModels) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXDeviceModels) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXDeviceModels(systemId);
-                that._logger.log("debug", "(getCloudPBXlanguages) - sent.");
-                that._logger.log("internal", "(getCloudPBXlanguages) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXlanguages) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXlanguages) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXlanguages) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXlanguages) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXlanguages) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) Error : ", err);
                 return reject(err);
             }
         });
@@ -7267,29 +7272,29 @@ class AdminService extends GenericService {
      */
     getCloudPBXTrafficBarringOptions(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXTrafficBarringOptions) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXTrafficBarringOptions) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXTrafficBarringOptions(systemId);
-                that._logger.log("debug", "(getCloudPBXTrafficBarringOptions) - sent.");
-                that._logger.log("internal", "(getCloudPBXTrafficBarringOptions) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXTrafficBarringOptions) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXTrafficBarringOptions) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXTrafficBarringOptions) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXTrafficBarringOptions) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXTrafficBarringOptions) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXTrafficBarringOptions) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -7305,29 +7310,29 @@ class AdminService extends GenericService {
      */
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId);
-                that._logger.log("debug", "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - sent.");
-                that._logger.log("internal", "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) Error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion CloudPBX
     //region Cloudpbx Devices
 
@@ -7349,37 +7354,37 @@ class AdminService extends GenericService {
      */
     CreateCloudPBXSIPDevice (systemId : string,   description : string,  deviceTypeId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(CreateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceTypeId : ", that._logger.stripStringForLogs(deviceTypeId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(CreateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceTypeId : ", that._logger.stripStringForLogs(deviceTypeId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!description) {
-                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter : ", description);
+                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter : ", description);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (! deviceTypeId ) {
-                    this._logger.log("warn", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter : ", description);
+                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter : ", description);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.CreateCloudPBXSIPDevice(systemId, description, deviceTypeId,  macAddress);
-                that._logger.log("debug", "(CreateCloudPBXSIPDevice) - sent.");
-                that._logger.log("internal", "(CreateCloudPBXSIPDevice) - result : ", result);
+                that._logger.log(that.DEBUG, "(CreateCloudPBXSIPDevice) - sent.");
+                that._logger.log(that.INTERNAL, "(CreateCloudPBXSIPDevice) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(CreateCloudPBXSIPDevice) Error.");
-                that._logger.log("internalerror", LOG_ID + "(CreateCloudPBXSIPDevice) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(CreateCloudPBXSIPDevice) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) Error : ", err);
                 return reject(err);
             }
         });
@@ -7402,31 +7407,31 @@ class AdminService extends GenericService {
      */
     factoryResetCloudPBXSIPDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(factoryResetCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(factoryResetCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.factoryResetCloudPBXSIPDevice(systemId, deviceId);
-                that._logger.log("debug", "(factoryResetCloudPBXSIPDevice) - sent.");
-                that._logger.log("internal", "(factoryResetCloudPBXSIPDevice) - result : ", result);
+                that._logger.log(that.DEBUG, "(factoryResetCloudPBXSIPDevice) - sent.");
+                that._logger.log(that.INTERNAL, "(factoryResetCloudPBXSIPDevice) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(factoryResetCloudPBXSIPDevice) Error.");
-                that._logger.log("internalerror", LOG_ID + "(factoryResetCloudPBXSIPDevice) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) Error : ", err);
                 return reject(err);
             }
         });
@@ -7448,31 +7453,31 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPDeviceById (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXSIPDeviceById) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPDeviceById) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXSIPDeviceById(systemId, deviceId);
-                that._logger.log("debug", "(getCloudPBXSIPDeviceById) - sent.");
-                that._logger.log("internal", "(getCloudPBXSIPDeviceById) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXSIPDeviceById) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXSIPDeviceById) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXSIPDeviceById) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPDeviceById) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXSIPDeviceById) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPDeviceById) Error : ", err);
                 return reject(err);
             }
         });
@@ -7494,34 +7499,34 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXSIPDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteCloudPBXSIPDevice(systemId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             }
         });
@@ -7546,31 +7551,31 @@ class AdminService extends GenericService {
      */
     updateCloudPBXSIPDevice (systemId : string,   description : string,  deviceId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (! deviceId ) {
-                    this._logger.log("warn", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.updateCloudPBXSIPDevice(systemId, description, deviceId,  macAddress);
-                that._logger.log("debug", "(updateCloudPBXSIPDevice) - sent.");
-                that._logger.log("internal", "(updateCloudPBXSIPDevice) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateCloudPBXSIPDevice) - sent.");
+                that._logger.log(that.INTERNAL, "(updateCloudPBXSIPDevice) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateCloudPBXSIPDevice) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateCloudPBXSIPDevice) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXSIPDevice) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXSIPDevice) Error : ", err);
                 return reject(err);
             }
         });
@@ -7601,24 +7606,24 @@ class AdminService extends GenericService {
      */
     getAllCloudPBXSIPDevice (systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, assigned : boolean, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getAllCloudPBXSIPDevice(systemId,  limit, offset, sortField, sortOrder, assigned, phoneNumberId );
-                that._logger.log("debug", "(getAllCloudPBXSIPDevice) - sent.");
-                that._logger.log("internal", "(getAllCloudPBXSIPDevice) - result : ", result);
+                that._logger.log(that.DEBUG, "(getAllCloudPBXSIPDevice) - sent.");
+                that._logger.log(that.INTERNAL, "(getAllCloudPBXSIPDevice) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAllCloudPBXSIPDevice) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAllCloudPBXSIPDevice) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAllCloudPBXSIPDevice) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCloudPBXSIPDevice) Error : ", err);
                 return reject(err);
             }
         });
@@ -7640,34 +7645,34 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPRegistrationsInformationDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXSIPRegistrationsInformationDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPRegistrationsInformationDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXSIPRegistrationsInformationDevice(systemId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
                 return reject(err);
             }
         });
@@ -7698,34 +7703,34 @@ class AdminService extends GenericService {
      */
     grantCloudPBXAccessToDebugSession (systemId : string, deviceId : string,  duration : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(grantCloudPBXAccessToDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(grantCloudPBXAccessToDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.grantCloudPBXAccessToDebugSession(systemId, deviceId, duration).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(grantCloudPBXAccessToDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(grantCloudPBXAccessToDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    that._logger.log(that.ERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(grantCloudPBXAccessToDebugSession) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) error : ", err);
                 return reject(err);
             }
         });
@@ -7749,34 +7754,34 @@ class AdminService extends GenericService {
      */
     revokeCloudPBXAccessFromDebugSession (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(revokeCloudPBXAccessFromDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(revokeCloudPBXAccessFromDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.revokeCloudPBXAccessFromDebugSession(systemId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    that._logger.log(that.ERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) error : ", err);
                 return reject(err);
             }
         });
@@ -7798,34 +7803,34 @@ class AdminService extends GenericService {
      */
     rebootCloudPBXSIPDevice  (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(rebootCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(rebootCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.rebootCloudPBXSIPDevice(systemId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(rebootCloudPBXSIPDevice) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(rebootCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
+                    that._logger.log(that.ERROR, LOG_ID + "(rebootCloudPBXSIPDevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", deviceId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(rebootCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(rebootCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             }
         });
@@ -7853,34 +7858,34 @@ class AdminService extends GenericService {
      */
     getCloudPBXSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriber) error : ", err);
                 return reject(err);
             }
         });
@@ -7902,34 +7907,34 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBXSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBXSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXSubscriber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSubscriber) error : ", err);
                 return reject(err);
             }
         });
@@ -7956,45 +7961,45 @@ class AdminService extends GenericService {
      */
     createCloudPBXSubscriberRainbowUser (systemId : string, login : string, password : string, shortNumber : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCloudPBXSubscriberRainbowUser) systemId : ", that._logger.stripStringForLogs(systemId), ", login : ", that._logger.stripStringForLogs(login), ", userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCloudPBXSubscriberRainbowUser) systemId : ", that._logger.stripStringForLogs(systemId), ", login : ", that._logger.stripStringForLogs(login), ", userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!shortNumber) {
-                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter : ", shortNumber);
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter : ", shortNumber);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!userId) {
-                    this._logger.log("warn", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter : ", userId);
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter : ", userId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createCloudPBXSubscriberRainbowUser(systemId, login, password, shortNumber, userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXSubscriberRainbowUser) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createCloudPBXSubscriberRainbowUser) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", userId);
+                    that._logger.log(that.ERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", userId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createCloudPBXSubscriberRainbowUser) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -8012,46 +8017,46 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPdeviceAssignedSubscriber (systemId : string, phoneNumberId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXSIPdeviceAssignedSubscriber(systemId, phoneNumberId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
                 return reject(err);
             }
         });
     }
-    
-    
+
+
     /**
      * @public
      * @nodered true
@@ -8069,40 +8074,40 @@ class AdminService extends GenericService {
      */
     removeCloudPBXAssociationSubscriberAndSIPdevice (systemId : string, phoneNumberId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!deviceId) {
-                    this._logger.log("warn", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter : ", deviceId);
+                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter : ", deviceId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.removeCloudPBXAssociationSubscriberAndSIPdevice(systemId, phoneNumberId, deviceId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device. ");
-                    that._logger.log("internal", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) Successfully deleting CloudPBX SIP Device : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) ErrorManager when deleting CloudPBX SIP Device : ", systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) error : ", err);
                 return reject(err);
             }
         });
@@ -8119,7 +8124,7 @@ class AdminService extends GenericService {
      * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort SIP Devices list based on the given field.
      * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
-     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)      
+     * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
      * @description
@@ -8128,24 +8133,24 @@ class AdminService extends GenericService {
      */
     getCloudPBXAllSIPdevicesAssignedSubscriber ( systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.getCloudPBXAllSIPdevicesAssignedSubscriber(systemId,  limit, offset, sortField, sortOrder, phoneNumberId );
-                that._logger.log("debug", "(getCloudPBXAllSIPdevicesAssignedSubscriber) - sent.");
-                that._logger.log("internal", "(getCloudPBXAllSIPdevicesAssignedSubscriber) - result : ", result);
+                that._logger.log(that.DEBUG, "(getCloudPBXAllSIPdevicesAssignedSubscriber) - sent.");
+                that._logger.log(that.INTERNAL, "(getCloudPBXAllSIPdevicesAssignedSubscriber) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) Error : ", err);
                 return reject(err);
             }
         });
@@ -8167,39 +8172,39 @@ class AdminService extends GenericService {
      */
     getCloudPBXInfoAllRegisteredSIPdevicesSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
                 return reject(err);
             }
         });
     }
-     
+
     /**
      * @public
      * @nodered true
@@ -8221,31 +8226,31 @@ class AdminService extends GenericService {
      */
     assignCloudPBXSIPDeviceToSubscriber (systemId : string,   phoneNumberId : string,  deviceId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (! phoneNumberId ) {
-                    this._logger.log("warn", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 let result = await that._rest.assignCloudPBXSIPDeviceToSubscriber(systemId, phoneNumberId, deviceId,  macAddress);
-                that._logger.log("debug", "(assignCloudPBXSIPDeviceToSubscriber) - sent.");
-                that._logger.log("internal", "(assignCloudPBXSIPDeviceToSubscriber) - result : ", result);
+                that._logger.log(that.DEBUG, "(assignCloudPBXSIPDeviceToSubscriber) - sent.");
+                that._logger.log(that.INTERNAL, "(assignCloudPBXSIPDeviceToSubscriber) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error.");
-                that._logger.log("internalerror", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) Error : ", err);
                 return reject(err);
             }
         });
@@ -8267,34 +8272,34 @@ class AdminService extends GenericService {
      */
     getCloudPBXSubscriberCLIOptions (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXSubscriberCLIOptions) systemId : ", that._logger.stripStringForLogs(systemId), ", systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSubscriberCLIOptions) systemId : ", that._logger.stripStringForLogs(systemId), ", systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXSubscriberCLIOptions(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriberCLIOptions) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXSubscriberCLIOptions) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXSubscriberCLIOptions) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) error : ", err);
                 return reject(err);
             }
         });
@@ -8319,28 +8324,28 @@ class AdminService extends GenericService {
      */
     getCloudPBXUnassignedInternalPhonenumbers(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCloudPBXUnassignedInternalPhonenumbers) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXUnassignedInternalPhonenumbers) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getCloudPBXUnassignedInternalPhonenumbers(systemId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
                 return reject(err);
             }
         });
@@ -8354,7 +8359,7 @@ class AdminService extends GenericService {
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
      * @param {number} limit Allow to specify the number of DDI numbers to retrieve. Default : 100.
-     * @param {number} offset Allow to specify the position of first DDI number to retrieve (first site if not specified) 
+     * @param {number} offset Allow to specify the position of first DDI number to retrieve (first site if not specified)
      * Warning: if offset > total, no results are returned
      * @param {string} sortField Sort DDI numbers list based on the given field. Default : "number"
      * @param {number} sortOrder Specify order when sorting DDI numbers list. Default : 1. Valid values : -1, 1.
@@ -8371,28 +8376,28 @@ class AdminService extends GenericService {
      */
     listCloudPBXDDINumbersAssociated (systemId : string, limit : number = 100, offset : number, sortField : string = "number", sortOrder : number = 1, isAssignedToUser : boolean, isAssignedToGroup : boolean, isAssignedToIVR : boolean, isAssignedToAutoAttendant : boolean, isAssigned : boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(listCloudPBXDDINumbersAssociated) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(listCloudPBXDDINumbersAssociated) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.listCloudPBXDDINumbersAssociated(systemId, limit, offset, sortField, sortOrder, isAssignedToUser, isAssignedToGroup, isAssignedToIVR, isAssignedToAutoAttendant, isAssigned).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) ErrorManager error : ", err, ' : ', systemId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
                 return reject(err);
             }
         });
@@ -8414,34 +8419,34 @@ class AdminService extends GenericService {
      */
     createCloudPBXDDINumber (systemId : string, number : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", number : ", that._logger.stripStringForLogs(number));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", number : ", that._logger.stripStringForLogs(number));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!number) {
-                    this._logger.log("warn", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter : ", number);
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter : ", number);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createCloudPBXDDINumber(systemId, number).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createCloudPBXDDINumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createCloudPBXDDINumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXDDINumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", number);
+                    that._logger.log(that.ERROR, LOG_ID + "(createCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", number);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXDDINumber) error : ", err);
                 return reject(err);
             }
         });
@@ -8454,7 +8459,7 @@ class AdminService extends GenericService {
      * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
-     * @param {string} phoneNumberId PhoneNumber unique identifier 
+     * @param {string} phoneNumberId PhoneNumber unique identifier
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Phone Numbers
      * @description
@@ -8464,34 +8469,34 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXDDINumber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteCloudPBXDDINumber(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBXDDINumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXDDINumber) error : ", err);
                 return reject(err);
             }
         });
@@ -8514,46 +8519,46 @@ class AdminService extends GenericService {
      */
     associateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(associateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(associateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!userId) {
-                    this._logger.log("warn", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
+                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.associateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(associateCloudPBXDDINumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(associateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(associateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(associateCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) error : ", err);
                 return reject(err);
             }
         });
     }
-    
-    
+
+
     /**
      * @public
      * @nodered true
@@ -8571,40 +8576,40 @@ class AdminService extends GenericService {
      */
     disassociateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(disassociateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(disassociateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!userId) {
-                    this._logger.log("warn", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
+                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.disassociateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(disassociateCloudPBXDDINumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(disassociateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(disassociateCloudPBXDDINumber) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(disassociateCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) error : ", err);
                 return reject(err);
             }
         });
@@ -8626,41 +8631,41 @@ class AdminService extends GenericService {
      */
     setCloudPBXDDIAsdefault (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(setCloudPBXDDIAsdefault) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(setCloudPBXDDIAsdefault) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.setCloudPBXDDIAsdefault(systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(setCloudPBXDDIAsdefault) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(setCloudPBXDDIAsdefault) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
+                    that._logger.log(that.ERROR, LOG_ID + "(setCloudPBXDDIAsdefault) ErrorManager error : ", err, ' : ', systemId, " : ", phoneNumberId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(setCloudPBXDDIAsdefault) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(setCloudPBXDDIAsdefault) error : ", err);
                 return reject(err);
             }
         });
     }
 
     //endregion Cloudpbx Phone Numbers
-    
+
     //region Cloudpbx SIP Trunk
 
     /**
@@ -8678,28 +8683,28 @@ class AdminService extends GenericService {
      */
     retrieveExternalSIPTrunkById (externalTrunkId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrieveExternalSIPTrunkById) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveExternalSIPTrunkById) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!externalTrunkId) {
-                    this._logger.log("warn", LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter : ", externalTrunkId);
+                    that._logger.log(that.WARN, LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter : ", externalTrunkId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.retrieveExternalSIPTrunkById(externalTrunkId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(retrieveExternalSIPTrunkById) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(retrieveExternalSIPTrunkById) ErrorManager error : ", err, ' : ', externalTrunkId);
+                    that._logger.log(that.ERROR, LOG_ID + "(retrieveExternalSIPTrunkById) ErrorManager error : ", err, ' : ', externalTrunkId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(retrieveExternalSIPTrunkById) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveExternalSIPTrunkById) error : ", err);
                 return reject(err);
             }
         });
@@ -8726,30 +8731,30 @@ class AdminService extends GenericService {
      */
     retrievelistExternalSIPTrunks (rvcpInstanceId : string, status : string, trunkType : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(retrievelistExternalSIPTrunks) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrievelistExternalSIPTrunks) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.retrievelistExternalSIPTrunks (rvcpInstanceId, status, trunkType).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(retrievelistExternalSIPTrunks) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(retrievelistExternalSIPTrunks) ErrorManager error : ", err, ' : ', rvcpInstanceId, " : ", status, " : ", trunkType);
+                    that._logger.log(that.ERROR, LOG_ID + "(retrievelistExternalSIPTrunks) ErrorManager error : ", err, ' : ', rvcpInstanceId, " : ", status, " : ", trunkType);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(retrievelistExternalSIPTrunks) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrievelistExternalSIPTrunks) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Cloudpbx SIP Trunk
-    
-    //endregion Rainbow Voice Communication Platform Provisioning 
+
+    //endregion Rainbow Voice Communication Platform Provisioning
 
     //region Sites
 
@@ -8772,37 +8777,37 @@ class AdminService extends GenericService {
      */
     createASite(name : string, status : string, companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createASite) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createASite) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (!name) {
-                    this._logger.log("warn", LOG_ID + "(createASite) bad or empty 'name' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createASite) bad or empty 'name' parameter : ", name);
+                    that._logger.log(that.WARN, LOG_ID + "(createASite) bad or empty 'name' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createASite) bad or empty 'name' parameter : ", name);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(createASite) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createASite) bad or empty 'companyId' parameter : ", companyId);
+                    that._logger.log(that.WARN, LOG_ID + "(createASite) bad or empty 'companyId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createASite) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createASite (name, status, companyId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createASite) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createASite) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createASite) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createASite) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createASite) ErrorManager error : ", err, ' : ', name, " : ", status, " : ", companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(createASite) ErrorManager error : ", err, ' : ', name, " : ", status, " : ", companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createASite) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createASite) error : ", err);
                 return reject(err);
             }
-        }); 
+        });
     }
 
     /**
@@ -8820,27 +8825,27 @@ class AdminService extends GenericService {
      */
     deleteSite (siteId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteSite) siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSite) siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    this._logger.log("warn", LOG_ID + "(deleteSite) bad or empty 'siteId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteSite) bad or empty 'siteId' parameter : ", siteId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteSite) bad or empty 'siteId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSite) bad or empty 'siteId' parameter : ", siteId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
-                
+
                 that._rest.deleteSite (siteId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteSite) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteSite) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteSite) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteSite) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteSite) ErrorManager error : ", err, ' : ', siteId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteSite) ErrorManager error : ", err, ' : ', siteId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteSite) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSite) error : ", err);
                 return reject(err);
             }
         });
@@ -8861,27 +8866,27 @@ class AdminService extends GenericService {
      */
     getSiteData (siteId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSiteData) siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSiteData) siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    this._logger.log("warn", LOG_ID + "(getSiteData) bad or empty 'siteId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getSiteData) bad or empty 'siteId' parameter : ", siteId);
+                    that._logger.log(that.WARN, LOG_ID + "(getSiteData) bad or empty 'siteId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSiteData) bad or empty 'siteId' parameter : ", siteId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getSiteData (siteId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getSiteData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getSiteData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getSiteData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getSiteData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getSiteData) ErrorManager error : ", err, ' : ', siteId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getSiteData) ErrorManager error : ", err, ' : ', siteId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getSiteData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getSiteData) error : ", err);
                 return reject(err);
             }
         });
@@ -8915,22 +8920,22 @@ class AdminService extends GenericService {
      */
     getAllSites (format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, name: string, companyId: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllSites) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSites) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getAllSites (format, limit, offset, sortField, sortOrder, name, companyId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllSites) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllSites) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllSites) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllSites) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllSites) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllSites) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllSites) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllSites) error : ", err);
                 return reject(err);
             }
         });
@@ -8954,27 +8959,27 @@ class AdminService extends GenericService {
      */
     updateSite (siteId : string, name : string, status : string, companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateSite) companyId : ", that._logger.stripStringForLogs(companyId), ", siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSite) companyId : ", that._logger.stripStringForLogs(companyId), ", siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    this._logger.log("warn", LOG_ID + "(updateSite) bad or empty 'siteId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateSite) bad or empty 'siteId' parameter : ", siteId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateSite) bad or empty 'siteId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSite) bad or empty 'siteId' parameter : ", siteId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
-                
+
                 that._rest.updateSite (siteId, name, status, companyId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateSite) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateSite) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateSite) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateSite) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateSite) ErrorManager error : ", err, ' : ', siteId);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSite) ErrorManager error : ", err, ' : ', siteId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateSite) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSite) error : ", err);
                 return reject(err);
             }
         });
@@ -8983,7 +8988,7 @@ class AdminService extends GenericService {
     //endregion Sites
 
     // region systems
-    
+
     // region systems systems
 
     /**
@@ -8996,7 +9001,7 @@ class AdminService extends GenericService {
      * @async
      * @param {string} name System name/description
      * @param {string} pbxId CCA (Call Control Agent) hosted by a System needs an account to XMPP. This is the login to access to XMPP server. It should be given during system creation or automatically generated.
-     * @param {string} pbxLdapId custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. 
+     * @param {string} pbxLdapId custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId.
      * @param {string} siteId Site from which the system is linked with.
      * @param {string} type CCA type. Possibles values : oxo, oxe, third_party, undefined
      * @param {string} country System country (ISO 3166-1 alpha3 format).
@@ -9007,7 +9012,7 @@ class AdminService extends GenericService {
      * @param {Array<Object>} pbxNumberingTranslator List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use [] </BR>
      * {String} regexpMatch A valid regular expression used to select a translator action. \d is not supported! Use (0..9) instead. </BR>
      * {String} regexpReplace A valid dialable number. </BR>
-     * {String} description A short description of the rule. </BR> 
+     * {String} description A short description of the rule. </BR>
      * @param {string} pbxNationalPrefix National prefix
      * @param {string} pbxInternationalPrefix International prefix
      * @param {Array<string>} searchResultOrder List of directory types to order search results: </BR>
@@ -9088,13 +9093,13 @@ class AdminService extends GenericService {
                   pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>, activationCode ? : string, isCentrex ? : boolean,
                   isShared ? : boolean, bpId ? : string, isOxoManaged ? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createSystem) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createSystem) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!name) {
-                    this._logger.log("warn", LOG_ID + "(createSystem) bad or empty 'name' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createSystem) bad or empty 'name' parameter : ", name);
+                    that._logger.log(that.WARN, LOG_ID + "(createSystem) bad or empty 'name' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createSystem) bad or empty 'name' parameter : ", name);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
@@ -9102,16 +9107,16 @@ class AdminService extends GenericService {
                         serverPingTimeout, pbxMainBundlePrefix, usePbxMainBundlePrefix, pbxNumberingTranslator,
                         pbxNationalPrefix, pbxInternationalPrefix, searchResultOrder, activationCode, isCentrex,
                         isShared, bpId, isOxoManaged ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createSystem) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createSystem) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createSystem) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createSystem) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createSystem) ErrorManager error : ", err, ' : ', pbxId);
+                    that._logger.log(that.ERROR, LOG_ID + "(createSystem) ErrorManager error : ", err, ' : ', pbxId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createSystem) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createSystem) error : ", err);
                 return reject(err);
             }
         });
@@ -9149,30 +9154,30 @@ class AdminService extends GenericService {
      */
     deleteSystem (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteSystem) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSystem) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteSystem(systemId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteSystem) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteSystem) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteSystem) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteSystem) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteSystem) ErrorManager error : ", err, ' : ', systemId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteSystem) ErrorManager error : ", err, ' : ', systemId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteSystem) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSystem) error : ", err);
                 return reject(err);
             }
-        }); 
+        });
     }
 
     /**
@@ -9219,27 +9224,27 @@ class AdminService extends GenericService {
      */
     getSystemConnectionState (systemId : string, format : string = "small", connectionHistory? : boolean): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSystemConnectionState) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemConnectionState) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getSystemConnectionState(systemId, format, connectionHistory).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getSystemConnectionState) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getSystemConnectionState) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getSystemConnectionState) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getSystemConnectionState) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getSystemConnectionState) ErrorManager error : ", err, ' : ', systemId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getSystemConnectionState) ErrorManager error : ", err, ' : ', systemId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getSystemConnectionState) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemConnectionState) error : ", err);
                 return reject(err);
             }
         });
@@ -9265,8 +9270,8 @@ class AdminService extends GenericService {
      *  site_admin can only get the systems linked to the site they administrate.
      *
      * @return {Promise<any>} An object of the result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | activatingTransactionId | String | CCA Jabber Id |
@@ -9307,27 +9312,27 @@ class AdminService extends GenericService {
      */
     getSystemDataByPbxId (pbxId : string, connectionHistory? :boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSystemDataByPbxId) pbxId : ", that._logger.stripStringForLogs(pbxId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemDataByPbxId) pbxId : ", that._logger.stripStringForLogs(pbxId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!pbxId) {
-                    this._logger.log("warn", LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter : ", pbxId);
+                    that._logger.log(that.WARN, LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter : ", pbxId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getSystemDataByPbxId (pbxId, connectionHistory ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getSystemDataByPbxId) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getSystemDataByPbxId) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getSystemDataByPbxId) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getSystemDataByPbxId) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getSystemDataByPbxId) ErrorManager error : ", err, ' : ', pbxId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getSystemDataByPbxId) ErrorManager error : ", err, ' : ', pbxId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getSystemDataByPbxId) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemDataByPbxId) error : ", err);
                 return reject(err);
             }
         });
@@ -9391,31 +9396,31 @@ class AdminService extends GenericService {
      * | connectionHistory | Object\[\] | history of connections. |
      * | eventType | String | Type of connection |
      * | eventDate | Date-Time | Date of connection |
-     * 
+     *
      */
     getSystemData (systemId : string, connectionHistory? :boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSystemData) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemData) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getSystemData) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getSystemData) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getSystemData) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemData) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getSystemData (systemId, connectionHistory ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getSystemData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getSystemData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getSystemData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getSystemData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getSystemData) ErrorManager error : ", err, ' : ', systemId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getSystemData) ErrorManager error : ", err, ' : ', systemId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getSystemData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemData) error : ", err);
                 return reject(err);
             }
         });
@@ -9505,13 +9510,13 @@ class AdminService extends GenericService {
      * | connectionHistory | Object\[\] | history of connections. |
      * | eventType | String | Type of connection |
      * | eventDate | Date-Time | Date of connection |
-     * 
+     *
      */
     getAllSystems (connectionHistory ? : boolean, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "pbxId", sortOrder : number=1,
                    name ? : string, type ? : string, status ? : string, siteId ? : string, companyId ? : string, bpId ? : string, isShared ? : boolean, isCentrex ? : boolean,
                    isSharedOrCentrex ? : boolean, isOxoManaged ? : boolean, fromCreationDate ? : string, toCreationDate ? : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllSystems) format : ", format, ", companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSystems) format : ", format, ", companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9519,16 +9524,16 @@ class AdminService extends GenericService {
                 that._rest.getAllSystems (connectionHistory , format , limit , offset , sortField , sortOrder ,
                         name , type , status , siteId , companyId , bpId , isShared , isCentrex ,
                         isSharedOrCentrex , isOxoManaged , fromCreationDate , toCreationDate ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllSystems) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllSystems) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllSystems) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystems) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllSystems) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllSystems) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllSystems) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllSystems) error : ", err);
                 return reject(err);
             }
         });
@@ -9551,22 +9556,22 @@ class AdminService extends GenericService {
      */
     getListOfCountriesAllowedForSystems (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListOfCountriesAllowedForSystems) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfCountriesAllowedForSystems) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getListOfCountriesAllowedForSystems ( ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListOfCountriesAllowedForSystems) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListOfCountriesAllowedForSystems) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountriesAllowedForSystems) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountriesAllowedForSystems) Successfully - sent : ", result);
                     resolve(result);
-                }).catch((err) => { 
-                    that._logger.log("error", LOG_ID + "(getListOfCountriesAllowedForSystems) ErrorManager error : ", err);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getListOfCountriesAllowedForSystems) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getListOfCountriesAllowedForSystems) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListOfCountriesAllowedForSystems) error : ", err);
                 return reject(err);
             }
         });
@@ -9618,7 +9623,7 @@ class AdminService extends GenericService {
      * * isShared flag can be updated to true only if the system has isCentrex=false and is linked to at least one site or if a bpId is set. </BR>
      * * isShared flag can be updated to false only if the system is linked to one site (exactly). In that case, bpId field is automatically reset to null. </BR>
      * </BR>
-     * 
+     *
      * @param {boolean} bpId Link the system to the corresponding Business partner company. bpId must correspond to a valid company having isBP equal to true. Only directly settable by superadmin.
      * @description
      *  This API allows administrator to update a given system. </BR>
@@ -9666,13 +9671,13 @@ class AdminService extends GenericService {
      * | connectionHistory | Object\[\] | history of connections. |
      * | eventType | String | Type of connection |
      * | eventDate | Date-Time | Date of connection |
-     *  
+     *
      */
     updateSystem ( systemId : string, name ? : string, siteId ? : string, pbxLdapId ? : string, type ? : string, country ? : string, version ? : string,
     serverPingTimeout : number = 100, pbxMainBundlePrefix ? : string, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>, pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>,
     isShared ? : boolean, bpId ? : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateSystem) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSystem) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9680,21 +9685,21 @@ class AdminService extends GenericService {
                 that._rest.updateSystem ( systemId , name , siteId , pbxLdapId , type , country , version ,
                         serverPingTimeout , pbxMainBundlePrefix , usePbxMainBundlePrefix , pbxNumberingTranslator , pbxNationalPrefix , pbxInternationalPrefix , searchResultOrder ,
                         isShared , bpId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateSystem) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateSystem) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateSystem) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateSystem) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateSystem) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSystem) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateSystem) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSystem) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     // endregion systems systems
 
     //region pcg pbxs
@@ -9702,69 +9707,69 @@ class AdminService extends GenericService {
     // API Private because the PCG role is need.
     getPbxData(pbxId : string) {
         let that = this;
-        //that._logger.log("info", LOG_ID + API_ID + "(getPbxData) pbxId : ", that._logger.stripStringForLogs(pbxId));
+        //that._logger.log(that.INFO, LOG_ID + API_ID + "(getPbxData) pbxId : ", that._logger.stripStringForLogs(pbxId));
 
         return new Promise(function (resolve, reject) {
-            try {              
+            try {
                 that._rest.getPbxData ( pbxId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getPbxData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getPbxData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getPbxData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getPbxData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getPbxData) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getPbxData) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getPbxData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getPbxData) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     // API Private because the PCG role is need.
     getAllPbxs(format : string = "small", sortField : string = "id", limit : number =  100, offset : number = 0, sortOrder : number = 1, name : string = undefined, type : string = undefined, status: string = undefined, siteId : string = undefined, companyId : string = undefined,
                bpId : string = undefined, isShared : boolean = undefined, isCentrex : boolean = undefined, isSharedOrCentrex : boolean = undefined, isOxoManaged : boolean = undefined, fromCreationDate : string = undefined, toCreationDate : string = undefined) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllPbxs) format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxs) format : ", format);
 
         return new Promise(function (resolve, reject) {
-            try {              
+            try {
                 that._rest.getAllPbxs ( format, sortField, limit, offset, sortOrder, name, type, status, siteId, companyId, bpId, isShared, isCentrex, isSharedOrCentrex, isOxoManaged, fromCreationDate, toCreationDate).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllPbxs) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllPbxs) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxs) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxs) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllPbxs) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllPbxs) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllPbxs) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllPbxs) error : ", err);
                 return reject(err);
             }
         });
     }
-    
-    //endregion pcg pbxs 
+
+    //endregion pcg pbxs
 
 
-    //region pcg pbxs phone numbers 
+    //region pcg pbxs phone numbers
 
     createPbxPhoneNumber( pbxId : string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string){
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createPbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createPbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.createPbxPhoneNumber (  pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, internalNumber, type, deviceType, firstName, lastName, deviceName).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createPbxPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createPbxPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createPbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createPbxPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createPbxPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createPbxPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createPbxPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createPbxPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
@@ -9772,20 +9777,20 @@ class AdminService extends GenericService {
 
     deletePbxPhoneNumber(pbxId : string, shortNumber : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deletePbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deletePbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.deletePbxPhoneNumber (pbxId, shortNumber).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deletePbxPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deletePbxPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deletePbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deletePbxPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deletePbxPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deletePbxPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deletePbxPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deletePbxPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
@@ -9793,20 +9798,20 @@ class AdminService extends GenericService {
 
     getPbxPhoneNumber(pbxId : string, shortNumber : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getPbxPhoneNumber (pbxId, shortNumber).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getPbxPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getPbxPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getPbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getPbxPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getPbxPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getPbxPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getPbxPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getPbxPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
@@ -9816,22 +9821,22 @@ class AdminService extends GenericService {
                           companyPrefix : string, isMonitored : boolean, name : string, nameOrShortNumber : string, deviceName : string,
                           isAssignedToUser : boolean, limit : number = 100, offset : number, sortField : string = "shortNumber", sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getAllPbxPhoneNumbers ( pbxId, format, shortNumber, internalNumber, pbxUserId,
                         companyPrefix, isMonitored, name, nameOrShortNumber, deviceName,
                         isAssignedToUser, limit, offset, sortField, sortOrder).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxPhoneNumbers) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllPbxPhoneNumbers) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllPbxPhoneNumbers) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllPbxPhoneNumbers) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllPbxPhoneNumbers) error : ", err);
                 return reject(err);
             }
         });
@@ -9839,28 +9844,28 @@ class AdminService extends GenericService {
 
     updatepbxPhoneNumber(pbxId: string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, companyName : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updatepbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updatepbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.updatepbxPhoneNumber ( pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, companyName, internalNumber, type, deviceType, firstName, lastName, deviceName).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updatepbxPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updatepbxPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updatepbxPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updatepbxPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updatepbxPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updatepbxPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updatepbxPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updatepbxPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
     }
 
     //endregion pcg pbxs phone numbers
-    
-    // region systems phone numbers    
+
+    // region systems phone numbers
 
     /**
      * @public
@@ -9878,9 +9883,9 @@ class AdminService extends GenericService {
      *      bp_admin can only retrieve phoneNumbers linked to systems of End Customer companies for which their bp_admin's company is the BP company.</BR>
      *      Users with admin role (and not having superadmin nor support role) can only retrieve phoneNumbers of systems that they manage.</BR>
      *      In a Multi-Layer organization that describes a hierarchy including ORGANIZATIONS/COMPANIES/SITES/SYSTEMS, an admin role of a upper layer is allowed to see systems within their's reach. </BR>
-     *   
+     *
      * @return {Promise<any>} An object of the result
-     * 
+     *
      *
      *    | Champ | Type | Description |
      *    | --- | --- | --- |
@@ -9911,36 +9916,36 @@ class AdminService extends GenericService {
      *    | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
      *    | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
      *
-     * 
+     *
      */
     getASystemPhoneNumber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getASystemPhoneNumber ( systemId, phoneNumberId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getASystemPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getASystemPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getASystemPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getASystemPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getASystemPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getASystemPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
@@ -9977,7 +9982,7 @@ class AdminService extends GenericService {
      * @param {number} sortOrder Specify order when sorting phone numbers list. Default value : 1 . Possible values : -1, 1 .
      * @description
      *  This API allows to list all phoneNumbers associated to a given system (pbx).</BR>
-     *    
+     *
      *  Users with superadmin or support role can retrieve phoneNumbers from any system.</BR>
      *  bp_admin can only retrieve phoneNumbers linked to systems of End Customer companies for which their bp_admin's company is the BP company.</BR>
      *  Users with admin role (and not having superadmin nor support role) can only retrieve phoneNumbers of systems that they manage.</BR>
@@ -10008,27 +10013,27 @@ class AdminService extends GenericService {
      */
     getAllSystemPhoneNumbers (systemId: string, shortNumber? : string, internalNumber ? :string, pbxUserId ? :string, companyPrefix? :string, isMonitored ? :boolean, name ? : string, deviceName ? : string, isAssignedToUser ? :boolean, format : string = "small", limit : number = 100, offset ? : number, sortField : string ="shortNumber", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllSystemPhoneNumbers) systemId : ", that._logger.stripStringForLogs(systemId), ", pbxUserId : ", that._logger.stripStringForLogs(pbxUserId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSystemPhoneNumbers) systemId : ", that._logger.stripStringForLogs(systemId), ", pbxUserId : ", that._logger.stripStringForLogs(pbxUserId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getAllSystemPhoneNumbers ( systemId, shortNumber , internalNumber , pbxUserId , companyPrefix, isMonitored , name , deviceName , isAssignedToUser , format , limit , offset , sortField , sortOrder ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystemPhoneNumbers) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllSystemPhoneNumbers) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllSystemPhoneNumbers) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllSystemPhoneNumbers) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllSystemPhoneNumbers) error : ", err);
                 return reject(err);
             }
         });
@@ -10065,7 +10070,7 @@ class AdminService extends GenericService {
      *
      * @return {Promise<any>} An object of the result
      *
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | String | Phone number unique identifier |
@@ -10094,50 +10099,50 @@ class AdminService extends GenericService {
      * | isVoipNomadic optionnel | Boolean | Specifies if Nomadic destination is VoIP. |
      * | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
      * | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
-     * 
-     * 
+     *
+     *
      */
     updateASystemPhoneNumber(systemId : string, phoneNumberId : string, isMonitored ? : boolean, userId ? : string, internalNumber ? : string,
                              number ? : string, type ? : string, deviceType ? : string, firstName ? : string, lastName ? : string, deviceName ? : string, isVisibleByOthers ? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    this._logger.log("warn", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!phoneNumberId) {
-                    this._logger.log("warn", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.updateASystemPhoneNumber ( systemId,  phoneNumberId , isMonitored , userId , internalNumber ,
                         number , type , deviceType , firstName , lastName , deviceName , isVisibleByOthers  ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateASystemPhoneNumber) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateASystemPhoneNumber) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateASystemPhoneNumber) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateASystemPhoneNumber) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateASystemPhoneNumber) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateASystemPhoneNumber) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateASystemPhoneNumber) error : ", err);
                 return reject(err);
             }
         });
     }
 
-    //endregion systems phone numbers    
+    //endregion systems phone numbers
 
     //endregion systems
-    
-    //region Rainbow Company Directory Portal 
+
+    //region Rainbow Company Directory Portal
     // https://api.openrainbow.org/directory/
     //region directory
     /**
@@ -10191,13 +10196,13 @@ class AdminService extends GenericService {
                            custom2 : string
     ) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createDirectoryEntry) companyId : ", that._logger.stripStringForLogs(companyId), ", lastName : ", that._logger.stripStringForLogs(lastName));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createDirectoryEntry) companyId : ", that._logger.stripStringForLogs(companyId), ", lastName : ", that._logger.stripStringForLogs(lastName));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter : ", companyId);
+                    that._logger.log(that.WARN, LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
@@ -10219,16 +10224,16 @@ class AdminService extends GenericService {
                         tags,
                         custom1,
                         custom2).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createDirectoryEntry) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createDirectoryEntry) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(createDirectoryEntry) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
@@ -10249,27 +10254,27 @@ class AdminService extends GenericService {
      */
     deleteCompanyDirectoryAllEntry (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteCompanyDirectoryAllEntry) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCompanyDirectoryAllEntry) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    this._logger.log("warn", LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter : ", companyId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter : ", companyId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteCompanyDirectoryAllEntry (companyId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompanyDirectoryAllEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteCompanyDirectoryAllEntry) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCompanyDirectoryAllEntry) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteCompanyDirectoryAllEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyDirectoryAllEntry) error : ", err);
                 return reject(err);
             }
         });
@@ -10290,27 +10295,27 @@ class AdminService extends GenericService {
      */
     deleteDirectoryEntry (entryId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    this._logger.log("warn", LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteDirectoryEntry (entryId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteDirectoryEntry) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
@@ -10337,27 +10342,27 @@ class AdminService extends GenericService {
      */
     getDirectoryEntryData (entryId : string, format : string = "small"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    this._logger.log("warn", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getDirectoryEntryData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getDirectoryEntryData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) error : ", err);
                 return reject(err);
             }
         });
@@ -10423,7 +10428,7 @@ class AdminService extends GenericService {
      *   name, phoneNumbers, search and tags parameters are exclusives.
      * @return {Promise<any>}
      * </BR>
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | Data objects |
@@ -10448,8 +10453,8 @@ class AdminService extends GenericService {
      * | tags optionnel | string\[\] | An Array of free tags |
      * | custom1 optionnel | string | Custom field 1 |
      * | custom2 optionnel | string | Custom field 2 |
-     * 
-     * 
+     *
+     *
      */
     getListDirectoryEntriesData (companyId : string,
                                  organisationIds : string,
@@ -10468,22 +10473,22 @@ class AdminService extends GenericService {
                                  sortOrder : number = 1,
                                  view  : string = "all"): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListDirectoryEntriesData) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListDirectoryEntriesData) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getListDirectoryEntriesData (companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListDirectoryEntriesData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListDirectoryEntriesData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListDirectoryEntriesData) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListDirectoryEntriesData) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getListDirectoryEntriesData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListDirectoryEntriesData) error : ", err);
                 return reject(err);
             }
         });
@@ -10521,7 +10526,7 @@ class AdminService extends GenericService {
      *      This API allows administrators to update an entry of the directory of a company they administrate.</BR>
      * @return {Promise<any>}
      */
-    updateDirectoryEntry  (entryId : string, 
+    updateDirectoryEntry  (entryId : string,
                            firstName : string,
                            lastName : string,
                            companyName : string,
@@ -10540,13 +10545,13 @@ class AdminService extends GenericService {
                            custom1 : string,
                            custom2 : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId), ", lastName : ", that._logger.stripStringForLogs(lastName));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId), ", lastName : ", that._logger.stripStringForLogs(lastName));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    this._logger.log("warn", LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
@@ -10568,16 +10573,16 @@ class AdminService extends GenericService {
                         tags,
                         custom1,
                         custom2).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateDirectoryEntry) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
@@ -10589,7 +10594,7 @@ class AdminService extends GenericService {
     // Private
     getAllDirectoryContacts(companyId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllDirectoryContacts) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllDirectoryContacts) companyId : ", that._logger.stripStringForLogs(companyId));
 
         const limit = 1000; // maximum of entries that can be requested to the server
         return new Promise(function (resolve, reject) {
@@ -10642,10 +10647,10 @@ class AdminService extends GenericService {
     // Private
     buildDirectoryCsvBlob(companyId) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(buildDirectoryCsvBlob) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(buildDirectoryCsvBlob) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
-            //that._logger.log("internal", LOG_ID + "[companyDirectoryService] === buildDirectoryCsvBlob ===");
+            //that._logger.log(that.INTERNAL, LOG_ID + "[companyDirectoryService] === buildDirectoryCsvBlob ===");
 
             that.getAllDirectoryContacts(companyId)
                     .then(function (result: any) {
@@ -10778,10 +10783,10 @@ class AdminService extends GenericService {
      */
     exportDirectoryCsvFile(companyId : string, filePath : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(exportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", filePath : ", that._logger.stripStringForLogs(filePath));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(exportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", filePath : ", that._logger.stripStringForLogs(filePath));
 
         return new Promise(function (resolve, reject) {
-            // that._logger.log("info", LOG_ID + "(exportDirectoryCsvFile) ===");
+            // that._logger.log(that.INFO, LOG_ID + "(exportDirectoryCsvFile) ===");
 
             const mDate = new Date().getTime(); // now
             const csvFilename = filePath + "directory_" + dateFormat(mDate, "YYYY-MM-DD_HH-mm") + ".csv"; // dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");
@@ -10790,9 +10795,9 @@ class AdminService extends GenericService {
             that.buildDirectoryCsvBlob(companyId).then(function (blobData: any) {
                 fs.writeFile(csvFilename, blobData.blob, 'utf8', function (err) {
                     if (err) {
-                        that._logger.log("error", LOG_ID + "(exportDirectoryCsvFile) Some error occured - file either not saved or corrupted file saved.");
+                        that._logger.log(that.ERROR, LOG_ID + "(exportDirectoryCsvFile) Some error occured - file either not saved or corrupted file saved.");
                     } else {
-                        that._logger.log("debug", LOG_ID + "(exportDirectoryCsvFile) " + csvFilename + " is saved!");
+                        that._logger.log(that.DEBUG, LOG_ID + "(exportDirectoryCsvFile) " + csvFilename + " is saved!");
                     }
                 });
                 resolve(csvFilename);
@@ -10819,7 +10824,7 @@ class AdminService extends GenericService {
      */
     ImportDirectoryCsvFile(companyId : string, fileFullPath : string, label : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(ImportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", fileFullPath : ", that._logger.stripStringForLogs(fileFullPath));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(ImportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", fileFullPath : ", that._logger.stripStringForLogs(fileFullPath));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10831,7 +10836,7 @@ class AdminService extends GenericService {
                 // let fd = fs.openSync(fileFullPath, "r+");
                 //let buf = new Buffer(sizeToRead);
 
-                that._logger.log("debug", LOG_ID + "(ImportDirectoryCsvFile) sizeToRead=", sizeToRead, ", fileFullPath : ", fileFullPath);
+                that._logger.log(that.DEBUG, LOG_ID + "(ImportDirectoryCsvFile) sizeToRead=", sizeToRead, ", fileFullPath : ", fileFullPath);
 
                 // fs.readSync(fd, buf, 0, sizeToRead, null);
                 // const data = fs.readFileSync(fileFullPath, {encoding:'utf8', flag:'r'});
@@ -10839,16 +10844,16 @@ class AdminService extends GenericService {
                 let cvsContent = fs.readFileSync(fileFullPath, {encoding:'utf8', flag:'r'});
 
                 that._rest.ImportDirectoryCsvFile (companyId, cvsContent, encodeURIComponent(label)).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ImportDirectoryCsvFile) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(ImportDirectoryCsvFile) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(ImportDirectoryCsvFile) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(ImportDirectoryCsvFile) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(ImportDirectoryCsvFile) error : ", err);
                 return reject(err);
             }
         });
@@ -10873,21 +10878,21 @@ class AdminService extends GenericService {
      */
     getAllTagsAssignedToDirectoryEntries (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllTagsAssignedToDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllTagsAssignedToDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getAllTagsAssignedToDirectoryEntries (companyId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) error : ", err);
                 return reject(err);
             }
         });
@@ -10903,7 +10908,7 @@ class AdminService extends GenericService {
      * @category Rainbow Company Directory portal - directory tags
      * @param {string} companyId Allows to list the tags for the directory entries of the companyIds provided in this option. </BR>
      * If companyId is not provided, the tags are listed for all the directory entries of the companies managed by the logged in administrator.</BR>
-     * @param {string} tag tag to remove. 
+     * @param {string} tag tag to remove.
      * @description
      *      This API allows administrators to remove a tag being assigned to some directory entries of the companies managed by the administrator.</BR>
      *      The parameter companyId can be used to limit the removal of the tag on the directory entries of the specified company(ies).</BR>
@@ -10911,22 +10916,22 @@ class AdminService extends GenericService {
      */
     removeTagFromAllDirectoryEntries (companyId : string, tag  : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(removeTagFromAllDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeTagFromAllDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
 
         return new Promise(function (resolve, reject) {
-            try {                
+            try {
 
                 that._rest.removeTagFromAllDirectoryEntries (companyId, tag ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeTagFromAllDirectoryEntries) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(removeTagFromAllDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(removeTagFromAllDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(removeTagFromAllDirectoryEntries) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeTagFromAllDirectoryEntries) error : ", err);
                 return reject(err);
             }
         });
@@ -10951,27 +10956,27 @@ class AdminService extends GenericService {
      */
     renameTagForAllAssignedDirectoryEntries ( tag  : string, companyId : string, newTagName : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(renameTagForAllAssignedDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(renameTagForAllAssignedDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!tag) {
-                    this._logger.log("warn", LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter : ", tag);
+                    that._logger.log(that.WARN, LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter : ", tag);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
-                
+
                 that._rest.renameTagForAllAssignedDirectoryEntries (tag, companyId, newTagName).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) error : ", err);
                 return reject(err);
             }
         });
@@ -10992,29 +10997,29 @@ class AdminService extends GenericService {
      */
     getStatsRegardingTagsOfDirectoryEntries ( companyId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getStatsRegardingTagsOfDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getStatsRegardingTagsOfDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getStatsRegardingTagsOfDirectoryEntries (companyId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) ErrorManager error : ", err, ' : ', companyId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion directory tags
-    
+
     //endregion Rainbow Company Directory Portal
 
     //region Clients Versions
@@ -11039,34 +11044,34 @@ class AdminService extends GenericService {
      */
     createAClientVersion (id : string, version: string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createAClientVersion) id : ", that._logger.stripStringForLogs(id), ", version : ", version);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAClientVersion) id : ", that._logger.stripStringForLogs(id), ", version : ", version);
 
         return new Promise(function (resolve, reject) {
             try {
 
                 if (version == null) {
-                    that._logger.log("warn", LOG_ID + "(createAClientVersion) bad or empty 'version' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(createAClientVersion) bad or empty 'version' parameter : ", version);
+                    that._logger.log(that.WARN, LOG_ID + "(createAClientVersion) bad or empty 'version' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createAClientVersion) bad or empty 'version' parameter : ", version);
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
-                
+
                 if (!id) {
                     id = that._options._applicationOptions.appID;
                 }
 
                 that._rest.createAClientVersion(id, version).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createAClientVersion) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createAClientVersion) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createAClientVersion) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createAClientVersion) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createAClientVersion) ErrorManager error : ", err, ', id : ', id);
+                    that._logger.log(that.ERROR, LOG_ID + "(createAClientVersion) ErrorManager error : ", err, ', id : ', id);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createAClientVersion) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(createAClientVersion) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createAClientVersion) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createAClientVersion) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11089,22 +11094,22 @@ class AdminService extends GenericService {
      */
     deleteAClientVersion (clientId : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.deleteAClientVersion(clientId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteAClientVersion) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteAClientVersion) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAClientVersion) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAClientVersion) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAClientVersion) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAClientVersion) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAClientVersion) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAClientVersion) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11126,22 +11131,22 @@ class AdminService extends GenericService {
      */
     getAClientVersionData (clientId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAClientVersionData) clientId : ", that._logger.stripStringForLogs(clientId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAClientVersionData) clientId : ", that._logger.stripStringForLogs(clientId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getAClientVersionData(clientId ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAClientVersionData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAClientVersionData) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAClientVersionData) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAClientVersionData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAClientVersionData) ErrorManager error : ", err, ', clientId : ', clientId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAClientVersionData) ErrorManager error : ", err, ', clientId : ', clientId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAClientVersionData) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getAClientVersionData) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAClientVersionData) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAClientVersionData) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11168,22 +11173,22 @@ class AdminService extends GenericService {
      */
     getAllClientsVersions (name? : string, typeClient? : string, limit :number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllClientsVersions) name : ", that._logger.stripStringForLogs(name), ", typeClient : ", typeClient);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllClientsVersions) name : ", that._logger.stripStringForLogs(name), ", typeClient : ", typeClient);
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getAllClientsVersions(name, typeClient, limit, offset, sortField, sortOrder ).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getAllClientsVersions) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getAllClientsVersions) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllClientsVersions) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllClientsVersions) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllClientsVersions) ErrorManager error : ", err, ', name : ', name);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllClientsVersions) ErrorManager error : ", err, ', name : ', name);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAllClientsVersions) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getAllClientsVersions) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAllClientsVersions) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllClientsVersions) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11206,27 +11211,27 @@ class AdminService extends GenericService {
      */
     updateAClientVersion (clientId : string, version   : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId), ", version : ", version);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId), ", version : ", version);
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.updateAClientVersion(clientId, version).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateAClientVersion) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateAClientVersion) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateAClientVersion) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateAClientVersion) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateAClientVersion) ErrorManager error : ", err, ', clientId : ', clientId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateAClientVersion) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(updateAClientVersion) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateAClientVersion) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAClientVersion) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Clients Versions
 
 
@@ -11244,8 +11249,8 @@ class AdminService extends GenericService {
      *     This API allows to retrieve the list of countries supported by Rainbow Server.</BR>
      *     For some countries (CAN and USA), a state can be configured. The list of supported states for these countries is returned in the states field.
      * @return {Promise<any>} - result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | isoAlpha3Code | String | Country ISO 3166-1 alpha-2 code |
@@ -11254,31 +11259,31 @@ class AdminService extends GenericService {
      * | states optionnel | Object\[\] | List of states handled for this country.<br><br>Only available for countries `CAN`and `USA`. |
      * | isoAlpha2Code | String | State ISO 3166-1 alpha-2 code |
      * | fullname | String | State full name |
-     * 
+     *
      */
     getListOfCountries(): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListOfCountries) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfCountries) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getListOfCountries().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListOfCountries) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListOfCountries) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountries) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListOfCountries) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListOfCountries) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getListOfCountries) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getListOfCountries) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getListOfCountries) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListOfCountries) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     // endregion Country
 
     //region multifactor rainbow authentication
@@ -11303,22 +11308,22 @@ class AdminService extends GenericService {
      */
     deleteTrustedApplication (appId : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteTrustedApplication) appId : ", that._logger.stripStringForLogs(appId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteTrustedApplication) appId : ", that._logger.stripStringForLogs(appId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.deleteTrustedApplication(appId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteTrustedApplication) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteTrustedApplication) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteTrustedApplication) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteTrustedApplication) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteTrustedApplication) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteTrustedApplication) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteTrustedApplication) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteTrustedApplication) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteTrustedApplication) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTrustedApplication) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11344,22 +11349,22 @@ class AdminService extends GenericService {
      */
     deleteAllTrustedApplications (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAllTrustedApplications) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAllTrustedApplications) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.deleteAllTrustedApplications().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteAllTrustedApplications) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAllTrustedApplications) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllTrustedApplications) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteAllTrustedApplications) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAllTrustedApplications) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAllTrustedApplications) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAllTrustedApplications) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAllTrustedApplications) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllTrustedApplications) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11385,22 +11390,22 @@ class AdminService extends GenericService {
      */
     disableMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(disableMultifactorAuthentication) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(disableMultifactorAuthentication) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.disableMultifactorAuthentication().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(disableMultifactorAuthentication) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(disableMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(disableMultifactorAuthentication) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(disableMultifactorAuthentication) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(disableMultifactorAuthentication) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(disableMultifactorAuthentication) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(disableMultifactorAuthentication) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(disableMultifactorAuthentication) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(disableMultifactorAuthentication) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11421,22 +11426,22 @@ class AdminService extends GenericService {
      */
     enableMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(enableMultifactorAuthentication) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(enableMultifactorAuthentication) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.enableMultifactorAuthentication().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(enableMultifactorAuthentication) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(enableMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(enableMultifactorAuthentication) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(enableMultifactorAuthentication) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(enableMultifactorAuthentication) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(enableMultifactorAuthentication) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(enableMultifactorAuthentication) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(enableMultifactorAuthentication) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(enableMultifactorAuthentication) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11465,22 +11470,22 @@ class AdminService extends GenericService {
      */
     getMultifactorInformation (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getMultifactorInformation) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getMultifactorInformation) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getMultifactorInformation().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getMultifactorInformation) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getMultifactorInformation) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getMultifactorInformation) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getMultifactorInformation) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getMultifactorInformation) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getMultifactorInformation) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getMultifactorInformation) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getMultifactorInformation) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getMultifactorInformation) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11508,22 +11513,22 @@ class AdminService extends GenericService {
      */
     verifyMultifactorInformation (token : string): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(verifyMultifactorInformation) token : ", that._logger.stripStringForLogs(token));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(verifyMultifactorInformation) token : ", that._logger.stripStringForLogs(token));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.verifyMultifactorInformation(token).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(verifyMultifactorInformation) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(verifyMultifactorInformation) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(verifyMultifactorInformation) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(verifyMultifactorInformation) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(verifyMultifactorInformation) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(verifyMultifactorInformation) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(verifyMultifactorInformation) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(verifyMultifactorInformation) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(verifyMultifactorInformation) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(verifyMultifactorInformation) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11550,22 +11555,22 @@ class AdminService extends GenericService {
      */
     resetRecoveryCodeForMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(resetRecoveryCodeForMultifactorAuthentication) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(resetRecoveryCodeForMultifactorAuthentication) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.resetRecoveryCodeForMultifactorAuthentication().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11588,7 +11593,7 @@ class AdminService extends GenericService {
      *     This API allows get the list of administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
      * @return {Promise<any>} - result
      *
-     * Result sample : </br> 
+     * Result sample : </br>
      * { </br>
      * [ { </br>
      * "userId": "57347ea14a0327064fcb93fd", </br>
@@ -11602,22 +11607,22 @@ class AdminService extends GenericService {
      */
     getCustomerCareAdministratorsGroup(): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCustomerCareAdministratorsGroup) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCustomerCareAdministratorsGroup) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getCustomerCareAdministratorsGroup().then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCustomerCareAdministratorsGroup) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getCustomerCareAdministratorsGroup) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCustomerCareAdministratorsGroup) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11635,31 +11640,31 @@ class AdminService extends GenericService {
      *     This API allows Add one administrators allowed to consult the list of issues, create and consolidate tickets. </BR>
      * @return {Promise<any>} - result
      *
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | userId | String | User unique identifier |
      * | loginEmail | String | User email address (used for login) |
-     * 
+     *
      */
     addAdministratorToGroup(userId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(addAdministratorToGroup) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(addAdministratorToGroup) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.addAdministratorToGroup(userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(addAdministratorToGroup) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(addAdministratorToGroup) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(addAdministratorToGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(addAdministratorToGroup) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(addAdministratorToGroup) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(addAdministratorToGroup) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(addAdministratorToGroup) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(addAdministratorToGroup) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(addAdministratorToGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addAdministratorToGroup) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11685,22 +11690,22 @@ class AdminService extends GenericService {
      */
     removeAdministratorFromGroup(userId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(removeAdministratorFromGroup) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeAdministratorFromGroup) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.removeAdministratorFromGroup(userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(removeAdministratorFromGroup) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeAdministratorFromGroup) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(removeAdministratorFromGroup) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(removeAdministratorFromGroup) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(removeAdministratorFromGroup) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(removeAdministratorFromGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeAdministratorFromGroup) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11758,22 +11763,22 @@ class AdminService extends GenericService {
      */
     getIssue(logId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getIssue) logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getIssue) logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getIssue(logId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getIssue) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getIssue) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getIssue) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getIssue) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getIssue) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getIssue) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getIssue) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getIssue) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getIssue) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getIssue) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -11807,7 +11812,7 @@ class AdminService extends GenericService {
      *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
      *   * if customerCategory=irs_with_ecs_of_irs_only: </br>
      *      * issues submitted by users belonging to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR), </br>
-     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br> 
+     *      * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC). </br>
      * * if bpId corresponds to a BP company with type=IR (customerCategory shouldn't be used), the API will return: </br>
      *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC).  </br>
      * * if bpId corresponds to a BP company with type=DR (customerCategory shouldn't be used), the API will return: </br>
@@ -11817,14 +11822,14 @@ class AdminService extends GenericService {
      *   * issues submitted by users belonging to any of the EC companies linked to any of the BP companies with bpType=IR linked to this BP VAD company (BP VAD --> BP IR --> EC), </br>
      *   * issues submitted by users belonging to any of the EC companies directly linked to this BP VAD company (BP VAD --> EC).  </br>
      * * if bpId corresponds to a BP company with bpType=IR, the API will return: </br>
-     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br> 
+     *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP IR --> EC). </br>
      * * if bpId corresponds to a BP company with bpType=DR, the API will return: </br>
      *   * issues submitted by users belonging to any of the EC companies linked to this BP IR company (BP DR --> EC). </br>
      *    </br>
      * Only one BP's companyId can be provided in this filter. </br>
      * If the companyIs set in the field bpId does not correspond to a BP company, no issues will match. </br>
-     * The filter companyId can be used additionally, for example to request the issues submitted by users belonging to the BP company as well. </br> 
-     * The user must have superadmin, support or bp_admin role to use this filter (not taken into account otherwise). </br> 
+     * The filter companyId can be used additionally, for example to request the issues submitted by users belonging to the BP company as well. </br>
+     * The user must have superadmin, support or bp_admin role to use this filter (not taken into account otherwise). </br>
      * If provided, the logged in user must have administration rights on the requested BP company. </br>
      * @param {string} customerCategory Allows to specify the kind of companies associated to the requested bpId filter for which the list of issues is requested. </br>
      * This query parameter is especially designed for the case of BP with bpType=VAD (to provide the flexibility on the list of issues returned depending on the client's needs). If the BP set in bpId don't have bpType=VAD, some values of customerCategory won't return any results (irs_only, ecs_of_irs_only and irs_with_ecs_of_irs_only should not be used if bpId correspond to a DR or an IR). </br>
@@ -11873,7 +11878,7 @@ class AdminService extends GenericService {
      * Ex: if filtering is done on Phil, issues created by users or companies match the filter: 'Philip Smith' (user displayName), 'John Philip' (user displayName), 'Philip Morris' (company name), 'This company name is Philips' (company name), ... </br>
      * @param {string} version Allows to filter issues list on the version(s) provided in this option. </br>
      * The filtering is case insensitive and on partial version match. Ex: if filtering is done on 1.112, all issues with the version starting by 1.112 match the filter: '1.112' (exact match), '1.112.2', '1.112.3', '1.1121', ... </br>
-     * @param {string} device Allows to filter issues list on the device(s) provided in this option. </br> 
+     * @param {string} device Allows to filter issues list on the device(s) provided in this option. </br>
      * Note: room corresponds to Rainbow Room </br>
      * Default value : android,desktop,ios,room,web
      * @param {string} fromCreationDate List issues which have been created after the given date (uses creationDate field).
@@ -11931,30 +11936,30 @@ class AdminService extends GenericService {
      * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
      * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
-     * 
+     *
      */
     getListOfIssues(limit : number = 100, offset : number = 0, sortField : string = "creationDate",
                     sortOrder : number = -1, companyId : string, bpId : string, customerCategory : string = "all", name : string,
                     version : string, device : string, fromCreationDate : string, toCreationDate : string,
                     fromOccurrenceDate : string, toOccurrenceDate : string, format : string = "small") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListOfIssues) format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfIssues) format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getListOfIssues(limit, offset, sortField, sortOrder, companyId, bpId, customerCategory, name,
                         version, device, fromCreationDate, toCreationDate, fromOccurrenceDate, toOccurrenceDate, format).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListOfIssues) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListOfIssues) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssues) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssues) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListOfIssues) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListOfIssues) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getListOfIssues) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getListOfIssues) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getListOfIssues) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListOfIssues) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12018,22 +12023,22 @@ class AdminService extends GenericService {
      */
     getListOfIssuesForUser(userId : string, format : string = "small") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListOfIssuesForUser) userId : ", that._logger.stripStringForLogs(userId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfIssuesForUser) userId : ", that._logger.stripStringForLogs(userId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getListOfIssuesForUser(userId, format).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListOfIssuesForUser) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListOfIssuesForUser) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssuesForUser) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssuesForUser) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListOfIssuesForUser) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getListOfIssuesForUser) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getListOfIssuesForUser) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getListOfIssuesForUser) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListOfIssuesForUser) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12088,22 +12093,22 @@ class AdminService extends GenericService {
      */
     getIssueForUser(userId : string, logId : string ): Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getIssueForUser) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getIssueForUser) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getIssueForUser(userId, logId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getIssueForUser) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getIssueForUser) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getIssueForUser) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getIssueForUser) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getIssueForUser) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getIssueForUser) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getIssueForUser) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getIssueForUser) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getIssueForUser) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getIssueForUser) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12137,7 +12142,7 @@ class AdminService extends GenericService {
      * @param {Array<string>} attachments An Array of file descriptor Id. </BR>
      * Forbidden when type is ask </BR>
      * Mandatory with at least one valid fileId when type is feedback When the logs context is created, the logged in user looses his ownership for theses files. </BR>
-     * @param {string} version Device version  
+     * @param {string} version Device version
      * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred </BR>
      * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred </BR>
      * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred </BR>
@@ -12199,23 +12204,23 @@ class AdminService extends GenericService {
     initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
                         description : string, resourceId : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(initiateLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", description : ", that._logger.stripStringForLogs(description));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(initiateLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", description : ", that._logger.stripStringForLogs(description));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.initiateLogsContext(userId, occurrenceDate, occurrenceDateTimezone, type,
                         description, resourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(initiateLogsContext) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(initiateLogsContext) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(initiateLogsContext) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(initiateLogsContext) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(initiateLogsContext) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(initiateLogsContext) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(initiateLogsContext) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateLogsContext) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12295,55 +12300,55 @@ class AdminService extends GenericService {
      *
      *
      * exemple of result :
-     * { 
-     * "id": "5e5f677a513f6721706bddeb", 
-     * "type": "feedback", 
-     * "permission": "granted", 
-     * "userId": "5cca97863cba1119f22f062f", 
-     * "userDisplayName": "John Doe", 
-     * "companyId": "57e2b30c89a091b21e843924", 
-     * "companyName": "My company", 
-     * "problemNumber": 2, 
-     * "creationDate": "2020-03-04T08:31:54.426Z", 
-     * "occurrenceDate": "2020-03-04T08:15:00.000Z", 
-     * "occurrenceDateTimezone": "Europe/Paris", 
-     * "description": "Hello Houston, we've got a problem.", 
-     * "device": "android", 
-     * "version": "1.67.5", 
-     * "deviceDetails": { 
-     *  "hardware": { 
-     *      "manufacturer": "Samsung", 
-     *      "model": "Galaxy S21" 
-     *  }, 
-     *  "os": { 
-     *      "name": "Android", 
-     *      "version": "11" 
-     *  } 
-     * }, 
-     * "attachments": \["5e5fecb299821728abb63e6d"\] 
-     * } 
+     * {
+     * "id": "5e5f677a513f6721706bddeb",
+     * "type": "feedback",
+     * "permission": "granted",
+     * "userId": "5cca97863cba1119f22f062f",
+     * "userDisplayName": "John Doe",
+     * "companyId": "57e2b30c89a091b21e843924",
+     * "companyName": "My company",
+     * "problemNumber": 2,
+     * "creationDate": "2020-03-04T08:31:54.426Z",
+     * "occurrenceDate": "2020-03-04T08:15:00.000Z",
+     * "occurrenceDateTimezone": "Europe/Paris",
+     * "description": "Hello Houston, we've got a problem.",
+     * "device": "android",
+     * "version": "1.67.5",
+     * "deviceDetails": {
+     *  "hardware": {
+     *      "manufacturer": "Samsung",
+     *      "model": "Galaxy S21"
+     *  },
+     *  "os": {
+     *      "name": "Android",
+     *      "version": "11"
+     *  }
+     * },
+     * "attachments": \["5e5fecb299821728abb63e6d"\]
+     * }
      *
      */
     completeLogsContext(userId : string, logId : string, occurrenceDate : string, occurrenceDateTimezone : string,
                         description : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(completeLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(completeLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.completeLogsContext(userId, logId, occurrenceDate, occurrenceDateTimezone,
                         description, externalRef, device, attachments, version, deviceDetails).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(completeLogsContext) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(completeLogsContext) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(completeLogsContext) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(completeLogsContext) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(completeLogsContext) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(completeLogsContext) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(completeLogsContext) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(completeLogsContext) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(completeLogsContext) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(completeLogsContext) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12356,7 +12361,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Customer Care - Users Logs
-     * @param {string} userId User or Rainbow room unique identifier. 
+     * @param {string} userId User or Rainbow room unique identifier.
      * @param {string} logId Logs context unique identifier
      * @description
      *     This API can be called either as administrator (BP, Organisation, Company), support, superadmin to close a log submission. </BR>
@@ -12371,22 +12376,22 @@ class AdminService extends GenericService {
      */
     cancelOrCloseLogsSubmission(userId : string, logId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(cancelOrCloseLogsSubmission) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(cancelOrCloseLogsSubmission) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.cancelOrCloseLogsSubmission(userId, logId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(cancelOrCloseLogsSubmission) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(cancelOrCloseLogsSubmission) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(cancelOrCloseLogsSubmission) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12446,22 +12451,22 @@ class AdminService extends GenericService {
      */
     acknowledgeLogsRequest(userId : string, logId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(acknowledgeLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(acknowledgeLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.acknowledgeLogsRequest(userId, logId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(acknowledgeLogsRequest) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(acknowledgeLogsRequest) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(acknowledgeLogsRequest) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(acknowledgeLogsRequest) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(acknowledgeLogsRequest) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(acknowledgeLogsRequest) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(acknowledgeLogsRequest) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(acknowledgeLogsRequest) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12524,22 +12529,22 @@ class AdminService extends GenericService {
      */
     rejectLogsRequest(userId : string, logId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(rejectLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(rejectLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.rejectLogsRequest(userId, logId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(rejectLogsRequest) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(rejectLogsRequest) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(rejectLogsRequest) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(rejectLogsRequest) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(rejectLogsRequest) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(rejectLogsRequest) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(rejectLogsRequest) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(rejectLogsRequest) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(rejectLogsRequest) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(rejectLogsRequest) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12581,13 +12586,13 @@ class AdminService extends GenericService {
      *     **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
      * @return {Promise<any>} - result
      *  The result of the completeLogsContext call.
-     *  
+     *
      *  **Note:** if a file transfert fails then the complete of logs context is not done, and an object with every transfert status is returned.
      */
     sendCustomerCareReport(logId : string, filesPath : Array<string> = [], occurrenceDate : string, occurrenceDateTimezone : string,
                            description : string, externalRef : string, device : string, version : string, deviceDetails : any, typeOfLog : string = "feedback") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(sendCustomerCareReport) logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendCustomerCareReport) logId : ", that._logger.stripStringForLogs(logId));
 
         let proms = [];
         let attachments = [];
@@ -12597,8 +12602,8 @@ class AdminService extends GenericService {
             try {
                 for (let i = 0; i < filesPath.length; i++) {
                     let filePath = filesPath[i];
-                    that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
-                    that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendCustomerCareReport) filesPath - to send. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendCustomerCareReport) filesPath - to send : ", filePath);
 
                     proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, false, true));
                 }
@@ -12607,8 +12612,8 @@ class AdminService extends GenericService {
                     let success = true;
                     for (let i = 0; i < resultsOfUpload.length; i++) {
                         let resultOfUpload = resultsOfUpload[i];
-                        that._logger.log("debug", LOG_ID + "(sendCustomerCareReport) resultOfUpload.");
-                        that._logger.log("internal", LOG_ID + "(sendCustomerCareReport) resultOfUpload : ", resultOfUpload);
+                        that._logger.log(that.DEBUG, LOG_ID + "(sendCustomerCareReport) resultOfUpload.");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendCustomerCareReport) resultOfUpload : ", resultOfUpload);
                         success = (success && (resultOfUpload.status!=="rejected"));
                         if (success) {
                             if (resultOfUpload.value) {
@@ -12644,13 +12649,13 @@ class AdminService extends GenericService {
                             break;
                     } // */
                 }). catch ((err) => {
-                    that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
-                    that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
                     return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in waiting all proms.", "Error in waiting all proms.", err));
                 });
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(sendCustomerCareReport) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(sendCustomerCareReport) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
                 return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", err));
             }
         });
@@ -12706,22 +12711,22 @@ class AdminService extends GenericService {
      */
     adminOrBotAddAdditionalFiles(userId : string, logId : string, attachments : Array<string>, conversationId : string, fileName : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(adminOrBotAddAdditionalFiles) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(adminOrBotAddAdditionalFiles) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.adminOrBotAddAdditionalFiles(userId, logId, attachments, conversationId, fileName).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(adminOrBotAddAdditionalFiles) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(adminOrBotAddAdditionalFiles) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(adminOrBotAddAdditionalFiles) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12747,37 +12752,37 @@ class AdminService extends GenericService {
      *
      * example of result :
      * {
-     * "jid_im": \[ 
-     * { 
-     * "resource": "web\_win\_1.67.2_P0EnyMvN", 
-     * "date": "2020-02-11T17:45:18.231395Z" 
-     * }, 
-     * { 
-     * "resource": "web\_win\_1.67.2_ajqyiThi", 
-     * "date": "2020-02-11T17:31:31.409537Z", 
-     * "show": "xa", "status": "away" 
+     * "jid_im": \[
+     * {
+     * "resource": "web\_win\_1.67.2_P0EnyMvN",
+     * "date": "2020-02-11T17:45:18.231395Z"
+     * },
+     * {
+     * "resource": "web\_win\_1.67.2_ajqyiThi",
+     * "date": "2020-02-11T17:31:31.409537Z",
+     * "show": "xa", "status": "away"
      * } \]
      * }
      *
      */
     getListOfResourcesForUser( userId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListOfResourcesForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfResourcesForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.getListOfResourcesForUser(userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(getListOfResourcesForUser) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListOfResourcesForUser) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getListOfResourcesForUser) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListOfResourcesForUser) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListOfResourcesForUser) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getListOfResourcesForUser) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(getListOfResourcesForUser) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getListOfResourcesForUser) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListOfResourcesForUser) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12799,10 +12804,10 @@ class AdminService extends GenericService {
      * @param {string} description Description of the new ticket
      * @param {string} additionalDescription Additional information if necessary
      * @param {string} resource  resource used to generate anomaly
-     * @param {string} externalRef external reference used  
+     * @param {string} externalRef external reference used
      * @param {Array<string>} logs An Array of log Id regarding the anomaly.
      * @description
-     *     This API allows to Initialise a context from logs to submit a ticket to Zendesk. </BR> 
+     *     This API allows to Initialise a context from logs to submit a ticket to Zendesk. </BR>
      *     This context may contains </BR>
      * * externalRef </BR>
      * * subject </BR>
@@ -12814,35 +12819,35 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "ringing problem", 
-     * "description": "Hello Houston, we've got a problem.", 
-     * "additionalDescription": "my phone neither", 
-     * "resource": "web\_win\_xxxxx", 
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "ringing problem",
+     * "description": "Hello Houston, we've got a problem.",
+     * "additionalDescription": "my phone neither",
+     * "resource": "web\_win\_xxxxx",
      * "logs": \[\]
      * }
      *
      */
     createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", subject : ", that._logger.stripStringForLogs(subject));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", subject : ", that._logger.stripStringForLogs(subject));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.createAnAtriumTicket(userId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(createAnAtriumTicket) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createAnAtriumTicket) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(createAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createAnAtriumTicket) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createAnAtriumTicket) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createAnAtriumTicket) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createAnAtriumTicket) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(createAnAtriumTicket) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createAnAtriumTicket) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createAnAtriumTicket) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12876,35 +12881,35 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "ringing problem", 
-     * "description": "Hello Houston, we've got a problem.", 
-     * "additionalDescription": "my phone neither", 
-     * "resource": "web\_win\_xxxxx", 
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "ringing problem",
+     * "description": "Hello Houston, we've got a problem.",
+     * "additionalDescription": "my phone neither",
+     * "resource": "web\_win\_xxxxx",
      * "logs": \[\]
      * }
-     * 
+     *
      */
     updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.updateAnAtriumTicket(userId, ticketId, subject, description, additionalDescription, resource, externalRef, logs).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(updateAnAtriumTicket) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updateAnAtriumTicket) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateAnAtriumTicket) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateAnAtriumTicket) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateAnAtriumTicket) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateAnAtriumTicket) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(updateAnAtriumTicket) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateAnAtriumTicket) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAnAtriumTicket) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12925,35 +12930,35 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "ringing problem", 
-     * "description": "Hello Houston, we've got a problem.", 
-     * "additionalDescription": "my phone neither", 
-     * "resource": "web\_win\_xxxxx", 
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "ringing problem",
+     * "description": "Hello Houston, we've got a problem.",
+     * "additionalDescription": "my phone neither",
+     * "resource": "web\_win\_xxxxx",
      * "logs": \[\]
      * }
      *
      */
     deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.deleteAnAtriumTicketInformation(userId, ticketId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnAtriumTicketInformation) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAnAtriumTicketInformation) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAnAtriumTicketInformation) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -12980,35 +12985,35 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "ringing problem", 
-     * "description": "Hello Houston, we've got a problem.", 
-     * "additionalDescription": "my phone neither", 
-     * "resource": "web\_win\_xxxxx", 
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "ringing problem",
+     * "description": "Hello Houston, we've got a problem.",
+     * "additionalDescription": "my phone neither",
+     * "resource": "web\_win\_xxxxx",
      * "logs": \[\]
      * }
      *
      */
     readAnAtriumTicketInformation( userId : string, ticketId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(readAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(readAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.readAnAtriumTicketInformation(userId, ticketId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(readAnAtriumTicketInformation) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(readAnAtriumTicketInformation) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(readAnAtriumTicketInformation) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(readAnAtriumTicketInformation) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(readAnAtriumTicketInformation) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(readAnAtriumTicketInformation) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
@@ -13028,44 +13033,44 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * \[ 
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "ringing problem", 
-     * "description": "Where is the volume button of my iphone?", 
-     * "additionalDescription": "Where is my rainbow icon on my mac? ", 
-     * "resource": "web\_win\_xxxxx", 
-     * "logs": \[\] 
-     * }, 
-     * { 
-     * "externalRef": "xxxxxxx", 
-     * "internalRef": "xxxxxxx", 
-     * "subject": "Screen problem", 
-     * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.", 
-     * "resource": "web\_win\_xxxxx" 
+     * \[
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "ringing problem",
+     * "description": "Where is the volume button of my iphone?",
+     * "additionalDescription": "Where is my rainbow icon on my mac? ",
+     * "resource": "web\_win\_xxxxx",
+     * "logs": \[\]
+     * },
+     * {
+     * "externalRef": "xxxxxxx",
+     * "internalRef": "xxxxxxx",
+     * "subject": "Screen problem",
+     * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.",
+     * "resource": "web\_win\_xxxxx"
      * }
      * \]
      *
      */
     readAllTicketsOnASameCompany(userId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(readAllTicketsOnASameCompany) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(readAllTicketsOnASameCompany) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
                 that._rest.readAllTicketsOnASameCompany(userId).then((result) => {
-                    that._logger.log("debug", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent : ", result);
+                    that._logger.log(that.DEBUG, LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(readAllTicketsOnASameCompany) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(readAllTicketsOnASameCompany) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error.");
-                that._logger.log("internalerror", LOG_ID + "(readAllTicketsOnASameCompany) CATCH error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(readAllTicketsOnASameCompany) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(readAllTicketsOnASameCompany) CATCH error !!! : ", err);
                 return reject(err);
             }
         });

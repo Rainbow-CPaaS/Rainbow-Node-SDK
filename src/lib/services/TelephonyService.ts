@@ -73,11 +73,15 @@ class TelephonyService extends GenericService {
     static getClassName(){ return 'TelephonyService'; }
     getClassName(){ return TelephonyService.getClassName(); }
 
+    static getAccessorName(){ return 'telephony'; }
+    getAccessorName(){ return TelephonyService.getAccessorName(); }
+
     constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(logger, LOG_ID);
+        this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
         this._xmpp = null;

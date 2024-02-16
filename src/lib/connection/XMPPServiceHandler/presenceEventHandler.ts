@@ -25,6 +25,9 @@ class PresenceEventHandler extends GenericHandler {
     static getClassName(){ return 'PresenceEventHandler'; }
     getClassName(){ return PresenceEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'presenceevent'; }
+    getAccessorName(){ return PresenceEventHandler.getAccessorName(); }
+
     constructor(xmppService : XMPPService, contacts: ContactsService) {
         super( xmppService);
         

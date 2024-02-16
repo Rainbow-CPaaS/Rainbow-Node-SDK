@@ -48,11 +48,15 @@ class PresenceService extends GenericService{
     static getClassName(){ return 'PresenceService'; }
     getClassName(){ return PresenceService.getClassName(); }
 
+    static getAccessorName(){ return 'presence'; }
+    getAccessorName(){ return PresenceService.getAccessorName(); }
+
     constructor(_core:Core,_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
 

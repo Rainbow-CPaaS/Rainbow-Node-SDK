@@ -62,13 +62,11 @@ class ConversationEventHandler extends GenericHandler {
     private _contactsService: ContactsService;
     private _presenceService: PresenceService;
 
-    static getClassName() {
-        return 'ConversationEventHandler';
-    }
+    static getClassName() { return 'ConversationEventHandler'; }
+    getClassName() { return ConversationEventHandler.getClassName(); }
 
-    getClassName() {
-        return ConversationEventHandler.getClassName();
-    }
+    static getAccessorName(){ return 'conversationevent'; }
+    getAccessorName(){ return ConversationEventHandler.getAccessorName(); }
 
     constructor(xmppService : XMPPService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
         super(xmppService);

@@ -29,6 +29,9 @@ class IQEventHandler extends GenericHandler {
     static getClassName(){ return 'IQEventHandler'; }
     getClassName(){ return IQEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'iqevent'; }
+    getAccessorName(){ return IQEventHandler.getAccessorName(); }
+
     constructor(xmppService : XMPPService) {
         super( xmppService);
 

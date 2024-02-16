@@ -16,6 +16,7 @@ import {AlertsService} from "../../services/AlertsService";
 import {Dictionary, IDictionary, KeyValuePair} from "ts-generic-collections-linq";
 import {Bubble} from "../../common/models/Bubble";
 import {GenericHandler} from "./GenericHandler";
+import {TelephonyService} from "../../services/TelephonyService.js";
 
 const util = require('util');
 
@@ -225,6 +226,9 @@ class AlertEventHandler extends GenericHandler {
 
     static getClassName(){ return 'NotificationEventHandler'; }
     getClassName(){ return AlertEventHandler.getClassName(); }
+
+    static getAccessorName(){ return 'alertevent'; }
+    getAccessorName(){ return AlertEventHandler.getAccessorName(); }
 
     constructor(xmppService : XMPPService, alertsService : AlertsService, options: any) {
         super(xmppService);
