@@ -149,7 +149,7 @@ class ImsService extends GenericService{
         return new Promise((resolve) => {
             if (this._useXMPP) {
                 that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
-                    that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
+                    that._logger.log(that.INFO, LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                     that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                     resolve(undefined);
                 });
@@ -180,7 +180,7 @@ class ImsService extends GenericService{
         return new Promise((resolve) => {
             if (this._useXMPP) {
                 that._eventEmitter.once("rainbow_oncarbondisabled", function fn_oncarbondesactivated() {
-                    that._logger.log("info", LOG_ID + "(disableCarbon) XEP-280 Message Carbon desactivated");
+                    that._logger.log(that.INFO, LOG_ID + "(disableCarbon) XEP-280 Message Carbon desactivated");
                     that._eventEmitter.removeListener("rainbow_oncarbondisabled", fn_oncarbondesactivated);
                     resolve(undefined);
                 });
@@ -254,7 +254,7 @@ class ImsService extends GenericService{
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessageId' is missing or empty"});
         }
 
-        that._logger.log("internal", LOG_ID + "(getMessageFromConversationById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getMessageFromConversationById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
         let message = conversation.getMessageById(strMessageId);
 
@@ -300,13 +300,13 @@ class ImsService extends GenericService{
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is not a bubble conversation"});
         }
 
-        that._logger.log("internal", LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getMessageFromBubbleById) conversation : ", conversation, ", strMessageId : ", strMessageId);
 
         let message =  conversation.getMessageById(strMessageId);
 
         if (message && message.oob && message.oob.url) {
             let fileDescriptorId = message.oob.url.substring(message.oob.url.lastIndexOf("/") + 1);
-            that._logger.log("internal", LOG_ID + "(getMessageFromBubbleById) oob url defined so build shortFileDescriptor :", fileDescriptorId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getMessageFromBubbleById) oob url defined so build shortFileDescriptor :", fileDescriptorId);
             message.shortFileDescriptor = await that._fileStorage.getFileDescriptorById(fileDescriptorId);
         }
 
@@ -329,16 +329,16 @@ class ImsService extends GenericService{
      */
     async markMessageAsRead(messageReceived) {
         if (!messageReceived) {
-            this._logger.log("warn", LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
+            that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
         }
 
         if (messageReceived.isEvent) {
-            this._logger.log("warn", LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
+            that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) No receipt for 'event' message");
             return ErrorManager.getErrorManager().OK;
         }
 
-        this._logger.log("internal", LOG_ID + "(markMessageAsRead) 'messageReceived' parameter : ", messageReceived);
+        that._logger.log(that.INTERNAL, LOG_ID + "(markMessageAsRead) 'messageReceived' parameter : ", messageReceived);
 
         if (this._useXMPP) {
             return this._xmpp.markMessageAsRead(messageReceived);
@@ -380,14 +380,14 @@ class ImsService extends GenericService{
     async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!conversation) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
 
         /*if (!message) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToContact) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         } // */
 
@@ -433,7 +433,7 @@ class ImsService extends GenericService{
 
             if (!conversation.dbId) {
                 conversation = await this._conversations.createServerConversation(conversation);
-                this._logger.log("internal", LOG_ID + "(sendMessageToConversation) conversation : ", conversation);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToConversation) conversation : ", conversation);
             }
 
             msgSent = this._s2s.sendMessageInConversation(conversation.dbId, msg);
@@ -441,7 +441,7 @@ class ImsService extends GenericService{
 
         return msgSent.then((messageSent) => {
             this._conversations.storePendingMessage(conversation, messageSent);
-            this._logger.log("internal", LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
             //conversation.messages.push(messageSent);
             //this.conversations.getServerConversations();
             return messageSent;
@@ -473,15 +473,15 @@ class ImsService extends GenericService{
     async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
         let that = this;
         if (!contact || !contact.jid_im) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
         }
 
         //return this.sendMessageToJid(message, contact.jid_im, lang, content, subject, urgency);
 
         let conversation = await that._conversations.openConversationForContact(contact);
-        //that._logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", conversation);
+        //that._logger.log(that.DEBUG, "MAIN - testSendMultipleMessages - message to be sent in conversation : ", conversation);
         return that.sendMessageToConversation(conversation, message, lang, content, subject, urgency);
     }
 
@@ -537,8 +537,8 @@ class ImsService extends GenericService{
             lang = "en";
         }
         /* if (!message) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         } // */ 
 
@@ -549,13 +549,13 @@ class ImsService extends GenericService{
         }
         
         if (messageSize > that._imOptions.messageMaxLength) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
         // */
 
         if (!jid) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -578,7 +578,7 @@ class ImsService extends GenericService{
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
-        this._logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
+        that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToJid) _exiting_");
         // */
         return messageSent;
     }
@@ -612,15 +612,15 @@ class ImsService extends GenericService{
         }
 
         if (!message) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -630,12 +630,12 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -652,7 +652,7 @@ class ImsService extends GenericService{
             }
             , "Wait for the send chat message to be received by server", 30000);
         this.removePendingMessage(messageSent);
-        this._logger.log("debug", LOG_ID + "(sendMessageToJid) _exiting_");
+        that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToJid) _exiting_");
         // */
         return messageSent;
     }
@@ -677,11 +677,11 @@ class ImsService extends GenericService{
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
                 return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,undefined,"std").then((result) => {
-                    that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
+                    that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             }  else {
                 return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, "std").then((result) => {
-                    that._logger.log("debug", "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
+                    that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             } // */
         }
@@ -707,11 +707,11 @@ class ImsService extends GenericService{
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
                 return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std").then((result) => {
-                    that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
+                    that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             }  else {
                 return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, "std").then((result) => {
-                    that._logger.log("debug", "(sendMessageToJidIgnored) - Ignored sent result : ", result);
+                    that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             } // */
         }
@@ -740,8 +740,8 @@ class ImsService extends GenericService{
      */
     async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
         if (!bubble || !bubble.jid) {
-            this._logger.log("warn", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
-            this._logger.log("internalerror", LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
@@ -775,8 +775,8 @@ class ImsService extends GenericService{
             lang = "en";
         }
         if (!message) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter : ", message);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
 
@@ -786,12 +786,12 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid);
+            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -800,22 +800,22 @@ class ImsService extends GenericService{
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that._bulles.getBubbleByJid(jid);
-        that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
+        that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
         if (bubble.isActive ) {
             let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
             return messageSent1;
         } else {
             try {
-                that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
-                that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._presence.sendInitialBubblePresence(bubble);
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
+                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 // */
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
+                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
                 return messageSent;
             } catch (err) {
@@ -852,14 +852,14 @@ class ImsService extends GenericService{
             lang = "en";
         }
         if (!message) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
-            that._logger.log("internalerror", LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         }
 
@@ -869,12 +869,12 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log("warn", LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
         }
 
         if (!jid) {
-            that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
+            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
@@ -883,22 +883,22 @@ class ImsService extends GenericService{
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
         let bubble = await that._bulles.getBubbleByJid(jid);
-        that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
+        that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
             let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
             return messageSent;
         } else {
             try {
-                that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
-                that._logger.log("internal", LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
                 await that._presence.sendInitialBubblePresence(bubble);
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
+                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
                 /*
                 await until(() => {
                     return bubble.isActive === true;
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                  */
-                //that._logger.log("debug", LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
+                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
                 let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
                 return messageSent;
             } catch (err) {
@@ -946,15 +946,15 @@ class ImsService extends GenericService{
     retrieveXMPPMessagesByListOfMessageIds(ims : Array<any>) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) ims : ", ims);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) ims : ", ims);
 
             if (!ims) {
-                that._logger.log("debug", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) bad or empty 'ims' parameter : ", ims);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) bad or empty 'ims' parameter : ", ims);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.retrieveXMPPMessagesByListOfMessageIds(ims).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -971,10 +971,10 @@ class ImsService extends GenericService{
         return;
         /*if (this._pendingMessages[receipt.id]) {
             let messagePending = this._pendingMessages[receipt.id].message;
-            that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
+            that._logger.log(that.WARN, LOG_ID + "(_onmessageReceipt) the pending message received from server, so remove from pending", messagePending);
             this.removePendingMessage(messagePending);
         }
-        that._logger.log("warn", LOG_ID + "(_onmessageReceipt) the pending messages : ", that._pendingMessages);
+        that._logger.log(that.WARN, LOG_ID + "(_onmessageReceipt) the pending messages : ", that._pendingMessages);
         // */
     }
 
@@ -1008,7 +1008,7 @@ class ImsService extends GenericService{
                 if (!bubble.jid) {
                     return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble': this bubble isn't a valid one"}));
                 } else {
-                    that._logger.log("internal",  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
+                    that._logger.log(that.INTERNAL,  LOG_ID + "sendIsTypingStateInBubble - bubble : ", bubble, "status : ", status);
 
                     that._conversations.getBubbleConversation(bubble.jid, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(async function (conversation) {
                         if (!conversation) {

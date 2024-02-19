@@ -229,23 +229,23 @@ class RPCoverXMPPService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
-                that._logger.log("error", LOG_ID + "(addRPCMethod) Parameter 'methodName' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(addRPCMethod) Parameter 'methodName' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
             if (!methodCallback) {
-                that._logger.log("error", LOG_ID + "(addRPCMethod) Parameter 'callback' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(addRPCMethod) Parameter 'callback' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
             try {
                 let rpcMethod = new RPCmethod(methodName, methodCallback, methodDescription , methodHelp );
                 let result = await that.rpcManager.add(rpcMethod);
-                that._logger.log("debug", LOG_ID + "(addRPCMethod) add done : ", result);
+                that._logger.log(that.DEBUG, LOG_ID + "(addRPCMethod) add done : ", result);
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(addRPCMethod) Error.");
-                that._logger.log("internalerror", LOG_ID + "(addRPCMethod) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(addRPCMethod) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addRPCMethod) Error : ", err);
                 return reject(err);
             }
         });
@@ -269,17 +269,17 @@ class RPCoverXMPPService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
-                that._logger.log("error", LOG_ID + "(get) Parameter 'methodName' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(get) Parameter 'methodName' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
             try {
                 let result = await that.rpcManager.remove(methodName);
-                that._logger.log("debug", LOG_ID + "(removeRPCMethod) remove done : ", result);
+                that._logger.log(that.DEBUG, LOG_ID + "(removeRPCMethod) remove done : ", result);
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(removeRPCMethod) Error.");
-                that._logger.log("internalerror", LOG_ID + "(removeRPCMethod) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(removeRPCMethod) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeRPCMethod) Error : ", err);
                 return reject(err);
             }
         });
@@ -314,15 +314,15 @@ class RPCoverXMPPService extends GenericService {
             try {
                 
                 let node = await that._xmpp.discoverRPCoverXMPP(rpcoverxmppserver_jid, headers);
-                that._logger.log("debug", "(discoverRPCoverXMPP) - sent.");
-                that._logger.log("internal", "(discoverRPCoverXMPP) - result : ", node);
+                that._logger.log(that.DEBUG, "(discoverRPCoverXMPP) - sent.");
+                that._logger.log(that.INTERNAL, "(discoverRPCoverXMPP) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(discoverRPCoverXMPP) Error.");
-                that._logger.log("internalerror", LOG_ID + "(discoverRPCoverXMPP) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(discoverRPCoverXMPP) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(discoverRPCoverXMPP) Error : ", err);
                 return reject(err);
             }
         });
@@ -355,8 +355,8 @@ class RPCoverXMPPService extends GenericService {
 
                 /*
                 let node = await that._xmpp.callRPCMethod(rpcoverxmppserver_jid, methodName ,params);
-                that._logger.log("debug", "(callRPCMethod) - sent.");
-                that._logger.log("internal", "(callRPCMethod) - result : ", node);
+                that._logger.log(that.DEBUG, "(callRPCMethod) - sent.");
+                that._logger.log(that.INTERNAL, "(callRPCMethod) - result : ", node);
                  let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
@@ -365,13 +365,13 @@ class RPCoverXMPPService extends GenericService {
                 // */
                 
                 let result = await that._xmpp.callRPCMethod(rpcoverxmppserver_jid, methodName ,params);
-                that._logger.log("debug", "(callRPCMethod) - sent.");
-                that._logger.log("internal", "(callRPCMethod) - result : ", result);
+                that._logger.log(that.DEBUG, "(callRPCMethod) - sent.");
+                that._logger.log(that.INTERNAL, "(callRPCMethod) - result : ", result);
                 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(callRPCMethod) Error.");
-                that._logger.log("internalerror", LOG_ID + "(callRPCMethod) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(callRPCMethod) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(callRPCMethod) Error : ", err);
                 return reject(err);
             }
         });
@@ -396,13 +396,13 @@ class RPCoverXMPPService extends GenericService {
             try {
                 
                 let result = await that._xmpp.discover();
-                that._logger.log("debug", "(discover) - sent.");
-                that._logger.log("internal", "(discover) - result : ", result);
+                that._logger.log(that.DEBUG, "(discover) - sent.");
+                that._logger.log(that.INTERNAL, "(discover) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(discover) Error.");
-                that._logger.log("internalerror", LOG_ID + "(discover) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(discover) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(discover) Error : ", err);
                 return reject(err);
             }
         });

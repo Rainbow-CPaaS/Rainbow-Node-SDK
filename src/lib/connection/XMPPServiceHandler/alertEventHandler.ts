@@ -257,9 +257,9 @@ class AlertEventHandler extends GenericHandler {
         /*
         this.findChildren = (element) => {
             try {
-                that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
-                that.logger.log("internal", LOG_ID + "(findChildren) _entering_", element);
-                that.logger.log("error", LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
+                that._logger.log(that.DEBUG, LOG_ID + "(findChildren) _entering_");
+                that._logger.log(that.INTERNAL, LOG_ID + "(findChildren) _entering_", element);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
                 let json = {};
                 //let result = null;
                 let children = element.children;
@@ -269,20 +269,20 @@ class AlertEventHandler extends GenericHandler {
                     children.forEach((elemt) => {
                         // @ts-ignore
                         if (typeof elemt.children === Array) {
-                            that.logger.log("error", LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
+                            that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
                             childrenJson[elemt.getName()] = elemt.children[0];
                         }
-                        that.logger.log("error", LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
+                        that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
                         childrenJson[elemt.getName()] = this.findChildren(elemt);
                     });
                     return json;
                 } else {
-                    that.logger.log("error", LOG_ID + "(findChildren)  No children element : ", element);
+                    that._logger.log(that.ERROR, LOG_ID + "(findChildren)  No children element : ", element);
                     return element.getText();
                 }
                 //return result;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
 
@@ -328,12 +328,12 @@ class AlertEventHandler extends GenericHandler {
         let opts = undefined;
         return that.lockEngine.acquire(that.lockKey,
             async function () {
-                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKey);
+                // that._logger.log(that.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
+                that._logger.log(that.INTERNAL, LOG_ID + "(lock) lock the ", that.lockKey);
                 return await fn(); // async work
             }, opts).then((result) => {
-            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
-            that.logger.log("internal", LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
+            // that._logger.log(that.DEBUG, LOG_ID + "(lock) release the ", that.lockKey);
+            that._logger.log(that.INTERNAL, LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
             return result;
         });
     }
@@ -344,7 +344,7 @@ class AlertEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -408,13 +408,13 @@ class AlertEventHandler extends GenericHandler {
                         // treated in invitationEventHandler
                         break;
                     default:
-                        that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -422,8 +422,8 @@ class AlertEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) message received");
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) message received");
 
 
             //DateTime dateTime;
@@ -509,7 +509,7 @@ class AlertEventHandler extends GenericHandler {
                         }
                         else
                         {
-                            that.logger.log("warn", LOG_ID + "(onHeadlineMessageReceived) Invalid format provided to encapsulate HTML in Description field:[{0}]", alertMessage.info.description);
+                            that._logger.log(that.WARN, LOG_ID + "(onHeadlineMessageReceived) Invalid format provided to encapsulate HTML in Description field:[{0}]", alertMessage.info.description);
                         }
                     }
                 }
@@ -532,13 +532,13 @@ class AlertEventHandler extends GenericHandler {
                             // Check is this alert has been already Cancelled
                             if (previousMsgType == "Cancel")
                             {
-                                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived)  This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.id, alertMessage.identifier);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived)  This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.id, alertMessage.identifier);
                                 alreadyTreated = true;
                             }
                             // Check is the previous alert is more recent than the current one
                             else if (previousSent > new Date(alertMessage.sent) )
                             {
-                                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.id, alertMessage.identifier, alertMessage.sent, previousSent);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.id, alertMessage.identifier, alertMessage.sent, previousSent);
                                 alreadyTreated = true;
                             }
                         }
@@ -572,23 +572,23 @@ class AlertEventHandler extends GenericHandler {
                     that.alertsService.markAlertMessageAsRead(alertMessage.fromJid, alertMessage.id);
                 }
                 // */
-                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) alert message received decoded : ", alertMessage);
+                that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) alert message received decoded : ", alertMessage);
                 //AlertMessageReceived.Raise(this, new AlertMessageEventArgs(alertMessage));
                 that.eventEmitter.emit("evt_internal_alertmessagereceived", alertMessage);
             } else {
-                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received.");
-                that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received : ", stanza);
+                that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
     onNotificationManagementMessageReceived (stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onNotificationManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onNotificationManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let stanzaElem = stanza;
@@ -611,8 +611,8 @@ class AlertEventHandler extends GenericHandler {
             }
             return true;
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- ");
-            that.logger.log("internalerror", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- : ", err.message);
+            that._logger.log(that.ERROR, LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- : ", err.message);
             return true;
         }
 
@@ -630,15 +630,15 @@ class AlertEventHandler extends GenericHandler {
 
         try {
             if (stanza.getChild('no-store') != undefined){
-                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

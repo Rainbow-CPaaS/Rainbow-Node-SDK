@@ -375,7 +375,7 @@ class NodeSDK {
      *      The entry point of the Rainbow Node SDK.
      * @ param {OptionsType} options SDK Startup options.
      */
-    private logger: Logger;
+    private _logger: Logger;
     
     /**
      * @method constructor
@@ -547,7 +547,7 @@ class NodeSDK {
 
         this._option = options;
         this._core = new Core(options);
-        this.logger = this._core.logger
+        this._logger = this._core._logger
     }
 
     /**

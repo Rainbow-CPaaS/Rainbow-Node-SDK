@@ -6,7 +6,15 @@ import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
-import {addParamToUrl, addPropertyToObj, getRandomInt, logEntryExit, makeId, msToTime} from "../common/Utils.js";
+import {
+    addParamToUrl,
+    addPropertyToObj,
+    getRandomInt,
+    logEntryExit,
+    makeId,
+    msToTime,
+    stackTrace
+} from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
@@ -27,7 +35,6 @@ import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
-
 
 let packageVersion = require("../../package.json");
 
@@ -295,7 +302,7 @@ class RESTService extends GenericRESTService {
     //public _application: any;
     public loginEmail: any;
     public eventEmitter: EventEmitter;
-    public logger: Logger;
+    public _logger: Logger;
     public currentAttempt: any;
     public attempt_succeeded_callback: any;
     public attempt_failed_callback: any;
@@ -320,11 +327,12 @@ class RESTService extends GenericRESTService {
     getAccessorName(){ return RESTService.getAccessorName(); }
 
     constructor(core: Core, _options, evtEmitter: EventEmitter, _logger: Logger) {
-        super();
+        super(_logger, LOG_ID);
         let that = this;
         let self = this;
         this.eventEmitter = evtEmitter;
-        this.logger = _logger;
+
+        this._logger = _logger;
         this.restTelephony = new RESTTelephony(evtEmitter, _logger);
         this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(evtEmitter, _logger);
@@ -357,8 +365,6 @@ class RESTService extends GenericRESTService {
             maxDelay: RECONNECT_MAX_DELAY
         });
         this.reconnectDelay = this.fibonacciStrategy.getInitialDelay();
-
-
     }
 
     get userId() {
@@ -374,13 +380,13 @@ class RESTService extends GenericRESTService {
         that.http = http;
         let prom: Array<Promise<any>> = [];
         prom.push(that.restTelephony.start(that.http).then(() => {
-            that.logger.log("internal", LOG_ID + "(start) restTelephony email used", that.loginEmail);
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restTelephony email used", that.loginEmail);
         }));
         prom.push(that.restConferenceV2.start(that.http).then(() => {
-            that.logger.log("internal", LOG_ID + "(start) restConferenceV2 email used", that.loginEmail);
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restConferenceV2 email used", that.loginEmail);
         }));
         prom.push(that.restWebinar.start(that.http).then(() => {
-            that.logger.log("internal", LOG_ID + "(start) restWebinar email used", that.loginEmail);
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restWebinar email used", that.loginEmail);
         }));
         return Promise.all(prom);
     }
@@ -390,25 +396,25 @@ class RESTService extends GenericRESTService {
         return new Promise(async(resolve, reject) => {
             try {
                 await that.restTelephony.stop().then(() => {
-                    that.logger.log("internal", LOG_ID + "(stop) restTelephony.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restTelephony.");
                 });
 
                 await that.restConferenceV2.stop().then(() => {
-                    that.logger.log("internal", LOG_ID + "(stop) restConferenceV2.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restConferenceV2.");
                 });
 
                 await that.restWebinar.stop().then(() => {
-                    that.logger.log("internal", LOG_ID + "(stop) restWebinar.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restWebinar.");
                 });
 
                 await that.signout().then(() => {
-                    that.logger.log("debug", LOG_ID + "(stop) Successfully stopped");
+                    that._logger.log(that.DEBUG, LOG_ID + "(stop) Successfully stopped");
                     resolve(undefined);
                 })/* .catch((err) => {
                 return reject(err);
             }) */;
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(stop) !!! CATCH Error : ", err, ". But send Successfully stopped to upper layer.");
+                that._logger.log(that.DEBUG, LOG_ID + "(stop) !!! CATCH Error : ", err, ". But send Successfully stopped to upper layer.");
                 resolve(undefined);
             }
         });
@@ -422,7 +428,7 @@ class RESTService extends GenericRESTService {
             return await this.getContactByToken(token);
             /*
             try {
-                that.logger.log("internal", LOG_ID + "(signin) with token : ", token, " : ", that.getLoginHeader());
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) with token : ", token, " : ", that.getLoginHeader());
                 let decodedtoken = jwtDecode(token);
                 let JSON = {
                     "loggedInUser": decodedtoken.user,
@@ -438,30 +444,30 @@ class RESTService extends GenericRESTService {
                 let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
                     if (contactsFromServeur ) {
                         let contact: Contact = null;
-                        that.logger.log("debug", LOG_ID + "(signin) contact found on server, get full infos.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(signin) contact found on server, get full infos.");
                         let _contactFromServer = contactsFromServeur;
                         if (_contactFromServer) {
                             // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
                             return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
-                                that.logger.log("internal", LOG_ID + "(signin) contact full infos : ", _contactInformation);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(signin) contact full infos : ", _contactInformation);
                                 return _contactInformation;
                             });
                         }
                     } else {
-                        that.logger.log("debug", LOG_ID + "(signin) getContactInformationByID no contacts found : ", contactsFromServeur);
+                        that._logger.log(that.DEBUG, LOG_ID + "(signin) getContactInformationByID no contacts found : ", contactsFromServeur);
                         return Promise.reject(contactsFromServeur);
                     }
                 }).catch((errr) => {
-                    that.logger.log("debug", LOG_ID + "(signin) getContactInformationByLoginEmail Error !!! error : ", errr);
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) getContactInformationByLoginEmail Error !!! error : ", errr);
                     return Promise.reject(errr);
                 });
                 that.account = JSON.loggedInUser = loggedInUser;
-                that.logger.log("debug", LOG_ID + "(signin) token signin, welcome " + that.account.id + "!");
-                that.logger.log("internal", LOG_ID + "(signin) user information ", that.account);
-                that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
+                that._logger.log(that.DEBUG, LOG_ID + "(signin) token signin, welcome " + that.account.id + "!");
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) user information ", that.account);
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
                 return Promise.resolve(JSON);
             } catch (err) {
-                that.logger.log("debug", LOG_ID + "(signin) CATCH Error !!! error : ", err);
+                that._logger.log(that.DEBUG, LOG_ID + "(signin) CATCH Error !!! error : ", err);
                 return Promise.reject(err);
             }
             // */
@@ -475,18 +481,18 @@ class RESTService extends GenericRESTService {
                 that.tokenRest = JSON.token;
 
                 let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
-                            that.logger.log("warn", LOG_ID + "(signin) failed to get company information : ", err);
+                            that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
                         }
                 );
                 that.account.company = companyInfo;
 
-                that.logger.log("internal", LOG_ID + "(signin) welcome " + that.account.displayName + "!");
-                //that.logger.log("debug", LOG_ID + "(signin) user information ", that.account);
-                that.logger.log("internal", LOG_ID + "(signin) application information : ", that.app);
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
+                //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
                 resolve(JSON);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(signin) ErrorManager during REST signin");
-                that.logger.log("internalerror", LOG_ID, "(signin) ErrorManager during REST signin : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
                 return reject(err);
             });
         });
@@ -532,12 +538,12 @@ class RESTService extends GenericRESTService {
             let auth = btoa(loginEmail + ":" + password);
 
             that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(auth, password), undefined).then(function (JSON) {
-                that.logger.log("internal", LOG_ID + "(askTokenOnBehalf) successfully received token for ", JSON.loggedInUser.id, " !");
+                that._logger.log(that.INTERNAL, LOG_ID + "(askTokenOnBehalf) successfully received token for ", JSON.loggedInUser.id, " !");
                 resolve(JSON);
             })
                     .catch(function (err) {
-                        that.logger.log("error", LOG_ID, "(askTokenOnBehalf) Error requesting a token");
-                        that.logger.log("internalerror", LOG_ID, "(askTokenOnBehalf) Error requesting a token : ", err);
+                        that._logger.log(that.ERROR, LOG_ID, "(askTokenOnBehalf) Error requesting a token");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(askTokenOnBehalf) Error requesting a token : ", err);
                         return reject(err);
                     });
         });
@@ -551,15 +557,15 @@ class RESTService extends GenericRESTService {
                     that.account = null;
                     that.tokenRest = null;
                     that.renewTokenInterval = null;
-                    that.logger.log("info", LOG_ID + "(signout) Successfully signed-out!");
+                    that._logger.log(that.INFO, LOG_ID + "(signout) Successfully signed-out!");
                     resolve(JSON);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "error at signout");
-                    that.logger.log("internalerror", LOG_ID, "error at signout : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "error at signout");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "error at signout : ", err);
                     return reject(err);
                 });
             } else {
-                that.logger.log("warn", LOG_ID + "(signout) seems to be already signed-out!");
+                that._logger.log(that.WARN, LOG_ID + "(signout) seems to be already signed-out!");
                 resolve(null);
             }
         });
@@ -570,11 +576,11 @@ class RESTService extends GenericRESTService {
         let that = this;
 
         let decodedToken : any = jwtDecode(that.token);
-        //that.logger.log("debug", LOG_ID + "(startTokenSurvey) - token.");
-        that.logger.log("info", LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
-        that.logger.log("internal", LOG_ID + "(startTokenSurvey) - token oauth, decodedToken : ", decodedToken);
+        //that._logger.log(that.DEBUG, LOG_ID + "(startTokenSurvey) - token.");
+        that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) - token, exp : ", decodedToken.exp, ", iat : ", decodedToken.iat);
+        that._logger.log(that.INTERNAL, LOG_ID + "(startTokenSurvey) - token oauth, decodedToken : ", decodedToken);
         if (decodedToken.exp && decodedToken.iat) {
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : start Date : ", new Date(decodedToken.iat * 1000), ", end Date: ", new Date(decodedToken.exp * 1000), ", token full duration : ", msToTime((decodedToken.exp - decodedToken.iat)*1000));
+            that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) token decoded : start Date : ", new Date(decodedToken.iat * 1000), ", end Date: ", new Date(decodedToken.exp * 1000), ", token full duration : ", msToTime((decodedToken.exp - decodedToken.iat)*1000));
         }
         let halfExpirationDate = (decodedToken.exp - decodedToken.iat) / 2 + decodedToken.iat;
         let tokenExpirationTimestamp = halfExpirationDate * 1000;
@@ -585,83 +591,83 @@ class RESTService extends GenericRESTService {
         let fulltokenExpirationDuration = (decodedToken.exp * 1000) - currentTimestamp;
 
         let usedExpirationDuration = 0; // Refresh before the token expiration - negative values are well treated by settimeout
-        that.logger.log("info", LOG_ID + "(startTokenSurvey) token decoded : expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+        that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) token decoded : expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
 
         if (decodedToken && !decodedToken.oauth) {
             if (halftokenExpirationDuration < 0) {
-                that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token has already expired, re-new it immediately");
+                that._logger.log(that.WARN, LOG_ID + "(startTokenSurvey) auth token has already expired, re-new it immediately");
                 that._renewAuthToken();
             } else {
                 let randomTimeToWaitAddedTousedExpirationDurationBeforeRenew = getRandomInt((halftokenExpirationDuration/8) ) ; // add random time to the halftokenExpirationDuration.
                 // let timeToRemoveTousedExpirationDurationBeforeRenew = 0 //
                 let usedExpirationDuration = halftokenExpirationDuration + randomTimeToWaitAddedTousedExpirationDurationBeforeRenew; // Refresh before the token expiration - negative values are well treated by settimeout
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+                that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
                 if (that.renewTokenInterval) {
-                    that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                    that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
                     clearTimeout(that.renewTokenInterval);
                 }
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token usedExpirationDuration in ", usedExpirationDuration, " ms => ", msToTime(usedExpirationDuration));
+                that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token usedExpirationDuration in ", usedExpirationDuration, " ms => ", msToTime(usedExpirationDuration));
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
-                    that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
+                    that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
                     that._renewAuthToken();
                 }, usedExpirationDuration, "startTokenSurvey 1");
             }
             /* if (halftokenExpirationDuration < 300000) {
-                that.logger.log("warn", LOG_ID + "(startTokenSurvey) auth token will expire in less 5 minutes, re-new it immediately : ", halftokenExpirationDuration);
+                that._logger.log(that.WARN, LOG_ID + "(startTokenSurvey) auth token will expire in less 5 minutes, re-new it immediately : ", halftokenExpirationDuration);
                 that._renewAuthToken();
             } else {
                 let timeToRemoveTousedExpirationDurationBeforeRenew = (halftokenExpirationDuration > 3600000) ? getRandomInt((halftokenExpirationDuration/2) ) : getRandomInt(3600000); // remove 1 hour if the halftokenExpirationDuration is less than 1 hour
                 // let timeToRemoveTousedExpirationDurationBeforeRenew = 0 //  
                 let usedExpirationDuration = halftokenExpirationDuration - timeToRemoveTousedExpirationDurationBeforeRenew; // Refresh timeToRemoveTousedExpirationDurationBeforeRenew before the token expiration - negative values are well treated by settimeout
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+                that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
                 if (that.renewTokenInterval) {
-                    that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                    that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
                     clearTimeout(that.renewTokenInterval);
                 }
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
+                that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
-                    that.logger.log("info", LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
+                    that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) renewing token timer elapsed.");
                     that._renewAuthToken();
                 }, usedExpirationDuration, "startTokenSurvey 1");
             } // */
         } else if (decodedToken) { // token is from oauth external login, so we can not refresh it by ourself.
             usedExpirationDuration = halftokenExpirationDuration;
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) start token oauth survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
+            that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start token oauth survey (expirationDate: " + expirationDate + " currentDate:" + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
             if (fulltokenExpirationDuration < 0) {
-                that.logger.log("warn", LOG_ID + "(startTokenSurvey) oauth token has already expired, needs to be re-newed it immediately");
-                //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenrenewfailed.");
+                that._logger.log(that.WARN, LOG_ID + "(startTokenSurvey) oauth token has already expired, needs to be re-newed it immediately");
+                //that._logger.log(that.INTERNAL, LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenrenewfailed.");
                 this.eventEmitter.emit("evt_internal_onusertokenrenewfailed", that.token);
             } else if (halftokenExpirationDuration < 0) {
-                that.logger.log("warn", LOG_ID + "(startTokenSurvey) oauth token will expire in half duration of the token in : ", tokenExpirationTimestamp, " minutes, needs to be re-newed it immediately");
-                //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
+                that._logger.log(that.WARN, LOG_ID + "(startTokenSurvey) oauth token will expire in half duration of the token in : ", tokenExpirationTimestamp, " minutes, needs to be re-newed it immediately");
+                //that._logger.log(that.INTERNAL, LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
                 this.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
             } else {
                 if (that.renewTokenInterval) {
-                    that.logger.log("info", LOG_ID + "(startTokenSurvey) remove timer");
+                    that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
                     clearTimeout(that.renewTokenInterval);
                 }
-                that.logger.log("info", LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
+                that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
-                    //this.logger.log("internal", LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(startTokenSurvey) oauth evt_internal_onusertokenwillexpire.");
                     that.eventEmitter.emit("evt_internal_onusertokenwillexpire", that.token);
                     //that.startTokenSurvey()
                 }, usedExpirationDuration, "startTokenSurvey 2");
             }
         } else {
-            that.logger.log("info", LOG_ID + "(startTokenSurvey) decodedToken undefined.");
+            that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) decodedToken undefined.");
         }
     }
 
     _renewAuthToken() {
         let that = this;
         that.http.get("/api/rainbow/authentication/v1.0/renew", that.getRequestHeader(), undefined).then(function (JSON) {
-            that.logger.log("info", LOG_ID + "(_renewAuthToken) renew authentication token success");
+            that._logger.log(that.INFO, LOG_ID + "(_renewAuthToken) renew authentication token success");
             that.tokenRest = JSON.token;
-            that.logger.log("internal", LOG_ID + "(_renewAuthToken) new token received", that.token);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_renewAuthToken) new token received", that.token);
             that.eventEmitter.emit("evt_internal_tokenrenewed");
         }).catch(function (err) {
-            that.logger.log("error", LOG_ID, "(_renewAuthToken) renew authentication token failure");
-            that.logger.log("internalerror", LOG_ID, "(_renewAuthToken) renew authentication token failure : ", err);
+            that._logger.log(that.ERROR, LOG_ID, "(_renewAuthToken) renew authentication token failure");
+            that._logger.log(that.INTERNALERROR, LOG_ID, "(_renewAuthToken) renew authentication token failure : ", err);
             clearTimeout(that.renewTokenInterval);
             that.renewTokenInterval = null;
             that.eventEmitter.emit("evt_internal_tokenexpired");
@@ -682,15 +688,15 @@ class RESTService extends GenericRESTService {
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getRainbowSupportBotService) successfull");
-                that.logger.log("internal", LOG_ID + "(getRainbowSupportBotService) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getRainbowSupportBotService) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getRainbowSupportBotService) error");
-                that.logger.log("internalerror", LOG_ID, "(getRainbowSupportBotService) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getRainbowSupportBotService) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRainbowSupportBotService) error : ", err);
                 return reject(err);
             });
         });
@@ -708,15 +714,15 @@ class RESTService extends GenericRESTService {
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(getABotServiceData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getABotServiceData) successfull");
-                that.logger.log("internal", LOG_ID + "(getABotServiceData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getABotServiceData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getABotServiceData) error");
-                that.logger.log("internalerror", LOG_ID, "(getABotServiceData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getABotServiceData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getABotServiceData) error : ", err);
                 return reject(err);
             });
         });
@@ -738,15 +744,15 @@ class RESTService extends GenericRESTService {
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(getAllBotServices) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllBotServices) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllBotServices) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllBotServices) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllBotServices) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllBotServices) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllBotServices) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllBotServices) error : ", err);
                 return reject(err);
             });
         });
@@ -768,14 +774,14 @@ class RESTService extends GenericRESTService {
             let userId = that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted/" + appId;
-            that.logger.log("internal", LOG_ID + "(deleteTrustedApplication) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTrustedApplication) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteTrustedApplication) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteTrustedApplication) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteTrustedApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTrustedApplication) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteTrustedApplication) error.");
-                that.logger.log("internalerror", LOG_ID, "(deleteTrustedApplication) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteTrustedApplication) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTrustedApplication) error : ", err);
                 return reject(err);
             });
         });
@@ -793,14 +799,14 @@ class RESTService extends GenericRESTService {
             let userId = that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted";
-            that.logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllTrustedApplications) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteAllTrustedApplications) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAllTrustedApplications) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAllTrustedApplications) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllTrustedApplications) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAllTrustedApplications) error.");
-                that.logger.log("internalerror", LOG_ID, "(deleteAllTrustedApplications) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAllTrustedApplications) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAllTrustedApplications) error : ", err);
                 return reject(err);
             });
         });
@@ -818,14 +824,14 @@ class RESTService extends GenericRESTService {
             let userId = that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
-            that.logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(disableMultifactorAuthentication) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(disableMultifactorAuthentication) successfull");
-                that.logger.log("internal", LOG_ID + "(disableMultifactorAuthentication) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(disableMultifactorAuthentication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(disableMultifactorAuthentication) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(disableMultifactorAuthentication) error.");
-                that.logger.log("internalerror", LOG_ID, "(disableMultifactorAuthentication) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(disableMultifactorAuthentication) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(disableMultifactorAuthentication) error : ", err);
                 return reject(err);
             });
         });
@@ -842,14 +848,14 @@ class RESTService extends GenericRESTService {
             let userId = that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
-            that.logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(enableMultifactorAuthentication) args : ", data);
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(enableMultifactorAuthentication) successfull");
-                that.logger.log("internal", LOG_ID + "(enableMultifactorAuthentication) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(enableMultifactorAuthentication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(enableMultifactorAuthentication) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(enableMultifactorAuthentication) error.");
-                that.logger.log("internalerror", LOG_ID, "(enableMultifactorAuthentication) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(enableMultifactorAuthentication) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableMultifactorAuthentication) error : ", err);
                 return reject(err);
             });
         });
@@ -861,7 +867,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            //that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
             let userId = that.account.id;
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
@@ -870,15 +876,15 @@ class RESTService extends GenericRESTService {
             //addParamToUrl(urlParamsTab, "pbxId", pbxId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getMultifactorInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(getMultifactorInformation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getMultifactorInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMultifactorInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(getMultifactorInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMultifactorInformation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMultifactorInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -901,14 +907,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/verify";
-            that.logger.log("internal", LOG_ID + "(verifyMultifactorInformation) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(verifyMultifactorInformation) args : ", data);
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(verifyMultifactorInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(verifyMultifactorInformation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(verifyMultifactorInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(verifyMultifactorInformation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(verifyMultifactorInformation) error.");
-                that.logger.log("internalerror", LOG_ID, "(verifyMultifactorInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(verifyMultifactorInformation) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(verifyMultifactorInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -926,14 +932,14 @@ class RESTService extends GenericRESTService {
             let userId = that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/recovery";
-            that.logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) successfull");
-                that.logger.log("internal", LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error.");
-                that.logger.log("internalerror", LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error : ", err);
                 return reject(err);
             });
         });
@@ -952,7 +958,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST numberE164 : ", numberE164);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchInAlldirectories) REST numberE164 : ", numberE164);
 
             let url: string = "/api/rainbow/search/v1.0/alldirectories";
             let urlParamsTab: string[] = [];
@@ -968,15 +974,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchInAlldirectories) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(searchInAlldirectories) successfull");
-                that.logger.log("internal", LOG_ID + "(searchInAlldirectories) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchInAlldirectories) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchInAlldirectories) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchInAlldirectories) error");
-                that.logger.log("internalerror", LOG_ID, "(searchInAlldirectories) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchInAlldirectories) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchInAlldirectories) error : ", err);
                 return reject(err);
             });
         });
@@ -988,7 +994,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST number : ", number);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchInPhonebook) REST number : ", number);
 
             let url: string = "/api/rainbow/search/v1.0/phonebooks";
             let urlParamsTab: string[] = [];
@@ -1003,15 +1009,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchInPhonebook) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(searchInPhonebook) successfull");
-                that.logger.log("internal", LOG_ID + "(searchInPhonebook) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchInPhonebook) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchInPhonebook) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchInPhonebook) error");
-                that.logger.log("internalerror", LOG_ID, "(searchInPhonebook) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchInPhonebook) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchInPhonebook) error : ", err);
                 return reject(err);
             });
         });
@@ -1024,7 +1030,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST number : ", number);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchUserByPhonenumber) REST number : ", number);
 
             let url: string = "/api/rainbow/search/v1.0/phone-numbers/" + number + "/users";
             let urlParamsTab: string[] = [];
@@ -1032,15 +1038,15 @@ class RESTService extends GenericRESTService {
 //            addParamToUrl(urlParamsTab, "limit", limit);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchUserByPhonenumber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(searchUserByPhonenumber) successfull");
-                that.logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchUserByPhonenumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchUserByPhonenumber) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchUserByPhonenumber) error");
-                that.logger.log("internalerror", LOG_ID, "(searchUserByPhonenumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchUserByPhonenumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchUserByPhonenumber) error : ", err);
                 return reject(err);
             });
         });
@@ -1052,7 +1058,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(searchUsers) REST companyId : ", companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchUsers) REST companyId : ", companyId);
 
             let url: string = "/api/rainbow/search/v1.0/users";
             let urlParamsTab: string[] = [];
@@ -1067,15 +1073,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(searchUsers) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchUsers) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(searchUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(searchUsers) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchUsers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchUsers) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(searchUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchUsers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -1108,14 +1114,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources";
-            that.logger.log("internal", LOG_ID + "(createSource) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createSource) args : ", data);
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createSource) successfull");
-                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createSource) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createSource) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createSource) error.");
-                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createSource) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createSource) error : ", err);
                 return reject(err);
             });
         });
@@ -1132,14 +1138,14 @@ class RESTService extends GenericRESTService {
             userId = userId ? userId:that.account.id;
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
-            that.logger.log("internal", LOG_ID + "(createSource) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createSource) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createSource) successfull");
-                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createSource) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createSource) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createSource) error.");
-                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createSource) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createSource) error : ", err);
                 return reject(err);
             });
         });
@@ -1162,14 +1168,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
-            that.logger.log("internal", LOG_ID + "(getSourceData) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getSourceData) args : ", data);
             that.http.get(url, that.getRequestHeader(), data).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getSourceData) successfull");
-                that.logger.log("internal", LOG_ID + "(getSourceData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getSourceData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getSourceData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getSourceData) error.");
-                that.logger.log("internalerror", LOG_ID, "(getSourceData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getSourceData) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSourceData) error : ", err);
                 return reject(err);
             });
         });
@@ -1181,7 +1187,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) REST userId : ", userId);
 
             userId = userId ? userId:that.account.id;
 
@@ -1191,15 +1197,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllSourcesByUserId) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSourcesByUserId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllSourcesByUserId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSourcesByUserId) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSourcesByUserId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllSourcesByUserId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSourcesByUserId) error : ", err);
                 return reject(err);
             });
         });
@@ -1222,14 +1228,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
-            that.logger.log("internal", LOG_ID + "(updateSourceData) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateSourceData) args : ", data);
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateSourceData) successfull");
-                that.logger.log("internal", LOG_ID + "(updateSourceData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateSourceData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateSourceData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateSourceData) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateSourceData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateSourceData) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateSourceData) error : ", err);
                 return reject(err);
             });
         });
@@ -1302,14 +1308,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactIddb;
-            that.logger.log("internal", LOG_ID + "(updateContactData) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateContactData) args : ", data);
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateContactData) successfull");
-                that.logger.log("internal", LOG_ID + "(updateContactData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateContactData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateContactData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateContactData) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateContactData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateContactData) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateContactData) error : ", err);
                 return reject(err);
             });
         });
@@ -1398,14 +1404,14 @@ class RESTService extends GenericRESTService {
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts";
-            that.logger.log("internal", LOG_ID + "(createContact) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createContact) args : ", data);
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createContact) successfull");
-                that.logger.log("internal", LOG_ID + "(createContact) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createContact) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createContact) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createContact) error.");
-                that.logger.log("internalerror", LOG_ID, "(createContact) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createContact) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createContact) error : ", err);
                 return reject(err);
             });
         });
@@ -1417,7 +1423,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) REST userId : ", userId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactId;
             let urlParamsTab: string[] = [];
@@ -1425,15 +1431,15 @@ class RESTService extends GenericRESTService {
             // addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getContactData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getContactData) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContactData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactData) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getContactData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactData) error : ", err);
                 return reject(err);
             });
         });
@@ -1445,7 +1451,7 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getContactsList) REST userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) REST userId : ", userId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts";
             let urlParamsTab: string[] = [];
@@ -1453,15 +1459,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getContactsList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getContactsList) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactsList) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactsList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactsList) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactsList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getContactsList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactsList) error : ", err);
                 return reject(err);
             });
         });
@@ -1478,26 +1484,26 @@ class RESTService extends GenericRESTService {
             userId = userId ? userId:that.account.id;
 
             if (!sourceId) {
-                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
+                that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             if (!contactId) {
-                that.logger.log("error", LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
+                that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts/" + contactId;
-            that.logger.log("internal", LOG_ID + "(createSource) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createSource) args : ", data);
             that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createSource) successfull");
-                that.logger.log("internal", LOG_ID + "(createSource) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createSource) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createSource) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createSource) error.");
-                that.logger.log("internalerror", LOG_ID, "(createSource) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createSource) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createSource) error : ", err);
                 return reject(err);
             });
         });
@@ -1508,7 +1514,7 @@ class RESTService extends GenericRESTService {
     async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId?: string, searchEmail?: string) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getAllUsers) that.account.roles : ", that.account.roles);
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUsers) that.account.roles : ", that.account.roles);
             if (!companyId) {
                 companyId = that.account.companyId;
             }
@@ -1517,15 +1523,15 @@ class RESTService extends GenericRESTService {
                 url += "&searchEmail=" + encodeURIComponent(searchEmail);
             }
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllUsers) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllUsers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsers) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllUsers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllUsers) error : ", err);
                 return reject(err);
             });
-            that.logger.log("debug", LOG_ID + "(getAllUsers) after sending the request");
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUsers) after sending the request");
         });
     }
 
@@ -1539,7 +1545,7 @@ class RESTService extends GenericRESTService {
                               offset: string, sortField: string, sortOrder: string, displayName: string, useEmails: boolean, companyName: string, loginEmail: string, email: string, visibility: string, organisationId: string, siteId: string, jid_im: string, jid_tel: string) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getAllUsersByFilter) that.account.roles : ", that.account.roles);
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) that.account.roles : ", that.account.roles);
             let url = "/api/rainbow/admin/v1.0/users"; // ?format=" + encodeURIComponent(format) + "&limit=" + limit + "&offset=" + offset + "&sortField=" + encodeURIComponent(sortField) + "&sortOrder=-1" + "&companyId=" + encodeURIComponent(companyId);
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -1599,52 +1605,52 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "jid_tel", jid_tel);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsersByFilter) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllUsersByFilter) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllUsersByFilter) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllUsersByFilter) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllUsersByFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllUsersByFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllUsersByFilter) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllUsersByFilter) error : ", err);
                 return reject(err);
             });
-            that.logger.log("debug", LOG_ID + "(getAllUsersByFilter) after sending the request");
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) after sending the request");
         });
     }
 
     async getContactInfos(userId) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
             that.http.get("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getContactInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContactInfos) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getContactInfos) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactInfos) error : ", err);
                 return reject(err);
             });
-            that.logger.log("debug", LOG_ID + "(getContactInfos) after sending the request");
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) after sending the request");
         });
     }
 
     async putContactInfos(userId, infos) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) that.account.roles : ", that.account.roles);
             that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), infos, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getContactInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getContactInfos) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContactInfos) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContactInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getContactInfos) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getContactInfos) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactInfos) error : ", err);
                 return reject(err);
             });
-            that.logger.log("debug", LOG_ID + "(getContactInfos) after sending the request");
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) after sending the request");
         });
     }
 
@@ -1652,12 +1658,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getContacts) successfull");
-                that.logger.log("internal", LOG_ID + "(getContacts) REST result : " + json.total + " contacts");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContacts) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContacts) REST result : " + json.total + " contacts");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getContacts) error");
-                that.logger.log("internalerror", LOG_ID, "(getContacts) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getContacts) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getContacts) error : ", err);
                 return reject(err);
             });
         });
@@ -1667,17 +1673,17 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!dbId) {
-                that.logger.log("debug", LOG_ID + "(removeContactFromRoster) failed");
-                that.logger.log("debug", LOG_ID + "(removeContactFromRoster) No dbId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeContactFromRoster) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeContactFromRoster) No dbId provided");
                 resolve(null);
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/users/networks/" + dbId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(removeContactFromRoster) successfull");
-                    that.logger.log("internal", LOG_ID + "(removeContactFromRoster) REST result : " + json.total + " contacts");
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeContactFromRoster) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeContactFromRoster) REST result : " + json.total + " contacts");
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(removeContactFromRoster) error");
-                    that.logger.log("internalerror", LOG_ID, "(removeContactFromRoster) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(removeContactFromRoster) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(removeContactFromRoster) error : ", err);
                     return reject(err);
                 });
             }
@@ -1688,8 +1694,8 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!jid) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByJID)  failed");
-                that.logger.log("debug", LOG_ID + "(getContactInformationByJID) No jid provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByJID)  failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByJID) No jid provided");
                 resolve(null);
             } else {
 
@@ -1701,12 +1707,12 @@ class RESTService extends GenericRESTService {
 
                 //that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + encodeURIComponent(jidBare), that.getRequestHeader(), undefined).then(function (json) {
                 that.http.get("/api/rainbow/enduser/v1.0/users/jids/" + jidBare, that.getRequestHeader(), undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(getContactInformationByJID) successfull");
-                    that.logger.log("internal", LOG_ID + "(getContactInformationByJID) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByJID) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByJID) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(getContactInformationByJID) error");
-                    that.logger.log("internalerror", LOG_ID, "(getContactInformationByJID) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(getContactInformationByJID) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactInformationByJID) error : ", err);
                     if (err && err.code===404) {
                         resolve(null);
                     } else {
@@ -1721,17 +1727,17 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!id) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByID) failed");
-                that.logger.log("debug", LOG_ID + "(getContactInformationByID) No id provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByID) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByID) No id provided");
                 resolve(null);
             } else {
                 that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id) + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(getContactInformationByID) successfull");
-                    that.logger.log("internal", LOG_ID + "(getContactInformationByID) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByID) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByID) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(getContactInformationByID) error");
-                    that.logger.log("internalerror", LOG_ID, "(getContactInformationByID) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(getContactInformationByID) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactInformationByID) error : ", err);
                     if (err && err.code===404) {
                         resolve(null);
                     } else {
@@ -1746,12 +1752,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/me", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getMyInformations) successfull");
-                that.logger.log("internal", LOG_ID + "(getMyInformations) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getMyInformations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMyInformations) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMyInformations) error");
-                that.logger.log("internalerror", LOG_ID, "(getMyInformations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMyInformations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMyInformations) error : ", err);
                 if (err && err.code===404) {
                     resolve(null);
                 } else {
@@ -1768,8 +1774,8 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!email) {
-                that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) failed");
-                that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) No email provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByLoginEmail) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByLoginEmail) No email provided");
                 resolve(null);
             } else {
                 let url = "/api/rainbow/enduser/v1.0/users/loginEmails";
@@ -1787,14 +1793,14 @@ class RESTService extends GenericRESTService {
                 let filter: any = {};
                 addPropertyToObj(filter, "loginEmail", email, false);
 
-                //that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
+                //that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
                 await that.http.post(url, that.getRequestHeader(), filter, undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(getContactInformationByLoginEmail) successfull");
-                    that.logger.log("internal", LOG_ID + "(getContactInformationByLoginEmail) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByLoginEmail) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByLoginEmail) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(getContactInformationByLoginEmail) error");
-                    that.logger.log("internalerror", LOG_ID, "(getContactInformationByLoginEmail) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(getContactInformationByLoginEmail) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactInformationByLoginEmail) error : ", err);
                     return reject(err);
                 });
             }
@@ -1804,7 +1810,7 @@ class RESTService extends GenericRESTService {
     async getContactByToken(token: string) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) with token : ", token, " : ", that.getLoginHeader());
             let decodedtoken :any = jwtDecode(token);
             let JSON = {
                 "loggedInUser": decodedtoken.user,
@@ -1826,34 +1832,34 @@ class RESTService extends GenericRESTService {
                 let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
                     if (contactsFromServeur) {
                         let contact: Contact = null;
-                        that.logger.log("debug", LOG_ID + "(getContactByToken) contact found on server, get full infos.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) contact found on server, get full infos.");
                         let _contactFromServer = contactsFromServeur;
                         if (_contactFromServer) {
                             // The contact is not found by email in the that.contacts tab, so it need to be find on server to get or update it.
                             return await that.getContactInformationByID(_contactFromServer.id).then((_contactInformation: any) => {
-                                that.logger.log("internal", LOG_ID + "(getContactByToken) contact full infos : ", _contactInformation);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) contact full infos : ", _contactInformation);
                                 return _contactInformation;
                             });
                         }
                     } else {
-                        that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByID no contacts found : ", contactsFromServeur);
+                        that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) getContactInformationByID no contacts found : ", contactsFromServeur);
                         return Promise.reject(contactsFromServeur);
                     }
                 }).catch((errr) => {
-                    that.logger.log("debug", LOG_ID + "(getContactByToken) getContactInformationByLoginEmail Error !!! error : ", errr);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) getContactInformationByLoginEmail Error !!! error : ", errr);
                     return Promise.reject(errr);
                 });
                 that.account = JSON.loggedInUser = loggedInUser;
                 that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
             } else {
-                that.logger.log("debug", LOG_ID + "(getContactByToken) token else of if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) " + that.account.id + "!");
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) token else of if (!that.account || (that.account && that.account.id != JSON.loggedInUser.id)) " + that.account.id + "!");
             }
-            that.logger.log("debug", LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
-            that.logger.log("internal", LOG_ID + "(getContactByToken) user information ", that.account);
-            that.logger.log("internal", LOG_ID + "(getContactByToken) application information : ", that.app);
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) user information ", that.account);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) application information : ", that.app);
             return Promise.resolve(JSON);
         } catch (err) {
-            that.logger.log("debug", LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
+            that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
             return Promise.reject(err);
         }
     }
@@ -1893,12 +1899,12 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createUser) successfull");
-                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createUser) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createUser) error : ", err);
                 return reject(err);
             });
         });
@@ -1991,22 +1997,22 @@ class RESTService extends GenericRESTService {
 
             if (isAdmin) {
                 if (user.roles && !user.roles.some((element) => element==="admin")) {
-                    that.logger.log("internal", LOG_ID + "(createUser) add \"admin\" role.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createUser) add \"admin\" role.");
                     user.roles.push("admin");
                 }
                 //user.adminType = ["company_admin"];
                 user.adminType = user.adminType ? user.adminType:"company_admin";
             }
 
-            that.logger.log("internal", LOG_ID + "(createUser) REST url : ", url, ", user : ", user);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createUser) REST url : ", url, ", user : ", user);
 
             that.http.post(url, that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createUser) successfull");
-                that.logger.log("internal", LOG_ID + "(createUser) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createUser) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createUser) error : ", err);
                 return reject(err);
             });
         });
@@ -2056,14 +2062,14 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/admin/v1.0/users", that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createGuestUser) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(createGuestUser) successfull");
                 // Add generated password into the answer
                 json.data.password = password;
-                that.logger.log("internal", LOG_ID + "(createGuestUser) REST result : ", json.data);
+                that._logger.log(that.INTERNAL, LOG_ID + "(createGuestUser) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createGuestUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createGuestUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createGuestUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createGuestUser) error : ", err);
                 return reject(err);
             });
         });
@@ -2077,12 +2083,12 @@ class RESTService extends GenericRESTService {
             };
 
             that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(changePassword) successfull");
-                that.logger.log("internal", LOG_ID + "(changePassword) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(changePassword) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(changePassword) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(changePassword) error");
-                that.logger.log("internalerror", LOG_ID, "(changePassword) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(changePassword) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(changePassword) error : ", err);
                 return reject(err);
             });
         });
@@ -2092,12 +2098,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(updateInformation) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateInformation) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(updateInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateInformation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -2107,12 +2113,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteUser) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteUser) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteUser) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteUser) error : ", err);
                 return reject(err);
             });
         });
@@ -2124,12 +2130,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateEndUserInformations) successfull");
-                that.logger.log("internal", LOG_ID + "(updateEndUserInformations) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateEndUserInformations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateEndUserInformations) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateEndUserInformations) error");
-                that.logger.log("internalerror", LOG_ID, "(updateEndUserInformations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateEndUserInformations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateEndUserInformations) error : ", err);
                 return reject(err);
             });
         });
@@ -2144,7 +2150,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST peerId : ", peerId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST peerId : ", peerId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
             let urlParamsTab: string[] = [];
@@ -2152,15 +2158,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "peerId", peerId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getServerFavorites) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerFavorites) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerFavorites) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerFavorites) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerFavorites) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerFavorites) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerFavorites) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerFavorites) error : ", err);
                 return reject(err);
             });
         });
@@ -2172,8 +2178,8 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!peerId) {
-                that.logger.log("debug", LOG_ID + "(addServerFavorite) failed");
-                that.logger.log("debug", LOG_ID + "(addServerFavorite) No peerId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) No peerId provided");
                 resolve(null);
             } else {
                 let data = {peerId, type};
@@ -2184,14 +2190,14 @@ class RESTService extends GenericRESTService {
                 addParamToUrl(urlParamsTab, "position", position);
                 url = urlParamsTab[0];
 
-                that.logger.log("internal", LOG_ID + "(addServerFavorite) REST url : ", url);
+                that._logger.log(that.INTERNAL, LOG_ID + "(addServerFavorite) REST url : ", url);
                 that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(addServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(addServerFavorite) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(addServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(addServerFavorite) error");
-                    that.logger.log("internalerror", LOG_ID, "(addServerFavorite) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(addServerFavorite) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(addServerFavorite) error : ", err);
                     return reject(err);
                 });
             }
@@ -2203,7 +2209,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/peers/:peerId/check
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST peerId : ", peerId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST peerId : ", peerId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/peers/" + peerId + "/check";
             let urlParamsTab: string[] = [];
@@ -2211,15 +2217,15 @@ class RESTService extends GenericRESTService {
             // addParamToUrl(urlParamsTab, "types", types);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) successfull");
-                that.logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkIsPeerSettedAsFavorite) error");
-                that.logger.log("internalerror", LOG_ID, "(checkIsPeerSettedAsFavorite) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkIsPeerSettedAsFavorite) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkIsPeerSettedAsFavorite) error : ", err);
                 return reject(err);
             });
         });
@@ -2230,7 +2236,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getFavoriteById) REST favoriteId : ", favoriteId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST favoriteId : ", favoriteId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
             let urlParamsTab: string[] = [];
@@ -2238,15 +2244,15 @@ class RESTService extends GenericRESTService {
             // addParamToUrl(urlParamsTab, "types", types);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getFavoriteById) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getFavoriteById) successfull");
-                that.logger.log("internal", LOG_ID + "(getFavoriteById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getFavoriteById) error");
-                that.logger.log("internalerror", LOG_ID, "(getFavoriteById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getFavoriteById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFavoriteById) error : ", err);
                 return reject(err);
             });
         });
@@ -2257,7 +2263,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST peerId  : ", peerId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST peerId  : ", peerId);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
             let urlParamsTab: string[] = [];
@@ -2265,15 +2271,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "peerId ", peerId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllUserFavoriteList) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllUserFavoriteList) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllUserFavoriteList) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllUserFavoriteList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllUserFavoriteList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllUserFavoriteList) error : ", err);
                 return reject(err);
             });
         });
@@ -2292,12 +2298,12 @@ class RESTService extends GenericRESTService {
             url = urlParamsTab[0];
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(moveFavoriteToPosition) successfull");
-                that.logger.log("internal", LOG_ID + "(moveFavoriteToPosition) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(moveFavoriteToPosition) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(moveFavoriteToPosition) error");
-                that.logger.log("internalerror", LOG_ID, "(moveFavoriteToPosition) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(moveFavoriteToPosition) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(moveFavoriteToPosition) error : ", err);
                 return reject(err);
             });
         });
@@ -2310,17 +2316,17 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!favoriteId) {
-                that.logger.log("debug", LOG_ID + "(removeServerFavorite) failed");
-                that.logger.log("debug", LOG_ID + "(removeServerFavorite) No favoriteId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) No favoriteId provided");
                 resolve(null);
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(removeServerFavorite) successfull");
-                    that.logger.log("internal", LOG_ID + "(removeServerFavorite) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeServerFavorite) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(removeServerFavorite) error");
-                    that.logger.log("internalerror", LOG_ID, "(removeServerFavorite) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(removeServerFavorite) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(removeServerFavorite) error : ", err);
                     return reject(err);
                 });
             }
@@ -2337,12 +2343,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllSentInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSentInvitations) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllSentInvitations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSentInvitations) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSentInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSentInvitations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllSentInvitations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSentInvitations) error : ", err);
                 return reject(err);
             });
         });
@@ -2353,7 +2359,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST sortField : ", sortField);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST sortField : ", sortField);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent";
             let urlParamsTab: string[] = [];
@@ -2366,15 +2372,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getInvitationsSent) successfull");
-                that.logger.log("internal", LOG_ID + "(getInvitationsSent) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationsSent) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getInvitationsSent) error");
-                that.logger.log("internalerror", LOG_ID, "(getInvitationsSent) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getInvitationsSent) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationsSent) error : ", err);
                 return reject(err);
             });
         });
@@ -2386,12 +2392,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllReceivedInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllReceivedInvitations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllReceivedInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllReceivedInvitations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllReceivedInvitations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllReceivedInvitations) error : ", err);
                 return reject(err);
             });
         });
@@ -2402,7 +2408,7 @@ class RESTService extends GenericRESTService {
         // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received";
             let urlParamsTab: string[] = [];
@@ -2415,15 +2421,15 @@ class RESTService extends GenericRESTService {
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getInvitationsReceived) successfull");
-                that.logger.log("internal", LOG_ID + "(getInvitationsReceived) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationsReceived) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getInvitationsReceived) error");
-                that.logger.log("internalerror", LOG_ID, "(getInvitationsReceived) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getInvitationsReceived) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationsReceived) error : ", err);
                 return reject(err);
             });
         });
@@ -2435,12 +2441,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerInvitation) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2469,12 +2475,12 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(sendInvitationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationByEmail) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationByEmail) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationByEmail) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationByEmail) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationByEmail) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationByEmail) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationByEmail) error : ", err);
                 return reject(err);
             });
         });
@@ -2486,12 +2492,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(cancelOneSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(cancelOneSendInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(cancelOneSendInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(cancelOneSendInvitation) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(cancelOneSendInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(cancelOneSendInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(cancelOneSendInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(cancelOneSendInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2503,12 +2509,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteAUserInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAUserInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAUserInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAUserInvitation) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(deleteAUserInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAUserInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAUserInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAUserInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2524,12 +2530,12 @@ class RESTService extends GenericRESTService {
                 data.customMessage = customMessage;
             }
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(reSendInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(reSendInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(reSendInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(reSendInvitation) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(reSendInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(reSendInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(reSendInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(reSendInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2551,12 +2557,12 @@ class RESTService extends GenericRESTService {
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(sendInvitationsByBulk) successfull");
-                that.logger.log("internal", LOG_ID + "(sendInvitationsByBulk) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationsByBulk) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationsByBulk) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendInvitationsByBulk) error");
-                that.logger.log("internalerror", LOG_ID, "(sendInvitationsByBulk) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationsByBulk) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationsByBulk) error : ", err);
                 return reject(err);
             });
         });
@@ -2571,14 +2577,14 @@ class RESTService extends GenericRESTService {
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
+            that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(acceptInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(acceptInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(acceptInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(acceptInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(acceptInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(acceptInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(acceptInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2590,13 +2596,13 @@ class RESTService extends GenericRESTService {
     declineInvitation(invitation) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(declineInvitation) invitation : ", invitation);
+            that._logger.log(that.INTERNAL, LOG_ID + "(declineInvitation) invitation : ", invitation);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(declineInvitation) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(declineInvitation) successfull");
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(declineInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(declineInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(declineInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(declineInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2610,14 +2616,14 @@ class RESTService extends GenericRESTService {
         // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(joinContactInvitation) contact : ", contact);
+            that._logger.log(that.INTERNAL, LOG_ID + "(joinContactInvitation) contact : ", contact);
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(joinContactInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(joinContactInvitation) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(joinContactInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinContactInvitation) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinContactInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(joinContactInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(joinContactInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinContactInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -2632,12 +2638,12 @@ class RESTService extends GenericRESTService {
                         "presence": Boolean(presence)
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(joinContacts) successfull");
-                that.logger.log("internal", LOG_ID + "(joinContacts) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(joinContacts) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinContacts) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinContacts) error");
-                that.logger.log("internalerror", LOG_ID, "(joinContacts) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(joinContacts) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinContacts) error : ", err);
                 return reject(err);
             });
         });
@@ -2647,17 +2653,17 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!invitationId) {
-                that.logger.log("debug", LOG_ID + "(getInvitationById) successfull");
-                that.logger.log("debug", LOG_ID + "(getInvitationById) No id provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) No id provided");
                 resolve(null);
             } else {
                 that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(getInvitationById) successfull");
-                    that.logger.log("internal", LOG_ID + "(getInvitationById) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationById) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(getInvitationById) error");
-                    that.logger.log("internalerror", LOG_ID, "(getInvitationById) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(getInvitationById) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationById) error : ", err);
                     return reject(err);
                 });
             }
@@ -2674,7 +2680,7 @@ class RESTService extends GenericRESTService {
             return new Promise((resolve, reject) => {
                 that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page + "&limit=" + max, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                     groups = groups.concat(json.data);
-                    that.logger.log("internal", LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
                     resolve({groups: groups, finished: groups.length===json.total});
                 }).catch(function (err) {
                     return reject(err);
@@ -2688,11 +2694,11 @@ class RESTService extends GenericRESTService {
 
                 getSetOfGroups(page, limit, groups).then((json: any) => {
                     if (json.finished) {
-                        that.logger.log("debug", LOG_ID + "(getGroups) getSetOfGroups no need to loop again. All groups retrieve...");
+                        that._logger.log(that.DEBUG, LOG_ID + "(getGroups) getSetOfGroups no need to loop again. All groups retrieve...");
                         return resolve(json.groups);
                     }
                     page += limit;
-                    that.logger.log("internal", LOG_ID + "(getGroups) getSetOfGroups need another loop to get more groups... [" + json.groups.length + "]");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) getSetOfGroups need another loop to get more groups... [" + json.groups.length + "]");
                     getAllGroups(page, limit, json.groups).then((allGroups) => {
                         resolve(allGroups);
                     }).catch((err) => {
@@ -2709,12 +2715,12 @@ class RESTService extends GenericRESTService {
             let page = 0;
             let limit = 100;
             getAllGroups(page, limit, []).then((json: any) => {
-                that.logger.log("debug", LOG_ID + "(getGroups) getAllGroups successfull");
-                that.logger.log("internal", LOG_ID + "(getGroups) getAllGroups received " + json.length + " groups");
+                that._logger.log(that.DEBUG, LOG_ID + "(getGroups) getAllGroups successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) getAllGroups received " + json.length + " groups");
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(getGroups) getAllGroups error");
-                that.logger.log("internalerror", LOG_ID, "(getGroups) getAllGroups error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getGroups) getAllGroups error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getGroups) getAllGroups error : ", err);
                 return reject(err);
             });
         });
@@ -2724,12 +2730,12 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(getGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getGroup) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(getGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -2750,12 +2756,12 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateGroupFavorite) successfull");
-                that.logger.log("internal", LOG_ID + "(updateGroupFavorite) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupFavorite) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupFavorite) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateGroupFavorite) error");
-                that.logger.log("internalerror", LOG_ID, "(updateGroupFavorite) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateGroupFavorite) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupFavorite) error : ", err);
                 return reject(err);
             });
         });
@@ -2769,12 +2775,12 @@ Request Method: PUT
                 comment: comment,
                 isFavorite: isFavorite
             }, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(createGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createGroup) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(createGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -2784,12 +2790,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteGroup) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -2801,12 +2807,12 @@ Request Method: PUT
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
                 name: name
             }, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateGroupName) successfull");
-                that.logger.log("internal", LOG_ID + "(updateGroupName) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupName) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupName) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateGroupName) error");
-                that.logger.log("internalerror", LOG_ID, "(updateGroupName) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateGroupName) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupName) error : ", err);
                 return reject(err);
             });
         });
@@ -2818,12 +2824,12 @@ Request Method: PUT
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
                 comment: comment
             }, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateGroupComment) successfull");
-                that.logger.log("internal", LOG_ID + "(updateGroupComment) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupComment) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupComment) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateGroupComment) error");
-                that.logger.log("internalerror", LOG_ID, "(updateGroupComment) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateGroupComment) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupComment) error : ", err);
                 return reject(err);
             });
         });
@@ -2833,12 +2839,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader(), undefined, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addUserInGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(addUserInGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(addUserInGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addUserInGroup) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addUserInGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(addUserInGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addUserInGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addUserInGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -2848,12 +2854,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(removeUserFromGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(removeUserFromGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(removeUserFromGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeUserFromGroup) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID + "(removeUserFromGroup) error");
-                that.logger.log("internalerror", LOG_ID + "(removeUserFromGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(removeUserFromGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeUserFromGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -2865,12 +2871,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/bots", that.getRequestHeader(), undefined, "", 5, 10000).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getBots) successfull");
-                that.logger.log("internal", LOG_ID + "(getBots) REST result : " + json.total + " bots");
+                that._logger.log(that.DEBUG, LOG_ID + "(getBots) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBots) REST result : " + json.total + " bots");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBots) error");
-                that.logger.log("internalerror", LOG_ID, "(getBots) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBots) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBots) error : ", err);
                 return reject(err);
             });
         });
@@ -2893,12 +2899,12 @@ Request Method: PUT
 
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/admin/v1.0/users/" + userId + "/presences", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getUserPresenceInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(getUserPresenceInformation) REST result : ", json, " user presence.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getUserPresenceInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getUserPresenceInformation) REST result : ", json, " user presence.");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getUserPresenceInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(getUserPresenceInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getUserPresenceInformation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserPresenceInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -2909,12 +2915,12 @@ Request Method: PUT
 
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/me/presences", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getMyPresenceInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(getMyPresenceInformation) REST result : ", json, " user presence.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getMyPresenceInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMyPresenceInformation) REST result : ", json, " user presence.");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMyPresenceInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(getMyPresenceInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMyPresenceInformation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMyPresenceInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -2933,12 +2939,12 @@ Request Method: PUT
 
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/mediapillar/v1.0/mediapillars/data", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getMediaPillarInfo) successfull");
-                that.logger.log("internal", LOG_ID + "(getMediaPillarInfo) REST result : ", json, " MediaPillar Info");
+                that._logger.log(that.DEBUG, LOG_ID + "(getMediaPillarInfo) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMediaPillarInfo) REST result : ", json, " MediaPillar Info");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMediaPillarInfo) error");
-                that.logger.log("internalerror", LOG_ID, "(getMediaPillarInfo) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMediaPillarInfo) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMediaPillarInfo) error : ", err);
                 return reject(err);
             });
         });
@@ -2954,7 +2960,7 @@ Request Method: PUT
                 history = "all";
             }
 
-            that.logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
+            that._logger.log(that.DEBUG, LOG_ID + "(createBubble) will call POST request.");
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), {
                         name: name,
@@ -2962,12 +2968,12 @@ Request Method: PUT
                         history: history
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(createBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(createBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -2979,12 +2985,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateRoomData) successfull");
-                that.logger.log("internal", LOG_ID + "(updateRoomData) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateRoomData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateRoomData) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateRoomData) error");
-                that.logger.log("internalerror", LOG_ID, "(updateRoomData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateRoomData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateRoomData) error : ", err);
                 return reject(err);
             });
         });
@@ -2997,12 +3003,12 @@ Request Method: PUT
                         visibility: visibility
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setBubbleVisibility) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleVisibility) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setBubbleVisibility) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleVisibility) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setBubbleVisibility) error");
-                that.logger.log("internalerror", LOG_ID, "(setBubbleVisibility) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setBubbleVisibility) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setBubbleVisibility) error : ", err);
                 return reject(err);
             });
         });
@@ -3015,12 +3021,12 @@ Request Method: PUT
                         autoRegister: autoRegister
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setBubbleAutoRegister) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleAutoRegister) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setBubbleAutoRegister) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleAutoRegister) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setBubbleAutoRegister) error");
-                that.logger.log("internalerror", LOG_ID, "(setBubbleAutoRegister) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setBubbleAutoRegister) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setBubbleAutoRegister) error : ", err);
                 return reject(err);
             });
         });
@@ -3033,12 +3039,12 @@ Request Method: PUT
                         topic: topic
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setBubbleTopic) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleTopic) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setBubbleTopic) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleTopic) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setBubbleTopic) error");
-                that.logger.log("internalerror", LOG_ID, "(setBubbleTopic) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setBubbleTopic) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setBubbleTopic) error : ", err);
                 return reject(err);
             });
         });
@@ -3051,12 +3057,12 @@ Request Method: PUT
                         name: name
                     }
                     , undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setBubbleName) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleName) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setBubbleName) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleName) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setBubbleName) error");
-                that.logger.log("internalerror", LOG_ID, "(setBubbleName) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setBubbleName) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setBubbleName) error : ", err);
                 return reject(err);
             });
         });
@@ -3069,8 +3075,8 @@ Request Method: PUT
                 that.http.get("/api/rainbow/enduser/v1.0/rooms?format=" + format + "&unsubscribed=" + unsubscribed + "&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
                     //that.http.get("/api/rainbow/enduser/v1.0/rooms?format=full&offset=" + page + "&limit=" + max + "&userId=" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
                     bubbles = bubbles.concat(json.data);
-                    that.logger.log("debug", LOG_ID + "(getBubbles) getSetOfBubbles successfull");
-                    that.logger.log("internal", LOG_ID + "(getBubbles) REST result : getSetOfBubbles retrieved " + json.data.length + " bubbles, total " + bubbles.length + ", existing " + json.total);
+                    that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) getSetOfBubbles successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getBubbles) REST result : getSetOfBubbles retrieved " + json.data.length + " bubbles, total " + bubbles.length + ", existing " + json.total);
                     resolve({bubbles: bubbles, finished: bubbles.length===json.total});
                 }).catch(function (err) {
                     return reject(err);
@@ -3083,12 +3089,12 @@ Request Method: PUT
             return new Promise((resolve, reject) => {
                 getSetOfBubbles(page, limit, bubbles).then((json: any) => {
                     if (json.finished) {
-                        that.logger.log("debug", LOG_ID + "(getAllBubbles) no need to loop again. All bubbles retrieved...");
+                        that._logger.log(that.DEBUG, LOG_ID + "(getAllBubbles) no need to loop again. All bubbles retrieved...");
                         return resolve(json.bubbles);
                     }
 
                     page += limit;
-                    that.logger.log("debug", LOG_ID + "(getAllBubbles) need another loop to get more bubbles... [" + json.bubbles.length + "]");
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllBubbles) need another loop to get more bubbles... [" + json.bubbles.length + "]");
                     getAllBubbles(page, limit, json.bubbles).then((bubbles) => {
                         resolve(bubbles);
                     }).catch((err) => {
@@ -3107,12 +3113,12 @@ Request Method: PUT
             let limit = 100;
 
             getAllBubbles(page, limit, []).then((json: any) => {
-                that.logger.log("debug", LOG_ID + "(getBubbles) getAllBubbles successfull");
-                that.logger.log("internal", LOG_ID + "(getBubbles) getAllBubbles REST result : " + json.length + " bubbles");
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) getAllBubbles successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubbles) getAllBubbles REST result : " + json.length + " bubbles");
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(getBubbles) getAllBubbles error");
-                that.logger.log("internalerror", LOG_ID, "(getBubbles) getAllBubbles error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubbles) getAllBubbles error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubbles) getAllBubbles error : ", err);
                 return reject(err);
             });
         });
@@ -3125,7 +3131,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId;//+ "?format=full&unsubscribed=true";
             if (bubbleId===undefined) {
-                that.logger.log("debug", LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             if (context!=undefined) {
@@ -3144,14 +3150,14 @@ Request Method: PUT
             }
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getBubble) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3164,7 +3170,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid;
             if (bubbleJid===undefined) {
-                that.logger.log("warn", LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
+                that._logger.log(that.WARN, LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             let urlParamsTab: string[] = [];
@@ -3180,14 +3186,14 @@ Request Method: PUT
             }
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getBubble) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getBubble) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getBubbleByJid) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubbleByJid) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubbleByJid) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubbleByJid) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubbleByJid) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubbleByJid) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubbleByJid) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubbleByJid) error : ", err);
                 return reject(err);
             });
         });
@@ -3224,14 +3230,14 @@ Request Method: PUT
             }
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllBubblesJidsOfAUserIsMemberOf) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllBubblesJidsOfAUserIsMemberOf) error : ", err);
                 return reject(err);
             });
         });
@@ -3307,14 +3313,14 @@ Request Method: PUT
             }
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllBubblesVisibleByTheUser) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllBubblesVisibleByTheUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllBubblesVisibleByTheUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllBubblesVisibleByTheUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllBubblesVisibleByTheUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllBubblesVisibleByTheUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllBubblesVisibleByTheUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllBubblesVisibleByTheUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllBubblesVisibleByTheUser) error : ", err);
                 return reject(err);
             });
         });
@@ -3380,14 +3386,14 @@ Request Method: PUT
                 "roomIds": bubblesIds,
             }
 
-            that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getBubblesDataByListOfBubblesIds) REST url : ", url);
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getBubblesDataByListOfBubblesIds) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubblesDataByListOfBubblesIds) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubblesDataByListOfBubblesIds) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblesDataByListOfBubblesIds) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubblesDataByListOfBubblesIds) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubblesDataByListOfBubblesIds) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubblesDataByListOfBubblesIds) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblesDataByListOfBubblesIds) error : ", err);
                 return reject(err);
             });
         });
@@ -3397,12 +3403,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/custom-data", that.getRequestHeader(), customData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setBubbleCustomData) successfull");
-                that.logger.log("internal", LOG_ID + "(setBubbleCustomData) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setBubbleCustomData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleCustomData) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setBubbleCustomData) error");
-                that.logger.log("internalerror", LOG_ID, "(setBubbleCustomData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setBubbleCustomData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setBubbleCustomData) error : ", err);
                 return reject(err);
             });
         });
@@ -3421,12 +3427,12 @@ Request Method: PUT
                 privilege: privilege,
                 status: status
             }, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(inviteContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(inviteContactToBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactToBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(inviteContactToBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(inviteContactToBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3443,12 +3449,12 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/invitations", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(inviteContactsByEmailsToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteContactsByEmailsToBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(inviteContactsByEmailsToBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactsByEmailsToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteContactsByEmailsToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteContactsByEmailsToBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(inviteContactsByEmailsToBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(inviteContactsByEmailsToBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3482,12 +3488,12 @@ Request Method: PUT
             }
 
             that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getRoomUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(getRoomUsers) REST result : ", json.total, " users in bubble");
+                that._logger.log(that.DEBUG, LOG_ID + "(getRoomUsers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRoomUsers) REST result : ", json.total, " users in bubble");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getRoomUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(getRoomUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getRoomUsers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRoomUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -3498,12 +3504,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let privilege = asModerator ? "moderator":"user";
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), {privilege: privilege}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(promoteContactInBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(promoteContactInBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(promoteContactInBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(promoteContactInBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(promoteContactInBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(promoteContactInBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(promoteContactInBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(promoteContactInBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3513,12 +3519,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader(), {"owner": contactId}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(changeBubbleOwner) successfull");
-                that.logger.log("internal", LOG_ID + "(changeBubbleOwner) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(changeBubbleOwner) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(changeBubbleOwner) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(changeBubbleOwner) error");
-                that.logger.log("internalerror", LOG_ID, "(changeBubbleOwner) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(changeBubbleOwner) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(changeBubbleOwner) error : ", err);
                 return reject(err);
             });
         });
@@ -3529,15 +3535,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/enduser/#api-rooms-updateRoomArchive 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(archiveBubble) bubbleId : ", bubbleId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(archiveBubble) bubbleId : ", bubbleId);
             let data = {};
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/archive", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(archiveBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(archiveBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(archiveBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(archiveBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(archiveBubble) error.");
-                that.logger.log("internalerror", LOG_ID, "(archiveBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(archiveBubble) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(archiveBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3546,27 +3552,27 @@ Request Method: PUT
     leaveBubble(bubbleId, bubbleStatus) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(leaveBubble) bubbleId : ", bubbleId, ", bubbleStatus : ", bubbleStatus);
+            that._logger.log(that.INTERNAL, LOG_ID + "(leaveBubble) bubbleId : ", bubbleId, ", bubbleStatus : ", bubbleStatus);
             switch (bubbleStatus) {
                 case "unsubscribed":
                     that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader()).then(function (json) {
-                        that.logger.log("debug", LOG_ID + "(leaveBubble) delete successfull");
-                        that.logger.log("internal", LOG_ID + "(leaveBubble) REST result : ", json.data);
+                        that._logger.log(that.DEBUG, LOG_ID + "(leaveBubble) delete successfull");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(leaveBubble) REST result : ", json.data);
                         resolve(json.data);
                     }).catch(function (err) {
-                        that.logger.log("error", LOG_ID, "(leaveBubble) error");
-                        that.logger.log("internalerror", LOG_ID, "(leaveBubble) error : ", err);
+                        that._logger.log(that.ERROR, LOG_ID, "(leaveBubble) error");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(leaveBubble) error : ", err);
                         return reject(err);
                     });
                     break;
                 default:
                     that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), {"status": "unsubscribed"}, undefined).then(function (json) {
-                        that.logger.log("debug", LOG_ID + "(leaveBubble) unsubscribed successfull");
-                        that.logger.log("internal", LOG_ID + "(leaveBubble) REST result : ", json.data);
+                        that._logger.log(that.DEBUG, LOG_ID + "(leaveBubble) unsubscribed successfull");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(leaveBubble) REST result : ", json.data);
                         resolve(json.data);
                     }).catch(function (err) {
-                        that.logger.log("error", LOG_ID, "(leaveBubble) error");
-                        that.logger.log("internalerror", LOG_ID, "(leaveBubble) error : ", err);
+                        that._logger.log(that.ERROR, LOG_ID, "(leaveBubble) error");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(leaveBubble) error : ", err);
                         return reject(err);
                     });
                     break;
@@ -3580,12 +3586,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteBubble) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteBubble) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3595,12 +3601,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(removeInvitationOfContactToBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(removeInvitationOfContactToBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(removeInvitationOfContactToBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeInvitationOfContactToBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(removeInvitationOfContactToBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(removeInvitationOfContactToBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(removeInvitationOfContactToBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(removeInvitationOfContactToBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3610,12 +3616,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + contactId, that.getRequestHeader(), {status: "unsubscribed"}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(unsubscribeContactFromBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(unsubscribeContactFromBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(unsubscribeContactFromBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unsubscribeContactFromBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unsubscribeContactFromBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(unsubscribeContactFromBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unsubscribeContactFromBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unsubscribeContactFromBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3625,12 +3631,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), {status: "accepted"}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(acceptInvitationToJoinBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(acceptInvitationToJoinBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitationToJoinBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(acceptInvitationToJoinBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(acceptInvitationToJoinBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(acceptInvitationToJoinBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(acceptInvitationToJoinBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3640,12 +3646,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), {status: "rejected"}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(declineInvitationToJoinBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(declineInvitationToJoinBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(declineInvitationToJoinBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(declineInvitationToJoinBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(declineInvitationToJoinBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(declineInvitationToJoinBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(declineInvitationToJoinBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3655,12 +3661,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/users/" + that.account.id, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteUserFromBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteUserFromBubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteUserFromBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteUserFromBubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteUserFromBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteUserFromBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteUserFromBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteUserFromBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -3680,12 +3686,12 @@ Request Method: PUT
             }
 
             that.http.post("/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/invitations", that.getRequestHeader(), user, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(inviteUser) successfull");
-                that.logger.log("internal", LOG_ID + "(inviteUser) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(inviteUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(inviteUser) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(inviteUser) error");
-                that.logger.log("internalerror", LOG_ID, "(inviteUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(inviteUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(inviteUser) error : ", err);
                 return reject(err);
             });
         });
@@ -3701,12 +3707,12 @@ Request Method: PUT
             //let buffer = Buffer.concat(bufferArray);
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms/" + bubbleid + "/avatar", that.getRequestHeader("application/json"),  Buffer.from(data), "image/" + binaryData.type).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setAvatarRoom) successfull");
-                that.logger.log("internal", LOG_ID + "(setAvatarRoom) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(setAvatarRoom) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setAvatarRoom) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setAvatarRoom) error");
-                that.logger.log("internalerror", LOG_ID, "(setAvatarRoom) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setAvatarRoom) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setAvatarRoom) error : ", err);
                 return reject(err);
             });
         });
@@ -3717,12 +3723,12 @@ Request Method: PUT
             let that = this;
 
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/avatar", that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteAvatarRoom) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAvatarRoom) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAvatarRoom) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAvatarRoom) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(deleteAvatarRoom) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAvatarRoom) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAvatarRoom) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAvatarRoom) error : ", err);
                 return reject(err);
             });
         });
@@ -3732,12 +3738,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/rooms/consumption", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getBubblesConsumption) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubblesConsumption) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubblesConsumption) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblesConsumption) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubblesConsumption) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubblesConsumption) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubblesConsumption) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblesConsumption) error : ", err);
                 return reject(err);
             });
         });
@@ -3755,12 +3761,12 @@ Request Method: PUT
                 url += "?name=" + name;
             }
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllBubblesContainers) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllBubblesContainers) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllBubblesContainers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllBubblesContainers) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllBubblesContainers) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllBubblesContainers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllBubblesContainers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllBubblesContainers) error : ", err);
                 return reject(err);
             });
         });
@@ -3776,12 +3782,12 @@ Request Method: PUT
                 url += "/" + id;
             }
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getABubblesContainersById) successfull");
-                that.logger.log("internal", LOG_ID + "(getABubblesContainersById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getABubblesContainersById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getABubblesContainersById) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getABubblesContainersById) error");
-                that.logger.log("internalerror", LOG_ID, "(getABubblesContainersById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getABubblesContainersById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getABubblesContainersById) error : ", err);
                 return reject(err);
             });
         });
@@ -3796,12 +3802,12 @@ Request Method: PUT
             };
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId + "/add", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addBubblesToContainersById) successfull");
-                that.logger.log("internal", LOG_ID + "(addBubblesToContainersById) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(addBubblesToContainersById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addBubblesToContainersById) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addBubblesToContainersById) error");
-                that.logger.log("internalerror", LOG_ID, "(addBubblesToContainersById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addBubblesToContainersById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addBubblesToContainersById) error : ", err);
                 return reject(err);
             });
         });
@@ -3820,12 +3826,12 @@ Request Method: PUT
             }
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateBubbleContainersNameAndDescriptionById) successfull");
-                that.logger.log("internal", LOG_ID + "(updateBubbleContainersNameAndDescriptionById) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateBubbleContainersNameAndDescriptionById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateBubbleContainersNameAndDescriptionById) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error");
-                that.logger.log("internalerror", LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateBubbleContainersNameAndDescriptionById) error : ", err);
                 return reject(err);
             });
         });
@@ -3848,12 +3854,12 @@ Request Method: PUT
             }
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms/containers/", that.getRequestHeader("application/json"), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createBubbleContainer) successfull");
-                that.logger.log("internal", LOG_ID + "(createBubbleContainer) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createBubbleContainer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createBubbleContainer) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createBubbleContainer) error");
-                that.logger.log("internalerror", LOG_ID, "(createBubbleContainer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createBubbleContainer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createBubbleContainer) error : ", err);
                 return reject(err);
             });
         });
@@ -3865,12 +3871,12 @@ Request Method: PUT
             let that = this;
 
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteBubbleContainer) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteBubbleContainer) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubbleContainer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteBubbleContainer) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(deleteBubbleContainer) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteBubbleContainer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteBubbleContainer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteBubbleContainer) error : ", err);
                 return reject(err);
             });
         });
@@ -3885,12 +3891,12 @@ Request Method: PUT
             };
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/containers/" + containerId + "/remove", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(removeBubblesFromContainer) successfull");
-                that.logger.log("internal", LOG_ID + "(removeBubblesFromContainer) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(removeBubblesFromContainer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeBubblesFromContainer) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(removeBubblesFromContainer) error");
-                that.logger.log("internalerror", LOG_ID, "(removeBubblesFromContainer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(removeBubblesFromContainer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(removeBubblesFromContainer) error : ", err);
                 return reject(err);
             });
         });
@@ -3906,14 +3912,14 @@ Request Method: PUT
 
         return new Promise(function(resolve, reject) {
             let data = { "customData": roomData.customData };
-            that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomData.id + "/custom-data", that.getRequestHeader("application/json"), data, undefined).then(function(json) {
-                that.logger.log("debug", LOG_ID + "(ownerUpdateRoomCustomData) successfull");
-                that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(ownerUpdateRoomCustomData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
                 resolve(json.data.customData || {});
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(ownerUpdateRoomCustomData) error");
-                that.logger.log("internalerror", LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(ownerUpdateRoomCustomData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
                 return reject(err);
             });
         });
@@ -3928,14 +3934,14 @@ Request Method: PUT
                 topic: roomData.desc,
                 visibility: roomData.type ? "public" : "private"
             };
-            that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(ownerUpdateRoomCustomData) roomData : ", roomData);
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomData.id , that.getRequestHeader("application/json"), data, undefined).then(function(json) {
-                that.logger.log("debug", LOG_ID + "(ownerUpdateRoomCustomData) successfull");
-                that.logger.log("internal", LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(ownerUpdateRoomCustomData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(ownerUpdateRoomCustomData) REST bubble Avatar sent : ", json);
                 resolve(json.data || {});
             }).catch(function(err) {
-                that.logger.log("error", LOG_ID, "(ownerUpdateRoomCustomData) error");
-                that.logger.log("internalerror", LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(ownerUpdateRoomCustomData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(ownerUpdateRoomCustomData) error : ", err);
                 return reject(err);
             });
         });
@@ -3960,12 +3966,12 @@ Request Method: PUT
             };
 
             that.http.post("/api/rainbow/filestorage/v1.0/files", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createFileDescriptor) successfull");
-                that.logger.log("debug", LOG_ID + "(createFileDescriptor) REST get Blob from Url");
+                that._logger.log(that.DEBUG, LOG_ID + "(createFileDescriptor) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(createFileDescriptor) REST get Blob from Url");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createFileDescriptor) error");
-                that.logger.log("internalerror", LOG_ID, "(createFileDescriptor) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createFileDescriptor) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createFileDescriptor) error : ", err);
                 return reject(err);
             });
         });
@@ -3975,12 +3981,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/filestorage/v1.0/files/" + fileId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteFileDescriptor) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteFileDescriptor) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteFileDescriptor) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteFileDescriptor) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(deleteFileDescriptor) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteFileDescriptor) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteFileDescriptor) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteFileDescriptor) error : ", err);
                 return reject(err);
             });
         });
@@ -4008,7 +4014,7 @@ Request Method: PUT
 
             that.http.get("/api/rainbow/filestorage/v1.0/files" + (queries.length ? "?" + queries.join("&") : ""), that.getRequestHeader(), undefined).then(function (json) {
             // */
-            that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST fileName : ", fileName);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveFileDescriptors) REST fileName : ", fileName);
 
             let url: string = "/api/rainbow/filestorage/v1.0/files";
             let urlParamsTab: string[] = [];
@@ -4041,15 +4047,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveFileDescriptors) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveFileDescriptors) successfull");
-                that.logger.log("debug", LOG_ID + "(retrieveFileDescriptors) REST get file descriptors");
-                that.logger.log("internal", LOG_ID + "(retrieveFileDescriptors) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveFileDescriptors) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveFileDescriptors) REST get file descriptors");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveFileDescriptors) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveFileDescriptors) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveFileDescriptors) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveFileDescriptors) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveFileDescriptors) error : ", err);
                 return reject(err);
             });
         });
@@ -4061,12 +4067,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/filestorage/v1.0/files/viewers/" + userId + "?ownerId=" + peerId + "&format=full", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveFilesReceivedFromPeer) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveFilesReceivedFromPeer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveFilesReceivedFromPeer) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveFilesReceivedFromPeer) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveFilesReceivedFromPeer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveFilesReceivedFromPeer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveFilesReceivedFromPeer) error : ", err);
                 return reject(err);
             });
         });
@@ -4077,7 +4083,7 @@ Request Method: PUT
         // URL GET /api/rainbow/filestorage/v1.0/files/viewers/:viewerId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST fileName : ", fileName);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST fileName : ", fileName);
 
             let url: string = "/api/rainbow/filestorage/v1.0/files/viewers/" + viewerId;
             let urlParamsTab: string[] = [];
@@ -4113,16 +4119,16 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST url : ", url);
 
             that.http.get("/api/rainbow/filestorage/v1.0/files/viewers/" + viewerId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) successfull");
-                that.logger.log("debug", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST get file descriptors");
-                that.logger.log("internal", LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST get file descriptors");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveReceivedFilesForRoomOrViewer) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveReceivedFilesForRoomOrViewer) error : ", err);
                 return reject(err);
             });
         });
@@ -4134,14 +4140,14 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/filestorage/v1.0/files/" + fileId + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) successfull");
-                that.logger.log("debug", LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors");
-                that.logger.log("internal", LOG_ID + "(retrieveOneFileDescriptor) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveOneFileDescriptor) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveOneFileDescriptor) REST get file descriptors");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveOneFileDescriptor) REST result : ", json);
                 let res = json ? json.data:{};
                 resolve(res);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveOneFileDescriptor) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveOneFileDescriptor) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveOneFileDescriptor) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveOneFileDescriptor) error : ", err);
                 return reject(err);
             });
         });
@@ -4151,13 +4157,13 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/filestorage/v1.0/users/consumption", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveUserConsumption) successfull");
-                that.logger.log("debug", LOG_ID + "(retrieveUserConsumption) REST get file descriptors");
-                that.logger.log("internal", LOG_ID + "(retrieveUserConsumption) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveUserConsumption) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveUserConsumption) REST get file descriptors");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveUserConsumption) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveUserConsumption) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveUserConsumption) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveUserConsumption) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveUserConsumption) error : ", err);
                 return reject(err);
             });
         });
@@ -4167,12 +4173,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/filestorage/v1.0/files/" + fileId + "/viewers/" + viewerId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteFileViewer) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteFileViewer) RREST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteFileViewer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteFileViewer) RREST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(deleteFileViewer) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteFileViewer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteFileViewer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteFileViewer) error : ", err);
                 return reject(err);
             });
         });
@@ -4185,12 +4191,12 @@ Request Method: PUT
                 viewerId: viewerId,
                 type: viewerType
             }, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addFileViewer) successfull");
-                that.logger.log("internal", LOG_ID + "(addFileViewer) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(addFileViewer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addFileViewer) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addFileViewer) error");
-                that.logger.log("internalerror", LOG_ID, "(addFileViewer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addFileViewer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addFileViewer) error : ", err);
                 return reject(err);
             });
         });
@@ -4201,7 +4207,7 @@ Request Method: PUT
         // API : https://api.openrainbow.org/filestorage/#api-files-files_getAllByCompanyId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getFileDescriptorsByCompanyId) REST companyId : ", companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFileDescriptorsByCompanyId) REST companyId : ", companyId);
 
             let url: string = "/api/rainbow/filestorage/v1.0/companies/" + companyId + "/files";
             let urlParamsTab: string[] = [];
@@ -4228,15 +4234,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getFileDescriptorsByCompanyId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFileDescriptorsByCompanyId) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getFileDescriptorsByCompanyId) successfull");
-                that.logger.log("internal", LOG_ID + "(getFileDescriptorsByCompanyId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getFileDescriptorsByCompanyId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFileDescriptorsByCompanyId) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getFileDescriptorsByCompanyId) error");
-                that.logger.log("internalerror", LOG_ID, "(getFileDescriptorsByCompanyId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getFileDescriptorsByCompanyId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFileDescriptorsByCompanyId) error : ", err);
                 return reject(err);
             });
         });
@@ -4249,16 +4255,16 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/filestorage/v1.0/files/" + fileId + "/copy", that.getRequestHeader(), undefined, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(copyFileInPersonalCloudSpace) successfull");
-                that.logger.log("internal", LOG_ID + "(copyFileInPersonalCloudSpace) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(copyFileInPersonalCloudSpace) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(copyFileInPersonalCloudSpace) REST result : ", json);
                 if (json && json.data) {
                     resolve(json.data);
                 } else {
                     resolve(json);
                 }
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(copyFileInPersonalCloudSpace) error");
-                that.logger.log("internalerror", LOG_ID, "(copyFileInPersonalCloudSpace) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(copyFileInPersonalCloudSpace) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(copyFileInPersonalCloudSpace) error : ", err);
                 return reject(err);
             });
         });
@@ -4274,12 +4280,12 @@ Request Method: PUT
             };
 
             that.http.put("/api/rainbow/filestorage/v1.0/files/" + fileId + "/drop", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(fileOwnershipChange) successfull");
-                that.logger.log("internal", LOG_ID + "(fileOwnershipChange) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(fileOwnershipChange) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(fileOwnershipChange) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(fileOwnershipChange) error");
-                that.logger.log("internalerror", LOG_ID, "(fileOwnershipChange) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(fileOwnershipChange) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(fileOwnershipChange) error : ", err);
                 return reject(err);
             });
         });
@@ -4293,12 +4299,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get(url, that.getRequestHeaderWithRange("application/octet-stream", "bytes=" + minRange + "-" + maxRange), undefined).then(function (data) {
-                that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) successfull");
-                that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
+                that._logger.log(that.DEBUG, LOG_ID + "(getPartialDataFromServer) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
                 resolve({"data": data, "index": index});
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getPartialDataFromServer) error");
-                that.logger.log("internalerror", LOG_ID, "(getPartialDataFromServer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getPartialDataFromServer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPartialDataFromServer) error : ", err);
                 return reject(err);
             });
         });
@@ -4310,12 +4316,12 @@ Request Method: PUT
             let header = that.getRequestHeaderWithRange("responseType: 'arraybuffer'", "bytes=" + minRange + "-" + maxRange);
             //header["responseType"] = 'arraybuffer';
             that.http.get(url, header, undefined, 'arraybuffer').then(function (data) {
-                that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) successfull");
-                that.logger.log("debug", LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
+                that._logger.log(that.DEBUG, LOG_ID + "(getPartialDataFromServer) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getPartialDataFromServer) REST get Blob from Url");
                 resolve({"data": data, "index": index});
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getPartialDataFromServer) error");
-                that.logger.log("internalerror", LOG_ID, "(getPartialDataFromServer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getPartialDataFromServer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPartialDataFromServer) error : ", err);
                 return reject(err);
             });
         });
@@ -4325,12 +4331,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get(url, that.getRequestHeader("application/octet-stream"), undefined).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(getFileFromUrl) successfull");
-                that.logger.log("debug", LOG_ID + "(getFileFromUrl) REST get Blob from Url");
+                that._logger.log(that.DEBUG, LOG_ID + "(getFileFromUrl) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getFileFromUrl) REST get Blob from Url");
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getFileFromUrl) error");
-                that.logger.log("internalerror", LOG_ID, "(getFileFromUrl) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getFileFromUrl) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFileFromUrl) error : ", err);
                 return reject(err);
             });
         });
@@ -4341,12 +4347,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             /* responseType: 'arraybuffer'// */
             that.http.get(url, that.getRequestHeader("responseType: 'arraybuffer'"), undefined).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(getBlobFromUrl) successfull");
-                that.logger.log("debug", LOG_ID + "(getBlobFromUrl) REST get Blob from Url");
+                that._logger.log(that.DEBUG, LOG_ID + "(getBlobFromUrl) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getBlobFromUrl) REST get Blob from Url");
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBlobFromUrl) error");
-                that.logger.log("internalerror", LOG_ID, "(getBlobFromUrl) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBlobFromUrl) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBlobFromUrl) error : ", err);
                 return reject(err);
             });
         });
@@ -4356,12 +4362,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/fileserver/v1.0/files/" + fileId, that.getRequestHeader("Content-Type: 'application/octet-stream'"), buffer, undefined).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(uploadAFile) successfull");
-                that.logger.log("internal", LOG_ID + "(uploadAFile) REST result : ", response);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadAFile) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(uploadAFile) REST result : ", response);
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(uploadAFile) error");
-                that.logger.log("internalerror", LOG_ID, "(uploadAFile) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(uploadAFile) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(uploadAFile) error : ", err);
                 return reject(err);
             });
         });
@@ -4373,12 +4379,12 @@ Request Method: PUT
             let headers = that.getRequestHeader();
             headers['Content-Type'] = 'application/octet-stream';
             that.http.putStream("/api/rainbow/fileserver/v1.0/files/" + fileId, headers, stream).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(uploadAStream) successfull");
-                that.logger.log("internal", LOG_ID + "(uploadAStream) REST result : ", response);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadAStream) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(uploadAStream) REST result : ", response);
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(uploadAStream) error");
-                that.logger.log("internalerror", LOG_ID, "(uploadAStream) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(uploadAStream) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(uploadAStream) error : ", err);
                 return reject(err);
             });
         });
@@ -4394,15 +4400,15 @@ Request Method: PUT
             //headers['Accept-Encoding'] = 'gzip, deflate, br' ;
             //headers['Accept-Language'] = 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7' ;
 
-            that.logger.log("debug", LOG_ID + " sendPartialDataToServer, fileId : " + fileId + ", index : " + index + " Headers : ", JSON.stringify(headers, null, "  "));
+            that._logger.log(that.DEBUG, LOG_ID + " sendPartialDataToServer, fileId : " + fileId + ", index : " + index + " Headers : ", JSON.stringify(headers, null, "  "));
 
             that.http.putBuffer("/api/rainbow/fileserver/v1.0/files/" + fileId + "/parts/" + index, headers, file).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(sendPartialDataToServer) successfull");
-                that.logger.log("internal", LOG_ID + "(sendPartialDataToServer) REST result : ", response);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendPartialDataToServer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendPartialDataToServer) REST result : ", response);
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendPartialDataToServer) error");
-                that.logger.log("internalerror", LOG_ID, "(sendPartialDataToServer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendPartialDataToServer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendPartialDataToServer) error : ", err);
                 return reject(err);
             });
         });
@@ -4415,12 +4421,12 @@ Request Method: PUT
             headers['Content-Type'] = 'application/octet-stream';
 
             that.http.putBuffer("/api/rainbow/fileserver/v1.0/files/" + fileId + "/parts/end", headers, undefined).then(function (response) {
-                that.logger.log("debug", LOG_ID + "(sendPartialFileCompletion) successfull");
-                that.logger.log("internal", LOG_ID + "(sendPartialFileCompletion) REST result : ", response);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendPartialFileCompletion) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendPartialFileCompletion) REST result : ", response);
                 resolve(response);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendPartialFileCompletion) error");
-                that.logger.log("internalerror", LOG_ID, "(sendPartialFileCompletion) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendPartialFileCompletion) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendPartialFileCompletion) error : ", err);
                 return reject(err);
             });
         });
@@ -4434,12 +4440,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getUserSettings) successfull");
-                that.logger.log("internal", LOG_ID + "(getUserSettings) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getUserSettings) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getUserSettings) REST result : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(getUserSettings) error");
-                that.logger.log("internalerror", LOG_ID, "(getUserSettings) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getUserSettings) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserSettings) error : ", err);
                 return reject(err);
             });
         });
@@ -4449,12 +4455,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), settings, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateUserSettings) successfull");
-                that.logger.log("internal", LOG_ID + "(updateUserSettings) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateUserSettings) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateUserSettings) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateUserSettings) error");
-                that.logger.log("internalerror", LOG_ID, "(updateUserSettings) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateUserSettings) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateUserSettings) error : ", err);
                 return reject(err);
             });
         });
@@ -4466,12 +4472,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/fileserver/v1.0/capabilities", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getServerCapabilities) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerCapabilities) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerCapabilities) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerCapabilities) REST result : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(getServerCapabilities) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerCapabilities) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerCapabilities) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerCapabilities) error : ", err);
                 return reject(err);
             });
         });
@@ -4494,12 +4500,12 @@ Request Method: PUT
             addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createAJoinCompanyLink) successfull");
-                that.logger.log("internal", LOG_ID + "(createAJoinCompanyLink) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createAJoinCompanyLink) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createAJoinCompanyLink) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createAJoinCompanyLink) error");
-                that.logger.log("internalerror", LOG_ID, "(createAJoinCompanyLink) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createAJoinCompanyLink) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAJoinCompanyLink) error : ", err);
                 return reject(err);
             });
         });
@@ -4510,15 +4516,15 @@ Request Method: PUT
         // URL delete /api/rainbow/admin/v1.0/companies/:companyId/join-companies/links/:joinCompanyLinkId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) companyId", companyId);
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteAJoinCompanyLink) companyId", companyId);
             let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/join-companies/links/" + joinCompanyLinkId
             that.http.delete(url, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteAJoinCompanyLink) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAJoinCompanyLink) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAJoinCompanyLink) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAJoinCompanyLink) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAJoinCompanyLink) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAJoinCompanyLink) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAJoinCompanyLink) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAJoinCompanyLink) error : ", err);
                 return reject(err);
             });
         });
@@ -4537,15 +4543,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "joinCompanyLinkId", joinCompanyLinkId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAJoinCompanyLink) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAJoinCompanyLink) successfull");
-                that.logger.log("internal", LOG_ID + "(getAJoinCompanyLink) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAJoinCompanyLink) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAJoinCompanyLink) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAJoinCompanyLink) error");
-                that.logger.log("internalerror", LOG_ID, "(getAJoinCompanyLink) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAJoinCompanyLink) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAJoinCompanyLink) error : ", err);
                 return reject(err);
             });
         });
@@ -4573,15 +4579,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyLinks) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllJoinCompanyLinks) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyLinks) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyLinks) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyLinks) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllJoinCompanyLinks) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyLinks) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllJoinCompanyLinks) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllJoinCompanyLinks) error : ", err);
                 return reject(err);
             });
         });
@@ -4602,12 +4608,12 @@ Request Method: PUT
             addPropertyToObj(data, "maxNumberUsers", maxNumberUsers, false);
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateAJoinCompanyLink) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAJoinCompanyLink) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAJoinCompanyLink) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAJoinCompanyLink) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAJoinCompanyLink) error");
-                that.logger.log("internalerror", LOG_ID, "(updateAJoinCompanyLink) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAJoinCompanyLink) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAJoinCompanyLink) error : ", err);
                 return reject(err);
             });
         });
@@ -4660,16 +4666,16 @@ Request Method: PUT
             }
 
             that.http.post('/api/rainbow/enduser/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createCompanyFromDefault) successfull");
-                that.logger.log("internal", LOG_ID + "(createCompanyFromDefault) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCompanyFromDefault) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyFromDefault) REST result : ", json);
                 if (json && json.data) {
                     resolve(json.data);
                 } else {
                     resolve(json);
                 }
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCompanyFromDefault) error");
-                that.logger.log("internalerror", LOG_ID, "(createCompanyFromDefault) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCompanyFromDefault) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCompanyFromDefault) error : ", err);
                 return reject(err);
             });
         });
@@ -4698,15 +4704,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "bpType", bpType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompaniesVisibleByUser) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllCompaniesVisibleByUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllCompaniesVisibleByUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllCompaniesVisibleByUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompaniesVisibleByUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllCompaniesVisibleByUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllCompaniesVisibleByUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllCompaniesVisibleByUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCompaniesVisibleByUser) error : ", err);
                 return reject(err);
             });
         });
@@ -4726,15 +4732,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "offset", offset);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyAdministrators) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getCompanyAdministrators) successfull");
-                that.logger.log("internal", LOG_ID + "(getCompanyAdministrators) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCompanyAdministrators) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyAdministrators) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCompanyAdministrators) error");
-                that.logger.log("internalerror", LOG_ID, "(getCompanyAdministrators) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCompanyAdministrators) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompanyAdministrators) error : ", err);
                 return reject(err);
             });
         });
@@ -4748,7 +4754,7 @@ Request Method: PUT
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(getAllCompanies) that.account.roles : ", that.account.roles);
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) that.account.roles : ", that.account.roles);
 
             let url: string = "/api/rainbow/admin/v1.0/companies";
             let urlParamsTab: string[] = [];
@@ -4776,18 +4782,18 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "bpType", bpType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllCompanies) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAllCompanies) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllCompanies) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllCompanies) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllCompanies) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllCompanies) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCompanies) error : ", err);
                 return reject(err);
             });
-            that.logger.log("debug", LOG_ID + "(getAllCompanies) after sending the request");
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) after sending the request");
         });
     }
 
@@ -4815,16 +4821,16 @@ Request Method: PUT
             }
 
             that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(createCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) REST result : ", json);
                 if (json && json.data) {
                     resolve(json.data);
                 } else {
                     resolve(json);
                 }
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(createCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCompany) error : ", err);
                 return reject(err);
             });
         });
@@ -4836,12 +4842,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(getCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompany) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(getCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompany) error : ", err);
                 return reject(err);
             });
         });
@@ -4852,14 +4858,14 @@ Request Method: PUT
         // URL delete /api/rainbow/admin/v1.0/companies/:companyId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(deleteCompany) companyId", companyId);
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) companyId", companyId);
             that.http.delete('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompany) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompany) error : ", err);
                 return reject(err);
             });
         });
@@ -4885,15 +4891,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "bpType", bpType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCompanyInfos) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getCompanyInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getCompanyInfos) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCompanyInfos) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCompanyInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getCompanyInfos) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCompanyInfos) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompanyInfos) error : ", err);
                 return reject(err);
             });
         });
@@ -4907,12 +4913,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.post('/api/rainbow/admin/v1.0/companies/' + companyId + "/visible-by/" + visibleByCompanyId, that.getRequestHeader(), undefined, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setVisibilityForCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(setVisibilityForCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(setVisibilityForCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setVisibilityForCompany) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setVisibilityForCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(setVisibilityForCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setVisibilityForCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setVisibilityForCompany) error : ", err);
                 return reject(err);
             });
         });
@@ -4931,12 +4937,12 @@ Request Method: PUT
             let data = {};
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(acceptJoinCompanyInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(acceptJoinCompanyInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(acceptJoinCompanyInvitation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(acceptJoinCompanyInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(acceptJoinCompanyInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(acceptJoinCompanyInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(acceptJoinCompanyInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -4951,12 +4957,12 @@ Request Method: PUT
             let data = {};
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(declineJoinCompanyInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(declineJoinCompanyInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(declineJoinCompanyInvitation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(declineJoinCompanyInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(declineJoinCompanyInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(declineJoinCompanyInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(declineJoinCompanyInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -4973,16 +4979,16 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyInvitation) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getJoinCompanyInvitation) successfull");
-                that.logger.log("internal", LOG_ID + "(getJoinCompanyInvitation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyInvitation) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getJoinCompanyInvitation) error");
-                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyInvitation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getJoinCompanyInvitation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getJoinCompanyInvitation) error : ", err);
                 return reject(err);
             });
         });
@@ -5004,16 +5010,16 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyInvitations) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getAllJoinCompanyInvitations) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyInvitations) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyInvitations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyInvitations) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllJoinCompanyInvitations) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyInvitations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllJoinCompanyInvitations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllJoinCompanyInvitations) error : ", err);
                 return reject(err);
             });
         });
@@ -5032,12 +5038,12 @@ Request Method: PUT
             let data = {};
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(cancelJoinCompanyRequest) successfull");
-                that.logger.log("internal", LOG_ID + "(cancelJoinCompanyRequest) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(cancelJoinCompanyRequest) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(cancelJoinCompanyRequest) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(cancelJoinCompanyRequest) error");
-                that.logger.log("internalerror", LOG_ID, "(cancelJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(cancelJoinCompanyRequest) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(cancelJoinCompanyRequest) error : ", err);
                 return reject(err);
             });
         });
@@ -5054,16 +5060,16 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyRequest) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getJoinCompanyRequest) successfull");
-                that.logger.log("internal", LOG_ID + "(getJoinCompanyRequest) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyRequest) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getJoinCompanyRequest) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getJoinCompanyRequest) error");
-                that.logger.log("internalerror", LOG_ID, "(getJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getJoinCompanyRequest) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getJoinCompanyRequest) error : ", err);
                 return reject(err);
             });
         });
@@ -5085,16 +5091,16 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyRequests) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getAllJoinCompanyRequests) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllJoinCompanyRequests) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyRequests) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllJoinCompanyRequests) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllJoinCompanyRequests) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllJoinCompanyRequests) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllJoinCompanyRequests) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllJoinCompanyRequests) error : ", err);
                 return reject(err);
             });
         });
@@ -5109,12 +5115,12 @@ Request Method: PUT
             let data = {};
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(resendJoinCompanyRequest) successfull");
-                that.logger.log("internal", LOG_ID + "(resendJoinCompanyRequest) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(resendJoinCompanyRequest) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(resendJoinCompanyRequest) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(resendJoinCompanyRequest) error");
-                that.logger.log("internalerror", LOG_ID, "(resendJoinCompanyRequest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(resendJoinCompanyRequest) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(resendJoinCompanyRequest) error : ", err);
                 return reject(err);
             });
         });
@@ -5133,12 +5139,12 @@ Request Method: PUT
             addPropertyToObj(data, "lang", lang, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(requestToJoinCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(requestToJoinCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(requestToJoinCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(requestToJoinCompany) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(requestToJoinCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(requestToJoinCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(requestToJoinCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(requestToJoinCompany) error : ", err);
                 return reject(err);
             });
         });
@@ -5162,12 +5168,12 @@ Request Method: PUT
             };
 
             that.http.post("/api/rainbow/admin/v1.0/customisations/templates/apply", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(applyTemplates) successfull.");
-                that.logger.log("internal", LOG_ID + "(applyTemplates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(applyTemplates) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(applyTemplates) error");
-                that.logger.log("internalerror", LOG_ID, "(applyTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(applyTemplates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(applyTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -5215,12 +5221,12 @@ Request Method: PUT
             };
 
             that.http.post("/api/rainbow/admin/v1.0/customisations/templates", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(applyTemplates) successfull.");
-                that.logger.log("internal", LOG_ID + "(applyTemplates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(applyTemplates) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(applyTemplates) error");
-                that.logger.log("internalerror", LOG_ID, "(applyTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(applyTemplates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(applyTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -5231,14 +5237,14 @@ Request Method: PUT
         // URL delete /api/rainbow/admin/v1.0/customisations/templates/:templateId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) templateId", templateId);
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomisationTemplate) templateId", templateId);
             that.http.delete('/api/rainbow/admin/v1.0/customisations/templates/' + templateId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomisationTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomisationTemplate) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteCustomisationTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteCustomisationTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCustomisationTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCustomisationTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -5260,16 +5266,16 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getAllAvailableCustomisationTemplates) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllAvailableCustomisationTemplates) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllAvailableCustomisationTemplates) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllAvailableCustomisationTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllAvailableCustomisationTemplates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllAvailableCustomisationTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -5286,16 +5292,16 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
 
-                that.logger.log("debug", LOG_ID + "(getRequestedCustomisationTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getRequestedCustomisationTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getRequestedCustomisationTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(getRequestedCustomisationTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getRequestedCustomisationTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRequestedCustomisationTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -5340,12 +5346,12 @@ Request Method: PUT
             };
 
             that.http.put("/api/rainbow/admin/v1.0/customisations/templates/" + templateId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateCustomisationTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(updateCustomisationTemplate) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCustomisationTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCustomisationTemplate) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateCustomisationTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(updateCustomisationTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateCustomisationTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCustomisationTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -5383,12 +5389,12 @@ Request Method: PUT
             }
 
             that.http.post("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), channel, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createPublicChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(createPublicChannel) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createPublicChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createPublicChannel) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createPublicChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(createPublicChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createPublicChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPublicChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5400,16 +5406,16 @@ Request Method: PUT
 
          return new Promise(function(resolve, reject) {
 
-             that.logger.log("debug", LOG_ID + "(getChannel) _entering_");
+             that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _entering_");
 
              that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader()).then(function(json) {
-                 that.logger.log("debug", LOG_ID + "(getChannel) successfull");
-                 that.logger.log("internal", LOG_ID + "(getChannel) REST read channelId : ", json.data);
-                 that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
+                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) successfull");
+                 that._logger.log(that.INTERNAL, LOG_ID + "(getChannel) REST read channelId : ", json.data);
+                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _exiting_");
                  resolve(json.data);
              }).catch(function(err) {
-                 that.logger.log("error", LOG_ID, "(getChannel) error : ", err);
-                 that.logger.log("debug", LOG_ID + "(getChannel) _exiting_");
+                 that._logger.log(that.ERROR, LOG_ID, "(getChannel) error : ", err);
+                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _exiting_");
                  reject(err);
              });
          });
@@ -5420,12 +5426,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteChannel) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteChannel) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5461,12 +5467,12 @@ Request Method: PUT
         }
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels/search" + query, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(findChannels) successfull");
-                that.logger.log("internal", LOG_ID + "(findChannels) REST result : ", json.total);
+                that._logger.log(that.DEBUG, LOG_ID + "(findChannels) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(findChannels) REST result : ", json.total);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(findChannels) error");
-                that.logger.log("internalerror", LOG_ID, "(findChannels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(findChannels) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(findChannels) error : ", err);
                 return reject(err);
             });
         });
@@ -5477,12 +5483,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(fetchMyChannels) successfull");
-                that.logger.log("internal", LOG_ID + "(fetchMyChannels) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(fetchMyChannels) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(fetchMyChannels) error");
-                that.logger.log("internalerror", LOG_ID, "(fetchMyChannels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(fetchMyChannels) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(fetchMyChannels) error : ", err);
                 return reject(err);
             });
         });
@@ -5492,12 +5498,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels/" + id, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(getChannel) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getChannel) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(getChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5520,12 +5526,12 @@ Request Method: PUT
             }
 
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(publishMessage) successfull");
-                that.logger.log("internal", LOG_ID + "(publishMessage) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(publishMessage) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(publishMessage) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(publishMessage) error");
-                that.logger.log("internalerror", LOG_ID, "(publishMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(publishMessage) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(publishMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -5553,13 +5559,13 @@ Request Method: PUT
                 before: beforeDate,
                 after: afterDate
             }).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getLatestMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(getLatestMessages) REST result : " + JSON.stringify(json) + " latestMessages");
+                that._logger.log(that.DEBUG, LOG_ID + "(getLatestMessages) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getLatestMessages) REST result : " + JSON.stringify(json) + " latestMessages");
                 that.chewReceivedItems(json.data.items);
                 resolve(json.data.items);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getLatestMessages) error");
-                that.logger.log("internalerror", LOG_ID, "(getLatestMessages) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getLatestMessages) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getLatestMessages) error : ", err);
                 return reject(err);
             });
         });
@@ -5570,12 +5576,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(subscribeToChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(subscribeToChannel) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(subscribeToChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeToChannel) REST result : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(subscribeToChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(subscribeToChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(subscribeToChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeToChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5586,12 +5592,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(unsubscribeToChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(unsubscribeToChannel) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(unsubscribeToChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unsubscribeToChannel) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unsubscribeToChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(unsubscribeToChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unsubscribeToChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unsubscribeToChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5640,12 +5646,12 @@ Request Method: PUT
         }
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(updateChannel) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannel) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(updateChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5658,8 +5664,8 @@ Request Method: PUT
             //  .then((resizedImage) => {
             //var binaryData = this.roomService.getBinaryData(resizedImage);
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader(), avatar, fileType).then((response: any) => {
-                that.logger.log("debug", LOG_ID + "(uploadChannelAvatar) successfull channelId : ", channelId);
-                that.logger.log("internal", LOG_ID + "(uploadChannelAvatar) REST result : ", response);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadChannelAvatar) successfull channelId : ", channelId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(uploadChannelAvatar) REST result : ", response);
                 resolve(response);
             })
                     .catch((err) => {
@@ -5674,8 +5680,8 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader("image/jpeg"))
                     .then((response: any) => {
-                        that.logger.log("debug", LOG_ID + "(deleteChannelAvatar) successfull channelId : ", channelId);
-                        that.logger.log("internal", LOG_ID + "(deleteChannelAvatar) REST result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteChannelAvatar) successfull channelId : ", channelId);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(deleteChannelAvatar) REST result : ", response);
                         resolve(response);
                     })
                     .catch((err) => {
@@ -5709,12 +5715,12 @@ Request Method: PUT
             }
 
             that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getChannelUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(getChannelUsers) REST result : ", json.total, " users in channel");
+                that._logger.log(that.DEBUG, LOG_ID + "(getChannelUsers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getChannelUsers) REST result : ", json.total, " users in channel");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getChannelUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(getChannelUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getChannelUsers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannelUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -5725,12 +5731,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAllUsersFromChannel) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAllUsersFromChannel) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllUsersFromChannel) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAllUsersFromChannel) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAllUsersFromChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAllUsersFromChannel) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAllUsersFromChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -5741,12 +5747,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader(), {"data": users}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateChannelUsers) successfull");
-                that.logger.log("internal", LOG_ID + "(updateChannelUsers) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateChannelUsers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateChannelUsers) error");
-                that.logger.log("internalerror", LOG_ID, "(updateChannelUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateChannelUsers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateChannelUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -5764,12 +5770,12 @@ Request Method: PUT
                 params.after = afterDate;
             }
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), params, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getChannelMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(getChannelMessages) REST result : ", json.data.items.length);
+                that._logger.log(that.DEBUG, LOG_ID + "(getChannelMessages) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getChannelMessages) REST result : ", json.data.items.length);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getChannelMessages) error");
-                that.logger.log("internalerror", LOG_ID, "(getChannelMessages) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getChannelMessages) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannelMessages) error : ", err);
                 return reject(err);
             });
         });
@@ -5780,12 +5786,12 @@ Request Method: PUT
         let data = {"appreciation": appreciation};
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/like", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(likeItem) successfull");
-                that.logger.log("internal", LOG_ID + "(likeItem) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(likeItem) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(likeItem) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(likeItem) error");
-                that.logger.log("internalerror", LOG_ID, "(likeItem) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(likeItem) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(likeItem) error : ", err);
                 return reject(err);
             });
         });
@@ -5795,12 +5801,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/likes", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getDetailedAppreciations) successfull");
-                that.logger.log("internal", LOG_ID + "(getDetailedAppreciations) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDetailedAppreciations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDetailedAppreciations) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDetailedAppreciations) error");
-                that.logger.log("internalerror", LOG_ID, "(getDetailedAppreciations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDetailedAppreciations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDetailedAppreciations) error : ", err);
                 return reject(err);
             });
         });
@@ -5814,12 +5820,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- success");
                         resolve(itemId);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -5834,12 +5840,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerProfiles) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerProfiles) REST result : ", json, " profiles");
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerProfiles) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfiles) REST result : ", json, " profiles");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerProfiles) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerProfiles) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerProfiles) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerProfiles) error : ", err);
                 return reject(err);
             });
         });
@@ -5850,12 +5856,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerProfilesFeatures) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerProfilesFeatures) REST result : " + JSON.stringify(json) + " profiles features");
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerProfilesFeatures) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfilesFeatures) REST result : " + JSON.stringify(json) + " profiles features");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerProfilesFeatures) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerProfilesFeatures) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerProfilesFeatures) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerProfilesFeatures) error : ", err);
                 return reject(err);
             });
         });
@@ -5865,12 +5871,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/authentication/v1.0/oauth/tokens?format=medium", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getThirdPartyApps) successfull");
-                that.logger.log("internal", LOG_ID + "(getThirdPartyApps) REST result : ", json, " ThirdPartyApps.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getThirdPartyApps) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getThirdPartyApps) REST result : ", json, " ThirdPartyApps.");
                 resolve((json && json.data) ? json.data:[]);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getThirdPartyApps) error");
-                that.logger.log("internalerror", LOG_ID, "(getThirdPartyApps) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getThirdPartyApps) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getThirdPartyApps) error : ", err);
                 return reject(err);
             });
         });
@@ -5880,11 +5886,11 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/authentication/v1.0/oauth/tokens/" + tokenId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(revokeThirdPartyAccess) (" + tokenId + ") -- success");
+                that._logger.log(that.DEBUG, LOG_ID + "(revokeThirdPartyAccess) (" + tokenId + ") -- success");
                 resolve((json && json.data) ? json.data:[]);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ");
-                that.logger.log("internalerror", LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ", err.message);
+                that._logger.log(that.ERROR, LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ", err.message);
                 return reject(err);
             });
         });
@@ -6003,12 +6009,12 @@ Request Method: PUT
             };
 
             that.http.getUrlJson("https://api.npms.io/v2/search?q=" + packageName, headers, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
-                that.logger.log("internal", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error");
-                that.logger.log("internalerror", LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRainbowNodeSdkPackagePublishedInfos) error : ", err);
                 return reject(err);
             });
         });
@@ -6062,7 +6068,7 @@ Request Method: PUT
         // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST userId : ", userId);
 
             let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
             let urlParamsTab: string[] = [];
@@ -6072,15 +6078,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "webinar", webinar);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) successfull");
-                that.logger.log("internal", LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error");
-                that.logger.log("internalerror", LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTheNumberOfHitsOfASubstringInAllUsersconversations) error : ", err);
                 return reject(err);
             });
         });
@@ -6089,7 +6095,7 @@ Request Method: PUT
     getServerConversations(format: string = "small", maxCount: number = undefined, lastUpdateDate: string = undefined, limit: number = 1000, offset: number = 0, before: number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getServerConversations) REST format : ", format);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getServerConversations) REST format : ", format);
 
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations?format=" + format;
             let urlParamsTab: string[] = [];
@@ -6101,14 +6107,14 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "before", before);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getServerConversations) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getServerConversations) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getServerConversations) successfull");
-                that.logger.log("internal", LOG_ID + "(getServerConversations) REST result : " + JSON.stringify(json) + " conversations");
+                that._logger.log(that.DEBUG, LOG_ID + "(getServerConversations) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getServerConversations) REST result : " + JSON.stringify(json) + " conversations");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getServerConversations) error");
-                that.logger.log("internalerror", LOG_ID, "(getServerConversations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getServerConversations) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerConversations) error : ", err);
                 return reject(err);
             });
         });
@@ -6118,12 +6124,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations", that.getRequestHeader(), conversation, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createServerConversation) successfull");
-                that.logger.log("debug", LOG_ID + "(createServerConversation) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createServerConversation) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(createServerConversation) REST result : ", json.data);
                 resolve(json.data);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(createServerConversation) error");
-                that.logger.log("internalerror", LOG_ID, "(createServerConversation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createServerConversation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createServerConversation) error : ", err);
                 return reject(err);
             });
         });
@@ -6133,12 +6139,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteServerConversation) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteServerConversation) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteServerConversation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteServerConversation) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteServerConversation) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteServerConversation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteServerConversation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteServerConversation) error : ", err);
                 return reject(err);
             });
         });
@@ -6149,12 +6155,12 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId, that.getRequestHeader(), {"mute": mute}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateServerConversation) successfull");
-                that.logger.log("internal", LOG_ID + "(updateServerConversation) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateServerConversation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateServerConversation) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateServerConversation) error");
-                that.logger.log("internalerror", LOG_ID, "(updateServerConversation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateServerConversation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateServerConversation) error : ", err);
                 return reject(err);
             });
         });
@@ -6174,12 +6180,12 @@ Request Method: PUT
             }
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/downloads", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(sendConversationByEmail) successfull");
-                that.logger.log("internal", LOG_ID + "(sendConversationByEmail) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendConversationByEmail) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendConversationByEmail) REST result : ", json);
                 resolve(json.data);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(sendConversationByEmail) error");
-                that.logger.log("internalerror", LOG_ID, "(sendConversationByEmail) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendConversationByEmail) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendConversationByEmail) error : ", err);
                 return reject(err);
             });
         });
@@ -6193,12 +6199,12 @@ Request Method: PUT
             data.maskRead = maskRead;
 
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/conversations/" + conversationId + "/markallread", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(ackAllMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(ackAllMessages) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(ackAllMessages) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(ackAllMessages) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(ackAllMessages) error");
-                that.logger.log("internalerror", LOG_ID, "(ackAllMessages) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(ackAllMessages) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(ackAllMessages) error : ", err);
                 return reject(err);
             });
         });
@@ -6217,12 +6223,12 @@ Request Method: PUT
             }
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateConversationBookmark) successfull");
-                that.logger.log("internal", LOG_ID + "(updateConversationBookmark) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateConversationBookmark) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateConversationBookmark) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(updateConversationBookmark) error");
-                that.logger.log("internalerror", LOG_ID, "(updateConversationBookmark) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateConversationBookmark) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateConversationBookmark) error : ", err);
                 return reject(err);
             });
         });
@@ -6236,15 +6242,15 @@ Request Method: PUT
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/" + conversationId + "/bookmark";
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteConversationBookmark) REST ");
 
             that.http.delete(url, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteConversationBookmark) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteConversationBookmark) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteConversationBookmark) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteConversationBookmark) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteConversationBookmark) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteConversationBookmark) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteConversationBookmark) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteConversationBookmark) error : ", err);
                 return reject(err);
             });
         });
@@ -6260,7 +6266,7 @@ Request Method: PUT
         // GET /api/rainbow/enduser/v1.0/countries
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("internal", LOG_ID + "(getListOfCountries) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) ");
 
             let url: string = "/api/rainbow/enduser/v1.0/countries";
             let urlParamsTab: string[] = [];
@@ -6268,14 +6274,14 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "maxCount", maxCount);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListOfCountries) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) REST url : ", url);
             that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getListOfCountries) successfull");
-                that.logger.log("internal", LOG_ID + "(getListOfCountries) REST result : ", JSON.stringify(json));
+                that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountries) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) REST result : ", JSON.stringify(json));
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListOfCountries) error");
-                that.logger.log("internalerror", LOG_ID, "(getListOfCountries) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListOfCountries) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfCountries) error : ", err);
                 return reject(err);
             });
         });
@@ -6291,7 +6297,7 @@ Request Method: PUT
             that.http.get(url, that.getRequestHeader(), undefined).then(function (JSON) {
                 resolve(JSON);
             }).catch(function (err) {
-                that.logger.log("internalerror", LOG_ID + "(get) CATCH Error !!! : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(get) CATCH Error !!! : ", err);
                 return reject(err);
             });
         });
@@ -6304,7 +6310,7 @@ Request Method: PUT
             that.http.post(url, that.getRequestHeader(), data, contentType).then(function (JSON) {
                 resolve(JSON);
             }).catch(function (err) {
-                that.logger.log("internalerror", LOG_ID + "(post) CATCH Error !!! : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(post) CATCH Error !!! : ", err);
                 return reject(err);
             });
         });
@@ -6317,7 +6323,7 @@ Request Method: PUT
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (JSON) {
                 resolve(JSON);
             }).catch(function (err) {
-                that.logger.log("internalerror", LOG_ID + "(put) CATCH Error !!! : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(put) CATCH Error !!! : ", err);
                 return reject(err);
             });
         });
@@ -6330,7 +6336,7 @@ Request Method: PUT
             that.http.delete(url, that.getRequestHeader()).then(function (JSON) {
                 resolve(JSON);
             }).catch(function (err) {
-                that.logger.log("internalerror", LOG_ID + "(delete) CATCH Error !!! : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(delete) CATCH Error !!! : ", err);
                 return reject(err);
             });
         });
@@ -6342,57 +6348,57 @@ Request Method: PUT
 
     async checkEveryPortals() {
         let that = this;
-        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
 
         if (this._isOfficialRainbow) {
             let authenticationAbout = that.http.get("/api/rainbow/authentication/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("info", LOG_ID + "(checkEveryPortals) authentication about : ", portalAbout);
+                that._logger.log(that.INFO, LOG_ID + "(checkEveryPortals) authentication about : ", portalAbout);
             });
             let enduserAbout = that.http.get("/api/rainbow/enduser/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("info", LOG_ID + "(checkEveryPortals) enduser about : ", portalAbout);
+                that._logger.log(that.INFO, LOG_ID + "(checkEveryPortals) enduser about : ", portalAbout);
             });
             let telephonyAbout = that.http.get("/api/rainbow/telephony/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) telephony about : ", portalAbout);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) telephony about : ", portalAbout);
             });
             let adminAbout = that.http.get("/api/rainbow/admin/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("info", LOG_ID + "(checkEveryPortals) admin about : ", portalAbout);
+                that._logger.log(that.INFO, LOG_ID + "(checkEveryPortals) admin about : ", portalAbout);
             });
             let channelsAbout = that.http.get("/api/rainbow/channels/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) channels about : ", portalAbout);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) channels about : ", portalAbout);
             });
             let applicationsAbout = that.http.get("/api/rainbow/applications/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
-                that.logger.log("debug", LOG_ID + "(checkEveryPortals) applications about : ", portalAbout);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) applications about : ", portalAbout);
             });
 
             return Promise.all([authenticationAbout, enduserAbout, telephonyAbout, adminAbout, channelsAbout, applicationsAbout]);
         } else {
-            that.logger.log("info", LOG_ID + "(checkEveryPortals)", that.http._host, " NOT IN RAINBOW PRODUCTION so do not test every application's about status ");
+            that._logger.log(that.INFO, LOG_ID + "(checkEveryPortals)", that.http._host, " NOT IN RAINBOW PRODUCTION so do not test every application's about status ");
             return Promise.resolve({'status': "OK"});
         }
     }
 
     checkPortalHealth(currentAttempt) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(checkPortalHealth) will get the ping to test connection for the currentAttempt : ", currentAttempt);
+        that._logger.log(that.DEBUG, LOG_ID + "(checkPortalHealth) will get the ping to test connection for the currentAttempt : ", currentAttempt);
         return new Promise(function (resolve, reject) {
             // dev-code //
             //return reject({"error" : "force to failed checkPortalHealth for tests, currentAttempt : " + currentAttempt });
             // end-dev-code //
 
             that.http.get("/api/rainbow/ping", that.getRequestHeader(), undefined).then(function (JSON) {
-                that.logger.log("info", LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
+                that._logger.log(that.INFO, LOG_ID + "(checkPortalHealth) Wait a few time (10 seconds ) before check every portals, because somes of it respond before being xmpp ready for currentAttempt : ", currentAttempt);
                 that.timeOutManager.setTimeout(() => {
                     that.checkEveryPortals().then(() => {
-                        that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection succeeded for currentAttempt : ", currentAttempt);
+                        that._logger.log(that.INFO, LOG_ID + "(checkPortalHealth) Connection succeeded for currentAttempt : ", currentAttempt);
                         resolve(JSON);
                     }).catch((err) => {
-                        that.logger.log("info", LOG_ID + "(checkPortalHealth) Connection failed! for currentAttempt : ", currentAttempt);
+                        that._logger.log(that.INFO, LOG_ID + "(checkPortalHealth) Connection failed! for currentAttempt : ", currentAttempt);
                         return reject(err);
                     });
                 }, 1000 * 10, "checkPortalHealth");
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID + "(checkPortalHealth) ErrorManager for currentAttempt : ", currentAttempt);
-                that.logger.log("internalerror", LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(checkPortalHealth) ErrorManager for currentAttempt : ", currentAttempt);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(checkPortalHealth) ErrorManager : ", err);
                 return reject(err);
             });
         });
@@ -6400,17 +6406,17 @@ Request Method: PUT
 
     async checkRESTAuthentication(): Promise<boolean> {
         let that = this;
-        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
         let authStatus = false;
 
         try {
             let authenticationValidator = await that.http.get("/api/rainbow/authentication/v1.0/validator", that.getRequestHeader(), undefined);
-            that.logger.log("debug", LOG_ID + "(checkRESTAuthentication) REST authentication authenticationValidator : ", authenticationValidator);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST authentication authenticationValidator : ", authenticationValidator);
             if (authenticationValidator.status==="OK") {
                 authStatus = true;
             }
         } catch (err) {
-            that.logger.log("debug", LOG_ID + "(checkRESTAuthentication) REST authentication check authenticationValidator failed : ", err);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST authentication check authenticationValidator failed : ", err);
             authStatus = false;
         }
 
@@ -6420,41 +6426,41 @@ Request Method: PUT
     attemptToReconnect(reconnectDelay, currentAttempt) {
         let that = this;
         if (!that.reconnectInProgress) {
-            that.logger.log("info", LOG_ID + "(attemptToReconnect) set reconnectInProgress for the currentAttempt : ", currentAttempt);
+            that._logger.log(that.INFO, LOG_ID + "(attemptToReconnect) set reconnectInProgress for the currentAttempt : ", currentAttempt);
             that.reconnectInProgress = true;
-            that.logger.log("info", LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + " ms, this.currentAttempt : ", currentAttempt);
+            that._logger.log(that.INFO, LOG_ID + "(attemptToReconnect) Next attempt in " + that.reconnectDelay + " ms, this.currentAttempt : ", currentAttempt);
             that.timeOutManager.setTimeout(() => {
                 that.checkPortalHealth(currentAttempt).then(() => {
-                    //that.logger.log("debug", LOG_ID + "(attemptToReconnect) Attempt succeeded!");
-                    that.logger.log("info", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after succeeded for the currentAttempt : ", currentAttempt);
+                    //that._logger.log(that.DEBUG, LOG_ID + "(attemptToReconnect) Attempt succeeded!");
+                    that._logger.log(that.INFO, LOG_ID + "(attemptToReconnect) reset reconnectInProgress after succeeded for the currentAttempt : ", currentAttempt);
                     that.reconnectInProgress = false;
                     that.eventEmitter.emit("attempt_succeeded");
                 }).catch((err) => {
-                    that.logger.log("info", LOG_ID + "(attemptToReconnect) Attempt failed! send attempt_failed for the currentAttempt : ", currentAttempt);
-                    that.logger.log("info", LOG_ID + "(attemptToReconnect) reset reconnectInProgress after failed for the currentAttempt : ", currentAttempt);
+                    that._logger.log(that.INFO, LOG_ID + "(attemptToReconnect) Attempt failed! send attempt_failed for the currentAttempt : ", currentAttempt);
+                    that._logger.log(that.INFO, LOG_ID + "(attemptToReconnect) reset reconnectInProgress after failed for the currentAttempt : ", currentAttempt);
                     that.reconnectInProgress = false;
                     that.eventEmitter.emit("attempt_failed");
                 });
             }, reconnectDelay, "attemptToReconnect");
         } else {
-            that.logger.log("debug", LOG_ID + "(attemptToReconnect) reconnect in progress, so ignore this call for this.currentAttempt : ", currentAttempt);
+            that._logger.log(that.DEBUG, LOG_ID + "(attemptToReconnect) reconnect in progress, so ignore this call for this.currentAttempt : ", currentAttempt);
         }
     }
 
     get_attempt_succeeded_callback(resolve?) {
         let that = this;
-        //that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_succeeded_callback");
+        //that._logger.log(that.DEBUG, LOG_ID + "(reconnect) get_attempt_succeeded_callback");
         that.attempt_promise_resolver.resolve = resolve;
         if (!that.attempt_succeeded_callback) {
-            that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_succeeded_callback create the singleton of attempt_succeeded_callback method");
+            that._logger.log(that.DEBUG, LOG_ID + "(reconnect) get_attempt_succeeded_callback create the singleton of attempt_succeeded_callback method");
             that.attempt_succeeded_callback = function fn_attempt_succeeded_callback() { // attempt_succeeded_callback
-                that.logger.log("info", LOG_ID + "(reconnect) attempt_succeeded_callback reconnection attempt successfull!");
+                that._logger.log(that.INFO, LOG_ID + "(reconnect) attempt_succeeded_callback reconnection attempt successfull!");
                 that.fibonacciStrategy.reset();
                 //that.reconnect.delay = that.fibonacciStrategy.getInitialDelay();
                 if (that.attempt_promise_resolver.resolve) {
                     that.attempt_promise_resolver.resolve(undefined);
                 } else {
-                    that.logger.log("error", LOG_ID + "(reconnect) attempt_succeeded_callback resolve is not define !");
+                    that._logger.log(that.ERROR, LOG_ID + "(reconnect) attempt_succeeded_callback resolve is not define !");
                 }
             };
         }
@@ -6464,28 +6470,28 @@ Request Method: PUT
     get_attempt_failed_callback(reject?) {
         let that = this;
         that.attempt_promise_resolver.reject = reject;
-        that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback called.");
+        that._logger.log(that.DEBUG, LOG_ID + "(reconnect) get_attempt_failed_callback called.");
         if (!that.attempt_failed_callback) {
-            that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback create the singleton of attempt_failed_callback method");
+            that._logger.log(that.DEBUG, LOG_ID + "(reconnect) get_attempt_failed_callback create the singleton of attempt_failed_callback method");
             that.attempt_failed_callback = function fn_attempt_failed_callback() { // attempt_failed_callback
                 //that.attempt_failed_callback = async () => { // attempt_failed_callback
-                that.logger.log("info", LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " has failed!");
+                that._logger.log(that.INFO, LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " has failed!");
                 that.currentAttempt++;
                 if (that.currentAttempt < that.maxAttemptToReconnect) {
                     that.reconnectDelay = that.fibonacciStrategy.next();
                     //await that.attemptToReconnect(that.reconnectDelay);
-                    that.logger.log("debug", LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " will call attemptToReconnect.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(reconnect) fn_attempt_failed_callback attempt #" + that.currentAttempt + " will call attemptToReconnect.");
                     that.attemptToReconnect(that.reconnectDelay, that.currentAttempt);
                 } else {
                     if (that.attempt_promise_resolver.reject) {
                         that.attempt_promise_resolver.reject();
                     } else {
-                        that.logger.log("error", LOG_ID + "(reconnect) fn_attempt_failed_callback reject is not define !");
+                        that._logger.log(that.ERROR, LOG_ID + "(reconnect) fn_attempt_failed_callback reject is not define !");
                     }
                 }
             };
         } else {
-            that.logger.log("debug", LOG_ID + "(reconnect) get_attempt_failed_callback that.attempt_failed_callback method already defined, so return it.");
+            that._logger.log(that.DEBUG, LOG_ID + "(reconnect) get_attempt_failed_callback that.attempt_failed_callback method already defined, so return it.");
         }
         return that.attempt_failed_callback;
     }
@@ -6516,15 +6522,15 @@ Request Method: PUT
 
     async listConnectionsS2S(): Promise<any> {
         let that = this;
-        //that.logger.log("internal", LOG_ID + "(listConnectionsS2S) S2S");
+        //that._logger.log(that.INTERNAL, LOG_ID + "(listConnectionsS2S) S2S");
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(listConnectionsS2S) successfull");
-                that.logger.log("internal", LOG_ID + "(listConnectionsS2S) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(listConnectionsS2S) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(listConnectionsS2S) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(listConnectionsS2S) error");
-                that.logger.log("internalerror", LOG_ID, "(listConnectionsS2S) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(listConnectionsS2S) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(listConnectionsS2S) error : ", err);
                 return reject(err);
             });
         });
@@ -6532,24 +6538,24 @@ Request Method: PUT
 
     async sendS2SPresence(obj): Promise<any> {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
+        that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
         return new Promise(function (resolve, reject) {
 
             let data = obj ? {presence: {show: obj.show, status: obj.status}}:{presence: {show: "", status: ""}};
             if (!that.connectionS2SInfo || !that.connectionS2SInfo.id) {
-                that.logger.log("error", LOG_ID, "(sendS2SPresence) error");
-                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error connectionS2SInfo.id is not defined.");
+                that._logger.log(that.ERROR, LOG_ID, "(sendS2SPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SPresence) error connectionS2SInfo.id is not defined.");
                 return reject({code: -1, label: "connectionS2SInfo.id is not defined!!!"});
             }
 
             that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/presences", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(sendS2SPresence) successfull.");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SPresence) successfull.");
                 json = json ? json:{};
-                that.logger.log("internal", LOG_ID + "(sendS2SPresence) REST result : ", json.data);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendS2SPresence) error.");
-                that.logger.log("internalerror", LOG_ID, "(sendS2SPresence) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendS2SPresence) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SPresence) error : ", err);
                 return reject(err);
             });
         });
@@ -6567,24 +6573,24 @@ Request Method: PUT
 
     async deleteConnectionsS2S(connexions): Promise<any> {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
-        that.logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
+        that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
+        that._logger.log(that.INFO, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
         const requests = [];
         connexions.forEach(cnx => requests.push(
                 that.http.delete("/api/rainbow/ucs/v1.0/connections/" + cnx.id, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteConnectionsS2S) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteConnectionsS2S) REST result : ", json.data);
                     return json.data;
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteConnectionsS2S) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteConnectionsS2S) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteConnectionsS2S) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteConnectionsS2S) error : ", err);
                     return err;
                 })
                 )
         );
         return Promise.all(connexions)
                 .then(response => {
-                    that.logger.log("debug", LOG_ID + "(deleteConnectionsS2S) all successfull");
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) all successfull");
                     //console.log("it worked");
                     //console.log( response.data )
                     //connectionInfo = response.data.data
@@ -6596,17 +6602,17 @@ Request Method: PUT
     async loginS2S(callback_url): Promise<any> {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url}};
-        that.logger.log("debug", LOG_ID + "(loginS2S)  will login  S2S.");
-        that.logger.log("internal", LOG_ID + "(loginS2S) will login S2S : ", data);
+        that._logger.log(that.DEBUG, LOG_ID + "(loginS2S)  will login  S2S.");
+        that._logger.log(that.INTERNAL, LOG_ID + "(loginS2S) will login S2S : ", data);
         return new Promise(function (resolve, reject) {
             that.http.post("/api/rainbow/ucs/v1.0/connections", that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(loginS2S) successfull");
-                that.logger.log("internal", LOG_ID + "(loginS2S) REST result : ", json);
+                that._logger.log(that.INFO, LOG_ID + "(loginS2S) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(loginS2S) REST result : ", json);
                 that.connectionS2SInfo = json.data;
                 resolve(that.connectionS2SInfo);
             }).catch((err) => {
-                that.logger.log("error", LOG_ID, "(loginS2S) error");
-                that.logger.log("internalerror", LOG_ID, "(loginS2S) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(loginS2S) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(loginS2S) error : ", err);
                 return reject(err);
             });
         });
@@ -6625,16 +6631,16 @@ Request Method: PUT
 
     async infoS2S(s2sConnectionId): Promise<any> {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
-        that.logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
+        that._logger.log(that.DEBUG, LOG_ID + "(infoS2S)  will get info S2S");
+        that._logger.log(that.INTERNAL, LOG_ID + "(infoS2S) will get info S2S");
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/ucs/v1.0/connections/" + s2sConnectionId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(infoS2S) successfull");
-                that.logger.log("internal", LOG_ID + "(infoS2S) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(infoS2S) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(infoS2S) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(infoS2S) error");
-                that.logger.log("internalerror", LOG_ID, "(infoS2S) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(infoS2S) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(infoS2S) error : ", err);
                 return reject(err);
             });
         });
@@ -6652,8 +6658,8 @@ Request Method: PUT
 
     async setS2SConnection(connectionId): Promise<any> {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
-        that.logger.log("internal", LOG_ID + "(setS2SConnection) will get info S2S and save the session infos.");
+        that._logger.log(that.DEBUG, LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
+        that._logger.log(that.INTERNAL, LOG_ID + "(setS2SConnection) will get info S2S and save the session infos.");
         return that.connectionS2SInfo = await that.infoS2S(connectionId);
     }
 
@@ -6662,17 +6668,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!msg) {
-                that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) failed");
-                that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) No msg provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SMessageInConversation) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SMessageInConversation) No msg provided");
                 resolve(null);
             } else {
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages", that.getRequestHeader(), msg, undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(sendS2SMessageInConversation) successfull");
-                    that.logger.log("internal", LOG_ID + "(sendS2SMessageInConversation) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendS2SMessageInConversation) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SMessageInConversation) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(sendS2SMessageInConversation) error");
-                    that.logger.log("internalerror", LOG_ID, "(sendS2SMessageInConversation) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(sendS2SMessageInConversation) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SMessageInConversation) error : ", err);
                     return reject(err);
                 });
             }
@@ -6684,12 +6690,12 @@ Request Method: PUT
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId, that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getS2SServerConversation) successfull");
-                that.logger.log("internal", LOG_ID + "(getS2SServerConversation) REST result : " + JSON.stringify(json) + " conversations");
+                that._logger.log(that.DEBUG, LOG_ID + "(getS2SServerConversation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getS2SServerConversation) REST result : " + JSON.stringify(json) + " conversations");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getS2SServerConversation) error");
-                that.logger.log("internalerror", LOG_ID, "(getS2SServerConversation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getS2SServerConversation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getS2SServerConversation) error : ", err);
                 return reject(err);
             });
         });
@@ -6703,12 +6709,12 @@ Request Method: PUT
                 return reject({message: "connectionS2SInfo is not defined"});
             }
             that.http.head("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkS2Sconnection) successfull");
-                that.logger.log("internal", LOG_ID + "(checkS2Sconnection) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkS2Sconnection) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkS2Sconnection) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkS2Sconnection) error");
-                that.logger.log("internalerror", LOG_ID, "(checkS2Sconnection) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkS2Sconnection) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkS2Sconnection) error : ", err);
                 return reject(err);
             });
         });
@@ -6716,17 +6722,17 @@ Request Method: PUT
 
     async checkS2SAuthentication(): Promise<boolean> {
         let that = this;
-        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
         let authStatus = false;
 
         try {
             let authenticationValidator = await that.checkS2Sconnection();
-            that.logger.log("debug", LOG_ID + "(checkS2SAuthentication) S2S authentication authenticationValidator : ", authenticationValidator);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkS2SAuthentication) S2S authentication authenticationValidator : ", authenticationValidator);
             if (authenticationValidator.id) {
                 authStatus = true;
             }
         } catch (err) {
-            that.logger.log("debug", LOG_ID + "(checkS2SAuthentication) S2S authentication check authenticationValidator failed : ", err);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkS2SAuthentication) S2S authentication check authenticationValidator failed : ", err);
             authStatus = false;
         }
 
@@ -6744,20 +6750,20 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!roomid) {
-                that.logger.log("debug", LOG_ID + "(joinS2SRoom) failed");
-                that.logger.log("debug", LOG_ID + "(joinS2SRoom) No roomid provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(joinS2SRoom) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(joinS2SRoom) No roomid provided");
                 reject({code: -1, label: "roomid is not defined!!!"});
             } else {
                 let data = undefined; /*{
                     "role": role
                 }; // */
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(joinS2SRoom) successfull");
-                    that.logger.log("internal", LOG_ID + "(joinS2SRoom) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(joinS2SRoom) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(joinS2SRoom) REST result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(joinS2SRoom) error");
-                    that.logger.log("internalerror", LOG_ID, "(joinS2SRoom) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(joinS2SRoom) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(joinS2SRoom) error : ", err);
                     return reject(err);
                 });
             }
@@ -6777,15 +6783,15 @@ Request Method: PUT
             let param = {
                 "ims": ims
             };
-            that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST ims : ", ims);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST ims : ", ims);
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveXMPPMessagesByListOfMessageIds) error : ", err);
                 return reject(err);
             });
         });
@@ -6800,7 +6806,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/enduser/#api-conversations-searchTextInConversation
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(showAllMatchingMessagesForAPeer) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/conversations/search/hits";
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -6811,12 +6817,12 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("internal", LOG_ID + "(showAllMatchingMessagesForAPeer) REST result : ", json.data);
-                that.logger.log("debug", LOG_ID + "(showAllMatchingMessagesForAPeer) REST success.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(showAllMatchingMessagesForAPeer) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(showAllMatchingMessagesForAPeer) REST success.");
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(showAllMatchingMessagesForAPeer) error");
-                that.logger.log("internalerror", LOG_ID, "(showAllMatchingMessagesForAPeer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(showAllMatchingMessagesForAPeer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(showAllMatchingMessagesForAPeer) error : ", err);
                 return reject(err);
             });
         });
@@ -6828,21 +6834,21 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!conversationId) {
-                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
-                that.logger.log("debug", LOG_ID + "(markMessageAsRead) No conversationId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(markMessageAsRead) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(markMessageAsRead) No conversationId provided");
                 reject({code: -1, label: "conversationId is not defined!!!"});
             } else if (!messageId) {
-                that.logger.log("debug", LOG_ID + "(markMessageAsRead) failed");
-                that.logger.log("debug", LOG_ID + "(markMessageAsRead) No messageId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(markMessageAsRead) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(markMessageAsRead) No messageId provided");
                 reject({code: -1, label: "messageId is not defined!!!"});
             } else {
                 that.http.put("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages/" + messageId + "/read", that.getRequestHeader(), {}, undefined).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(markMessageAsRead) successfull");
-                    that.logger.log("internal", LOG_ID + "(markMessageAsRead) REST result : ", json.data);
+                    that._logger.log(that.DEBUG, LOG_ID + "(markMessageAsRead) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(markMessageAsRead) REST result : ", json.data);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(markMessageAsRead) error");
-                    that.logger.log("internalerror", LOG_ID, "(markMessageAsRead) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(markMessageAsRead) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(markMessageAsRead) error : ", err);
                     return reject(err);
                 });
             }
@@ -6858,10 +6864,10 @@ Request Method: PUT
         // API https://api.openrainbow.org/enduser/#api-rooms-getRoomIdPublicLinks
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
             if (bubbleId===undefined) {
-                that.logger.log("debug", LOG_ID + "(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             let urlParamsTab: string[] = [];
@@ -6875,13 +6881,13 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getABubblePublicLinkAsModerator) successfull");
-                that.logger.log("internal", LOG_ID + "(getABubblePublicLinkAsModerator) REST result : ", json.data);
-                that.logger.log("debug", LOG_ID + "(getABubblePublicLinkAsModerator) REST success.");
+                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getABubblePublicLinkAsModerator) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) REST success.");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getABubblePublicLinkAsModerator) error");
-                that.logger.log("internalerror", LOG_ID, "(getABubblePublicLinkAsModerator) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getABubblePublicLinkAsModerator) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getABubblePublicLinkAsModerator) error : ", err);
                 return reject(err);
             });
         });
@@ -6897,7 +6903,7 @@ Request Method: PUT
     getAllOpenInviteIdPerRoomOfAUser(userId?: string, type?: string, roomId?: string): Promise<Array<any>> {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST.");
             let userIdFilter = userId ? userId:that.userId;
             /*
             let requestParam : any = {};
@@ -6935,13 +6941,13 @@ Request Method: PUT
             });  // */
 
             that.http.get("/api/rainbow/enduser/v1.0/users/" + userIdFilter + "/public-links" + requestParam, that.getRequestHeader(), requestParam).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST result : ", json.data);
-                that.logger.log("debug", LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) -- " + userIdFilter + " -- success");
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) -- " + userIdFilter + " -- success");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error : ", err);
                 return reject(err);
             });
         });
@@ -6953,16 +6959,16 @@ Request Method: PUT
             let param = {
                 "roomId": bubbleId
             };
-            that.logger.log("internal", LOG_ID + "(generateNewPublicUrl) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(generateNewPublicUrl) REST.");
 
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/reset", that.getRequestHeader(), param, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(generateNewPublicUrl) successfull");
-                that.logger.log("internal", LOG_ID + "(generateNewPublicUrl) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(generateNewPublicUrl) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(generateNewPublicUrl) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(generateNewPublicUrl) error");
-                that.logger.log("internalerror", LOG_ID, "(generateNewPublicUrl) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(generateNewPublicUrl) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(generateNewPublicUrl) error : ", err);
                 return reject(err);
             });
         });
@@ -6974,16 +6980,16 @@ Request Method: PUT
             let param = {
                 "roomId": bubbleId
             };
-            that.logger.log("internal", LOG_ID + "(removePublicUrl) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(removePublicUrl) REST.");
 
             that.http.put("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/unbind", that.getRequestHeader(), param, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(removePublicUrl) successfull");
-                that.logger.log("internal", LOG_ID + "(removePublicUrl) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(removePublicUrl) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removePublicUrl) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(removePublicUrl) error");
-                that.logger.log("internalerror", LOG_ID, "(removePublicUrl) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(removePublicUrl) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(removePublicUrl) error : ", err);
                 return reject(err);
             });
         });
@@ -6995,16 +7001,16 @@ Request Method: PUT
             let param = {
                 "roomId": bubbleId
             };
-            that.logger.log("internal", LOG_ID + "(createPublicUrl) REST bubbleId : ", bubbleId, " param : ", param);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) REST bubbleId : ", bubbleId, " param : ", param);
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/bind", that.getRequestHeader(), param, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createPublicUrl) successfull");
-                that.logger.log("internal", LOG_ID + "(createPublicUrl) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createPublicUrl) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createPublicUrl) error");
-                that.logger.log("internalerror", LOG_ID, "(createPublicUrl) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createPublicUrl) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPublicUrl) error : ", err);
                 return reject(err);
             });
         });
@@ -7013,16 +7019,16 @@ Request Method: PUT
     registerGuest(guest: GuestParams) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(registerGuest) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(registerGuest) REST.");
 
             that.http.post("/api/rainbow/enduser/v1.0/users/self-register", that.getRequestHeader(), guest.getUrlParam(), undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(registerGuest) successfull");
-                that.logger.log("internal", LOG_ID + "(registerGuest) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(registerGuest) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(registerGuest) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(registerGuest) error");
-                that.logger.log("internalerror", LOG_ID, "(registerGuest) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(registerGuest) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerGuest) error : ", err);
                 return reject(err);
             });
         });
@@ -7037,10 +7043,10 @@ Request Method: PUT
         // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-checkRoomInvitationUsingOpenInviteiId
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/rooms/open-invites/validate";
             if (openInviteId===undefined) {
-                that.logger.log("debug", LOG_ID + "(checkOpenInviteIdValidity) bad request paramater openInviteId undefined.");
+                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) bad request paramater openInviteId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             let urlParamsTab: string[] = [];
@@ -7049,13 +7055,13 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(checkOpenInviteIdValidity) successfull");
-                that.logger.log("internal", LOG_ID + "(checkOpenInviteIdValidity) REST result : ", json.data);
-                that.logger.log("debug", LOG_ID + "(checkOpenInviteIdValidity) REST success.");
+                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) REST success.");
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkOpenInviteIdValidity) error");
-                that.logger.log("internalerror", LOG_ID, "(checkOpenInviteIdValidity) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkOpenInviteIdValidity) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkOpenInviteIdValidity) error : ", err);
                 return reject(err);
             });
         });
@@ -7070,15 +7076,15 @@ Request Method: PUT
                 openInviteId //, // Id 
             };
 
-            that.logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) REST params : ", params);
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms/open-invites", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(joinBubbleByOpenInviteId) successfull");
-                that.logger.log("internal", LOG_ID + "(joinBubbleByOpenInviteId) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(joinBubbleByOpenInviteId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinBubbleByOpenInviteId) error");
-                that.logger.log("internalerror", LOG_ID, "(joinBubbleByOpenInviteId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(joinBubbleByOpenInviteId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinBubbleByOpenInviteId) error : ", err);
                 return reject(err);
             });
         });
@@ -7092,15 +7098,15 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {};
-            that.logger.log("internal", LOG_ID + "(askConferenceSnapshot) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(askConferenceSnapshot) REST params : ", params);
             that.http.get("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/snapshot?mediaType=" + type + "&limit=" + limit + "&offset=" + offset, that.getRequestHeader(), params).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(askConferenceSnapshot) successfull");
-                that.logger.log("internal", LOG_ID + "(askConferenceSnapshot) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(askConferenceSnapshot) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(askConferenceSnapshot) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(askConferenceSnapshot) error");
-                that.logger.log("internalerror", LOG_ID, "(askConferenceSnapshot) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(askConferenceSnapshot) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(askConferenceSnapshot) error : ", err);
                 return reject(err);
             });
         });
@@ -7110,7 +7116,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {};
-            that.logger.log("internal", LOG_ID + "(retrieveAllConferences) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllConferences) REST params : ", params);
             let url = "/api/rainbow/confprovisioning/v1.0/conferences?";
             if (scheduled!=undefined) {
                 url += "scheduled=" + scheduled;
@@ -7118,12 +7124,12 @@ Request Method: PUT
             url += "&format=full&userId=" + that.userId;
 
             that.http.get(url, that.getRequestHeader(), params).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllConferences) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllConferences) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllConferences) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllConferences) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllConferences) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllConferences) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllConferences) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllConferences) error : ", err);
                 return reject(err);
             });
         });
@@ -7138,7 +7144,7 @@ Request Method: PUT
      */
     retrieveWebConferences(mediaType: string = MEDIATYPE.WEBRTC): Promise<any> {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
+        that._logger.log(that.DEBUG, LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
         return new Promise((resolve, reject) => {
             let urlQueryParameters = "?format=full&userId=" + that.userId;
 
@@ -7155,14 +7161,14 @@ Request Method: PUT
                     // Handle success response
                     .then((response) => {
                                 let conferencesProvisionData = response;
-                                that.logger.log("debug", LOG_ID + "(retrieveWebConferences) successfully");
-                                that.logger.log("internal", LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
+                                that._logger.log(that.DEBUG, LOG_ID + "(retrieveWebConferences) successfully");
+                                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
                                 resolve(conferencesProvisionData.data);
                             },
                             (response) => {
                                 let msg = response.data ? response.data.errorDetails:response.data;
                                 let errorMessage = "(retrieveWebConferences) failure: " + msg;
-                                that.logger.log("error", LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
+                                that._logger.log(that.ERROR, LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
                                 reject(new Error(errorMessage));
                             });
         });
@@ -7174,15 +7180,15 @@ Request Method: PUT
     retrieveAllCompanyOffers(companyId: string) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveAllCompanyOffers) REST companyId : ", companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST companyId : ", companyId);
 
             that.http.get("/api/rainbow/subscription/v1.0/companies/" + companyId + "/offers", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllCompanyOffers) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllCompanyOffers) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllCompanyOffers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllCompanyOffers) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanyOffers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllCompanyOffers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllCompanyOffers) error : ", err);
                 return reject(err);
             });
         });
@@ -7191,7 +7197,7 @@ Request Method: PUT
     retrieveAllCompanySubscriptions(companyId: string, format: string = "small") {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
 
             let url: string = "/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions";
             let urlParamsTab: string[] = [];
@@ -7199,15 +7205,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllCompanySubscriptions) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllCompanySubscriptions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
                 return reject(err);
             });
         });
@@ -7219,7 +7225,7 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {
                 offerId //, // Id of the offer to subscribe.
-                // maxNumberUsers : 	integer, // optionnel Number of users (licences) bought for this offer. Possible values : 1..
+                // maxNumberUsers :     integer, // optionnel Number of users (licences) bought for this offer. Possible values : 1..
                 // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
             };
 
@@ -7231,15 +7237,15 @@ Request Method: PUT
                 params.autoRenew = autoRenew;
             }
 
-            that.logger.log("internal", LOG_ID + "(subscribeCompanyToOffer) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(subscribeCompanyToOffer) REST params : ", params);
 
             that.http.post("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(subscribeCompanyToOffer) successfull");
-                that.logger.log("internal", LOG_ID + "(subscribeCompanyToOffer) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(subscribeCompanyToOffer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeCompanyToOffer) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(subscribeCompanyToOffer) error");
-                that.logger.log("internalerror", LOG_ID, "(subscribeCompanyToOffer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(subscribeCompanyToOffer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeCompanyToOffer) error : ", err);
                 return reject(err);
             });
         });
@@ -7249,15 +7255,15 @@ Request Method: PUT
         let that = this;
 // /api/rainbow/subscription/v1.0/companies/:companyId/subscriptions/:subscriptionId
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(unSubscribeCompanyToOffer) REST companyId : ", companyId + ", subscriptionId : ", subscriptionId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToOffer) REST companyId : ", companyId + ", subscriptionId : ", subscriptionId);
 
             that.http.delete("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(unSubscribeCompanyToOffer) successfull");
-                that.logger.log("internal", LOG_ID + "(unSubscribeCompanyToOffer) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeCompanyToOffer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToOffer) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unSubscribeCompanyToOffer) error");
-                that.logger.log("internalerror", LOG_ID, "(unSubscribeCompanyToOffer) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unSubscribeCompanyToOffer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unSubscribeCompanyToOffer) error : ", err);
                 return reject(err);
             });
         });
@@ -7271,15 +7277,15 @@ Request Method: PUT
                 // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
             };
 
-            that.logger.log("internal", LOG_ID + "(subscribeUserToSubscription) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(subscribeUserToSubscription) REST params : ", params);
 
             that.http.post("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(subscribeUserToSubscription) successfull");
-                that.logger.log("internal", LOG_ID + "(subscribeUserToSubscription) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(subscribeUserToSubscription) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeUserToSubscription) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(subscribeUserToSubscription) error");
-                that.logger.log("internalerror", LOG_ID, "(subscribeUserToSubscription) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(subscribeUserToSubscription) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeUserToSubscription) error : ", err);
                 return reject(err);
             });
         });
@@ -7293,15 +7299,15 @@ Request Method: PUT
                 // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
             };
 
-            that.logger.log("internal", LOG_ID + "(unSubscribeUserToSubscription) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeUserToSubscription) REST params : ", params);
 
             that.http.delete("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
-                that.logger.log("debug", LOG_ID + "(unSubscribeUserToSubscription) successfull");
-                that.logger.log("internal", LOG_ID + "(unSubscribeUserToSubscription) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeUserToSubscription) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeUserToSubscription) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unSubscribeUserToSubscription) error");
-                that.logger.log("internalerror", LOG_ID, "(unSubscribeUserToSubscription) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unSubscribeUserToSubscription) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unSubscribeUserToSubscription) error : ", err);
                 return reject(err);
             });
         });
@@ -7312,7 +7318,7 @@ Request Method: PUT
         // GET /api/rainbow/admin/v1.0/users/:userId/profiles
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST userId : ", userId);
 
             let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
             let urlParamsTab: string[] = [];
@@ -7320,15 +7326,15 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAUserProfiles) successfull");
-                that.logger.log("internal", LOG_ID + "(getAUserProfiles) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAUserProfiles) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAUserProfiles) error");
-                that.logger.log("internalerror", LOG_ID, "(getAUserProfiles) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAUserProfiles) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAUserProfiles) error : ", err);
                 return reject(err);
             });
         });
@@ -7338,12 +7344,12 @@ Request Method: PUT
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/" + userId + "/profiles/features", that.getRequestHeader(), undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getAUserProfilesFeaturesByUserId) successfull");
-                that.logger.log("internal", LOG_ID + "(getAUserProfilesFeaturesByUserId) REST result : " + JSON.stringify(json) + " profiles features");
+                that._logger.log(that.DEBUG, LOG_ID + "(getAUserProfilesFeaturesByUserId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfilesFeaturesByUserId) REST result : " + JSON.stringify(json) + " profiles features");
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAUserProfilesFeaturesByUserId) error");
-                that.logger.log("internalerror", LOG_ID, "(getAUserProfilesFeaturesByUserId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAUserProfilesFeaturesByUserId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAUserProfilesFeaturesByUserId) error : ", err);
                 return reject(err);
             });
         });
@@ -7355,15 +7361,15 @@ Request Method: PUT
     retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST companyId : ", tags);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllBubblesByTags) REST companyId : ", tags);
             let nbTags = tags.length;
             let tagParams = "";
             if (nbTags==0) {
                 let err = {
                     "label": "retrieveAllBubblesByTags : No tags provided for filter the bubbles."
                 };
-                that.logger.log("error", LOG_ID, "(retrieveAllBubblesByTags) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllBubblesByTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
                 return reject(err);
             }
             if (nbTags==1) {
@@ -7384,12 +7390,12 @@ Request Method: PUT
             }
 
             that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllBubblesByTags) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllBubblesByTags) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllBubblesByTags) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllBubblesByTags) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllBubblesByTags) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllBubblesByTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
                 return reject(err);
             });
         });
@@ -7409,16 +7415,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let params = {"tags": tags};
-            that.logger.log("internal", LOG_ID + "(setTagsOnABubble) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(setTagsOnABubble) REST params : ", params);
 
             that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/tags", that.getRequestHeader(), params, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(setTagsOnABubble) successfull");
-                that.logger.log("internal", LOG_ID + "(setTagsOnABubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setTagsOnABubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setTagsOnABubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setTagsOnABubble) error");
-                that.logger.log("internalerror", LOG_ID, "(setTagsOnABubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setTagsOnABubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setTagsOnABubble) error : ", err);
                 return reject(err);
             });
         });
@@ -7433,15 +7439,15 @@ Request Method: PUT
                 "rooms": roomIds
             };
 
-            that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTagOnABubble) REST params : ", params);
 
             that.http.delete("/api/rainbow/enduser/v1.0/rooms/tags", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteTagOnABubble) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteTagOnABubble) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteTagOnABubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTagOnABubble) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteTagOnABubble) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteTagOnABubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteTagOnABubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTagOnABubble) error : ", err);
                 return reject(err);
             });
         });
@@ -7459,16 +7465,16 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/disable";
             let params = {};
-            that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(disableDialInForARoom) REST params : ", params);
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(disableDialInForARoom) successfull");
-                that.logger.log("internal", LOG_ID + "(disableDialInForARoom) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(disableDialInForARoom) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(disableDialInForARoom) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(disableDialInForARoom) error");
-                that.logger.log("internalerror", LOG_ID, "(disableDialInForARoom) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(disableDialInForARoom) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(disableDialInForARoom) error : ", err);
                 return reject(err);
             });
         });
@@ -7482,16 +7488,16 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/enable";
             let params = {};
-            that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(enableDialInForARoom) REST params : ", params);
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(enableDialInForARoom) successfull");
-                that.logger.log("internal", LOG_ID + "(enableDialInForARoom) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(enableDialInForARoom) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(enableDialInForARoom) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(enableDialInForARoom) error");
-                that.logger.log("internalerror", LOG_ID, "(enableDialInForARoom) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(enableDialInForARoom) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableDialInForARoom) error : ", err);
                 return reject(err);
             });
         });
@@ -7505,16 +7511,16 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/reset";
             let params = {};
-            that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(resetDialInCodeForARoom) REST params : ", params);
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
                 //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(resetDialInCodeForARoom) successfull");
-                that.logger.log("internal", LOG_ID + "(resetDialInCodeForARoom) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(resetDialInCodeForARoom) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(resetDialInCodeForARoom) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(resetDialInCodeForARoom) error");
-                that.logger.log("internalerror", LOG_ID, "(resetDialInCodeForARoom) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(resetDialInCodeForARoom) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(resetDialInCodeForARoom) error : ", err);
                 return reject(err);
             });
         });
@@ -7525,7 +7531,7 @@ Request Method: PUT
         // GET /api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST shortList : ", shortList);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST shortList : ", shortList);
 
             let url: string = "/api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers";
             let urlParamsTab: string[] = [];
@@ -7533,15 +7539,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "shortList", shortList);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getDialInPhoneNumbersList) successfull");
-                that.logger.log("internal", LOG_ID + "(getDialInPhoneNumbersList) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDialInPhoneNumbersList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDialInPhoneNumbersList) error");
-                that.logger.log("internalerror", LOG_ID, "(getDialInPhoneNumbersList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDialInPhoneNumbersList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDialInPhoneNumbersList) error : ", err);
                 return reject(err);
             });
         });
@@ -7558,12 +7564,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/notificationsadmin/v1.0/devices", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(createDevice) REST bubble created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createDevice) REST bubble created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(createDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -7576,12 +7582,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.put("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(updateDevice) REST bubble created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateDevice) REST bubble created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(updateDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -7592,15 +7598,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteDevice) REST deviceId : ", deviceId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevice) REST deviceId : ", deviceId);
 
             that.http.delete("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteDevice) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevice) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -7611,15 +7617,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getDevice) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDevice) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(getDevice) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDevice) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(getDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -7663,15 +7669,15 @@ Request Method: PUT
             getParams += getParams ? "&":"?";
             getParams += "format=" + "full";
 
-            that.logger.log("internal", LOG_ID + "(getDevices) REST getParams : ", getParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDevices) REST getParams : ", getParams);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/devices" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getDevices) successfull");
-                that.logger.log("internal", LOG_ID + "(getDevices) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDevices) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDevices) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDevices) error");
-                that.logger.log("internalerror", LOG_ID, "(getDevices) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDevices) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevices) error : ", err);
                 return reject(err);
             });
         });
@@ -7688,15 +7694,15 @@ Request Method: PUT
                 getParams += "companyId=" + companyId;
             }
 
-            that.logger.log("internal", LOG_ID + "(getDevicesTags) REST getParams : ", getParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDevicesTags) REST getParams : ", getParams);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/tags" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getDevicesTags) successfull");
-                that.logger.log("internal", LOG_ID + "(getDevicesTags) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDevicesTags) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDevicesTags) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDevicesTags) error");
-                that.logger.log("internalerror", LOG_ID, "(getDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDevicesTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -7733,12 +7739,12 @@ Request Method: PUT
             let params = {newTagName};
 
             that.http.put(url + getParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(renameDevicesTags) successfull");
-                that.logger.log("internal", LOG_ID + "(renameDevicesTags) REST bubble created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(renameDevicesTags) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(renameDevicesTags) REST bubble created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(renameDevicesTags) error");
-                that.logger.log("internalerror", LOG_ID, "(renameDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(renameDevicesTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(renameDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -7757,7 +7763,7 @@ Request Method: PUT
         // Example: DELETE https://openrainbow.com/api/rainbow/notificationsadmin/v1.0/devices/tags?tag=a_tag?companyId=5703d0d49ccf39843c7ef897
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(deleteDevicesTags) REST tag : ", tag);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevicesTags) REST tag : ", tag);
             let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags";
 
             let getParams = "";
@@ -7772,12 +7778,12 @@ Request Method: PUT
             }
 
             that.http.delete(url + getParams, that.getPostHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteDevicesTags) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteDevicesTags) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteDevicesTags) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevicesTags) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteDevicesTags) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteDevicesTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteDevicesTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDevicesTags) error : ", err);
                 return reject(err);
             });
         });
@@ -7802,15 +7808,15 @@ Request Method: PUT
                 getParams += "companyId=" + companyId;//? companyId : that.account.companyId;
             }
 
-            that.logger.log("internal", LOG_ID + "(getstatsTags) REST companyId : ", companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getstatsTags) REST companyId : ", companyId);
 
             that.http.get(url + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getstatsTags) successfull");
-                that.logger.log("internal", LOG_ID + "(getstatsTags) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getstatsTags) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getstatsTags) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getstatsTags) error");
-                that.logger.log("internalerror", LOG_ID, "(getstatsTags) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getstatsTags) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getstatsTags) error : ", err);
                 return reject(err);
             });
         });
@@ -7823,12 +7829,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/notificationsadmin/v1.0/templates", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(createTemplate) REST bubble created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createTemplate) REST bubble created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(createTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -7841,12 +7847,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.put("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(updateTemplate) REST bubble created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateTemplate) REST bubble created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(updateTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -7857,15 +7863,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteTemplate) REST templateId : ", templateId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTemplate) REST templateId : ", templateId);
 
             that.http.delete("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteTemplate) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTemplate) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -7876,15 +7882,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getTemplate) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTemplate) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(getTemplate) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTemplate) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(getTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -7908,15 +7914,15 @@ Request Method: PUT
             getParams += getParams ? "&":"?";
             getParams += "format=" + "full";
 
-            that.logger.log("internal", LOG_ID + "(getTemplates) REST getParams : ", getParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTemplates) REST getParams : ", getParams);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/templates" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getTemplates) successfull");
-                that.logger.log("internal", LOG_ID + "(getTemplates) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getTemplates) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTemplates) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getTemplates) error");
-                that.logger.log("internalerror", LOG_ID, "(getTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getTemplates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -7929,12 +7935,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/notificationsadmin/v1.0/filters", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createFilter) successfull");
-                that.logger.log("internal", LOG_ID + "(createFilter) REST created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createFilter) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createFilter) REST created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(createFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createFilter) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -7947,12 +7953,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.put("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateFilter) successfull");
-                that.logger.log("internal", LOG_ID + "(updateFilter) REST created : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateFilter) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateFilter) REST created : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(updateFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateFilter) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -7963,15 +7969,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteFilter) REST FilterId : ", FilterId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteFilter) REST FilterId : ", FilterId);
 
             that.http.delete("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteFilter) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteFilter) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteFilter) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteFilter) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteFilter) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -7982,15 +7988,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getFilter) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFilter) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/filters/" + templateId, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getFilter) successfull");
-                that.logger.log("internal", LOG_ID + "(getFilter) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getFilter) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFilter) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getFilter) error");
-                that.logger.log("internalerror", LOG_ID, "(getFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getFilter) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -8010,15 +8016,15 @@ Request Method: PUT
             getParams += getParams ? "&":"?";
             getParams += "format=" + "full";
 
-            that.logger.log("internal", LOG_ID + "(getFilters) REST getParams : ", getParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) REST getParams : ", getParams);
 
             that.http.get("/api/rainbow/notificationsadmin/v1.0/filters" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getFilters) successfull");
-                that.logger.log("internal", LOG_ID + "(getFilters) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getFilters) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getFilters) error");
-                that.logger.log("internalerror", LOG_ID, "(getFilters) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getFilters) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFilters) error : ", err);
                 return reject(err);
             });
         });
@@ -8031,12 +8037,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/notifications/v1.0/notifications", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(createAlert) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createAlert) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createAlert) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(createAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createAlert) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -8049,12 +8055,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.put("/api/rainbow/notifications/v1.0/notifications/" + AlertId, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAlert) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAlert) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAlert) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(updateAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAlert) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -8065,15 +8071,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteAlert) REST AlertId : ", AlertId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAlert) REST AlertId : ", AlertId);
 
             that.http.delete("/api/rainbow/notifications/v1.0/notifications/" + AlertId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAlert) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAlert) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAlert) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAlert) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -8084,15 +8090,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getAlert) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAlert) REST params : ", params);
 
             that.http.get("/api/rainbow/notifications/v1.0/notifications/" + alertId, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlert) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAlert) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAlert) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(getAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAlert) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -8112,15 +8118,15 @@ Request Method: PUT
             getParams += getParams ? "&":"?";
             getParams += "format=" + "full";
 
-            that.logger.log("internal", LOG_ID + "(getAlerts) REST getParams : ", getParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAlerts) REST getParams : ", getParams);
 
             that.http.get("/api/rainbow/notifications/v1.0/notifications" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAlerts) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlerts) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAlerts) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAlerts) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAlerts) error");
-                that.logger.log("internalerror", LOG_ID, "(getAlerts) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAlerts) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlerts) error : ", err);
                 return reject(err);
             });
         });
@@ -8133,12 +8139,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/notifications/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(sendAlertFeedback) successfull");
-                that.logger.log("internal", LOG_ID + "(sendAlertFeedback) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendAlertFeedback) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendAlertFeedback) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendAlertFeedback) error");
-                that.logger.log("internalerror", LOG_ID, "(sendAlertFeedback) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendAlertFeedback) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendAlertFeedback) error : ", err);
                 return reject(err);
             });
         });
@@ -8150,15 +8156,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error");
-                that.logger.log("internalerror", LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -8170,15 +8176,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForAnAlert) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForAnAlert) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAlertFeedbackSentForAnAlert) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlertFeedbackSentForAnAlert) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAlertFeedbackSentForAnAlert) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForAnAlert) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAlertFeedbackSentForAnAlert) error");
-                that.logger.log("internalerror", LOG_ID, "(getAlertFeedbackSentForAnAlert) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAlertFeedbackSentForAnAlert) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertFeedbackSentForAnAlert) error : ", err);
                 return reject(err);
             });
         });
@@ -8190,15 +8196,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback/stats", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) successfull");
-                that.logger.log("internal", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error");
-                that.logger.log("internalerror", LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -8209,15 +8215,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getReportSummary) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getReportSummary) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/summary", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getReportSummary) successfull");
-                that.logger.log("internal", LOG_ID + "(getReportSummary) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getReportSummary) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getReportSummary) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getReportSummary) error");
-                that.logger.log("internalerror", LOG_ID, "(getReportSummary) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getReportSummary) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportSummary) error : ", err);
                 return reject(err);
             });
         });
@@ -8228,15 +8234,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getReportDetails) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/details", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getReportDetails) successfull");
-                that.logger.log("internal", LOG_ID + "(getReportDetails) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getReportDetails) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getReportDetails) error");
-                that.logger.log("internalerror", LOG_ID, "(getReportDetails) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getReportDetails) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportDetails) error : ", err);
                 return reject(err);
             });
         });
@@ -8248,15 +8254,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getReportComplete) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getReportComplete) REST params : ", params);
 
             that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/complete", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getReportComplete) successfull");
-                that.logger.log("internal", LOG_ID + "(getReportComplete) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getReportComplete) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getReportComplete) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getReportComplete) error");
-                that.logger.log("internalerror", LOG_ID, "(getReportComplete) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getReportComplete) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportComplete) error : ", err);
                 return reject(err);
             });
         });
@@ -8271,15 +8277,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(getCalendarState) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarState) REST params : ", params);
 
             that.http.get("/api/rainbow/calendar/v1.0", that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCalendarState) successfull");
-                that.logger.log("internal", LOG_ID + "(getCalendarState) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarState) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarState) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCalendarState) error");
-                that.logger.log("internalerror", LOG_ID, "(getCalendarState) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCalendarState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarState) error : ", err);
                 return reject(err);
             });
         });
@@ -8296,12 +8302,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/calendar/v1.0/states", that.getRequestHeader(), params, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getCalendarStates) successfull");
-                that.logger.log("internal", LOG_ID + "(getCalendarStates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarStates) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarStates) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCalendarStates) error");
-                that.logger.log("internalerror", LOG_ID, "(getCalendarStates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCalendarStates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarStates) error : ", err);
                 return reject(err);
             });
         });
@@ -8320,12 +8326,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post("/api/rainbow/calendar/v1.0/register", that.getRequestHeader(), params, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setCalendarRegister) successfull");
-                that.logger.log("internal", LOG_ID + "(setCalendarRegister) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(setCalendarRegister) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setCalendarRegister) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setCalendarRegister) error");
-                that.logger.log("internalerror", LOG_ID, "(setCalendarRegister) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setCalendarRegister) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCalendarRegister) error : ", err);
                 return reject(err);
             });
         });
@@ -8340,15 +8346,15 @@ Request Method: PUT
                 url += "?userid =" + userid;
             }
 
-            that.logger.log("internal", LOG_ID + "(getReportDetails) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCalendarAutomaticReplyStatus) successfull");
-                that.logger.log("internal", LOG_ID + "(getCalendarAutomaticReplyStatus) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarAutomaticReplyStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarAutomaticReplyStatus) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCalendarAutomaticReplyStatus) error");
-                that.logger.log("internalerror", LOG_ID, "(getCalendarAutomaticReplyStatus) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCalendarAutomaticReplyStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarAutomaticReplyStatus) error : ", err);
                 return reject(err);
             });
         });
@@ -8362,15 +8368,15 @@ Request Method: PUT
                 disable
             };
 
-            that.logger.log("internal", LOG_ID + "(enableOrNotCalendar) REST params : ", params);
+            that._logger.log(that.INTERNAL, LOG_ID + "(enableOrNotCalendar) REST params : ", params);
 
             that.http.patch("/api/rainbow/calendar/v1.0", that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(enableOrNotCalendar) successfull");
-                that.logger.log("internal", LOG_ID + "(enableOrNotCalendar) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(enableOrNotCalendar) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(enableOrNotCalendar) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(enableOrNotCalendar) error");
-                that.logger.log("internalerror", LOG_ID, "(enableOrNotCalendar) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(enableOrNotCalendar) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableOrNotCalendar) error : ", err);
                 return reject(err);
             });
         });
@@ -8389,17 +8395,17 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "disable", disable);
             addParamToUrl(urlParamsTab, "ignore", ignore);
             urlParams = urlParamsTab[0];
-            that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST url : ", urlParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST url : ", urlParams);
 
             let params = {};
 
             that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(controlCalendarOrIgnoreAnEntry) successfull");
-                that.logger.log("internal", LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(controlCalendarOrIgnoreAnEntry) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error");
-                that.logger.log("internalerror", LOG_ID, "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(controlCalendarOrIgnoreAnEntry) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(controlCalendarOrIgnoreAnEntry) error : ", err);
                 return reject(err);
             });
         });
@@ -8412,15 +8418,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST ");
 
             that.http.delete("/api/rainbow/calendar/v1.0", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteAnImportStatusReport) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnImportStatusReport) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAnImportStatusReport) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAnImportStatusReport) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAnImportStatusReport) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAnImportStatusReport) error : ", err);
                 return reject(err);
             });
         });
@@ -8443,17 +8449,17 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "disable", disable);
             addParamToUrl(urlParamsTab, "ignore", ignore);
             urlParams = urlParamsTab[0];
-            that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST url : ", urlParams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(controlMsteamsPresence) REST url : ", urlParams);
 
             let params = {};
 
             that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(controlMsteamsPresence) successfull");
-                that.logger.log("internal", LOG_ID + "(controlMsteamsPresence) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(controlMsteamsPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(controlMsteamsPresence) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(controlMsteamsPresence) error");
-                that.logger.log("internalerror", LOG_ID, "(controlMsteamsPresence) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(controlMsteamsPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(controlMsteamsPresence) error : ", err);
                 return reject(err);
             });
         });
@@ -8471,15 +8477,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "userid", userId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceState) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceState) successfull");
-                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceState) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getMsteamsPresenceState) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceState) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMsteamsPresenceState) error");
-                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceState) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMsteamsPresenceState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMsteamsPresenceState) error : ", err);
                 return reject(err);
             });
         });
@@ -8500,12 +8506,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getMsteamsPresenceStates) successfull");
-                that.logger.log("internal", LOG_ID + "(getMsteamsPresenceStates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getMsteamsPresenceStates) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceStates) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getMsteamsPresenceStates) error");
-                that.logger.log("internalerror", LOG_ID, "(getMsteamsPresenceStates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getMsteamsPresenceStates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMsteamsPresenceStates) error : ", err);
                 return reject(err);
             });
         });
@@ -8526,12 +8532,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(registerMsteamsPresenceSharing) successfull");
-                that.logger.log("internal", LOG_ID + "(registerMsteamsPresenceSharing) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(registerMsteamsPresenceSharing) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(registerMsteamsPresenceSharing) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(registerMsteamsPresenceSharing) error");
-                that.logger.log("internalerror", LOG_ID, "(registerMsteamsPresenceSharing) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(registerMsteamsPresenceSharing) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerMsteamsPresenceSharing) error : ", err);
                 return reject(err);
             });
         });
@@ -8544,15 +8550,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
 
             that.http.delete("/api/rainbow/msteamspresence/v1.0", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(unregisterMsteamsPresenceSharing) successfull");
-                that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(unregisterMsteamsPresenceSharing) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unregisterMsteamsPresenceSharing) error");
-                that.logger.log("internalerror", LOG_ID, "(unregisterMsteamsPresenceSharing) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unregisterMsteamsPresenceSharing) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unregisterMsteamsPresenceSharing) error : ", err);
                 return reject(err);
             });
         });
@@ -8573,12 +8579,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(activateMsteamsPresence) successfull");
-                that.logger.log("internal", LOG_ID + "(activateMsteamsPresence) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(activateMsteamsPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(activateMsteamsPresence) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(activateMsteamsPresence) error");
-                that.logger.log("internalerror", LOG_ID, "(activateMsteamsPresence) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(activateMsteamsPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(activateMsteamsPresence) error : ", err);
                 return reject(err);
             });
         });
@@ -8591,15 +8597,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
 
             that.http.delete("/api/rainbow/msteamspresence/v1.0/activate", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deactivateMsteamsPresence) successfull");
-                that.logger.log("internal", LOG_ID + "(deactivateMsteamsPresence) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deactivateMsteamsPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deactivateMsteamsPresence) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deactivateMsteamsPresence) error");
-                that.logger.log("internalerror", LOG_ID, "(deactivateMsteamsPresence) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deactivateMsteamsPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deactivateMsteamsPresence) error : ", err);
                 return reject(err);
             });
         });
@@ -8625,12 +8631,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkCSVdata) successfull");
-                that.logger.log("internal", LOG_ID + "(checkCSVdata) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkCSVdata) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVdata) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkCSVdata) error");
-                that.logger.log("internalerror", LOG_ID, "(checkCSVdata) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkCSVdata) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkCSVdata) error : ", err);
                 return reject(err);
             });
         });
@@ -8643,15 +8649,15 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let params: any = {};
 
-            that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST reqId : ", reqId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST reqId : ", reqId);
 
             that.http.delete("/api/rainbow/massprovisioning/v1.0/users/imports/" + reqId + "/details", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that.logger.log("debug", LOG_ID + "(deleteAnImportStatusReport) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnImportStatusReport) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteAnImportStatusReport) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteAnImportStatusReport) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAnImportStatusReport) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAnImportStatusReport) error : ", err);
                 return reject(err);
             });
         });
@@ -8668,15 +8674,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAnImportStatusReport) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAnImportStatusReport) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAnImportStatusReport) successfull");
-                that.logger.log("internal", LOG_ID + "(getAnImportStatusReport) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAnImportStatusReport) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAnImportStatusReport) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAnImportStatusReport) error");
-                that.logger.log("internalerror", LOG_ID, "(getAnImportStatusReport) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAnImportStatusReport) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAnImportStatusReport) error : ", err);
                 return reject(err);
             });
         });
@@ -8693,15 +8699,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAnImportStatus) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAnImportStatus) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAnImportStatus) successfull");
-                that.logger.log("internal", LOG_ID + "(getAnImportStatus) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAnImportStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAnImportStatus) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAnImportStatus) error");
-                that.logger.log("internalerror", LOG_ID, "(getAnImportStatus) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAnImportStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAnImportStatus) error : ", err);
                 return reject(err);
             });
         });
@@ -8718,15 +8724,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getInformationOnImports) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getInformationOnImports) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getInformationOnImports) successfull");
-                that.logger.log("internal", LOG_ID + "(getInformationOnImports) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getInformationOnImports) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getInformationOnImports) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getInformationOnImports) error");
-                that.logger.log("internalerror", LOG_ID, "(getInformationOnImports) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getInformationOnImports) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getInformationOnImports) error : ", err);
                 return reject(err);
             });
         });
@@ -8743,15 +8749,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) successfull");
-                that.logger.log("internal", LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error");
-                that.logger.log("internalerror", LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getResultOfStartedOffice365TenantSynchronizationTask) error : ", err);
                 return reject(err);
             });
         });
@@ -8775,12 +8781,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(importCSVData) successfull");
-                that.logger.log("internal", LOG_ID + "(importCSVData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(importCSVData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(importCSVData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(importCSVData) error");
-                that.logger.log("internalerror", LOG_ID, "(importCSVData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(importCSVData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(importCSVData) error : ", err);
                 return reject(err);
             });
         });
@@ -8799,12 +8805,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), {}, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) successfull");
-                that.logger.log("internal", LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error");
-                that.logger.log("internalerror", LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) error : ", err);
                 return reject(err);
             });
         });
@@ -8821,15 +8827,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(synchronizeOffice365TenantUserList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(synchronizeOffice365TenantUserList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(synchronizeOffice365TenantUserList) successfull");
-                that.logger.log("internal", LOG_ID + "(synchronizeOffice365TenantUserList) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(synchronizeOffice365TenantUserList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(synchronizeOffice365TenantUserList) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(synchronizeOffice365TenantUserList) error");
-                that.logger.log("internalerror", LOG_ID, "(synchronizeOffice365TenantUserList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(synchronizeOffice365TenantUserList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(synchronizeOffice365TenantUserList) error : ", err);
                 return reject(err);
             });
         });
@@ -8850,12 +8856,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) successfull");
-                that.logger.log("internal", LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error");
-                that.logger.log("internalerror", LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) error : ", err);
                 return reject(err);
             });
         });
@@ -8874,12 +8880,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateCommandIdStatus) successfull");
-                that.logger.log("internal", LOG_ID + "(updateCommandIdStatus) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCommandIdStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCommandIdStatus) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateCommandIdStatus) error");
-                that.logger.log("internalerror", LOG_ID, "(updateCommandIdStatus) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateCommandIdStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCommandIdStatus) error : ", err);
                 return reject(err);
             });
         });
@@ -8916,12 +8922,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
 
             that.http.post(urlParams, that.getRequestHeader(""), CSVTxt, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) successfull");
-                that.logger.log("internal", LOG_ID + "(synchronizeUsersAndDeviceswithCSV) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(synchronizeUsersAndDeviceswithCSV) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(synchronizeUsersAndDeviceswithCSV) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error");
-                that.logger.log("internalerror", LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(synchronizeUsersAndDeviceswithCSV) error : ", err);
                 return reject(err);
             });
         });
@@ -8939,15 +8945,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "comment", comment);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCSVTemplate) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCSVTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(getCSVTemplate) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCSVTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCSVTemplate) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCSVTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(getCSVTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCSVTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCSVTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -8969,15 +8975,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "commandId", commandId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVforSynchronization) REST url : ", url);
 
             that.http.post(url, that.getRequestHeader(""), CSVTxt, 'text/csv; charset=utf-8').then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkCSVforSynchronization) successfull");
-                that.logger.log("internal", LOG_ID + "(checkCSVforSynchronization) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkCSVforSynchronization) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVforSynchronization) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkCSVforSynchronization) error");
-                that.logger.log("internalerror", LOG_ID, "(checkCSVforSynchronization) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkCSVforSynchronization) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkCSVforSynchronization) error : ", err);
                 return reject(err);
             });
         });
@@ -8995,15 +9001,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "commandId", commandId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCheckCSVReport) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCheckCSVReport) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCheckCSVReport) successfull");
-                that.logger.log("internal", LOG_ID + "(getCheckCSVReport) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCheckCSVReport) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCheckCSVReport) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCheckCSVReport) error");
-                that.logger.log("internalerror", LOG_ID, "(getCheckCSVReport) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCheckCSVReport) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCheckCSVReport) error : ", err);
                 return reject(err);
             });
         });
@@ -9015,7 +9021,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             // content-type : text/csv; charset=utf-8
-            that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", companyId, ", label : ", label, ", noemails : ", noemails, ", nostrict : ", nostrict, ", delimiter : ", delimiter, ", comment : ", comment);
+            that._logger.log(that.INTERNAL, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", companyId, ", label : ", label, ", noemails : ", noemails, ", nostrict : ", nostrict, ", delimiter : ", delimiter, ", comment : ", comment);
             let url = "/api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice";
 
             let urlParamsTab: string[] = [];
@@ -9029,19 +9035,19 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "comment", comment);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST url : ", url);
 
             /*let data = {
             }; */
             that.http.post(url, that.getRequestHeader(""), csvData, 'text/csv; charset=utf-8').then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) successfull");
-                that.logger.log("internal", LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(importRainbowVoiceUsersWithCSVdata) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error.");
-                that.logger.log("internalerror", LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(importRainbowVoiceUsersWithCSVdata) error : ", err);
                 return reject(err);
             });
         });
@@ -9063,15 +9069,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "ldap_id", String(ldap_id));
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveRainbowUserList) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveRainbowUserList) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveRainbowUserList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveRainbowUserList) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveRainbowUserList) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveRainbowUserList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveRainbowUserList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveRainbowUserList) error : ", err);
                 return reject(err);
             });
         });
@@ -9083,7 +9089,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             // content-type : text/csv; charset=utf-8
-            that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId);
             let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/check";
 
             let urlParamsTab: string[] = [];
@@ -9094,19 +9100,19 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "commandId", commandId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST url : ", url);
 
             /*let data = {
             }; */
             that.http.post(url, that.getRequestHeader(""), csvData, 'text/csv; charset=utf-8').then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(checkCSVdataForSynchronizeDirectory) successfull");
-                that.logger.log("internal", LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkCSVdataForSynchronizeDirectory) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkCSVdataForSynchronizeDirectory) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(checkCSVdataForSynchronizeDirectory) error.");
-                that.logger.log("internalerror", LOG_ID, "(checkCSVdataForSynchronizeDirectory) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(checkCSVdataForSynchronizeDirectory) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkCSVdataForSynchronizeDirectory) error : ", err);
                 return reject(err);
             });
         });
@@ -9118,7 +9124,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             // content-type : text/csv; charset=utf-8
-            that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId, ", label : ", label);
+            that._logger.log(that.INTERNAL, LOG_ID + "(importCSVdataForSynchronizeDirectory) delimiter : ", delimiter, ", comment : ", comment, ", commandId : ", commandId, ", label : ", label);
             let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize";
 
             let urlParamsTab: string[] = [];
@@ -9130,19 +9136,19 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "label", label);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(importCSVdataForSynchronizeDirectory) REST url : ", url);
 
             /*let data = {
             }; */
             that.http.post(url, that.getRequestHeader(""), csvData, 'text/csv; charset=utf-8').then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(importCSVdataForSynchronizeDirectory) successfull");
-                that.logger.log("internal", LOG_ID + "(importCSVdataForSynchronizeDirectory) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(importCSVdataForSynchronizeDirectory) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(importCSVdataForSynchronizeDirectory) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(importCSVdataForSynchronizeDirectory) error.");
-                that.logger.log("internalerror", LOG_ID, "(importCSVdataForSynchronizeDirectory) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(importCSVdataForSynchronizeDirectory) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(importCSVdataForSynchronizeDirectory) error : ", err);
                 return reject(err);
             });
         });
@@ -9160,15 +9166,15 @@ Request Method: PUT
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(getCSVReportByCommandId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCSVReportByCommandId) REST url : ", url);
 
             that.http.get(url, that.getRequestHeaderLowercaseAccept(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCSVReportByCommandId) successfull");
-                that.logger.log("internal", LOG_ID + "(getCSVReportByCommandId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCSVReportByCommandId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCSVReportByCommandId) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCSVReportByCommandId) error");
-                that.logger.log("internalerror", LOG_ID, "(getCSVReportByCommandId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCSVReportByCommandId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCSVReportByCommandId) error : ", err);
                 return reject(err);
             });
         });
@@ -9180,7 +9186,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             // content-type : text/csv; charset=utf-8
-            that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) commandId : ", commandId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createCSVReportByCommandId) commandId : ", commandId);
             let url = "/api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/" + commandId + "/report";
 
             /*
@@ -9190,19 +9196,19 @@ Request Method: PUT
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createCSVReportByCommandId) REST url : ", url);
 
             /*let data = {
             }; */
             that.http.post(url, that.getRequestHeader(""), data, undefined).then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, undefined).then(function (json) {
                 //that.http.post(url, that.getRequestHeader(), csvData, "text/csv; charset=utf-8").then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createCSVReportByCommandId) successfull");
-                that.logger.log("internal", LOG_ID + "(createCSVReportByCommandId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCSVReportByCommandId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCSVReportByCommandId) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCSVReportByCommandId) error.");
-                that.logger.log("internalerror", LOG_ID, "(createCSVReportByCommandId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCSVReportByCommandId) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCSVReportByCommandId) error : ", err);
                 return reject(err);
             });
         });
@@ -9222,15 +9228,15 @@ Request Method: PUT
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveRainbowEntriesList) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveRainbowEntriesList) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveRainbowEntriesList) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveRainbowEntriesList) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveRainbowEntriesList) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveRainbowEntriesList) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveRainbowEntriesList) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveRainbowEntriesList) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveRainbowEntriesList) error : ", err);
                 return reject(err);
             });
         });
@@ -9247,16 +9253,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/activate";
-            that.logger.log("internal", LOG_ID + "(ActivateALdapConnectorUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(ActivateALdapConnectorUser) REST url : ", url);
             let CSVTxt = undefined;
 
             that.http.post(url, that.getRequestHeader(), CSVTxt, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(ActivateALdapConnectorUser) successfull");
-                that.logger.log("internal", LOG_ID + "(ActivateALdapConnectorUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(ActivateALdapConnectorUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(ActivateALdapConnectorUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(ActivateALdapConnectorUser) error");
-                that.logger.log("internalerror", LOG_ID, "(ActivateALdapConnectorUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(ActivateALdapConnectorUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(ActivateALdapConnectorUser) error : ", err);
                 return reject(err);
             });
         });
@@ -9269,17 +9275,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!ldapId) {
-                that.logger.log("debug", LOG_ID + "(deleteLdapConnector) failed");
-                that.logger.log("debug", LOG_ID + "(deleteLdapConnector) No ldapId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnector) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnector) No ldapId provided");
                 resolve(null);
             } else {
                 that.http.delete("/api/rainbow/admin/v1.0/connectors/ldaps/" + ldapId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteLdapConnector) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteLdapConnector) REST result : " + json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnector) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteLdapConnector) REST result : " + json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteLdapConnector) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteLdapConnector) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteLdapConnector) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteLdapConnector) error : ", err);
                     return reject(err);
                 });
             }
@@ -9303,15 +9309,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", String(sortOrder));
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveAllLdapConnectorUsersData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllLdapConnectorUsersData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllLdapConnectorUsersData) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllLdapConnectorUsersData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllLdapConnectorUsersData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllLdapConnectorUsersData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllLdapConnectorUsersData) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllLdapConnectorUsersData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllLdapConnectorUsersData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllLdapConnectorUsersData) error : ", err);
                 return reject(err);
             });
         });
@@ -9324,16 +9330,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/" + ldapId + "/command";
-            that.logger.log("internal", LOG_ID + "(sendCommandToLdapConnectorUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendCommandToLdapConnectorUser) REST url : ", url);
             let data = {command};
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(sendCommandToLdapConnectorUser) successfull");
-                that.logger.log("internal", LOG_ID + "(sendCommandToLdapConnectorUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendCommandToLdapConnectorUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendCommandToLdapConnectorUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendCommandToLdapConnectorUser) error");
-                that.logger.log("internalerror", LOG_ID, "(sendCommandToLdapConnectorUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendCommandToLdapConnectorUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendCommandToLdapConnectorUser) error : ", err);
                 return reject(err);
             });
         });
@@ -9346,7 +9352,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/config";
-            that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
             let data: any = {companyId, settings, type};
 
             if (name) {
@@ -9354,12 +9360,12 @@ Request Method: PUT
             }
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createConfigurationForLdapConnector) successfull");
-                that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createConfigurationForLdapConnector) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createConfigurationForLdapConnector) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createConfigurationForLdapConnector) error");
-                that.logger.log("internalerror", LOG_ID, "(createConfigurationForLdapConnector) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createConfigurationForLdapConnector) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createConfigurationForLdapConnector) error : ", err);
                 return reject(err);
             });
         });
@@ -9372,17 +9378,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!ldapConfigId) {
-                that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) failed");
-                that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) No ldapId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnectorConfig) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnectorConfig) No ldapId provided");
                 resolve(null);
             } else {
                 that.http.delete("/api/rainbow/admin/v1.0/connectors/ldaps/config/" + ldapConfigId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnectorConfig) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteLdapConnectorConfig) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteLdapConnectorConfig) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteLdapConnectorConfig) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteLdapConnectorConfig) error : ", err);
                     return reject(err);
                 });
             }
@@ -9401,15 +9407,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfig) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorConfig) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveLdapConnectorConfig) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfig) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveLdapConnectorConfig) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorConfig) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorConfig) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorConfig) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveLdapConnectorConfig) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveLdapConnectorConfig) error : ", err);
                 return reject(err);
             });
         });
@@ -9427,15 +9433,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "type", type);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveLdapConnectorConfigTemplate) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveLdapConnectorConfigTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorConfigTemplate) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorConfigTemplate) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveLdapConnectorConfigTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveLdapConnectorConfigTemplate) error : ", err);
                 return reject(err);
             });
         });
@@ -9454,15 +9460,15 @@ Request Method: PUT
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorAllConfigTemplates) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveLdapConnectorAllConfigTemplates) error : ", err);
                 return reject(err);
             });
         });
@@ -9480,15 +9486,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigs) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorAllConfigs) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveLdapConnectorAllConfigs) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveLdapConnectorAllConfigs) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveLdapConnectorAllConfigs) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorAllConfigs) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveLdapConnectorAllConfigs) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveLdapConnectorAllConfigs) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveLdapConnectorAllConfigs) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveLdapConnectorAllConfigs) error : ", err);
                 return reject(err);
             });
         });
@@ -9508,15 +9514,15 @@ Request Method: PUT
             url = urlParamsTab[0];
             // */
 
-            that.logger.log("internal", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveLDAPConnectorConfigByLdapConfigId) error : ", err);
                 return reject(err);
             });
         });
@@ -9530,19 +9536,19 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/config/" + ldapConfigId;
-            that.logger.log("internal", LOG_ID + "(updateConfigurationForLdapConnector) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateConfigurationForLdapConnector) REST url : ", url);
             let params: any = {strict, settings};
             if (name) {
                 params.name = name;
             }
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateConfigurationForLdapConnector) successfull");
-                that.logger.log("internal", LOG_ID + "(updateConfigurationForLdapConnector) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateConfigurationForLdapConnector) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateConfigurationForLdapConnector) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateConfigurationForLdapConnector) error");
-                that.logger.log("internalerror", LOG_ID, "(updateConfigurationForLdapConnector) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateConfigurationForLdapConnector) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateConfigurationForLdapConnector) error : ", err);
                 return reject(err);
             });
         });
@@ -9555,16 +9561,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar" + (ldapId?"/"+ldapId:"");
-            that.logger.log("internal", LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createConfigurationForLdapConnector) REST url : ", url);
             let data: any = binaryImgFile;
 
             that.http.post(url, that.getRequestHeader(), data, contentType).then((json) => {
-                that.logger.log("debug", LOG_ID + "(uploadLdapAvatar) successfull");
-                that.logger.log("internal", LOG_ID + "(uploadLdapAvatar) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadLdapAvatar) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(uploadLdapAvatar) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(uploadLdapAvatar) error");
-                that.logger.log("internalerror", LOG_ID, "(uploadLdapAvatar) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(uploadLdapAvatar) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(uploadLdapAvatar) error : ", err);
                 return reject(err);
             });
         });
@@ -9578,12 +9584,12 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/avatar" + (ldapId?"/"+ldapId:"")
             that.http.delete(url, that.getRequestHeader()).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deleteLdapConnectorConfig) successfull");
-                that.logger.log("internal", LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteLdapConnectorConfig) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteLdapConnectorConfig) REST result : " + json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deleteLdapConnectorConfig) error");
-                that.logger.log("internalerror", LOG_ID, "(deleteLdapConnectorConfig) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deleteLdapConnectorConfig) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteLdapConnectorConfig) error : ", err);
                 return reject(err);
             });
         });
@@ -9602,17 +9608,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/events";
-            that.logger.log("internal", LOG_ID + "(createListOfEventsForConnector) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createListOfEventsForConnector) REST url : ", url);
             let data: any = { events };
             
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createListOfEventsForConnector) successfull");
-                that.logger.log("internal", LOG_ID + "(createListOfEventsForConnector) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createListOfEventsForConnector) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createListOfEventsForConnector) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createListOfEventsForConnector) error");
-                that.logger.log("internalerror", LOG_ID, "(createListOfEventsForConnector) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createListOfEventsForConnector) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createListOfEventsForConnector) error : ", err);
                 return reject(err);
             });
         });  
@@ -9632,15 +9638,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId;
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPbxById) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPbxById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPbxById) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPbxById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPbxById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPbxById) error : ", err);
                 return reject(err);
             });
         });
@@ -9653,7 +9659,7 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId;
-            that.logger.log("internal", LOG_ID + "(updateCloudPBX) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBX) REST url : ", url);
             let params = {
                 "barringOptions":
                         {
@@ -9685,12 +9691,12 @@ Request Method: PUT
             };
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateCloudPBX) successfull");
-                that.logger.log("internal", LOG_ID + "(updateCloudPBX) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBX) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBX) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateCloudPBX) error");
-                that.logger.log("internalerror", LOG_ID, "(updateCloudPBX) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBX) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBX) error : ", err);
                 return reject(err);
             });
         });
@@ -9701,17 +9707,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!systemId) {
-                that.logger.log("debug", LOG_ID + "(deleteCloudPBX) failed");
-                that.logger.log("debug", LOG_ID + "(deleteCloudPBX) No ldapId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) No ldapId provided");
                 resolve(null);
             } else {
                 that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteCloudPBX) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteCloudPBX) REST result : " + json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBX) REST result : " + json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteCloudPBX) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteCloudPBX) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBX) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBX) error : ", err);
                     return reject(err);
                 });
             }
@@ -9733,15 +9739,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "bpId", bpId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPbxById) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPbxById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPbxById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPbxById) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPbxById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPbxById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPbxById) error : ", err);
                 return reject(err);
             });
         });
@@ -9753,7 +9759,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs";
-            that.logger.log("internal", LOG_ID + "(createACloudPBX) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createACloudPBX) REST url : ", url);
             let param = {
                 bpId,
                 companyId,
@@ -9771,12 +9777,12 @@ Request Method: PUT
             };
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createACloudPBX) successfull");
-                that.logger.log("internal", LOG_ID + "(createACloudPBX) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createACloudPBX) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createACloudPBX) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createACloudPBX) error");
-                that.logger.log("internalerror", LOG_ID, "(createACloudPBX) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createACloudPBX) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createACloudPBX) error : ", err);
                 return reject(err);
             });
         });
@@ -9789,15 +9795,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/cli-options";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error : ", err);
                 return reject(err);
             });
         });
@@ -9810,18 +9816,18 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/cli-options";
-            that.logger.log("internal", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST url : ", url);
             let params = {
                 policy
             };
 
             that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) successfull");
-                that.logger.log("internal", LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error");
-                that.logger.log("internalerror", LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error : ", err);
                 return reject(err);
             });
         });
@@ -9834,15 +9840,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/languages";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXlanguages) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXlanguages) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXlanguages) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXlanguages) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXlanguages) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXlanguages) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXlanguages) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXlanguages) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXlanguages) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXlanguages) error : ", err);
                 return reject(err);
             });
         });
@@ -9855,15 +9861,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devicemodels";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXDeviceModels) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXDeviceModels) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXDeviceModels) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXDeviceModels) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXDeviceModels) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXDeviceModels) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXDeviceModels) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXDeviceModels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXDeviceModels) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXDeviceModels) error : ", err);
                 return reject(err);
             });
         });
@@ -9876,15 +9882,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/barring-options";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXTrafficBarringOptions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXTrafficBarringOptions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXTrafficBarringOptions) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXTrafficBarringOptions) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXTrafficBarringOptions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXTrafficBarringOptions) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXTrafficBarringOptions) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXTrafficBarringOptions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXTrafficBarringOptions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXTrafficBarringOptions) error : ", err);
                 return reject(err);
             });
         });
@@ -9897,15 +9903,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/barring-options";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error : ", err);
                 return reject(err);
             });
         });
@@ -9920,16 +9926,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices";
-            that.logger.log("internal", LOG_ID + "(CreateCloudPBXSIPDevice) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(CreateCloudPBXSIPDevice) REST url : ", url);
             let param = {description, deviceTypeId, macAddress};
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(CreateCloudPBXSIPDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(CreateCloudPBXSIPDevice) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(CreateCloudPBXSIPDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(CreateCloudPBXSIPDevice) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(CreateCloudPBXSIPDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(CreateCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(CreateCloudPBXSIPDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(CreateCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -9941,16 +9947,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/reset";
-            that.logger.log("internal", LOG_ID + "(factoryResetCloudPBXSIPDevice) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(factoryResetCloudPBXSIPDevice) REST url : ", url);
             let param = {};
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(factoryResetCloudPBXSIPDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(factoryResetCloudPBXSIPDevice) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(factoryResetCloudPBXSIPDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(factoryResetCloudPBXSIPDevice) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(factoryResetCloudPBXSIPDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(factoryResetCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(factoryResetCloudPBXSIPDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(factoryResetCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -9963,15 +9969,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId;
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXSIPDeviceById) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPDeviceById) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXSIPDeviceById) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXSIPDeviceById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPDeviceById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPDeviceById) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXSIPDeviceById) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXSIPDeviceById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPDeviceById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPDeviceById) error : ", err);
                 return reject(err);
             });
         });
@@ -9983,12 +9989,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -9998,18 +10004,18 @@ Request Method: PUT
         // PUT  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId} 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) systemId : ", systemId + ", deviceTypeId : ", deviceId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXSIPDevice) systemId : ", systemId + ", deviceTypeId : ", deviceId);
             let data = {
                 description,
                 macAddress
             };
             that.http.put("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateCloudPBXSIPDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(updateCloudPBXSIPDevice) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXSIPDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXSIPDevice) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateCloudPBXSIPDevice) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXSIPDevice) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -10030,15 +10036,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "phoneNumberId", phoneNumberId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllCloudPBXSIPDevice) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXSIPDevice) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllCloudPBXSIPDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllCloudPBXSIPDevice) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllCloudPBXSIPDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXSIPDevice) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllCloudPBXSIPDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllCloudPBXSIPDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -10051,15 +10057,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/registrations";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -10071,16 +10077,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug";
-            that.logger.log("internal", LOG_ID + "(grantCloudPBXAccessToDebugSession) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(grantCloudPBXAccessToDebugSession) REST url : ", url);
             let param = {duration};
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(grantCloudPBXAccessToDebugSession) successfull");
-                that.logger.log("internal", LOG_ID + "(grantCloudPBXAccessToDebugSession) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(grantCloudPBXAccessToDebugSession) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(grantCloudPBXAccessToDebugSession) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(grantCloudPBXAccessToDebugSession) error");
-                that.logger.log("internalerror", LOG_ID, "(grantCloudPBXAccessToDebugSession) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(grantCloudPBXAccessToDebugSession) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(grantCloudPBXAccessToDebugSession) error : ", err);
                 return reject(err);
             });
         });
@@ -10092,12 +10098,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug", that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10109,16 +10115,16 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/reboot";
-            that.logger.log("internal", LOG_ID + "(rebootCloudPBXSIPDevice) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(rebootCloudPBXSIPDevice) REST url : ", url);
             let param = {};
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(rebootCloudPBXSIPDevice) successfull");
-                that.logger.log("internal", LOG_ID + "(rebootCloudPBXSIPDevice) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(rebootCloudPBXSIPDevice) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(rebootCloudPBXSIPDevice) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(rebootCloudPBXSIPDevice) error");
-                that.logger.log("internalerror", LOG_ID, "(rebootCloudPBXSIPDevice) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(rebootCloudPBXSIPDevice) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(rebootCloudPBXSIPDevice) error : ", err);
                 return reject(err);
             });
         });
@@ -10134,15 +10140,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId;
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXSubscriber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXSubscriber) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXSubscriber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXSubscriber) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXSubscriber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSubscriber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSubscriber) error : ", err);
                 return reject(err);
             });
         });
@@ -10154,12 +10160,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10171,7 +10177,7 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers";
-            that.logger.log("internal", LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST url : ", url);
             let param = {
                 login,
                 password,
@@ -10180,12 +10186,12 @@ Request Method: PUT
             };
 
             that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(createCloudPBXSubscriberRainbowUser) successfull");
-                that.logger.log("internal", LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXSubscriberRainbowUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCloudPBXSubscriberRainbowUser) error");
-                that.logger.log("internalerror", LOG_ID, "(createCloudPBXSubscriberRainbowUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCloudPBXSubscriberRainbowUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCloudPBXSubscriberRainbowUser) error : ", err);
                 return reject(err);
             });
         });
@@ -10198,15 +10204,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId;
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
                 return reject(err);
             });
         });
@@ -10218,12 +10224,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete(" /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10242,15 +10248,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error : ", err);
                 return reject(err);
             });
         });
@@ -10263,15 +10269,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/registrations";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
                 return reject(err);
             });
         });
@@ -10281,18 +10287,18 @@ Request Method: PUT
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices  
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", systemId + ", deviceTypeId : ", deviceId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", systemId + ", deviceTypeId : ", deviceId);
             let data = {
                 deviceId,
                 macAddress
             };
             that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) successfull");
-                that.logger.log("internal", LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error.");
-                that.logger.log("internalerror", LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error : ", err);
                 return reject(err);
             });
         });
@@ -10305,15 +10311,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/cli-options";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXSubscriberCLIOptions) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriberCLIOptions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXSubscriberCLIOptions) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXSubscriberCLIOptions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSubscriberCLIOptions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSubscriberCLIOptions) error : ", err);
                 return reject(err);
             });
         });
@@ -10330,15 +10336,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/free";
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) successfull");
-                that.logger.log("internal", LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error");
-                that.logger.log("internalerror", LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
                 return reject(err);
             });
         });
@@ -10362,15 +10368,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "limit", isAssigned + "");
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(listCloudPBXDDINumbersAssociated) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(listCloudPBXDDINumbersAssociated) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(listCloudPBXDDINumbersAssociated) successfull");
-                that.logger.log("internal", LOG_ID + "(listCloudPBXDDINumbersAssociated) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(listCloudPBXDDINumbersAssociated) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(listCloudPBXDDINumbersAssociated) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(listCloudPBXDDINumbersAssociated) error");
-                that.logger.log("internalerror", LOG_ID, "(listCloudPBXDDINumbersAssociated) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(listCloudPBXDDINumbersAssociated) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(listCloudPBXDDINumbersAssociated) error : ", err);
                 return reject(err);
             });
         });
@@ -10380,17 +10386,17 @@ Request Method: PUT
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi   
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(createCloudPBXDDINumber) systemId : ", systemId + ", number : ", number);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXDDINumber) systemId : ", systemId + ", number : ", number);
             let data = {
                 number
             };
             that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createCloudPBXDDINumber) successfull");
-                that.logger.log("internal", LOG_ID + "(createCloudPBXDDINumber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXDDINumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXDDINumber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCloudPBXDDINumber) error.");
-                that.logger.log("internalerror", LOG_ID, "(createCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCloudPBXDDINumber) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCloudPBXDDINumber) error : ", err);
                 return reject(err);
             });
         });
@@ -10402,12 +10408,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10417,15 +10423,15 @@ Request Method: PUT
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}    
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(associateCloudPBXDDINumber) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId, ", userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(associateCloudPBXDDINumber) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId, ", userId : ", userId);
             let data = {};
             that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(associateCloudPBXDDINumber) successfull");
-                that.logger.log("internal", LOG_ID + "(associateCloudPBXDDINumber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(associateCloudPBXDDINumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(associateCloudPBXDDINumber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(associateCloudPBXDDINumber) error.");
-                that.logger.log("internalerror", LOG_ID, "(associateCloudPBXDDINumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(associateCloudPBXDDINumber) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(associateCloudPBXDDINumber) error : ", err);
                 return reject(err);
             });
         });
@@ -10437,12 +10443,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10452,15 +10458,15 @@ Request Method: PUT
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/default     
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(setCloudPBXDDIAsdefault) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(setCloudPBXDDIAsdefault) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId);
             let data = {};
             that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/default", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setCloudPBXDDIAsdefault) successfull");
-                that.logger.log("internal", LOG_ID + "(setCloudPBXDDIAsdefault) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setCloudPBXDDIAsdefault) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setCloudPBXDDIAsdefault) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setCloudPBXDDIAsdefault) error.");
-                that.logger.log("internalerror", LOG_ID, "(setCloudPBXDDIAsdefault) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setCloudPBXDDIAsdefault) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCloudPBXDDIAsdefault) error : ", err);
                 return reject(err);
             });
         });
@@ -10478,15 +10484,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/rvcpprovisioning/v1.0/external-trunks/" + externalTrunkId;
             //addParamToUrl(url, "systemId", systemId);
 
-            that.logger.log("internal", LOG_ID + "(retrieveExternalSIPTrunkById) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveExternalSIPTrunkById) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveExternalSIPTrunkById) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveExternalSIPTrunkById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveExternalSIPTrunkById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveExternalSIPTrunkById) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveExternalSIPTrunkById) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveExternalSIPTrunkById) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveExternalSIPTrunkById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveExternalSIPTrunkById) error : ", err);
                 return reject(err);
             });
         });
@@ -10504,15 +10510,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "trunkType", trunkType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrievelistExternalSIPTrunks) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrievelistExternalSIPTrunks) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrievelistExternalSIPTrunks) successfull");
-                that.logger.log("internal", LOG_ID + "(retrievelistExternalSIPTrunks) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrievelistExternalSIPTrunks) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrievelistExternalSIPTrunks) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrievelistExternalSIPTrunks) error");
-                that.logger.log("internalerror", LOG_ID, "(retrievelistExternalSIPTrunks) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrievelistExternalSIPTrunks) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrievelistExternalSIPTrunks) error : ", err);
                 return reject(err);
             });
         });
@@ -10538,15 +10544,15 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "trunkType", trunkType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllAvailableCallLineIdentifications) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllAvailableCallLineIdentifications) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllAvailableCallLineIdentifications) error : ", err);
                 return reject(err);
             });
         });
@@ -10564,15 +10570,15 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "trunkType", trunkType);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveCurrentCallLineIdentification) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCurrentCallLineIdentification) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveCurrentCallLineIdentification) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveCurrentCallLineIdentification) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveCurrentCallLineIdentification) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCurrentCallLineIdentification) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveCurrentCallLineIdentification) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveCurrentCallLineIdentification) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveCurrentCallLineIdentification) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveCurrentCallLineIdentification) error : ", err);
                 return reject(err);
             });
         });
@@ -10583,19 +10589,19 @@ Request Method: PUT
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) policy : ", policy + ", phoneNumberId : ", phoneNumberId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(setCurrentActiveCallLineIdentification) policy : ", policy + ", phoneNumberId : ", phoneNumberId);
             let data = {
                 policy,
                 phoneNumberId
             };
 
             that.http.put("/api/rainbow/voice/v1.0/cli-options", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(setCurrentActiveCallLineIdentification) successfull");
-                that.logger.log("internal", LOG_ID + "(setCurrentActiveCallLineIdentification) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(setCurrentActiveCallLineIdentification) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setCurrentActiveCallLineIdentification) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(setCurrentActiveCallLineIdentification) error.");
-                that.logger.log("internalerror", LOG_ID, "(setCurrentActiveCallLineIdentification) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(setCurrentActiveCallLineIdentification) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCurrentActiveCallLineIdentification) error : ", err);
                 return reject(err);
             });
         });
@@ -10610,7 +10616,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-add_user_to_group
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(addMemberToGroup) groupId : ", groupId + ", memberId : ", memberId + ", position : ", position + ", roles : ", roles + ", status : ", status);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addMemberToGroup) groupId : ", groupId + ", memberId : ", memberId + ", position : ", position + ", roles : ", roles + ", status : ", status);
             let data = {
                 memberId,
                 position,
@@ -10618,12 +10624,12 @@ Request Method: PUT
                 status
             };
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/members", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addMemberToGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(addMemberToGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(addMemberToGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addMemberToGroup) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addMemberToGroup) error.");
-                that.logger.log("internalerror", LOG_ID, "(addMemberToGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addMemberToGroup) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addMemberToGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10636,12 +10642,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteVoiceMessageAssociatedToAGroup) (" + groupId + ", " + messageId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10665,15 +10671,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "callerNumber", callerNumber);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getVoiceMessagesAssociatedToGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getVoiceMessagesAssociatedToGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getVoiceMessagesAssociatedToGroup) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(getVoiceMessagesAssociatedToGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getVoiceMessagesAssociatedToGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getVoiceMessagesAssociatedToGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10698,15 +10704,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getGroupForwards) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getGroupForwards) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getGroupForwards) successfull");
-                that.logger.log("internal", LOG_ID + "(getGroupForwards) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getGroupForwards) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getGroupForwards) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getGroupForwards) error");
-                that.logger.log("internalerror", LOG_ID, "(getGroupForwards) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getGroupForwards) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getGroupForwards) error : ", err);
                 return reject(err);
             });
         });
@@ -10732,15 +10738,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getTheUserGroup) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTheUserGroup) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getTheUserGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(getTheUserGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getTheUserGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTheUserGroup) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getTheUserGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(getTheUserGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getTheUserGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTheUserGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10751,15 +10757,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_group
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(joinAGroup) groupId : ", groupId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(joinAGroup) groupId : ", groupId);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(joinAGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(joinAGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(joinAGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinAGroup) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinAGroup) error.");
-                that.logger.log("internalerror", LOG_ID, "(joinAGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(joinAGroup) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinAGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10770,15 +10776,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_all_groups
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(joinAllGroups) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(joinAllGroups) ");
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/join", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(joinAllGroups) successfull");
-                that.logger.log("internal", LOG_ID + "(joinAllGroups) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(joinAllGroups) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinAllGroups) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(joinAllGroups) error.");
-                that.logger.log("internalerror", LOG_ID, "(joinAllGroups) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(joinAllGroups) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinAllGroups) error : ", err);
                 return reject(err);
             });
         });
@@ -10789,15 +10795,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_group
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(leaveAGroup) groupId : ", groupId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(leaveAGroup) groupId : ", groupId);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/" + groupId + "/leave", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(leaveAGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(leaveAGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(leaveAGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(leaveAGroup) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(leaveAGroup) error.");
-                that.logger.log("internalerror", LOG_ID, "(leaveAGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(leaveAGroup) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(leaveAGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10808,15 +10814,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_all_groups
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(leaveAllGroups) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(leaveAllGroups) ");
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/leave", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(leaveAllGroups) successfull");
-                that.logger.log("internal", LOG_ID + "(leaveAllGroups) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(leaveAllGroups) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(leaveAllGroups) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(leaveAllGroups) error.");
-                that.logger.log("internalerror", LOG_ID, "(leaveAllGroups) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(leaveAllGroups) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(leaveAllGroups) error : ", err);
                 return reject(err);
             });
         });
@@ -10829,12 +10835,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(removeMemberFromGroup) (" + groupId + ", " + memberId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -10852,15 +10858,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) error : ", err);
                 return reject(err);
             });
         });
@@ -10871,18 +10877,18 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroup
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId, ", externalNumberId : ", externalNumberId, ", isEmptyAllowed : ", isEmptyAllowed);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId, ", externalNumberId : ", externalNumberId, ", isEmptyAllowed : ", isEmptyAllowed);
             let data = {
                 externalNumberId,
                 isEmptyAllowed
             };
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateAGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAGroup) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAGroup) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateAGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAGroup) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10893,17 +10899,17 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-UpdateGroupVoiceMessage
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId + ", messageId : ", messageId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId + ", messageId : ", messageId);
             let data = {
                 read
             };
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAVoiceMessageAssociatedToAGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -10914,7 +10920,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroupForwards
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateGroupForward) groupId : ", groupId + ", callForwardType : ", callForwardType);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupForward) groupId : ", groupId + ", callForwardType : ", callForwardType);
             let data = {
                 destinationType,
                 "number": numberToForward,
@@ -10924,12 +10930,12 @@ Request Method: PUT
                 rvcpAutoAttendantId
             };
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/forwards/" + callForwardType, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateGroupForward) successfull");
-                that.logger.log("internal", LOG_ID + "(updateGroupForward) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupForward) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupForward) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateGroupForward) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateGroupForward) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateGroupForward) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupForward) error : ", err);
                 return reject(err);
             });
         });
@@ -10940,19 +10946,19 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-update_member_inside_group
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateGroupMember) groupId : ", groupId + ", memberId : ", memberId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupMember) groupId : ", groupId + ", memberId : ", memberId);
             let data = {
                 position,
                 roles,
                 status
             };
             that.http.put("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateGroupMember) successfull");
-                that.logger.log("internal", LOG_ID + "(updateGroupMember) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupMember) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupMember) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateGroupMember) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateGroupMember) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateGroupMember) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupMember) error : ", err);
                 return reject(err);
             });
         });
@@ -10967,15 +10973,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Dnd_state
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(activateDeactivateDND) activate : ", activate);
+            that._logger.log(that.INTERNAL, LOG_ID + "(activateDeactivateDND) activate : ", activate);
             let data = undefined;
             that.http.put("/api/rainbow/voice/v1.0/deskphones/dnd?activate=" + activate, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(activateDeactivateDND) successfull");
-                that.logger.log("internal", LOG_ID + "(activateDeactivateDND) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(activateDeactivateDND) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(activateDeactivateDND) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(activateDeactivateDND) error.");
-                that.logger.log("internalerror", LOG_ID, "(activateDeactivateDND) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(activateDeactivateDND) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(activateDeactivateDND) error : ", err);
                 return reject(err);
             });
         });
@@ -10987,7 +10993,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Forward_state
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(configureAndActivateDeactivateForward) callForwardType : ", callForwardType);
+            that._logger.log(that.INTERNAL, LOG_ID + "(configureAndActivateDeactivateForward) callForwardType : ", callForwardType);
             let data = {
                 type,
                 number,
@@ -10995,12 +11001,12 @@ Request Method: PUT
                 activated
             };
             that.http.put("/api/rainbow/voice/v1.0/deskphones/forwards/" + callForwardType, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(configureAndActivateDeactivateForward) successfull");
-                that.logger.log("internal", LOG_ID + "(configureAndActivateDeactivateForward) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(configureAndActivateDeactivateForward) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(configureAndActivateDeactivateForward) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(configureAndActivateDeactivateForward) error.");
-                that.logger.log("internalerror", LOG_ID, "(configureAndActivateDeactivateForward) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(configureAndActivateDeactivateForward) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(configureAndActivateDeactivateForward) error : ", err);
                 return reject(err);
             });
         });
@@ -11019,15 +11025,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveActiveForwards) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveActiveForwards) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveActiveForwards) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveActiveForwards) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveActiveForwards) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveActiveForwards) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveActiveForwards) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveActiveForwards) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveActiveForwards) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveActiveForwards) error : ", err);
                 return reject(err);
             });
         });
@@ -11046,15 +11052,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveDNDState) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveDNDState) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveDNDState) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveDNDState) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveDNDState) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveDNDState) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveDNDState) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveDNDState) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveDNDState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveDNDState) error : ", err);
                 return reject(err);
             });
         });
@@ -11074,15 +11080,15 @@ Request Method: PUT
             // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(searchUsersGroupsContactsByName) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchUsersGroupsContactsByName) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(searchUsersGroupsContactsByName) successfull");
-                that.logger.log("internal", LOG_ID + "(searchUsersGroupsContactsByName) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchUsersGroupsContactsByName) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchUsersGroupsContactsByName) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchUsersGroupsContactsByName) error");
-                that.logger.log("internalerror", LOG_ID, "(searchUsersGroupsContactsByName) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchUsersGroupsContactsByName) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchUsersGroupsContactsByName) error : ", err);
                 return reject(err);
             });
         });
@@ -11097,15 +11103,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Activate_PersonalRoutine
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(activatePersonalRoutine) routineId : ", routineId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(activatePersonalRoutine) routineId : ", routineId);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/personalroutines/" + routineId + "/activate", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(activatePersonalRoutine) successfull");
-                that.logger.log("internal", LOG_ID + "(activatePersonalRoutine) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(activatePersonalRoutine) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(activatePersonalRoutine) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(activatePersonalRoutine) error.");
-                that.logger.log("internalerror", LOG_ID, "(activatePersonalRoutine) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(activatePersonalRoutine) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(activatePersonalRoutine) error : ", err);
                 return reject(err);
             });
         });
@@ -11116,15 +11122,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Create_PersonalRoutine
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(createCustomPersonalRoutine) name : ", name);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createCustomPersonalRoutine) name : ", name);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/personalroutines", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createCustomPersonalRoutine) successfull");
-                that.logger.log("internal", LOG_ID + "(createCustomPersonalRoutine) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createCustomPersonalRoutine) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCustomPersonalRoutine) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createCustomPersonalRoutine) error.");
-                that.logger.log("internalerror", LOG_ID, "(createCustomPersonalRoutine) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createCustomPersonalRoutine) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCustomPersonalRoutine) error : ", err);
                 return reject(err);
             });
         });
@@ -11138,12 +11144,12 @@ Request Method: PUT
             let url = "/api/rainbow/voice/v1.0/personalroutines/" + routineId;
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteCustomPersonalRoutine) (" + routineId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomPersonalRoutine) (" + routineId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCustomPersonalRoutine) (" + routineId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -11169,15 +11175,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getPersonalRoutineData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getPersonalRoutineData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getPersonalRoutineData) successfull");
-                that.logger.log("internal", LOG_ID + "(getPersonalRoutineData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getPersonalRoutineData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getPersonalRoutineData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getPersonalRoutineData) error");
-                that.logger.log("internalerror", LOG_ID, "(getPersonalRoutineData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getPersonalRoutineData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPersonalRoutineData) error : ", err);
                 return reject(err);
             });
         });
@@ -11203,15 +11209,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllPersonalRoutines) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPersonalRoutines) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllPersonalRoutines) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllPersonalRoutines) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPersonalRoutines) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPersonalRoutines) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllPersonalRoutines) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllPersonalRoutines) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllPersonalRoutines) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPersonalRoutines) error : ", err);
                 return reject(err);
             });
         });
@@ -11222,7 +11228,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Update_PersonalRoutine
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) routineId : ", routineId + ", name : ", name);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updatePersonalRoutineData) routineId : ", routineId + ", name : ", name);
             let data = {
                 dndPresence,
                 name,
@@ -11234,12 +11240,12 @@ Request Method: PUT
                 huntingGroups
             };
             that.http.put("/api/rainbow/voice/v1.0/personalroutines/" + routineId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updatePersonalRoutineData) successfull");
-                that.logger.log("internal", LOG_ID + "(updatePersonalRoutineData) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePersonalRoutineData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updatePersonalRoutineData) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updatePersonalRoutineData) error.");
-                that.logger.log("internalerror", LOG_ID, "(updatePersonalRoutineData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updatePersonalRoutineData) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updatePersonalRoutineData) error : ", err);
                 return reject(err);
             });
         });
@@ -11254,18 +11260,18 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Routing-Set_Routing
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(manageUserRoutingData) destinations : ", destinations + ", currentDeviceId : ", currentDeviceId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(manageUserRoutingData) destinations : ", destinations + ", currentDeviceId : ", currentDeviceId);
             let data = {
                 destinations,
                 currentDeviceId
             };
             that.http.put("/api/rainbow/voice/v1.0/routing", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(manageUserRoutingData) successfull");
-                that.logger.log("internal", LOG_ID + "(manageUserRoutingData) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(manageUserRoutingData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(manageUserRoutingData) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(manageUserRoutingData) error.");
-                that.logger.log("internalerror", LOG_ID, "(manageUserRoutingData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(manageUserRoutingData) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(manageUserRoutingData) error : ", err);
                 return reject(err);
             });
         });
@@ -11291,15 +11297,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrievetransferRoutingData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrievetransferRoutingData) successfull");
-                that.logger.log("internal", LOG_ID + "(retrievetransferRoutingData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrievetransferRoutingData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrievetransferRoutingData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrievetransferRoutingData) error");
-                that.logger.log("internalerror", LOG_ID, "(retrievetransferRoutingData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrievetransferRoutingData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrievetransferRoutingData) error : ", err);
                 return reject(err);
             });
         });
@@ -11325,15 +11331,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveUserRoutingData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveUserRoutingData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveUserRoutingData) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveUserRoutingData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveUserRoutingData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveUserRoutingData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveUserRoutingData) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveUserRoutingData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveUserRoutingData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveUserRoutingData) error : ", err);
                 return reject(err);
             });
         });
@@ -11363,15 +11369,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(retrieveVoiceUserSettings) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveVoiceUserSettings) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(retrieveVoiceUserSettings) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveVoiceUserSettings) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveVoiceUserSettings) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveVoiceUserSettings) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveVoiceUserSettings) error");
-                that.logger.log("internalerror", LOG_ID, "(retrieveVoiceUserSettings) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveVoiceUserSettings) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveVoiceUserSettings) error : ", err);
                 return reject(err);
             });
         });
@@ -11386,15 +11392,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Add_participant
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(addParticipant3PCC) callId : ", callId, ", callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addParticipant3PCC) callId : ", callId, ", callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addParticipant3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(addParticipant3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(addParticipant3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addParticipant3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addParticipant3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(addParticipant3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addParticipant3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addParticipant3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11405,15 +11411,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Answer_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(answerCall3PCC) callId : ", callId, ", callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(answerCall3PCC) callId : ", callId, ", callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(answerCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(answerCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(answerCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(answerCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(answerCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(answerCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(answerCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(answerCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11424,15 +11430,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Blind_Transfer_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(blindTransferCall3PCC) callId : ", callId, ", callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(blindTransferCall3PCC) callId : ", callId, ", callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/participants", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(blindTransferCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(blindTransferCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(blindTransferCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(blindTransferCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(blindTransferCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(blindTransferCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(blindTransferCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(blindTransferCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11443,15 +11449,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Deflect_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(deflectCall3PCC) callId : ", callId, ", callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(deflectCall3PCC) callId : ", callId, ", callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/deflect", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(deflectCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(deflectCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(deflectCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deflectCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(deflectCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(deflectCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(deflectCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deflectCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11462,15 +11468,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Hold_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(holdCall3PCC) callId : ", callId, ", callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(holdCall3PCC) callId : ", callId, ", callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/hold", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(holdCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(holdCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(holdCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(holdCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(holdCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(holdCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(holdCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(holdCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11490,15 +11496,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Make_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(makeCall3PCC) callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(makeCall3PCC) callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(makeCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(makeCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(makeCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(makeCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(makeCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(makeCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(makeCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(makeCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11509,15 +11515,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Merge_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(mergeCall3PCC) activeCallId : ", activeCallId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(mergeCall3PCC) activeCallId : ", activeCallId);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + activeCallId + "/merge", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(mergeCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(mergeCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(mergeCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(mergeCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(mergeCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(mergeCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(mergeCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(mergeCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11532,15 +11538,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Pickup_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(pickupCall3PCC) callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(pickupCall3PCC) callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/pickup", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(pickupCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(pickupCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(pickupCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(pickupCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(pickupCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(pickupCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(pickupCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(pickupCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11555,12 +11561,12 @@ Request Method: PUT
             url += legId ? "?legId=" + legId:"";
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(releaseCall3PCC) (" + callId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(releaseCall3PCC) (" + callId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(releaseCall3PCC) (" + callId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -11571,15 +11577,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Retrieve_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(retrieveCall3PCC) callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCall3PCC) callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/retrieve", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(retrieveCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(retrieveCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(retrieveCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(retrieveCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(retrieveCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(retrieveCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11590,15 +11596,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Send_DTMF
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(sendDTMF3PCC) callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendDTMF3PCC) callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + callId + "/senddtmf", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(sendDTMF3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(sendDTMF3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendDTMF3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendDTMF3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(sendDTMF3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(sendDTMF3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendDTMF3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendDTMF3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11625,15 +11631,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(snapshot3PCC) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(snapshot3PCC) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(snapshot3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(snapshot3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(snapshot3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(snapshot3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(snapshot3PCC) error");
-                that.logger.log("internalerror", LOG_ID, "(snapshot3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(snapshot3PCC) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(snapshot3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11644,15 +11650,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-Transfer_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(transferCall3PCC) callData : ", callData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(transferCall3PCC) callData : ", callData);
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/calls/" + activeCallId + "/transfer", that.getRequestHeader(), callData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(transferCall3PCC) successfull");
-                that.logger.log("internal", LOG_ID + "(transferCall3PCC) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(transferCall3PCC) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(transferCall3PCC) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(transferCall3PCC) error.");
-                that.logger.log("internalerror", LOG_ID, "(transferCall3PCC) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(transferCall3PCC) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(transferCall3PCC) error : ", err);
                 return reject(err);
             });
         });
@@ -11666,12 +11672,12 @@ Request Method: PUT
             let url = "/api/rainbow/voice/v1.0/messages/" + messageId;
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteAVoiceMessage) (" + messageId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteAVoiceMessage) (" + messageId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAVoiceMessage) (" + messageId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -11685,12 +11691,12 @@ Request Method: PUT
             let url = "/api/rainbow/voice/v1.0/messages";
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteAllVoiceMessages) (" + messageId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteAllVoiceMessages) (" + messageId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAllVoiceMessages) (" + messageId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -11717,15 +11723,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) successfull");
-                that.logger.log("internal", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error");
-                that.logger.log("internalerror", LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getEmergencyNumbersAndEmergencyOptions) error : ", err);
                 return reject(err);
             });
         });
@@ -11758,15 +11764,15 @@ Request Method: PUT
             // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getVoiceMessages) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getVoiceMessages) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getVoiceMessages) successfull");
-                that.logger.log("internal", LOG_ID + "(getVoiceMessages) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getVoiceMessages) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getVoiceMessages) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getVoiceMessages) error");
-                that.logger.log("internalerror", LOG_ID, "(getVoiceMessages) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getVoiceMessages) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getVoiceMessages) error : ", err);
                 return reject(err);
             });
         });
@@ -11793,15 +11799,15 @@ Request Method: PUT
             // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getUserDevices) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getUserDevices) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getUserDevices) successfull");
-                that.logger.log("internal", LOG_ID + "(getUserDevices) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getUserDevices) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getUserDevices) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getUserDevices) error");
-                that.logger.log("internalerror", LOG_ID, "(getUserDevices) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getUserDevices) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserDevices) error : ", err);
                 return reject(err);
             });
         });
@@ -11812,15 +11818,15 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice-UpdateVoiceMessage
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateVoiceMessage) messageId : ", messageId + ", urlData : ", urlData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateVoiceMessage) messageId : ", messageId + ", urlData : ", urlData);
             let data = {};
             that.http.put("/api/rainbow/voice/v1.0/messages/" + messageId, that.getRequestHeader(), urlData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateVoiceMessage) successfull");
-                that.logger.log("internal", LOG_ID + "(updateVoiceMessage) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateVoiceMessage) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateVoiceMessage) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateVoiceMessage) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateVoiceMessage) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateVoiceMessage) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateVoiceMessage) error : ", err);
                 return reject(err);
             });
         });
@@ -11835,7 +11841,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice_Forward-Forward_call
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(forwardCall) callForwardType : ", callForwardType + ", urlData : ", urlData);
+            that._logger.log(that.INTERNAL, LOG_ID + "(forwardCall) callForwardType : ", callForwardType + ", urlData : ", urlData);
             let url: string = "/api/rainbow/voice/v1.0/forwards/" + callForwardType;
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -11854,12 +11860,12 @@ Request Method: PUT
             url = urlParamsTab[0];
             let data = {};
             that.http.put(url, that.getRequestHeader(), urlData, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(forwardCall) successfull");
-                that.logger.log("internal", LOG_ID + "(forwardCall) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(forwardCall) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(forwardCall) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(forwardCall) error.");
-                that.logger.log("internalerror", LOG_ID, "(forwardCall) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(forwardCall) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(forwardCall) error : ", err);
                 return reject(err);
             });
         });
@@ -11870,7 +11876,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice_Forward-Get_Subscriber_call_forwards
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(getASubscriberForwards) userId : ", userId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getASubscriberForwards) userId : ", userId);
             let url: string = "/api/rainbow/voice/v1.0/forwards";
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -11889,12 +11895,12 @@ Request Method: PUT
             url = urlParamsTab[0];
             let data = {};
             that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(getASubscriberForwards) successfull");
-                that.logger.log("internal", LOG_ID + "(getASubscriberForwards) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(getASubscriberForwards) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getASubscriberForwards) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getASubscriberForwards) error.");
-                that.logger.log("internalerror", LOG_ID, "(getASubscriberForwards) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getASubscriberForwards) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getASubscriberForwards) error : ", err);
                 return reject(err);
             });
         });
@@ -11911,7 +11917,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Voice_Search_Hunting_Groups-Get_Cloud_PBX_Hunting_Groups
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(searchCloudPBXhuntingGroups) name : ", name);
+            that._logger.log(that.INTERNAL, LOG_ID + "(searchCloudPBXhuntingGroups) name : ", name);
             let url: string = "/api/rainbow/voice/v1.0/search/huntinggroups";
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -11930,12 +11936,12 @@ Request Method: PUT
             url = urlParamsTab[0];
             let data = {};
             that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(searchCloudPBXhuntingGroups) successfull");
-                that.logger.log("internal", LOG_ID + "(searchCloudPBXhuntingGroups) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(searchCloudPBXhuntingGroups) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchCloudPBXhuntingGroups) REST result : ", json.data);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(searchCloudPBXhuntingGroups) error.");
-                that.logger.log("internalerror", LOG_ID, "(searchCloudPBXhuntingGroups) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(searchCloudPBXhuntingGroups) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(searchCloudPBXhuntingGroups) error : ", err);
                 return reject(err);
             });
         });
@@ -11955,18 +11961,18 @@ Request Method: PUT
         // API https://api.openrainbow.org/admin/#api-clients_versions-PostClientsVersions
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(createAClientVersion) id : ", id, ", version : ", version);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createAClientVersion) id : ", id, ", version : ", version);
             let data = {
                 id,
                 version
             };
             that.http.post("/api/rainbow/admin/v1.0/clientsversions", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createAClientVersion) successfull");
-                that.logger.log("internal", LOG_ID + "(createAClientVersion) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createAClientVersion) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createAClientVersion) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createAClientVersion) error.");
-                that.logger.log("internalerror", LOG_ID, "(createAClientVersion) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createAClientVersion) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAClientVersion) error : ", err);
                 return reject(err);
             });
         });
@@ -11979,12 +11985,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteAClientVersion) (" + clientId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteAClientVersion) (" + clientId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12010,15 +12016,15 @@ Request Method: PUT
              // */
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAClientVersionData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAClientVersionData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAClientVersionData) successfull");
-                that.logger.log("internal", LOG_ID + "(getAClientVersionData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAClientVersionData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAClientVersionData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAClientVersionData) error");
-                that.logger.log("internalerror", LOG_ID, "(getAClientVersionData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAClientVersionData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAClientVersionData) error : ", err);
                 return reject(err);
             });
         });
@@ -12040,15 +12046,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllClientsVersions) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllClientsVersions) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllClientsVersions) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllClientsVersions) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllClientsVersions) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllClientsVersions) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllClientsVersions) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllClientsVersions) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllClientsVersions) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllClientsVersions) error : ", err);
                 return reject(err);
             });
         });
@@ -12059,17 +12065,17 @@ Request Method: PUT
         // API https://api.openrainbow.org/admin/#api-clients_versions-PutClientsVersions
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateAClientVersion) clientId : ", clientId + ", version : ", version);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateAClientVersion) clientId : ", clientId + ", version : ", version);
             let data = {
                 version
             };
             that.http.put("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateAClientVersion) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAClientVersion) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAClientVersion) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAClientVersion) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAClientVersion) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateAClientVersion) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAClientVersion) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAClientVersion) error : ", err);
                 return reject(err);
             });
         });
@@ -12083,19 +12089,19 @@ Request Method: PUT
         // POST  https://openrainbow.com/api/rainbow/admin/v1.0/sites     
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(createASite) name : ", name + ", status : ", status, ", companyId : " + companyId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createASite) name : ", name + ", status : ", status, ", companyId : " + companyId);
             let data = {
                 name,
                 status,
                 companyId
             };
             that.http.post("/api/rainbow/admin/v1.0/sites", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createASite) successfull");
-                that.logger.log("internal", LOG_ID + "(createASite) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createASite) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createASite) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createASite) error.");
-                that.logger.log("internalerror", LOG_ID, "(createASite) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createASite) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createASite) error : ", err);
                 return reject(err);
             });
         });
@@ -12107,12 +12113,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteSite) (" + siteId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteSite) (" + siteId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12125,15 +12131,15 @@ Request Method: PUT
             let url: string = "/api/rainbow/admin/v1.0/sites/" + siteId;
             //addParamToUrl(url, "rvcpInstanceId", rvcpInstanceId);
 
-            that.logger.log("internal", LOG_ID + "(getSiteData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getSiteData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getSiteData) successfull");
-                that.logger.log("internal", LOG_ID + "(getSiteData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getSiteData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getSiteData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getSiteData) error");
-                that.logger.log("internalerror", LOG_ID, "(getSiteData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getSiteData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSiteData) error : ", err);
                 return reject(err);
             });
         });
@@ -12155,15 +12161,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllSites) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSites) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllSites) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSites) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllSites) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSites) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSites) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSites) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllSites) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSites) error : ", err);
                 return reject(err);
             });
         });
@@ -12180,12 +12186,12 @@ Request Method: PUT
 
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateSite) successfull");
-                that.logger.log("internal", LOG_ID + "(updateSite) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateSite) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateSite) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateSite) error");
-                that.logger.log("internalerror", LOG_ID, "(updateSite) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateSite) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateSite) error : ", err);
                 return reject(err);
             });
         });
@@ -12205,7 +12211,7 @@ Request Method: PUT
 
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(createSystem) name : ", name + ", pbxId : ", pbxId);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createSystem) name : ", name + ", pbxId : ", pbxId);
             let data: any = {
                 name
             };
@@ -12264,12 +12270,12 @@ Request Method: PUT
                 data.isOxoManaged = isOxoManaged;
             }
             that.http.post("/api/rainbow/admin/v1.0/systems", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createSystem) successfull");
-                that.logger.log("internal", LOG_ID + "(createSystem) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createSystem) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createSystem) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createSystem) error.");
-                that.logger.log("internalerror", LOG_ID, "(createSystem) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createSystem) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createSystem) error : ", err);
                 return reject(err);
             });
         });
@@ -12283,12 +12289,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/admin/v1.0/systems/" + systemId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteSystem) (" + systemId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteSystem) (" + systemId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12307,15 +12313,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getSystemConnectionState) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemConnectionState) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getSystemConnectionState) successfull");
-                that.logger.log("internal", LOG_ID + "(getSystemConnectionState) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getSystemConnectionState) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemConnectionState) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getSystemConnectionState) error");
-                that.logger.log("internalerror", LOG_ID, "(getSystemConnectionState) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getSystemConnectionState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemConnectionState) error : ", err);
                 return reject(err);
             });
         });
@@ -12333,15 +12339,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getSystemDataByPbxId) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemDataByPbxId) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getSystemDataByPbxId) successfull");
-                that.logger.log("internal", LOG_ID + "(getSystemDataByPbxId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getSystemDataByPbxId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemDataByPbxId) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getSystemDataByPbxId) error");
-                that.logger.log("internalerror", LOG_ID, "(getSystemDataByPbxId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getSystemDataByPbxId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemDataByPbxId) error : ", err);
                 return reject(err);
             });
         });
@@ -12359,15 +12365,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getSystemData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getSystemData) successfull");
-                that.logger.log("internal", LOG_ID + "(getSystemData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getSystemData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getSystemData) error");
-                that.logger.log("internalerror", LOG_ID, "(getSystemData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getSystemData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemData) error : ", err);
                 return reject(err);
             });
         });
@@ -12404,15 +12410,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "toCreationDate", connectionHistory);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllSystems) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystems) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllSystems) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSystems) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllSystems) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystems) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSystems) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSystems) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllSystems) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSystems) error : ", err);
                 return reject(err);
             });
         });
@@ -12429,15 +12435,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListOfCountriesAllowedForSystems) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountriesAllowedForSystems) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getListOfCountriesAllowedForSystems) successfull");
-                that.logger.log("internal", LOG_ID + "(getListOfCountriesAllowedForSystems) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountriesAllowedForSystems) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountriesAllowedForSystems) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListOfCountriesAllowedForSystems) error");
-                that.logger.log("internalerror", LOG_ID, "(getListOfCountriesAllowedForSystems) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListOfCountriesAllowedForSystems) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfCountriesAllowedForSystems) error : ", err);
                 return reject(err);
             });
         });
@@ -12476,12 +12482,12 @@ Request Method: PUT
             if (bpId) data.bpId = bpId;
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateASystemPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateASystemPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateASystemPhoneNumber) error");
-                that.logger.log("internalerror", LOG_ID, "(updateASystemPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateASystemPhoneNumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateASystemPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12499,15 +12505,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getASystemPhoneNumber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getASystemPhoneNumber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getASystemPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(getASystemPhoneNumber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getASystemPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getASystemPhoneNumber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getASystemPhoneNumber) error");
-                that.logger.log("internalerror", LOG_ID, "(getASystemPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getASystemPhoneNumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getASystemPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12536,15 +12542,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystemPhoneNumbers) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllSystemPhoneNumbers) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllSystemPhoneNumbers) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllSystemPhoneNumbers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystemPhoneNumbers) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllSystemPhoneNumbers) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllSystemPhoneNumbers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllSystemPhoneNumbers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSystemPhoneNumbers) error : ", err);
                 return reject(err);
             });
         });
@@ -12577,12 +12583,12 @@ Request Method: PUT
             if (isVisibleByOthers) data.isVisibleByOthers = isVisibleByOthers;
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateASystemPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateASystemPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateASystemPhoneNumber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateASystemPhoneNumber) error");
-                that.logger.log("internalerror", LOG_ID, "(updateASystemPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateASystemPhoneNumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateASystemPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12601,15 +12607,15 @@ Request Method: PUT
             // addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getPbxData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getPbxData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getPbxData) successfull");
-                that.logger.log("internal", LOG_ID + "(getPbxData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getPbxData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getPbxData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getPbxData) error");
-                that.logger.log("internalerror", LOG_ID, "(getPbxData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getPbxData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPbxData) error : ", err);
                 return reject(err);
             });
         });
@@ -12643,15 +12649,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllPbxs) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxs) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllPbxs) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllPbxs) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxs) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxs) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllPbxs) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllPbxs) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllPbxs) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPbxs) error : ", err);
                 return reject(err);
             });
         });
@@ -12698,14 +12704,14 @@ Request Method: PUT
             if (deviceName) {
                 data.deviceName = deviceName;
             }
-            that.logger.log("internal", LOG_ID + "(createPbxPhoneNumber) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createPbxPhoneNumber) args : ", data);
             that.http.post("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createPbxPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(createPbxPhoneNumber) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createPbxPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createPbxPhoneNumber) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createPbxPhoneNumber) error.");
-                that.logger.log("internalerror", LOG_ID, "(createPbxPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createPbxPhoneNumber) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPbxPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12718,12 +12724,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12740,15 +12746,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getPbxPhoneNumber) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getPbxPhoneNumber) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getPbxPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(getPbxPhoneNumber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getPbxPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getPbxPhoneNumber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getPbxPhoneNumber) error");
-                that.logger.log("internalerror", LOG_ID, "(getPbxPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getPbxPhoneNumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPbxPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12780,15 +12786,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxPhoneNumbers) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllPbxPhoneNumbers) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllPbxPhoneNumbers) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxPhoneNumbers) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxPhoneNumbers) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllPbxPhoneNumbers) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllPbxPhoneNumbers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllPbxPhoneNumbers) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPbxPhoneNumbers) error : ", err);
                 return reject(err);
             });
         });
@@ -12835,15 +12841,15 @@ Request Method: PUT
         }
 
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
 
             that.http.put("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updatepbxPhoneNumber) successfull");
-                that.logger.log("internal", LOG_ID + "(updatepbxPhoneNumber) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updatepbxPhoneNumber) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updatepbxPhoneNumber) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updatepbxPhoneNumber) error");
-                that.logger.log("internalerror", LOG_ID, "(updatepbxPhoneNumber) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updatepbxPhoneNumber) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updatepbxPhoneNumber) error : ", err);
                 return reject(err);
             });
         });
@@ -12935,14 +12941,14 @@ Request Method: PUT
             if (custom2) {
                 data.custom2 = custom2;
             }
-            that.logger.log("internal", LOG_ID + "(createDirectoryEntry) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createDirectoryEntry) args : ", data);
             that.http.post("/api/rainbow/directory/v1.0/entries", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createDirectoryEntry) successfull");
-                that.logger.log("internal", LOG_ID + "(createDirectoryEntry) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createDirectoryEntry) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createDirectoryEntry) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createDirectoryEntry) error.");
-                that.logger.log("internalerror", LOG_ID, "(createDirectoryEntry) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createDirectoryEntry) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createDirectoryEntry) error : ", err);
                 return reject(err);
             });
         });
@@ -12955,12 +12961,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/directory/v1.0/companies/" + companyId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12974,12 +12980,12 @@ Request Method: PUT
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(deleteDirectoryEntry) (" + entryId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(deleteDirectoryEntry) (" + entryId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -12996,15 +13002,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getDirectoryEntryData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getDirectoryEntryData) successfull");
-                that.logger.log("internal", LOG_ID + "(getDirectoryEntryData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getDirectoryEntryData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getDirectoryEntryData) error");
-                that.logger.log("internalerror", LOG_ID, "(getDirectoryEntryData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getDirectoryEntryData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDirectoryEntryData) error : ", err);
                 return reject(err);
             });
         });
@@ -13052,15 +13058,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "view", view);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListDirectoryEntriesData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getListDirectoryEntriesData) successfull");
-                that.logger.log("internal", LOG_ID + "(getListDirectoryEntriesData) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getListDirectoryEntriesData) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListDirectoryEntriesData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListDirectoryEntriesData) error");
-                that.logger.log("internalerror", LOG_ID, "(getListDirectoryEntriesData) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListDirectoryEntriesData) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListDirectoryEntriesData) error : ", err);
                 return reject(err);
             });
         });
@@ -13142,15 +13148,15 @@ Request Method: PUT
         }
 
         return new Promise(function (resolve, reject) {
-            that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
 
             that.http.put("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateDirectoryEntry) successfull");
-                that.logger.log("internal", LOG_ID + "(updateDirectoryEntry) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateDirectoryEntry) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateDirectoryEntry) error");
-                that.logger.log("internalerror", LOG_ID, "(updateDirectoryEntry) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateDirectoryEntry) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateDirectoryEntry) error : ", err);
                 return reject(err);
             });
         });
@@ -13168,14 +13174,14 @@ Request Method: PUT
             url = urlParamsTab[0];
 
             let data = csvContent;
-            that.logger.log("internal", LOG_ID + "(ImportDirectoryCsvFile) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(ImportDirectoryCsvFile) args : ", data);
             that.http.post(url, that.getPostHeader("text/csv"), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(ImportDirectoryCsvFile) successfull");
-                that.logger.log("internal", LOG_ID + "(ImportDirectoryCsvFile) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(ImportDirectoryCsvFile) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(ImportDirectoryCsvFile) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(ImportDirectoryCsvFile) error.");
-                that.logger.log("internalerror", LOG_ID, "(ImportDirectoryCsvFile) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(ImportDirectoryCsvFile) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(ImportDirectoryCsvFile) error : ", err);
                 return reject(err);
             });
         });
@@ -13195,15 +13201,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "companyId", companyId);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) successfull");
-                that.logger.log("internal", LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error");
-                that.logger.log("internalerror", LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error : ", err);
                 return reject(err);
             });
         });
@@ -13223,12 +13229,12 @@ Request Method: PUT
 
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("debug", LOG_ID + "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- success");
+                        that._logger.log(that.DEBUG, LOG_ID + "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {
-                        that.logger.log("error", LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ");
-                        that.logger.log("internalerror", LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ", err.message);
+                        that._logger.log(that.ERROR, LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ", err.message);
                         return reject(err);
                     });
         });
@@ -13252,12 +13258,12 @@ Request Method: PUT
             };
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) successfull");
-                that.logger.log("internal", LOG_ID + "(renameTagForAllAssignedDirectoryEntries) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error");
-                that.logger.log("internalerror", LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error : ", err);
                 return reject(err);
             });
         });
@@ -13272,15 +13278,15 @@ Request Method: PUT
             addParamToUrl([url], "companyId", companyId);
             url = url[0];
 
-            that.logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) successfull");
-                that.logger.log("internal", LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error");
-                that.logger.log("internalerror", LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
                 return reject(err);
             });
         });
@@ -13322,14 +13328,14 @@ Request Method: PUT
                 data.duration = duration;
             }
 
-            that.logger.log("internal", LOG_ID + "(createBubblePoll) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(createBubblePoll) args : ", data);
             that.http.post("/api/rainbow/enduser/v1.0/polls", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createBubblePoll) successfull");
-                that.logger.log("internal", LOG_ID + "(createBubblePoll) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(createBubblePoll) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createBubblePoll) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(createBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13342,17 +13348,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!pollId) {
-                that.logger.log("debug", LOG_ID + "(deleteBubblePoll) failed");
-                that.logger.log("debug", LOG_ID + "(deleteBubblePoll) No pollId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) No pollId provided");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/polls/" + pollId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteBubblePoll) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteBubblePoll) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteBubblePoll) REST result : ", json);
                     resolve(json.data);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteBubblePoll) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteBubblePoll) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteBubblePoll) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteBubblePoll) error : ", err);
                     return reject(err);
                 });
             }
@@ -13370,15 +13376,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getBubblePoll) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePoll) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getBubblePoll) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubblePoll) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubblePoll) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePoll) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubblePoll) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubblePoll) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13399,15 +13405,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "offset", offset);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getBubblePollsByBubble) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePollsByBubble) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getBubblePollsByBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(getBubblePollsByBubble) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getBubblePollsByBubble) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePollsByBubble) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getBubblePollsByBubble) error");
-                that.logger.log("internalerror", LOG_ID, "(getBubblePollsByBubble) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getBubblePollsByBubble) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblePollsByBubble) error : ", err);
                 return reject(err);
             });
         });
@@ -13422,12 +13428,12 @@ Request Method: PUT
             let data: any = {};
 
             that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/publish", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(publishBubblePoll) successfull.");
-                that.logger.log("internal", LOG_ID + "(publishBubblePoll) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(publishBubblePoll) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(publishBubblePoll) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(publishBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(publishBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(publishBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(publishBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13442,12 +13448,12 @@ Request Method: PUT
             let data: any = {};
 
             that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/terminate", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(terminateBubblePoll) successfull.");
-                that.logger.log("internal", LOG_ID + "(terminateBubblePoll) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(terminateBubblePoll) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(terminateBubblePoll) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(terminateBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(terminateBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(terminateBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(terminateBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13462,12 +13468,12 @@ Request Method: PUT
             let data: any = {};
 
             that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/unpublish", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(unpublishBubblePoll) successfull.");
-                that.logger.log("internal", LOG_ID + "(unpublishBubblePoll) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(unpublishBubblePoll) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unpublishBubblePoll) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(unpublishBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(unpublishBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(unpublishBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unpublishBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13508,14 +13514,14 @@ Request Method: PUT
                 data.duration = duration;
             }
 
-            that.logger.log("internal", LOG_ID + "(updateBubblePoll) args : ", data);
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateBubblePoll) args : ", data);
             that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateBubblePoll) successfull");
-                that.logger.log("internal", LOG_ID + "(updateBubblePoll) REST result : ", json.data);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateBubblePoll) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateBubblePoll) REST result : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(updateBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13532,12 +13538,12 @@ Request Method: PUT
             };
 
             that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/vote", that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(votesForBubblePoll) successfull.");
-                that.logger.log("internal", LOG_ID + "(votesForBubblePoll) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(votesForBubblePoll) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(votesForBubblePoll) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(votesForBubblePoll) error.");
-                that.logger.log("internalerror", LOG_ID, "(votesForBubblePoll) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(votesForBubblePoll) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(votesForBubblePoll) error : ", err);
                 return reject(err);
             });
         });
@@ -13801,15 +13807,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getCustomerCareAdministratorsGroup) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCustomerCareAdministratorsGroup) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getCustomerCareAdministratorsGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(getCustomerCareAdministratorsGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getCustomerCareAdministratorsGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCustomerCareAdministratorsGroup) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getCustomerCareAdministratorsGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(getCustomerCareAdministratorsGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getCustomerCareAdministratorsGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCustomerCareAdministratorsGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -13826,12 +13832,12 @@ Request Method: PUT
             //addPropertyToObj(data, "requestedCompanyId", requestedCompanyId, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(addAdministratorToGroup) successfull");
-                that.logger.log("internal", LOG_ID + "(addAdministratorToGroup) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(addAdministratorToGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addAdministratorToGroup) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(addAdministratorToGroup) error");
-                that.logger.log("internalerror", LOG_ID, "(addAdministratorToGroup) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(addAdministratorToGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addAdministratorToGroup) error : ", err);
                 return reject(err);
             });
         });
@@ -13844,17 +13850,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that.logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) failed");
-                that.logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) No pollId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) No pollId provided");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/administrators/" + userId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(removeAdministratorFromGroup) successfull");
-                    that.logger.log("internal", LOG_ID + "(removeAdministratorFromGroup) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(removeAdministratorFromGroup) REST result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(removeAdministratorFromGroup) error");
-                    that.logger.log("internalerror", LOG_ID, "(removeAdministratorFromGroup) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(removeAdministratorFromGroup) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(removeAdministratorFromGroup) error : ", err);
                     return reject(err);
                 });
             }
@@ -13876,15 +13882,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getIssue) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getIssue) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getIssue) successfull");
-                that.logger.log("internal", LOG_ID + "(getIssue) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getIssue) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getIssue) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getIssue) error");
-                that.logger.log("internalerror", LOG_ID, "(getIssue) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getIssue) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getIssue) error : ", err);
                 return reject(err);
             });
         });
@@ -13918,15 +13924,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListOfIssues) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssues) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getListOfIssues) successfull");
-                that.logger.log("internal", LOG_ID + "(getListOfIssues) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssues) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssues) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListOfIssues) error");
-                that.logger.log("internalerror", LOG_ID, "(getListOfIssues) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListOfIssues) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfIssues) error : ", err);
                 return reject(err);
             });
         });
@@ -13948,15 +13954,15 @@ Request Method: PUT
             addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListOfIssuesForUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssuesForUser) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getListOfIssuesForUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getListOfIssuesForUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssuesForUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssuesForUser) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListOfIssuesForUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getListOfIssuesForUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListOfIssuesForUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfIssuesForUser) error : ", err);
                 return reject(err);
             });
         });
@@ -13974,15 +13980,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getIssueForUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getIssueForUser) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getIssueForUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getIssueForUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getIssueForUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getIssueForUser) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getIssueForUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getIssueForUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getIssueForUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getIssueForUser) error : ", err);
                 return reject(err);
             });
         });
@@ -14009,12 +14015,12 @@ Request Method: PUT
             addPropertyToObj(data, "deviceDetails", deviceDetails, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(initiateLogsContext) successfull");
-                that.logger.log("internal", LOG_ID + "(initiateLogsContext) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(initiateLogsContext) error");
-                that.logger.log("internalerror", LOG_ID, "(initiateLogsContext) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
                 return reject(err);
             });
         });
@@ -14042,12 +14048,12 @@ Request Method: PUT
             addPropertyToObj(data, "deviceDetails", deviceDetails, false);
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(completeLogsContext) successfull.");
-                that.logger.log("internal", LOG_ID + "(completeLogsContext) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(completeLogsContext) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(completeLogsContext) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(completeLogsContext) error.");
-                that.logger.log("internalerror", LOG_ID, "(completeLogsContext) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(completeLogsContext) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(completeLogsContext) error : ", err);
                 return reject(err);
             });
         });
@@ -14060,17 +14066,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that.logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) failed");
-                that.logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) No pollId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) No pollId provided");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(cancelOrCloseLogsSubmission) successfull");
-                    that.logger.log("internal", LOG_ID + "(cancelOrCloseLogsSubmission) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(cancelOrCloseLogsSubmission) REST result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(cancelOrCloseLogsSubmission) error");
-                    that.logger.log("internalerror", LOG_ID, "(cancelOrCloseLogsSubmission) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(cancelOrCloseLogsSubmission) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(cancelOrCloseLogsSubmission) error : ", err);
                     return reject(err);
                 });
             }
@@ -14088,12 +14094,12 @@ Request Method: PUT
             //addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(initiateLogsContext) successfull");
-                that.logger.log("internal", LOG_ID + "(initiateLogsContext) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(initiateLogsContext) error");
-                that.logger.log("internalerror", LOG_ID, "(initiateLogsContext) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
                 return reject(err);
             });
         });
@@ -14110,12 +14116,12 @@ Request Method: PUT
             //addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(initiateLogsContext) successfull");
-                that.logger.log("internal", LOG_ID + "(initiateLogsContext) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(initiateLogsContext) error");
-                that.logger.log("internalerror", LOG_ID, "(initiateLogsContext) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
                 return reject(err);
             });
         });
@@ -14138,12 +14144,12 @@ Request Method: PUT
             addPropertyToObj(data, "attachments", attachments, false);
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(adminOrBotAddAdditionalFiles) successfull.");
-                that.logger.log("internal", LOG_ID + "(adminOrBotAddAdditionalFiles) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(adminOrBotAddAdditionalFiles) successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(adminOrBotAddAdditionalFiles) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(adminOrBotAddAdditionalFiles) error.");
-                that.logger.log("internalerror", LOG_ID, "(adminOrBotAddAdditionalFiles) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(adminOrBotAddAdditionalFiles) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(adminOrBotAddAdditionalFiles) error : ", err);
                 return reject(err);
             });
         });
@@ -14165,15 +14171,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(getListOfResourcesForUser) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfResourcesForUser) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(getListOfResourcesForUser) successfull");
-                that.logger.log("internal", LOG_ID + "(getListOfResourcesForUser) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getListOfResourcesForUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfResourcesForUser) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(getListOfResourcesForUser) error");
-                that.logger.log("internalerror", LOG_ID, "(getListOfResourcesForUser) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(getListOfResourcesForUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfResourcesForUser) error : ", err);
                 return reject(err);
             });
         });
@@ -14198,12 +14204,12 @@ Request Method: PUT
             addPropertyToObj(data, "logs", logs, false);
 
             that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(createAnAtriumTicket) successfull");
-                that.logger.log("internal", LOG_ID + "(createAnAtriumTicket) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(createAnAtriumTicket) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createAnAtriumTicket) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(createAnAtriumTicket) error");
-                that.logger.log("internalerror", LOG_ID, "(createAnAtriumTicket) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(createAnAtriumTicket) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAnAtriumTicket) error : ", err);
                 return reject(err);
             });
         });
@@ -14225,12 +14231,12 @@ Request Method: PUT
             addPropertyToObj(data, "logs", logs, false);
 
             that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that.logger.log("debug", LOG_ID + "(updateAnAtriumTicket) successfull");
-                that.logger.log("internal", LOG_ID + "(updateAnAtriumTicket) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAnAtriumTicket) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAnAtriumTicket) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(updateAnAtriumTicket) error");
-                that.logger.log("internalerror", LOG_ID, "(updateAnAtriumTicket) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(updateAnAtriumTicket) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAnAtriumTicket) error : ", err);
                 return reject(err);
             });
         });
@@ -14243,17 +14249,17 @@ Request Method: PUT
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that.logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) failed");
-                that.logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) No pollId provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) No pollId provided");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/ticket/" + ticketId, that.getRequestHeader()).then(function (json) {
-                    that.logger.log("debug", LOG_ID + "(deleteAnAtriumTicketInformation) successfull");
-                    that.logger.log("internal", LOG_ID + "(deleteAnAtriumTicketInformation) REST result : ", json);
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnAtriumTicketInformation) REST result : ", json);
                     resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID, "(deleteAnAtriumTicketInformation) error");
-                    that.logger.log("internalerror", LOG_ID, "(deleteAnAtriumTicketInformation) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteAnAtriumTicketInformation) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAnAtriumTicketInformation) error : ", err);
                     return reject(err);
                 });
             }
@@ -14272,15 +14278,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(readAnAtriumTicketInformation) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(readAnAtriumTicketInformation) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(readAnAtriumTicketInformation) successfull");
-                that.logger.log("internal", LOG_ID + "(readAnAtriumTicketInformation) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(readAnAtriumTicketInformation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(readAnAtriumTicketInformation) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(readAnAtriumTicketInformation) error");
-                that.logger.log("internalerror", LOG_ID, "(readAnAtriumTicketInformation) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(readAnAtriumTicketInformation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(readAnAtriumTicketInformation) error : ", err);
                 return reject(err);
             });
         });
@@ -14298,15 +14304,15 @@ Request Method: PUT
             //addParamToUrl(urlParamsTab, "format", format);
             url = urlParamsTab[0];
 
-            that.logger.log("internal", LOG_ID + "(readAllTicketsOnASameCompany) REST url : ", url);
+            that._logger.log(that.INTERNAL, LOG_ID + "(readAllTicketsOnASameCompany) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that.logger.log("debug", LOG_ID + "(readAllTicketsOnASameCompany) successfull");
-                that.logger.log("internal", LOG_ID + "(readAllTicketsOnASameCompany) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(readAllTicketsOnASameCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(readAllTicketsOnASameCompany) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
-                that.logger.log("error", LOG_ID, "(readAllTicketsOnASameCompany) error");
-                that.logger.log("internalerror", LOG_ID, "(readAllTicketsOnASameCompany) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(readAllTicketsOnASameCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(readAllTicketsOnASameCompany) error : ", err);
                 return reject(err);
             });
         });
