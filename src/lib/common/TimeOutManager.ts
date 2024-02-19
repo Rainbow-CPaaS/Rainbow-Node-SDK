@@ -105,7 +105,7 @@ class TimeOutManager {
     private timeoutFnTab : Dictionary<string, any>;
     private logger: any;
     private lockEngine: any;
-    private lockKey = "LOCK_XMMP_QUEUE";
+    private lockKey = "LOCK_TIMEOUT_QUEUE";
     
     constructor (_logger) {
         let that = this;
