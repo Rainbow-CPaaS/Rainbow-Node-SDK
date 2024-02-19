@@ -2228,6 +2228,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
     }
 
     public addOrUpdateCallToCache(call: any): Call {
+        let that = this;
         let callObj : Call = Call.CallFactory()(call);
         let callFoundindex = this._calls.findIndex((callIter) => {
             return callIter.id === call.id;

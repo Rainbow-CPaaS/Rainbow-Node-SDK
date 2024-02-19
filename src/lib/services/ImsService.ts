@@ -328,6 +328,7 @@ class ImsService extends GenericService{
     
      */
     async markMessageAsRead(messageReceived) {
+        let that =this;
         if (!messageReceived) {
             that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
@@ -739,6 +740,7 @@ class ImsService extends GenericService{
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
     async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
+        let that = this;
         if (!bubble || !bubble.jid) {
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
