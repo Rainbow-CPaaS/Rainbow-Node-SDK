@@ -68,6 +68,7 @@ class S2SService extends GenericService{
     constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         super(_logger, LOG_ID);
         this.setLogLevels(this);
+        let that = this;
         this._startConfig = _startConfig;
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;

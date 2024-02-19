@@ -201,6 +201,7 @@ class WebinarsService extends GenericService {
      */
     private getWebinarFromCache(webinarId: string): Webinar {
         let webinarsFound = null;
+        let that =this;
         that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarFromCache) search id : ", webinarId);
 
         if (this._webinars) {
